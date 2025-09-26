@@ -1,39 +1,5 @@
-# Node.js (игнорирует зависимости Node.js)
 node_modules/
-npm-debug.log
-yarn-error.log
-yarn.lock
-package-lock.json
-
-# Сборка (игнорирует собранные файлы front/back)
+.env
 dist/
 build/
-.next/
-out/
-
-# Окружение (защищает конф данные)
-.env
-*.env
-*.env.*
-
-# Временные файлы
 *.log
-*.cache
-*.tmp
-*.swp
-
-# Docker
-*.dockerignore
-docker-compose.yml
-
-# IDE
-.vscode/
-.idea/
-*.sublime-*
-
-# macOS
-.DS_Store
-
-# Локальные бэкапы
-*.bak
-*.backup
