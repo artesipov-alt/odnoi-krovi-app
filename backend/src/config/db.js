@@ -10,3 +10,8 @@ const pool = new Pool({
 });
 
 module.exports = pool;
+
+pool.query('SELECT 1', (err, res) => {
+  if (err) console.error('DB connection error:', err);
+  else console.log('DB connected successfully');
+});

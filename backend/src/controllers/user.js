@@ -4,6 +4,7 @@ const { sendNotification } = require('../services/notification.service');
 
 async function register(req, res) {
   const { telegram_id, role, full_name, phone, email, consent_pd } = req.body;
+  console.log('Register called with telegram_id:', telegram_id);
   if (!consent_pd) return res.status(400).json({ error: 'Consent required' });
   try {
     await pool.query('INSERT INTO odna_krov.users (telegram_id, role, full_name, phone, email, consent_pd) VALUES ($1, $2, $3, $4, $5, $6)', [telegram_id, role, full_name, phone, email, consent_pd]);

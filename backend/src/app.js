@@ -70,7 +70,8 @@ app.use('/api', (req, res, next) => {
   if (!initData || !validateInitData(initData, process.env.BOT_TOKEN)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  req.user = JSON.parse(new URLSearchParams(initData).get('user'));
+  const user = JSON.parse(new URLSearchParams(initData).get('user'));
+  req.user = { id: user.id, telegram_id: user.id, full_name: user.full_name || 'Unknown' };
   next();
 });
 
@@ -81,6 +82,12 @@ app.use('/api', apiRoutes);
 // Обработка 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
+});
+
+// Обработка ошибок
+app.use((err, req, res, next) => {
+  logger.error(err.message);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
 app.listen(3000, () => {

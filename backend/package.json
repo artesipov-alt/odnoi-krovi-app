@@ -1,6 +1,7 @@
 {
   "name": "odnoi-krovi-backend",
   "version": "1.0.0",
+  "license": "MIT",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
@@ -12,11 +13,11 @@
     "jsonwebtoken": "^9.0.2",
     "crypto": "^1.0.1",
     "passport": "^0.7.0",
-    "passport-vk": "^0.1.2",
-    "passport-yandex": "^0.1.0",
+    "passport-vk": "^1.0.0",
+    "passport-yandex": "^0.0.5",
     "axios": "^1.6.2",
     "node-telegram-bot-api": "^0.64.0",
-    "@aws-sdk/client-s3": "^3.370.0",
+    "@aws-sdk/client-s3": "^3.614.0",
     "winston": "^3.11.0",
     "dotenv": "^16.3.1"
   },
