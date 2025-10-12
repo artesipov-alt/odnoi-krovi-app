@@ -29,7 +29,7 @@ const ChatMessages: React.FC = () => {
         });
         setMessages(response.data);
       } catch (err: any) {
-        setError('Failed to load messages: ' + (err.response?.data?.message || err.message));
+        setError('Не удалось загрузить сообщения: ' + (err.response?.data?.message || err.message));
       } finally {
         setLoading(false);
       }
@@ -42,7 +42,7 @@ const ChatMessages: React.FC = () => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) {
-      setError('Message cannot be empty');
+      setError('Сообщение не может быть пустым');
       return;
     }
     try {
@@ -53,20 +53,20 @@ const ChatMessages: React.FC = () => {
       );
       setMessages([...messages, response.data]);
       setNewMessage('');
-      toast.success('Message sent');
+      toast.success('Сообщение отправлено');
     } catch (err: any) {
-      toast.error('Send failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Ошибка отправки: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  if (loading) return <p className={styles.loading}>Loading...</p>;
+  if (loading) return <p className={styles.loading}>Загрузка...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
 
   return (
     <div className={styles.container}>
-      <h3>Chat</h3>
+      <h3>Чат</h3>
       <button onClick={() => navigate('/owner')} className={styles.backButton}>
-        Back to Dashboard
+        Назад в дашборд
       </button>
       <div className={styles.messageList}>
         {messages.length > 0 ? (
@@ -84,18 +84,18 @@ const ChatMessages: React.FC = () => {
             </div>
           ))
         ) : (
-          <p className={styles.noMessages}>No messages yet</p>
+          <p className={styles.noMessages}>Сообщений пока нет</p>
         )}
       </div>
       <form onSubmit={handleSendMessage}>
         <input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message"
+          placeholder="Введите сообщение"
           className={styles.input}
         />
         <button type="submit" className={styles.button}>
-          Send
+          Отправить
         </button>
       </form>
     </div>

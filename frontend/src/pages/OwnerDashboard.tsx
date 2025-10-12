@@ -51,7 +51,7 @@ function OwnerDashboard() {
         });
         setPets(response.data as Pet[]);
       } catch (err: any) {
-        setError('Failed to load pets: ' + (err.response?.data?.message || err.message));
+        setError('Не удалось загрузить питомцев: ' + (err.response?.data?.message || err.message));
       } finally {
         setLoading(false);
       }
@@ -69,7 +69,7 @@ function OwnerDashboard() {
       setShowPetForm(false);
       setEditingPet(null);
     } catch (err: any) {
-      toast.error('Failed to refresh pets: ' + (err.response?.data?.message || err.message));
+      toast.error('Не удалось обновить список питомцев: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -78,17 +78,17 @@ function OwnerDashboard() {
       await axios.delete(`/api/pets/${id}`, {
         headers: { 'X-Telegram-Init-Data': initData },
       });
-      toast.success('Pet deleted!');
+      toast.success('Питомец удалён!');
       const response = await axios.get('/api/pets', {
         headers: { 'X-Telegram-Init-Data': initData },
       });
       setPets(response.data as Pet[]);
     } catch (err: any) {
-      toast.error('Deletion failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Ошибка удаления: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  if (loading) return <p className={styles.loading}>Loading...</p>;
+  if (loading) return <p className={styles.loading}>Загрузка...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
 
   return (

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTelegramAuth, registerUser } from '@/services/telegram.service';
 import { toast } from 'react-toastify';
-import styles from './ProfileForm.module.css'; // Исправлено: импорт из ProfileForm.module.css
+import styles from './ProfileForm.module.css';
 
 interface RegisterData {
   telegram_id: number;
@@ -26,9 +26,9 @@ const ProfileForm: React.FC = () => {
     consent_pd: false,
   });
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // Добавлено: состояние загрузки
+  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { // Исправлено: упрощена типизация
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData({
       ...formData,

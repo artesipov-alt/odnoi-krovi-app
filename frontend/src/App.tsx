@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import OwnerDashboard from '@/pages/OwnerDashboard';
-import ProfileForm from '@/components/ProfileForm'; // Исправлено: корректный импорт
+import ProfileForm from '@/components/ProfileForm';
 import ChatMessages from '@/components/ChatMessages';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
