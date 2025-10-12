@@ -1,0 +1,58 @@
+/* frontend/src/pages/OwnerDashboard.module.css */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.userInfo {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+.petList {
+  display: grid;
+  gap: 20px;
+}
+
+.petItem {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.petImage {
+  max-width: 100px;
+  border-radius: 5px;
+}
+
+.button {
+  margin: 5px;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.loading {
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.error {
+  color: red;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.noPets {
+  font-size: 1.1em;
+  color: #666;
+}

@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import axios, { AxiosError } from 'axios';
-import { useTelegramAuth } from '../services/telegram.service';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useTelegramAuth } from '@/services/telegram.service';
 import { YMaps, Map } from '@pbe/react-yandex-maps';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Profile from '@/components/Profile';
+import PetForm from '@/components/PetForm';
+import VetClinics from '@/components/VetClinics';
+import BloodStocks from '@/components/BloodStocks';
+import BloodSearches from '@/components/BloodSearches';
+import Donations from '@/components/Donations';
+import styles from './OwnerDashboard.module.css';
 
 interface WebAppUser {
   id: number;
@@ -20,73 +30,123 @@ interface Pet {
 }
 
 function OwnerDashboard() {
-  const { user, initData } = useTelegramAuth();
+  const { user, initData, isRegistered } = useTelegramAuth();
   const [pets, setPets] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editingPet, setEditingPet] = useState<Pet | null>(null);
+  const [showPetForm, setShowPetForm] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!initData) return;
-    axios.get('/api/pets', { headers: { 'X-Telegram-Init-Data': initData } })
-      .then(res => setPets(res.data as Pet[]))
-      .catch((err: AxiosError) => console.error(err.message));
-  }, [initData]);
-
-  const updatePet = async (id: number) => {
-    const name = prompt('New pet name:', '');
-    const type = prompt('Pet type (cat/dog):', '');
-    const latitude = parseFloat(prompt('Latitude:', '') || '0');
-    const longitude = parseFloat(prompt('Longitude:', '') || '0');
-    const blood_group = prompt('Blood group (A/B/AB/DEA1.1+/DEA1.1-):', '');
-
-    if (!name || !type || !blood_group) {
-      alert('All fields are required');
+    if (!isRegistered) {
+      navigate('/register');
       return;
     }
 
+    const fetchPets = async () => {
+      try {
+        const response = await axios.get('/api/pets', {
+          headers: { 'X-Telegram-Init-Data': initData },
+        });
+        setPets(response.data as Pet[]);
+      } catch (err: any) {
+        setError('Failed to load pets: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPets();
+  }, [initData, isRegistered, navigate]);
+
+  const handleSavePet = async () => {
     try {
-      await axios.put(`/api/pets/${id}`, { name, type, latitude, longitude, blood_group }, {
-        headers: { 'X-Telegram-Init-Data': initData }
+      const response = await axios.get('/api/pets', {
+        headers: { 'X-Telegram-Init-Data': initData },
       });
-      alert('Pet updated!');
-      axios.get('/api/pets', { headers: { 'X-Telegram-Init-Data': initData } })
-        .then(res => setPets(res.data as Pet[]));
-    } catch (err) {
-      const error = err as AxiosError;
-      alert(error.message || 'Update failed');
+      setPets(response.data as Pet[]);
+      setShowPetForm(false);
+      setEditingPet(null);
+    } catch (err: any) {
+      toast.error('Failed to refresh pets: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const deletePet = async (id: number) => {
     try {
-      await axios.delete(`/api/pets/${id}`, { headers: { 'X-Telegram-Init-Data': initData } });
-      alert('Pet deleted!');
-      axios.get('/api/pets', { headers: { 'X-Telegram-Init-Data': initData } })
-        .then(res => setPets(res.data as Pet[]));
-    } catch (err) {
-      const error = err as AxiosError;
-      alert(error.message || 'Deletion failed');
+      await axios.delete(`/api/pets/${id}`, {
+        headers: { 'X-Telegram-Init-Data': initData },
+      });
+      toast.success('Pet deleted!');
+      const response = await axios.get('/api/pets', {
+        headers: { 'X-Telegram-Init-Data': initData },
+      });
+      setPets(response.data as Pet[]);
+    } catch (err: any) {
+      toast.error('Deletion failed: ' + (err.response?.data?.message || err.message));
     }
   };
 
+  if (loading) return <p className={styles.loading}>Loading...</p>;
+  if (error) return <p className={styles.error}>{error}</p>;
+
   return (
-    <div className="container">
+    <div className={styles.container}>
       <h2>Дашборд владельца</h2>
-      <p>Полное имя: {user ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Не авторизован'}</p>
+      <p className={styles.userInfo}>
+        Полное имя: {user ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Не авторизован'}
+      </p>
+      <Profile />
+      <VetClinics />
+      <BloodStocks />
+      <BloodSearches />
+      <Donations />
       <h3>Мои питомцы</h3>
-      {pets && pets.length > 0 ? (
-        pets.map((pet: Pet) => (
-          <div key={pet.id}>
-            <p>{pet.name} ({pet.type})</p>
-            <img src={pet.photo_url} alt={pet.name} style={{ maxWidth: '100px' }} />
-            <button onClick={() => updatePet(pet.id)}>Обновить</button>
-            <button onClick={() => deletePet(pet.id)}>Удалить</button>
-          </div>
-        ))
+      {showPetForm ? (
+        <PetForm pet={editingPet} onSave={handleSavePet} />
       ) : (
-        <p>Питомцы не найдены</p>
+        <>
+          <button
+            onClick={() => setShowPetForm(true)}
+            className={styles.button}
+          >
+            Добавить питомца
+          </button>
+          {pets.length > 0 ? (
+            <div className={styles.petList}>
+              {pets.map((pet) => (
+                <div key={pet.id} className={styles.petItem}>
+                  <p>{pet.name} ({pet.type})</p>
+                  <img src={pet.photo_url} alt={pet.name} className={styles.petImage} />
+                  <p>Blood Group: {pet.blood_group}</p>
+                  <button
+                    onClick={() => {
+                      setEditingPet(pet);
+                      setShowPetForm(true);
+                    }}
+                    className={styles.button}
+                  >
+                    Обновить
+                  </button>
+                  <button
+                    onClick={() => deletePet(pet.id)}
+                    className={styles.button}
+                  >
+                    Удалить
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.noPets}>Питомцы не найдены</p>
+          )}
+        </>
       )}
       <YMaps>
         <Map defaultState={{ center: [55.75, 37.62], zoom: 10 }} width="100%" height="400px" />
       </YMaps>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

@@ -1,0 +1,86 @@
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.input {
+  width: calc(100% - 80px);
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.button {
+  padding: 8px 16px;
+  margin: 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.backButton {
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.backButton:hover {
+  background-color: #5a6268;
+}
+
+.messageList {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.messageItem {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+}
+
+.sent {
+  background-color: #007bff;
+  color: white;
+  margin-left: 20%;
+}
+
+.received {
+  background-color: #f1f1f1;
+  margin-right: 20%;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.loading {
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+}
+
+.noMessages {
+  font-size: 1.1em;
+  color: #666;
+}

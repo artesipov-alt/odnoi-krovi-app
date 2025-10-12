@@ -5,9 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'https://super-duper-space-doodle-wrjw7w7q9q5gc5xxw-3000.app.github.dev',
+        target: 'https://super-duper-space-doodle-wrjw7w7q9q5gc5xxw-3000.app.github.dev', // Проверьте, что этот URL доступен
         changeOrigin: true,
         secure: false
       }

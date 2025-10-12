@@ -3,21 +3,23 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.4",
     "@mui/x-date-pickers": "^6.0.0",
-    "@pbe/react-yandex-maps": "^1.0.0",
-    "@twa-dev/sdk": "^6.0.0",
-    "axios": "^1.4.0",
+    "@pbe/react-yandex-maps": "^1.2.5",
+    "@twa-dev/sdk": "^8.0.2",
+    "axios": "^1.12.2",
     "dayjs": "^1.11.0",
-    "node-telegram-bot-api": "^0.64.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.14.0",
+    "react-router-dom": "^7.9.4",
+    "react-toastify": "^11.0.5",
     "vite": "^4.4.0"
   },
   "devDependencies": {

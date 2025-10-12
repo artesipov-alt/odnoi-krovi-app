@@ -10,8 +10,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    },
+    "types": ["node", "vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "src/**/*.js"]
+  "exclude": ["node_modules", "dist", "build"]
 }

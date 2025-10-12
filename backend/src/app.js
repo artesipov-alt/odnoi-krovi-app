@@ -64,14 +64,9 @@ app.get('/auth/vk/callback', passport.authenticate('vk'), (req, res) => res.redi
 app.get('/auth/yandex', passport.authenticate('yandex'));
 app.get('/auth/yandex/callback', passport.authenticate('yandex'), (req, res) => res.redirect('https://1krovi.ru'));
 
-// Middleware для Telegram auth (только для /api)
+// Тестовый middleware для обхода Telegram-валидации (временный)
 app.use('/api', (req, res, next) => {
-  const initData = req.headers['x-telegram-init-data'];
-  if (!initData || !validateInitData(initData, process.env.BOT_TOKEN)) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  const user = JSON.parse(new URLSearchParams(initData).get('user'));
-  req.user = { id: user.id, telegram_id: user.id, full_name: user.full_name || 'Unknown' };
+  req.user = { id: 314638947, telegram_id: 314638947, full_name: 'Test User' }; // Тестовый пользователь
   next();
 });
 
@@ -94,3 +89,4 @@ app.listen(3000, () => {
   logger.info('Backend started on port 3000');
   console.log('Backend on 3000');
 });
+

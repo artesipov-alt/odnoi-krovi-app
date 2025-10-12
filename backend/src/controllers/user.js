@@ -1,57 +1,86 @@
 const pool = require('../config/db');
-const logger = require('winston');
-const { sendNotification } = require('../services/notification.service');
+const winston = require('winston');
 
-async function register(req, res) {
-  const { telegram_id, role, full_name, phone, email, consent_pd } = req.body;
-  console.log('Register called with telegram_id:', telegram_id);
-  if (!consent_pd) return res.status(400).json({ error: 'Consent required' });
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.File({ filename: 'logs/app.log' })
+  ]
+});
+
+const register = async (req, res) => {
   try {
-    await pool.query('INSERT INTO odna_krov.users (telegram_id, role, full_name, phone, email, consent_pd) VALUES ($1, $2, $3, $4, $5, $6)', [telegram_id, role, full_name, phone, email, consent_pd]);
-    logger.info(`User ${telegram_id} registered`);
-    await pool.query('INSERT INTO odna_krov.logs (user_id, action, details) VALUES ((SELECT id FROM odna_krov.users WHERE telegram_id = $1), $2, $3)', [telegram_id, 'registration', { role }]);
-    sendNotification(telegram_id, 'Добро пожаловать в "Одной Крови"!');
-    res.status(201).json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { telegram_id, role, full_name, phone, email, consent_pd } = req.body;
+    // Вставка в users
+    const userResult = await pool.query(
+      'INSERT INTO odna_krov.users (telegram_id, role, full_name, phone, email, consent_pd) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (telegram_id) DO NOTHING RETURNING *',
+      [telegram_id, role, full_name, phone, email, consent_pd]
+    );
+    if (!userResult.rows.length) {
+      logger.warn(`User with telegram_id ${telegram_id} already exists`);
+      return res.status(409).json({ message: 'User already exists' });
+    }
+    // Вставка в logs
+    try {
+      await pool.query(
+        'INSERT INTO odna_krov.logs (user_id, action, timestamp, details) VALUES ($1, $2, $3, $4::jsonb)',
+        [telegram_id, 'user_registered', new Date().toISOString(), '{}']
+      );
+      logger.info(`Log created for user_id: ${telegram_id}`);
+    } catch (logError) {
+      logger.error(`Failed to insert into logs: ${logError.message}`);
+      // Продолжаем, не прерывая регистрацию
+    }
+    res.status(201).json({ message: 'User registered', user: userResult.rows[0] });
+  } catch (error) {
+    logger.error(`Registration error: ${error.message}`);
+    res.status(500).json({ message: 'Registration failed', error: error.message });
   }
-}
+};
 
-async function getProfile(req, res) {
-  const { telegram_id } = req.query;
+const getProfile = async (req, res) => {
   try {
+    const { telegram_id } = req.user; // Предполагается, что middleware добавляет req.user
     const { rows } = await pool.query('SELECT * FROM odna_krov.users WHERE telegram_id = $1', [telegram_id]);
-    if (!rows.length) return res.status(404).json({ error: 'User not found' });
-    logger.info(`Profile viewed for ${telegram_id}`);
-    await pool.query('INSERT INTO odna_krov.logs (user_id, action) VALUES ($1, $2)', [rows[0].id, 'profile_view']);
+    if (!rows.length) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    logger.error(`Get profile error: ${error.message}`);
+    res.status(500).json({ message: 'Failed to get profile', error: error.message });
   }
-}
+};
 
-async function updateProfile(req, res) {
-  const { telegram_id, full_name, phone, email } = req.body;
+const updateProfile = async (req, res) => {
   try {
-    await pool.query('UPDATE odna_krov.users SET full_name = $1, phone = $2, email = $3 WHERE telegram_id = $4', [full_name, phone, email, telegram_id]);
-    logger.info(`Profile updated for ${telegram_id}`);
-    await pool.query('INSERT INTO odna_krov.logs (user_id, action) VALUES ((SELECT id FROM odna_krov.users WHERE telegram_id = $1), $2)', [telegram_id, 'profile_update']);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { telegram_id } = req.user;
+    const { role, full_name, phone, email, consent_pd } = req.body;
+    const { rows } = await pool.query(
+      'UPDATE odna_krov.users SET role = $1, full_name = $2, phone = $3, email = $4, consent_pd = $5 WHERE telegram_id = $6 RETURNING *',
+      [role, full_name, phone, email, consent_pd, telegram_id]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    logger.error(`Update profile error: ${error.message}`);
+    res.status(500).json({ message: 'Failed to update profile', error: error.message });
   }
-}
+};
 
-async function deleteProfile(req, res) {
-  const { telegram_id } = req.query;
+const deleteProfile = async (req, res) => {
   try {
-    await pool.query('DELETE FROM odna_krov.users WHERE telegram_id = $1', [telegram_id]);
-    logger.info(`Profile deleted for ${telegram_id}`);
-    await pool.query('INSERT INTO odna_krov.logs (user_id, action) VALUES ($1, $2)', [telegram_id, 'profile_delete']);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { telegram_id } = req.user;
+    const { rows } = await pool.query('DELETE FROM odna_krov.users WHERE telegram_id = $1 RETURNING *', [telegram_id]);
+    if (!rows.length) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted' });
+  } catch (error) {
+    logger.error(`Delete profile error: ${error.message}`);
+    res.status(500).json({ message: 'Failed to delete profile', error: error.message });
   }
-}
+};
 
 module.exports = { register, getProfile, updateProfile, deleteProfile };

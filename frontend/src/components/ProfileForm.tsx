@@ -1,83 +1,124 @@
 import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
-import { useTelegramAuth } from '../services/telegram.service';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useTelegramAuth, registerUser } from '@/services/telegram.service';
+import { toast } from 'react-toastify';
+import styles from './ProfileForm.module.css'; // Исправлено: импорт из ProfileForm.module.css
 
-interface WebAppUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
+interface RegisterData {
+  telegram_id: number;
+  role: 'pet_owner' | 'donor';
+  full_name: string;
+  phone: string;
+  email: string;
+  consent_pd: boolean;
 }
 
-function ProfileForm() {
-  const { user, initData } = useTelegramAuth();
-  const [role, setRole] = useState('');
-  const [full_name, setFullName] = useState(user ? `${user.first_name} ${user.last_name || ''}`.trim() : '');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [consent_pd, setConsentPd] = useState(false);
+const ProfileForm: React.FC = () => {
+  const { user, initData, isRegistered } = useTelegramAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState<RegisterData>({
+    telegram_id: user?.id || 0,
+    role: 'pet_owner',
+    full_name: user ? `${user.first_name} ${user.last_name || ''}`.trim() : '',
+    phone: '',
+    email: '',
+    consent_pd: false,
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // Добавлено: состояние загрузки
 
-  const handleSubmit = async () => {
-    if (!consent_pd) {
-      alert('Consent required');
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { // Исправлено: упрощена типизация
+    const { name, value, type } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.role || !formData.full_name || !formData.phone || !formData.email || !formData.consent_pd) {
+      setError('Все поля обязательны, включая согласие на обработку данных');
       return;
     }
-    if (!user) {
-      alert('User not authenticated');
-      return;
-    }
+    setLoading(true);
     try {
-      await axios.post('/api/users/register', {
-        telegram_id: user.id,
-        role,
-        full_name,
-        phone,
-        email,
-        consent_pd
-      }, {
-        headers: { 'X-Telegram-Init-Data': initData }
+      await registerUser(formData);
+      const profileResponse = await axios.get('/api/users/profile', {
+        headers: { 'X-Telegram-Init-Data': initData },
       });
-      alert('Registered!');
-    } catch (err) {
-      const error = err as AxiosError;
-      alert(error.message || 'Registration failed');
+      if (profileResponse.data) {
+        toast.success('Регистрация прошла успешно');
+        navigate('/owner');
+      }
+    } catch (err: any) {
+      toast.error('Ошибка регистрации: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (!user || !initData) {
+    return <p>Загрузка данных Telegram...</p>;
+  }
+
+  if (isRegistered) {
+    navigate('/owner');
+    return null;
+  }
+
   return (
-    <div className="container">
+    <div className={styles.container}>
       <h2>Регистрация</h2>
-      <select value={role} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setRole(e.target.value)}>
-        <option value="">Выберите роль</option>
-        <option value="pet_owner">Владелец питомца</option>
-        <option value="vet_clinic">Ветклиника</option>
-        <option value="animal_center">Центр содержания</option>
-      </select>
-      <input
-        type="text"
-        placeholder="Полное имя"
-        value={full_name}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Телефон"
-        value={phone}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-      />
-      <input
-        type="checkbox"
-        checked={consent_pd}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConsentPd(e.target.checked)}
-      /> Согласие на обработку ПДн
-      <button onClick={handleSubmit}>Зарегистрироваться</button>
+      {error && <p className={styles.error}>{error}</p>}
+      {loading && <p>Загрузка...</p>}
+      <form onSubmit={handleSubmit}>
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleInputChange}
+          className={styles.input}
+        >
+          <option value="pet_owner">Владелец питомца</option>
+          <option value="donor">Донор</option>
+        </select>
+        <input
+          name="full_name"
+          value={formData.full_name}
+          onChange={handleInputChange}
+          placeholder="Полное имя"
+          className={styles.input}
+        />
+        <input
+          name="phone"
+          value={formData.phone}
+          onChange={handleInputChange}
+          placeholder="Телефон"
+          className={styles.input}
+        />
+        <input
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          placeholder="Email"
+          className={styles.input}
+        />
+        <label>
+          <input
+            name="consent_pd"
+            type="checkbox"
+            checked={formData.consent_pd}
+            onChange={handleInputChange}
+          />
+          Согласие на обработку персональных данных
+        </label>
+        <button type="submit" className={styles.button} disabled={loading}>
+          Зарегистрироваться
+        </button>
+      </form>
     </div>
   );
-}
+};
 
 export default ProfileForm;
