@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom'; // Удалён BrowserRouter, так как он уже в index.tsx
 import OwnerDashboard from '@/pages/OwnerDashboard';
 import ProfileForm from '@/components/ProfileForm';
 import ChatMessages from '@/components/ChatMessages';
@@ -11,7 +11,7 @@ const App: React.FC = () => {
   const { isRegistered } = useTelegramAuth();
 
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/register" element={<ProfileForm />} />
         <Route path="/owner" element={<OwnerDashboard />} />
@@ -22,7 +22,7 @@ const App: React.FC = () => {
         />
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
-    </Router>
+    </>
   );
 };
 
