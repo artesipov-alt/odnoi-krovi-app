@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { toast } from 'react-toastify';
 import styles from './VetClinics.module.css';
 
@@ -12,7 +12,7 @@ interface VetClinic {
 }
 
 const VetClinics: React.FC = () => {
-  const { initData } = useTelegramAuth();
+  const { initData } = useTelegram();
   const [clinics, setClinics] = useState<VetClinic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

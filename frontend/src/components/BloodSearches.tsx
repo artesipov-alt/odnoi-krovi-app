@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
+import { toast } from 'react-toastify';
 import styles from './BloodSearches.module.css';
 
 interface BloodSearch {
@@ -12,7 +13,7 @@ interface BloodSearch {
 }
 
 const BloodSearches: React.FC = () => {
-  const { initData } = useTelegramAuth();
+  const { initData } = useTelegram();
   const [searches, setSearches] = useState<BloodSearch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,9 +55,9 @@ const BloodSearches: React.FC = () => {
       });
       setSearches([...searches, response.data]);
       setFormData({});
-      alert('Blood search created');
+      toast.success('Blood search created');
     } catch (err: any) {
-      setError('Create failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Create failed: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -73,9 +74,9 @@ const BloodSearches: React.FC = () => {
       setSearches(searches.map(search => (search.id === editingId ? response.data : search)));
       setEditingId(null);
       setFormData({});
-      alert('Blood search updated');
+      toast.success('Blood search updated');
     } catch (err: any) {
-      setError('Update failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Update failed: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -86,9 +87,9 @@ const BloodSearches: React.FC = () => {
           headers: { 'X-Telegram-Init-Data': initData }
         });
         setSearches(searches.filter(search => search.id !== id));
-        alert('Blood search deleted');
+        toast.success('Blood search deleted');
       } catch (err: any) {
-        alert('Delete failed: ' + (err.response?.data?.message || err.message));
+        toast.error('Delete failed: ' + (err.response?.data?.message || err.message));
       }
     }
   };
@@ -111,7 +112,7 @@ const BloodSearches: React.FC = () => {
           <option value="B">B</option>
           <option value="AB">AB</option>
           <option value="DEA1.1+">DEA1.1+</option>
-          <option value="DEA1.1-">DEA1.1-</option>
+          <option value="DEA1.1- ">DEA1.1-</option>
         </select>
         <input
           name="quantity"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { toast } from 'react-toastify';
 import styles from './Donations.module.css';
 
@@ -14,7 +14,7 @@ interface Donation {
 }
 
 const Donations: React.FC = () => {
-  const { initData } = useTelegramAuth();
+  const { initData } = useTelegram();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ const Donations: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post('/api/donations/create', formData, {
+      const response = await axios.post('/api/donations/plan', formData, {
         headers: { 'X-Telegram-Init-Data': initData },
       });
       setDonations([...donations, response.data]);
@@ -69,7 +69,7 @@ const Donations: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.put(`/api/donations/${editingId}`, formData, {
+      const response = await axios.put(`/api/donations/${editingId}/status`, formData, {
         headers: { 'X-Telegram-Init-Data': initData },
       });
       setDonations(donations.map(donation => (donation.id === editingId ? response.data : donation)));
@@ -127,7 +127,7 @@ const Donations: React.FC = () => {
           <option value="B">B</option>
           <option value="AB">AB</option>
           <option value="DEA1.1+">DEA1.1+</option>
-          <option value="DEA1.1-">DEA1.1-</option>
+          <option value="DEA1.1- ">DEA1.1-</option>
         </select>
         <input
           name="quantity"

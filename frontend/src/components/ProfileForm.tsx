@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useTelegramAuth, registerUser } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
+import { registerUser, checkProfile } from '@/services/telegram.service';
 import { toast } from 'react-toastify';
 import styles from './ProfileForm.module.css';
 
 interface RegisterData {
   telegram_id: number;
-  role: 'pet_owner' | 'donor';
+  role: 'pet_owner' | 'donor' | 'clinic_admin';
   full_name: string;
   phone: string;
   email: string;
@@ -15,18 +16,24 @@ interface RegisterData {
 }
 
 const ProfileForm: React.FC = () => {
-  const { user, initData, isRegistered } = useTelegramAuth();
+  const { user, initData, isRegistered, recheckRegistered } = useTelegram();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterData>({
-    telegram_id: user?.id || 0,
+    telegram_id: user?.id || 314638947,
     role: 'pet_owner',
-    full_name: user ? `${user.first_name} ${user.last_name || ''}`.trim() : '',
+    full_name: user ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Тест Пользователь',
     phone: '',
     email: '',
     consent_pd: false,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isRegistered) {
+      navigate('/owner');
+    }
+  }, [isRegistered, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -43,17 +50,21 @@ const ProfileForm: React.FC = () => {
       return;
     }
     setLoading(true);
+    setError(null);
     try {
-      await registerUser(formData);
-      const profileResponse = await axios.get('/api/users/profile', {
-        headers: { 'X-Telegram-Init-Data': initData },
-      });
-      if (profileResponse.data) {
+      await registerUser(formData, initData);
+      await recheckRegistered();
+      const isProfileCreated = await checkProfile(initData);
+      if (isProfileCreated) {
         toast.success('Регистрация прошла успешно');
         navigate('/owner');
+      } else {
+        throw new Error('Профиль не найден после регистрации');
       }
     } catch (err: any) {
-      toast.error('Ошибка регистрации: ' + (err.response?.data?.message || err.message));
+      const errorMessage = err.response?.data?.error || err.message || 'Неизвестная ошибка';
+      toast.error('Ошибка регистрации: ' + errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -61,11 +72,6 @@ const ProfileForm: React.FC = () => {
 
   if (!user || !initData) {
     return <p>Загрузка данных Telegram...</p>;
-  }
-
-  if (isRegistered) {
-    navigate('/owner');
-    return null;
   }
 
   return (
@@ -82,6 +88,7 @@ const ProfileForm: React.FC = () => {
         >
           <option value="pet_owner">Владелец питомца</option>
           <option value="donor">Донор</option>
+          <option value="clinic_admin">Администратор клиники</option>
         </select>
         <input
           name="full_name"

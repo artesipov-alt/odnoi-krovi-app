@@ -8,11 +8,12 @@ const bot = new TelegramBot(process.env.BOT_TOKEN);
 async function createPet(req, res) {
   const { owner_id, name, type, photo, latitude, longitude, blood_group } = req.body;
   try {
-    // Валидация входных данных
     if (!owner_id || !name || !type) {
+      logger.warn('Missing required fields: owner_id, name, type');
       return res.status(400).json({ error: 'Missing required fields: owner_id, name, type' });
     }
     if (parseInt(owner_id) !== req.user.id) {
+      logger.warn(`Forbidden: User ${req.user.id} tried to create pet for owner ${owner_id}`);
       return res.status(403).json({ error: 'Forbidden: You can only create pets for yourself' });
     }
 

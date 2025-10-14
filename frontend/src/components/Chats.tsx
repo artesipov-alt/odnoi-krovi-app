@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { toast } from 'react-toastify';
 import styles from './Chats.module.css';
 
@@ -14,7 +14,7 @@ interface Chat {
 }
 
 const Chats: React.FC = () => {
-  const { initData } = useTelegramAuth();
+  const { initData } = useTelegram();
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

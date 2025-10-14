@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { toast } from 'react-toastify';
 import styles from './PetForm.module.css';
 
@@ -20,7 +20,7 @@ interface PetFormProps {
 }
 
 const PetForm: React.FC<PetFormProps> = ({ pet, onSave }) => {
-  const { initData } = useTelegramAuth();
+  const { initData } = useTelegram();
   const [formData, setFormData] = useState<Pet>({
     name: pet?.name || '',
     type: pet?.type || '',
@@ -117,7 +117,7 @@ const PetForm: React.FC<PetFormProps> = ({ pet, onSave }) => {
           <option value="B">B</option>
           <option value="AB">AB</option>
           <option value="DEA1.1+">DEA1.1+</option>
-          <option value="DEA1.1-">DEA1.1-</option>
+          <option value="DEA1.1- ">DEA1.1-</option>
         </select>
         <button type="submit" className={styles.button}>
           {pet?.id ? 'Update' : 'Create'}

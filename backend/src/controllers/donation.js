@@ -7,7 +7,7 @@ async function planDonation(req, res) {
   try {
     const { rows } = await pool.query('INSERT INTO odna_krov.donations (donor_pet_id, clinic_id, date, status) VALUES ($1, $2, $3, $4) RETURNING id', [donor_pet_id, clinic_id, date, 'planned']);
     logger.info(`Donation planned with ID ${rows[0].id}`);
-    await pool.query('INSERT INTO odna_krov.logs (user_id, action, details) VALUES ((SELECT owner_id FROM odna_krov.pets WHERE id = $1), $2, $3)', [donor_pet_id, 'donation_plan', { donation_id: rows[0].id }]);
+    await pool.query('INSERT INTO odna_krov.logs (user_id, action) VALUES ($1, $2)', [req.user.id, 'donation_plan']);
     sendNotification(clinic_id, `Новая запланированная донация от питомца ID ${donor_pet_id} на ${date}.`);
     const { rows: owner } = await pool.query('SELECT owner_id FROM odna_krov.pets WHERE id = $1', [donor_pet_id]);
     sendNotification(owner[0].owner_id, `Ваша донация для питомца ID ${donor_pet_id} запланирована на ${date}.`);
@@ -39,7 +39,7 @@ async function updateDonationStatus(req, res) {
   try {
     await pool.query('UPDATE odna_krov.donations SET status = $1 WHERE id = $2', [status, id]);
     logger.info(`Donation status updated to ${status} for ID ${id}`);
-    await pool.query('INSERT INTO odna_krov.logs (user_id, action, details) VALUES ((SELECT clinic_id FROM odna_krov.donations WHERE id = $1), $2, $3)', [id, 'donation_update', { status }]);
+    await pool.query('INSERT INTO odna_krov.logs (user_id, action, details) VALUES ($1, $2, $3)', [req.user.id, 'donation_update', { status }]);
     const { rows } = await pool.query('SELECT donor_pet_id, clinic_id FROM odna_krov.donations WHERE id = $1', [id]);
     sendNotification(rows[0].clinic_id, `Статус донации ID ${id} изменен на ${status}.`);
     const { rows: owner } = await pool.query('SELECT owner_id FROM odna_krov.pets WHERE id = $1', [rows[0].donor_pet_id]);

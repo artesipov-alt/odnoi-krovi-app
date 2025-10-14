@@ -1,10 +1,7 @@
 require('dotenv').config({ path: '../.env' });
 
 const express = require('express');
-const passport = require('passport');
-const VKStrategy = require('passport-vk').Strategy;
-const YandexStrategy = require('passport-yandex').Strategy;
-const { validateInitData } = require('./services/auth.service');
+const cors = require('cors');
 const pool = require('./config/db');
 const winston = require('winston');
 
@@ -15,8 +12,8 @@ const logger = winston.createLogger({
 });
 
 const app = express();
+app.use(cors()); // Разрешаем CORS для frontend
 app.use(express.json());
-app.use(passport.initialize());
 
 // Корневой маршрут
 app.get('/', (req, res) => {
@@ -28,45 +25,21 @@ app.get('/health', (req, res) => {
   res.json({ status: 'Server is running' });
 });
 
-// OAuth стратегии
-passport.use(new VKStrategy({
-  clientID: process.env.VK_CLIENT_ID,
-  clientSecret: process.env.VK_CLIENT_SECRET,
-  callbackURL: '/auth/vk/callback'
-}, async (accessToken, refreshToken, params, profile, done) => {
-  try {
-    const { rows } = await pool.query('SELECT * FROM odna_krov.users WHERE email = $1', [profile.emails[0].value]);
-    if (rows.length) return done(null, rows[0]);
-    done(null, profile);
-  } catch (err) {
-    done(err);
-  }
-}));
-
-passport.use(new YandexStrategy({
-  clientID: process.env.YANDEX_CLIENT_ID,
-  clientSecret: process.env.YANDEX_CLIENT_SECRET,
-  callbackURL: '/auth/yandex/callback'
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    const { rows } = await pool.query('SELECT * FROM odna_krov.users WHERE email = $1', [profile.emails[0].value]);
-    if (rows.length) return done(null, rows[0]);
-    done(null, profile);
-  } catch (err) {
-    done(err);
-  }
-}));
-
-// OAuth маршруты
-app.get('/auth/vk', passport.authenticate('vk'));
-app.get('/auth/vk/callback', passport.authenticate('vk'), (req, res) => res.redirect('https://1krovi.ru'));
-
-app.get('/auth/yandex', passport.authenticate('yandex'));
-app.get('/auth/yandex/callback', passport.authenticate('yandex'), (req, res) => res.redirect('https://1krovi.ru'));
-
-// Тестовый middleware для обхода Telegram-валидации (временный)
+// Middleware для Telegram-авторизации (моковый режим)
 app.use('/api', (req, res, next) => {
-  req.user = { id: 314638947, telegram_id: 314638947, full_name: 'Test User' }; // Тестовый пользователь
+  const initData = req.headers['x-telegram-init-data'];
+  logger.info(`API request: ${req.method} ${req.url}, Headers: ${JSON.stringify(req.headers)}, req.user: ${JSON.stringify(req.user)}`);
+  if (initData === 'test_init_data') {
+    req.user = {
+      id: 314638947,
+      telegram_id: 314638947,
+      full_name: 'Test User'
+    };
+    logger.info(`Mock user set: ${JSON.stringify(req.user)}`);
+  } else {
+    logger.warn(`Invalid or missing X-Telegram-Init-Data: ${initData}`);
+    return res.status(401).json({ error: 'Unauthorized: Invalid Telegram init data' });
+  }
   next();
 });
 
@@ -76,17 +49,18 @@ app.use('/api', apiRoutes);
 
 // Обработка 404
 app.use((req, res) => {
+  logger.warn(`404: ${req.method} ${req.url}`);
   res.status(404).json({ error: 'Route not found' });
 });
 
 // Обработка ошибок
 app.use((err, req, res, next) => {
-  logger.error(err.message);
+  logger.error(`Server error: ${err.message}`);
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
-app.listen(3000, () => {
-  logger.info('Backend started on port 3000');
-  console.log('Backend on 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  logger.info(`Backend started on port ${PORT}`);
+  console.log(`Backend on ${PORT}`);
 });
-

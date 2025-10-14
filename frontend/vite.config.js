@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path'; // Добавлено: для алиасов
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'), // Добавлено: поддержка алиаса @ для src
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
@@ -14,7 +14,7 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'https://super-duper-space-doodle-wrjw7w7q9q5gc5xxw-3000.app.github.dev', // Проверьте доступность
+        target: 'http://localhost:3000', // Локальный бэкенд
         changeOrigin: true,
         secure: false
       }

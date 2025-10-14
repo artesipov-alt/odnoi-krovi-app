@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { toast } from 'react-toastify';
 import styles from './Profile.module.css';
 
@@ -14,7 +14,7 @@ interface ProfileData {
 }
 
 const Profile: React.FC = () => {
-  const { user, initData, isRegistered } = useTelegramAuth();
+  const { initData, isRegistered } = useTelegram();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +90,7 @@ const Profile: React.FC = () => {
           >
             <option value="pet_owner">Владелец питомца</option>
             <option value="donor">Донор</option>
+            <option value="clinic_admin">Администратор клиники</option>
           </select>
           <input
             name="full_name"
@@ -125,7 +126,7 @@ const Profile: React.FC = () => {
         </form>
       ) : (
         <div>
-          <p>Роль: {profile.role === 'pet_owner' ? 'Владелец питомца' : 'Донор'}</p>
+          <p>Роль: {profile.role === 'pet_owner' ? 'Владелец питомца' : profile.role === 'donor' ? 'Донор' : 'Администратор клиники'}</p>
           <p>Полное имя: {profile.full_name}</p>
           <p>Телефон: {profile.phone}</p>
           <p>Email: {profile.email}</p>

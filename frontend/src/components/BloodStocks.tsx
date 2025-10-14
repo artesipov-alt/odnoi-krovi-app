@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { toast } from 'react-toastify';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 import styles from './BloodStocks.module.css';
@@ -18,7 +18,7 @@ interface UserProfile {
 }
 
 const BloodStocks: React.FC = () => {
-  const { initData } = useTelegramAuth();
+  const { initData } = useTelegram();
   const [stocks, setStocks] = useState<BloodStock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

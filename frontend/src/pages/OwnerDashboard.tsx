@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegram } from '../context/TelegramContext';
 import { YMaps, Map } from '@pbe/react-yandex-maps';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,12 +12,6 @@ import BloodStocks from '@/components/BloodStocks';
 import BloodSearches from '@/components/BloodSearches';
 import Donations from '@/components/Donations';
 import styles from './OwnerDashboard.module.css';
-
-interface WebAppUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-}
 
 interface Pet {
   id: number;
@@ -30,7 +24,7 @@ interface Pet {
 }
 
 function OwnerDashboard() {
-  const { user, initData, isRegistered } = useTelegramAuth();
+  const { user, initData, isRegistered } = useTelegram();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,11 +41,11 @@ function OwnerDashboard() {
     const fetchPets = async () => {
       try {
         const response = await axios.get('/api/pets', {
-          headers: { 'X-Telegram-Init-Data': initData },
+          headers: { 'X-Telegram-Init-Data': initData || 'test_init_data' },
         });
         setPets(response.data as Pet[]);
       } catch (err: any) {
-        setError('Не удалось загрузить питомцев: ' + (err.response?.data?.message || err.message));
+        setError('Не удалось загрузить питомцев: ' + (err.response?.data?.error || err.message));
       } finally {
         setLoading(false);
       }
@@ -63,28 +57,28 @@ function OwnerDashboard() {
   const handleSavePet = async () => {
     try {
       const response = await axios.get('/api/pets', {
-        headers: { 'X-Telegram-Init-Data': initData },
+        headers: { 'X-Telegram-Init-Data': initData || 'test_init_data' },
       });
       setPets(response.data as Pet[]);
       setShowPetForm(false);
       setEditingPet(null);
     } catch (err: any) {
-      toast.error('Не удалось обновить список питомцев: ' + (err.response?.data?.message || err.message));
+      toast.error('Не удалось обновить список питомцев: ' + (err.response?.data?.error || err.message));
     }
   };
 
   const deletePet = async (id: number) => {
     try {
       await axios.delete(`/api/pets/${id}`, {
-        headers: { 'X-Telegram-Init-Data': initData },
+        headers: { 'X-Telegram-Init-Data': initData || 'test_init_data' },
       });
       toast.success('Питомец удалён!');
       const response = await axios.get('/api/pets', {
-        headers: { 'X-Telegram-Init-Data': initData },
+        headers: { 'X-Telegram-Init-Data': initData || 'test_init_data' },
       });
       setPets(response.data as Pet[]);
     } catch (err: any) {
-      toast.error('Ошибка удаления: ' + (err.response?.data?.message || err.message));
+      toast.error('Ошибка удаления: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -97,6 +91,9 @@ function OwnerDashboard() {
       <p className={styles.userInfo}>
         Полное имя: {user ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Не авторизован'}
       </p>
+      <Link to="/chats">
+        <button className={styles.button}>Перейти к чатам</button>
+      </Link>
       <Profile />
       <VetClinics />
       <BloodStocks />
