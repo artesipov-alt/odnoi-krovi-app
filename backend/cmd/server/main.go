@@ -26,7 +26,7 @@ func main() {
 
 	app.Get("/", func(c fiber.Ctx) error {
 		logger.Log.Info("root accessed")
-		return c.SendString("Hello from Fiber + Zap 👋")
+		return c.SendString("Это бэкенд сервер на Go + Fiber проекта однойкрови.рф")
 	})
 
 	app.Listen(":3000")
