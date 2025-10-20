@@ -1,0 +1,75 @@
+basePath: /api/v1
+definitions:
+  models.User:
+    properties:
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: API сервиса однойкрови.рф для донороcства крови и помощи животным
+  title: однойкрови.рф
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: Возвращает информационное сообщение о сервере
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Информационное сообщение
+          schema:
+            type: string
+      summary: Корневой эндпоинт
+      tags:
+      - root
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает статус результата добавления пользователя
+      parameters:
+      - description: Пользователь
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статус операции
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Добавление пользователя
+      tags:
+      - users
+  /user/{id}:
+    get:
+      description: Возвращает информацию о пользователе по его идентификатору
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные пользователя
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Получение пользователя по ID
+      tags:
+      - users
+swagger: "2.0"
