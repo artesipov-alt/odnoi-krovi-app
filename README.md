@@ -30,7 +30,7 @@
 odnoi-krovi-app/
 ├── backend/         # Go API сервер (Fiber + GORM + Swagger)
 ├── frontend/        # Telegram Mini App (React + TypeScript)
-├── bot/             # Telegram Bot (Node.js + Grammy)
+├── bot/             # Telegram Bot (Bun + Grammy)
 ├── docs/            # Документация
 └── README.md
 ```
@@ -49,7 +49,7 @@ odnoi-krovi-app/
 
 1. **Клонирование репозитория**
 ```bash
-git clone https://github.com/your-username/odnoi-krovi-app.git
+git clone git@github.com:artesipov-alt/odnoi-krovi-app.git
 cd odnoi-krovi-app
 ```
 
@@ -59,7 +59,7 @@ cd backend
 cp .env.example .env
 # Настройте переменные окружения в .env
 go mod download
-go run main.go
+go run cmd/server/main.go
 
 # После запуска сервера документация API доступна по адресу:
 # http://localhost:8080/swagger/index.html
@@ -153,7 +153,7 @@ bot/
 - **Axios** - HTTP клиент
 
 ### Telegram Bot
-- **Node.js** - Серверная платформа
+- **Bun** - Серверная платформа
 - **Grammy** - Фреймворк для Telegram Bot API
 - **TypeScript** - Статическая типизация
 
@@ -173,7 +173,7 @@ bot/
 ```bash
 cd backend
 # Запуск в режиме разработки
-go run cmd/api/main.go
+go run cmd/server/main.go
 
 # Генерация Swagger документации
 swag init -g cmd/api/main.go
