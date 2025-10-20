@@ -14,5 +14,5 @@ import (
 // @Router / [get]
 func RootHandler(c *fiber.Ctx) error {
 	logger.Log.Info("root accessed")
-	return c.SendString("Это бэкенд сервер на Go + Fiber + Swagger проекта однойкрови.рф\nДокументация API доступна по адресу: /swagger/")
+	return c.SendString("Это тестовый бэкенд сервер на Go + Fiber + Swagger проекта однойкрови.рф\nДокументация API доступна по адресу: /swagger/")
 }
