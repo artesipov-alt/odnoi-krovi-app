@@ -2,9 +2,6 @@
 package main
 
 import (
-	"os"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/docs"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/docs"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
@@ -19,6 +16,7 @@ import (
 // @title однойкрови.рф
 // @version 1.0
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
+// @Host localhost:3000
 // @BasePath /api/v1
 func main() {
 	// Загрузка переменных окружения из .env файла
@@ -29,11 +27,11 @@ func main() {
 
 	app := fiber.New()
 
-	host := os.Getenv("SWAGGER_HOST")
-	if host == "" {
-		host = "localhost:3000"
-	}
-	docs.SwaggerInfo.Host = host
+	// host := os.Getenv("SWAGGER_HOST")
+	// if host == "" {
+	// 	host = "localhost:3000"
+	// }
+	// docs.SwaggerInfo.Host = host
 	// CORS middleware for Telegram MiniApp
 	app.Use(cors.New(config.CORSOptions()))
 

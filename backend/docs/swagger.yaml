@@ -9,6 +9,7 @@ definitions:
       last_name:
         type: string
     type: object
+host: localhost:3000
 info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
