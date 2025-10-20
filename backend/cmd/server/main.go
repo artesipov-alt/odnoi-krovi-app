@@ -16,7 +16,7 @@ import (
 // @title однойкрови.рф
 // @version 1.0
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
-// @Host localhost:3000
+// @Host 212.111.85.99:3000
 // @BasePath /api/v1
 func main() {
 	// Загрузка переменных окружения из .env файла
@@ -27,12 +27,6 @@ func main() {
 
 	app := fiber.New()
 
-	// host := os.Getenv("SWAGGER_HOST")
-	// if host == "" {
-	// 	host = "localhost:3000"
-	// }
-	// docs.SwaggerInfo.Host = host
-	// CORS middleware for Telegram MiniApp
 	app.Use(cors.New(config.CORSOptions()))
 
 	app.Use(middleware.LoggerMiddleware)
