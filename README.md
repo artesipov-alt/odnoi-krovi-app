@@ -28,7 +28,7 @@
 
 ```
 odnoi-krovi-app/
-├── .workflow/       # Настрокий авторазвертывания (CD/CI)
+├── .github/         # Настрокий авторазвертывания (CD/CI)
 ├── backend/         # Go API сервер (Fiber + GORM + Swagger)
 ├── frontend/        # Telegram Mini App (React + TypeScript)
 ├── bot/             # Telegram Bot (Bun + Grammy)
