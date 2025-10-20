@@ -1,21 +1,33 @@
+// cmd/server/main.go
 package main
 
 import (
-	"log"
-
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v3"
+	"go.uber.org/zap"
 )
 
 func main() {
-	// Initialize a new Fiber app
+	logger.Init("dev")
+	defer logger.Sync()
+
 	app := fiber.New()
 
-	// Define a route for the GET method on the root path '/'
-	app.Get("/", func(c fiber.Ctx) error {
-		// Send a string response to the client
-		return c.SendString("Hello, World 👋!")
+	app.Use(func(c fiber.Ctx) error {
+		err := c.Next()
+		logger.Log.Info("request",
+			zap.String("method", c.Method()),
+			zap.String("path", c.Path()),
+			zap.Int("status", c.Response().StatusCode()),
+			zap.String("ip", c.IP()),
+		)
+		return err
 	})
 
-	// Start the server on port 3000
-	log.Fatal(app.Listen(":3000"))
+	app.Get("/", func(c fiber.Ctx) error {
+		logger.Log.Info("root accessed")
+		return c.SendString("Hello from Fiber + Zap 👋")
+	})
+
+	app.Listen(":3000")
 }
