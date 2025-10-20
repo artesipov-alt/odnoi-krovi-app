@@ -15,7 +15,7 @@ import (
 // @title однойкрови.рф
 // @version 1.0
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
-// @host localhost:3000
+// @host 212.111.85.99:3000
 // @BasePath /api/v1
 func main() {
 	logger.Init("dev")
