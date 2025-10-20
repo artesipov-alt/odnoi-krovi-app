@@ -6,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "212.111.85.99:3000",
     "basePath": "/api/v1",
     "paths": {
         "/": {

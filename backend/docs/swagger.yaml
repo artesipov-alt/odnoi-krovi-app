@@ -9,7 +9,6 @@ definitions:
       last_name:
         type: string
     type: object
-host: 212.111.85.99:3000
 info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
