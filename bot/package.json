@@ -1,12 +1,25 @@
 {
-  "name": "bot",
-  "module": "index.ts",
+  "name": "odnoi-krovi-bot",
+  "module": "bot.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun run bot.ts",
+    "build": "bun run build.ts",
+    "preview": "bun run dist/bot.js"
+  },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@grammyjs/ratelimiter": "^1.2.1",
+    "@grammyjs/runner": "^2.0.3",
+    "@grammyjs/transformer-throttler": "^1.2.1",
+    "grammy": "^1.38.3",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.2"
   }
 }
