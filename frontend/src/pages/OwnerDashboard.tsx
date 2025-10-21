@@ -5,12 +5,12 @@ import { useTelegram } from '../context/TelegramContext';
 import { YMaps, Map } from '@pbe/react-yandex-maps';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Profile from '@/components/Profile';
-import PetForm from '@/components/PetForm';
-import VetClinics from '@/components/VetClinics';
-import BloodStocks from '@/components/BloodStocks';
-import BloodSearches from '@/components/BloodSearches';
-import Donations from '@/components/Donations';
+import Profile from 'components/Profile';
+import PetForm from 'components/PetForm';
+import VetClinics from 'components/VetClinics';
+import BloodStocks from 'components/BloodStocks';
+import BloodSearches from 'components/BloodSearches';
+import Donations from 'components/Donations';
 import styles from './OwnerDashboard.module.css';
 
 interface Pet {

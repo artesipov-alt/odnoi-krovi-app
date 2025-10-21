@@ -1,0 +1,96 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "airbnb",
+    "prettier",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": [
+    "prettier",
+    "simple-import-sort",
+    "react-hooks"
+  ],
+  "env": {
+    "browser": true
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "extends": ["airbnb-typescript", "prettier"],
+      "parserOptions": {
+        "parser": "@typescript-eslint/parser",
+        "project": ["./tsconfig.json"]
+      },
+      "rules":  {
+        "no-param-reassign": "off"
+      }
+    },
+    {
+      "files": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+      "rules": {
+        "react/prop-types": "off",
+        "react/static-property-placement": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/require-default-props": "off",
+        "react/jsx-key": "warn",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "linebreak-style": [
+          "warn",
+          "windows"
+        ],
+        "padding-line-between-statements": [
+          "error",
+          {
+            "blankLine": "always",
+            "prev": "*",
+            "next": "return"
+          },
+          {
+            "blankLine": "always",
+            "prev": "*",
+            "next": "if"
+          }
+        ],
+        "consistent-return": "off",
+        "no-mixed-operators": "off",
+        "import/no-anonymous-default-export": "off",
+        "import/no-unresolved": "off",
+        "eqeqeq": "off",
+        "array-callback-return": "off",
+        "no-underscore-dangle": "off",
+        "no-plusplus": "off",
+        "jsx-a11y/anchor-is-valid": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/interactive-supports-focus": "off",
+        "jsx-a11y/control-has-associated-label": "off",
+        "jsx-quotes": [
+          "error",
+          "prefer-single"
+        ],
+        "import/extensions": "off",
+        "import/no-cycle": "warn",
+        "import/no-extraneous-dependencies": "warn",
+        "import/prefer-default-export": "off",
+        "import/no-named-as-default": "off",
+        "react/jsx-props-no-spreading": "off",
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "class-methods-use-this": "off",
+        "simple-import-sort/imports": ["error", {
+          "groups": [
+            ["^\\u0000"],
+            ["^@?\\w"],
+            ["^(config|modules|api|store|components|designSystemm)"],
+            ["^"],
+            ["^\\."]
+          ]
+        }],
+        "testing-library/prefer-screen-queries": "off",
+        "arrow-body-style": ["error", "as-needed"],
+        "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": false }]
+      }
+    }
+  ]
+}

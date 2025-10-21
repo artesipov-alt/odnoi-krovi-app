@@ -1,22 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
+    "outDir": "./build",
+    "target": "es2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
     "jsx": "react-jsx",
+    "skipLibCheck": true,
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
     "baseUrl": "src",
-    "paths": {
-      "@/*": ["*"]
-    },
-    "types": ["node", "vite/client"]
+    "allowJs": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "downlevelIteration": true,
+    "types": ["node", "vite/client", "vite-plugin-svgr/client"],
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "build"]
+  "include": ["./src/**/*", "./typings", "vite.config.ts"]
 }

@@ -15,7 +15,7 @@ interface Pet {
 }
 
 interface PetFormProps {
-  pet?: Pet;
+  pet?: Pet | null;
   onSave: () => void;
 }
 

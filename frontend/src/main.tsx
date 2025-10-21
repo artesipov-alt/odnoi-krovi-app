@@ -1,22 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { TelegramProvider } from './context/TelegramContext';
 import './styles.css';
 
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+import ErrorBoundary from 'components/ErrorBoundary';
+
+import App from './App';
+import { TelegramProvider } from './context/TelegramContext';
+
 const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Root element not found');
-const root = ReactDOM.createRoot(rootElement);
+
+const root = ReactDOM.createRoot(rootElement!);
 root.render(
-  <React.StrictMode>
     <TelegramProvider>
-      <BrowserRouter>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
-      </BrowserRouter>
-    </TelegramProvider>
-  </React.StrictMode>
+        <BrowserRouter>
+            <ErrorBoundary>
+                <App />
+            </ErrorBoundary>
+        </BrowserRouter>
+    </TelegramProvider>,
 );

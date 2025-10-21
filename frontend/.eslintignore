@@ -1,0 +1,7 @@
+./git
+/.idea
+/.husky
+/public
+/build
+
+node_modules
