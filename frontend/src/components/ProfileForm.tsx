@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTelegram } from '../context/TelegramContext';
-import { registerUser, checkProfile } from '@/services/telegram.service';
+import { registerUser, checkProfile } from 'services/telegram.service';
 import { toast } from 'react-toastify';
 import styles from './ProfileForm.module.css';
 

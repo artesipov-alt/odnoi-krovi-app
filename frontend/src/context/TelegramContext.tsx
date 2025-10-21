@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useTelegramAuth } from '@/services/telegram.service';
+import { useTelegramAuth } from 'services/telegram.service';
 
 const TelegramContext = createContext<ReturnType<typeof useTelegramAuth>>({
   user: null,
