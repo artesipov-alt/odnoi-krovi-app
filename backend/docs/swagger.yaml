@@ -1,12 +1,93 @@
 basePath: /api/v1
 definitions:
+  handlers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  handlers.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
   models.User:
     properties:
-      first_name:
+      consent_pd:
+        example: true
+        type: boolean
+      created_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      full_name:
+        example: Иван Иванов
         type: string
       id:
+        example: 1
         type: integer
-      last_name:
+      location_id:
+        example: 1
+        type: integer
+      organization_name:
+        example: ООО Ромашка
+        type: string
+      phone:
+        example: "+79991234567"
+        type: string
+      role:
+        example: user
+        type: string
+      telegram_id:
+        example: 123456789
+        type: integer
+    type: object
+  services.UserRegistration:
+    properties:
+      consent_pd:
+        type: boolean
+      email:
+        type: string
+      full_name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      location_id:
+        minimum: 1
+        type: integer
+      organization_name:
+        maxLength: 255
+        type: string
+      phone:
+        type: string
+      role:
+        enum:
+        - user
+        - clinic_admin
+        type: string
+    required:
+    - consent_pd
+    - full_name
+    - location_id
+    - phone
+    - role
+    type: object
+  services.UserUpdate:
+    properties:
+      email:
+        type: string
+      full_name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      location_id:
+        minimum: 1
+        type: integer
+      organization_name:
+        maxLength: 255
+        type: string
+      phone:
         type: string
     type: object
 info:
@@ -28,30 +109,6 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
-  /user:
-    post:
-      consumes:
-      - application/json
-      description: Возвращает статус результата добавления пользователя
-      parameters:
-      - description: Пользователь
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Статус операции
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Добавление пользователя
-      tags:
-      - users
   /user/{id}:
     get:
       description: Возвращает информацию о пользователе по его идентификатору
@@ -68,7 +125,123 @@ paths:
           description: Данные пользователя
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получение пользователя по ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о пользователе
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UserUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные успешно обновлены
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Обновление данных пользователя
+      tags:
+      - users
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя в системе
+      parameters:
+      - description: Данные для регистрации пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.UserRegistration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Зарегистрированный пользователь
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Пользователь уже существует
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Регистрация нового пользователя
+      tags:
+      - users
+  /user/telegram:
+    get:
+      description: Возвращает информацию о пользователе по его Telegram ID
+      parameters:
+      - description: Telegram ID пользователя
+        format: int64
+        in: query
+        name: telegram_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные пользователя
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение пользователя по Telegram ID
       tags:
       - users
 swagger: "2.0"

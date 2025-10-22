@@ -3,13 +3,23 @@ package handlers
 import (
 	"strconv"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
 
-var users = make(map[int]*models.User)
+// UserHandler handles HTTP requests for user operations
+type UserHandler struct {
+	userService services.UserService
+}
+
+// NewUserHandler creates a new user handler
+func NewUserHandler(userService services.UserService) *UserHandler {
+	return &UserHandler{
+		userService: userService,
+	}
+}
 
 // GetUserHandler godoc
 // @Summary Получение пользователя по ID
@@ -18,66 +28,191 @@ var users = make(map[int]*models.User)
 // @Produce json
 // @Param id path int true "ID пользователя"
 // @Success 200 {object} models.User "Данные пользователя"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [get]
-func GetUserHandler(c *fiber.Ctx) error {
+func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	if userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "User ID is required",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "User ID is required",
 		})
 	}
 
 	id, err := strconv.Atoi(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid user ID format",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid user ID format",
 		})
 	}
 
 	logger.Log.Info("get user accessed", zap.String("userId", userID))
 
-	// Добавляем пользователя в глобальную переменную
+	user, err := h.userService.GetUserProfile(c.Context(), id)
+	if err != nil {
+		logger.Log.Error("failed to get user", zap.Error(err), zap.Int("userId", id))
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Failed to get user",
+		})
+	}
 
-	// Возвращаем mock-данные пользователя
-	user := users[id]
+	if user == nil {
+		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+			Error: "User not found",
+		})
+	}
 
-	// Устанавливаем правильный Content-Type с кодировкой UTF-8
 	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(user)
-
+	return c.JSON(user.User)
 }
 
-// AddUserHandler godoc
-// @Summary Добавление пользователя
-// @Description Возвращает статус результата добавления пользователя
+// RegisterUserHandler godoc
+// @Summary Регистрация нового пользователя
+// @Description Регистрирует нового пользователя в системе
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body models.User true "Пользователь"
-// @Success 200 {object} map[string]string "Статус операции"
-// @Router /user [post]
-func AddUserHandler(c *fiber.Ctx) error {
-	var newUser models.User
-	if err := c.BodyParser(&newUser); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+// @Param request body services.UserRegistration true "Данные для регистрации пользователя"
+// @Success 201 {object} models.User "Зарегистрированный пользователь"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 409 {object} ErrorResponse "Пользователь уже существует"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /user/register [post]
+func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
+	var registrationData services.UserRegistration
+	if err := c.BodyParser(&registrationData); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid request body",
 		})
 	}
 
-	if newUser.ID == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "User ID is required and must be non-zero",
+	// Get Telegram ID from context (should be set by middleware)
+	telegramID, ok := c.Locals("telegram_id").(int64)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Telegram ID is required",
 		})
 	}
 
-	// Добавляем пользователя в глобальную переменную
-	users[newUser.ID] = &newUser
+	user, err := h.userService.RegisterUser(c.Context(), telegramID, registrationData)
+	if err != nil {
+		logger.Log.Error("failed to register user", zap.Error(err), zap.Int64("telegramId", telegramID))
 
-	logger.Log.Info("user added", zap.Int("userId", newUser.ID))
+		if err.Error() == "user with this telegram ID already exists" {
+			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
+				Error: "User with this Telegram ID already exists",
+			})
+		}
 
-	// Устанавливаем правильный Content-Type с кодировкой UTF-8
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Failed to register user",
+		})
+	}
+
 	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(fiber.Map{
-		"status": "ok",
+	return c.Status(fiber.StatusCreated).JSON(user)
+}
+
+// UpdateUserHandler godoc
+// @Summary Обновление данных пользователя
+// @Description Обновляет информацию о пользователе
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Param request body services.UserUpdate true "Данные для обновления"
+// @Success 200 {object} SuccessResponse "Данные успешно обновлены"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /user/{id} [put]
+func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	if userID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "User ID is required",
+		})
+	}
+
+	id, err := strconv.Atoi(userID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid user ID format",
+		})
+	}
+
+	var updateData services.UserUpdate
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid request body",
+		})
+	}
+
+	if err := h.userService.UpdateUserProfile(c.Context(), id, updateData); err != nil {
+		logger.Log.Error("failed to update user", zap.Error(err), zap.Int("userId", id))
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Failed to update user",
+		})
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(SuccessResponse{
+		Message: "User updated successfully",
 	})
+}
+
+// GetUserByTelegramHandler godoc
+// @Summary Получение пользователя по Telegram ID
+// @Description Возвращает информацию о пользователе по его Telegram ID
+// @Tags users
+// @Produce json
+// @Param telegram_id query int64 true "Telegram ID пользователя"
+// @Success 200 {object} models.User "Данные пользователя"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /user/telegram [get]
+func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
+	telegramIDStr := c.Query("telegram_id")
+	if telegramIDStr == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Telegram ID is required",
+		})
+	}
+
+	telegramID, err := strconv.ParseInt(telegramIDStr, 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid Telegram ID format",
+		})
+	}
+
+	user, err := h.userService.GetUserByTelegramID(c.Context(), telegramID)
+	if err != nil {
+		logger.Log.Error("failed to get user by telegram ID", zap.Error(err), zap.Int64("telegramId", telegramID))
+
+		if err.Error() == "user with telegram id not found" {
+			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+				Error: "User not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Failed to get user",
+		})
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(user)
+}
+
+// ErrorResponse represents an error response
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// SuccessResponse represents a success response
+type SuccessResponse struct {
+	Message string `json:"message"`
 }
