@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Bun](https://img.shields.io/badge/Bun-1.2+-000000?style=for-the-badge&logo=bun&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Grammy](https://img.shields.io/badge/Grammy-1.38+-00ADD8?style=for-the-badge&logo=telegram&logoColor=white)
+![Bun](https://img.shields.io/badge/Bun-1.3+-000000?style=for-the-badge&logo=bun&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Grammy](https://img.shields.io/badge/Grammy-1.38+-00ADD8?style=for-the-badge&logo=telegram&logoColor=white)
 
 </div>
 
