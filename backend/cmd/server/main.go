@@ -2,20 +2,20 @@
 package main
 
 import (
-	_ "github.com/artesipov-alt/odnoi-krovi-app/docs"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/swagger"
-	"github.com/joho/godotenv"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
+	_ "github.com/artesipov-alt/odnoi-krovi-app/docs"                // Документация Swagger
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"     // Обработчики HTTP запросов
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"   // Промежуточное ПО
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"       // Модели данных
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories" // Репозитории для работы с БД
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"     // Бизнес-логика
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"            // Конфигурация приложения
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"            // Логирование
+	"github.com/gofiber/fiber/v2"                                    // Веб-фреймворк
+	"github.com/gofiber/fiber/v2/middleware/cors"                    // CORS middleware
+	"github.com/gofiber/swagger"                                     // Swagger UI
+	"github.com/joho/godotenv"                                       // Загрузка .env файлов
+	"go.uber.org/zap"                                                // Структурированное логирование
+	"gorm.io/gorm"                                                   // ORM для работы с БД
 )
 
 // @title однойкрови.рф
@@ -27,61 +27,68 @@ func main() {
 	// Загрузка переменных окружения из .env файла
 	godotenv.Load()
 
+	// Инициализация логгера в режиме разработки
 	logger.Init("dev")
-	defer logger.Sync()
+	defer logger.Sync() // Гарантированное закрытие логгера при завершении
 
-	// Initialize database connection
+	// Инициализация подключения к базе данных
 	db, err := config.ConnectDB()
 	if err != nil {
-		logger.Log.Fatal("Failed to connect to database", zap.Error(err))
+		logger.Log.Fatal("Ошибка подключения к базе данных", zap.Error(err))
 	}
 
-	// Auto-migrate database models
+	// Автоматическое создание/обновление таблиц в БД
 	autoMigrate(db)
 
-	// Initialize repositories
+	// Инициализация репозитория для работы с пользователями
 	userRepo := repositories.NewPostgresUserRepository(db)
 
-	// Initialize services
+	// Инициализация сервиса с бизнес-логикой пользователей
 	userService := services.NewUserService(userRepo)
 
-	// Initialize handlers
+	// Инициализация обработчиков HTTP запросов для пользователей
 	userHandler := handlers.NewUserHandler(userService)
 
+	// Создание экземпляра Fiber приложения
 	app := fiber.New()
 
+	// Настройка CORS для кросс-доменных запросов
 	app.Use(cors.New(config.CORSOptions()))
 
-	app.Use(middleware.LoggerMiddleware)
-	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig()))
-	app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig()))
+	// Подключение middleware
+	app.Use(middleware.LoggerMiddleware) // Логирование запросов
+	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
+	app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 
-	// Swagger documentation
+	// Документация Swagger - доступна по адресу /swagger/*
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// API routes group
+	// Группировка API маршрутов с префиксом /api/v1
 	api := app.Group("/api/v1")
 	{
+		// Корневой маршрут API
 		api.Get("/", handlers.RootHandler)
 
-		// User routes
+		// Группа маршрутов для работы с пользователями
 		userGroup := api.Group("/user")
 		{
-			userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)
-			userGroup.Post("/register", userHandler.RegisterUserHandler)
-			userGroup.Get("/:id", userHandler.GetUserHandler)
-			userGroup.Put("/:id", userHandler.UpdateUserHandler)
+			userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
+			userGroup.Post("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
+			userGroup.Post("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
+			userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
+			userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
 		}
 	}
 
-	logger.Log.Info("Server starting on :3000")
+	// Запуск сервера на порту 3000
+	logger.Log.Info("Сервер запускается на :3000")
 	if err := app.Listen(":3000"); err != nil {
-		logger.Log.Fatal("Failed to start server", zap.Error(err))
+		logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 	}
 }
 
-// Auto-migrate database models
+// Автоматическое создание/обновление таблиц в базе данных
 func autoMigrate(db *gorm.DB) {
-	// TODO: Add models for auto-migration
-	db.AutoMigrate(&models.User{})
+	// TODO: Добавить другие модели для автоматической миграции
+	db.AutoMigrate(&models.User{}) // Создание таблицы пользователей
 }

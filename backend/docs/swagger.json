@@ -80,6 +80,58 @@
                 }
             }
         },
+        "/user/register/simple": {
+            "post": {
+                "description": "Создает пользователя с Telegram ID и именем (для команды Start)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Простая регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для простой регистрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SimpleRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Зарегистрированный пользователь",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/telegram": {
             "get": {
                 "description": "Возвращает информацию о пользователе по его Telegram ID",
@@ -239,6 +291,25 @@
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.SimpleRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "telegram_id"
+            ],
+            "properties": {
+                "full_name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Иван Иванов"
+                },
+                "telegram_id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 123456789
                 }
             }
         },

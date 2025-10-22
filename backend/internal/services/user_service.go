@@ -14,6 +14,9 @@ type UserService interface {
 	// RegisterUser registers a new user in the system
 	RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*models.User, error)
 
+	// RegisterUserSimple creates a new user with Telegram ID and basic info (for Start command)
+	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error)
+
 	// GetUserProfile retrieves complete user profile with pets and clinics
 	GetUserProfile(ctx context.Context, userID int) (*UserProfile, error)
 
@@ -86,6 +89,37 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		ConsentPD:        userData.ConsentPD,
 		LocationID:       userData.LocationID,
 		Role:             userData.Role,
+	}
+
+	if err := s.userRepo.Create(ctx, user); err != nil {
+		return nil, fmt.Errorf("create user: %w", err)
+	}
+
+	return user, nil
+}
+
+// RegisterUserSimple creates a new user with Telegram ID and basic info (for Start command)
+func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error) {
+	// Check if user already exists
+	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
+	if err != nil {
+		return nil, fmt.Errorf("check user existence: %w", err)
+	}
+
+	if exists {
+		return nil, errors.New("user with this telegram ID already exists")
+	}
+
+	// Create new user with Telegram ID, basic info and default values for required fields
+	user := &models.User{
+		TelegramID:       telegramID,
+		FullName:         fullName,
+		Phone:            "",     // Empty string for phone (will be filled later)
+		Email:            "",     // Empty string for email (will be filled later)
+		OrganizationName: "",     // Empty string for organization (will be filled later)
+		ConsentPD:        true,   // Default false, user must explicitly consent later
+		LocationID:       1,      // Default 0, user must set location later
+		Role:             "user", // Default role
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {

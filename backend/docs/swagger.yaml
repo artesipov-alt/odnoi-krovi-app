@@ -5,6 +5,20 @@ definitions:
       error:
         type: string
     type: object
+  handlers.SimpleRegistrationRequest:
+    properties:
+      full_name:
+        example: Иван Иванов
+        maxLength: 255
+        minLength: 1
+        type: string
+      telegram_id:
+        example: 123456789
+        minimum: 1
+        type: integer
+    required:
+    - telegram_id
+    type: object
   handlers.SuccessResponse:
     properties:
       message:
@@ -210,6 +224,40 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Регистрация нового пользователя
+      tags:
+      - users
+  /user/register/simple:
+    post:
+      consumes:
+      - application/json
+      description: Создает пользователя с Telegram ID и именем (для команды Start)
+      parameters:
+      - description: Данные для простой регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SimpleRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Зарегистрированный пользователь
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Пользователь уже существует
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Простая регистрация пользователя
       tags:
       - users
   /user/telegram:

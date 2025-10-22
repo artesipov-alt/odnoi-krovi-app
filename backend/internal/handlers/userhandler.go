@@ -14,6 +14,22 @@ type UserHandler struct {
 	userService services.UserService
 }
 
+// ErrorResponse represents an error response
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// SimpleRegistrationRequest represents a request for simple user registration
+type SimpleRegistrationRequest struct {
+	TelegramID int64  `json:"telegram_id" validate:"required,min=1" example:"123456789"`
+	FullName   string `json:"full_name,omitempty" validate:"omitempty,min=1,max=255" example:"Иван Иванов"`
+}
+
+// SuccessResponse represents a success response
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
 // NewUserHandler creates a new user handler
 func NewUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{
@@ -65,6 +81,57 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
 	return c.JSON(user.User)
+}
+
+// RegisterUserSimpleHandler godoc
+// @Summary Простая регистрация пользователя
+// @Description Создает пользователя с Telegram ID и именем (для команды Start)
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body SimpleRegistrationRequest true "Данные для простой регистрации"
+// @Success 201 {object} models.User "Зарегистрированный пользователь"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 409 {object} ErrorResponse "Пользователь уже существует"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /user/register/simple [post]
+func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
+	var request SimpleRegistrationRequest
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid request body",
+		})
+	}
+
+	if request.TelegramID <= 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Valid Telegram ID is required",
+		})
+	}
+
+	// Use provided full name or default to "Telegram User"
+	fullName := request.FullName
+	if fullName == "" {
+		fullName = "Telegram User"
+	}
+
+	user, err := h.userService.RegisterUserSimple(c.Context(), request.TelegramID, fullName)
+	if err != nil {
+		logger.Log.Error("failed to register user", zap.Error(err), zap.Int64("telegramId", request.TelegramID))
+
+		if err.Error() == "user with this telegram ID already exists" {
+			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
+				Error: "User with this Telegram ID already exists",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Failed to register user",
+		})
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.Status(fiber.StatusCreated).JSON(user)
 }
 
 // RegisterUserHandler godoc
@@ -205,14 +272,4 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
 	return c.JSON(user)
-}
-
-// ErrorResponse represents an error response
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
-// SuccessResponse represents a success response
-type SuccessResponse struct {
-	Message string `json:"message"`
 }
