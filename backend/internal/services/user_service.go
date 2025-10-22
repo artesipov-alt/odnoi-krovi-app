@@ -9,25 +9,25 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
-// UserService defines the interface for user business logic
+// UserService определяет интерфейс для бизнес-логики пользователей
 type UserService interface {
-	// RegisterUser registers a new user in the system
+	// RegisterUser регистрирует нового пользователя в системе
 	RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*models.User, error)
 
-	// RegisterUserSimple creates a new user with Telegram ID and basic info (for Start command)
+	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
 	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error)
 
-	// GetUserProfile retrieves complete user profile with pets and clinics
+	// GetUserProfile получает полный профиль пользователя с питомцами и клиниками
 	GetUserProfile(ctx context.Context, userID int) (*UserProfile, error)
 
-	// UpdateUserProfile updates user information
+	// UpdateUserProfile обновляет информацию о пользователе
 	UpdateUserProfile(ctx context.Context, userID int, updates UserUpdate) error
 
-	// GetUserByTelegramID retrieves user by Telegram ID
+	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
 }
 
-// UserRegistration contains data for user registration
+// UserRegistration содержит данные для регистрации пользователя
 type UserRegistration struct {
 	FullName         string `json:"full_name" validate:"required,min=2,max=255"`
 	Phone            string `json:"phone" validate:"required,e164"`
@@ -38,7 +38,7 @@ type UserRegistration struct {
 	Role             string `json:"role" validate:"required,oneof=user clinic_admin"`
 }
 
-// UserUpdate contains fields that can be updated for a user
+// UserUpdate содержит поля, которые можно обновить для пользователя
 type UserUpdate struct {
 	FullName         *string `json:"full_name,omitempty" validate:"omitempty,min=2,max=255"`
 	Phone            *string `json:"phone,omitempty" validate:"omitempty,e164"`
@@ -47,39 +47,39 @@ type UserUpdate struct {
 	LocationID       *int    `json:"location_id,omitempty" validate:"omitempty,min=1"`
 }
 
-// UserProfile represents a complete user profile with related data
+// UserProfile представляет полный профиль пользователя с связанными данными
 type UserProfile struct {
 	User   *models.User      `json:"user"`
 	Pets   []*models.Pet     `json:"pets,omitempty"`
 	Clinic *models.VetClinic `json:"clinic,omitempty"`
 }
 
-// UserServiceImpl implements UserService
+// UserServiceImpl реализует UserService
 type UserServiceImpl struct {
 	userRepo repositories.UserRepository
-	// petRepo and clinicRepo would be added here for complete profile
+	// petRepo и clinicRepo будут добавлены здесь для полного профиля
 }
 
-// NewUserService creates a new user service
+// NewUserService создает новый сервис пользователей
 func NewUserService(userRepo repositories.UserRepository) *UserServiceImpl {
 	return &UserServiceImpl{
 		userRepo: userRepo,
 	}
 }
 
-// RegisterUser registers a new user in the system
+// RegisterUser регистрирует нового пользователя в системе
 func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*models.User, error) {
-	// Check if user already exists
+	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
-		return nil, fmt.Errorf("check user existence: %w", err)
+		return nil, fmt.Errorf("проверка существования пользователя: %w", err)
 	}
 
 	if exists {
-		return nil, errors.New("user with this telegram ID already exists")
+		return nil, errors.New("пользователь с этим telegram ID уже существует")
 	}
 
-	// Create new user
+	// Создаем нового пользователя
 	user := &models.User{
 		TelegramID:       telegramID,
 		FullName:         userData.FullName,
@@ -92,53 +92,53 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("create user: %w", err)
+		return nil, fmt.Errorf("создание пользователя: %w", err)
 	}
 
 	return user, nil
 }
 
-// RegisterUserSimple creates a new user with Telegram ID and basic info (for Start command)
+// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
 func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error) {
-	// Check if user already exists
+	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
-		return nil, fmt.Errorf("check user existence: %w", err)
+		return nil, fmt.Errorf("проверка существования пользователя: %w", err)
 	}
 
 	if exists {
-		return nil, errors.New("user with this telegram ID already exists")
+		return nil, errors.New("пользователь с этим telegram ID уже существует")
 	}
 
-	// Create new user with Telegram ID, basic info and default values for required fields
+	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию для обязательных полей
 	user := &models.User{
 		TelegramID:       telegramID,
 		FullName:         fullName,
-		Phone:            "",     // Empty string for phone (will be filled later)
-		Email:            "",     // Empty string for email (will be filled later)
-		OrganizationName: "",     // Empty string for organization (will be filled later)
-		ConsentPD:        true,   // Default false, user must explicitly consent later
-		LocationID:       1,      // Default 0, user must set location later
-		Role:             "user", // Default role
+		Phone:            "",     // Пустая строка для телефона (будет заполнена позже)
+		Email:            "",     // Пустая строка для email (будет заполнена позже)
+		OrganizationName: "",     // Пустая строка для организации (будет заполнена позже)
+		ConsentPD:        true,   // По умолчанию false, пользователь должен явно согласиться позже
+		LocationID:       1,      // По умолчанию 0, пользователь должен установить местоположение позже
+		Role:             "user", // Роль по умолчанию
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("create user: %w", err)
+		return nil, fmt.Errorf("создание пользователя: %w", err)
 	}
 
 	return user, nil
 }
 
-// GetUserProfile retrieves complete user profile with pets and clinics
+// GetUserProfile получает полный профиль пользователя с питомцами и клиниками
 func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID int) (*UserProfile, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("get user: %w", err)
+		return nil, fmt.Errorf("получение пользователя: %w", err)
 	}
 
 	profile := &UserProfile{
 		User: user,
-		// TODO: Add pets and clinic data when repositories are available
+		// TODO: Добавить данные о питомцах и клинике, когда репозитории будут доступны
 		Pets:   []*models.Pet{},
 		Clinic: nil,
 	}
@@ -146,15 +146,15 @@ func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID int) (*User
 	return profile, nil
 }
 
-// UpdateUserProfile updates user information
+// UpdateUserProfile обновляет информацию о пользователе
 func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, updates UserUpdate) error {
-	// Get existing user
+	// Получаем существующего пользователя
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return fmt.Errorf("get user for update: %w", err)
+		return fmt.Errorf("получение пользователя для обновления: %w", err)
 	}
 
-	// Apply updates
+	// Применяем обновления
 	if updates.FullName != nil {
 		user.FullName = *updates.FullName
 	}
@@ -171,19 +171,19 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 		user.LocationID = *updates.LocationID
 	}
 
-	// Save updated user
+	// Сохраняем обновленного пользователя
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return fmt.Errorf("update user: %w", err)
+		return fmt.Errorf("обновление пользователя: %w", err)
 	}
 
 	return nil
 }
 
-// GetUserByTelegramID retrieves user by Telegram ID
+// GetUserByTelegramID получает пользователя по Telegram ID
 func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
 	user, err := s.userRepo.GetByTelegramID(ctx, telegramID)
 	if err != nil {
-		return nil, fmt.Errorf("get user by telegram ID: %w", err)
+		return nil, fmt.Errorf("получение пользователя по telegram ID: %w", err)
 	}
 	return user, nil
 }

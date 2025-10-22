@@ -2,6 +2,8 @@
 package main
 
 import (
+	"os"
+
 	_ "github.com/artesipov-alt/odnoi-krovi-app/docs"                // Документация Swagger
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"     // Обработчики HTTP запросов
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"   // Промежуточное ПО
@@ -26,9 +28,16 @@ import (
 func main() {
 	// Загрузка переменных окружения из .env файла
 	godotenv.Load()
-
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "3000"
+	}
+	env := os.Getenv("ENVIROMENT")
+	if env == "" {
+		env = "dev"
+	}
 	// Инициализация логгера в режиме разработки
-	logger.Init("dev")
+	logger.Init(env)
 	defer logger.Sync() // Гарантированное закрытие логгера при завершении
 
 	// Инициализация подключения к базе данных
@@ -58,7 +67,7 @@ func main() {
 	// Подключение middleware
 	app.Use(middleware.LoggerMiddleware) // Логирование запросов
 	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
-	app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
+	// app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 
 	// Документация Swagger - доступна по адресу /swagger/*
 	app.Get("/swagger/*", swagger.HandlerDefault)
@@ -80,9 +89,9 @@ func main() {
 		}
 	}
 
-	// Запуск сервера на порту 3000
-	logger.Log.Info("Сервер запускается на :3000")
-	if err := app.Listen(":3000"); err != nil {
+	// Запуск сервера на указанном порту
+	logger.Log.Info("Сервер запускается", zap.String("port", port))
+	if err := app.Listen(":" + port); err != nil {
 		logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 	}
 }

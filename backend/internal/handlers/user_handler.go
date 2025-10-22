@@ -4,33 +4,34 @@ import (
 	"strconv"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
 
-// UserHandler handles HTTP requests for user operations
+// UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
 	userService services.UserService
 }
 
-// ErrorResponse represents an error response
+// ErrorResponse представляет ответ с ошибкой
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// SimpleRegistrationRequest represents a request for simple user registration
+// SimpleRegistrationRequest представляет запрос на простую регистрацию пользователя
 type SimpleRegistrationRequest struct {
 	TelegramID int64  `json:"telegram_id" validate:"required,min=1" example:"123456789"`
 	FullName   string `json:"full_name,omitempty" validate:"omitempty,min=1,max=255" example:"Иван Иванов"`
 }
 
-// SuccessResponse represents a success response
+// SuccessResponse представляет успешный ответ
 type SuccessResponse struct {
 	Message string `json:"message"`
 }
 
-// NewUserHandler creates a new user handler
+// NewUserHandler создает новый обработчик пользователей
 func NewUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
@@ -52,30 +53,30 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	if userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "User ID is required",
+			Error: "ID пользователя обязателен",
 		})
 	}
 
 	id, err := strconv.Atoi(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Invalid user ID format",
+			Error: "Неверный формат ID пользователя",
 		})
 	}
 
-	logger.Log.Info("get user accessed", zap.String("userId", userID))
+	logger.Log.Info("доступ к получению пользователя", zap.String("userId", userID))
 
 	user, err := h.userService.GetUserProfile(c.Context(), id)
 	if err != nil {
-		logger.Log.Error("failed to get user", zap.Error(err), zap.Int("userId", id))
+		logger.Log.Error("не удалось получить пользователя", zap.Error(err), zap.Int("userId", id))
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Failed to get user",
+			Error: "Не удалось получить пользователя",
 		})
 	}
 
 	if user == nil {
 		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error: "User not found",
+			Error: "Пользователь не найден",
 		})
 	}
 
@@ -99,34 +100,40 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 	var request SimpleRegistrationRequest
 	if err := c.BodyParser(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Invalid request body",
+			Error: "Неверное тело запроса",
 		})
+	}
+
+	// Validate request
+	if err := validation.ValidateStruct(request); err != nil {
+		validationErrors := validation.GetValidationErrors(err)
+		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
 	}
 
 	if request.TelegramID <= 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Valid Telegram ID is required",
+			Error: "Корректный Telegram ID обязателен",
 		})
 	}
 
-	// Use provided full name or default to "Telegram User"
+	// Использовать предоставленное полное имя или установить значение по умолчанию "Пользователь Telegram"
 	fullName := request.FullName
 	if fullName == "" {
-		fullName = "Telegram User"
+		fullName = "Пользователь Telegram"
 	}
 
 	user, err := h.userService.RegisterUserSimple(c.Context(), request.TelegramID, fullName)
 	if err != nil {
-		logger.Log.Error("failed to register user", zap.Error(err), zap.Int64("telegramId", request.TelegramID))
+		logger.Log.Error("не удалось зарегистрировать пользователя", zap.Error(err), zap.Int64("telegramId", request.TelegramID))
 
 		if err.Error() == "user with this telegram ID already exists" {
 			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: "User with this Telegram ID already exists",
+				Error: "Пользователь с таким Telegram ID уже существует",
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Failed to register user",
+			Error: "Не удалось зарегистрировать пользователя",
 		})
 	}
 
@@ -150,30 +157,36 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 	var registrationData services.UserRegistration
 	if err := c.BodyParser(&registrationData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Invalid request body",
+			Error: "Неверное тело запроса",
 		})
 	}
 
-	// Get Telegram ID from context (should be set by middleware)
+	// Validate registration data
+	if err := validation.ValidateStruct(registrationData); err != nil {
+		validationErrors := validation.GetValidationErrors(err)
+		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	}
+
+	// Получить Telegram ID из контекста (должен быть установлен промежуточным ПО)
 	telegramID, ok := c.Locals("telegram_id").(int64)
 	if !ok {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Telegram ID is required",
+			Error: "Telegram ID обязателен",
 		})
 	}
 
 	user, err := h.userService.RegisterUser(c.Context(), telegramID, registrationData)
 	if err != nil {
-		logger.Log.Error("failed to register user", zap.Error(err), zap.Int64("telegramId", telegramID))
+		logger.Log.Error("не удалось зарегистрировать пользователя", zap.Error(err), zap.Int64("telegramId", telegramID))
 
 		if err.Error() == "user with this telegram ID already exists" {
 			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: "User with this Telegram ID already exists",
+				Error: "Пользователь с таким Telegram ID уже существует",
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Failed to register user",
+			Error: "Не удалось зарегистрировать пользователя",
 		})
 	}
 
@@ -198,34 +211,40 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	if userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "User ID is required",
+			Error: "ID пользователя обязателен",
 		})
 	}
 
 	id, err := strconv.Atoi(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Invalid user ID format",
+			Error: "Неверный формат ID пользователя",
 		})
 	}
 
 	var updateData services.UserUpdate
 	if err := c.BodyParser(&updateData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Invalid request body",
+			Error: "Неверное тело запроса",
 		})
 	}
 
+	// Validate update data
+	if err := validation.ValidateStruct(updateData); err != nil {
+		validationErrors := validation.GetValidationErrors(err)
+		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	}
+
 	if err := h.userService.UpdateUserProfile(c.Context(), id, updateData); err != nil {
-		logger.Log.Error("failed to update user", zap.Error(err), zap.Int("userId", id))
+		logger.Log.Error("не удалось обновить пользователя", zap.Error(err), zap.Int("userId", id))
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Failed to update user",
+			Error: "Не удалось обновить пользователя",
 		})
 	}
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
 	return c.JSON(SuccessResponse{
-		Message: "User updated successfully",
+		Message: "Пользователь успешно обновлен",
 	})
 }
 
@@ -244,29 +263,29 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 	telegramIDStr := c.Query("telegram_id")
 	if telegramIDStr == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Telegram ID is required",
+			Error: "Telegram ID обязателен",
 		})
 	}
 
 	telegramID, err := strconv.ParseInt(telegramIDStr, 10, 64)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Invalid Telegram ID format",
+			Error: "Неверный формат Telegram ID",
 		})
 	}
 
 	user, err := h.userService.GetUserByTelegramID(c.Context(), telegramID)
 	if err != nil {
-		logger.Log.Error("failed to get user by telegram ID", zap.Error(err), zap.Int64("telegramId", telegramID))
+		logger.Log.Error("не удалось получить пользователя по Telegram ID", zap.Error(err), zap.Int64("telegramId", telegramID))
 
 		if err.Error() == "user with telegram id not found" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "User not found",
+				Error: "Пользователь не найден",
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Failed to get user",
+			Error: "Не удалось получить пользователя",
 		})
 	}
 
