@@ -32,6 +32,9 @@ definitions:
       created_at:
         example: "2023-01-01T12:00:00Z"
         type: string
+      deleted_at:
+        example: "2023-01-02T12:00:00Z"
+        type: string
       email:
         example: user@example.com
         type: string

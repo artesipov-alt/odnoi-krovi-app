@@ -89,19 +89,26 @@ func (r *PostgresUserRepository) Update(ctx context.Context, user *models.User) 
 	return nil
 }
 
-// Delete deletes a user by their ID
+// Delete deletes a user by their ID (soft delete)
 func (r *PostgresUserRepository) Delete(ctx context.Context, id int) error {
 	if id <= 0 {
 		return errors.New("invalid user ID")
 	}
 
-	result := r.db.WithContext(ctx).Delete(&models.User{}, id)
+	// First get the user to ensure it exists
+	var user models.User
+	result := r.db.WithContext(ctx).First(&user, id)
 	if result.Error != nil {
-		return fmt.Errorf("failed to delete user: %w", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("user with id %d not found", id)
+		}
+		return fmt.Errorf("failed to get user by id %d: %w", id, result.Error)
 	}
 
-	if result.RowsAffected == 0 {
-		return fmt.Errorf("user with id %d not found", id)
+	// Perform soft delete
+	result = r.db.WithContext(ctx).Delete(&user)
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete user: %w", result.Error)
 	}
 
 	return nil

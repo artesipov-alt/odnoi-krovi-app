@@ -339,6 +339,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
                 },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "2023-01-02T12:00:00Z"
+                },
                 "email": {
                     "type": "string",
                     "example": "user@example.com"
