@@ -239,6 +239,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param petType query string true "Тип животного (dog, cat, etc.)"
 // @Success 200 {object} ReferenceResponse "Список пород животных"
+// @Failure 400 {object} ErrorResponse "Неверный тип животного"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/breeds-by-type [get]
 func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
@@ -252,7 +253,13 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	petType := models.PetType(petTypeStr)
+	petType, err := models.ValidatePetType(petTypeStr)
+	if err != nil {
+		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Неверный тип животного",
+		})
+	}
 
 	breeds, err := h.breedRepo.GetByPetType(c.Context(), petType)
 	if err != nil {
