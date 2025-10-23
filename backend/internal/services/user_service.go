@@ -25,17 +25,20 @@ type UserService interface {
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
+
+	// DeleteUser удаляет пользователя по ID (soft delete)
+	DeleteUser(ctx context.Context, userID int) error
 }
 
 // UserRegistration содержит данные для регистрации пользователя
 type UserRegistration struct {
-	FullName         string `json:"full_name" validate:"required,min=2,max=255"`
-	Phone            string `json:"phone" validate:"required,e164"`
-	Email            string `json:"email" validate:"omitempty,email"`
-	OrganizationName string `json:"organization_name" validate:"omitempty,max=255"`
-	ConsentPD        bool   `json:"consent_pd" validate:"required"`
-	LocationID       int    `json:"location_id" validate:"required,min=1"`
-	Role             string `json:"role" validate:"required,oneof=user clinic_admin"`
+	FullName         string          `json:"full_name" validate:"required,min=2,max=255"`
+	Phone            string          `json:"phone" validate:"required,e164"`
+	Email            string          `json:"email" validate:"omitempty,email"`
+	OrganizationName string          `json:"organization_name" validate:"omitempty,max=255"`
+	ConsentPD        bool            `json:"consent_pd" validate:"required"`
+	LocationID       int             `json:"location_id" validate:"required,min=1"`
+	Role             models.UserRole `json:"role" validate:"required,oneof=user clinic_admin"`
 }
 
 // UserUpdate содержит поля, которые можно обновить для пользователя
@@ -127,6 +130,26 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 	}
 
 	return user, nil
+}
+
+// DeleteUser удаляет пользователя по ID (soft delete)
+func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
+	// Проверяем, существует ли пользователь
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("получение пользователя для удаления: %w", err)
+	}
+
+	if user == nil {
+		return errors.New("пользователь не найден")
+	}
+
+	// Удаляем пользователя
+	if err := s.userRepo.Delete(ctx, userID); err != nil {
+		return fmt.Errorf("удаление пользователя: %w", err)
+	}
+
+	return nil
 }
 
 // GetUserProfile получает полный профиль пользователя с питомцами и клиниками

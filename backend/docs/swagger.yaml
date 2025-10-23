@@ -5,6 +5,20 @@ definitions:
       error:
         type: string
     type: object
+  handlers.ReferenceItem:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
+    type: object
+  handlers.ReferenceResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/handlers.ReferenceItem'
+        type: array
+    type: object
   handlers.SimpleRegistrationRequest:
     properties:
       full_name:
@@ -24,6 +38,112 @@ definitions:
       message:
         type: string
     type: object
+  models.Gender:
+    enum:
+    - male
+    - female
+    type: string
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+  models.LivingCondition:
+    enum:
+    - apartment
+    - house
+    - aviary
+    - other
+    type: string
+    x-enum-varnames:
+    - LivingConditionApartment
+    - LivingConditionHouse
+    - LivingConditionAviary
+    - LivingConditionOther
+  models.Pet:
+    properties:
+      age_months:
+        example: 6
+        type: integer
+      age_years:
+        example: 3
+        type: integer
+      blood_group:
+        example: DEA 1.1
+        type: string
+      breed:
+        example: Лабрадор
+        type: string
+      chip_number:
+        example: "123456789"
+        type: string
+      deworming_date:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      ectoparasite_date:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      gender:
+        allOf:
+        - $ref: '#/definitions/models.Gender'
+        example: male
+      has_chip:
+        example: false
+        type: boolean
+      id:
+        example: 1
+        type: integer
+      is_guide_dog:
+        example: false
+        type: boolean
+      is_therapist:
+        example: false
+        type: boolean
+      knows_blood_group:
+        example: false
+        type: boolean
+      last_transfusion_date:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      latitude:
+        example: 55.7558
+        type: number
+      living_condition:
+        allOf:
+        - $ref: '#/definitions/models.LivingCondition'
+        example: apartment
+      longitude:
+        example: 37.6173
+        type: number
+      name:
+        example: Бобик
+        type: string
+      owner_id:
+        example: 1
+        type: integer
+      photo_url:
+        example: https://example.com/photo.jpg
+        type: string
+      sterilized:
+        example: false
+        type: boolean
+      type:
+        allOf:
+        - $ref: '#/definitions/models.PetType'
+        example: dog
+      vaccination_date:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      weight_kg:
+        example: 25.5
+        type: number
+    type: object
+  models.PetType:
+    enum:
+    - dog
+    - cat
+    type: string
+    x-enum-varnames:
+    - PetTypeDog
+    - PetTypeCat
   models.User:
     properties:
       consent_pd:
@@ -31,9 +151,6 @@ definitions:
         type: boolean
       created_at:
         example: "2023-01-01T12:00:00Z"
-        type: string
-      deleted_at:
-        example: "2023-01-02T12:00:00Z"
         type: string
       email:
         example: user@example.com
@@ -54,11 +171,124 @@ definitions:
         example: "+79991234567"
         type: string
       role:
+        allOf:
+        - $ref: '#/definitions/models.UserRole'
         example: user
-        type: string
       telegram_id:
         example: 123456789
         type: integer
+    type: object
+  models.UserRole:
+    enum:
+    - user
+    - clinic
+    - admin
+    - donor
+    type: string
+    x-enum-varnames:
+    - UserRoleUser
+    - UserRoleClinic
+    - UserRoleAdmin
+    - UserRoleDonor
+  services.PetCreate:
+    properties:
+      age_months:
+        maximum: 11
+        minimum: 0
+        type: integer
+      age_years:
+        minimum: 0
+        type: integer
+      blood_group:
+        maxLength: 50
+        type: string
+      breed:
+        maxLength: 100
+        type: string
+      chip_number:
+        maxLength: 50
+        type: string
+      gender:
+        $ref: '#/definitions/models.Gender'
+      has_chip:
+        type: boolean
+      is_guide_dog:
+        type: boolean
+      is_therapist:
+        type: boolean
+      knows_blood_group:
+        type: boolean
+      latitude:
+        type: number
+      living_condition:
+        $ref: '#/definitions/models.LivingCondition'
+      longitude:
+        type: number
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      photo_url:
+        maxLength: 255
+        type: string
+      sterilized:
+        type: boolean
+      type:
+        $ref: '#/definitions/models.PetType'
+      weight_kg:
+        minimum: 0
+        type: number
+    required:
+    - name
+    type: object
+  services.PetUpdate:
+    properties:
+      age_months:
+        maximum: 11
+        minimum: 0
+        type: integer
+      age_years:
+        minimum: 0
+        type: integer
+      blood_group:
+        maxLength: 50
+        type: string
+      breed:
+        maxLength: 100
+        type: string
+      chip_number:
+        maxLength: 50
+        type: string
+      gender:
+        $ref: '#/definitions/models.Gender'
+      has_chip:
+        type: boolean
+      is_guide_dog:
+        type: boolean
+      is_therapist:
+        type: boolean
+      knows_blood_group:
+        type: boolean
+      latitude:
+        type: number
+      living_condition:
+        $ref: '#/definitions/models.LivingCondition'
+      longitude:
+        type: number
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      photo_url:
+        maxLength: 255
+        type: string
+      sterilized:
+        type: boolean
+      type:
+        $ref: '#/definitions/models.PetType'
+      weight_kg:
+        minimum: 0
+        type: number
     type: object
   services.UserRegistration:
     properties:
@@ -79,10 +309,11 @@ definitions:
       phone:
         type: string
       role:
+        allOf:
+        - $ref: '#/definitions/models.UserRole'
         enum:
         - user
         - clinic_admin
-        type: string
     required:
     - consent_pd
     - full_name
@@ -126,7 +357,328 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
+  /pets/{id}:
+    delete:
+      description: Удаляет питомца из системы
+      parameters:
+      - description: ID питомца
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Питомец успешно удален
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Питомец не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Удаление питомца по ID
+      tags:
+      - pets
+    get:
+      description: Возвращает информацию о питомце по его идентификатору
+      parameters:
+      - description: ID питомца
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные питомца
+          schema:
+            $ref: '#/definitions/models.Pet'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Питомец не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение питомца по ID
+      tags:
+      - pets
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о питомце
+      parameters:
+      - description: ID питомца
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.PetUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные успешно обновлены
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Питомец не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Обновление данных питомца
+      tags:
+      - pets
+  /pets/user/{user_id}:
+    get:
+      description: Возвращает всех питомцев конкретного пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список питомцев
+          schema:
+            items:
+              $ref: '#/definitions/models.Pet'
+            type: array
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение питомцев пользователя
+      tags:
+      - pets
+    post:
+      consumes:
+      - application/json
+      description: Создает нового питомца для пользователя
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Данные питомца
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.PetCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданный питомец
+          schema:
+            $ref: '#/definitions/models.Pet'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Создание нового питомца
+      tags:
+      - pets
+  /reference/blood-groups:
+    get:
+      description: Возвращает список групп крови животных для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список групп крови
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение групп крови животных
+      tags:
+      - reference
+  /reference/blood-search-statuses:
+    get:
+      description: Возвращает все доступные статусы поиска крови для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список статусов поиска крови
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех статусов поиска крови
+      tags:
+      - reference
+  /reference/blood-stock-statuses:
+    get:
+      description: Возвращает все доступные статусы запаса крови для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список статусов запаса крови
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех статусов запаса крови
+      tags:
+      - reference
+  /reference/breeds:
+    get:
+      description: Возвращает список популярных пород животных для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список пород животных
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение популярных пород животных
+      tags:
+      - reference
+  /reference/donation-statuses:
+    get:
+      description: Возвращает все доступные статусы донорства для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список статусов донорства
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех статусов донорства
+      tags:
+      - reference
+  /reference/genders:
+    get:
+      description: Возвращает все доступные значения пола для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список значений пола
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех значений пола
+      tags:
+      - reference
+  /reference/living-conditions:
+    get:
+      description: Возвращает все доступные условия проживания для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список условий проживания
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех условий проживания
+      tags:
+      - reference
+  /reference/pet-types:
+    get:
+      description: Возвращает все доступные типы животных для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список типов животных
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех типов животных
+      tags:
+      - reference
+  /reference/user-roles:
+    get:
+      description: Возвращает все доступные роли пользователей для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список ролей пользователей
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех ролей пользователей
+      tags:
+      - reference
   /user/{id}:
+    delete:
+      description: Удаляет пользователя из системы (soft delete)
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно удален
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Удаление пользователя по ID
+      tags:
+      - users
     get:
       description: Возвращает информацию о пользователе по его идентификатору
       parameters:
@@ -199,6 +751,7 @@ paths:
     post:
       consumes:
       - application/json
+      deprecated: true
       description: Регистрирует нового пользователя в системе
       parameters:
       - description: Данные для регистрации пользователя

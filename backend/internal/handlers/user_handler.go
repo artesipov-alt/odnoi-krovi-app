@@ -152,6 +152,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 409 {object} ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Deprecated
 // @Router /user/register [post]
 func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 	var registrationData services.UserRegistration
@@ -291,4 +292,52 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
 	return c.JSON(user)
+}
+
+// DeleteUserHandler godoc
+// @Summary Удаление пользователя по ID
+// @Description Удаляет пользователя из системы (soft delete)
+// @Tags users
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Success 200 {object} SuccessResponse "Пользователь успешно удален"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /user/{id} [delete]
+func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	if userID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "ID пользователя обязателен",
+		})
+	}
+
+	id, err := strconv.Atoi(userID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Неверный формат ID пользователя",
+		})
+	}
+
+	logger.Log.Info("доступ к удалению пользователя", zap.Int("userId", id))
+
+	if err := h.userService.DeleteUser(c.Context(), id); err != nil {
+		logger.Log.Error("не удалось удалить пользователя", zap.Error(err), zap.Int("userId", id))
+
+		if err.Error() == "получение пользователя для удаления: user with id "+userID+" not found: record not found" {
+			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+				Error: "Пользователь не найден",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Не удалось удалить пользователя",
+		})
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(SuccessResponse{
+		Message: "Пользователь успешно удален",
+	})
 }

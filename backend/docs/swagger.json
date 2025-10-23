@@ -28,6 +28,448 @@
                 }
             }
         },
+        "/pets/user/{user_id}": {
+            "get": {
+                "description": "Возвращает всех питомцев конкретного пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Получение питомцев пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список питомцев",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Pet"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Создает нового питомца для пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Создание нового питомца",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные питомца",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.PetCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Созданный питомец",
+                        "schema": {
+                            "$ref": "#/definitions/models.Pet"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pets/{id}": {
+            "get": {
+                "description": "Возвращает информацию о питомце по его идентификатору",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Получение питомца по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID питомца",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные питомца",
+                        "schema": {
+                            "$ref": "#/definitions/models.Pet"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Питомец не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет информацию о питомце",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Обновление данных питомца",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID питомца",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.PetUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные успешно обновлены",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Питомец не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет питомца из системы",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Удаление питомца по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID питомца",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Питомец успешно удален",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Питомец не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/blood-groups": {
+            "get": {
+                "description": "Возвращает список групп крови животных для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение групп крови животных",
+                "responses": {
+                    "200": {
+                        "description": "Список групп крови",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/blood-search-statuses": {
+            "get": {
+                "description": "Возвращает все доступные статусы поиска крови для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех статусов поиска крови",
+                "responses": {
+                    "200": {
+                        "description": "Список статусов поиска крови",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/blood-stock-statuses": {
+            "get": {
+                "description": "Возвращает все доступные статусы запаса крови для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех статусов запаса крови",
+                "responses": {
+                    "200": {
+                        "description": "Список статусов запаса крови",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/breeds": {
+            "get": {
+                "description": "Возвращает список популярных пород животных для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение популярных пород животных",
+                "responses": {
+                    "200": {
+                        "description": "Список пород животных",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/donation-statuses": {
+            "get": {
+                "description": "Возвращает все доступные статусы донорства для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех статусов донорства",
+                "responses": {
+                    "200": {
+                        "description": "Список статусов донорства",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/genders": {
+            "get": {
+                "description": "Возвращает все доступные значения пола для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех значений пола",
+                "responses": {
+                    "200": {
+                        "description": "Список значений пола",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/living-conditions": {
+            "get": {
+                "description": "Возвращает все доступные условия проживания для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех условий проживания",
+                "responses": {
+                    "200": {
+                        "description": "Список условий проживания",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/pet-types": {
+            "get": {
+                "description": "Возвращает все доступные типы животных для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех типов животных",
+                "responses": {
+                    "200": {
+                        "description": "Список типов животных",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/user-roles": {
+            "get": {
+                "description": "Возвращает все доступные роли пользователей для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех ролей пользователей",
+                "responses": {
+                    "200": {
+                        "description": "Список ролей пользователей",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/register": {
             "post": {
                 "description": "Регистрирует нового пользователя в системе",
@@ -41,6 +483,7 @@
                     "users"
                 ],
                 "summary": "Регистрация нового пользователя",
+                "deprecated": true,
                 "parameters": [
                     {
                         "description": "Данные для регистрации пользователя",
@@ -282,6 +725,51 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Удаляет пользователя из системы (soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Удаление пользователя по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно удален",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
             }
         }
     },
@@ -291,6 +779,28 @@
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.ReferenceItem": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.ReferenceResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.ReferenceItem"
+                    }
                 }
             }
         },
@@ -321,6 +831,156 @@
                 }
             }
         },
+        "models.Gender": {
+            "type": "string",
+            "enum": [
+                "male",
+                "female"
+            ],
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale"
+            ]
+        },
+        "models.LivingCondition": {
+            "type": "string",
+            "enum": [
+                "apartment",
+                "house",
+                "aviary",
+                "other"
+            ],
+            "x-enum-varnames": [
+                "LivingConditionApartment",
+                "LivingConditionHouse",
+                "LivingConditionAviary",
+                "LivingConditionOther"
+            ]
+        },
+        "models.Pet": {
+            "type": "object",
+            "properties": {
+                "age_months": {
+                    "type": "integer",
+                    "example": 6
+                },
+                "age_years": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "blood_group": {
+                    "type": "string",
+                    "example": "DEA 1.1"
+                },
+                "breed": {
+                    "type": "string",
+                    "example": "Лабрадор"
+                },
+                "chip_number": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "deworming_date": {
+                    "type": "string",
+                    "example": "2023-01-01T12:00:00Z"
+                },
+                "ectoparasite_date": {
+                    "type": "string",
+                    "example": "2023-01-01T12:00:00Z"
+                },
+                "gender": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Gender"
+                        }
+                    ],
+                    "example": "male"
+                },
+                "has_chip": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_guide_dog": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_therapist": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "knows_blood_group": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "last_transfusion_date": {
+                    "type": "string",
+                    "example": "2023-01-01T12:00:00Z"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 55.7558
+                },
+                "living_condition": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.LivingCondition"
+                        }
+                    ],
+                    "example": "apartment"
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 37.6173
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Бобик"
+                },
+                "owner_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "photo_url": {
+                    "type": "string",
+                    "example": "https://example.com/photo.jpg"
+                },
+                "sterilized": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetType"
+                        }
+                    ],
+                    "example": "dog"
+                },
+                "vaccination_date": {
+                    "type": "string",
+                    "example": "2023-01-01T12:00:00Z"
+                },
+                "weight_kg": {
+                    "type": "number",
+                    "example": 25.5
+                }
+            }
+        },
+        "models.PetType": {
+            "type": "string",
+            "enum": [
+                "dog",
+                "cat"
+            ],
+            "x-enum-varnames": [
+                "PetTypeDog",
+                "PetTypeCat"
+            ]
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -331,10 +991,6 @@
                 "created_at": {
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
-                },
-                "deleted_at": {
-                    "type": "string",
-                    "example": "2023-01-02T12:00:00Z"
                 },
                 "email": {
                     "type": "string",
@@ -361,12 +1017,172 @@
                     "example": "+79991234567"
                 },
                 "role": {
-                    "type": "string",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.UserRole"
+                        }
+                    ],
                     "example": "user"
                 },
                 "telegram_id": {
                     "type": "integer",
                     "example": 123456789
+                }
+            }
+        },
+        "models.UserRole": {
+            "type": "string",
+            "enum": [
+                "user",
+                "clinic",
+                "admin",
+                "donor"
+            ],
+            "x-enum-varnames": [
+                "UserRoleUser",
+                "UserRoleClinic",
+                "UserRoleAdmin",
+                "UserRoleDonor"
+            ]
+        },
+        "services.PetCreate": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "age_months": {
+                    "type": "integer",
+                    "maximum": 11,
+                    "minimum": 0
+                },
+                "age_years": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "blood_group": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "breed": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "chip_number": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "has_chip": {
+                    "type": "boolean"
+                },
+                "is_guide_dog": {
+                    "type": "boolean"
+                },
+                "is_therapist": {
+                    "type": "boolean"
+                },
+                "knows_blood_group": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "living_condition": {
+                    "$ref": "#/definitions/models.LivingCondition"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "photo_url": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sterilized": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.PetType"
+                },
+                "weight_kg": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "services.PetUpdate": {
+            "type": "object",
+            "properties": {
+                "age_months": {
+                    "type": "integer",
+                    "maximum": 11,
+                    "minimum": 0
+                },
+                "age_years": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "blood_group": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "breed": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "chip_number": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "gender": {
+                    "$ref": "#/definitions/models.Gender"
+                },
+                "has_chip": {
+                    "type": "boolean"
+                },
+                "is_guide_dog": {
+                    "type": "boolean"
+                },
+                "is_therapist": {
+                    "type": "boolean"
+                },
+                "knows_blood_group": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "living_condition": {
+                    "$ref": "#/definitions/models.LivingCondition"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "photo_url": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "sterilized": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.PetType"
+                },
+                "weight_kg": {
+                    "type": "number",
+                    "minimum": 0
                 }
             }
         },
@@ -403,10 +1219,14 @@
                     "type": "string"
                 },
                 "role": {
-                    "type": "string",
                     "enum": [
                         "user",
                         "clinic_admin"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.UserRole"
+                        }
                     ]
                 }
             }
