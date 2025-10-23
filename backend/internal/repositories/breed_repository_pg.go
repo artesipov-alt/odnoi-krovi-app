@@ -57,7 +57,7 @@ func (r *PostgresBreedRepository) GetByPetType(ctx context.Context, petType mode
 	}
 
 	var breeds []*models.Breed
-	result := r.db.WithContext(ctx).Where("pet_type = ?", petType).Find(&breeds)
+	result := r.db.WithContext(ctx).Where("type = ?", petType).Find(&breeds)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get breeds for pet type %s: %w", petType, result.Error)
 	}

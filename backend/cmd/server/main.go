@@ -53,7 +53,7 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД
-	autoMigrate(db)
+	// autoMigrate(db)
 
 	// Инициализация репозитория для работы с пользователями
 	userRepo := repositories.NewPostgresUserRepository(db)

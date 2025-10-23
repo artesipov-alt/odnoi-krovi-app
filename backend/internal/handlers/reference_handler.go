@@ -239,7 +239,6 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param petType query string true "Тип животного (dog, cat, etc.)"
 // @Success 200 {object} ReferenceResponse "Список пород животных"
-// @Failure 400 {object} ErrorResponse "Неверный тип животного"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/breeds-by-type [get]
 func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
