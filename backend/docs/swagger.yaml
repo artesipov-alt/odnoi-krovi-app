@@ -537,6 +537,10 @@ paths:
           description: Список групп крови
           schema:
             $ref: '#/definitions/handlers.ReferenceResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получение групп крови животных
       tags:
       - reference
@@ -581,6 +585,34 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получение популярных пород животных
+      tags:
+      - reference
+  /reference/breeds-by-type:
+    get:
+      description: Возвращает список пород животных для указанного типа животного
+        для выбора на фронтенде
+      parameters:
+      - description: Тип животного (dog, cat, etc.)
+        in: query
+        name: petType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список пород животных
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+        "400":
+          description: Неверный тип животного
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение пород животных по типу
       tags:
       - reference
   /reference/donation-statuses:

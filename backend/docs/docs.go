@@ -307,6 +307,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ReferenceResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -366,6 +372,47 @@ const docTemplate = `{
                         "description": "Список пород животных",
                         "schema": {
                             "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/breeds-by-type": {
+            "get": {
+                "description": "Возвращает список пород животных для указанного типа животного для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение пород животных по типу",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Тип животного (dog, cat, etc.)",
+                        "name": "petType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список пород животных",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный тип животного",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {

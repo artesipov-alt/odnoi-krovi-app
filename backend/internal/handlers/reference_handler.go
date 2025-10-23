@@ -10,13 +10,15 @@ import (
 
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
-	breedRepo repositories.BreedRepository
+	breedRepo     repositories.BreedRepository
+	bloodTypeRepo repositories.BloodTypeRepository
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(breedRepo repositories.BreedRepository) *ReferenceHandler {
+func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodTypeRepository) *ReferenceHandler {
 	return &ReferenceHandler{
-		breedRepo: breedRepo,
+		breedRepo:     breedRepo,
+		bloodTypeRepo: bloodTypeRepo,
 	}
 }
 
@@ -230,42 +232,73 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 	return c.JSON(ReferenceResponse{Data: items})
 }
 
+// GetBreedsByTypeHandler godoc
+// @Summary Получение пород животных по типу
+// @Description Возвращает список пород животных для указанного типа животного для выбора на фронтенде
+// @Tags reference
+// @Produce json
+// @Param petType query string true "Тип животного (dog, cat, etc.)"
+// @Success 200 {object} ReferenceResponse "Список пород животных"
+// @Failure 400 {object} ErrorResponse "Неверный тип животного"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /reference/breeds-by-type [get]
+func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
+	logger.Log.Info("получение справочника пород животных по типу животного")
+
+	petTypeStr := c.Query("petType")
+	if petTypeStr == "" {
+		logger.Log.Error("не указан тип животного")
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Необходимо указать тип животного",
+		})
+	}
+
+	petType := models.PetType(petTypeStr)
+
+	breeds, err := h.breedRepo.GetByPetType(c.Context(), petType)
+	if err != nil {
+		logger.Log.Error("не удалось получить породы из БД", zap.Error(err), zap.String("petType", petTypeStr))
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Не удалось получить список пород",
+		})
+	}
+
+	items := make([]ReferenceItem, len(breeds))
+	for i, breed := range breeds {
+		items[i] = ReferenceItem{
+			Value: breed.Name,
+			Label: breed.Name,
+		}
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(ReferenceResponse{Data: items})
+}
+
 // GetBloodGroupsHandler godoc
 // @Summary Получение групп крови животных
 // @Description Возвращает список групп крови животных для выбора на фронтенде
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список групп крови"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/blood-groups [get]
 func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника групп крови")
 
-	// Группы крови для собак и кошек
-	bloodGroups := []string{
-		"DEA 1.1+",
-		"DEA 1.1-",
-		"DEA 1.2+",
-		"DEA 1.2-",
-		"DEA 3+",
-		"DEA 3-",
-		"DEA 4+",
-		"DEA 4-",
-		"DEA 5+",
-		"DEA 5-",
-		"DEA 7+",
-		"DEA 7-",
-		"A",
-		"B",
-		"AB",
-		"Универсальный донор",
-		"Неизвестно",
+	bloodTypes, err := h.bloodTypeRepo.GetAll(c.Context())
+	if err != nil {
+		logger.Log.Error("не удалось получить группы крови из БД", zap.Error(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Не удалось получить список групп крови",
+		})
 	}
 
-	items := make([]ReferenceItem, len(bloodGroups))
-	for i, group := range bloodGroups {
+	items := make([]ReferenceItem, len(bloodTypes))
+	for i, bloodType := range bloodTypes {
 		items[i] = ReferenceItem{
-			Value: group,
-			Label: group,
+			Value: bloodType.Name,
+			Label: bloodType.Name,
 		}
 	}
 

@@ -53,7 +53,7 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД
-	// autoMigrate(db)
+	autoMigrate(db)
 
 	// Инициализация репозитория для работы с пользователями
 	userRepo := repositories.NewPostgresUserRepository(db)
@@ -63,6 +63,9 @@ func main() {
 
 	// Инициализация репозитория для работы с породами
 	breedRepo := repositories.NewPostgresBreedRepository(db)
+
+	// Инициализация репозитория для работы с типами крови
+	bloodTypeRepo := repositories.NewPostgresBloodTypeRepository(db)
 
 	// Инициализация сервиса с бизнес-логикой пользователей
 	userService := services.NewUserService(userRepo)
@@ -77,7 +80,7 @@ func main() {
 	petHandler := handlers.NewPetHandler(petService)
 
 	// Инициализация обработчиков для справочных данных
-	referenceHandler := handlers.NewReferenceHandler(breedRepo)
+	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo)
 
 	// Создание экземпляра Fiber приложения
 	app := fiber.New()
@@ -123,11 +126,12 @@ func main() {
 		// Группа маршрутов для справочных данных
 		referenceGroup := api.Group("/reference")
 		{
-			referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)                        // Типы животных
-			referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)                           // Пол животного
-			referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler)        // Условия проживания
-			referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)                      // Роли пользователей
-			referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)                             // Породы животных
+			referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)                 // Типы животных
+			referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)                    // Пол животного
+			referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler) // Условия проживания
+			referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)               // Роли пользователей
+			referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
+			referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)               // Породы животных
 			referenceGroup.Get("/blood-groups", referenceHandler.GetBloodGroupsHandler)                  // Группы крови
 			referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler) // Статусы поиска крови
 			referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)   // Статусы запаса крови
