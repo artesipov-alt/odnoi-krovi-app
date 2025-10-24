@@ -202,8 +202,8 @@ func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 }
 
 // GetBreedsHandler godoc
-// @Summary Получение популярных пород животных
-// @Description Возвращает список всех пород животных для выбора на фронтенде
+// @Summary Получение всех пород животных
+// @Description Возвращает список всех пород животных в базе для выбора на фронтенде
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список пород животных"
