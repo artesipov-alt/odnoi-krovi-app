@@ -82,6 +82,12 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		return nil, errors.New("пользователь с этим telegram ID уже существует")
 	}
 
+	// Валидируем роль пользователя
+	validatedRole, err := models.ValidateUserRole(string(userData.Role))
+	if err != nil {
+		return nil, fmt.Errorf("валидация роли пользователя: %w", err)
+	}
+
 	// Создаем нового пользователя
 	user := &models.User{
 		TelegramID:       telegramID,
@@ -91,7 +97,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		OrganizationName: userData.OrganizationName,
 		ConsentPD:        userData.ConsentPD,
 		LocationID:       userData.LocationID,
-		Role:             userData.Role,
+		Role:             validatedRole,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {

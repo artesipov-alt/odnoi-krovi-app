@@ -97,6 +97,24 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 		return nil, errors.New("пользователь не найден")
 	}
 
+	// Валидируем тип животного
+	validatedType, err := models.ValidatePetType(string(petData.Type))
+	if err != nil {
+		return nil, fmt.Errorf("валидация типа животного: %w", err)
+	}
+
+	// Валидируем пол животного
+	validatedGender, err := models.ValidateGender(string(petData.Gender))
+	if err != nil {
+		return nil, fmt.Errorf("валидация пола животного: %w", err)
+	}
+
+	// Валидируем условия проживания
+	validatedLivingCondition, err := models.ValidateLivingCondition(string(petData.LivingCondition))
+	if err != nil {
+		return nil, fmt.Errorf("валидация условий проживания: %w", err)
+	}
+
 	// Создаем нового питомца
 	pet := &models.Pet{
 		OwnerID:         userID,
@@ -114,9 +132,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 		Sterilized:      petData.Sterilized,
 		Latitude:        petData.Latitude,
 		Longitude:       petData.Longitude,
-		LivingCondition: petData.LivingCondition,
-		Gender:          petData.Gender,
-		Type:            petData.Type,
+		LivingCondition: validatedLivingCondition,
+		Gender:          validatedGender,
+		Type:            validatedType,
 		BloodGroup:      petData.BloodGroup,
 	}
 
@@ -213,13 +231,25 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 		pet.Longitude = *updates.Longitude
 	}
 	if updates.LivingCondition != nil {
-		pet.LivingCondition = *updates.LivingCondition
+		validatedLivingCondition, err := models.ValidateLivingCondition(string(*updates.LivingCondition))
+		if err != nil {
+			return fmt.Errorf("валидация условий проживания: %w", err)
+		}
+		pet.LivingCondition = validatedLivingCondition
 	}
 	if updates.Gender != nil {
-		pet.Gender = *updates.Gender
+		validatedGender, err := models.ValidateGender(string(*updates.Gender))
+		if err != nil {
+			return fmt.Errorf("валидация пола животного: %w", err)
+		}
+		pet.Gender = validatedGender
 	}
 	if updates.Type != nil {
-		pet.Type = *updates.Type
+		validatedType, err := models.ValidatePetType(string(*updates.Type))
+		if err != nil {
+			return fmt.Errorf("валидация типа животного: %w", err)
+		}
+		pet.Type = validatedType
 	}
 	if updates.BloodGroup != nil {
 		pet.BloodGroup = *updates.BloodGroup
