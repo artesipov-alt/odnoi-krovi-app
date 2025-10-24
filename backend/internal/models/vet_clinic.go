@@ -2,7 +2,7 @@ package models
 
 // VetClinic represents a veterinary clinic in the system
 type VetClinic struct {
-	UserID                   int                `gorm:"not null" json:"user_id" example:"1"`
+	ClinicID                 int                `gorm:"primaryKey;autoIncrement" json:"clinic_id" example:"1"`
 	Name                     string             `gorm:"size:255;not null" json:"name" example:"ВетКлиника ЗооДоктор"`
 	Phone                    string             `gorm:"size:20" json:"phone,omitempty" example:"+79991234567"`
 	Website                  string             `gorm:"size:255" json:"website,omitempty" example:"https://vetclinic.example.com"`

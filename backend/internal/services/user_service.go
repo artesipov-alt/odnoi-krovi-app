@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей

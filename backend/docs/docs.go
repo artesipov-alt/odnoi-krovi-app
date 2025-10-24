@@ -359,7 +359,7 @@ const docTemplate = `{
         },
         "/reference/breeds": {
             "get": {
-                "description": "Возвращает список популярных пород животных для выбора на фронтенде",
+                "description": "Возвращает список всех пород животных для выбора на фронтенде",
                 "produces": [
                     "application/json"
                 ],
@@ -825,6 +825,251 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/vet-clinics/location/{location_id}": {
+            "get": {
+                "description": "Возвращает список всех ветеринарных клиник в указанной локации",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vet-clinics"
+                ],
+                "summary": "Получение всех клиник по ID локации",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID локации",
+                        "name": "location_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список клиник",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.VetClinic"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vet-clinics/register": {
+            "post": {
+                "description": "Регистрирует новую ветеринарную клинику в системе",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vet-clinics"
+                ],
+                "summary": "Регистрация новой ветеринарной клиники",
+                "parameters": [
+                    {
+                        "description": "Данные клиники",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.VetClinicRegistration"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Созданная клиника",
+                        "schema": {
+                            "$ref": "#/definitions/models.VetClinic"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Клиника уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vet-clinics/{id}": {
+            "get": {
+                "description": "Возвращает полный профиль ветеринарной клиники",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vet-clinics"
+                ],
+                "summary": "Получение профиля клиники по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID клиники",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Профиль клиники",
+                        "schema": {
+                            "$ref": "#/definitions/services.VetClinicProfile"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Клиника не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет информацию о ветеринарной клинике",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vet-clinics"
+                ],
+                "summary": "Обновление профиля клиники",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID клиники",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.VetClinicUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные успешно обновлены",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Клиника не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет клинику из системы (soft delete)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vet-clinics"
+                ],
+                "summary": "Удаление клиники по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID клиники",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Клиника успешно удалена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Клиника не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -882,6 +1127,38 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "models.DonorRequirements": {
+            "type": "object",
+            "properties": {
+                "blood_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "health_conditions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "max_age": {
+                    "type": "integer"
+                },
+                "min_age": {
+                    "type": "integer"
+                },
+                "min_weight": {
+                    "type": "number"
+                },
+                "vaccinations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1099,6 +1376,66 @@ const docTemplate = `{
                 "UserRoleDonor"
             ]
         },
+        "models.VetClinic": {
+            "type": "object",
+            "properties": {
+                "appointment_requirement_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "clinic_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "contact_person_name": {
+                    "type": "string",
+                    "example": "Мария Петрова"
+                },
+                "contact_person_position": {
+                    "type": "string",
+                    "example": "Администратор"
+                },
+                "donor_bonus_programs": {
+                    "type": "string",
+                    "example": "Бонусные программы для доноров"
+                },
+                "donor_requirements": {
+                    "$ref": "#/definitions/models.DonorRequirements"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": 55.7558
+                },
+                "location_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 37.6173
+                },
+                "name": {
+                    "type": "string",
+                    "example": "ВетКлиника ЗооДоктор"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+79991234567"
+                },
+                "transfusion_conditions": {
+                    "type": "string",
+                    "example": "Условия для переливания крови"
+                },
+                "website": {
+                    "type": "string",
+                    "example": "https://vetclinic.example.com"
+                },
+                "work_hours": {
+                    "type": "string",
+                    "example": "Пн-Пт: 9:00-18:00"
+                }
+            }
+        },
         "services.PetCreate": {
             "type": "object",
             "required": [
@@ -1305,6 +1642,103 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.VetClinicProfile": {
+            "type": "object",
+            "properties": {
+                "clinic": {
+                    "$ref": "#/definitions/models.VetClinic"
+                }
+            }
+        },
+        "services.VetClinicRegistration": {
+            "type": "object",
+            "required": [
+                "appointment_requirement_id",
+                "location_id",
+                "name"
+            ],
+            "properties": {
+                "appointment_requirement_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "contact_person_name": {
+                    "type": "string"
+                },
+                "contact_person_position": {
+                    "type": "string"
+                },
+                "donor_bonus_programs": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "location_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "transfusion_conditions": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "work_hours": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.VetClinicUpdate": {
+            "type": "object",
+            "properties": {
+                "appointment_requirement_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "contact_person_name": {
+                    "type": "string"
+                },
+                "contact_person_position": {
+                    "type": "string"
+                },
+                "donor_bonus_programs": {
+                    "type": "string"
+                },
+                "location_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "transfusion_conditions": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "work_hours": {
                     "type": "string"
                 }
             }

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -203,7 +203,7 @@ func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 
 // GetBreedsHandler godoc
 // @Summary Получение популярных пород животных
-// @Description Возвращает список популярных пород животных для выбора на фронтенде
+// @Description Возвращает список всех пород животных для выбора на фронтенде
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список пород животных"

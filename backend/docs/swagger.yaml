@@ -38,6 +38,27 @@ definitions:
       message:
         type: string
     type: object
+  models.DonorRequirements:
+    properties:
+      blood_types:
+        items:
+          type: string
+        type: array
+      health_conditions:
+        items:
+          type: string
+        type: array
+      max_age:
+        type: integer
+      min_age:
+        type: integer
+      min_weight:
+        type: number
+      vaccinations:
+        items:
+          type: string
+        type: array
+    type: object
   models.Gender:
     enum:
     - male
@@ -190,6 +211,50 @@ definitions:
     - UserRoleClinic
     - UserRoleAdmin
     - UserRoleDonor
+  models.VetClinic:
+    properties:
+      appointment_requirement_id:
+        example: 1
+        type: integer
+      clinic_id:
+        example: 1
+        type: integer
+      contact_person_name:
+        example: Мария Петрова
+        type: string
+      contact_person_position:
+        example: Администратор
+        type: string
+      donor_bonus_programs:
+        example: Бонусные программы для доноров
+        type: string
+      donor_requirements:
+        $ref: '#/definitions/models.DonorRequirements'
+      latitude:
+        example: 55.7558
+        type: number
+      location_id:
+        example: 1
+        type: integer
+      longitude:
+        example: 37.6173
+        type: number
+      name:
+        example: ВетКлиника ЗооДоктор
+        type: string
+      phone:
+        example: "+79991234567"
+        type: string
+      transfusion_conditions:
+        example: Условия для переливания крови
+        type: string
+      website:
+        example: https://vetclinic.example.com
+        type: string
+      work_hours:
+        example: 'Пн-Пт: 9:00-18:00'
+        type: string
+    type: object
   services.PetCreate:
     properties:
       age_months:
@@ -336,6 +401,73 @@ definitions:
         maxLength: 255
         type: string
       phone:
+        type: string
+    type: object
+  services.VetClinicProfile:
+    properties:
+      clinic:
+        $ref: '#/definitions/models.VetClinic'
+    type: object
+  services.VetClinicRegistration:
+    properties:
+      appointment_requirement_id:
+        minimum: 1
+        type: integer
+      contact_person_name:
+        type: string
+      contact_person_position:
+        type: string
+      donor_bonus_programs:
+        type: string
+      latitude:
+        type: number
+      location_id:
+        minimum: 1
+        type: integer
+      longitude:
+        type: number
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      transfusion_conditions:
+        type: string
+      website:
+        type: string
+      work_hours:
+        type: string
+    required:
+    - appointment_requirement_id
+    - location_id
+    - name
+    type: object
+  services.VetClinicUpdate:
+    properties:
+      appointment_requirement_id:
+        minimum: 1
+        type: integer
+      contact_person_name:
+        type: string
+      contact_person_position:
+        type: string
+      donor_bonus_programs:
+        type: string
+      location_id:
+        minimum: 1
+        type: integer
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      transfusion_conditions:
+        type: string
+      website:
+        type: string
+      work_hours:
         type: string
     type: object
 info:
@@ -572,7 +704,7 @@ paths:
       - reference
   /reference/breeds:
     get:
-      description: Возвращает список популярных пород животных для выбора на фронтенде
+      description: Возвращает список всех пород животных для выбора на фронтенде
       produces:
       - application/json
       responses:
@@ -880,4 +1012,166 @@ paths:
       summary: Получение пользователя по Telegram ID
       tags:
       - users
+  /vet-clinics/{id}:
+    delete:
+      description: Удаляет клинику из системы (soft delete)
+      parameters:
+      - description: ID клиники
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Клиника успешно удалена
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Клиника не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Удаление клиники по ID
+      tags:
+      - vet-clinics
+    get:
+      description: Возвращает полный профиль ветеринарной клиники
+      parameters:
+      - description: ID клиники
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Профиль клиники
+          schema:
+            $ref: '#/definitions/services.VetClinicProfile'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Клиника не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение профиля клиники по ID
+      tags:
+      - vet-clinics
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о ветеринарной клинике
+      parameters:
+      - description: ID клиники
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.VetClinicUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные успешно обновлены
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Клиника не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Обновление профиля клиники
+      tags:
+      - vet-clinics
+  /vet-clinics/location/{location_id}:
+    get:
+      description: Возвращает список всех ветеринарных клиник в указанной локации
+      parameters:
+      - description: ID локации
+        in: path
+        name: location_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список клиник
+          schema:
+            items:
+              $ref: '#/definitions/models.VetClinic'
+            type: array
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение всех клиник по ID локации
+      tags:
+      - vet-clinics
+  /vet-clinics/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует новую ветеринарную клинику в системе
+      parameters:
+      - description: Данные клиники
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.VetClinicRegistration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданная клиника
+          schema:
+            $ref: '#/definitions/models.VetClinic'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Клиника уже существует
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Регистрация новой ветеринарной клиники
+      tags:
+      - vet-clinics
 swagger: "2.0"

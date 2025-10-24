@@ -14,16 +14,17 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 
 	// Модели данных
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories" // Репозитории для работы с БД
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"     // Бизнес-логика
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"            // Конфигурация приложения
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"            // Логирование
-	"github.com/gofiber/fiber/v2"                                    // Веб-фреймворк
-	"github.com/gofiber/fiber/v2/middleware/cors"                    // CORS middleware
-	"github.com/gofiber/swagger"                                     // Swagger UI
-	"github.com/joho/godotenv"                                       // Загрузка .env файлов
-	"go.uber.org/zap"                                                // Структурированное логирование
-	"gorm.io/gorm"                                                   // ORM для работы с БД
+	// Репозитории для работы с БД
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg" // Репозитории для работы с БД
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                     // Бизнес-логика
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                            // Конфигурация приложения
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                            // Логирование
+	"github.com/gofiber/fiber/v2"                                                    // Веб-фреймворк
+	"github.com/gofiber/fiber/v2/middleware/cors"                                    // CORS middleware
+	"github.com/gofiber/swagger"                                                     // Swagger UI
+	"github.com/joho/godotenv"                                                       // Загрузка .env файлов
+	"go.uber.org/zap"                                                                // Структурированное логирование
+	"gorm.io/gorm"                                                                   // ORM для работы с БД
 )
 
 // @title однойкрови.рф
@@ -53,33 +54,24 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД
-	// autoMigrate(db)
+	autoMigrate(db)
 
-	// Инициализация репозитория для работы с пользователями
+	// Инициализация репозиториев
 	userRepo := repositories.NewPostgresUserRepository(db)
-
-	// Инициализация репозитория для работы с питомцами
 	petRepo := repositories.NewPostgresPetRepository(db)
-
-	// Инициализация репозитория для работы с породами
 	breedRepo := repositories.NewPostgresBreedRepository(db)
-
-	// Инициализация репозитория для работы с типами крови
 	bloodTypeRepo := repositories.NewPostgresBloodTypeRepository(db)
+	vetClinicRepo := repositories.NewVetClinicRepository(db)
 
-	// Инициализация сервиса с бизнес-логикой пользователей
+	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
-
-	// Инициализация сервиса с бизнес-логикой питомцев
 	petService := services.NewPetService(petRepo, userRepo)
+	vetClinicService := services.NewVetClinicService(vetClinicRepo)
 
-	// Инициализация обработчиков HTTP запросов для пользователей
+	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
-
-	// Инициализация обработчиков HTTP запросов для питомцев
 	petHandler := handlers.NewPetHandler(petService)
-
-	// Инициализация обработчиков для справочных данных
+	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo)
 
 	// Создание экземпляра Fiber приложения
@@ -121,6 +113,16 @@ func main() {
 			petGroup.Get("/:id", petHandler.GetPetHandler)                // Получение питомца по ID
 			petGroup.Put("/:id", petHandler.UpdatePetHandler)             // Обновление данных питомца
 			petGroup.Delete("/:id", petHandler.DeletePetHandler)          // Удаление питомца по ID
+		}
+
+		// Группа маршрутов для работы с ветеринарными клиниками
+		vetClinicGroup := api.Group("/vet-clinics")
+		{
+			vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
+			vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
+			vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
+			vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
+			vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
 		}
 
 		// Группа маршрутов для справочных данных
