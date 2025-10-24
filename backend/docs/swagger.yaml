@@ -704,7 +704,7 @@ paths:
       - reference
   /reference/breeds:
     get:
-      description: Возвращает список всех пород животных для выбора на фронтенде
+      description: Возвращает список всех пород животных в базе для выбора на фронтенде
       produces:
       - application/json
       responses:
@@ -716,7 +716,7 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение популярных пород животных
+      summary: Получение всех пород животных
       tags:
       - reference
   /reference/breeds-by-type:
