@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 // Pet represents a pet in the system
 type Pet struct {
@@ -28,4 +32,5 @@ type Pet struct {
 	Gender              Gender          `json:"gender,omitempty" example:"male"`
 	Type                PetType         `json:"type,omitempty" example:"dog"`
 	BloodGroup          string          `json:"blood_group,omitempty" example:"DEA 1.1"`
+	DeletedAt           *gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty" swaggerignore:"true"`
 }

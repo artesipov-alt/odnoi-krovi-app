@@ -71,12 +71,12 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "пользователь не найден" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Пользователь не найден",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось создать питомца",
+			Error: err.Error(),
 		})
 	}
 
@@ -118,12 +118,12 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "питомец не найден" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Питомец не найден",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось получить питомца",
+			Error: err.Error(),
 		})
 	}
 
@@ -165,12 +165,12 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "пользователь не найден" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Пользователь не найден",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось получить питомцев",
+			Error: err.Error(),
 		})
 	}
 
@@ -226,12 +226,12 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "питомец не найден" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Питомец не найден",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось обновить питомца",
+			Error: err.Error(),
 		})
 	}
 
@@ -274,12 +274,12 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "питомец не найден" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Питомец не найден",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось удалить питомца",
+			Error: err.Error(),
 		})
 	}
 

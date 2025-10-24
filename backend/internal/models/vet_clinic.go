@@ -1,5 +1,7 @@
 package models
 
+import "gorm.io/gorm"
+
 // VetClinic represents a veterinary clinic in the system
 type VetClinic struct {
 	ClinicID                 int                `gorm:"primaryKey;autoIncrement" json:"clinic_id" example:"1"`
@@ -16,6 +18,7 @@ type VetClinic struct {
 	ContactPersonPosition    string             `gorm:"size:255" json:"contact_person_position,omitempty" example:"Администратор"`
 	LocationID               int                `gorm:"not null;default:1" json:"location_id" example:"1"`
 	AppointmentRequirementID int                `gorm:"not null;default:1" json:"appointment_requirement_id" example:"1"`
+	DeletedAt                *gorm.DeletedAt    `gorm:"index" json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 // // TableName specifies the table name for VetClinic

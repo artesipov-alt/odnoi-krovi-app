@@ -70,7 +70,7 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 	if err != nil {
 		logger.Log.Error("не удалось получить пользователя", zap.Error(err), zap.Int("userId", id))
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось получить пользователя",
+			Error: err.Error(),
 		})
 	}
 
@@ -126,14 +126,14 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 	if err != nil {
 		logger.Log.Error("не удалось зарегистрировать пользователя", zap.Error(err), zap.Int64("telegramId", request.TelegramID))
 
-		if err.Error() == "user with this telegram ID already exists" {
+		if err.Error() == "пользователь с этим telegram ID уже существует" {
 			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: "Пользователь с таким Telegram ID уже существует",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось зарегистрировать пользователя",
+			Error: err.Error(),
 		})
 	}
 
@@ -180,14 +180,14 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 	if err != nil {
 		logger.Log.Error("не удалось зарегистрировать пользователя", zap.Error(err), zap.Int64("telegramId", telegramID))
 
-		if err.Error() == "user with this telegram ID already exists" {
+		if err.Error() == "пользователь с этим telegram ID уже существует" {
 			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: "Пользователь с таким Telegram ID уже существует",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось зарегистрировать пользователя",
+			Error: err.Error(),
 		})
 	}
 
@@ -239,7 +239,7 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 	if err := h.userService.UpdateUserProfile(c.Context(), id, updateData); err != nil {
 		logger.Log.Error("не удалось обновить пользователя", zap.Error(err), zap.Int("userId", id))
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось обновить пользователя",
+			Error: err.Error(),
 		})
 	}
 
@@ -278,15 +278,8 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 	user, err := h.userService.GetUserByTelegramID(c.Context(), telegramID)
 	if err != nil {
 		logger.Log.Error("не удалось получить пользователя по Telegram ID", zap.Error(err), zap.Int64("telegramId", telegramID))
-
-		if err.Error() == "user with telegram id not found" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Пользователь не найден",
-			})
-		}
-
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось получить пользователя",
+			Error: err.Error(),
 		})
 	}
 
@@ -325,14 +318,14 @@ func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
 	if err := h.userService.DeleteUser(c.Context(), id); err != nil {
 		logger.Log.Error("не удалось удалить пользователя", zap.Error(err), zap.Int("userId", id))
 
-		if err.Error() == "получение пользователя для удаления: user with id "+userID+" not found: record not found" {
+		if err.Error() == "пользователь не найден" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Пользователь не найден",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось удалить пользователя",
+			Error: err.Error(),
 		})
 	}
 

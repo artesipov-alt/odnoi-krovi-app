@@ -56,12 +56,12 @@ func (h *VetClinicHandler) RegisterClinicHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "клиника уже существует" {
 			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: "Клиника уже существует",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось зарегистрировать клинику",
+			Error: err.Error(),
 		})
 	}
 
@@ -103,12 +103,12 @@ func (h *VetClinicHandler) GetClinicProfileHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "клиника не найдена" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Клиника не найдена",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось получить профиль клиники",
+			Error: err.Error(),
 		})
 	}
 
@@ -148,7 +148,7 @@ func (h *VetClinicHandler) GetClinicsByLocationIDHandler(c *fiber.Ctx) error {
 		logger.Log.Error("не удалось получить клиники", zap.Error(err), zap.Int("locationId", locationID))
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось получить клиники",
+			Error: err.Error(),
 		})
 	}
 
@@ -204,12 +204,12 @@ func (h *VetClinicHandler) UpdateClinicProfileHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "клиника не найдена" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Клиника не найдена",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось обновить профиль клиники",
+			Error: err.Error(),
 		})
 	}
 
@@ -252,12 +252,12 @@ func (h *VetClinicHandler) DeleteClinicHandler(c *fiber.Ctx) error {
 
 		if err.Error() == "клиника не найдена" {
 			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: "Клиника не найдена",
+				Error: err.Error(),
 			})
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: "Не удалось удалить клинику",
+			Error: err.Error(),
 		})
 	}
 
