@@ -2,11 +2,11 @@
   "name": "odnoi-krovi-bot",
   "module": "bot.ts",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "dev": "bun run bot.ts",
     "build": "bun run build.ts",
-    "preview": "bun run dist/bot.js"
+    "prod": "bun run dist/bot.js"
   },
   "private": true,
   "devDependencies": {

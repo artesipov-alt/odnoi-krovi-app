@@ -15,4 +15,4 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 
-CMD ["bun", "run", "dist/bot.js"]
+CMD ["bun", "run", "prod"]
