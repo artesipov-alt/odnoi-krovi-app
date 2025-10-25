@@ -1,0 +1,269 @@
+/* Custom Styles for Odnoi Krovi App */
+
+/* HTMX Loading States */
+.htmx-request {
+    opacity: 0.7;
+    cursor: wait;
+    position: relative;
+}
+
+.htmx-request::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    margin-left: -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Result Items */
+.result-item {
+    background: linear-gradient(to right, #ffffff, #f8fafc);
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.2s ease;
+}
+
+.result-item:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.result-item.success {
+    border-left: 4px solid #10b981;
+}
+
+.result-item.error {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(to right, #fef2f2, #fee2e2);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Result Header */
+.result-header {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.result-header .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.result-header .badge.success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.result-header .badge.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Result Data */
+.result-data {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 0.875rem;
+    color: #4b5563;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    line-height: 1.6;
+}
+
+.result-data::-webkit-scrollbar {
+    height: 6px;
+}
+
+.result-data::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+
+.result-data::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 10px;
+}
+
+/* Timestamp */
+.result-timestamp {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+    width: 4rem;
+    height: 4rem;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+/* Status Indicator Animation */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+}
+
+.status-online {
+    background-color: #22c55e;
+    animation: pulse-glow 2s infinite;
+}
+
+.status-offline {
+    background-color: #ef4444;
+}
+
+/* Button Loading State */
+button.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+button.loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    margin-left: -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* Fade In Animation */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* JSON Syntax Highlighting */
+.json-key {
+    color: #7c3aed;
+    font-weight: 600;
+}
+
+.json-string {
+    color: #059669;
+}
+
+.json-number {
+    color: #dc2626;
+}
+
+.json-boolean {
+    color: #ea580c;
+}
+
+.json-null {
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .result-item {
+        padding: 1rem;
+    }
+
+    .result-data {
+        font-size: 0.8125rem;
+        padding: 0.75rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+    }
+
+    button {
+        display: none;
+    }
+
+    .result-item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
