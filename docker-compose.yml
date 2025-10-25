@@ -30,13 +30,15 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
     ports:
       - "80:80"
     networks:
       - odnoi_net
+    volumes:
+      - ./frontend/mock_dist:/srv:ro
     restart: unless-stopped
 
 networks:
