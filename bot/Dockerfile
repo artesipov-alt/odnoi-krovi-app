@@ -2,8 +2,10 @@ FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json ./
-RUN bun install
+COPY package.json bun.lock ./
+
+# Очищаем кэш и устанавливаем зависимости
+RUN bun install --frozen-lockfile --no-cache
 
 COPY . .
 RUN bun run build
