@@ -1,0 +1,9 @@
+:80 {
+    root * /srv
+    file_server
+    encode gzip zstd
+
+    route /api/* {
+        reverse_proxy backend:3000
+    }
+}

@@ -29,6 +29,16 @@ services:
       - odnoi_net
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - odnoi_net
+    restart: unless-stopped
+
 networks:
   odnoi_net:
     driver: bridge

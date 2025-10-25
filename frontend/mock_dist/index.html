@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head></head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>М</title>оковая страница - Одной Крови</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Моковая страница - Одной Крови</h1>
+            <p class="text-gray-600">Тестирование API бэкэнда с HTMX</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Секция справочных данных -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Справочные данные</h2>
+                <div class="space-y-4">
+                    <button hx-get="http://localhost:3000/api/v1/reference/pet-types"
+                            hx-target="#results"
+                            hx-swap="afterbegin"
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors">
+                        Получить типы животных
+                    </button>
+                    <button hx-get="http://localhost:3000/api/v1/reference/breeds"
+                            hx-target="#results"
+                            hx-swap="afterbegin"
+                            class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition-colors">
+                        Получить породы животных
+                    </button>
+                    <button hx-get="http://localhost:3000/api/v1/reference/blood-groups"
+                            hx-target="#results"
+                            hx-swap="afterbegin"
+                            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded transition-colors">
+                        Получить группы крови
+                    </button>
+                    <button hx-get="http://localhost:3000/api/v1/reference/genders"
+                            hx-target="#results"
+                            hx-swap="afterbegin"
+                            class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition-colors">
+                        Получить пол животных
+                    </button>
+                    <button hx-get="http://localhost:3000/api/v1/reference/living-conditions"
+                            hx-target="#results"
+                            hx-swap="afterbegin"
+                            class="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded transition-colors">
+                        Получить условия проживания
+                    </button>
+                </div>
+            </div>
+
+            <!-- Секция статуса -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Статус сервера</h2>
+                <button hx-get="http://localhost:3000/api/v1/"
+                        hx-target="#status"
+                        hx-swap="innerHTML"
+                        class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded transition-colors mb-4">
+                    Проверить статус сервера
+                </button>
+                <div id="status" class="text-sm text-gray-600">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                        <span>Ста
