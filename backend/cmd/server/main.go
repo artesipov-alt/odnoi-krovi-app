@@ -85,59 +85,63 @@ func main() {
 	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
 	// app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 
-	// Документация Swagger - доступна по адресу /swagger/*
-	app.Get("/swagger/*", swagger.HandlerDefault)
-
-	// Группировка API маршрутов с префиксом /api/v1
-	api := app.Group("/api/v1")
+	// Группировка API маршрутов с префиксом /api
+	api := app.Group("/api")
 	{
-		// Корневой маршрут API
-		api.Get("/", handlers.RootHandler)
+		// Документация Swagger - доступна по адресу /api/swagger/*
+		api.Get("/swagger/*", swagger.HandlerDefault)
 
-		// Группа маршрутов для работы с пользователями
-		userGroup := api.Group("/user")
+		// Группировка API маршрутов с префиксом /api/v1
+		v1 := api.Group("/v1")
 		{
-			userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
-			userGroup.Post("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
-			userGroup.Post("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
-			userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
-			userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
-			userGroup.Delete("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
-		}
+			// Корневой маршрут API
+			v1.Get("/", handlers.RootHandler)
 
-		// Группа маршрутов для работы с питомцами
-		petGroup := api.Group("/pets")
-		{
-			petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler) // Получение всех питомцев пользователя
-			petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)  // Создание питомца для пользователя
-			petGroup.Get("/:id", petHandler.GetPetHandler)                // Получение питомца по ID
-			petGroup.Put("/:id", petHandler.UpdatePetHandler)             // Обновление данных питомца
-			petGroup.Delete("/:id", petHandler.DeletePetHandler)          // Удаление питомца по ID
-		}
+			// Группа маршрутов для работы с пользователями
+			userGroup := v1.Group("/user")
+			{
+				userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
+				userGroup.Post("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
+				userGroup.Post("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
+				userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
+				userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
+				userGroup.Delete("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
+			}
 
-		// Группа маршрутов для работы с ветеринарными клиниками
-		vetClinicGroup := api.Group("/vet-clinics")
-		{
-			vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
-			vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
-			vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
-			vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
-			vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
-		}
+			// Группа маршрутов для работы с питомцами
+			petGroup := v1.Group("/pets")
+			{
+				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler) // Получение всех питомцев пользователя
+				petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)  // Создание питомца для пользователя
+				petGroup.Get("/:id", petHandler.GetPetHandler)                // Получение питомца по ID
+				petGroup.Put("/:id", petHandler.UpdatePetHandler)             // Обновление данных питомца
+				petGroup.Delete("/:id", petHandler.DeletePetHandler)          // Удаление питомца по ID
+			}
 
-		// Группа маршрутов для справочных данных
-		referenceGroup := api.Group("/reference")
-		{
-			referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)                 // Типы животных
-			referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)                    // Пол животного
-			referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler) // Условия проживания
-			referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)               // Роли пользователей
-			referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
-			referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)               // Породы животных
-			referenceGroup.Get("/blood-groups", referenceHandler.GetBloodGroupsHandler)                  // Группы крови
-			referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler) // Статусы поиска крови
-			referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)   // Статусы запаса крови
-			referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)        // Статусы донорства
+			// Группа маршрутов для работы с ветеринарными клиниками
+			vetClinicGroup := v1.Group("/vet-clinics")
+			{
+				vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
+				vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
+				vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
+				vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
+				vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
+			}
+
+			// Группа маршрутов для справочных данных
+			referenceGroup := v1.Group("/reference")
+			{
+				referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)                 // Типы животных
+				referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)                    // Пол животного
+				referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler) // Условия проживания
+				referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)               // Роли пользователей
+				referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
+				referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)               // Породы животных
+				referenceGroup.Get("/blood-groups", referenceHandler.GetBloodGroupsHandler)                  // Группы крови
+				referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler) // Статусы поиска крови
+				referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)   // Статусы запаса крови
+				referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)        // Статусы донорства
+			}
 		}
 	}
 
