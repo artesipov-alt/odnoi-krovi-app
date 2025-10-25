@@ -17,3 +17,7 @@ services:
     networks:
       - odnoi_net
     restart: unless-stopped
+
+networks:
+  odnoi_net:
+    driver: bridge
