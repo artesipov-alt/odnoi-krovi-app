@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     environment:
       BOT_TOKEN: ${PROD_BOT_API_KEY}
-      MINIAPP_DOMAIN: http://http://212.111.85.99
+      MINIAPP_DOMAIN: http://212.111.85.99
     networks:
       - odnoi_net
     restart: unless-stopped
