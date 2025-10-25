@@ -17,4 +17,7 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 
+# Устанавливаем зависимости заново в чистой среде
+RUN bun install --production --no-cache
+
 CMD ["bun", "run", "prod"]
