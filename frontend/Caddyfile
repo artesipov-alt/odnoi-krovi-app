@@ -1,3 +1,8 @@
+{
+    email r.stupa@ya.ru
+
+}
+
 1krovi.app {
     root * /srv
     file_server
@@ -5,5 +10,11 @@
 
     route /api/* {
         reverse_proxy backend:3000
+    }
+
+    # Логирование для отладки
+    log {
+        output stdout
+        format console
     }
 }
