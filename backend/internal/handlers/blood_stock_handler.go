@@ -3,10 +3,10 @@ package handlers
 import (
 	"strconv"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -37,14 +37,10 @@ func (h *BloodStockHandler) GetAllBloodStocksHandler(c *fiber.Ctx) error {
 
 	stocks, err := h.bloodStockService.GetAll(c.Context())
 	if err != nil {
-		logger.Log.Error("не удалось получить запасы крови", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(stocks)
+	return SendJSON(c, stocks)
 }
 
 // GetBloodStockByIDHandler godoc
@@ -59,39 +55,19 @@ func (h *BloodStockHandler) GetAllBloodStocksHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-stocks/{id} [get]
 func (h *BloodStockHandler) GetBloodStockByIDHandler(c *fiber.Ctx) error {
-	idStr := c.Params("id")
-	if idStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID запаса крови обязателен",
-		})
-	}
-
-	id, err := strconv.Atoi(idStr)
+	id, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID запаса крови",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение запаса крови", zap.Int("stockId", id))
 
 	stock, err := h.bloodStockService.GetByID(c.Context(), id)
 	if err != nil {
-		logger.Log.Error("не удалось получить запас крови", zap.Error(err), zap.Int("stockId", id))
-
-		if err.Error() == "запас крови не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(stock)
+	return SendJSON(c, stock)
 }
 
 // GetBloodStocksByClinicIDHandler godoc
@@ -106,39 +82,19 @@ func (h *BloodStockHandler) GetBloodStockByIDHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-stocks/clinic/{clinic_id} [get]
 func (h *BloodStockHandler) GetBloodStocksByClinicIDHandler(c *fiber.Ctx) error {
-	clinicIDStr := c.Params("clinic_id")
-	if clinicIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID клиники обязателен",
-		})
-	}
-
-	clinicID, err := strconv.Atoi(clinicIDStr)
+	clinicID, err := ParseIDParam(c, "clinic_id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID клиники",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение запасов крови клиники", zap.Int("clinicId", clinicID))
 
 	stocks, err := h.bloodStockService.GetByClinicID(c.Context(), clinicID)
 	if err != nil {
-		logger.Log.Error("не удалось получить запасы крови клиники", zap.Error(err), zap.Int("clinicId", clinicID))
-
-		if err.Error() == "клиника не найдена" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(stocks)
+	return SendJSON(c, stocks)
 }
 
 // GetBloodStocksByBloodTypeIDHandler godoc
@@ -153,39 +109,19 @@ func (h *BloodStockHandler) GetBloodStocksByClinicIDHandler(c *fiber.Ctx) error 
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-stocks/blood-type/{blood_type_id} [get]
 func (h *BloodStockHandler) GetBloodStocksByBloodTypeIDHandler(c *fiber.Ctx) error {
-	bloodTypeIDStr := c.Params("blood_type_id")
-	if bloodTypeIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID типа крови обязателен",
-		})
-	}
-
-	bloodTypeID, err := strconv.Atoi(bloodTypeIDStr)
+	bloodTypeID, err := ParseIDParam(c, "blood_type_id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID типа крови",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение запасов крови по типу", zap.Int("bloodTypeId", bloodTypeID))
 
 	stocks, err := h.bloodStockService.GetByBloodTypeID(c.Context(), bloodTypeID)
 	if err != nil {
-		logger.Log.Error("не удалось получить запасы крови по типу", zap.Error(err), zap.Int("bloodTypeId", bloodTypeID))
-
-		if err.Error() == "тип крови не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(stocks)
+	return SendJSON(c, stocks)
 }
 
 // SearchBloodStocksHandler godoc
@@ -209,80 +145,53 @@ func (h *BloodStockHandler) GetBloodStocksByBloodTypeIDHandler(c *fiber.Ctx) err
 func (h *BloodStockHandler) SearchBloodStocksHandler(c *fiber.Ctx) error {
 	filters := repositories.BloodStockFilters{}
 
-	// Парсим clinic_id
-	if clinicIDStr := c.Query("clinic_id"); clinicIDStr != "" {
-		clinicID, err := strconv.Atoi(clinicIDStr)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "Неверный формат clinic_id",
-			})
-		}
-		filters.ClinicID = &clinicID
+	// Парсим опциональные параметры
+	if clinicID, err := ParseOptionalIntQuery(c, "clinic_id"); err != nil {
+		return err
+	} else if clinicID != nil {
+		filters.ClinicID = clinicID
 	}
 
-	// Парсим pet_type
 	if petTypeStr := c.Query("pet_type"); petTypeStr != "" {
 		petType := models.PetType(petTypeStr)
 		filters.PetType = &petType
 	}
 
-	// Парсим blood_type_id
-	if bloodTypeIDStr := c.Query("blood_type_id"); bloodTypeIDStr != "" {
-		bloodTypeID, err := strconv.Atoi(bloodTypeIDStr)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "Неверный формат blood_type_id",
-			})
-		}
-		filters.BloodTypeID = &bloodTypeID
+	if bloodTypeID, err := ParseOptionalIntQuery(c, "blood_type_id"); err != nil {
+		return err
+	} else if bloodTypeID != nil {
+		filters.BloodTypeID = bloodTypeID
 	}
 
-	// Парсим status
 	if statusStr := c.Query("status"); statusStr != "" {
 		status := models.BloodStockStatus(statusStr)
 		filters.Status = &status
 	}
 
-	// Парсим min_volume
-	if minVolumeStr := c.Query("min_volume"); minVolumeStr != "" {
-		minVolume, err := strconv.Atoi(minVolumeStr)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "Неверный формат min_volume",
-			})
-		}
-		filters.MinVolume = &minVolume
+	if minVolume, err := ParseOptionalIntQuery(c, "min_volume"); err != nil {
+		return err
+	} else if minVolume != nil {
+		filters.MinVolume = minVolume
 	}
 
-	// Парсим max_volume
-	if maxVolumeStr := c.Query("max_volume"); maxVolumeStr != "" {
-		maxVolume, err := strconv.Atoi(maxVolumeStr)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "Неверный формат max_volume",
-			})
-		}
-		filters.MaxVolume = &maxVolume
+	if maxVolume, err := ParseOptionalIntQuery(c, "max_volume"); err != nil {
+		return err
+	} else if maxVolume != nil {
+		filters.MaxVolume = maxVolume
 	}
 
-	// Парсим min_price
 	if minPriceStr := c.Query("min_price"); minPriceStr != "" {
 		minPrice, err := strconv.ParseFloat(minPriceStr, 64)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "Неверный формат min_price",
-			})
+			return apperrors.BadRequest("неверный формат min_price")
 		}
 		filters.MinPrice = &minPrice
 	}
 
-	// Парсим max_price
 	if maxPriceStr := c.Query("max_price"); maxPriceStr != "" {
 		maxPrice, err := strconv.ParseFloat(maxPriceStr, 64)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-				Error: "Неверный формат max_price",
-			})
+			return apperrors.BadRequest("неверный формат max_price")
 		}
 		filters.MaxPrice = &maxPrice
 	}
@@ -291,14 +200,10 @@ func (h *BloodStockHandler) SearchBloodStocksHandler(c *fiber.Ctx) error {
 
 	stocks, err := h.bloodStockService.Search(c.Context(), filters)
 	if err != nil {
-		logger.Log.Error("не удалось выполнить поиск запасов крови", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(stocks)
+	return SendJSON(c, stocks)
 }
 
 // CreateBloodStockHandler godoc
@@ -315,37 +220,18 @@ func (h *BloodStockHandler) SearchBloodStocksHandler(c *fiber.Ctx) error {
 // @Router /blood-stocks [post]
 func (h *BloodStockHandler) CreateBloodStockHandler(c *fiber.Ctx) error {
 	var stockData services.BloodStockCreate
-	if err := c.BodyParser(&stockData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Валидация данных
-	if err := validation.ValidateStruct(stockData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &stockData); err != nil {
+		return err
 	}
 
 	logger.Log.Info("создание запаса крови", zap.String("petType", string(stockData.PetType)))
 
 	stock, err := h.bloodStockService.CreateBloodStock(c.Context(), stockData)
 	if err != nil {
-		logger.Log.Error("не удалось создать запас крови", zap.Error(err))
-
-		if err.Error() == "клиника не найдена" || err.Error() == "тип крови не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.Status(fiber.StatusCreated).JSON(stock)
+	return SendCreated(c, stock)
 }
 
 // UpdateBloodStockHandler godoc
@@ -362,53 +248,23 @@ func (h *BloodStockHandler) CreateBloodStockHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-stocks/{id} [put]
 func (h *BloodStockHandler) UpdateBloodStockHandler(c *fiber.Ctx) error {
-	idStr := c.Params("id")
-	if idStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID запаса крови обязателен",
-		})
-	}
-
-	id, err := strconv.Atoi(idStr)
+	id, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID запаса крови",
-		})
+		return err
 	}
 
 	var updateData services.BloodStockUpdate
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Валидация данных
-	if err := validation.ValidateStruct(updateData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &updateData); err != nil {
+		return err
 	}
 
 	logger.Log.Info("обновление запаса крови", zap.Int("stockId", id))
 
 	if err := h.bloodStockService.UpdateBloodStock(c.Context(), id, updateData); err != nil {
-		logger.Log.Error("не удалось обновить запас крови", zap.Error(err), zap.Int("stockId", id))
-
-		if err.Error() == "запас крови не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Запас крови успешно обновлен",
-	})
+	return SendSuccess(c, "Запас крови успешно обновлен")
 }
 
 // DeleteBloodStockHandler godoc
@@ -423,38 +279,16 @@ func (h *BloodStockHandler) UpdateBloodStockHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-stocks/{id} [delete]
 func (h *BloodStockHandler) DeleteBloodStockHandler(c *fiber.Ctx) error {
-	idStr := c.Params("id")
-	if idStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID запаса крови обязателен",
-		})
-	}
-
-	id, err := strconv.Atoi(idStr)
+	id, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID запаса крови",
-		})
+		return err
 	}
 
 	logger.Log.Info("удаление запаса крови", zap.Int("stockId", id))
 
 	if err := h.bloodStockService.DeleteBloodStock(c.Context(), id); err != nil {
-		logger.Log.Error("не удалось удалить запас крови", zap.Error(err), zap.Int("stockId", id))
-
-		if err.Error() == "запас крови не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Запас крови успешно удален",
-	})
+	return SendSuccess(c, "Запас крови успешно удален")
 }

@@ -2,9 +2,8 @@ package services
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
@@ -91,29 +90,29 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("проверка существования пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if user == nil {
-		return nil, errors.New("пользователь не найден")
+		return nil, apperrors.NewUserNotFoundError(userID)
 	}
 
 	// Валидируем тип животного
 	validatedType, err := validation.ValidatePetType(string(petData.Type))
 	if err != nil {
-		return nil, fmt.Errorf("валидация типа животного: %w", err)
+		return nil, apperrors.ErrInvalidPetType
 	}
 
 	// Валидируем пол животного
 	validatedGender, err := validation.ValidateGender(string(petData.Gender))
 	if err != nil {
-		return nil, fmt.Errorf("валидация пола животного: %w", err)
+		return nil, apperrors.ErrInvalidGender
 	}
 
 	// Валидируем условия проживания
 	validatedLivingCondition, err := validation.ValidateLivingCondition(string(petData.LivingCondition))
 	if err != nil {
-		return nil, fmt.Errorf("валидация условий проживания: %w", err)
+		return nil, apperrors.ErrInvalidLivingCondition
 	}
 
 	// Создаем нового питомца
@@ -140,7 +139,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 	}
 
 	if err := s.petRepo.Create(ctx, pet); err != nil {
-		return nil, fmt.Errorf("создание питомца: %w", err)
+		return nil, apperrors.Internal(err, "не удалось создать питомца")
 	}
 
 	return pet, nil
@@ -150,7 +149,11 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID int) (*models.Pet, error) {
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
-		return nil, fmt.Errorf("получение питомца: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить питомца")
+	}
+
+	if pet == nil {
+		return nil, apperrors.NewPetNotFoundError(petID)
 	}
 
 	return pet, nil
@@ -161,16 +164,16 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID int) ([]*models
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("проверка существования пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if user == nil {
-		return nil, errors.New("пользователь не найден")
+		return nil, apperrors.NewUserNotFoundError(userID)
 	}
 
 	pets, err := s.petRepo.GetByUserID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("получение питомцев пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
 	}
 
 	return pets, nil
@@ -181,11 +184,11 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 	// Получаем существующего питомца
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
-		return fmt.Errorf("получение питомца для обновления: %w", err)
+		return apperrors.Internal(err, "не удалось получить питомца")
 	}
 
 	if pet == nil {
-		return errors.New("питомец не найден")
+		return apperrors.NewPetNotFoundError(petID)
 	}
 
 	// Применяем обновления
@@ -234,21 +237,21 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 	if updates.LivingCondition != nil {
 		validatedLivingCondition, err := validation.ValidateLivingCondition(string(*updates.LivingCondition))
 		if err != nil {
-			return fmt.Errorf("валидация условий проживания: %w", err)
+			return apperrors.ErrInvalidLivingCondition
 		}
 		pet.LivingCondition = validatedLivingCondition
 	}
 	if updates.Gender != nil {
 		validatedGender, err := validation.ValidateGender(string(*updates.Gender))
 		if err != nil {
-			return fmt.Errorf("валидация пола животного: %w", err)
+			return apperrors.ErrInvalidGender
 		}
 		pet.Gender = validatedGender
 	}
 	if updates.Type != nil {
 		validatedType, err := validation.ValidatePetType(string(*updates.Type))
 		if err != nil {
-			return fmt.Errorf("валидация типа животного: %w", err)
+			return apperrors.ErrInvalidPetType
 		}
 		pet.Type = validatedType
 	}
@@ -258,7 +261,7 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 
 	// Сохраняем обновленного питомца
 	if err := s.petRepo.Update(ctx, pet); err != nil {
-		return fmt.Errorf("обновление питомца: %w", err)
+		return apperrors.Internal(err, "не удалось обновить питомца")
 	}
 
 	return nil
@@ -269,16 +272,16 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID int) error {
 	// Проверяем, существует ли питомец
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
-		return fmt.Errorf("получение питомца для удаления: %w", err)
+		return apperrors.Internal(err, "не удалось получить питомца")
 	}
 
 	if pet == nil {
-		return errors.New("питомец не найден")
+		return apperrors.NewPetNotFoundError(petID)
 	}
 
 	// Удаляем питомца
 	if err := s.petRepo.Delete(ctx, petID); err != nil {
-		return fmt.Errorf("удаление питомца: %w", err)
+		return apperrors.Internal(err, "не удалось удалить питомца")
 	}
 
 	return nil

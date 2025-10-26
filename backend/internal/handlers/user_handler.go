@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"strconv"
-
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -15,20 +13,10 @@ type UserHandler struct {
 	userService services.UserService
 }
 
-// ErrorResponse представляет ответ с ошибкой
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 // SimpleRegistrationRequest представляет запрос на простую регистрацию пользователя
 type SimpleRegistrationRequest struct {
 	TelegramID int64  `json:"telegram_id" validate:"required,min=1" example:"123456789"`
 	FullName   string `json:"full_name,omitempty" validate:"omitempty,min=1,max=255" example:"Иван Иванов"`
-}
-
-// SuccessResponse представляет успешный ответ
-type SuccessResponse struct {
-	Message string `json:"message"`
 }
 
 // NewUserHandler создает новый обработчик пользователей
@@ -50,38 +38,19 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
-	userID := c.Params("id")
-	if userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID пользователя обязателен",
-		})
-	}
-
-	id, err := strconv.Atoi(userID)
+	id, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID пользователя",
-		})
+		return err
 	}
 
-	logger.Log.Info("доступ к получению пользователя", zap.String("userId", userID))
+	logger.Log.Info("получение пользователя", zap.Int("userId", id))
 
-	user, err := h.userService.GetUserProfile(c.Context(), id)
+	profile, err := h.userService.GetUserProfile(c.Context(), id)
 	if err != nil {
-		logger.Log.Error("не удалось получить пользователя", zap.Error(err), zap.Int("userId", id))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	if user == nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error: "Пользователь не найден",
-		})
-	}
-
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(user.User)
+	return SendJSON(c, profile.User)
 }
 
 // RegisterUserSimpleHandler godoc
@@ -98,22 +67,8 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 // @Router /user/register/simple [post]
 func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 	var request SimpleRegistrationRequest
-	if err := c.BodyParser(&request); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Validate request
-	if err := validation.ValidateStruct(request); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
-	}
-
-	if request.TelegramID <= 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Корректный Telegram ID обязателен",
-		})
+	if err := ParseBody(c, &request); err != nil {
+		return err
 	}
 
 	// Использовать предоставленное полное имя или установить значение по умолчанию "Пользователь Telegram"
@@ -122,23 +77,14 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 		fullName = "Пользователь Telegram"
 	}
 
+	logger.Log.Info("регистрация пользователя", zap.Int64("telegramId", request.TelegramID))
+
 	user, err := h.userService.RegisterUserSimple(c.Context(), request.TelegramID, fullName)
 	if err != nil {
-		logger.Log.Error("не удалось зарегистрировать пользователя", zap.Error(err), zap.Int64("telegramId", request.TelegramID))
-
-		if err.Error() == "пользователь с этим telegram ID уже существует" {
-			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.Status(fiber.StatusCreated).JSON(user)
+	return SendCreated(c, user)
 }
 
 // RegisterUserHandler godoc
@@ -156,43 +102,24 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 // @Router /user/register [post]
 func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 	var registrationData services.UserRegistration
-	if err := c.BodyParser(&registrationData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Validate registration data
-	if err := validation.ValidateStruct(registrationData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &registrationData); err != nil {
+		return err
 	}
 
 	// Получить Telegram ID из контекста (должен быть установлен промежуточным ПО)
 	telegramID, ok := c.Locals("telegram_id").(int64)
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Telegram ID обязателен",
-		})
+		return apperrors.BadRequest("Telegram ID обязателен")
 	}
+
+	logger.Log.Info("регистрация пользователя", zap.Int64("telegramId", telegramID))
 
 	user, err := h.userService.RegisterUser(c.Context(), telegramID, registrationData)
 	if err != nil {
-		logger.Log.Error("не удалось зарегистрировать пользователя", zap.Error(err), zap.Int64("telegramId", telegramID))
-
-		if err.Error() == "пользователь с этим telegram ID уже существует" {
-			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.Status(fiber.StatusCreated).JSON(user)
+	return SendCreated(c, user)
 }
 
 // UpdateUserHandler godoc
@@ -209,44 +136,23 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
-	userID := c.Params("id")
-	if userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID пользователя обязателен",
-		})
-	}
-
-	id, err := strconv.Atoi(userID)
+	id, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID пользователя",
-		})
+		return err
 	}
 
 	var updateData services.UserUpdate
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
+	if err := ParseBody(c, &updateData); err != nil {
+		return err
 	}
 
-	// Validate update data
-	if err := validation.ValidateStruct(updateData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
-	}
+	logger.Log.Info("обновление пользователя", zap.Int("userId", id))
 
 	if err := h.userService.UpdateUserProfile(c.Context(), id, updateData); err != nil {
-		logger.Log.Error("не удалось обновить пользователя", zap.Error(err), zap.Int("userId", id))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Пользователь успешно обновлен",
-	})
+	return SendSuccess(c, "Пользователь успешно обновлен")
 }
 
 // GetUserByTelegramHandler godoc
@@ -261,30 +167,19 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/telegram [get]
 func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
-	telegramIDStr := c.Query("telegram_id")
-	if telegramIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Telegram ID обязателен",
-		})
+	telegramID, err := ParseInt64Query(c, "telegram_id")
+	if err != nil {
+		return err
 	}
 
-	telegramID, err := strconv.ParseInt(telegramIDStr, 10, 64)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат Telegram ID",
-		})
-	}
+	logger.Log.Info("получение пользователя по Telegram ID", zap.Int64("telegramId", telegramID))
 
 	user, err := h.userService.GetUserByTelegramID(c.Context(), telegramID)
 	if err != nil {
-		logger.Log.Error("не удалось получить пользователя по Telegram ID", zap.Error(err), zap.Int64("telegramId", telegramID))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(user)
+	return SendJSON(c, user)
 }
 
 // DeleteUserHandler godoc
@@ -299,38 +194,16 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
-	userID := c.Params("id")
-	if userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID пользователя обязателен",
-		})
-	}
-
-	id, err := strconv.Atoi(userID)
+	id, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID пользователя",
-		})
+		return err
 	}
 
-	logger.Log.Info("доступ к удалению пользователя", zap.Int("userId", id))
+	logger.Log.Info("удаление пользователя", zap.Int("userId", id))
 
 	if err := h.userService.DeleteUser(c.Context(), id); err != nil {
-		logger.Log.Error("не удалось удалить пользователя", zap.Error(err), zap.Int("userId", id))
-
-		if err.Error() == "пользователь не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Пользователь успешно удален",
-	})
+	return SendSuccess(c, "Пользователь успешно удален")
 }

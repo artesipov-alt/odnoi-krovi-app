@@ -2,9 +2,8 @@ package services
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 )
@@ -93,7 +92,7 @@ func (s *VetClinicServiceImpl) RegisterClinic(ctx context.Context, clinicData Ve
 	}
 
 	if err := s.vetClinicRepo.Create(ctx, clinic); err != nil {
-		return nil, fmt.Errorf("создание клиники: %w", err)
+		return nil, apperrors.Internal(err, "не удалось создать клинику")
 	}
 
 	return clinic, nil
@@ -104,16 +103,16 @@ func (s *VetClinicServiceImpl) DeleteClinic(ctx context.Context, clinicID int) e
 	// Проверяем, существует ли клиника
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
-		return fmt.Errorf("получение клиники для удаления: %w", err)
+		return apperrors.Internal(err, "не удалось получить клинику")
 	}
 
 	if clinic == nil {
-		return errors.New("клиника не найдена")
+		return apperrors.NewClinicNotFoundError(clinicID)
 	}
 
 	// Удаляем клинику
 	if err := s.vetClinicRepo.Delete(ctx, clinicID); err != nil {
-		return fmt.Errorf("удаление клиники: %w", err)
+		return apperrors.Internal(err, "не удалось удалить клинику")
 	}
 
 	return nil
@@ -123,11 +122,11 @@ func (s *VetClinicServiceImpl) DeleteClinic(ctx context.Context, clinicID int) e
 func (s *VetClinicServiceImpl) GetClinicProfile(ctx context.Context, clinicID int) (*VetClinicProfile, error) {
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
-		return nil, fmt.Errorf("получение клиники: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить клинику")
 	}
 
 	if clinic == nil {
-		return nil, errors.New("клиника не найдена")
+		return nil, apperrors.NewClinicNotFoundError(clinicID)
 	}
 
 	profile := &VetClinicProfile{
@@ -142,11 +141,11 @@ func (s *VetClinicServiceImpl) UpdateClinicProfile(ctx context.Context, clinicID
 	// Получаем существующую клинику
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
-		return fmt.Errorf("получение клиники для обновления: %w", err)
+		return apperrors.Internal(err, "не удалось получить клинику")
 	}
 
 	if clinic == nil {
-		return errors.New("клиника не найдена")
+		return apperrors.NewClinicNotFoundError(clinicID)
 	}
 
 	// Применяем обновления
@@ -183,7 +182,7 @@ func (s *VetClinicServiceImpl) UpdateClinicProfile(ctx context.Context, clinicID
 
 	// Сохраняем обновленную клинику
 	if err := s.vetClinicRepo.Update(ctx, clinic); err != nil {
-		return fmt.Errorf("обновление клиники: %w", err)
+		return apperrors.Internal(err, "не удалось обновить клинику")
 	}
 
 	return nil
@@ -193,7 +192,7 @@ func (s *VetClinicServiceImpl) UpdateClinicProfile(ctx context.Context, clinicID
 func (s *VetClinicServiceImpl) GetClinicsByLocationID(ctx context.Context, locationID int) ([]*models.VetClinic, error) {
 	clinics, err := s.vetClinicRepo.GetByLocationID(ctx, locationID)
 	if err != nil {
-		return nil, fmt.Errorf("получение клиник по location ID: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить клиники по локации")
 	}
 	return clinics, nil
 }

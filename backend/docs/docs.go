@@ -1541,6 +1541,7 @@ const docTemplate = `{
         "handlers.SuccessResponse": {
             "type": "object",
             "properties": {
+                "data": {},
                 "message": {
                     "type": "string"
                 }

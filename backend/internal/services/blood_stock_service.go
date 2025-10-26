@@ -2,9 +2,8 @@ package services
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 )
@@ -77,7 +76,7 @@ func NewBloodStockService(
 func (s *BloodStockServiceImpl) GetAll(ctx context.Context) ([]models.BloodStock, error) {
 	stocks, err := s.bloodStockRepo.GetAll(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("получение всех запасов крови: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить запасы крови")
 	}
 	return stocks, nil
 }
@@ -86,10 +85,10 @@ func (s *BloodStockServiceImpl) GetAll(ctx context.Context) ([]models.BloodStock
 func (s *BloodStockServiceImpl) GetByID(ctx context.Context, id int) (*models.BloodStock, error) {
 	stock, err := s.bloodStockRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("получение запаса крови: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить запас крови")
 	}
 	if stock == nil {
-		return nil, errors.New("запас крови не найден")
+		return nil, apperrors.NewBloodStockNotFoundError(id)
 	}
 	return stock, nil
 }
@@ -97,14 +96,17 @@ func (s *BloodStockServiceImpl) GetByID(ctx context.Context, id int) (*models.Bl
 // GetByClinicID получает все запасы крови для клиники
 func (s *BloodStockServiceImpl) GetByClinicID(ctx context.Context, clinicID int) ([]models.BloodStock, error) {
 	// Проверяем существование клиники
-	_, err := s.vetClinicRepo.GetByID(ctx, clinicID)
+	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
-		return nil, fmt.Errorf("клиника не найдена: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование клиники")
+	}
+	if clinic == nil {
+		return nil, apperrors.NewClinicNotFoundError(clinicID)
 	}
 
 	stocks, err := s.bloodStockRepo.GetByClinicID(ctx, clinicID)
 	if err != nil {
-		return nil, fmt.Errorf("получение запасов крови клиники: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить запасы крови клиники")
 	}
 	return stocks, nil
 }
@@ -112,14 +114,17 @@ func (s *BloodStockServiceImpl) GetByClinicID(ctx context.Context, clinicID int)
 // GetByBloodTypeID получает все запасы крови по типу крови
 func (s *BloodStockServiceImpl) GetByBloodTypeID(ctx context.Context, bloodTypeID int) ([]models.BloodStock, error) {
 	// Проверяем существование типа крови
-	_, err := s.bloodTypeRepo.GetByID(ctx, bloodTypeID)
+	bloodType, err := s.bloodTypeRepo.GetByID(ctx, bloodTypeID)
 	if err != nil {
-		return nil, fmt.Errorf("тип крови не найден: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование типа крови")
+	}
+	if bloodType == nil {
+		return nil, apperrors.NewBloodTypeNotFoundError(bloodTypeID)
 	}
 
 	stocks, err := s.bloodStockRepo.GetByBloodTypeID(ctx, bloodTypeID)
 	if err != nil {
-		return nil, fmt.Errorf("получение запасов крови по типу: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить запасы крови по типу")
 	}
 	return stocks, nil
 }
@@ -127,16 +132,22 @@ func (s *BloodStockServiceImpl) GetByBloodTypeID(ctx context.Context, bloodTypeI
 // CreateBloodStock создает новый запас крови
 func (s *BloodStockServiceImpl) CreateBloodStock(ctx context.Context, stockData BloodStockCreate) (*models.BloodStock, error) {
 	// Проверяем существование типа крови
-	_, err := s.bloodTypeRepo.GetByID(ctx, stockData.BloodTypeID)
+	bloodType, err := s.bloodTypeRepo.GetByID(ctx, stockData.BloodTypeID)
 	if err != nil {
-		return nil, fmt.Errorf("тип крови не найден: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование типа крови")
+	}
+	if bloodType == nil {
+		return nil, apperrors.NewBloodTypeNotFoundError(stockData.BloodTypeID)
 	}
 
 	// Проверяем существование клиники, если указана
 	if stockData.ClinicID != nil {
-		_, err := s.vetClinicRepo.GetByID(ctx, *stockData.ClinicID)
+		clinic, err := s.vetClinicRepo.GetByID(ctx, *stockData.ClinicID)
 		if err != nil {
-			return nil, fmt.Errorf("клиника не найдена: %w", err)
+			return nil, apperrors.Internal(err, "не удалось проверить существование клиники")
+		}
+		if clinic == nil {
+			return nil, apperrors.NewClinicNotFoundError(*stockData.ClinicID)
 		}
 	}
 
@@ -161,7 +172,7 @@ func (s *BloodStockServiceImpl) CreateBloodStock(ctx context.Context, stockData 
 	}
 
 	if err := s.bloodStockRepo.Create(ctx, stock); err != nil {
-		return nil, fmt.Errorf("создание запаса крови: %w", err)
+		return nil, apperrors.Internal(err, "не удалось создать запас крови")
 	}
 
 	return stock, nil
@@ -172,10 +183,10 @@ func (s *BloodStockServiceImpl) UpdateBloodStock(ctx context.Context, id int, up
 	// Получаем существующий запас
 	stock, err := s.bloodStockRepo.GetByID(ctx, id)
 	if err != nil {
-		return fmt.Errorf("получение запаса крови для обновления: %w", err)
+		return apperrors.Internal(err, "не удалось получить запас крови")
 	}
 	if stock == nil {
-		return errors.New("запас крови не найден")
+		return apperrors.NewBloodStockNotFoundError(id)
 	}
 
 	// Применяем обновления
@@ -191,7 +202,7 @@ func (s *BloodStockServiceImpl) UpdateBloodStock(ctx context.Context, id int, up
 
 	// Сохраняем обновления
 	if err := s.bloodStockRepo.Update(ctx, stock); err != nil {
-		return fmt.Errorf("обновление запаса крови: %w", err)
+		return apperrors.Internal(err, "не удалось обновить запас крови")
 	}
 
 	return nil
@@ -202,15 +213,15 @@ func (s *BloodStockServiceImpl) DeleteBloodStock(ctx context.Context, id int) er
 	// Проверяем существование
 	stock, err := s.bloodStockRepo.GetByID(ctx, id)
 	if err != nil {
-		return fmt.Errorf("получение запаса крови для удаления: %w", err)
+		return apperrors.Internal(err, "не удалось получить запас крови")
 	}
 	if stock == nil {
-		return errors.New("запас крови не найден")
+		return apperrors.NewBloodStockNotFoundError(id)
 	}
 
 	// Удаляем
 	if err := s.bloodStockRepo.Delete(ctx, id); err != nil {
-		return fmt.Errorf("удаление запаса крови: %w", err)
+		return apperrors.Internal(err, "не удалось удалить запас крови")
 	}
 
 	return nil
@@ -220,7 +231,7 @@ func (s *BloodStockServiceImpl) DeleteBloodStock(ctx context.Context, id int) er
 func (s *BloodStockServiceImpl) Search(ctx context.Context, filters repositories.BloodStockFilters) ([]models.BloodStock, error) {
 	stocks, err := s.bloodStockRepo.Search(ctx, filters)
 	if err != nil {
-		return nil, fmt.Errorf("поиск запасов крови: %w", err)
+		return nil, apperrors.Internal(err, "не удалось выполнить поиск запасов крови")
 	}
 	return stocks, nil
 }

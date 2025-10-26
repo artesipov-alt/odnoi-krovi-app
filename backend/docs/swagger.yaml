@@ -35,6 +35,7 @@ definitions:
     type: object
   handlers.SuccessResponse:
     properties:
+      data: {}
       message:
         type: string
     type: object

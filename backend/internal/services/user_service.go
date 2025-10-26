@@ -2,9 +2,8 @@ package services
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
@@ -76,17 +75,17 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
-		return nil, fmt.Errorf("проверка существования пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if exists {
-		return nil, errors.New("пользователь с этим telegram ID уже существует")
+		return nil, apperrors.NewUserAlreadyExistsError(telegramID)
 	}
 
 	// Валидируем роль пользователя
 	role, err := validation.ValidateUserRole(string(userData.Role))
 	if err != nil {
-		return nil, fmt.Errorf("валидация роли пользователя: %w", err)
+		return nil, apperrors.BadRequest("неверная роль пользователя")
 	}
 
 	// Создаем нового пользователя
@@ -102,7 +101,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("создание пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось создать пользователя")
 	}
 
 	return user, nil
@@ -113,11 +112,11 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
-		return nil, fmt.Errorf("проверка существования пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if exists {
-		return nil, errors.New("пользователь с этим telegram ID уже существует")
+		return nil, apperrors.NewUserAlreadyExistsError(telegramID)
 	}
 
 	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию для обязательных полей
@@ -133,7 +132,7 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("создание пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось создать пользователя")
 	}
 
 	return user, nil
@@ -144,16 +143,16 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return fmt.Errorf("получение пользователя для удаления: %w", err)
+		return apperrors.Internal(err, "не удалось получить пользователя")
 	}
 
 	if user == nil {
-		return errors.New("пользователь не найден")
+		return apperrors.NewUserNotFoundError(userID)
 	}
 
 	// Удаляем пользователя
 	if err := s.userRepo.Delete(ctx, userID); err != nil {
-		return fmt.Errorf("удаление пользователя: %w", err)
+		return apperrors.Internal(err, "не удалось удалить пользователя")
 	}
 
 	return nil
@@ -163,7 +162,11 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
 func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID int) (*UserProfile, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("получение пользователя: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить пользователя")
+	}
+
+	if user == nil {
+		return nil, apperrors.NewUserNotFoundError(userID)
 	}
 
 	profile := &UserProfile{
@@ -181,7 +184,11 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 	// Получаем существующего пользователя
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return fmt.Errorf("получение пользователя для обновления: %w", err)
+		return apperrors.Internal(err, "не удалось получить пользователя")
+	}
+
+	if user == nil {
+		return apperrors.NewUserNotFoundError(userID)
 	}
 
 	// Применяем обновления
@@ -203,7 +210,7 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 
 	// Сохраняем обновленного пользователя
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return fmt.Errorf("обновление пользователя: %w", err)
+		return apperrors.Internal(err, "не удалось обновить пользователя")
 	}
 
 	return nil
@@ -213,7 +220,14 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
 	user, err := s.userRepo.GetByTelegramID(ctx, telegramID)
 	if err != nil {
-		return nil, fmt.Errorf("получение пользователя по telegram ID: %w", err)
+		return nil, apperrors.Internal(err, "не удалось получить пользователя по Telegram ID")
 	}
+
+	if user == nil {
+		return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]interface{}{
+			"telegram_id": telegramID,
+		})
+	}
+
 	return user, nil
 }

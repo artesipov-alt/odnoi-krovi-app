@@ -1,10 +1,7 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -36,52 +33,24 @@ func NewPetHandler(petService services.PetService) *PetHandler {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [post]
 func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
-	userIDStr := c.Params("user_id")
-	if userIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID пользователя обязателен",
-		})
-	}
-
-	userID, err := strconv.Atoi(userIDStr)
+	userID, err := ParseIDParam(c, "user_id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID пользователя",
-		})
+		return err
 	}
 
 	var petData services.PetCreate
-	if err := c.BodyParser(&petData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Validate pet data
-	if err := validation.ValidateStruct(petData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &petData); err != nil {
+		return err
 	}
 
 	logger.Log.Info("создание питомца", zap.Int("userId", userID), zap.String("petName", petData.Name))
 
 	pet, err := h.petService.CreatePet(c.Context(), userID, petData)
 	if err != nil {
-		logger.Log.Error("не удалось создать питомца", zap.Error(err), zap.Int("userId", userID))
-
-		if err.Error() == "пользователь не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.Status(fiber.StatusCreated).JSON(pet)
+	return SendCreated(c, pet)
 }
 
 // GetPetHandler godoc
@@ -96,39 +65,19 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [get]
 func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
-	petIDStr := c.Params("id")
-	if petIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID питомца обязателен",
-		})
-	}
-
-	petID, err := strconv.Atoi(petIDStr)
+	petID, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID питомца",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение питомца", zap.Int("petId", petID))
 
 	pet, err := h.petService.GetPetByID(c.Context(), petID)
 	if err != nil {
-		logger.Log.Error("не удалось получить питомца", zap.Error(err), zap.Int("petId", petID))
-
-		if err.Error() == "питомец не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(pet)
+	return SendJSON(c, pet)
 }
 
 // GetUserPetsHandler godoc
@@ -143,39 +92,19 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [get]
 func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
-	userIDStr := c.Params("user_id")
-	if userIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID пользователя обязателен",
-		})
-	}
-
-	userID, err := strconv.Atoi(userIDStr)
+	userID, err := ParseIDParam(c, "user_id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID пользователя",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение питомцев пользователя", zap.Int("userId", userID))
 
 	pets, err := h.petService.GetUserPets(c.Context(), userID)
 	if err != nil {
-		logger.Log.Error("не удалось получить питомцев пользователя", zap.Error(err), zap.Int("userId", userID))
-
-		if err.Error() == "пользователь не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(pets)
+	return SendJSON(c, pets)
 }
 
 // UpdatePetHandler godoc
@@ -192,53 +121,23 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [put]
 func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
-	petIDStr := c.Params("id")
-	if petIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID питомца обязателен",
-		})
-	}
-
-	petID, err := strconv.Atoi(petIDStr)
+	petID, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID питомца",
-		})
+		return err
 	}
 
 	var updateData services.PetUpdate
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Validate update data
-	if err := validation.ValidateStruct(updateData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &updateData); err != nil {
+		return err
 	}
 
 	logger.Log.Info("обновление питомца", zap.Int("petId", petID))
 
 	if err := h.petService.UpdatePet(c.Context(), petID, updateData); err != nil {
-		logger.Log.Error("не удалось обновить питомца", zap.Error(err), zap.Int("petId", petID))
-
-		if err.Error() == "питомец не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Питомец успешно обновлен",
-	})
+	return SendSuccess(c, "Питомец успежно обновлен")
 }
 
 // DeletePetHandler godoc
@@ -253,38 +152,16 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [delete]
 func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
-	petIDStr := c.Params("id")
-	if petIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID питомца обязателен",
-		})
-	}
-
-	petID, err := strconv.Atoi(petIDStr)
+	petID, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID питомца",
-		})
+		return err
 	}
 
 	logger.Log.Info("удаление питомца", zap.Int("petId", petID))
 
 	if err := h.petService.DeletePet(c.Context(), petID); err != nil {
-		logger.Log.Error("не удалось удалить питомца", zap.Error(err), zap.Int("petId", petID))
-
-		if err.Error() == "питомец не найден" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Питомец успешно удален",
-	})
+	return SendSuccess(c, "Питомец успешно удален")
 }

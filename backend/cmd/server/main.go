@@ -77,14 +77,17 @@ func main() {
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo)
 
-	// Создание экземпляра Fiber приложения
-	app := fiber.New()
+	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
+	app := fiber.New(fiber.Config{
+		ErrorHandler: middleware.ErrorHandler(),
+	})
 
 	// Настройка CORS для кросс-доменных запросов
 	app.Use(cors.New(config.CORSOptions()))
 
 	// Подключение middleware
-	app.Use(middleware.LoggerMiddleware) // Логирование запросов
+	app.Use(middleware.RecoveryMiddleware()) // Восстановление после паники
+	app.Use(middleware.LoggerMiddleware)     // Логирование запросов
 	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
 	// app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 

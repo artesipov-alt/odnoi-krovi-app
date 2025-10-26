@@ -1,10 +1,7 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -36,37 +33,18 @@ func NewVetClinicHandler(vetClinicService services.VetClinicService) *VetClinicH
 // @Router /vet-clinics/register [post]
 func (h *VetClinicHandler) RegisterClinicHandler(c *fiber.Ctx) error {
 	var clinicData services.VetClinicRegistration
-	if err := c.BodyParser(&clinicData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Validate clinic data
-	if err := validation.ValidateStruct(clinicData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &clinicData); err != nil {
+		return err
 	}
 
 	logger.Log.Info("регистрация ветеринарной клиники", zap.String("clinicName", clinicData.Name))
 
 	clinic, err := h.vetClinicService.RegisterClinic(c.Context(), clinicData)
 	if err != nil {
-		logger.Log.Error("не удалось зарегистрировать клинику", zap.Error(err))
-
-		if err.Error() == "клиника уже существует" {
-			return c.Status(fiber.StatusConflict).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.Status(fiber.StatusCreated).JSON(clinic)
+	return SendCreated(c, clinic)
 }
 
 // GetClinicProfileHandler godoc
@@ -81,39 +59,19 @@ func (h *VetClinicHandler) RegisterClinicHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/{id} [get]
 func (h *VetClinicHandler) GetClinicProfileHandler(c *fiber.Ctx) error {
-	clinicIDStr := c.Params("id")
-	if clinicIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID клиники обязателен",
-		})
-	}
-
-	clinicID, err := strconv.Atoi(clinicIDStr)
+	clinicID, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID клиники",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение профиля клиники", zap.Int("clinicId", clinicID))
 
 	profile, err := h.vetClinicService.GetClinicProfile(c.Context(), clinicID)
 	if err != nil {
-		logger.Log.Error("не удалось получить профиль клиники", zap.Error(err), zap.Int("clinicId", clinicID))
-
-		if err.Error() == "клиника не найдена" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(profile)
+	return SendJSON(c, profile)
 }
 
 // GetClinicsByLocationIDHandler godoc
@@ -127,33 +85,19 @@ func (h *VetClinicHandler) GetClinicProfileHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/location/{location_id} [get]
 func (h *VetClinicHandler) GetClinicsByLocationIDHandler(c *fiber.Ctx) error {
-	locationIDStr := c.Params("location_id")
-	if locationIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID локации обязателен",
-		})
-	}
-
-	locationID, err := strconv.Atoi(locationIDStr)
+	locationID, err := ParseIDParam(c, "location_id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID локации",
-		})
+		return err
 	}
 
 	logger.Log.Info("получение клиник по ID локации", zap.Int("locationId", locationID))
 
 	clinics, err := h.vetClinicService.GetClinicsByLocationID(c.Context(), locationID)
 	if err != nil {
-		logger.Log.Error("не удалось получить клиники", zap.Error(err), zap.Int("locationId", locationID))
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(clinics)
+	return SendJSON(c, clinics)
 }
 
 // UpdateClinicProfileHandler godoc
@@ -170,53 +114,23 @@ func (h *VetClinicHandler) GetClinicsByLocationIDHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/{id} [put]
 func (h *VetClinicHandler) UpdateClinicProfileHandler(c *fiber.Ctx) error {
-	clinicIDStr := c.Params("id")
-	if clinicIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID клиники обязателен",
-		})
-	}
-
-	clinicID, err := strconv.Atoi(clinicIDStr)
+	clinicID, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID клиники",
-		})
+		return err
 	}
 
 	var updateData services.VetClinicUpdate
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверное тело запроса",
-		})
-	}
-
-	// Validate update data
-	if err := validation.ValidateStruct(updateData); err != nil {
-		validationErrors := validation.GetValidationErrors(err)
-		return c.Status(fiber.StatusBadRequest).JSON(validationErrors)
+	if err := ParseBody(c, &updateData); err != nil {
+		return err
 	}
 
 	logger.Log.Info("обновление профиля клиники", zap.Int("clinicId", clinicID))
 
 	if err := h.vetClinicService.UpdateClinicProfile(c.Context(), clinicID, updateData); err != nil {
-		logger.Log.Error("не удалось обновить профиль клиники", zap.Error(err), zap.Int("clinicId", clinicID))
-
-		if err.Error() == "клиника не найдена" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Профиль клиники успешно обновлен",
-	})
+	return SendSuccess(c, "Профиль клиники успешно обновлен")
 }
 
 // DeleteClinicHandler godoc
@@ -231,38 +145,16 @@ func (h *VetClinicHandler) UpdateClinicProfileHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/{id} [delete]
 func (h *VetClinicHandler) DeleteClinicHandler(c *fiber.Ctx) error {
-	clinicIDStr := c.Params("id")
-	if clinicIDStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "ID клиники обязателен",
-		})
-	}
-
-	clinicID, err := strconv.Atoi(clinicIDStr)
+	clinicID, err := ParseIDParam(c, "id")
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Неверный формат ID клиники",
-		})
+		return err
 	}
 
 	logger.Log.Info("удаление клиники", zap.Int("clinicId", clinicID))
 
 	if err := h.vetClinicService.DeleteClinic(c.Context(), clinicID); err != nil {
-		logger.Log.Error("не удалось удалить клинику", zap.Error(err), zap.Int("clinicId", clinicID))
-
-		if err.Error() == "клиника не найдена" {
-			return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-				Error: err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error: err.Error(),
-		})
+		return err
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(SuccessResponse{
-		Message: "Клиника успешно удалена",
-	})
+	return SendSuccess(c, "Клиника успешно удалена")
 }
