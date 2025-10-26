@@ -10,10 +10,12 @@ import (
 func ValidatePetType(petType string) (models.PetType, error) {
 	pt := models.PetType(petType)
 	switch pt {
-	case models.PetTypeDog, models.PetTypeCat:
-		return pt, nil
+	case models.PetTypeDog:
+		return "Собака", nil
+	case models.PetTypeCat:
+		return "Кошка", nil
 	default:
-		return "", fmt.Errorf("недопустимый тип животного: %s (доступны: dog, cat)", petType)
+		return "", fmt.Errorf("недопустимый тип животного: %s", petType)
 	}
 }
 
@@ -21,10 +23,12 @@ func ValidatePetType(petType string) (models.PetType, error) {
 func ValidateGender(gender string) (models.Gender, error) {
 	g := models.Gender(gender)
 	switch g {
-	case models.GenderMale, models.GenderFemale:
-		return g, nil
+	case models.GenderMale:
+		return "Самец", nil
+	case models.GenderFemale:
+		return "Самка", nil
 	default:
-		return "", fmt.Errorf("недопустимый пол: %s (доступны: male, female)", gender)
+		return "", fmt.Errorf("недопустимый пол: %s", gender)
 	}
 }
 
@@ -32,10 +36,16 @@ func ValidateGender(gender string) (models.Gender, error) {
 func ValidateLivingCondition(condition string) (models.LivingCondition, error) {
 	lc := models.LivingCondition(condition)
 	switch lc {
-	case models.LivingConditionApartment, models.LivingConditionHouse, models.LivingConditionAviary, models.LivingConditionOther:
-		return lc, nil
+	case models.LivingConditionApartment:
+		return "Квартира", nil
+	case models.LivingConditionHouse:
+		return "Дом", nil
+	case models.LivingConditionAviary:
+		return "Вольер", nil
+	case models.LivingConditionOther:
+		return "Другое", nil
 	default:
-		return "", fmt.Errorf("недопустимое условие проживания: %s (доступны: apartment, house, aviary, other)", condition)
+		return "", fmt.Errorf("недопустимое условие проживания: %s", condition)
 	}
 }
 
@@ -43,10 +53,16 @@ func ValidateLivingCondition(condition string) (models.LivingCondition, error) {
 func ValidateUserRole(role string) (models.UserRole, error) {
 	r := models.UserRole(role)
 	switch r {
-	case models.UserRoleUser, models.UserRoleClinic, models.UserRoleAdmin, models.UserRoleDonor:
-		return r, nil
+	case models.UserRoleUser:
+		return "Пользователь", nil
+	case models.UserRoleClinic:
+		return "Клиника", nil
+	case models.UserRoleAdmin:
+		return "Администратор", nil
+	case models.UserRoleDonor:
+		return "Донор", nil
 	default:
-		return "", fmt.Errorf("недопустимая роль: %s (доступны: user, clinic, admin, donor)", role)
+		return "", fmt.Errorf("недопустимая роль: %s", role)
 	}
 }
 
@@ -54,10 +70,16 @@ func ValidateUserRole(role string) (models.UserRole, error) {
 func ValidateBloodSearchStatus(status string) (models.BloodSearchStatus, error) {
 	s := models.BloodSearchStatus(status)
 	switch s {
-	case models.BloodSearchStatusActive, models.BloodSearchStatusCompleted, models.BloodSearchStatusCancelled, models.BloodSearchStatusExpired:
-		return s, nil
+	case models.BloodSearchStatusActive:
+		return "Активный", nil
+	case models.BloodSearchStatusCompleted:
+		return "Завершен", nil
+	case models.BloodSearchStatusCancelled:
+		return "Отменен", nil
+	case models.BloodSearchStatusExpired:
+		return "Истек", nil
 	default:
-		return "", fmt.Errorf("недопустимый статус поиска: %s (доступны: active, completed, cancelled, expired)", status)
+		return "", fmt.Errorf("недопустимый статус поиска: %s", status)
 	}
 }
 
@@ -65,10 +87,16 @@ func ValidateBloodSearchStatus(status string) (models.BloodSearchStatus, error) 
 func ValidateBloodStockStatus(status string) (models.BloodStockStatus, error) {
 	s := models.BloodStockStatus(status)
 	switch s {
-	case models.BloodStockStatusActive, models.BloodStockStatusReserved, models.BloodStockStatusUsed, models.BloodStockStatusExpired:
-		return s, nil
+	case models.BloodStockStatusActive:
+		return "Активный", nil
+	case models.BloodStockStatusReserved:
+		return "Зарезервирован", nil
+	case models.BloodStockStatusUsed:
+		return "Использован", nil
+	case models.BloodStockStatusExpired:
+		return "Истек", nil
 	default:
-		return "", fmt.Errorf("недопустимый статус запаса: %s (доступны: active, reserved, used, expired)", status)
+		return "", fmt.Errorf("недопустимый статус запаса: %s", status)
 	}
 }
 
@@ -76,9 +104,15 @@ func ValidateBloodStockStatus(status string) (models.BloodStockStatus, error) {
 func ValidateDonationStatus(status string) (models.DonationStatus, error) {
 	s := models.DonationStatus(status)
 	switch s {
-	case models.DonationStatusScheduled, models.DonationStatusCompleted, models.DonationStatusCancelled, models.DonationStatusNoShow:
-		return s, nil
+	case models.DonationStatusScheduled:
+		return "Запланирован", nil
+	case models.DonationStatusCompleted:
+		return "Завершен", nil
+	case models.DonationStatusCancelled:
+		return "Отменен", nil
+	case models.DonationStatusNoShow:
+		return "Не явился", nil
 	default:
-		return "", fmt.Errorf("недопустимый статус донорства: %s (доступны: scheduled, completed, cancelled, no_show)", status)
+		return "", fmt.Errorf("недопустимый статус донорства: %s", status)
 	}
 }

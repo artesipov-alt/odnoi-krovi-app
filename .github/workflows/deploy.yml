@@ -12,8 +12,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Deploy, build and run backend via pm2
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            backend/**
+            bot/**
+            frontend/**
+
+      - name: Deploy with selective rebuild
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -22,15 +33,27 @@ jobs:
           script: |
             cd ./odnoi-krovi-app
             git pull origin dev
-            docker compose up -d --build
 
-      # - name: Deploy, build and run bot via pm2
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USERNAME }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     script: |
-      #       cd ./odnoi-krovi-app/backend
-      #       bun run build
-      #       pm2 start pm2.config.cjs
+            # Build and restart only changed services
+            if [[ "${{ steps.changed-files.outputs.backend_any_changed }}" == "true" ]]; then
+              echo "Rebuilding backend"
+              docker compose up -d --build backend
+            fi
+
+            if [[ "${{ steps.changed-files.outputs.bot_any_changed }}" == "true" ]]; then
+              echo "Rebuilding bot"
+              docker compose up -d --build bot
+            fi
+
+            if [[ "${{ steps.changed-files.outputs.frontend_any_changed }}" == "true" ]]; then
+              echo "Rebuilding frontend"
+              docker compose up -d --build frontend
+            fi
+
+            # If no specific changes detected, rebuild all
+            if [[ "${{ steps.changed-files.outputs.backend_any_changed }}" != "true" && \
+                  "${{ steps.changed-files.outputs.bot_any_changed }}" != "true" && \
+                  "${{ steps.changed-files.outputs.frontend_any_changed }}" != "true" ]]; then
+              echo "No specific service changes detected, rebuilding all"
+              docker compose up -d --build
+            fi

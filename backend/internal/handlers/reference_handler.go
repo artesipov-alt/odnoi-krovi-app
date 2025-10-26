@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
@@ -34,6 +35,12 @@ type ReferenceItem struct {
 	Label string `json:"label"`
 }
 
+// ReferenceItemDB представляет элемент справочника из базы данных с ID
+type ReferenceItemDB struct {
+	Value int    `json:"value"`
+	Label string `json:"label"`
+}
+
 // GetPetTypesHandler godoc
 // @Summary Получение всех типов животных
 // @Description Возвращает все доступные типы животных для выбора на фронтенде
@@ -48,9 +55,16 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(petTypes))
 
 	for i, petType := range petTypes {
+		ruValue, err := validation.ValidatePetType(string(petType))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrInvalidPetType.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(petType),
-			Label: string(petType),
+			Label: string(ruValue),
 		}
 	}
 
@@ -72,9 +86,16 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(genders))
 
 	for i, gender := range genders {
+		ruValue, err := validation.ValidateGender(string(gender))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrInvalidGender.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(gender),
-			Label: string(gender),
+			Label: string(ruValue),
 		}
 	}
 
@@ -96,9 +117,16 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(conditions))
 
 	for i, condition := range conditions {
+		ruValue, err := validation.ValidateLivingCondition(string(condition))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrInvalidLivingCondition.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(condition),
-			Label: string(condition),
+			Label: string(ruValue),
 		}
 	}
 
@@ -120,9 +148,16 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(roles))
 
 	for i, role := range roles {
+		ruValue, err := validation.ValidateUserRole(string(role))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrUserInvalidRole.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(role),
-			Label: string(role),
+			Label: string(ruValue),
 		}
 	}
 
@@ -144,9 +179,16 @@ func (h *ReferenceHandler) GetBloodSearchStatusesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
+		ruValue, err := validation.ValidateBloodSearchStatus(string(status))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrInvalidSearchStatus.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: string(status),
+			Label: string(ruValue),
 		}
 	}
 
@@ -168,9 +210,16 @@ func (h *ReferenceHandler) GetBloodStockStatusesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
+		ruValue, err := validation.ValidateBloodStockStatus(string(status))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrInvalidBloodStatus.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: string(status),
+			Label: string(ruValue),
 		}
 	}
 
@@ -192,9 +241,16 @@ func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
+		ruValue, err := validation.ValidateDonationStatus(string(status))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrInvalidDonationStatus.Error(),
+			})
+		}
+
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: string(status),
+			Label: string(ruValue),
 		}
 	}
 
@@ -224,7 +280,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(breeds))
 	for i, breed := range breeds {
 		items[i] = ReferenceItem{
-			Value: breed.Name,
+			Value: string(rune(breed.ID)),
 			Label: breed.Name,
 		}
 	}
@@ -273,7 +329,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(breeds))
 	for i, breed := range breeds {
 		items[i] = ReferenceItem{
-			Value: breed.Name,
+			Value: string(rune(breed.ID)),
 			Label: breed.Name,
 		}
 	}
@@ -304,7 +360,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(bloodTypes))
 	for i, bloodType := range bloodTypes {
 		items[i] = ReferenceItem{
-			Value: bloodType.Name,
+			Value: string(rune(bloodType.ID)),
 			Label: bloodType.Name,
 		}
 	}
