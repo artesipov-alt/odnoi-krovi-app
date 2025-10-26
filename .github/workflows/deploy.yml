@@ -19,10 +19,13 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v44
         with:
-          files: |
-            backend/**
-            bot/**
-            frontend/**
+          files_yaml: |
+            backend:
+              - backend/**
+            bot:
+              - bot/**
+            frontend:
+              - frontend/**
 
       - name: Deploy with selective rebuild
         uses: appleboy/ssh-action@master
@@ -34,26 +37,33 @@ jobs:
             cd ./odnoi-krovi-app
             git pull origin dev
 
+            # Detect which services changed
+            BACKEND_CHANGED="${{ steps.changed-files.outputs.backend_any_changed }}"
+            BOT_CHANGED="${{ steps.changed-files.outputs.bot_any_changed }}"
+            FRONTEND_CHANGED="${{ steps.changed-files.outputs.frontend_any_changed }}"
+
+            echo "Backend changed: $BACKEND_CHANGED"
+            echo "Bot changed: $BOT_CHANGED"
+            echo "Frontend changed: $FRONTEND_CHANGED"
+
             # Build and restart only changed services
-            if [[ "${{ steps.changed-files.outputs.backend_any_changed }}" == "true" ]]; then
+            if [[ "$BACKEND_CHANGED" == "true" ]]; then
               echo "Rebuilding backend"
               docker compose up -d --build backend
             fi
 
-            if [[ "${{ steps.changed-files.outputs.bot_any_changed }}" == "true" ]]; then
+            if [[ "$BOT_CHANGED" == "true" ]]; then
               echo "Rebuilding bot"
               docker compose up -d --build bot
             fi
 
-            if [[ "${{ steps.changed-files.outputs.frontend_any_changed }}" == "true" ]]; then
+            if [[ "$FRONTEND_CHANGED" == "true" ]]; then
               echo "Rebuilding frontend"
               docker compose up -d --build frontend
             fi
 
             # If no specific changes detected, rebuild all
-            if [[ "${{ steps.changed-files.outputs.backend_any_changed }}" != "true" && \
-                  "${{ steps.changed-files.outputs.bot_any_changed }}" != "true" && \
-                  "${{ steps.changed-files.outputs.frontend_any_changed }}" != "true" ]]; then
+            if [[ "$BACKEND_CHANGED" != "true" && "$BOT_CHANGED" != "true" && "$FRONTEND_CHANGED" != "true" ]]; then
               echo "No specific service changes detected, rebuilding all"
               docker compose up -d --build
             fi

@@ -35,6 +35,11 @@ type ReferenceItem struct {
 	Label string `json:"label"`
 }
 
+// ReferenceResponseDB представляет ответ со справочными данными из базы данных
+type ReferenceResponseDB struct {
+	Data []ReferenceItemDB `json:"data"`
+}
+
 // ReferenceItemDB представляет элемент справочника из базы данных с ID
 type ReferenceItemDB struct {
 	Value int    `json:"value"`
@@ -277,16 +282,16 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	items := make([]ReferenceItem, len(breeds))
+	items := make([]ReferenceItemDB, len(breeds))
 	for i, breed := range breeds {
-		items[i] = ReferenceItem{
-			Value: string(rune(breed.ID)),
+		items[i] = ReferenceItemDB{
+			Value: breed.ID,
 			Label: breed.Name,
 		}
 	}
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(ReferenceResponseDB{Data: items})
 }
 
 // GetBreedsByTypeHandler godoc
@@ -326,16 +331,16 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	items := make([]ReferenceItem, len(breeds))
+	items := make([]ReferenceItemDB, len(breeds))
 	for i, breed := range breeds {
-		items[i] = ReferenceItem{
-			Value: string(rune(breed.ID)),
+		items[i] = ReferenceItemDB{
+			Value: breed.ID,
 			Label: breed.Name,
 		}
 	}
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(ReferenceResponseDB{Data: items})
 }
 
 // GetBloodGroupsHandler godoc
@@ -357,14 +362,14 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	items := make([]ReferenceItem, len(bloodTypes))
+	items := make([]ReferenceItemDB, len(bloodTypes))
 	for i, bloodType := range bloodTypes {
-		items[i] = ReferenceItem{
-			Value: string(rune(bloodType.ID)),
+		items[i] = ReferenceItemDB{
+			Value: bloodType.ID,
 			Label: bloodType.Name,
 		}
 	}
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(ReferenceResponseDB{Data: items})
 }
