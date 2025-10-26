@@ -20,7 +20,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            touch hello-from-actions
+            cd ./odnoi-krovi-app
+            git pull origin dev
 
       # - name: Deploy, build and run bot via pm2
       #   uses: appleboy/ssh-action@master
