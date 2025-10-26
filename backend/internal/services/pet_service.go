@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 )
 
 // PetService определяет интерфейс для бизнес-логики питомцев
@@ -98,19 +99,19 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 	}
 
 	// Валидируем тип животного
-	validatedType, err := models.ValidatePetType(string(petData.Type))
+	validatedType, err := validation.ValidatePetType(string(petData.Type))
 	if err != nil {
 		return nil, fmt.Errorf("валидация типа животного: %w", err)
 	}
 
 	// Валидируем пол животного
-	validatedGender, err := models.ValidateGender(string(petData.Gender))
+	validatedGender, err := validation.ValidateGender(string(petData.Gender))
 	if err != nil {
 		return nil, fmt.Errorf("валидация пола животного: %w", err)
 	}
 
 	// Валидируем условия проживания
-	validatedLivingCondition, err := models.ValidateLivingCondition(string(petData.LivingCondition))
+	validatedLivingCondition, err := validation.ValidateLivingCondition(string(petData.LivingCondition))
 	if err != nil {
 		return nil, fmt.Errorf("валидация условий проживания: %w", err)
 	}
@@ -231,21 +232,21 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 		pet.Longitude = *updates.Longitude
 	}
 	if updates.LivingCondition != nil {
-		validatedLivingCondition, err := models.ValidateLivingCondition(string(*updates.LivingCondition))
+		validatedLivingCondition, err := validation.ValidateLivingCondition(string(*updates.LivingCondition))
 		if err != nil {
 			return fmt.Errorf("валидация условий проживания: %w", err)
 		}
 		pet.LivingCondition = validatedLivingCondition
 	}
 	if updates.Gender != nil {
-		validatedGender, err := models.ValidateGender(string(*updates.Gender))
+		validatedGender, err := validation.ValidateGender(string(*updates.Gender))
 		if err != nil {
 			return fmt.Errorf("валидация пола животного: %w", err)
 		}
 		pet.Gender = validatedGender
 	}
 	if updates.Type != nil {
-		validatedType, err := models.ValidatePetType(string(*updates.Type))
+		validatedType, err := validation.ValidatePetType(string(*updates.Type))
 		if err != nil {
 			return fmt.Errorf("валидация типа животного: %w", err)
 		}

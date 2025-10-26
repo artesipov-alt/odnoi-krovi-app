@@ -34,7 +34,7 @@ import (
 // @BasePath /api/v1
 func main() {
 	// Загрузка переменных окружения из .env файла
-	godotenv.Load()
+	godotenv.Load("../.env")
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "3000"
@@ -62,16 +62,19 @@ func main() {
 	breedRepo := repositories.NewPostgresBreedRepository(db)
 	bloodTypeRepo := repositories.NewPostgresBloodTypeRepository(db)
 	vetClinicRepo := repositories.NewVetClinicRepository(db)
+	bloodStockRepo := repositories.NewPostgresBloodStockRepository(db)
 
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
 	petService := services.NewPetService(petRepo, userRepo)
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
+	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodTypeRepo, vetClinicRepo)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
+	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo)
 
 	// Создание экземпляра Fiber приложения
@@ -126,6 +129,19 @@ func main() {
 				vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
 				vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
 				vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
+			}
+
+			// Группа маршрутов для работы с запасами крови
+			bloodStockGroup := v1.Group("/blood-stocks")
+			{
+				bloodStockGroup.Get("/", bloodStockHandler.GetAllBloodStocksHandler)                                    // Получение всех запасов крови
+				bloodStockGroup.Get("/search", bloodStockHandler.SearchBloodStocksHandler)                              // Поиск запасов крови с фильтрами
+				bloodStockGroup.Get("/:id", bloodStockHandler.GetBloodStockByIDHandler)                                 // Получение запаса крови по ID
+				bloodStockGroup.Get("/clinic/:clinic_id", bloodStockHandler.GetBloodStocksByClinicIDHandler)            // Получение запасов крови клиники
+				bloodStockGroup.Get("/blood-type/:blood_type_id", bloodStockHandler.GetBloodStocksByBloodTypeIDHandler) // Получение запасов крови по типу крови
+				bloodStockGroup.Post("/", bloodStockHandler.CreateBloodStockHandler)                                    // Создание нового запаса крови
+				bloodStockGroup.Put("/:id", bloodStockHandler.UpdateBloodStockHandler)                                  // Обновление запаса крови
+				bloodStockGroup.Delete("/:id", bloodStockHandler.DeleteBloodStockHandler)                               // Удаление запаса крови
 			}
 
 			// Группа маршрутов для справочных данных

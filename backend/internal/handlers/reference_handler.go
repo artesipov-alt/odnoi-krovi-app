@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -43,13 +44,13 @@ type ReferenceItem struct {
 func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника типов животных")
 
-	petTypes := models.GetAllPetTypes()
+	petTypes := enums.GetAllPetTypes()
 	items := make([]ReferenceItem, len(petTypes))
 
 	for i, petType := range petTypes {
 		items[i] = ReferenceItem{
 			Value: string(petType),
-			Label: petType.String(),
+			Label: string(petType),
 		}
 	}
 
@@ -67,13 +68,13 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника полов")
 
-	genders := models.GetAllGenders()
+	genders := enums.GetAllGenders()
 	items := make([]ReferenceItem, len(genders))
 
 	for i, gender := range genders {
 		items[i] = ReferenceItem{
 			Value: string(gender),
-			Label: gender.String(),
+			Label: string(gender),
 		}
 	}
 
@@ -91,13 +92,13 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника условий проживания")
 
-	conditions := models.GetAllLivingConditions()
+	conditions := enums.GetAllLivingConditions()
 	items := make([]ReferenceItem, len(conditions))
 
 	for i, condition := range conditions {
 		items[i] = ReferenceItem{
 			Value: string(condition),
-			Label: condition.String(),
+			Label: string(condition),
 		}
 	}
 
@@ -115,13 +116,13 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника ролей пользователей")
 
-	roles := models.GetAllUserRoles()
+	roles := enums.GetAllUserRoles()
 	items := make([]ReferenceItem, len(roles))
 
 	for i, role := range roles {
 		items[i] = ReferenceItem{
 			Value: string(role),
-			Label: role.String(),
+			Label: string(role),
 		}
 	}
 
@@ -139,13 +140,13 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetBloodSearchStatusesHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника статусов поиска крови")
 
-	statuses := models.GetAllBloodSearchStatuses()
+	statuses := enums.GetAllBloodSearchStatuses()
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: status.String(),
+			Label: string(status),
 		}
 	}
 
@@ -163,13 +164,13 @@ func (h *ReferenceHandler) GetBloodSearchStatusesHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetBloodStockStatusesHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника статусов запаса крови")
 
-	statuses := models.GetAllBloodStockStatuses()
+	statuses := enums.GetAllBloodStockStatuses()
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: status.String(),
+			Label: string(status),
 		}
 	}
 
@@ -187,13 +188,13 @@ func (h *ReferenceHandler) GetBloodStockStatusesHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника статусов донорства")
 
-	statuses := models.GetAllDonationStatuses()
+	statuses := enums.GetAllDonationStatuses()
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: status.String(),
+			Label: string(status),
 		}
 	}
 
@@ -253,7 +254,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	petType, err := models.ValidatePetType(petTypeStr)
+	petType, err := validation.ValidatePetType(petTypeStr)
 	if err != nil {
 		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{

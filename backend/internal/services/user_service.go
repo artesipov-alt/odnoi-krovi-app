@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
@@ -83,7 +84,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	}
 
 	// Валидируем роль пользователя
-	validatedRole, err := models.ValidateUserRole(string(userData.Role))
+	role, err := validation.ValidateUserRole(string(userData.Role))
 	if err != nil {
 		return nil, fmt.Errorf("валидация роли пользователя: %w", err)
 	}
@@ -97,7 +98,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		OrganizationName: userData.OrganizationName,
 		ConsentPD:        userData.ConsentPD,
 		LocationID:       userData.LocationID,
-		Role:             validatedRole,
+		Role:             role,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
