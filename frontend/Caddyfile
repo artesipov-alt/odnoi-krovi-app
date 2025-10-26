@@ -1,4 +1,4 @@
-:80 {
+1krovi.app {
     root * /srv
     file_server
     encode gzip zstd

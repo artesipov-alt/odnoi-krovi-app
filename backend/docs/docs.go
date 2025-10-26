@@ -35,6 +35,422 @@ const docTemplate = `{
                 }
             }
         },
+        "/blood-stocks": {
+            "get": {
+                "description": "Возвращает список всех запасов крови в системе",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Получение всех запасов крови",
+                "responses": {
+                    "200": {
+                        "description": "Список запасов крови",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BloodStock"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Создает новый запас крови в системе",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Создание нового запаса крови",
+                "parameters": [
+                    {
+                        "description": "Данные запаса крови",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.BloodStockCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Созданный запас крови",
+                        "schema": {
+                            "$ref": "#/definitions/models.BloodStock"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Клиника или тип крови не найдены",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-stocks/blood-type/{blood_type_id}": {
+            "get": {
+                "description": "Возвращает все запасы крови для конкретного типа крови",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Получение запасов крови по типу крови",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID типа крови",
+                        "name": "blood_type_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список запасов крови",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BloodStock"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Тип крови не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-stocks/clinic/{clinic_id}": {
+            "get": {
+                "description": "Возвращает все запасы крови для конкретной клиники",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Получение запасов крови клиники",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID клиники",
+                        "name": "clinic_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список запасов крови клиники",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BloodStock"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Клиника не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-stocks/search": {
+            "get": {
+                "description": "Выполняет поиск запасов крови по различным параметрам (клиника, тип животного, тип крови, статус, объем, цена)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Поиск запасов крови с фильтрами",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID клиники",
+                        "name": "clinic_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип животного (dog/cat)",
+                        "name": "pet_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID типа крови",
+                        "name": "blood_type_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Статус (active/reserved/used/expired)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальный объем (мл)",
+                        "name": "min_volume",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальный объем (мл)",
+                        "name": "max_volume",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Минимальная цена (руб)",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Максимальная цена (руб)",
+                        "name": "max_price",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список найденных запасов крови",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BloodStock"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-stocks/{id}": {
+            "get": {
+                "description": "Возвращает информацию о конкретном запасе крови",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Получение запаса крови по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID запаса крови",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Запас крови",
+                        "schema": {
+                            "$ref": "#/definitions/models.BloodStock"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Запас крови не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет информацию о запасе крови",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Обновление запаса крови",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID запаса крови",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.BloodStockUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Запас крови успешно обновлен",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Запас крови не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет запас крови из системы",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-stocks"
+                ],
+                "summary": "Удаление запаса крови",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID запаса крови",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Запас крови успешно удален",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Запас крови не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/pets/user/{user_id}": {
             "get": {
                 "description": "Возвращает всех питомцев конкретного пользователя",
@@ -1130,6 +1546,66 @@ const docTemplate = `{
                 }
             }
         },
+        "models.BloodStock": {
+            "type": "object",
+            "properties": {
+                "blood_type_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "clinic_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "expiration_date": {
+                    "type": "string",
+                    "example": "2024-12-31"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "pet_type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetType"
+                        }
+                    ],
+                    "example": "dog"
+                },
+                "price_rub": {
+                    "type": "number",
+                    "example": 5000
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BloodStockStatus"
+                        }
+                    ],
+                    "example": "active"
+                },
+                "volume_ml": {
+                    "type": "integer",
+                    "example": 500
+                }
+            }
+        },
+        "models.BloodStockStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "reserved",
+                "used",
+                "expired"
+            ],
+            "x-enum-varnames": [
+                "BloodStockStatusActive",
+                "BloodStockStatusReserved",
+                "BloodStockStatusUsed",
+                "BloodStockStatusExpired"
+            ]
+        },
         "models.DonorRequirements": {
             "type": "object",
             "properties": {
@@ -1433,6 +1909,80 @@ const docTemplate = `{
                 "work_hours": {
                     "type": "string",
                     "example": "Пн-Пт: 9:00-18:00"
+                }
+            }
+        },
+        "services.BloodStockCreate": {
+            "type": "object",
+            "required": [
+                "blood_type_id",
+                "pet_type"
+            ],
+            "properties": {
+                "blood_type_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "clinic_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "expiration_date": {
+                    "description": "формат: \"2024-12-31\"",
+                    "type": "string"
+                },
+                "pet_type": {
+                    "enum": [
+                        "dog",
+                        "cat"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetType"
+                        }
+                    ]
+                },
+                "status": {
+                    "enum": [
+                        "active",
+                        "reserved",
+                        "used",
+                        "expired"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BloodStockStatus"
+                        }
+                    ]
+                },
+                "volume_ml": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "services.BloodStockUpdate": {
+            "type": "object",
+            "properties": {
+                "expiration_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "active",
+                        "reserved",
+                        "used",
+                        "expired"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BloodStockStatus"
+                        }
+                    ]
+                },
+                "volume_ml": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },

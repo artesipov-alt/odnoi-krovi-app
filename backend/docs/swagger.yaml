@@ -38,6 +38,47 @@ definitions:
       message:
         type: string
     type: object
+  models.BloodStock:
+    properties:
+      blood_type_id:
+        example: 1
+        type: integer
+      clinic_id:
+        example: 1
+        type: integer
+      expiration_date:
+        example: "2024-12-31"
+        type: string
+      id:
+        example: 1
+        type: integer
+      pet_type:
+        allOf:
+        - $ref: '#/definitions/models.PetType'
+        example: dog
+      price_rub:
+        example: 5000
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/models.BloodStockStatus'
+        example: active
+      volume_ml:
+        example: 500
+        type: integer
+    type: object
+  models.BloodStockStatus:
+    enum:
+    - active
+    - reserved
+    - used
+    - expired
+    type: string
+    x-enum-varnames:
+    - BloodStockStatusActive
+    - BloodStockStatusReserved
+    - BloodStockStatusUsed
+    - BloodStockStatusExpired
   models.DonorRequirements:
     properties:
       blood_types:
@@ -254,6 +295,54 @@ definitions:
       work_hours:
         example: 'Пн-Пт: 9:00-18:00'
         type: string
+    type: object
+  services.BloodStockCreate:
+    properties:
+      blood_type_id:
+        minimum: 1
+        type: integer
+      clinic_id:
+        minimum: 1
+        type: integer
+      expiration_date:
+        description: 'формат: "2024-12-31"'
+        type: string
+      pet_type:
+        allOf:
+        - $ref: '#/definitions/models.PetType'
+        enum:
+        - dog
+        - cat
+      status:
+        allOf:
+        - $ref: '#/definitions/models.BloodStockStatus'
+        enum:
+        - active
+        - reserved
+        - used
+        - expired
+      volume_ml:
+        minimum: 1
+        type: integer
+    required:
+    - blood_type_id
+    - pet_type
+    type: object
+  services.BloodStockUpdate:
+    properties:
+      expiration_date:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.BloodStockStatus'
+        enum:
+        - active
+        - reserved
+        - used
+        - expired
+      volume_ml:
+        minimum: 1
+        type: integer
     type: object
   services.PetCreate:
     properties:
@@ -489,6 +578,282 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
+  /blood-stocks:
+    get:
+      description: Возвращает список всех запасов крови в системе
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список запасов крови
+          schema:
+            items:
+              $ref: '#/definitions/models.BloodStock'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение всех запасов крови
+      tags:
+      - blood-stocks
+    post:
+      consumes:
+      - application/json
+      description: Создает новый запас крови в системе
+      parameters:
+      - description: Данные запаса крови
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.BloodStockCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданный запас крови
+          schema:
+            $ref: '#/definitions/models.BloodStock'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Клиника или тип крови не найдены
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Создание нового запаса крови
+      tags:
+      - blood-stocks
+  /blood-stocks/{id}:
+    delete:
+      description: Удаляет запас крови из системы
+      parameters:
+      - description: ID запаса крови
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Запас крови успешно удален
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Запас крови не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Удаление запаса крови
+      tags:
+      - blood-stocks
+    get:
+      description: Возвращает информацию о конкретном запасе крови
+      parameters:
+      - description: ID запаса крови
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Запас крови
+          schema:
+            $ref: '#/definitions/models.BloodStock'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Запас крови не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение запаса крови по ID
+      tags:
+      - blood-stocks
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о запасе крови
+      parameters:
+      - description: ID запаса крови
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.BloodStockUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Запас крови успешно обновлен
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Запас крови не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Обновление запаса крови
+      tags:
+      - blood-stocks
+  /blood-stocks/blood-type/{blood_type_id}:
+    get:
+      description: Возвращает все запасы крови для конкретного типа крови
+      parameters:
+      - description: ID типа крови
+        in: path
+        name: blood_type_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список запасов крови
+          schema:
+            items:
+              $ref: '#/definitions/models.BloodStock'
+            type: array
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Тип крови не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение запасов крови по типу крови
+      tags:
+      - blood-stocks
+  /blood-stocks/clinic/{clinic_id}:
+    get:
+      description: Возвращает все запасы крови для конкретной клиники
+      parameters:
+      - description: ID клиники
+        in: path
+        name: clinic_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список запасов крови клиники
+          schema:
+            items:
+              $ref: '#/definitions/models.BloodStock'
+            type: array
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Клиника не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение запасов крови клиники
+      tags:
+      - blood-stocks
+  /blood-stocks/search:
+    get:
+      consumes:
+      - application/json
+      description: Выполняет поиск запасов крови по различным параметрам (клиника,
+        тип животного, тип крови, статус, объем, цена)
+      parameters:
+      - description: ID клиники
+        in: query
+        name: clinic_id
+        type: integer
+      - description: Тип животного (dog/cat)
+        in: query
+        name: pet_type
+        type: string
+      - description: ID типа крови
+        in: query
+        name: blood_type_id
+        type: integer
+      - description: Статус (active/reserved/used/expired)
+        in: query
+        name: status
+        type: string
+      - description: Минимальный объем (мл)
+        in: query
+        name: min_volume
+        type: integer
+      - description: Максимальный объем (мл)
+        in: query
+        name: max_volume
+        type: integer
+      - description: Минимальная цена (руб)
+        in: query
+        name: min_price
+        type: number
+      - description: Максимальная цена (руб)
+        in: query
+        name: max_price
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список найденных запасов крови
+          schema:
+            items:
+              $ref: '#/definitions/models.BloodStock'
+            type: array
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Поиск запасов крови с фильтрами
+      tags:
+      - blood-stocks
   /pets/{id}:
     delete:
       description: Удаляет питомца из системы
