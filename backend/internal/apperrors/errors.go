@@ -21,11 +21,11 @@ const (
 
 // AppError представляет ошибку приложения с метаданными
 type AppError struct {
-	Code       ErrorCode              // Код ошибки для API
-	Message    string                 // Сообщение для пользователя
-	Internal   error                  // Внутренняя ошибка (для логов)
-	Details    map[string]interface{} // Дополнительные детали
-	HTTPStatus int                    // HTTP статус код
+	Code       ErrorCode      // Код ошибки для API
+	Message    string         // Сообщение для пользователя
+	Internal   error          // Внутренняя ошибка (для логов)
+	Details    map[string]any // Дополнительные детали
+	HTTPStatus int            // HTTP статус код
 }
 
 // Error реализует интерфейс error

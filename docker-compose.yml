@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     environment:
       BOT_TOKEN: ${PROD_BOT_API_KEY}
-      MINIAPP_DOMAIN: https://однойкрови.рф
+      MINIAPP_DOMAIN: https://1krovi.app
     networks:
       - odnoi_net
     restart: unless-stopped
@@ -35,6 +35,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - odnoi_net
     volumes:
