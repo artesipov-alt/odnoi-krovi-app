@@ -123,16 +123,16 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 
 	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию для обязательных полей
 	user := &models.User{
-		TelegramID:       telegramID,
-		FullName:         fullName,
-		Phone:            "",     // Пустая строка для телефона (будет заполнена позже)
-		Email:            "",     // Пустая строка для email (будет заполнена позже)
-		OrganizationName: "",     // Пустая строка для организации (будет заполнена позже)
-		ConsentPD:        true,   // По умолчанию false, пользователь должен явно согласиться позже
-		LocationID:       1,      // По умолчанию 1, пользователь должен установить местоположение позже
-		OnBoarding:       false,  // По умолчанию false, пользователь должен пройти опрос
-		AllowGeo:         false,  // По умолчанию false, пользователь должен дорегистрацию
-		Role:             "user", // Роль по умолчанию
+		TelegramID: telegramID,
+		FullName:   fullName,
+		Phone:      "", // Пустая строка для телефона (будет заполнена позже)
+		Email:      "", // Пустая строка для email (будет заполнена позже)
+		// OrganizationName: "",     // Пустая строка для организации (будет заполнена позже)
+		ConsentPD:  true,   // По умолчанию false, пользователь должен явно согласиться позже
+		LocationID: 1,      // По умолчанию 1, пользователь должен установить местоположение позже
+		OnBoarding: false,  // По умолчанию false, пользователь должен пройти опрос
+		AllowGeo:   false,  // По умолчанию false, пользователь должен дорегистрацию
+		Role:       "user", // Роль по умолчанию
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
