@@ -19,7 +19,7 @@ const docTemplate = `{
             "get": {
                 "description": "Возвращает информационное сообщение о сервере",
                 "produces": [
-                    "text/plain"
+                    "text/html"
                 ],
                 "tags": [
                     "root"
@@ -27,7 +27,7 @@ const docTemplate = `{
                 "summary": "Корневой эндпоинт",
                 "responses": {
                     "200": {
-                        "description": "Информационное сообщение",
+                        "description": "Информационное сообщение с HTML-ссылкой",
                         "schema": {
                             "type": "string"
                         }
@@ -2199,6 +2199,9 @@ const docTemplate = `{
                 "location_id": {
                     "type": "integer",
                     "minimum": 1
+                },
+                "on_boarding": {
+                    "type": "boolean"
                 },
                 "phone": {
                     "type": "string"

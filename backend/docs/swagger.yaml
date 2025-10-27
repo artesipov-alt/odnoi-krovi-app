@@ -497,6 +497,8 @@ definitions:
       location_id:
         minimum: 1
         type: integer
+      on_boarding:
+        type: boolean
       phone:
         type: string
     type: object
@@ -577,10 +579,10 @@ paths:
     get:
       description: Возвращает информационное сообщение о сервере
       produces:
-      - text/plain
+      - text/html
       responses:
         "200":
-          description: Информационное сообщение
+          description: Информационное сообщение с HTML-ссылкой
           schema:
             type: string
       summary: Корневой эндпоинт
