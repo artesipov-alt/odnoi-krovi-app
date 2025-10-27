@@ -209,6 +209,9 @@ definitions:
     - PetTypeCat
   models.User:
     properties:
+      allow_geo:
+        example: true
+        type: boolean
       consent_pd:
         example: true
         type: boolean
@@ -227,6 +230,9 @@ definitions:
       location_id:
         example: 1
         type: integer
+      on_boarding:
+        example: false
+        type: boolean
       organization_name:
         example: ООО Ромашка
         type: string
@@ -478,6 +484,10 @@ definitions:
     type: object
   services.UserUpdate:
     properties:
+      allow_geo:
+        description: OrganizationName *string `json:"organization_name,omitempty"
+          validate:"omitempty,max=255"`
+        type: boolean
       email:
         type: string
       full_name:
@@ -487,9 +497,6 @@ definitions:
       location_id:
         minimum: 1
         type: integer
-      organization_name:
-        maxLength: 255
-        type: string
       phone:
         type: string
     type: object

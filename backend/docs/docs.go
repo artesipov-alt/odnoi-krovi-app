@@ -1792,6 +1792,10 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
+                "allow_geo": {
+                    "type": "boolean",
+                    "example": true
+                },
                 "consent_pd": {
                     "type": "boolean",
                     "example": true
@@ -1815,6 +1819,10 @@ const docTemplate = `{
                 "location_id": {
                     "type": "integer",
                     "example": 1
+                },
+                "on_boarding": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "organization_name": {
                     "type": "string",
@@ -2176,6 +2184,10 @@ const docTemplate = `{
         "services.UserUpdate": {
             "type": "object",
             "properties": {
+                "allow_geo": {
+                    "description": "OrganizationName *string ` + "`" + `json:\"organization_name,omitempty\" validate:\"omitempty,max=255\"` + "`" + `",
+                    "type": "boolean"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -2187,10 +2199,6 @@ const docTemplate = `{
                 "location_id": {
                     "type": "integer",
                     "minimum": 1
-                },
-                "organization_name": {
-                    "type": "string",
-                    "maxLength": 255
                 },
                 "phone": {
                     "type": "string"

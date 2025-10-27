@@ -43,11 +43,12 @@ type UserRegistration struct {
 
 // UserUpdate содержит поля, которые можно обновить для пользователя
 type UserUpdate struct {
-	FullName         *string `json:"full_name,omitempty" validate:"omitempty,min=2,max=255"`
-	Phone            *string `json:"phone,omitempty" validate:"omitempty,e164"`
-	Email            *string `json:"email,omitempty" validate:"omitempty,email"`
-	OrganizationName *string `json:"organization_name,omitempty" validate:"omitempty,max=255"`
-	LocationID       *int    `json:"location_id,omitempty" validate:"omitempty,min=1"`
+	FullName *string `json:"full_name,omitempty" validate:"omitempty,min=2,max=255"`
+	Phone    *string `json:"phone,omitempty" validate:"omitempty,e164"`
+	Email    *string `json:"email,omitempty" validate:"omitempty,email"`
+	// OrganizationName *string `json:"organization_name,omitempty" validate:"omitempty,max=255"`
+	AllowGeo   *bool `json:"allow_geo,omitempty" validate:"omitempty"`
+	LocationID *int  `json:"location_id,omitempty" validate:"omitempty,min=1"`
 }
 
 // UserProfile представляет полный профиль пользователя с связанными данными
@@ -127,7 +128,9 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 		Email:            "",     // Пустая строка для email (будет заполнена позже)
 		OrganizationName: "",     // Пустая строка для организации (будет заполнена позже)
 		ConsentPD:        true,   // По умолчанию false, пользователь должен явно согласиться позже
-		LocationID:       1,      // По умолчанию 0, пользователь должен установить местоположение позже
+		LocationID:       1,      // По умолчанию 1, пользователь должен установить местоположение позже
+		OnBoarding:       false,  // По умолчанию false, пользователь должен пройти опрос
+		AllowGeo:         false,  // По умолчанию false, пользователь должен дорегистрацию
 		Role:             "user", // Роль по умолчанию
 	}
 
@@ -201,8 +204,11 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 	if updates.Email != nil {
 		user.Email = *updates.Email
 	}
-	if updates.OrganizationName != nil {
-		user.OrganizationName = *updates.OrganizationName
+	// if updates.OrganizationName != nil {
+	// 	user.OrganizationName = *updates.OrganizationName
+	// }
+	if updates.AllowGeo != nil {
+		user.AllowGeo = *updates.AllowGeo
 	}
 	if updates.LocationID != nil {
 		user.LocationID = *updates.LocationID

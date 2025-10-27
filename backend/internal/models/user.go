@@ -16,6 +16,8 @@ type User struct {
 	OrganizationName string          `gorm:"size:255" json:"organization_name,omitempty" example:"ООО Ромашка"`
 	CreatedAt        time.Time       `json:"created_at" example:"2023-01-01T12:00:00Z"`
 	ConsentPD        bool            `json:"consent_pd" example:"true"`
+	OnBoarding       bool            `json:"on_boarding" example:"false"`
+	AllowGeo         bool            `json:"allow_geo" example:"true"`
 	LocationID       int             `json:"location_id,omitempty" example:"1"`
 	Role             UserRole        `json:"role,omitempty" example:"user"`
 	DeletedAt        *gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty" swaggerignore:"true"`

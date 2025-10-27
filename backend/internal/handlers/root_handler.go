@@ -9,10 +9,13 @@ import (
 // @Summary Корневой эндпоинт
 // @Description Возвращает информационное сообщение о сервере
 // @Tags root
-// @Produce plain
-// @Success 200 {string} string "Информационное сообщение"
+// @Produce html
+// @Success 200 {string} string "Информационное сообщение с HTML-ссылкой"
 // @Router / [get]
 func RootHandler(c *fiber.Ctx) error {
 	logger.Log.Info("root accessed")
-	return c.SendString("Это тестовый бэкенд сервер на Go + Fiber + Swagger проекта однойкрови.рф\nДокументация API доступна по адресу: /swagger/")
+	htmlResponse := `Это тестовый бэкенд сервер на Go + Fiber + Swagger проекта однойкрови.рф<br>
+Документация API доступна по адресу: <a href="https://1krovi.app/api/swagger/">https://1krovi.app/api/swagger/</a>`
+	c.Set("Content-Type", "text/html; charset=utf-8")
+	return c.SendString(htmlResponse)
 }
