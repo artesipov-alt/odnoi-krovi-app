@@ -48,6 +48,7 @@ type UserUpdate struct {
 	Email    *string `json:"email,omitempty" validate:"omitempty,email"`
 	// OrganizationName *string `json:"organization_name,omitempty" validate:"omitempty,max=255"`
 	AllowGeo   *bool `json:"allow_geo,omitempty" validate:"omitempty"`
+	OnBoarding *bool `json:"on_boarding,omitempty" validate:"omitempty"`
 	LocationID *int  `json:"location_id,omitempty" validate:"omitempty,min=1"`
 }
 
@@ -209,6 +210,9 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 	// }
 	if updates.AllowGeo != nil {
 		user.AllowGeo = *updates.AllowGeo
+	}
+	if updates.OnBoarding != nil {
+		user.OnBoarding = *updates.OnBoarding
 	}
 	if updates.LocationID != nil {
 		user.LocationID = *updates.LocationID
