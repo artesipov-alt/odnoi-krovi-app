@@ -2,11 +2,16 @@ FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
+# Установка swag для генерации документации
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
+
+# Генерация Swagger документации
+RUN swag init -g cmd/server/main.go -o docs
 
 # Сборка приложения
 RUN go build -o main ./cmd/server

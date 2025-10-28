@@ -32,24 +32,22 @@ type UserService interface {
 
 // UserRegistration содержит данные для регистрации пользователя
 type UserRegistration struct {
-	FullName         string          `json:"full_name" validate:"required,min=2,max=255"`
-	Phone            string          `json:"phone" validate:"required,e164"`
-	Email            string          `json:"email" validate:"omitempty,email"`
-	OrganizationName string          `json:"organization_name" validate:"omitempty,max=255"`
-	ConsentPD        bool            `json:"consent_pd" validate:"required"`
-	LocationID       int             `json:"location_id" validate:"required,min=1"`
-	Role             models.UserRole `json:"role" validate:"required,oneof=user clinic_admin"`
+	FullName   string          `json:"fullName" validate:"required,min=2,max=255"`
+	Phone      string          `json:"phone" validate:"required,e164"`
+	Email      string          `json:"email" validate:"omitempty,email"`
+	ConsentPD  bool            `json:"consentPd" validate:"required"`
+	LocationID int             `json:"locationId" validate:"required,min=1"`
+	Role       models.UserRole `json:"role" validate:"required,oneof=user clinic_admin"`
 }
 
 // UserUpdate содержит поля, которые можно обновить для пользователя
 type UserUpdate struct {
-	FullName *string `json:"full_name,omitempty" validate:"omitempty,min=2,max=255"`
-	Phone    *string `json:"phone,omitempty" validate:"omitempty,e164"`
-	Email    *string `json:"email,omitempty" validate:"omitempty,email"`
-	// OrganizationName *string `json:"organization_name,omitempty" validate:"omitempty,max=255"`
-	AllowGeo   *bool `json:"allow_geo,omitempty" validate:"omitempty"`
-	OnBoarding *bool `json:"on_boarding,omitempty" validate:"omitempty"`
-	LocationID *int  `json:"location_id,omitempty" validate:"omitempty,min=1"`
+	FullName   *string `json:"fullName,omitempty" validate:"omitempty,min=2,max=255"`
+	Phone      *string `json:"phone,omitempty" validate:"omitempty,e164"`
+	Email      *string `json:"email,omitempty" validate:"omitempty,email"`
+	AllowGeo   *bool   `json:"allowGeo,omitempty" validate:"omitempty"`
+	OnBoarding *bool   `json:"onBoarding,omitempty" validate:"omitempty"`
+	LocationID *int    `json:"locationId,omitempty" validate:"omitempty,min=1"`
 }
 
 // UserProfile представляет полный профиль пользователя с связанными данными
@@ -92,14 +90,13 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 
 	// Создаем нового пользователя
 	user := &models.User{
-		TelegramID:       telegramID,
-		FullName:         userData.FullName,
-		Phone:            userData.Phone,
-		Email:            userData.Email,
-		OrganizationName: userData.OrganizationName,
-		ConsentPD:        userData.ConsentPD,
-		LocationID:       userData.LocationID,
-		Role:             role,
+		TelegramID: telegramID,
+		FullName:   userData.FullName,
+		Phone:      userData.Phone,
+		Email:      userData.Email,
+		ConsentPD:  userData.ConsentPD,
+		LocationID: userData.LocationID,
+		Role:       role,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {

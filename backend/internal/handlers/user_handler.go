@@ -15,8 +15,8 @@ type UserHandler struct {
 
 // SimpleRegistrationRequest представляет запрос на простую регистрацию пользователя
 type SimpleRegistrationRequest struct {
-	TelegramID int64  `json:"telegram_id" validate:"required,min=1" example:"123456789"`
-	FullName   string `json:"full_name,omitempty" validate:"omitempty,min=1,max=255" example:"Иван Иванов"`
+	TelegramID int64  `json:"telegramId" validate:"required,min=1" example:"123456789"`
+	FullName   string `json:"fullName,omitempty" validate:"omitempty,min=1,max=255" example:"Иван Иванов"`
 }
 
 // NewUserHandler создает новый обработчик пользователей

@@ -37,18 +37,18 @@ type BloodStockService interface {
 
 // BloodStockCreate содержит данные для создания запаса крови
 type BloodStockCreate struct {
-	ClinicID       *int                     `json:"clinic_id,omitempty" validate:"omitempty,min=1"`
-	PetType        models.PetType           `json:"pet_type" validate:"required,oneof=dog cat"`
-	VolumeML       *int                     `json:"volume_ml,omitempty" validate:"omitempty,min=1"`
-	ExpirationDate *string                  `json:"expiration_date,omitempty"` // формат: "2024-12-31"
+	ClinicID       *int                     `json:"clinicId,omitempty" validate:"omitempty,min=1"`
+	PetType        models.PetType           `json:"petType" validate:"required,oneof=dog cat"`
+	VolumeML       *int                     `json:"volumeMl,omitempty" validate:"omitempty,min=1"`
+	ExpirationDate *string                  `json:"expirationDate,omitempty"` // формат: "2024-12-31"
 	Status         *models.BloodStockStatus `json:"status,omitempty" validate:"omitempty,oneof=active reserved used expired"`
-	BloodTypeID    int                      `json:"blood_type_id" validate:"required,min=1"`
+	BloodTypeID    int                      `json:"bloodTypeId" validate:"required,min=1"`
 }
 
 // BloodStockUpdate содержит поля для обновления запаса крови
 type BloodStockUpdate struct {
-	VolumeML       *int                     `json:"volume_ml,omitempty" validate:"omitempty,min=1"`
-	ExpirationDate *string                  `json:"expiration_date,omitempty"`
+	VolumeML       *int                     `json:"volumeMl,omitempty" validate:"omitempty,min=1"`
+	ExpirationDate *string                  `json:"expirationDate,omitempty"`
 	Status         *models.BloodStockStatus `json:"status,omitempty" validate:"omitempty,oneof=active reserved used expired"`
 }
 

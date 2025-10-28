@@ -21,17 +21,17 @@ definitions:
     type: object
   handlers.SimpleRegistrationRequest:
     properties:
-      full_name:
+      fullName:
         example: Иван Иванов
         maxLength: 255
         minLength: 1
         type: string
-      telegram_id:
+      telegramId:
         example: 123456789
         minimum: 1
         type: integer
     required:
-    - telegram_id
+    - telegramId
     type: object
   handlers.SuccessResponse:
     properties:
@@ -41,30 +41,30 @@ definitions:
     type: object
   models.BloodStock:
     properties:
-      blood_type_id:
+      bloodTypeId:
         example: 1
         type: integer
-      clinic_id:
+      clinicId:
         example: 1
         type: integer
-      expiration_date:
+      expirationDate:
         example: "2024-12-31"
         type: string
       id:
         example: 1
         type: integer
-      pet_type:
+      petType:
         allOf:
         - $ref: '#/definitions/models.PetType'
         example: dog
-      price_rub:
+      priceRub:
         example: 5000
         type: number
       status:
         allOf:
         - $ref: '#/definitions/models.BloodStockStatus'
         example: active
-      volume_ml:
+      volumeMl:
         example: 500
         type: integer
     type: object
@@ -82,19 +82,19 @@ definitions:
     - BloodStockStatusExpired
   models.DonorRequirements:
     properties:
-      blood_types:
+      bloodTypes:
         items:
           type: string
         type: array
-      health_conditions:
+      healthConditions:
         items:
           type: string
         type: array
-      max_age:
+      maxAge:
         type: integer
-      min_age:
+      minAge:
         type: integer
-      min_weight:
+      minWeight:
         type: number
       vaccinations:
         items:
@@ -123,53 +123,53 @@ definitions:
     - LivingConditionOther
   models.Pet:
     properties:
-      age_months:
+      ageMonths:
         example: 6
         type: integer
-      age_years:
+      ageYears:
         example: 3
         type: integer
-      blood_group:
+      bloodGroup:
         example: DEA 1.1
         type: string
       breed:
         example: Лабрадор
         type: string
-      chip_number:
+      chipNumber:
         example: "123456789"
         type: string
-      deworming_date:
+      dewormingDate:
         example: "2023-01-01T12:00:00Z"
         type: string
-      ectoparasite_date:
+      ectoparasiteDate:
         example: "2023-01-01T12:00:00Z"
         type: string
       gender:
         allOf:
         - $ref: '#/definitions/models.Gender'
         example: male
-      has_chip:
+      hasChip:
         example: false
         type: boolean
       id:
         example: 1
         type: integer
-      is_guide_dog:
+      isGuideDog:
         example: false
         type: boolean
-      is_therapist:
+      isTherapist:
         example: false
         type: boolean
-      knows_blood_group:
+      knowsBloodGroup:
         example: false
         type: boolean
-      last_transfusion_date:
+      lastTransfusionDate:
         example: "2023-01-01T12:00:00Z"
         type: string
       latitude:
         example: 55.7558
         type: number
-      living_condition:
+      livingCondition:
         allOf:
         - $ref: '#/definitions/models.LivingCondition'
         example: apartment
@@ -179,10 +179,10 @@ definitions:
       name:
         example: Бобик
         type: string
-      owner_id:
+      ownerId:
         example: 1
         type: integer
-      photo_url:
+      photoUrl:
         example: https://example.com/photo.jpg
         type: string
       sterilized:
@@ -192,10 +192,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.PetType'
         example: dog
-      vaccination_date:
+      vaccinationDate:
         example: "2023-01-01T12:00:00Z"
         type: string
-      weight_kg:
+      weightKg:
         example: 25.5
         type: number
     type: object
@@ -209,31 +209,31 @@ definitions:
     - PetTypeCat
   models.User:
     properties:
-      allow_geo:
+      allowGeo:
         example: true
         type: boolean
-      consent_pd:
+      consentPd:
         example: true
         type: boolean
-      created_at:
+      createdAt:
         example: "2023-01-01T12:00:00Z"
         type: string
       email:
         example: user@example.com
         type: string
-      full_name:
+      fullName:
         example: Иван Иванов
         type: string
       id:
         example: 1
         type: integer
-      location_id:
+      locationId:
         example: 1
         type: integer
-      on_boarding:
+      onBoarding:
         example: false
         type: boolean
-      organization_name:
+      organizationName:
         example: ООО Ромашка
         type: string
       phone:
@@ -243,7 +243,7 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.UserRole'
         example: user
-      telegram_id:
+      telegramId:
         example: 123456789
         type: integer
     type: object
@@ -261,27 +261,27 @@ definitions:
     - UserRoleDonor
   models.VetClinic:
     properties:
-      appointment_requirement_id:
+      appointmentRequirementId:
         example: 1
         type: integer
-      clinic_id:
+      clinicId:
         example: 1
         type: integer
-      contact_person_name:
+      contactPersonName:
         example: Мария Петрова
         type: string
-      contact_person_position:
+      contactPersonPosition:
         example: Администратор
         type: string
-      donor_bonus_programs:
+      donorBonusPrograms:
         example: Бонусные программы для доноров
         type: string
-      donor_requirements:
+      donorRequirements:
         $ref: '#/definitions/models.DonorRequirements'
       latitude:
         example: 55.7558
         type: number
-      location_id:
+      locationId:
         example: 1
         type: integer
       longitude:
@@ -293,28 +293,28 @@ definitions:
       phone:
         example: "+79991234567"
         type: string
-      transfusion_conditions:
+      transfusionConditions:
         example: Условия для переливания крови
         type: string
       website:
         example: https://vetclinic.example.com
         type: string
-      work_hours:
+      workHours:
         example: 'Пн-Пт: 9:00-18:00'
         type: string
     type: object
   services.BloodStockCreate:
     properties:
-      blood_type_id:
+      bloodTypeId:
         minimum: 1
         type: integer
-      clinic_id:
+      clinicId:
         minimum: 1
         type: integer
-      expiration_date:
+      expirationDate:
         description: 'формат: "2024-12-31"'
         type: string
-      pet_type:
+      petType:
         allOf:
         - $ref: '#/definitions/models.PetType'
         enum:
@@ -328,16 +328,16 @@ definitions:
         - reserved
         - used
         - expired
-      volume_ml:
+      volumeMl:
         minimum: 1
         type: integer
     required:
-    - blood_type_id
-    - pet_type
+    - bloodTypeId
+    - petType
     type: object
   services.BloodStockUpdate:
     properties:
-      expiration_date:
+      expirationDate:
         type: string
       status:
         allOf:
@@ -347,41 +347,41 @@ definitions:
         - reserved
         - used
         - expired
-      volume_ml:
+      volumeMl:
         minimum: 1
         type: integer
     type: object
   services.PetCreate:
     properties:
-      age_months:
+      ageMonths:
         maximum: 11
         minimum: 0
         type: integer
-      age_years:
+      ageYears:
         minimum: 0
         type: integer
-      blood_group:
+      bloodGroup:
         maxLength: 50
         type: string
       breed:
         maxLength: 100
         type: string
-      chip_number:
+      chipNumber:
         maxLength: 50
         type: string
       gender:
         $ref: '#/definitions/models.Gender'
-      has_chip:
+      hasChip:
         type: boolean
-      is_guide_dog:
+      isGuideDog:
         type: boolean
-      is_therapist:
+      isTherapist:
         type: boolean
-      knows_blood_group:
+      knowsBloodGroup:
         type: boolean
       latitude:
         type: number
-      living_condition:
+      livingCondition:
         $ref: '#/definitions/models.LivingCondition'
       longitude:
         type: number
@@ -389,14 +389,14 @@ definitions:
         maxLength: 100
         minLength: 1
         type: string
-      photo_url:
+      photoUrl:
         maxLength: 255
         type: string
       sterilized:
         type: boolean
       type:
         $ref: '#/definitions/models.PetType'
-      weight_kg:
+      weightKg:
         minimum: 0
         type: number
     required:
@@ -404,35 +404,35 @@ definitions:
     type: object
   services.PetUpdate:
     properties:
-      age_months:
+      ageMonths:
         maximum: 11
         minimum: 0
         type: integer
-      age_years:
+      ageYears:
         minimum: 0
         type: integer
-      blood_group:
+      bloodGroup:
         maxLength: 50
         type: string
       breed:
         maxLength: 100
         type: string
-      chip_number:
+      chipNumber:
         maxLength: 50
         type: string
       gender:
         $ref: '#/definitions/models.Gender'
-      has_chip:
+      hasChip:
         type: boolean
-      is_guide_dog:
+      isGuideDog:
         type: boolean
-      is_therapist:
+      isTherapist:
         type: boolean
-      knows_blood_group:
+      knowsBloodGroup:
         type: boolean
       latitude:
         type: number
-      living_condition:
+      livingCondition:
         $ref: '#/definitions/models.LivingCondition'
       longitude:
         type: number
@@ -440,33 +440,30 @@ definitions:
         maxLength: 100
         minLength: 1
         type: string
-      photo_url:
+      photoUrl:
         maxLength: 255
         type: string
       sterilized:
         type: boolean
       type:
         $ref: '#/definitions/models.PetType'
-      weight_kg:
+      weightKg:
         minimum: 0
         type: number
     type: object
   services.UserRegistration:
     properties:
-      consent_pd:
+      consentPd:
         type: boolean
       email:
         type: string
-      full_name:
+      fullName:
         maxLength: 255
         minLength: 2
         type: string
-      location_id:
+      locationId:
         minimum: 1
         type: integer
-      organization_name:
-        maxLength: 255
-        type: string
       phone:
         type: string
       role:
@@ -476,28 +473,26 @@ definitions:
         - user
         - clinic_admin
     required:
-    - consent_pd
-    - full_name
-    - location_id
+    - consentPd
+    - fullName
+    - locationId
     - phone
     - role
     type: object
   services.UserUpdate:
     properties:
-      allow_geo:
-        description: OrganizationName *string `json:"organization_name,omitempty"
-          validate:"omitempty,max=255"`
+      allowGeo:
         type: boolean
       email:
         type: string
-      full_name:
+      fullName:
         maxLength: 255
         minLength: 2
         type: string
-      location_id:
+      locationId:
         minimum: 1
         type: integer
-      on_boarding:
+      onBoarding:
         type: boolean
       phone:
         type: string
@@ -509,18 +504,18 @@ definitions:
     type: object
   services.VetClinicRegistration:
     properties:
-      appointment_requirement_id:
+      appointmentRequirementId:
         minimum: 1
         type: integer
-      contact_person_name:
+      contactPersonName:
         type: string
-      contact_person_position:
+      contactPersonPosition:
         type: string
-      donor_bonus_programs:
+      donorBonusPrograms:
         type: string
       latitude:
         type: number
-      location_id:
+      locationId:
         minimum: 1
         type: integer
       longitude:
@@ -531,29 +526,29 @@ definitions:
         type: string
       phone:
         type: string
-      transfusion_conditions:
+      transfusionConditions:
         type: string
       website:
         type: string
-      work_hours:
+      workHours:
         type: string
     required:
-    - appointment_requirement_id
-    - location_id
+    - appointmentRequirementId
+    - locationId
     - name
     type: object
   services.VetClinicUpdate:
     properties:
-      appointment_requirement_id:
+      appointmentRequirementId:
         minimum: 1
         type: integer
-      contact_person_name:
+      contactPersonName:
         type: string
-      contact_person_position:
+      contactPersonPosition:
         type: string
-      donor_bonus_programs:
+      donorBonusPrograms:
         type: string
-      location_id:
+      locationId:
         minimum: 1
         type: integer
       name:
@@ -562,11 +557,11 @@ definitions:
         type: string
       phone:
         type: string
-      transfusion_conditions:
+      transfusionConditions:
         type: string
       website:
         type: string
-      work_hours:
+      workHours:
         type: string
     type: object
 info:

@@ -1522,16 +1522,16 @@ const docTemplate = `{
         "handlers.SimpleRegistrationRequest": {
             "type": "object",
             "required": [
-                "telegram_id"
+                "telegramId"
             ],
             "properties": {
-                "full_name": {
+                "fullName": {
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 1,
                     "example": "Иван Иванов"
                 },
-                "telegram_id": {
+                "telegramId": {
                     "type": "integer",
                     "minimum": 1,
                     "example": 123456789
@@ -1550,15 +1550,15 @@ const docTemplate = `{
         "models.BloodStock": {
             "type": "object",
             "properties": {
-                "blood_type_id": {
+                "bloodTypeId": {
                     "type": "integer",
                     "example": 1
                 },
-                "clinic_id": {
+                "clinicId": {
                     "type": "integer",
                     "example": 1
                 },
-                "expiration_date": {
+                "expirationDate": {
                     "type": "string",
                     "example": "2024-12-31"
                 },
@@ -1566,7 +1566,7 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "pet_type": {
+                "petType": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.PetType"
@@ -1574,7 +1574,7 @@ const docTemplate = `{
                     ],
                     "example": "dog"
                 },
-                "price_rub": {
+                "priceRub": {
                     "type": "number",
                     "example": 5000
                 },
@@ -1586,7 +1586,7 @@ const docTemplate = `{
                     ],
                     "example": "active"
                 },
-                "volume_ml": {
+                "volumeMl": {
                     "type": "integer",
                     "example": 500
                 }
@@ -1610,25 +1610,25 @@ const docTemplate = `{
         "models.DonorRequirements": {
             "type": "object",
             "properties": {
-                "blood_types": {
+                "bloodTypes": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "health_conditions": {
+                "healthConditions": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "max_age": {
+                "maxAge": {
                     "type": "integer"
                 },
-                "min_age": {
+                "minAge": {
                     "type": "integer"
                 },
-                "min_weight": {
+                "minWeight": {
                     "type": "number"
                 },
                 "vaccinations": {
@@ -1668,15 +1668,15 @@ const docTemplate = `{
         "models.Pet": {
             "type": "object",
             "properties": {
-                "age_months": {
+                "ageMonths": {
                     "type": "integer",
                     "example": 6
                 },
-                "age_years": {
+                "ageYears": {
                     "type": "integer",
                     "example": 3
                 },
-                "blood_group": {
+                "bloodGroup": {
                     "type": "string",
                     "example": "DEA 1.1"
                 },
@@ -1684,15 +1684,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Лабрадор"
                 },
-                "chip_number": {
+                "chipNumber": {
                     "type": "string",
                     "example": "123456789"
                 },
-                "deworming_date": {
+                "dewormingDate": {
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
                 },
-                "ectoparasite_date": {
+                "ectoparasiteDate": {
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
                 },
@@ -1704,7 +1704,7 @@ const docTemplate = `{
                     ],
                     "example": "male"
                 },
-                "has_chip": {
+                "hasChip": {
                     "type": "boolean",
                     "example": false
                 },
@@ -1712,19 +1712,19 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "is_guide_dog": {
+                "isGuideDog": {
                     "type": "boolean",
                     "example": false
                 },
-                "is_therapist": {
+                "isTherapist": {
                     "type": "boolean",
                     "example": false
                 },
-                "knows_blood_group": {
+                "knowsBloodGroup": {
                     "type": "boolean",
                     "example": false
                 },
-                "last_transfusion_date": {
+                "lastTransfusionDate": {
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
                 },
@@ -1732,7 +1732,7 @@ const docTemplate = `{
                     "type": "number",
                     "example": 55.7558
                 },
-                "living_condition": {
+                "livingCondition": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.LivingCondition"
@@ -1748,11 +1748,11 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Бобик"
                 },
-                "owner_id": {
+                "ownerId": {
                     "type": "integer",
                     "example": 1
                 },
-                "photo_url": {
+                "photoUrl": {
                     "type": "string",
                     "example": "https://example.com/photo.jpg"
                 },
@@ -1768,11 +1768,11 @@ const docTemplate = `{
                     ],
                     "example": "dog"
                 },
-                "vaccination_date": {
+                "vaccinationDate": {
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
                 },
-                "weight_kg": {
+                "weightKg": {
                     "type": "number",
                     "example": 25.5
                 }
@@ -1792,15 +1792,15 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
-                "allow_geo": {
+                "allowGeo": {
                     "type": "boolean",
                     "example": true
                 },
-                "consent_pd": {
+                "consentPd": {
                     "type": "boolean",
                     "example": true
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string",
                     "example": "2023-01-01T12:00:00Z"
                 },
@@ -1808,7 +1808,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "user@example.com"
                 },
-                "full_name": {
+                "fullName": {
                     "type": "string",
                     "example": "Иван Иванов"
                 },
@@ -1816,15 +1816,15 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "location_id": {
+                "locationId": {
                     "type": "integer",
                     "example": 1
                 },
-                "on_boarding": {
+                "onBoarding": {
                     "type": "boolean",
                     "example": false
                 },
-                "organization_name": {
+                "organizationName": {
                     "type": "string",
                     "example": "ООО Ромашка"
                 },
@@ -1840,7 +1840,7 @@ const docTemplate = `{
                     ],
                     "example": "user"
                 },
-                "telegram_id": {
+                "telegramId": {
                     "type": "integer",
                     "example": 123456789
                 }
@@ -1864,34 +1864,34 @@ const docTemplate = `{
         "models.VetClinic": {
             "type": "object",
             "properties": {
-                "appointment_requirement_id": {
+                "appointmentRequirementId": {
                     "type": "integer",
                     "example": 1
                 },
-                "clinic_id": {
+                "clinicId": {
                     "type": "integer",
                     "example": 1
                 },
-                "contact_person_name": {
+                "contactPersonName": {
                     "type": "string",
                     "example": "Мария Петрова"
                 },
-                "contact_person_position": {
+                "contactPersonPosition": {
                     "type": "string",
                     "example": "Администратор"
                 },
-                "donor_bonus_programs": {
+                "donorBonusPrograms": {
                     "type": "string",
                     "example": "Бонусные программы для доноров"
                 },
-                "donor_requirements": {
+                "donorRequirements": {
                     "$ref": "#/definitions/models.DonorRequirements"
                 },
                 "latitude": {
                     "type": "number",
                     "example": 55.7558
                 },
-                "location_id": {
+                "locationId": {
                     "type": "integer",
                     "example": 1
                 },
@@ -1907,7 +1907,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "+79991234567"
                 },
-                "transfusion_conditions": {
+                "transfusionConditions": {
                     "type": "string",
                     "example": "Условия для переливания крови"
                 },
@@ -1915,7 +1915,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://vetclinic.example.com"
                 },
-                "work_hours": {
+                "workHours": {
                     "type": "string",
                     "example": "Пн-Пт: 9:00-18:00"
                 }
@@ -1924,23 +1924,23 @@ const docTemplate = `{
         "services.BloodStockCreate": {
             "type": "object",
             "required": [
-                "blood_type_id",
-                "pet_type"
+                "bloodTypeId",
+                "petType"
             ],
             "properties": {
-                "blood_type_id": {
+                "bloodTypeId": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "clinic_id": {
+                "clinicId": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "expiration_date": {
+                "expirationDate": {
                     "description": "формат: \"2024-12-31\"",
                     "type": "string"
                 },
-                "pet_type": {
+                "petType": {
                     "enum": [
                         "dog",
                         "cat"
@@ -1964,7 +1964,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "volume_ml": {
+                "volumeMl": {
                     "type": "integer",
                     "minimum": 1
                 }
@@ -1973,7 +1973,7 @@ const docTemplate = `{
         "services.BloodStockUpdate": {
             "type": "object",
             "properties": {
-                "expiration_date": {
+                "expirationDate": {
                     "type": "string"
                 },
                 "status": {
@@ -1989,7 +1989,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "volume_ml": {
+                "volumeMl": {
                     "type": "integer",
                     "minimum": 1
                 }
@@ -2001,16 +2001,16 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "age_months": {
+                "ageMonths": {
                     "type": "integer",
                     "maximum": 11,
                     "minimum": 0
                 },
-                "age_years": {
+                "ageYears": {
                     "type": "integer",
                     "minimum": 0
                 },
-                "blood_group": {
+                "bloodGroup": {
                     "type": "string",
                     "maxLength": 50
                 },
@@ -2018,29 +2018,29 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100
                 },
-                "chip_number": {
+                "chipNumber": {
                     "type": "string",
                     "maxLength": 50
                 },
                 "gender": {
                     "$ref": "#/definitions/models.Gender"
                 },
-                "has_chip": {
+                "hasChip": {
                     "type": "boolean"
                 },
-                "is_guide_dog": {
+                "isGuideDog": {
                     "type": "boolean"
                 },
-                "is_therapist": {
+                "isTherapist": {
                     "type": "boolean"
                 },
-                "knows_blood_group": {
+                "knowsBloodGroup": {
                     "type": "boolean"
                 },
                 "latitude": {
                     "type": "number"
                 },
-                "living_condition": {
+                "livingCondition": {
                     "$ref": "#/definitions/models.LivingCondition"
                 },
                 "longitude": {
@@ -2051,7 +2051,7 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 1
                 },
-                "photo_url": {
+                "photoUrl": {
                     "type": "string",
                     "maxLength": 255
                 },
@@ -2061,7 +2061,7 @@ const docTemplate = `{
                 "type": {
                     "$ref": "#/definitions/models.PetType"
                 },
-                "weight_kg": {
+                "weightKg": {
                     "type": "number",
                     "minimum": 0
                 }
@@ -2070,16 +2070,16 @@ const docTemplate = `{
         "services.PetUpdate": {
             "type": "object",
             "properties": {
-                "age_months": {
+                "ageMonths": {
                     "type": "integer",
                     "maximum": 11,
                     "minimum": 0
                 },
-                "age_years": {
+                "ageYears": {
                     "type": "integer",
                     "minimum": 0
                 },
-                "blood_group": {
+                "bloodGroup": {
                     "type": "string",
                     "maxLength": 50
                 },
@@ -2087,29 +2087,29 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100
                 },
-                "chip_number": {
+                "chipNumber": {
                     "type": "string",
                     "maxLength": 50
                 },
                 "gender": {
                     "$ref": "#/definitions/models.Gender"
                 },
-                "has_chip": {
+                "hasChip": {
                     "type": "boolean"
                 },
-                "is_guide_dog": {
+                "isGuideDog": {
                     "type": "boolean"
                 },
-                "is_therapist": {
+                "isTherapist": {
                     "type": "boolean"
                 },
-                "knows_blood_group": {
+                "knowsBloodGroup": {
                     "type": "boolean"
                 },
                 "latitude": {
                     "type": "number"
                 },
-                "living_condition": {
+                "livingCondition": {
                     "$ref": "#/definitions/models.LivingCondition"
                 },
                 "longitude": {
@@ -2120,7 +2120,7 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 1
                 },
-                "photo_url": {
+                "photoUrl": {
                     "type": "string",
                     "maxLength": 255
                 },
@@ -2130,7 +2130,7 @@ const docTemplate = `{
                 "type": {
                     "$ref": "#/definitions/models.PetType"
                 },
-                "weight_kg": {
+                "weightKg": {
                     "type": "number",
                     "minimum": 0
                 }
@@ -2139,31 +2139,27 @@ const docTemplate = `{
         "services.UserRegistration": {
             "type": "object",
             "required": [
-                "consent_pd",
-                "full_name",
-                "location_id",
+                "consentPd",
+                "fullName",
+                "locationId",
                 "phone",
                 "role"
             ],
             "properties": {
-                "consent_pd": {
+                "consentPd": {
                     "type": "boolean"
                 },
                 "email": {
                     "type": "string"
                 },
-                "full_name": {
+                "fullName": {
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 2
                 },
-                "location_id": {
+                "locationId": {
                     "type": "integer",
                     "minimum": 1
-                },
-                "organization_name": {
-                    "type": "string",
-                    "maxLength": 255
                 },
                 "phone": {
                     "type": "string"
@@ -2184,23 +2180,22 @@ const docTemplate = `{
         "services.UserUpdate": {
             "type": "object",
             "properties": {
-                "allow_geo": {
-                    "description": "OrganizationName *string ` + "`" + `json:\"organization_name,omitempty\" validate:\"omitempty,max=255\"` + "`" + `",
+                "allowGeo": {
                     "type": "boolean"
                 },
                 "email": {
                     "type": "string"
                 },
-                "full_name": {
+                "fullName": {
                     "type": "string",
                     "maxLength": 255,
                     "minLength": 2
                 },
-                "location_id": {
+                "locationId": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "on_boarding": {
+                "onBoarding": {
                     "type": "boolean"
                 },
                 "phone": {
@@ -2219,28 +2214,28 @@ const docTemplate = `{
         "services.VetClinicRegistration": {
             "type": "object",
             "required": [
-                "appointment_requirement_id",
-                "location_id",
+                "appointmentRequirementId",
+                "locationId",
                 "name"
             ],
             "properties": {
-                "appointment_requirement_id": {
+                "appointmentRequirementId": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "contact_person_name": {
+                "contactPersonName": {
                     "type": "string"
                 },
-                "contact_person_position": {
+                "contactPersonPosition": {
                     "type": "string"
                 },
-                "donor_bonus_programs": {
+                "donorBonusPrograms": {
                     "type": "string"
                 },
                 "latitude": {
                     "type": "number"
                 },
-                "location_id": {
+                "locationId": {
                     "type": "integer",
                     "minimum": 1
                 },
@@ -2255,13 +2250,13 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
-                "transfusion_conditions": {
+                "transfusionConditions": {
                     "type": "string"
                 },
                 "website": {
                     "type": "string"
                 },
-                "work_hours": {
+                "workHours": {
                     "type": "string"
                 }
             }
@@ -2269,20 +2264,20 @@ const docTemplate = `{
         "services.VetClinicUpdate": {
             "type": "object",
             "properties": {
-                "appointment_requirement_id": {
+                "appointmentRequirementId": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "contact_person_name": {
+                "contactPersonName": {
                     "type": "string"
                 },
-                "contact_person_position": {
+                "contactPersonPosition": {
                     "type": "string"
                 },
-                "donor_bonus_programs": {
+                "donorBonusPrograms": {
                     "type": "string"
                 },
-                "location_id": {
+                "locationId": {
                     "type": "integer",
                     "minimum": 1
                 },
@@ -2294,13 +2289,13 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
-                "transfusion_conditions": {
+                "transfusionConditions": {
                     "type": "string"
                 },
                 "website": {
                     "type": "string"
                 },
-                "work_hours": {
+                "workHours": {
                     "type": "string"
                 }
             }

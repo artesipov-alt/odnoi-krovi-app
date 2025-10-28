@@ -101,7 +101,7 @@ func ParseFloatQuery(c *fiber.Ctx, paramName string) (float64, error) {
 }
 
 // ParseBody парсит тело запроса и валидирует структуру
-func ParseBody(c *fiber.Ctx, target interface{}) error {
+func ParseBody(c *fiber.Ctx, target any) error {
 	if err := c.BodyParser(target); err != nil {
 		return apperrors.BadRequest("неверное тело запроса")
 	}
@@ -109,7 +109,7 @@ func ParseBody(c *fiber.Ctx, target interface{}) error {
 	if err := validation.ValidateStruct(target); err != nil {
 		validationErrors := validation.GetValidationErrors(err)
 		// Конвертируем ValidationErrorResponse в map[string]interface{}
-		details := map[string]interface{}{
+		details := map[string]any{
 			"errors": validationErrors.Errors,
 		}
 		return apperrors.Validation("ошибка валидации данных", details)
@@ -132,7 +132,7 @@ func SendSuccess(c *fiber.Ctx, message string) error {
 }
 
 // SendSuccessWithData отправляет успешный JSON ответ с данными
-func SendSuccessWithData(c *fiber.Ctx, message string, data interface{}) error {
+func SendSuccessWithData(c *fiber.Ctx, message string, data any) error {
 	return c.JSON(SuccessResponse{
 		Message: message,
 		Data:    data,
@@ -140,12 +140,12 @@ func SendSuccessWithData(c *fiber.Ctx, message string, data interface{}) error {
 }
 
 // SendCreated отправляет ответ с кодом 201 Created
-func SendCreated(c *fiber.Ctx, data interface{}) error {
+func SendCreated(c *fiber.Ctx, data any) error {
 	return c.Status(fiber.StatusCreated).JSON(data)
 }
 
 // SendJSON отправляет JSON ответ
-func SendJSON(c *fiber.Ctx, data interface{}) error {
+func SendJSON(c *fiber.Ctx, data any) error {
 	c.Set("Content-Type", "application/json; charset=utf-8")
 	return c.JSON(data)
 }

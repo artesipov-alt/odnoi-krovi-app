@@ -35,12 +35,12 @@ type BloodStockRepository interface {
 
 // BloodStockFilters представляет фильтры для поиска запасов крови
 type BloodStockFilters struct {
-	ClinicID    *int                     `json:"clinic_id,omitempty"`
-	PetType     *models.PetType          `json:"pet_type,omitempty"`
-	BloodTypeID *int                     `json:"blood_type_id,omitempty"`
+	ClinicID    *int                     `json:"clinicId,omitempty"`
+	PetType     *models.PetType          `json:"petType,omitempty"`
+	BloodTypeID *int                     `json:"bloodTypeId,omitempty"`
 	Status      *models.BloodStockStatus `json:"status,omitempty"`
-	MinVolume   *int                     `json:"min_volume,omitempty"`
-	MaxVolume   *int                     `json:"max_volume,omitempty"`
-	MinPrice    *float64                 `json:"min_price,omitempty"`
-	MaxPrice    *float64                 `json:"max_price,omitempty"`
+	MinVolume   *int                     `json:"minVolume,omitempty"`
+	MaxVolume   *int                     `json:"maxVolume,omitempty"`
+	MinPrice    *float64                 `json:"minPrice,omitempty"`
+	MaxPrice    *float64                 `json:"maxPrice,omitempty"`
 }

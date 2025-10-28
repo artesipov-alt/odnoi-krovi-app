@@ -68,10 +68,10 @@ const (
 
 // DonorRequirements представляет требования к донорам
 type DonorRequirements struct {
-	MinAge           int      `json:"min_age,omitempty"`
-	MaxAge           int      `json:"max_age,omitempty"`
-	MinWeight        float64  `json:"min_weight,omitempty"`
-	HealthConditions []string `json:"health_conditions,omitempty"`
+	MinAge           int      `json:"minAge,omitempty"`
+	MaxAge           int      `json:"maxAge,omitempty"`
+	MinWeight        float64  `json:"minWeight,omitempty"`
+	HealthConditions []string `json:"healthConditions,omitempty"`
 	Vaccinations     []string `json:"vaccinations,omitempty"`
-	BloodTypes       []string `json:"blood_types,omitempty"`
+	BloodTypes       []string `json:"bloodTypes,omitempty"`
 }

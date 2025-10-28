@@ -52,9 +52,13 @@ func main() {
 	if err != nil {
 		logger.Log.Fatal("Ошибка подключения к базе данных", zap.Error(err))
 	}
-
-	// Автоматическое создание/обновление таблиц в БД
+	//Принудительная миграция вкл/выкл
 	autoMigrate(db)
+
+	// Автоматическое создание/обновление таблиц в БД на проде
+	if env != "dev" {
+		autoMigrate(db)
+	}
 
 	// Инициализация репозиториев
 	userRepo := repositories.NewPostgresUserRepository(db)

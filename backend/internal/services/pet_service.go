@@ -30,45 +30,45 @@ type PetService interface {
 // PetCreate содержит данные для создания питомца
 type PetCreate struct {
 	Name            string                 `json:"name" validate:"required,min=1,max=100"`
-	HasChip         bool                   `json:"has_chip"`
-	ChipNumber      string                 `json:"chip_number,omitempty" validate:"omitempty,max=50"`
-	PhotoURL        string                 `json:"photo_url,omitempty" validate:"omitempty,url,max=255"`
-	KnowsBloodGroup bool                   `json:"knows_blood_group"`
-	IsGuideDog      bool                   `json:"is_guide_dog"`
-	IsTherapist     bool                   `json:"is_therapist"`
+	HasChip         bool                   `json:"hasChip"`
+	ChipNumber      string                 `json:"chipNumber,omitempty" validate:"omitempty,max=50"`
+	PhotoURL        string                 `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
+	KnowsBloodGroup bool                   `json:"knowsBloodGroup"`
+	IsGuideDog      bool                   `json:"isGuideDog"`
+	IsTherapist     bool                   `json:"isTherapist"`
 	Breed           string                 `json:"breed,omitempty" validate:"omitempty,max=100"`
-	WeightKg        float64                `json:"weight_kg,omitempty" validate:"omitempty,min=0"`
-	AgeYears        int                    `json:"age_years,omitempty" validate:"omitempty,min=0"`
-	AgeMonths       int                    `json:"age_months,omitempty" validate:"omitempty,min=0,max=11"`
+	WeightKg        float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
+	AgeYears        int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
+	AgeMonths       int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
 	Sterilized      bool                   `json:"sterilized"`
 	Latitude        float64                `json:"latitude,omitempty" validate:"omitempty,latitude"`
 	Longitude       float64                `json:"longitude,omitempty" validate:"omitempty,longitude"`
-	LivingCondition models.LivingCondition `json:"living_condition,omitempty"`
+	LivingCondition models.LivingCondition `json:"livingCondition,omitempty"`
 	Gender          models.Gender          `json:"gender,omitempty"`
 	Type            models.PetType         `json:"type,omitempty"`
-	BloodGroup      string                 `json:"blood_group,omitempty" validate:"omitempty,max=50"`
+	BloodGroup      string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
 }
 
 // PetUpdate содержит поля, которые можно обновить для питомца
 type PetUpdate struct {
 	Name            *string                 `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
-	HasChip         *bool                   `json:"has_chip,omitempty"`
-	ChipNumber      *string                 `json:"chip_number,omitempty" validate:"omitempty,max=50"`
-	PhotoURL        *string                 `json:"photo_url,omitempty" validate:"omitempty,url,max=255"`
-	KnowsBloodGroup *bool                   `json:"knows_blood_group,omitempty"`
-	IsGuideDog      *bool                   `json:"is_guide_dog,omitempty"`
-	IsTherapist     *bool                   `json:"is_therapist,omitempty"`
+	HasChip         *bool                   `json:"hasChip,omitempty"`
+	ChipNumber      *string                 `json:"chipNumber,omitempty" validate:"omitempty,max=50"`
+	PhotoURL        *string                 `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
+	KnowsBloodGroup *bool                   `json:"knowsBloodGroup,omitempty"`
+	IsGuideDog      *bool                   `json:"isGuideDog,omitempty"`
+	IsTherapist     *bool                   `json:"isTherapist,omitempty"`
 	Breed           *string                 `json:"breed,omitempty" validate:"omitempty,max=100"`
-	WeightKg        *float64                `json:"weight_kg,omitempty" validate:"omitempty,min=0"`
-	AgeYears        *int                    `json:"age_years,omitempty" validate:"omitempty,min=0"`
-	AgeMonths       *int                    `json:"age_months,omitempty" validate:"omitempty,min=0,max=11"`
+	WeightKg        *float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
+	AgeYears        *int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
+	AgeMonths       *int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
 	Sterilized      *bool                   `json:"sterilized,omitempty"`
 	Latitude        *float64                `json:"latitude,omitempty" validate:"omitempty,latitude"`
 	Longitude       *float64                `json:"longitude,omitempty" validate:"omitempty,longitude"`
-	LivingCondition *models.LivingCondition `json:"living_condition,omitempty"`
+	LivingCondition *models.LivingCondition `json:"livingCondition,omitempty"`
 	Gender          *models.Gender          `json:"gender,omitempty"`
 	Type            *models.PetType         `json:"type,omitempty"`
-	BloodGroup      *string                 `json:"blood_group,omitempty" validate:"omitempty,max=50"`
+	BloodGroup      *string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
 }
 
 // PetServiceImpl реализует PetService

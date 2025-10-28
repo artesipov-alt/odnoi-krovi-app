@@ -31,15 +31,15 @@ type VetClinicRegistration struct {
 	Name                     string  `json:"name" validate:"required,min=2,max=255"`
 	Phone                    string  `json:"phone" validate:"omitempty,e164"`
 	Website                  string  `json:"website,omitempty" validate:"omitempty,url"`
-	WorkHours                string  `json:"work_hours,omitempty"`
+	WorkHours                string  `json:"workHours,omitempty"`
 	Latitude                 float64 `json:"latitude,omitempty"`
 	Longitude                float64 `json:"longitude,omitempty"`
-	TransfusionConditions    string  `json:"transfusion_conditions,omitempty"`
-	DonorBonusPrograms       string  `json:"donor_bonus_programs,omitempty"`
-	ContactPersonName        string  `json:"contact_person_name,omitempty"`
-	ContactPersonPosition    string  `json:"contact_person_position,omitempty"`
-	LocationID               int     `json:"location_id" validate:"required,min=1"`
-	AppointmentRequirementID int     `json:"appointment_requirement_id" validate:"required,min=1"`
+	TransfusionConditions    string  `json:"transfusionConditions,omitempty"`
+	DonorBonusPrograms       string  `json:"donorBonusPrograms,omitempty"`
+	ContactPersonName        string  `json:"contactPersonName,omitempty"`
+	ContactPersonPosition    string  `json:"contactPersonPosition,omitempty"`
+	LocationID               int     `json:"locationId" validate:"required,min=1"`
+	AppointmentRequirementID int     `json:"appointmentRequirementId" validate:"required,min=1"`
 }
 
 // VetClinicUpdate содержит поля, которые можно обновить для ветеринарной клиники
@@ -47,13 +47,13 @@ type VetClinicUpdate struct {
 	Name                     *string `json:"name,omitempty" validate:"omitempty,min=2,max=255"`
 	Phone                    *string `json:"phone,omitempty" validate:"omitempty,e164"`
 	Website                  *string `json:"website,omitempty" validate:"omitempty,url"`
-	WorkHours                *string `json:"work_hours,omitempty"`
-	TransfusionConditions    *string `json:"transfusion_conditions,omitempty"`
-	DonorBonusPrograms       *string `json:"donor_bonus_programs,omitempty"`
-	ContactPersonName        *string `json:"contact_person_name,omitempty"`
-	ContactPersonPosition    *string `json:"contact_person_position,omitempty"`
-	LocationID               *int    `json:"location_id,omitempty" validate:"omitempty,min=1"`
-	AppointmentRequirementID *int    `json:"appointment_requirement_id,omitempty" validate:"omitempty,min=1"`
+	WorkHours                *string `json:"workHours,omitempty"`
+	TransfusionConditions    *string `json:"transfusionConditions,omitempty"`
+	DonorBonusPrograms       *string `json:"donorBonusPrograms,omitempty"`
+	ContactPersonName        *string `json:"contactPersonName,omitempty"`
+	ContactPersonPosition    *string `json:"contactPersonPosition,omitempty"`
+	LocationID               *int    `json:"locationId,omitempty" validate:"omitempty,min=1"`
+	AppointmentRequirementID *int    `json:"appointmentRequirementId,omitempty" validate:"omitempty,min=1"`
 }
 
 // VetClinicProfile представляет полный профиль ветеринарной клиники
