@@ -1,11 +1,12 @@
 import { Bot } from "grammy";
-import { UsersApi, Configuration } from "./api/index";
+import { Configuration, UsersApi } from "./api/index";
 
 import type { Context } from "grammy";
 import pino from "pino";
 
 export const bot = new Bot<Context>(Bun.env.BOT_TOKEN!);
 export const pinologger = pino({
+  level: "debug",
   transport: {
     target: "pino-pretty",
     options: {
@@ -14,11 +15,32 @@ export const pinologger = pino({
   },
 });
 
-const API_BASE_URL = "https://1krovi.app/api/v1";
-
-const config = new Configuration({
-  basePath: API_BASE_URL,
+// API Configuration
+const apiConfig = new Configuration({
+  basePath: Bun.env.API_BASE_URL || "http://localhost:8080/api/v1",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  // Добавьте middleware для логирования, если нужно
+  middleware: [
+    {
+      pre: async (context) => {
+        pinologger.debug(
+          { url: context.url, method: context.init.method },
+          "API Request",
+        );
+        return context;
+      },
+      post: async (context) => {
+        pinologger.debug(
+          { url: context.url, status: context.response.status },
+          "API Response",
+        );
+        return context.response;
+      },
+    },
+  ],
 });
 
-// Явно передаем basePath как второй и третий параметры
-export const userApi = new UsersApi(config, API_BASE_URL, fetch);
+// API Client Instances
+export const usersApi = new UsersApi(apiConfig);

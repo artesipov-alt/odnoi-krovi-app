@@ -49,13 +49,61 @@ odnoi-krovi-app/
 
 ### Установка и запуск
 
-1. **Клонирование репозитория**
+#### 1. Клонирование репозитория
 ```bash
 git clone git@github.com:artesipov-alt/odnoi-krovi-app.git
 cd odnoi-krovi-app
 ```
 
-2. **Запуск через Docker (рекомендуется - в планах)**
+#### 2. Настройка переменных окружения
+
+Создайте файл `.env` в **корневой директории проекта** со следующими переменными:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=odnoi_krovi
+DB_SSLMODE=disable
+
+# Секретные настройки для Бота
+BOT_TOKEN=your_telegram_bot_token
+PROD_BOT_API_KEY=your_prod_bot_token
+
+MINIAPP_DOMAIN=https://your-miniapp-domain.com
+
+API_BASE_URL=http://localhost:3000
+
+# Server Configuration
+SERVER_PORT=3000
+ENVIRONMENT=development
+
+# Logging
+LOG_LEVEL=info
+```
+
+**Получение Telegram Bot Token:**
+1. Напишите [@BotFather](https://t.me/botfather) в Telegram
+2. Отправьте команду `/newbot`
+3. Следуйте инструкциям для создания бота
+4. Скопируйте полученный токен в `BOT_TOKEN` и `PROD_BOT_API_KEY`
+
+**Важные замечания:**
+- 📁 Файл `.env` должен находиться в корне проекта: `odnoi-krovi-app/.env`
+- 🔒 Все сервисы (backend, bot, frontend) читают переменные из этого единого файла
+- ⚠️ Никогда не коммитьте `.env` файл в git (он уже добавлен в `.gitignore`)
+- 📋 Для production используйте отдельный `.env` с реальными учетными данными
+
+#### 3. Установка компонентов
+
+Следуйте инструкциям по установке для каждого компонента:
+- [Backend Setup](backend/README.md) - Go API сервер
+- [Bot Setup](bot/README.md) - Telegram Bot
+- [Frontend Setup](frontend/README.md) - Telegram Mini App
+
+#### 4. Запуск через Docker (рекомендуется - в планах)
 ```bash
 docker-compose up -d
 ```

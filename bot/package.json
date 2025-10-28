@@ -2,8 +2,9 @@
   "name": "odnoi-krovi-bot",
   "module": "bot.ts",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "scripts": {
+    "generate-api": "openapi-generator-cli generate -i ../backend/docs/swag",
     "dev": "bun --env-file=../.env bot.ts",
     "build": "bun run build.ts",
     "prod": "bun run dist/bot.js"

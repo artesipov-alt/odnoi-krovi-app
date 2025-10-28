@@ -1,7 +1,7 @@
 import type { Context } from "grammy";
 import { BotError, InlineKeyboard } from "grammy";
 import { Templates } from "../config/templates";
-import { userApi } from "../instances";
+import { usersApi, pinologger } from "../instances";
 
 const getMainKeyboard = () => {
   return new InlineKeyboard()
@@ -17,8 +17,63 @@ const getBackKeyboard = () => {
 
 export const startHandler = async (ctx: Context) => {
   const keyboard = getMainKeyboard();
+  const isCommand = ctx.message?.text === "/start";
 
-  if (ctx.message?.text === "/start") {
+  // Early validation
+  if (!ctx.from?.id) {
+    throw new BotError("User ID is not available", ctx);
+  }
+
+  const telegramId = ctx.from.id;
+
+  if (isCommand) {
+    try {
+      // Проверяем существование пользователя
+      let isUserExist = false;
+
+      try {
+        await usersApi.userTelegramGet({ telegramId });
+        isUserExist = true;
+        pinologger.info({ telegramId }, "User exists");
+      } catch (error: any) {
+        // Если пользователь не найден (404 или 500), регистрируем его
+        pinologger.warn(
+          { telegramId, error: error.message },
+          "User not found, will register",
+        );
+        isUserExist = false;
+      }
+
+      if (!isUserExist) {
+        try {
+          const fullName = getFullName(ctx.from);
+
+          await usersApi.userRegisterSimplePost({
+            request: {
+              telegramId,
+              fullName,
+            },
+          });
+          pinologger.info(
+            { telegramId, fullName },
+            "User registered successfully",
+          );
+        } catch (registerError: any) {
+          pinologger.error(
+            { telegramId, error: registerError.message },
+            "Failed to register user",
+          );
+          // Продолжаем выполнение, даже если регистрация не удалась
+        }
+      }
+    } catch (error: any) {
+      pinologger.error(
+        { telegramId, error: error.message },
+        "Error in user check/registration",
+      );
+      // Не бросаем ошибку, показываем пользователю стартовое сообщение
+    }
+
     await ctx.reply(Templates.START.MESSAGE, {
       parse_mode: "Markdown",
       reply_markup: keyboard,
@@ -29,6 +84,19 @@ export const startHandler = async (ctx: Context) => {
       reply_markup: keyboard,
     });
   }
+};
+
+/**
+ * Extracts full name from Telegram user data with fallback logic
+ */
+const getFullName = (user: NonNullable<Context["from"]>): string => {
+  const { first_name = "", last_name = "", username = "" } = user;
+
+  if (first_name || last_name) {
+    return `${first_name} ${last_name}`.trim();
+  }
+
+  return username || "Unknown";
 };
 
 export const helpHandler = async (ctx: Context) => {
@@ -67,27 +135,10 @@ export const profileHandler = async (ctx: Context) => {
 };
 
 export const apiTestHandler = async (ctx: Context) => {
-  try {
-    const data = await userApi.userIdGet(7);
-    console.log("API Response:", data);
-    console.log("Full Name:", data?.fullName);
-
-    if (data) {
-      await ctx.reply(
-        `Это ${data.fullName || "нет имени"}\nВесь объект: ${JSON.stringify(data, null, 2)}`,
-      );
-    } else {
-      await ctx.reply("Данные не получены (undefined)");
-    }
-  } catch (error) {
-    console.error("API Error:", error);
-    if (error instanceof Response) {
-      const text = await error.text();
-      await ctx.reply(`Ошибка API: ${error.status} - ${text}`);
-    } else {
-      await ctx.reply(`Ошибка: ${error}`);
-    }
-  }
+  const data = await usersApi.userIdGet({
+    id: 7,
+  });
+  await ctx.reply(data.fullName!);
 };
 
 export const errCommandTest = async (ctx: Context) => {
