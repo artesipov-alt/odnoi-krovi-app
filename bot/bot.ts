@@ -3,6 +3,7 @@ import {
   startHandler,
   profileHandler,
   errCommandTest,
+  apiTestHandler,
 } from "./src/handlers/commands";
 import { bot, pinologger } from "./src/instances";
 import { logger } from "./src/middleware/logger";
@@ -28,6 +29,7 @@ async function main() {
   bot.command("help", helpHandler);
   bot.command("profile", profileHandler);
   bot.command("err", errCommandTest);
+  bot.command("api", apiTestHandler);
 
   //Колбэки (нажатия на кнопки)
   bot.callbackQuery("profile", profileHandler);

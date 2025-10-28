@@ -4,7 +4,7 @@
   "type": "module",
   "version": "0.3.0",
   "scripts": {
-    "dev": "bun run bot.ts",
+    "dev": "bun --env-file=../.env bot.ts",
     "build": "bun run build.ts",
     "prod": "bun run dist/bot.js"
   },

@@ -1,6 +1,7 @@
 import type { Context } from "grammy";
 import { BotError, InlineKeyboard } from "grammy";
 import { Templates } from "../config/templates";
+import { userApi } from "../instances";
 
 const getMainKeyboard = () => {
   return new InlineKeyboard()
@@ -62,6 +63,30 @@ export const profileHandler = async (ctx: Context) => {
       parse_mode: "Markdown",
       reply_markup: keyboard,
     });
+  }
+};
+
+export const apiTestHandler = async (ctx: Context) => {
+  try {
+    const data = await userApi.userIdGet(7);
+    console.log("API Response:", data);
+    console.log("Full Name:", data?.fullName);
+
+    if (data) {
+      await ctx.reply(
+        `Это ${data.fullName || "нет имени"}\nВесь объект: ${JSON.stringify(data, null, 2)}`,
+      );
+    } else {
+      await ctx.reply("Данные не получены (undefined)");
+    }
+  } catch (error) {
+    console.error("API Error:", error);
+    if (error instanceof Response) {
+      const text = await error.text();
+      await ctx.reply(`Ошибка API: ${error.status} - ${text}`);
+    } else {
+      await ctx.reply(`Ошибка: ${error}`);
+    }
   }
 };
 
