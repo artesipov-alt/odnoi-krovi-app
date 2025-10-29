@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
@@ -12,15 +13,17 @@ import (
 
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
-	breedRepo     repositories.BreedRepository
-	bloodTypeRepo repositories.BloodTypeRepository
+	breedRepo       repositories.BreedRepository
+	bloodTypeRepo   repositories.BloodTypeRepository
+	locationService services.LocationService
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodTypeRepository) *ReferenceHandler {
+func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodTypeRepository, locationService services.LocationService) *ReferenceHandler {
 	return &ReferenceHandler{
-		breedRepo:     breedRepo,
-		bloodTypeRepo: bloodTypeRepo,
+		breedRepo:       breedRepo,
+		bloodTypeRepo:   bloodTypeRepo,
+		locationService: locationService,
 	}
 }
 
@@ -287,6 +290,37 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 		items[i] = ReferenceItemDB{
 			Value: breed.ID,
 			Label: breed.Name,
+		}
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(ReferenceResponseDB{Data: items})
+}
+
+// GetLocationsHandler godoc
+// @Summary Получение всех локаций
+// @Description Возвращает список всех локаций в системе для выбора на фронтенде
+// @Tags reference
+// @Produce json
+// @Success 200 {object} ReferenceResponseDB "Список локаций"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /reference/locations [get]
+func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
+	logger.Log.Info("получение справочника локаций")
+
+	locations, err := h.locationService.GetAllLocations(c.Context())
+	if err != nil {
+		logger.Log.Error("не удалось получить локации из БД", zap.Error(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Не удалось получить список локаций",
+		})
+	}
+
+	items := make([]ReferenceItemDB, len(locations))
+	for i, location := range locations {
+		items[i] = ReferenceItemDB{
+			Value: location.ID,
+			Label: location.Name,
 		}
 	}
 

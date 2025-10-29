@@ -67,19 +67,21 @@ func main() {
 	bloodTypeRepo := repositories.NewPostgresBloodTypeRepository(db)
 	vetClinicRepo := repositories.NewVetClinicRepository(db)
 	bloodStockRepo := repositories.NewPostgresBloodStockRepository(db)
+	locationRepo := repositories.NewPostgresLocationRepository(db)
 
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
 	petService := services.NewPetService(petRepo, userRepo)
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
 	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodTypeRepo, vetClinicRepo)
+	locationService := services.NewLocationService(locationRepo)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
-	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo)
+	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo, locationService)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
@@ -164,6 +166,7 @@ func main() {
 				referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler) // Статусы поиска крови
 				referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)   // Статусы запаса крови
 				referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)        // Статусы донорства
+				referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)                       // Локации
 			}
 		}
 	}
