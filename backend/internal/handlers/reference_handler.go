@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
@@ -13,17 +12,17 @@ import (
 
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
-	breedRepo       repositories.BreedRepository
-	bloodTypeRepo   repositories.BloodTypeRepository
-	locationService services.LocationService
+	breedRepo     repositories.BreedRepository
+	bloodTypeRepo repositories.BloodTypeRepository
+	locationRepo  repositories.LocationRepository
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodTypeRepository, locationService services.LocationService) *ReferenceHandler {
+func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodTypeRepository, locationRepo repositories.LocationRepository) *ReferenceHandler {
 	return &ReferenceHandler{
-		breedRepo:       breedRepo,
-		bloodTypeRepo:   bloodTypeRepo,
-		locationService: locationService,
+		breedRepo:     breedRepo,
+		bloodTypeRepo: bloodTypeRepo,
+		locationRepo:  locationRepo,
 	}
 }
 
@@ -308,7 +307,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника локаций")
 
-	locations, err := h.locationService.GetAllLocations(c.Context())
+	locations, err := h.locationRepo.GetAll(c.Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить локации из БД", zap.Error(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{

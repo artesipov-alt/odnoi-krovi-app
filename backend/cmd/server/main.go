@@ -74,14 +74,13 @@ func main() {
 	petService := services.NewPetService(petRepo, userRepo)
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
 	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodTypeRepo, vetClinicRepo)
-	locationService := services.NewLocationService(locationRepo)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
-	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo, locationService)
+	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo, locationRepo)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
