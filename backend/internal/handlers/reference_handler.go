@@ -4,7 +4,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
+	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -62,7 +62,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(petTypes))
 
 	for i, petType := range petTypes {
-		ruValue, err := validation.ValidatePetType(string(petType))
+		ruValue, err := validation.LocalizePetType(string(petType))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrInvalidPetType.Error(),
@@ -93,7 +93,7 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(genders))
 
 	for i, gender := range genders {
-		ruValue, err := validation.ValidateGender(string(gender))
+		ruValue, err := validation.LocalizeGender(string(gender))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrInvalidGender.Error(),
@@ -124,7 +124,7 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(conditions))
 
 	for i, condition := range conditions {
-		ruValue, err := validation.ValidateLivingCondition(string(condition))
+		ruValue, err := validation.LocalizeLivingCondition(string(condition))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrInvalidLivingCondition.Error(),
@@ -155,7 +155,7 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(roles))
 
 	for i, role := range roles {
-		ruValue, err := validation.ValidateUserRole(string(role))
+		ruValue, err := validation.LocalizeUserRole(string(role))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrUserInvalidRole.Error(),
@@ -186,7 +186,7 @@ func (h *ReferenceHandler) GetBloodSearchStatusesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
-		ruValue, err := validation.ValidateBloodSearchStatus(string(status))
+		ruValue, err := validation.LocalizeBloodSearchStatus(string(status))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrInvalidSearchStatus.Error(),
@@ -217,7 +217,7 @@ func (h *ReferenceHandler) GetBloodStockStatusesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
-		ruValue, err := validation.ValidateBloodStockStatus(string(status))
+		ruValue, err := validation.LocalizeBloodStockStatus(string(status))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrInvalidBloodStatus.Error(),
@@ -248,7 +248,7 @@ func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
-		ruValue, err := validation.ValidateDonationStatus(string(status))
+		ruValue, err := validation.LocalizeDonationStatus(string(status))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 				Error: apperrors.ErrInvalidDonationStatus.Error(),
@@ -348,7 +348,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	petType, err := validation.ValidatePetType(petTypeStr)
+	petType, err := validation.LocalizePetType(petTypeStr)
 	if err != nil {
 		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{

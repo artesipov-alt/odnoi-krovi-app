@@ -6,7 +6,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
+	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 )
 
 // PetService определяет интерфейс для бизнес-логики питомцев
@@ -98,19 +98,19 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 	}
 
 	// Валидируем тип животного
-	validatedType, err := validation.ValidatePetType(string(petData.Type))
+	validatedType, err := validation.LocalizePetType(string(petData.Type))
 	if err != nil {
 		return nil, apperrors.ErrInvalidPetType
 	}
 
 	// Валидируем пол животного
-	validatedGender, err := validation.ValidateGender(string(petData.Gender))
+	validatedGender, err := validation.LocalizeGender(string(petData.Gender))
 	if err != nil {
 		return nil, apperrors.ErrInvalidGender
 	}
 
 	// Валидируем условия проживания
-	validatedLivingCondition, err := validation.ValidateLivingCondition(string(petData.LivingCondition))
+	validatedLivingCondition, err := validation.LocalizeLivingCondition(string(petData.LivingCondition))
 	if err != nil {
 		return nil, apperrors.ErrInvalidLivingCondition
 	}
@@ -235,21 +235,21 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 		pet.Longitude = *updates.Longitude
 	}
 	if updates.LivingCondition != nil {
-		validatedLivingCondition, err := validation.ValidateLivingCondition(string(*updates.LivingCondition))
+		validatedLivingCondition, err := validation.LocalizeLivingCondition(string(*updates.LivingCondition))
 		if err != nil {
 			return apperrors.ErrInvalidLivingCondition
 		}
 		pet.LivingCondition = validatedLivingCondition
 	}
 	if updates.Gender != nil {
-		validatedGender, err := validation.ValidateGender(string(*updates.Gender))
+		validatedGender, err := validation.LocalizeGender(string(*updates.Gender))
 		if err != nil {
 			return apperrors.ErrInvalidGender
 		}
 		pet.Gender = validatedGender
 	}
 	if updates.Type != nil {
-		validatedType, err := validation.ValidatePetType(string(*updates.Type))
+		validatedType, err := validation.LocalizePetType(string(*updates.Type))
 		if err != nil {
 			return apperrors.ErrInvalidPetType
 		}

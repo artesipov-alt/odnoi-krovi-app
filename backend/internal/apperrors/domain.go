@@ -81,42 +81,42 @@ var (
 
 // NewUserNotFoundError создает ошибку с ID пользователя
 func NewUserNotFoundError(userID int) *AppError {
-	return NotFound("пользователь не найден").WithDetails(map[string]interface{}{
+	return NotFound("пользователь не найден").WithDetails(map[string]any{
 		"user_id": userID,
 	})
 }
 
 // NewUserAlreadyExistsError создает ошибку с Telegram ID
 func NewUserAlreadyExistsError(telegramID int64) *AppError {
-	return AlreadyExists("пользователь с этим Telegram ID уже существует").WithDetails(map[string]interface{}{
+	return AlreadyExists("пользователь с этим Telegram ID уже существует").WithDetails(map[string]any{
 		"telegram_id": telegramID,
 	})
 }
 
 // NewPetNotFoundError создает ошибку с ID питомца
 func NewPetNotFoundError(petID int) *AppError {
-	return NotFound("питомец не найден").WithDetails(map[string]interface{}{
+	return NotFound("питомец не найден").WithDetails(map[string]any{
 		"pet_id": petID,
 	})
 }
 
 // NewClinicNotFoundError создает ошибку с ID клиники
 func NewClinicNotFoundError(clinicID int) *AppError {
-	return NotFound("ветеринарная клиника не найдена").WithDetails(map[string]interface{}{
+	return NotFound("ветеринарная клиника не найдена").WithDetails(map[string]any{
 		"clinic_id": clinicID,
 	})
 }
 
 // NewBloodStockNotFoundError создает ошибку с ID запаса крови
 func NewBloodStockNotFoundError(stockID int) *AppError {
-	return NotFound("запас крови не найден").WithDetails(map[string]interface{}{
+	return NotFound("запас крови не найден").WithDetails(map[string]any{
 		"stock_id": stockID,
 	})
 }
 
 // NewBloodTypeNotFoundError создает ошибку с ID типа крови
 func NewBloodTypeNotFoundError(bloodTypeID int) *AppError {
-	return NotFound("тип крови не найден").WithDetails(map[string]interface{}{
+	return NotFound("тип крови не найден").WithDetails(map[string]any{
 		"blood_type_id": bloodTypeID,
 	})
 }

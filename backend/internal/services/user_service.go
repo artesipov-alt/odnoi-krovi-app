@@ -6,7 +6,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
+	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
@@ -83,7 +83,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	}
 
 	// Валидируем роль пользователя
-	role, err := validation.ValidateUserRole(string(userData.Role))
+	role, err := validation.LocalizeUserRole(string(userData.Role))
 	if err != nil {
 		return nil, apperrors.BadRequest("неверная роль пользователя")
 	}

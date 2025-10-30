@@ -8,7 +8,7 @@ import (
 var Validator = validator.New()
 
 // ValidateStruct validates a struct using the global validator
-func ValidateStruct(s interface{}) error {
+func ValidateStruct(s any) error {
 	return Validator.Struct(s)
 }
 
