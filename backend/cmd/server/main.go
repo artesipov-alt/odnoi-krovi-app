@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                     // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                            // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                            // Логирование
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"                             // Seed-данные для БД
 	"github.com/gofiber/fiber/v2"                                                    // Веб-фреймворк
 	"github.com/gofiber/fiber/v2/middleware/cors"                                    // CORS middleware
 	"github.com/gofiber/swagger"                                                     // Swagger UI
@@ -53,18 +54,20 @@ func main() {
 		logger.Log.Fatal("Ошибка подключения к базе данных", zap.Error(err))
 	}
 	//Принудительная миграция вкл/выкл
-	autoMigrate(db)
+	// autoMigrate(db)
+	// seedDatabase(db)
 
 	// Автоматическое создание/обновление таблиц в БД на проде
 	if env != "dev" {
 		autoMigrate(db)
+		seedDatabase(db)
 	}
 
 	// Инициализация репозиториев
 	userRepo := repositories.NewPostgresUserRepository(db)
 	petRepo := repositories.NewPostgresPetRepository(db)
 	breedRepo := repositories.NewPostgresBreedRepository(db)
-	bloodTypeRepo := repositories.NewPostgresBloodTypeRepository(db)
+	bloodRepo := repositories.NewPostgresBloodRepository(db)
 	vetClinicRepo := repositories.NewVetClinicRepository(db)
 	bloodStockRepo := repositories.NewPostgresBloodStockRepository(db)
 	locationRepo := repositories.NewPostgresLocationRepository(db)
@@ -73,14 +76,14 @@ func main() {
 	userService := services.NewUserService(userRepo)
 	petService := services.NewPetService(petRepo, userRepo)
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
-	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodTypeRepo, vetClinicRepo)
+	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepo, vetClinicRepo)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
-	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodTypeRepo, locationRepo)
+	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepo, locationRepo)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
@@ -160,8 +163,9 @@ func main() {
 				referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler) // Условия проживания
 				referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)               // Роли пользователей
 				referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
-				referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)               // Породы животных
-				referenceGroup.Get("/blood-groups", referenceHandler.GetBloodGroupsHandler)                  // Группы крови
+				referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler) // Породы животных
+				referenceGroup.Get("/blood-components", referenceHandler.GetBloodComponentsHandler)
+				referenceGroup.Get("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)        // Группы крови
 				referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler) // Статусы поиска крови
 				referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)   // Статусы запаса крови
 				referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)        // Статусы донорства
@@ -217,7 +221,8 @@ func autoMigrate(db *gorm.DB) {
 		&models.Breed{},
 		&models.BloodSearch{},
 		&models.BloodStock{},
-		&models.BloodType{},
+		&models.BloodComponent{},
+		&models.BloodGroup{},
 		&models.Location{},
 		&models.Donation{},
 	}
@@ -226,4 +231,21 @@ func autoMigrate(db *gorm.DB) {
 	if err := db.AutoMigrate(modelsToMigrate...); err != nil {
 		logger.Log.Fatal("Ошибка автоматической миграции", zap.Error(err))
 	}
+}
+
+// Заполнение базы данных начальными данными
+func seedDatabase(db *gorm.DB) {
+	logger.Log.Info("Начало заполнения базы данных начальными данными")
+
+	// Заполнение групп крови
+	if err := seeds.SeedBloodGroups(db, logger.Log); err != nil {
+		logger.Log.Error("Ошибка при заполнении групп крови", zap.Error(err))
+	}
+
+	// Заполнение компонентов крови
+	if err := seeds.SeedBloodComponents(db, logger.Log); err != nil {
+		logger.Log.Error("Ошибка при заполнении групп крови", zap.Error(err))
+	}
+
+	logger.Log.Info("Заполнение базы данных завершено")
 }

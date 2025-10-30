@@ -12,11 +12,25 @@ definitions:
       value:
         type: string
     type: object
+  handlers.ReferenceItemDB:
+    properties:
+      label:
+        type: string
+      value:
+        type: integer
+    type: object
   handlers.ReferenceResponse:
     properties:
       data:
         items:
           $ref: '#/definitions/handlers.ReferenceItem'
+        type: array
+    type: object
+  handlers.ReferenceResponseDB:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/handlers.ReferenceItemDB'
         type: array
     type: object
   handlers.SimpleRegistrationRequest:
@@ -1029,21 +1043,48 @@ paths:
       summary: Создание нового питомца
       tags:
       - pets
-  /reference/blood-groups:
+  /reference/blood-components:
     get:
-      description: Возвращает список групп крови животных для выбора на фронтенде
+      description: Возвращает список компонентов крови животных для выбора на фронтенде
       produces:
       - application/json
       responses:
         "200":
-          description: Список групп крови
+          description: Список компонентов крови
           schema:
             $ref: '#/definitions/handlers.ReferenceResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение групп крови животных
+      summary: Получение компонентов крови животных
+      tags:
+      - reference
+  /reference/blood-groups/{pet_type}:
+    get:
+      description: Возвращает список групп крови животных для выбора на фронтенде
+      parameters:
+      - description: Тип животного
+        in: path
+        name: pet_type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список групп крови
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponseDB'
+        "400":
+          description: Неверный тип животного
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение групп крови животных по типу животного
       tags:
       - reference
   /reference/blood-search-statuses:
@@ -1154,6 +1195,23 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ReferenceResponse'
       summary: Получение всех условий проживания
+      tags:
+      - reference
+  /reference/locations:
+    get:
+      description: Возвращает список всех локаций в системе для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список локаций
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponseDB'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получение всех локаций
       tags:
       - reference
   /reference/pet-types:

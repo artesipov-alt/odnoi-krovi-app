@@ -2,11 +2,13 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"gorm.io/gorm"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
@@ -144,6 +146,10 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
+		// Если пользователь не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewUserNotFoundError(userID)
+		}
 		return apperrors.Internal(err, "не удалось получить пользователя")
 	}
 
@@ -163,6 +169,10 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
 func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID int) (*UserProfile, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
+		// Если пользователь не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewUserNotFoundError(userID)
+		}
 		return nil, apperrors.Internal(err, "не удалось получить пользователя")
 	}
 
@@ -185,6 +195,10 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 	// Получаем существующего пользователя
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
+		// Если пользователь не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewUserNotFoundError(userID)
+		}
 		return apperrors.Internal(err, "не удалось получить пользователя")
 	}
 
@@ -227,6 +241,12 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, upd
 func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
 	user, err := s.userRepo.GetByTelegramID(ctx, telegramID)
 	if err != nil {
+		// Если пользователь не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]interface{}{
+				"telegram_id": telegramID,
+			})
+		}
 		return nil, apperrors.Internal(err, "не удалось получить пользователя по Telegram ID")
 	}
 

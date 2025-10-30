@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	"gorm.io/gorm"
 )
 
 // VetClinicService определяет интерфейс для бизнес-логики ветеринарных клиник
@@ -103,6 +105,10 @@ func (s *VetClinicServiceImpl) DeleteClinic(ctx context.Context, clinicID int) e
 	// Проверяем, существует ли клиника
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
+		// Если клиника не найдена - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewClinicNotFoundError(clinicID)
+		}
 		return apperrors.Internal(err, "не удалось получить клинику")
 	}
 
@@ -122,6 +128,10 @@ func (s *VetClinicServiceImpl) DeleteClinic(ctx context.Context, clinicID int) e
 func (s *VetClinicServiceImpl) GetClinicProfile(ctx context.Context, clinicID int) (*VetClinicProfile, error) {
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
+		// Если клиника не найдена - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewClinicNotFoundError(clinicID)
+		}
 		return nil, apperrors.Internal(err, "не удалось получить клинику")
 	}
 
@@ -141,6 +151,10 @@ func (s *VetClinicServiceImpl) UpdateClinicProfile(ctx context.Context, clinicID
 	// Получаем существующую клинику
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
+		// Если клиника не найдена - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewClinicNotFoundError(clinicID)
+		}
 		return apperrors.Internal(err, "не удалось получить клинику")
 	}
 
@@ -192,6 +206,10 @@ func (s *VetClinicServiceImpl) UpdateClinicProfile(ctx context.Context, clinicID
 func (s *VetClinicServiceImpl) GetClinicsByLocationID(ctx context.Context, locationID int) ([]*models.VetClinic, error) {
 	clinics, err := s.vetClinicRepo.GetByLocationID(ctx, locationID)
 	if err != nil {
+		// Если клиники не найдены - возвращаем пустой массив, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []*models.VetClinic{}, nil
+		}
 		return nil, apperrors.Internal(err, "не удалось получить клиники по локации")
 	}
 	return clinics, nil

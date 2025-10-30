@@ -2,11 +2,13 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"gorm.io/gorm"
 )
 
 // PetService определяет интерфейс для бизнес-логики питомцев
@@ -90,6 +92,10 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
+		// Если пользователь не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewUserNotFoundError(userID)
+		}
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
@@ -149,6 +155,10 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetC
 func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID int) (*models.Pet, error) {
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
+		// Если питомец не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewPetNotFoundError(petID)
+		}
 		return nil, apperrors.Internal(err, "не удалось получить питомца")
 	}
 
@@ -164,6 +174,10 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID int) ([]*models
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
+		// Если пользователь не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewUserNotFoundError(userID)
+		}
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
@@ -184,6 +198,10 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 	// Получаем существующего питомца
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
+		// Если питомец не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewPetNotFoundError(petID)
+		}
 		return apperrors.Internal(err, "не удалось получить питомца")
 	}
 
@@ -272,6 +290,10 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID int) error {
 	// Проверяем, существует ли питомец
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
+		// Если питомец не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewPetNotFoundError(petID)
+		}
 		return apperrors.Internal(err, "не удалось получить питомца")
 	}
 

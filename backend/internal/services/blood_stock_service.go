@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	"gorm.io/gorm"
 )
 
 // BloodStockService определяет интерфейс для бизнес-логики запасов крови
@@ -55,14 +57,14 @@ type BloodStockUpdate struct {
 // BloodStockServiceImpl реализует BloodStockService
 type BloodStockServiceImpl struct {
 	bloodStockRepo repositories.BloodStockRepository
-	bloodTypeRepo  repositories.BloodTypeRepository
+	bloodTypeRepo  repositories.BloodRepository
 	vetClinicRepo  repositories.VetClinicRepository
 }
 
 // NewBloodStockService создает новый сервис запасов крови
 func NewBloodStockService(
 	bloodStockRepo repositories.BloodStockRepository,
-	bloodTypeRepo repositories.BloodTypeRepository,
+	bloodTypeRepo repositories.BloodRepository,
 	vetClinicRepo repositories.VetClinicRepository,
 ) *BloodStockServiceImpl {
 	return &BloodStockServiceImpl{
@@ -85,6 +87,10 @@ func (s *BloodStockServiceImpl) GetAll(ctx context.Context) ([]models.BloodStock
 func (s *BloodStockServiceImpl) GetByID(ctx context.Context, id int) (*models.BloodStock, error) {
 	stock, err := s.bloodStockRepo.GetByID(ctx, id)
 	if err != nil {
+		// Если запас крови не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewBloodStockNotFoundError(id)
+		}
 		return nil, apperrors.Internal(err, "не удалось получить запас крови")
 	}
 	if stock == nil {
@@ -98,6 +104,10 @@ func (s *BloodStockServiceImpl) GetByClinicID(ctx context.Context, clinicID int)
 	// Проверяем существование клиники
 	clinic, err := s.vetClinicRepo.GetByID(ctx, clinicID)
 	if err != nil {
+		// Если клиника не найдена - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewClinicNotFoundError(clinicID)
+		}
 		return nil, apperrors.Internal(err, "не удалось проверить существование клиники")
 	}
 	if clinic == nil {
@@ -114,8 +124,12 @@ func (s *BloodStockServiceImpl) GetByClinicID(ctx context.Context, clinicID int)
 // GetByBloodTypeID получает все запасы крови по типу крови
 func (s *BloodStockServiceImpl) GetByBloodTypeID(ctx context.Context, bloodTypeID int) ([]models.BloodStock, error) {
 	// Проверяем существование типа крови
-	bloodType, err := s.bloodTypeRepo.GetByID(ctx, bloodTypeID)
+	bloodType, err := s.bloodTypeRepo.GetComponentByID(ctx, bloodTypeID)
 	if err != nil {
+		// Если тип крови не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewBloodTypeNotFoundError(bloodTypeID)
+		}
 		return nil, apperrors.Internal(err, "не удалось проверить существование типа крови")
 	}
 	if bloodType == nil {
@@ -132,8 +146,12 @@ func (s *BloodStockServiceImpl) GetByBloodTypeID(ctx context.Context, bloodTypeI
 // CreateBloodStock создает новый запас крови
 func (s *BloodStockServiceImpl) CreateBloodStock(ctx context.Context, stockData BloodStockCreate) (*models.BloodStock, error) {
 	// Проверяем существование типа крови
-	bloodType, err := s.bloodTypeRepo.GetByID(ctx, stockData.BloodTypeID)
+	bloodType, err := s.bloodTypeRepo.GetComponentByID(ctx, stockData.BloodTypeID)
 	if err != nil {
+		// Если тип крови не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperrors.NewBloodTypeNotFoundError(stockData.BloodTypeID)
+		}
 		return nil, apperrors.Internal(err, "не удалось проверить существование типа крови")
 	}
 	if bloodType == nil {
@@ -144,6 +162,10 @@ func (s *BloodStockServiceImpl) CreateBloodStock(ctx context.Context, stockData 
 	if stockData.ClinicID != nil {
 		clinic, err := s.vetClinicRepo.GetByID(ctx, *stockData.ClinicID)
 		if err != nil {
+			// Если клиника не найдена - возвращаем 404, а не 500
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, apperrors.NewClinicNotFoundError(*stockData.ClinicID)
+			}
 			return nil, apperrors.Internal(err, "не удалось проверить существование клиники")
 		}
 		if clinic == nil {
@@ -183,6 +205,10 @@ func (s *BloodStockServiceImpl) UpdateBloodStock(ctx context.Context, id int, up
 	// Получаем существующий запас
 	stock, err := s.bloodStockRepo.GetByID(ctx, id)
 	if err != nil {
+		// Если запас крови не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewBloodStockNotFoundError(id)
+		}
 		return apperrors.Internal(err, "не удалось получить запас крови")
 	}
 	if stock == nil {
@@ -213,6 +239,10 @@ func (s *BloodStockServiceImpl) DeleteBloodStock(ctx context.Context, id int) er
 	// Проверяем существование
 	stock, err := s.bloodStockRepo.GetByID(ctx, id)
 	if err != nil {
+		// Если запас крови не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperrors.NewBloodStockNotFoundError(id)
+		}
 		return apperrors.Internal(err, "не удалось получить запас крови")
 	}
 	if stock == nil {

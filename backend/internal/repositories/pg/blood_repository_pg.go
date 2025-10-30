@@ -7,52 +7,44 @@ import (
 	"gorm.io/gorm"
 )
 
-// PostgresBloodTypeRepository реализация репозитория для PostgreSQL
-type PostgresBloodTypeRepository struct {
+// PostgresBloodRepository реализация репозитория для PostgreSQL
+type PostgresBloodRepository struct {
 	db *gorm.DB
 }
 
-// NewPostgresBloodTypeRepository создает новый экземпляр репозитория
-func NewPostgresBloodTypeRepository(db *gorm.DB) *PostgresBloodTypeRepository {
-	return &PostgresBloodTypeRepository{
+// NewPostgresBloodRepository создает новый экземпляр репозитория
+func NewPostgresBloodRepository(db *gorm.DB) *PostgresBloodRepository {
+	return &PostgresBloodRepository{
 		db: db,
 	}
 }
 
-// GetAll возвращает все типы крови
-func (r *PostgresBloodTypeRepository) GetAll(ctx context.Context) ([]models.BloodType, error) {
-	var bloodTypes []models.BloodType
-	result := r.db.WithContext(ctx).Find(&bloodTypes)
+// GetAll возвращает все компоненты крови
+func (r *PostgresBloodRepository) GetAllComponents(ctx context.Context) ([]models.BloodComponent, error) {
+	var BloodComponents []models.BloodComponent
+	result := r.db.WithContext(ctx).Find(&BloodComponents)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return bloodTypes, nil
+	return BloodComponents, nil
 }
 
-// GetByID возвращает тип крови по ID
-func (r *PostgresBloodTypeRepository) GetByID(ctx context.Context, id int) (*models.BloodType, error) {
-	var bloodType models.BloodType
-	result := r.db.WithContext(ctx).First(&bloodType, id)
+// GetByID возвращает компонент крови по ID
+func (r *PostgresBloodRepository) GetComponentByID(ctx context.Context, id int) (*models.BloodComponent, error) {
+	var BloodComponent models.BloodComponent
+	result := r.db.WithContext(ctx).First(&BloodComponent, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &bloodType, nil
+	return &BloodComponent, nil
 }
 
-// Create создает новый тип крови
-func (r *PostgresBloodTypeRepository) Create(ctx context.Context, bloodType *models.BloodType) error {
-	result := r.db.WithContext(ctx).Create(bloodType)
-	return result.Error
-}
-
-// Update обновляет существующий тип крови
-func (r *PostgresBloodTypeRepository) Update(ctx context.Context, bloodType *models.BloodType) error {
-	result := r.db.WithContext(ctx).Save(bloodType)
-	return result.Error
-}
-
-// Delete удаляет тип крови по ID
-func (r *PostgresBloodTypeRepository) Delete(ctx context.Context, id int) error {
-	result := r.db.WithContext(ctx).Delete(&models.BloodType{}, id)
-	return result.Error
+// GetBloodGroupsByPetType возвращает группы крови по типу животного
+func (r *PostgresBloodRepository) GetBloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error) {
+	var bloodGroups []*models.BloodGroup
+	result := r.db.WithContext(ctx).Where("pet_type = ?", petType).Find(&bloodGroups)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return bloodGroups, nil
 }

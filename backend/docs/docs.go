@@ -707,7 +707,33 @@ const docTemplate = `{
                 }
             }
         },
-        "/reference/blood-groups": {
+        "/reference/blood-components": {
+            "get": {
+                "description": "Возвращает список компонентов крови животных для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение компонентов крови животных",
+                "responses": {
+                    "200": {
+                        "description": "Список компонентов крови",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/blood-groups/{pet_type}": {
             "get": {
                 "description": "Возвращает список групп крови животных для выбора на фронтенде",
                 "produces": [
@@ -716,12 +742,27 @@ const docTemplate = `{
                 "tags": [
                     "reference"
                 ],
-                "summary": "Получение групп крови животных",
+                "summary": "Получение групп крови животных по типу животного",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Тип животного",
+                        "name": "pet_type",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Список групп крови",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                            "$ref": "#/definitions/handlers.ReferenceResponseDB"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный тип животного",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
@@ -895,6 +936,32 @@ const docTemplate = `{
                         "description": "Список условий проживания",
                         "schema": {
                             "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/locations": {
+            "get": {
+                "description": "Возвращает список всех локаций в системе для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех локаций",
+                "responses": {
+                    "200": {
+                        "description": "Список локаций",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponseDB"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1508,6 +1575,17 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.ReferenceItemDB": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "integer"
+                }
+            }
+        },
         "handlers.ReferenceResponse": {
             "type": "object",
             "properties": {
@@ -1515,6 +1593,17 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/handlers.ReferenceItem"
+                    }
+                }
+            }
+        },
+        "handlers.ReferenceResponseDB": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.ReferenceItemDB"
                     }
                 }
             }
