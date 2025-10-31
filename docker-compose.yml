@@ -12,7 +12,7 @@ services:
       DB_SSLMODE: disable
       SERVER_PORT: 3000
       ENVIRONMENT: production
-      REDIS_ADDR: 10.0.0.73
+      REDIS_HOST: 10.0.0.73:6379
     ports:
       - "3000:3000"
     networks:
