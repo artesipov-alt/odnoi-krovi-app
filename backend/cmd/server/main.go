@@ -190,5 +190,5 @@ func main() {
 	<-quit
 
 	// Graceful shutdown сервера
-	config.GracefulShutdown(app, db, 30*time.Second)
+	config.GracefulShutdown(app, db, rCache, 30*time.Second)
 }

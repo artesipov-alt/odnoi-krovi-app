@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache/interfaces"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -27,7 +28,7 @@ func NewServerConfig() *ServerConfig {
 }
 
 // GracefulShutdown выполняет graceful shutdown сервера
-func GracefulShutdown(app *fiber.App, db *gorm.DB, timeout time.Duration) {
+func GracefulShutdown(app *fiber.App, db *gorm.DB, cache interfaces.Cache, timeout time.Duration) {
 	logger := zap.L()
 
 	// Создание контекста с таймаутом для завершения
@@ -52,6 +53,15 @@ func GracefulShutdown(app *fiber.App, db *gorm.DB, timeout time.Duration) {
 			} else {
 				logger.Info("Соединение с БД успешно закрыто")
 			}
+		}
+	}
+
+	// Закрытие соединения с Redis
+	if cache != nil {
+		if err := cache.Close(); err != nil {
+			logger.Error("Ошибка при закрытии соединения с Redis", zap.Error(err))
+		} else {
+			logger.Info("Соединение с Redis успешно закрыто")
 		}
 	}
 
