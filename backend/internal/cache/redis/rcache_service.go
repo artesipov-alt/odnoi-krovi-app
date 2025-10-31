@@ -44,8 +44,12 @@ func NewCache(config Config) (interfaces.Cache, error) {
 
 // NewCacheFromEnv создает кэш из переменных окружения
 func NewCacheFromEnv() (interfaces.Cache, error) {
+	redisHost := getEnv("REDIS_HOST", "localhost")
+	redisPort := getEnv("REDIS_PORT", "6379")
+	redisAddr := getEnv("REDIS_ADDR", redisHost+":"+redisPort)
+
 	config := Config{
-		RedisAddr:       getEnv("REDIS_ADDR", "localhost:6379"),
+		RedisAddr:       redisAddr,
 		RedisPassword:   getEnv("REDIS_PASSWORD", ""),
 		RedisDB:         getEnvAsInt("REDIS_DB", 0),
 		RedisMaxRetries: getEnvAsInt("REDIS_MAX_RETRIES", 3),
