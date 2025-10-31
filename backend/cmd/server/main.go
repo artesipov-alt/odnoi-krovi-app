@@ -2,30 +2,29 @@
 package main
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	_ "github.com/artesipov-alt/odnoi-krovi-app/docs"              // Документация Swagger
+	_ "github.com/artesipov-alt/odnoi-krovi-app/docs" // Документация Swagger
+	cache "github.com/artesipov-alt/odnoi-krovi-app/internal/cache/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"   // Обработчики HTTP запросов
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware" // Промежуточное ПО
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 
-	// Модели данных
 	// Репозитории для работы с БД
+	cacherepo "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/cache"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg" // Репозитории для работы с БД
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                     // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                            // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                            // Логирование
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"                             // Seed-данные для БД
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"                         // Управление миграциями
 	"github.com/gofiber/fiber/v2"                                                    // Веб-фреймворк
 	"github.com/gofiber/fiber/v2/middleware/cors"                                    // CORS middleware
 	"github.com/gofiber/swagger"                                                     // Swagger UI
 	"github.com/joho/godotenv"                                                       // Загрузка .env файлов
 	"go.uber.org/zap"                                                                // Структурированное логирование
-	"gorm.io/gorm"                                                                   // ORM для работы с БД
+	// ORM для работы с БД
 )
 
 // @title однойкрови.рф
@@ -36,16 +35,12 @@ import (
 func main() {
 	// Загрузка переменных окружения из .env файла
 	godotenv.Load("../.env")
-	port := os.Getenv("SERVER_PORT")
-	if port == "" {
-		port = "3000"
-	}
-	env := os.Getenv("ENVIROMENT")
-	if env == "" {
-		env = "dev"
-	}
+
+	// Инициализация конфигурации сервера
+	serverConfig := config.NewServerConfig()
+
 	// Инициализация логгера в режиме разработки
-	logger.Init(env)
+	logger.Init(serverConfig.Env)
 	defer logger.Sync() // Гарантированное закрытие логгера при завершении
 
 	// Инициализация подключения к базе данных
@@ -53,14 +48,16 @@ func main() {
 	if err != nil {
 		logger.Log.Fatal("Ошибка подключения к базе данных", zap.Error(err))
 	}
-	//Принудительная миграция вкл/выкл
-	// autoMigrate(db)
-	// seedDatabase(db)
+
+	rCache, err := cache.NewCacheFromEnv()
+	if err != nil {
+		logger.Log.Fatal("Ошибка подключения к Redis", zap.Error(err))
+	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
-	if env != "dev" {
-		autoMigrate(db)
-		seedDatabase(db)
+	if serverConfig.ShouldMigrate() {
+		migration.AutoMigrate(db, logger.Log)
+		migration.SeedDatabase(db, logger.Log)
 	}
 
 	// Инициализация репозиториев
@@ -71,6 +68,9 @@ func main() {
 	vetClinicRepo := repositories.NewVetClinicRepository(db)
 	bloodStockRepo := repositories.NewPostgresBloodStockRepository(db)
 	locationRepo := repositories.NewPostgresLocationRepository(db)
+
+	// Кеширующие репозитории
+	cachedBloodRepo := cacherepo.NewCachedBloodRepository(bloodRepo, rCache)
 
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
@@ -83,7 +83,7 @@ func main() {
 	petHandler := handlers.NewPetHandler(petService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
-	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepo, locationRepo)
+	referenceHandler := handlers.NewReferenceHandler(breedRepo, cachedBloodRepo, locationRepo)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
@@ -180,72 +180,15 @@ func main() {
 
 	// Запуск сервера в отдельной горутине
 	go func() {
-		logger.Log.Info("Сервер запускается", zap.String("port", port))
-		if err := app.Listen(":" + port); err != nil {
+		logger.Log.Info("Сервер запускается", zap.String("port", serverConfig.Port))
+		if err := app.Listen(":" + serverConfig.Port); err != nil {
 			logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 		}
 	}()
 
 	// Ожидание сигнала завершения
 	<-quit
-	logger.Log.Info("Получен сигнал завершения, начинается graceful shutdown...")
-
-	// Создание контекста с таймаутом для завершения
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
 
 	// Graceful shutdown сервера
-	if err := app.ShutdownWithContext(ctx); err != nil {
-		logger.Log.Error("Ошибка при graceful shutdown сервера", zap.Error(err))
-	}
-
-	// Закрытие соединения с базой данных
-	sqlDB, err := db.DB()
-	if err == nil {
-		if err := sqlDB.Close(); err != nil {
-			logger.Log.Error("Ошибка при закрытии соединения с БД", zap.Error(err))
-		} else {
-			logger.Log.Info("Соединение с БД успешно закрыто")
-		}
-	}
-
-	logger.Log.Info("Сервер успешно остановлен")
-}
-
-// Автоматическое создание/обновление таблиц в базе данных
-func autoMigrate(db *gorm.DB) {
-	modelsToMigrate := []any{
-		&models.User{},
-		&models.Pet{},
-		&models.VetClinic{},
-		&models.Breed{},
-		&models.BloodSearch{},
-		&models.BloodStock{},
-		&models.BloodComponent{},
-		&models.BloodGroup{},
-		&models.Location{},
-		&models.Donation{},
-	}
-
-	// Автоматическая миграция всех моделей
-	if err := db.AutoMigrate(modelsToMigrate...); err != nil {
-		logger.Log.Fatal("Ошибка автоматической миграции", zap.Error(err))
-	}
-}
-
-// Заполнение базы данных начальными данными
-func seedDatabase(db *gorm.DB) {
-	logger.Log.Info("Начало заполнения базы данных начальными данными")
-
-	// Заполнение групп крови
-	if err := seeds.SeedBloodGroups(db, logger.Log); err != nil {
-		logger.Log.Error("Ошибка при заполнении групп крови", zap.Error(err))
-	}
-
-	// Заполнение компонентов крови
-	if err := seeds.SeedBloodComponents(db, logger.Log); err != nil {
-		logger.Log.Error("Ошибка при заполнении групп крови", zap.Error(err))
-	}
-
-	logger.Log.Info("Заполнение базы данных завершено")
+	config.GracefulShutdown(app, db, 30*time.Second)
 }

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"gorm.io/driver/postgres"
@@ -21,15 +20,15 @@ type DatabaseConfig struct {
 
 // NewDatabaseConfig создает конфигурацию базы данных из переменных окружения
 func NewDatabaseConfig() *DatabaseConfig {
-	port, _ := strconv.Atoi(getEnv("DB_PORT", "5432"))
+	port, _ := strconv.Atoi(GetEnv("DB_PORT", "5432"))
 
 	return &DatabaseConfig{
-		Host:     getEnv("DB_HOST", "localhost"),
+		Host:     GetEnv("DB_HOST", "localhost"),
 		Port:     port,
-		User:     getEnv("DB_USER", "postgres"),
-		Password: getEnv("DB_PASSWORD", "postgres"),
-		DBName:   getEnv("DB_NAME", "odnoi_krovi"),
-		SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		User:     GetEnv("DB_USER", "postgres"),
+		Password: GetEnv("DB_PASSWORD", "postgres"),
+		DBName:   GetEnv("DB_NAME", "odnoi_krovi"),
+		SSLMode:  GetEnv("DB_SSLMODE", "disable"),
 	}
 }
 
@@ -49,12 +48,4 @@ func ConnectDB() (*gorm.DB, error) {
 	}
 
 	return db, nil
-}
-
-// getEnv возвращает значение переменной окружения или значение по умолчанию
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
 }
