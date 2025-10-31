@@ -31,16 +31,19 @@ func (r *CachedBloodRepository) GetAllComponents(ctx context.Context) ([]models.
 	// Пытаемся получить из кэша
 	var components []models.BloodComponent
 	if err := r.cache.GetJSON(ctx, cacheKey, &components); err == nil {
+
 		return components, nil
 	}
 
 	// Получаем из БД
+
 	components, err := r.repo.GetAllComponents(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Сохраняем в кэш
+
 	r.cache.SetJSON(ctx, cacheKey, components, cache.LongTTL)
 
 	return components, nil
@@ -53,16 +56,19 @@ func (r *CachedBloodRepository) GetComponentByID(ctx context.Context, id int) (*
 	// Пытаемся получить из кэша
 	var component models.BloodComponent
 	if err := r.cache.GetJSON(ctx, cacheKey, &component); err == nil {
+
 		return &component, nil
 	}
 
 	// Получаем из БД
+
 	componentPtr, err := r.repo.GetComponentByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	// Сохраняем в кэш
+
 	r.cache.SetJSON(ctx, cacheKey, componentPtr, cache.LongTTL)
 
 	return componentPtr, nil
@@ -75,16 +81,19 @@ func (r *CachedBloodRepository) GetBloodGroupsByPetType(ctx context.Context, pet
 	// Пытаемся получить из кэша
 	var bloodGroups []*models.BloodGroup
 	if err := r.cache.GetJSON(ctx, cacheKey, &bloodGroups); err == nil {
+
 		return bloodGroups, nil
 	}
 
 	// Получаем из БД
+
 	bloodGroups, err := r.repo.GetBloodGroupsByPetType(ctx, petType)
 	if err != nil {
 		return nil, err
 	}
 
 	// Сохраняем в кэш
+
 	r.cache.SetJSON(ctx, cacheKey, bloodGroups, cache.LongTTL)
 
 	return bloodGroups, nil

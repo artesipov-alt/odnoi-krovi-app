@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"go.uber.org/zap"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache/interfaces"
 	"github.com/redis/go-redis/v9"
 )
@@ -41,10 +44,12 @@ func (r *RedisCache) Get(ctx context.Context, key string) ([]byte, error) {
 	result, err := r.client.Get(ctx, key).Bytes()
 	if err != nil {
 		if err == redis.Nil {
+			logger.Log.Debug("Кеш-промах", zap.String("cache_key", key))
 			return nil, interfaces.ErrCacheMiss
 		}
 		return nil, fmt.Errorf("failed to get key %s: %w", key, err)
 	}
+	logger.Log.Info("Данные взяты из кеша", zap.String("cache_key", key))
 	return result, nil
 }
 
@@ -53,6 +58,7 @@ func (r *RedisCache) Set(ctx context.Context, key string, value []byte, ttl time
 	if err := r.client.Set(ctx, key, value, ttl).Err(); err != nil {
 		return fmt.Errorf("failed to set key %s: %w", key, err)
 	}
+	logger.Log.Info("Данные сохранены в кеш", zap.String("cache_key", key), zap.Duration("ttl", ttl))
 	return nil
 }
 
@@ -139,7 +145,7 @@ func (r *RedisCache) Close() error {
 }
 
 // GetJSON получает JSON объект по ключу и десериализует его
-func (r *RedisCache) GetJSON(ctx context.Context, key string, target interface{}) error {
+func (r *RedisCache) GetJSON(ctx context.Context, key string, target any) error {
 	data, err := r.Get(ctx, key)
 	if err != nil {
 		return err
@@ -152,7 +158,7 @@ func (r *RedisCache) GetJSON(ctx context.Context, key string, target interface{}
 }
 
 // SetJSON сериализует объект в JSON и сохраняет его по ключу с TTL
-func (r *RedisCache) SetJSON(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
+func (r *RedisCache) SetJSON(ctx context.Context, key string, value any, ttl time.Duration) error {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON for key %s: %w", key, err)
