@@ -44,6 +44,30 @@ jobs:
 
             # Switch to ZSH to use existing environment
             exec zsh -c '
+            # Source ZSH profile to load PATH and aliases
+            source ~/.zshrc || true
+            source ~/.profile || true
+            source ~/.bash_profile || true
+
+            # Check if bun is available and find its location
+            if ! command -v bun &> /dev/null; then
+              echo "Bun not found in PATH, trying common locations..."
+              # Try common bun installation locations
+              if [ -f "$HOME/.bun/bin/bun" ]; then
+                export PATH="$HOME/.bun/bin:$PATH"
+                echo "Found bun in ~/.bun/bin, added to PATH"
+              elif [ -f "/usr/local/bin/bun" ]; then
+                export PATH="/usr/local/bin:$PATH"
+                echo "Found bun in /usr/local/bin, added to PATH"
+              elif [ -f "/opt/homebrew/bin/bun" ]; then
+                export PATH="/opt/homebrew/bin:$PATH"
+                echo "Found bun in /opt/homebrew/bin, added to PATH"
+              else
+                echo "ERROR: Bun not found. Please install bun on the server."
+                exit 1
+              fi
+            fi
+
             # Detect which services changed
             BACKEND_CHANGED="${{ steps.changed-files.outputs.backend_any_changed }}"
             BOT_CHANGED="${{ steps.changed-files.outputs.bot_any_changed }}"
