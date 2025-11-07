@@ -41,7 +41,8 @@ services:
       - "443:443"
     networks:
       - odnoi_net
-
+    volumes:
+      - ./frontend/build:/srv
     restart: unless-stopped
 
 networks:
