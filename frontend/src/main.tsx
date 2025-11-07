@@ -1,12 +1,12 @@
-import './styles.css';
+import './styles.less';
 
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
-import ErrorBoundary from 'components/ErrorBoundary';
+import ErrorBoundary from 'components/ErrorBoundary/ErrorBoundary';
 
 import App from './App';
-import { TelegramProvider } from './context/TelegramContext';
+import { TelegramProvider } from './TelegramProvider';
 
 const rootElement = document.getElementById('root');
 

@@ -1,0 +1,81 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding: 12px;
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 22px;
+    line-height: 24px;
+    font-weight: 400;
+    color: @textColor2;
+}
+
+.services {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.bellIcon {
+    display: flex;
+    height: 20px;
+    width: 17px;
+    fill: #AF3D59;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.avatar {
+    width: 46px;
+    height: 46px;
+    font-size: 18px;
+    line-height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(0deg, #AD6262 0%, #AD6262 100%);
+    text-align: center;
+    color: @white-bg;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 13px;
+    height: 119px;
+    width: 100%;
+    max-width: 350px;
+    padding: 36px;
+    margin: 47px auto 0;
+    border-radius: 21px;
+    border: 1px solid @border2;
+    box-sizing: border-box;
+    background: @white;
+}
+
+.pawIcon {
+    width: 50px;
+    height: 55px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.buttonText {
+    font-size: 16px;
+    font-weight: 500;
+    color: @textColor2;
+}

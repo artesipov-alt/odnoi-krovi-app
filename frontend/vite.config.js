@@ -10,7 +10,11 @@ const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
 
 export const alias = {
+    api: resolveApp('src/api'),
+    imgs: resolveApp('src/imgs'),
     pages: resolveApp('src/pages'),
+    hooks: resolveApp('src/hooks'),
+    styles: resolveApp('src/styles'),
     context: resolveApp('src/context'),
     services: resolveApp('src/services'),
     components: resolveApp('src/components'),
@@ -51,12 +55,5 @@ export default defineConfig({
     server: {
         port: 5173,
         host: '0.0.0.0',
-        proxy: {
-            '/api': {
-                target: 'http://localhost:3000', // Локальный бэкенд
-                changeOrigin: true,
-                secure: false
-            }
-        }
     }
 });
