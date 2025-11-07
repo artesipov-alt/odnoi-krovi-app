@@ -84,13 +84,15 @@ export const registerUser = async (data: {
 };
 
 export const checkProfile = async (initData: string | null) => {
-  try {
-    const response = await axios.get('/api/users/profile', {
-      headers: { 'X-Telegram-Init-Data': initData || 'test_init_data' },
-    });
-    return !!response.data;
-  } catch (error) {
-    console.error('Error checking profile:', error);
-    return false;
-  }
+    // try {
+    //     const response = await axios.get('/api/users/profile', {
+    //         headers: { 'X-Telegram-Init-Data': initData || 'test_init_data' },
+    //     });
+    //
+    //     return !!response.data;
+    // } catch (error) {
+    //     console.error('Error checking profile:', error);
+    //
+    //     return false;
+    // }
 };

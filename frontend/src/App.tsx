@@ -1,29 +1,36 @@
 import 'react-toastify/dist/ReactToastify.css';
 
-import OwnerDashboard from 'pages/OwnerDashboard';
-import React from 'react';
+import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { Slide, ToastContainer } from 'react-toastify';
 
-import ChatMessages from 'components/ChatMessages';
-import Chats from 'components/Chats';
-import ProfileForm from 'components/ProfileForm';
+import Owner from './pages/owner';
+import Registration from './pages/registration';
+import { useTelegram } from './TelegramProvider';
 
-import { useTelegram } from './context/TelegramContext';
+const App: FC = () => {
+    const { isRegistered, user } = useTelegram();
 
-const App: React.FC = () => {
-    const { isRegistered } = useTelegram();
+    if (!user) {
+        return null;
+    }
 
     return (
         <>
             <Routes>
-                <Route path='/register' element={<ProfileForm />} />
-                <Route path='/owner' element={<OwnerDashboard />} />
-                <Route path='/chats' element={<Chats />} />
-                <Route path='/chat/:chatId' element={<ChatMessages />} />
-                <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <ProfileForm />} />
+                <Route path='/owner' element={<Owner user={user} />} />
+                <Route path='/registration' element={<Registration user={user} />} />
+                <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <Registration user={user} />} />
             </Routes>
-            <ToastContainer position='top-right' autoClose={3000} />
+            <ToastContainer
+                draggable
+                theme='colored'
+                hideProgressBar
+                autoClose={3000}
+                transition={Slide}
+                position='top-right'
+                closeOnClick={false}
+            />
         </>
     );
 };
