@@ -1,17 +1,21 @@
 {
     email r.stupa@ya.ru
-
 }
 
+# Используйте правильное доменное имя
 1krovi.app {
     root * /srv
     file_server
     encode gzip zstd
 
     # Handle SPA routing - serve index.html for all non-file requests
-    try_files {path} {path}/ /index.html
+    @notApi {
+        not path /api/*
+    }
+    rewrite @notApi /index.html
 
-    route /api/* {
+    # API routes - должно быть до SPA routing
+    handle /api/* {
         reverse_proxy backend:3000
     }
 
