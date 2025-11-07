@@ -4,24 +4,16 @@
 
 1krovi.app {
     root * /srv
-    file_server
     encode gzip zstd
 
-    # API routes first
+    # API routes first - handle all /api/* requests
     handle /api/* {
         reverse_proxy backend:3000
     }
 
-    # SPA routing - serve index.html for all non-API requests
-    @spaFiles {
-        file {
-            try_files {path} {path}/ /index.html
-        }
-    }
-    rewrite @spaFiles /index.html
-
-    # Static file serving
+    # SPA routing - serve index.html for all non-file requests
     handle {
+        try_files {path} {path}/ /index.html
         file_server
     }
 
