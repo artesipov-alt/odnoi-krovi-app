@@ -67,3 +67,7 @@ jobs:
               echo "No specific service changes detected, rebuilding all"
               docker compose up -d --build
             fi
+
+            # Clean up unused Docker images to free up disk space
+            echo "Cleaning up unused Docker images"
+            docker image prune -f
