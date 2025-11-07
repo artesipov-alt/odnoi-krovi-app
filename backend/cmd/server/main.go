@@ -126,7 +126,7 @@ func main() {
 			// Группа маршрутов для разработчиков
 			devGroup := v1.Group("/dev")
 			{
-				devGroup.Post("/:id", devHandler.ResetUserHandler) // Обновление данных пользователя
+				devGroup.Post("/reser-user/:id", devHandler.ResetUserHandler) // Обновление данных пользователя
 			}
 
 			// Группа маршрутов для работы с питомцами
