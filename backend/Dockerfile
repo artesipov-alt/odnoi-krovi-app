@@ -10,8 +10,11 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Копируем остальной код
-COPY . .
+# Копируем только исходный код для сборки
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+COPY pkg/ ./pkg/
+COPY app/ ./app/
 
 # Генерация Swagger (без фатального падения, если swag не нужен)
 RUN swag init -g cmd/server/main.go -o docs || echo "Swagger generation skipped"
@@ -29,7 +32,6 @@ WORKDIR /root/
 
 # Копируем бинарник и нужные файлы
 COPY --from=builder /app/main .
-COPY --from=builder /app/.env .
 COPY --from=builder /app/docs ./docs
 
 EXPOSE 3000

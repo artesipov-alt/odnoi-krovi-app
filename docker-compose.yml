@@ -42,7 +42,7 @@ services:
     networks:
       - odnoi_net
     volumes:
-      - ./frontend/mock_dist:/srv:ro
+      - ./frontend/build:/srv:ro
     restart: unless-stopped
 
 networks:
