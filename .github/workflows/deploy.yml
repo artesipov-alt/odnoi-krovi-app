@@ -60,8 +60,8 @@ jobs:
             if [[ "$FRONTEND_CHANGED" == "true" ]]; then
               echo "Rebuilding frontend"
               cd frontend
-              npm install --legacy-peer-deps
-              npm run build
+              bun install
+              bun run build
               docker compose up -d --build frontend
             fi
 
