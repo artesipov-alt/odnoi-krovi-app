@@ -149,3 +149,32 @@ func (r *PostgresUserRepository) ResetUser(ctx context.Context, id int) error {
 
 	return nil
 }
+
+// Restore restores a soft-deleted user by setting deleted_at to NULL
+func (r *PostgresUserRepository) RestoreUser(ctx context.Context, id int) error {
+	if id <= 0 {
+		return errors.New("invalid user ID")
+	}
+
+	result := r.db.WithContext(ctx).Unscoped().Model(&models.User{}).Where("id = ? AND deleted_at IS NOT NULL", id).Update("deleted_at", nil)
+	if result.Error != nil {
+		return fmt.Errorf("failed to restore user: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user with id %d not found", id)
+	}
+
+	return nil
+}
+
+// GetDeletedUsers retrieves all soft-deleted users
+func (r *PostgresUserRepository) GetDeletedUsers(ctx context.Context) ([]*models.User, error) {
+	var users []*models.User
+	result := r.db.WithContext(ctx).Unscoped().Where("deleted_at IS NOT NULL").Find(&users)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to get deleted users: %w", result.Error)
+	}
+
+	return users, nil
+}

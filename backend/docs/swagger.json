@@ -444,6 +444,84 @@
                 }
             }
         },
+        "/dev/deleted-users": {
+            "get": {
+                "description": "Возвращает список всех мягко удаленных пользователей",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Получение всех удаленных пользователей",
+                "responses": {
+                    "200": {
+                        "description": "Список удаленных пользователей",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetDeletedUsersResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dev/reset-user/{id}": {
+            "post": {
+                "description": "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Сброс пользователя к начальным настройкам",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный сброс пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DevResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/dev/restore-user/{id}": {
+            "post": {
+                "description": "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dev"
+                ],
+                "summary": "Восстановление удаленного пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное восстановление пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DevResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/pets/user/{user_id}": {
             "get": {
                 "description": "Возвращает всех питомцев конкретного пользователя",
@@ -1549,11 +1627,39 @@
         }
     },
     "definitions": {
+        "handlers.DevResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
         "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.GetDeletedUsersResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 }
             }
         },

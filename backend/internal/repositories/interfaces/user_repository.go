@@ -28,4 +28,10 @@ type UserRepository interface {
 
 	// ResetUser сбрасывает email и номер телефона пользователя по ID
 	ResetUser(ctx context.Context, id int) error
+
+	// RestoreUser восстанавливает пользователя по его ID
+	RestoreUser(ctx context.Context, id int) error
+
+	// GetDeletedUsers получает всех удаленных пользователей
+	GetDeletedUsers(ctx context.Context) ([]*models.User, error)
 }

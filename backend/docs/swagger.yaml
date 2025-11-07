@@ -1,9 +1,27 @@
 basePath: /api/v1
 definitions:
+  handlers.DevResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
   handlers.ErrorResponse:
     properties:
       error:
         type: string
+    type: object
+  handlers.GetDeletedUsersResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: boolean
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
     type: object
   handlers.ReferenceItem:
     properties:
@@ -873,6 +891,59 @@ paths:
       summary: Поиск запасов крови с фильтрами
       tags:
       - blood-stocks
+  /dev/deleted-users:
+    get:
+      description: Возвращает список всех мягко удаленных пользователей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список удаленных пользователей
+          schema:
+            $ref: '#/definitions/handlers.GetDeletedUsersResponse'
+      summary: Получение всех удаленных пользователей
+      tags:
+      - dev
+  /dev/reset-user/{id}:
+    post:
+      description: Сбрасывает пользователя к заводским настройкам на этапе команды
+        старт от бота
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный сброс пользователя
+          schema:
+            $ref: '#/definitions/handlers.DevResponse'
+      summary: Сброс пользователя к начальным настройкам
+      tags:
+      - dev
+  /dev/restore-user/{id}:
+    post:
+      description: Восстанавливает мягко удаленного пользователя, устанавливая deleted_at
+        в NULL
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное восстановление пользователя
+          schema:
+            $ref: '#/definitions/handlers.DevResponse'
+      summary: Восстановление удаленного пользователя
+      tags:
+      - dev
   /pets/{id}:
     delete:
       description: Удаляет питомца из системы
