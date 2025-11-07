@@ -38,26 +38,24 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
           script: |
             cd ./odnoi-krovi-app
             git pull origin dev
 
             # Switch to ZSH to use existing environment
-            exec zsh -c "
-
+            exec zsh -c '
             # Detect which services changed
-            BACKEND_CHANGED=\"${{ steps.changed-files.outputs.backend_any_changed }}\"
-            BOT_CHANGED=\"${{ steps.changed-files.outputs.bot_any_changed }}\"
-            FRONTEND_CHANGED=\"${{ steps.changed-files.outputs.frontend_any_changed }}\"
+            BACKEND_CHANGED="${{ steps.changed-files.outputs.backend_any_changed }}"
+            BOT_CHANGED="${{ steps.changed-files.outputs.bot_any_changed }}"
+            FRONTEND_CHANGED="${{ steps.changed-files.outputs.frontend_any_changed }}"
 
-            echo \"Backend changed: $BACKEND_CHANGED\"
-            echo \"Bot changed: $BOT_CHANGED\"
-            echo \"Frontend changed: $FRONTEND_CHANGED\"
+            echo "Backend changed: $BACKEND_CHANGED"
+            echo "Bot changed: $BOT_CHANGED"
+            echo "Frontend changed: $FRONTEND_CHANGED"
 
             # Build frontend on server if needed
-            if [[ \"$FRONTEND_CHANGED\" == \"true\" ]]; then
-              echo \"Building frontend on server\"
+            if [[ "$FRONTEND_CHANGED" == "true" ]]; then
+              echo "Building frontend on server"
               cd frontend
               # Clean up old build directory
               rm -rf build
@@ -67,28 +65,28 @@ jobs:
             fi
 
             # Build and restart only changed services
-            if [[ \"$BACKEND_CHANGED\" == \"true\" ]]; then
-              echo \"Rebuilding backend\"
+            if [[ "$BACKEND_CHANGED" == "true" ]]; then
+              echo "Rebuilding backend"
               docker compose up -d --build backend
             fi
 
-            if [[ \"$BOT_CHANGED\" == \"true\" ]]; then
-              echo \"Rebuilding bot\"
+            if [[ "$BOT_CHANGED" == "true" ]]; then
+              echo "Rebuilding bot"
               docker compose up -d --build bot
             fi
 
-            if [[ \"$FRONTEND_CHANGED\" == \"true\" ]]; then
-              echo \"Rebuilding frontend\"
+            if [[ "$FRONTEND_CHANGED" == "true" ]]; then
+              echo "Rebuilding frontend"
               docker compose up -d --build frontend
             fi
 
             # If no specific changes detected, rebuild all
-            if [[ \"$BACKEND_CHANGED\" != \"true\" && \"$BOT_CHANGED\" != \"true\" && \"$FRONTEND_CHANGED\" != \"true\" ]]; then
-              echo \"No specific service changes detected, rebuilding all\"
+            if [[ "$BACKEND_CHANGED" != "true" && "$BOT_CHANGED" != "true" && "$FRONTEND_CHANGED" != "true" ]]; then
+              echo "No specific service changes detected, rebuilding all"
               docker compose up -d --build
             fi
 
             # Clean up unused Docker images to free up disk space
-            echo \"Cleaning up unused Docker images\"
+            echo "Cleaning up unused Docker images"
             docker image prune -f
-            \""
+            '
