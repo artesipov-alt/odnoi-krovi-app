@@ -128,3 +128,24 @@ func (r *PostgresUserRepository) ExistsByTelegramID(ctx context.Context, telegra
 
 	return count > 0, nil
 }
+
+// Reset resets user's email and phone number by ID
+func (r *PostgresUserRepository) ResetUser(ctx context.Context, id int) error {
+	if id <= 0 {
+		return errors.New("invalid user ID")
+	}
+
+	result := r.db.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Updates(map[string]any{
+		"email": "",
+		"phone": "",
+	})
+	if result.Error != nil {
+		return fmt.Errorf("failed to reset user data: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user with id %d not found", id)
+	}
+
+	return nil
+}

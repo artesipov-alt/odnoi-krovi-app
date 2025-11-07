@@ -25,4 +25,7 @@ type UserRepository interface {
 
 	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
 	ExistsByTelegramID(ctx context.Context, telegramID int64) (bool, error)
+
+	// ResetUser сбрасывает email и номер телефона пользователя по ID
+	ResetUser(ctx context.Context, id int) error
 }

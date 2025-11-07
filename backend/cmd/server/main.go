@@ -84,6 +84,7 @@ func main() {
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, cachedBloodRepo, locationRepo)
+	devHandler := handlers.NewDevHandler(userRepo)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
@@ -120,6 +121,12 @@ func main() {
 				userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
 				userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
 				userGroup.Delete("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
+			}
+
+			// Группа маршрутов для разработчиков
+			devGroup := v1.Group("/dev")
+			{
+				devGroup.Post("/:id", devHandler.ResetUserHandler) // Обновление данных пользователя
 			}
 
 			// Группа маршрутов для работы с питомцами
