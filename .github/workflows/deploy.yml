@@ -109,8 +109,9 @@ jobs:
               docker compose up -d
             fi
 
-            # Clean up only stopped containers and unused networks (preserves image cache)
+            # Clean up only stopped containers and unused networks (preserves build cache)
             echo "Cleaning up stopped containers and unused networks"
-            docker system prune -f --filter "until=24h"
+            docker container prune -f --filter "until=24h"
+            docker network prune -f
             docker volume prune -f
             '
