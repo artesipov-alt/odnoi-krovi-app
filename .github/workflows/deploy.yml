@@ -83,29 +83,33 @@ jobs:
               cd ..
             fi
 
-            # Build and restart only changed services
+            # Build and restart only changed services with Docker layer caching
             if [[ "$BACKEND_CHANGED" == "true" ]]; then
-              echo "Rebuilding backend"
-              docker compose up -d --build backend
+              echo "Rebuilding backend with cache"
+              docker compose build backend
+              docker compose up -d backend
             fi
 
             if [[ "$BOT_CHANGED" == "true" ]]; then
-              echo "Rebuilding bot"
-              docker compose up -d --build bot
+              echo "Rebuilding bot with cache"
+              docker compose build bot
+              docker compose up -d bot
             fi
 
             if [[ "$FRONTEND_CHANGED" == "true" ]]; then
-              echo "Rebuilding frontend"
-              docker compose up -d --build frontend
+              echo "Rebuilding frontend with cache"
+              docker compose build frontend
+              docker compose up -d frontend
             fi
 
-            # If no specific changes detected, rebuild all
+            # If no specific changes detected, rebuild all with cache
             if [[ "$BACKEND_CHANGED" != "true" && "$BOT_CHANGED" != "true" && "$FRONTEND_CHANGED" != "true" ]]; then
-              echo "No specific service changes detected, rebuilding all"
-              docker compose up -d --build
+              echo "No specific service changes detected, rebuilding all with cache"
+              docker compose build
+              docker compose up -d
             fi
 
-            # Clean up unused Docker images to free up disk space
-            echo "Cleaning up unused Docker images"
-            docker image prune -f
+            # Clean up only stopped containers and unused networks (preserves image cache)
+            echo "Cleaning up stopped containers and unused networks"
+            docker system prune -f --filter "until=24h" --volumes
             '
