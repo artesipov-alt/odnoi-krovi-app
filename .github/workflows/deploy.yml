@@ -111,5 +111,6 @@ jobs:
 
             # Clean up only stopped containers and unused networks (preserves image cache)
             echo "Cleaning up stopped containers and unused networks"
-            docker system prune -f --filter "until=24h" --volumes
+            docker system prune -f --filter "until=24h"
+            docker volume prune -f
             '
