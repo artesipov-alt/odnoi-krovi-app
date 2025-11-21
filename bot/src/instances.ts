@@ -24,14 +24,14 @@ const apiConfig = new Configuration({
   // Добавьте middleware для логирования, если нужно
   middleware: [
     {
-      pre: async (context) => {
+      pre: async (context: any) => {
         pinologger.debug(
           { url: context.url, method: context.init.method },
           "API Request",
         );
         return context;
       },
-      post: async (context) => {
+      post: async (context: any) => {
         pinologger.debug(
           { url: context.url, status: context.response.status },
           "API Response",

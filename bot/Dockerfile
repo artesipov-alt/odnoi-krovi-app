@@ -2,12 +2,20 @@ FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lock ./
+# Copy package files first for better caching
+COPY bot/package.json bot/bun.lock ./
 
-# Очищаем кэш и устанавливаем зависимости
+# Clean cache and install dependencies
 RUN bun install --frozen-lockfile --no-cache
 
-COPY . .
+# Copy bot source code
+COPY bot/src ./src
+COPY bot/build.ts ./
+COPY bot/tsconfig.json ./
+
+# Copy shared directory
+COPY shared ./shared
+
 RUN bun run build
 
 FROM oven/bun:1-alpine
@@ -17,7 +25,7 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 
-# Устанавливаем зависимости заново в чистой среде
+# Install production dependencies only
 RUN bun install --production --no-cache
 
 CMD ["bun", "run", "prod"]
