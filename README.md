@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go) ![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Bun](https://img.shields.io/badge/Bun-1.3+-000000?style=for-the-badge&logo=bun&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Bun](https://img.shields.io/badge/Bun-1.3+-000000?style=for-the-badge&logo=bun&logoColor=white) ![Telegram](https://img.shields.io/badge/Telegram-MiniApp-26A5E4?style=for-the-badge&logo=telegram&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=black)
 
 </div>
@@ -12,7 +12,8 @@
 
 ## 🗺️ Дорожная карта
 
-Ознакомьтесь с [дорожной картой проекта](docs/roadmap.md) для понимания планов развития и текущих этапов разработки.
+Ознакомьтесь с [дорожной картой проекта](ROADMAP.md) для понимания планов развития и текущих этапов разработки.
+Инструкцию по установке Task CLI можно найти в [docs/taskfile-install.md](docs/taskfile-install.md).
 
 ## 🎯 Цель проекта
 
@@ -33,6 +34,8 @@ odnoi-krovi-app/
 ├── backend/         # Go API сервер (Fiber + GORM + Swagger)
 ├── frontend/        # Telegram Mini App (React + TypeScript)
 ├── bot/             # Telegram Bot (Bun + Grammy)
+├── shared/          # Автосгенерированные TypeScript типы c бэкенда (Swagger -> types)
+├── microservices/   # Дополнительная логика и сервисы для backend
 ├── docs/            # Документация
 └── README.md
 ```
@@ -43,6 +46,7 @@ odnoi-krovi-app/
 
 - **Go 1.25+** для backend
 - **Node.js 18+** и **npm** для Telegram Mini App
+- **Bun 1.3+** для бота (используется в `bot/`)
 - **PostgreSQL 16+** для базы данных
 - **Telegram Bot Token** от @BotFather
 - **Docker** (опционально, для разработки)
@@ -103,7 +107,22 @@ LOG_LEVEL=info
 - [Bot Setup](bot/README.md) - Telegram Bot
 - [Frontend Setup](frontend/README.md) - Telegram Mini App
 
-#### 4. Запуск через Docker (рекомендуется - в планах)
+### Taskfile (быстрый запуск задач)
+В корне проекта есть `Taskfile.yaml` (формат Task v3). Это удобный способ запускать часто используемые команды и цепочки задач.
+
+- Просмотреть список доступных задач:
+  - `task -l` или `task --list`
+- Запустить задачу:
+  - `task <название_задачи>` (например `task generate-api` или `task dev`)
+- Примеры:
+```bash
+task -l
+task generate-api
+task dev
+```
+(Для работы Taskfile требуется установленный CLI: https://taskfile.dev/)
+
+#### 4. Запуск через Docker (рекомендуется)
 ```bash
 docker-compose up -d
 ```
@@ -118,6 +137,10 @@ docker-compose up -d
 
 ### 🤖 Telegram Bot
 Быстрый бот для уведомлений и коммуникации между пользователями. Полное описание функциональности и настройки смотрите в [документации бота](bot/README.md).
+
+### 📦 Shared и Microservices
+- `shared/` — содержит автосгенерированные TypeScript типы и утилиты, сгенерированные из Swagger (используется фронтом и ботом для согласованных типов).
+- `microservices/` — дополнительная логика и отдельные сервисы для backend (в перспективе — отдельные деплои/контейнеры).
 
 ## 🛠️ Технологический стек
 

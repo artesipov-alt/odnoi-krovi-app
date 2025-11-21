@@ -27,8 +27,8 @@ import (
 	// ORM для работы с БД
 )
 
-// @title однойкрови.рф
-// @version 1.0
+// @title 1krovi.app
+// @version 1.1.0
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
 // @BasePath /api/v1
