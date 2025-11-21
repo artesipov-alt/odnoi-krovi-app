@@ -26,7 +26,7 @@ type User struct {
 // В BeforeCreate хуках
 func (v *User) BeforeCreate(tx *gorm.DB) error {
 	var nextVal int
-	tx.Raw("SELECT nextval('vet_clinic_id_seq')").Scan(&nextVal)
+	tx.Raw("SELECT nextval('user_id_seq')").Scan(&nextVal)
 	v.ID = PrefixUSR.Generate(nextVal)
 	return nil
 }

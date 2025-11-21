@@ -42,7 +42,7 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*model
 	}
 
 	var user models.User
-	result := r.db.WithContext(ctx).First(&user, id)
+	result := r.db.WithContext(ctx).Where("id = ?", id).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user with id %s not found: %w", id, gorm.ErrRecordNotFound)
@@ -97,7 +97,7 @@ func (r *PostgresUserRepository) Delete(ctx context.Context, id string) error {
 
 	// First get the user to ensure it exists
 	var user models.User
-	result := r.db.WithContext(ctx).First(&user, id)
+	result := r.db.WithContext(ctx).Where("id = ?", id).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("user with id %s not found", id)

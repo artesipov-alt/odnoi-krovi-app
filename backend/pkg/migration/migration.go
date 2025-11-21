@@ -27,6 +27,19 @@ func AutoMigrate(db *gorm.DB, logger *zap.Logger) {
 		logger.Fatal("Ошибка автоматической миграции", zap.Error(err))
 	}
 
+	// Создание последовательностей для префиксных ID
+	sequences := []string{
+		"CREATE SEQUENCE IF NOT EXISTS vet_clinic_id_seq START 1",
+		"CREATE SEQUENCE IF NOT EXISTS user_id_seq START 1",
+		"CREATE SEQUENCE IF NOT EXISTS pet_id_seq START 1",
+	}
+
+	for _, sql := range sequences {
+		if err := db.Exec(sql).Error; err != nil {
+			logger.Fatal("Ошибка создания последовательности", zap.Error(err), zap.String("sql", sql))
+		}
+	}
+
 	logger.Info("Автоматическая миграция выполнена успешно")
 }
 

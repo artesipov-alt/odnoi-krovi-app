@@ -55,10 +55,8 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
-	if serverConfig.ShouldMigrate() {
-		migration.AutoMigrate(db, logger.Log)
-		migration.SeedDatabase(db, logger.Log)
-	}
+	migration.AutoMigrate(db, logger.Log)
+	migration.SeedDatabase(db, logger.Log)
 
 	// Инициализация репозиториев
 	userRepo := repositories.NewPostgresUserRepository(db)
