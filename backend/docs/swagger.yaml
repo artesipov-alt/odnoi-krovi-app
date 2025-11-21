@@ -212,8 +212,8 @@ definitions:
         example: Бобик
         type: string
       ownerId:
-        example: 1
-        type: integer
+        example: "1"
+        type: string
       photoUrl:
         example: https://example.com/photo.jpg
         type: string
@@ -257,8 +257,8 @@ definitions:
         example: Иван Иванов
         type: string
       id:
-        example: 1
-        type: integer
+        example: USR-25-0001
+        type: string
       locationId:
         example: 1
         type: integer
@@ -913,7 +913,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -933,7 +933,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1051,7 +1051,7 @@ paths:
         in: path
         name: user_id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1085,7 +1085,7 @@ paths:
         in: path
         name: user_id
         required: true
-        type: integer
+        type: string
       - description: Данные питомца
         in: body
         name: request
@@ -1319,7 +1319,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1349,7 +1349,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -1381,7 +1381,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Данные для обновления
         in: body
         name: request

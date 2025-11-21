@@ -483,7 +483,7 @@ const docTemplate = `{
                 "summary": "Сброс пользователя к начальным настройкам",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "id",
                         "in": "path",
@@ -512,7 +512,7 @@ const docTemplate = `{
                 "summary": "Восстановление удаленного пользователя",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "id",
                         "in": "path",
@@ -541,7 +541,7 @@ const docTemplate = `{
                 "summary": "Получение питомцев пользователя",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "user_id",
                         "in": "path",
@@ -592,7 +592,7 @@ const docTemplate = `{
                 "summary": "Создание нового питомца",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "user_id",
                         "in": "path",
@@ -1250,7 +1250,7 @@ const docTemplate = `{
                 "summary": "Получение пользователя по ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "id",
                         "in": "path",
@@ -1298,7 +1298,7 @@ const docTemplate = `{
                 "summary": "Обновление данных пользователя",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "id",
                         "in": "path",
@@ -1352,7 +1352,7 @@ const docTemplate = `{
                 "summary": "Удаление пользователя по ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID пользователя",
                         "name": "id",
                         "in": "path",
@@ -1944,8 +1944,8 @@ const docTemplate = `{
                     "example": "Бобик"
                 },
                 "ownerId": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 },
                 "photoUrl": {
                     "type": "string",
@@ -2008,8 +2008,8 @@ const docTemplate = `{
                     "example": "Иван Иванов"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "USR-25-0001"
                 },
                 "locationId": {
                     "type": "integer",
