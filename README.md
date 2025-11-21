@@ -120,7 +120,7 @@ task -l
 task generate-api
 task dev
 ```
-(Для работы Taskfile требуется установленный CLI: https://taskfile.dev/)
+(Для работы Taskfile требуется [установленный CLI](docs/taskfile-install.md))
 
 #### 4. Запуск через Docker (рекомендуется)
 ```bash
