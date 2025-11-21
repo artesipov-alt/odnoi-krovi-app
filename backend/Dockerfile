@@ -7,13 +7,14 @@ WORKDIR /app
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 # Копируем модули отдельно, чтобы кешировать зависимости
-COPY go.mod go.sum ./
+COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
 # Копируем только исходный код для сборки
-COPY cmd/ ./cmd/
-COPY internal/ ./internal/
-COPY pkg/ ./pkg/
+COPY backend/cmd/ ./cmd/
+COPY backend/internal/ ./internal/
+COPY backend/pkg/ ./pkg/
+COPY app/ ./app/
 
 # Генерация Swagger (без фатального падения, если swag не нужен)
 RUN swag init -g cmd/server/main.go -o docs || echo "Swagger generation skipped"
