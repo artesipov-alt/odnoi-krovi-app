@@ -8,10 +8,8 @@ COPY bot/package.json bot/bun.lock ./
 # Clean cache and install dependencies
 RUN bun install --frozen-lockfile --no-cache
 
-# Copy bot source code
-COPY bot/src ./src
-COPY bot/build.ts ./
-COPY bot/tsconfig.json ./
+# Copy entire bot directory
+COPY bot ./
 
 # Copy shared directory
 COPY shared ./shared
