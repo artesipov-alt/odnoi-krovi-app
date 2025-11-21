@@ -1,32 +1,38 @@
+# Use Bun alpine image for building
 FROM oven/bun:1-alpine AS builder
 
+# Use /app as project root in the container
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY bot/package.json bot/bun.lock ./
+# Copy the bot folder as-is into /app/bot so relative imports like "../../shared/..." resolve
+# (important: keep original repository layout)
+COPY bot ./bot
 
-# Clean cache and install dependencies
-RUN bun install --frozen-lockfile --no-cache
-
-# Copy bot source code preserving directory structure
-COPY bot/src ./src
-COPY bot/bot.ts ./
-COPY bot/build.ts ./
-COPY bot/tsconfig.json ./
-
-# Copy shared directory from project root
+# Copy shared folder at repository root (so /app/shared exists)
 COPY shared ./shared
 
+# Switch into the bot working directory to install and build
+WORKDIR /app/bot
+
+# Install dependencies (use frozen lockfile to ensure reproducible builds)
+RUN bun install --frozen-lockfile --no-cache
+
+# Build the project (assumes `build` script in bot/package.json)
 RUN bun run build
 
+# Runtime image
 FROM oven/bun:1-alpine
 
-WORKDIR /app
+# Keep same workdir layout as during build so runtime imports still resolve
+WORKDIR /app/bot
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
+# Copy built output and package files from builder
+COPY --from=builder /app/bot/dist ./dist
+COPY --from=builder /app/bot/package.json ./package.json
+COPY --from=builder /app/bot/bun.lock ./bun.lock
 
 # Install production dependencies only
 RUN bun install --production --no-cache
 
+# Start the bot (assumes `prod` script in package.json)
 CMD ["bun", "run", "prod"]
