@@ -136,7 +136,7 @@ export const profileHandler = async (ctx: Context) => {
 
 export const apiTestHandler = async (ctx: Context) => {
   const data = await usersApi.userIdGet({
-    id: 7,
+    id: "",
   });
   await ctx.reply(data.fullName!);
 };

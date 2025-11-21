@@ -59,10 +59,10 @@ export interface ModelsUser {
     fullName?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ModelsUser
      */
-    id?: number;
+    id?: string;
     /**
      * 
      * @type {number}

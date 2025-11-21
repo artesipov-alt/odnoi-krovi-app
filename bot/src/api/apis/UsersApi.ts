@@ -38,15 +38,15 @@ import {
 } from '../models/index';
 
 export interface UserIdDeleteRequest {
-    id: number;
+    id: string;
 }
 
 export interface UserIdGetRequest {
-    id: number;
+    id: string;
 }
 
 export interface UserIdPutRequest {
-    id: number;
+    id: string;
     request: ServicesUserUpdate;
 }
 

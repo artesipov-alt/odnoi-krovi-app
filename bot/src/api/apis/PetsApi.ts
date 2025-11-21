@@ -48,11 +48,11 @@ export interface PetsIdPutRequest {
 }
 
 export interface PetsUserUserIdGetRequest {
-    userId: number;
+    userId: string;
 }
 
 export interface PetsUserUserIdPostRequest {
-    userId: number;
+    userId: string;
     request: ServicesPetCreate;
 }
 

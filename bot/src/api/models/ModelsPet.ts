@@ -151,10 +151,10 @@ export interface ModelsPet {
     name?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof ModelsPet
      */
-    ownerId?: number;
+    ownerId?: string;
     /**
      * 
      * @type {string}

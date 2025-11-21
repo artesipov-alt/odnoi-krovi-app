@@ -17,13 +17,20 @@ import * as runtime from '../runtime';
 import type {
   HandlersErrorResponse,
   HandlersReferenceResponse,
+  HandlersReferenceResponseDB,
 } from '../models/index';
 import {
     HandlersErrorResponseFromJSON,
     HandlersErrorResponseToJSON,
     HandlersReferenceResponseFromJSON,
     HandlersReferenceResponseToJSON,
+    HandlersReferenceResponseDBFromJSON,
+    HandlersReferenceResponseDBToJSON,
 } from '../models/index';
+
+export interface ReferenceBloodGroupsPetTypeGetRequest {
+    petType: string;
+}
 
 export interface ReferenceBreedsByTypeGetRequest {
     petType: string;
@@ -35,16 +42,16 @@ export interface ReferenceBreedsByTypeGetRequest {
 export class ReferenceApi extends runtime.BaseAPI {
 
     /**
-     * Возвращает список групп крови животных для выбора на фронтенде
-     * Получение групп крови животных
+     * Возвращает список компонентов крови животных для выбора на фронтенде
+     * Получение компонентов крови животных
      */
-    async referenceBloodGroupsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<HandlersReferenceResponse>> {
+    async referenceBloodComponentsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<HandlersReferenceResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/reference/blood-groups`;
+        let urlPath = `/reference/blood-components`;
 
         const response = await this.request({
             path: urlPath,
@@ -57,11 +64,50 @@ export class ReferenceApi extends runtime.BaseAPI {
     }
 
     /**
-     * Возвращает список групп крови животных для выбора на фронтенде
-     * Получение групп крови животных
+     * Возвращает список компонентов крови животных для выбора на фронтенде
+     * Получение компонентов крови животных
      */
-    async referenceBloodGroupsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HandlersReferenceResponse> {
-        const response = await this.referenceBloodGroupsGetRaw(initOverrides);
+    async referenceBloodComponentsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HandlersReferenceResponse> {
+        const response = await this.referenceBloodComponentsGetRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Возвращает список групп крови животных для выбора на фронтенде
+     * Получение групп крови животных по типу животного
+     */
+    async referenceBloodGroupsPetTypeGetRaw(requestParameters: ReferenceBloodGroupsPetTypeGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<HandlersReferenceResponseDB>> {
+        if (requestParameters['petType'] == null) {
+            throw new runtime.RequiredError(
+                'petType',
+                'Required parameter "petType" was null or undefined when calling referenceBloodGroupsPetTypeGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/reference/blood-groups/{pet_type}`;
+        urlPath = urlPath.replace(`{${"pet_type"}}`, encodeURIComponent(String(requestParameters['petType'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => HandlersReferenceResponseDBFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает список групп крови животных для выбора на фронтенде
+     * Получение групп крови животных по типу животного
+     */
+    async referenceBloodGroupsPetTypeGet(requestParameters: ReferenceBloodGroupsPetTypeGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HandlersReferenceResponseDB> {
+        const response = await this.referenceBloodGroupsPetTypeGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -290,6 +336,37 @@ export class ReferenceApi extends runtime.BaseAPI {
      */
     async referenceLivingConditionsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HandlersReferenceResponse> {
         const response = await this.referenceLivingConditionsGetRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Возвращает список всех локаций в системе для выбора на фронтенде
+     * Получение всех локаций
+     */
+    async referenceLocationsGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<HandlersReferenceResponseDB>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/reference/locations`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => HandlersReferenceResponseDBFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает список всех локаций в системе для выбора на фронтенде
+     * Получение всех локаций
+     */
+    async referenceLocationsGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HandlersReferenceResponseDB> {
+        const response = await this.referenceLocationsGetRaw(initOverrides);
         return await response.value();
     }
 
