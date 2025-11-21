@@ -1,5 +1,18 @@
 package models
 
+import (
+	"fmt"
+	"time"
+)
+
+type PrefixType string
+
+const (
+	PrefixVET PrefixType = "VET"
+	PrefixUSR PrefixType = "USR"
+	PrefixPET PrefixType = "PET"
+)
+
 // PetType представляет тип животного
 type PetType string
 
@@ -74,4 +87,29 @@ type DonorRequirements struct {
 	HealthConditions []string `json:"healthConditions,omitempty"`
 	Vaccinations     []string `json:"vaccinations,omitempty"`
 	BloodTypes       []string `json:"bloodTypes,omitempty"`
+}
+
+// Создание префикса для сущности
+func (e PrefixType) Generate(sequenceNum int) string {
+	year := time.Now().Year() % 100
+	var prefixBuilder string
+	switch e {
+	case PrefixUSR, PrefixVET:
+		prefixBuilder = "%s-%02d-%04d"
+	case PrefixPET:
+		prefixBuilder = "%s-%02d-%06d"
+	default:
+		prefixBuilder = "%s-%02d-%04d"
+	}
+	return fmt.Sprintf(prefixBuilder, e, year, sequenceNum)
+}
+
+// Проверка валидности префикса сущности
+func (e PrefixType) IsValid(entityType PrefixType) bool {
+	switch entityType {
+	case PrefixVET, PrefixUSR, PrefixPET:
+		return true
+	default:
+		return false
+	}
 }

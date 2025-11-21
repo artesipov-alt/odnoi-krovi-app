@@ -31,19 +31,19 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Description Возвращает информацию о пользователе по его идентификатору
 // @Tags users
 // @Produce json
-// @Param id path int true "ID пользователя"
+// @Param id path string true "ID пользователя"
 // @Success 200 {object} models.User "Данные пользователя"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 404 {object} ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
-	id, err := ParseIDParam(c, "id")
+	id, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("получение пользователя", zap.Int("userId", id))
+	logger.Log.Info("получение пользователя", zap.String("userId", id))
 
 	profile, err := h.userService.GetUserProfile(c.Context(), id)
 	if err != nil {
@@ -128,7 +128,7 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "ID пользователя"
+// @Param id path string true "ID пользователя"
 // @Param request body services.UserUpdate true "Данные для обновления"
 // @Success 200 {object} SuccessResponse "Данные успешно обновлены"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
@@ -136,7 +136,7 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
-	id, err := ParseIDParam(c, "id")
+	id, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	logger.Log.Info("обновление пользователя", zap.Int("userId", id))
+	logger.Log.Info("обновление пользователя", zap.String("userId", id))
 
 	if err := h.userService.UpdateUserProfile(c.Context(), id, updateData); err != nil {
 		return err
@@ -187,19 +187,19 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 // @Description Удаляет пользователя из системы (soft delete)
 // @Tags users
 // @Produce json
-// @Param id path int true "ID пользователя"
+// @Param id path string true "ID пользователя"
 // @Success 200 {object} SuccessResponse "Пользователь успешно удален"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 404 {object} ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
-	id, err := ParseIDParam(c, "id")
+	id, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("удаление пользователя", zap.Int("userId", id))
+	logger.Log.Info("удаление пользователя", zap.String("userId", id))
 
 	if err := h.userService.DeleteUser(c.Context(), id); err != nil {
 		return err

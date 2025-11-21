@@ -54,15 +54,15 @@ func (r *PostgresPetRepository) GetByID(ctx context.Context, id int) (*models.Pe
 }
 
 // GetByUserID retrieves all pets for a specific user
-func (r *PostgresPetRepository) GetByUserID(ctx context.Context, userID int) ([]*models.Pet, error) {
-	if userID <= 0 {
+func (r *PostgresPetRepository) GetByUserID(ctx context.Context, userID string) ([]*models.Pet, error) {
+	if userID == "" {
 		return nil, errors.New("invalid user ID")
 	}
 
 	var pets []*models.Pet
 	result := r.db.WithContext(ctx).Where("owner_id = ?", userID).Find(&pets)
 	if result.Error != nil {
-		return nil, fmt.Errorf("failed to get pets for user %d: %w", userID, result.Error)
+		return nil, fmt.Errorf("failed to get pets for user %s: %w", userID, result.Error)
 	}
 
 	return pets, nil

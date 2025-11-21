@@ -9,7 +9,7 @@ import (
 // Pet represents a pet in the system
 type Pet struct {
 	ID                  int             `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
-	OwnerID             int             `json:"ownerId,omitempty" example:"1"`
+	OwnerID             string          `json:"ownerId,omitempty" example:"1"`
 	Name                string          `gorm:"size:100;not null" json:"name" example:"Бобик"`
 	HasChip             bool            `json:"hasChip" example:"false"`
 	ChipNumber          string          `gorm:"size:50" json:"chipNumber,omitempty" example:"123456789"`

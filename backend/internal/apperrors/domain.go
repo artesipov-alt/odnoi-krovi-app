@@ -80,7 +80,7 @@ var (
 // Helper functions для создания ошибок с контекстом
 
 // NewUserNotFoundError создает ошибку с ID пользователя
-func NewUserNotFoundError(userID int) *AppError {
+func NewUserNotFoundError(userID string) *AppError {
 	return NotFound("пользователь не найден").WithDetails(map[string]any{
 		"user_id": userID,
 	})

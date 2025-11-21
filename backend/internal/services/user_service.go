@@ -20,16 +20,16 @@ type UserService interface {
 	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error)
 
 	// GetUserProfile получает полный профиль пользователя с питомцами и клиниками
-	GetUserProfile(ctx context.Context, userID int) (*UserProfile, error)
+	GetUserProfile(ctx context.Context, userID string) (*UserProfile, error)
 
 	// UpdateUserProfile обновляет информацию о пользователе
-	UpdateUserProfile(ctx context.Context, userID int, updates UserUpdate) error
+	UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
 
 	// DeleteUser удаляет пользователя по ID (soft delete)
-	DeleteUser(ctx context.Context, userID int) error
+	DeleteUser(ctx context.Context, userID string) error
 }
 
 // UserRegistration содержит данные для регистрации пользователя
@@ -142,7 +142,7 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 }
 
 // DeleteUser удаляет пользователя по ID (soft delete)
-func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
+func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -166,7 +166,7 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID int) error {
 }
 
 // GetUserProfile получает полный профиль пользователя с питомцами и клиниками
-func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID int) (*UserProfile, error) {
+func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID string) (*UserProfile, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		// Если пользователь не найден - возвращаем 404, а не 500
@@ -191,7 +191,7 @@ func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID int) (*User
 }
 
 // UpdateUserProfile обновляет информацию о пользователе
-func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID int, updates UserUpdate) error {
+func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error {
 	// Получаем существующего пользователя
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {

@@ -36,8 +36,8 @@ func (r *PostgresUserRepository) Create(ctx context.Context, user *models.User) 
 }
 
 // GetByID retrieves a user by their ID
-func (r *PostgresUserRepository) GetByID(ctx context.Context, id int) (*models.User, error) {
-	if id <= 0 {
+func (r *PostgresUserRepository) GetByID(ctx context.Context, id string) (*models.User, error) {
+	if id == "" {
 		return nil, errors.New("invalid user ID")
 	}
 
@@ -45,9 +45,9 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id int) (*models.U
 	result := r.db.WithContext(ctx).First(&user, id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user with id %d not found: %w", id, gorm.ErrRecordNotFound)
+			return nil, fmt.Errorf("user with id %s not found: %w", id, gorm.ErrRecordNotFound)
 		}
-		return nil, fmt.Errorf("failed to get user by id %d: %w", id, result.Error)
+		return nil, fmt.Errorf("failed to get user by id %s: %w", id, result.Error)
 	}
 
 	return &user, nil
@@ -77,7 +77,7 @@ func (r *PostgresUserRepository) Update(ctx context.Context, user *models.User) 
 		return errors.New("user cannot be nil")
 	}
 
-	if user.ID <= 0 {
+	if user.ID == "" {
 		return errors.New("invalid user ID")
 	}
 
@@ -90,8 +90,8 @@ func (r *PostgresUserRepository) Update(ctx context.Context, user *models.User) 
 }
 
 // Delete deletes a user by their ID (soft delete)
-func (r *PostgresUserRepository) Delete(ctx context.Context, id int) error {
-	if id <= 0 {
+func (r *PostgresUserRepository) Delete(ctx context.Context, id string) error {
+	if id == "" {
 		return errors.New("invalid user ID")
 	}
 
@@ -100,9 +100,9 @@ func (r *PostgresUserRepository) Delete(ctx context.Context, id int) error {
 	result := r.db.WithContext(ctx).First(&user, id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("user with id %d not found", id)
+			return fmt.Errorf("user with id %s not found", id)
 		}
-		return fmt.Errorf("failed to get user by id %d: %w", id, result.Error)
+		return fmt.Errorf("failed to get user by id %s: %w", id, result.Error)
 	}
 
 	// Perform soft delete
@@ -130,8 +130,8 @@ func (r *PostgresUserRepository) ExistsByTelegramID(ctx context.Context, telegra
 }
 
 // Reset resets user's email and phone number by ID
-func (r *PostgresUserRepository) ResetUser(ctx context.Context, id int) error {
-	if id <= 0 {
+func (r *PostgresUserRepository) ResetUser(ctx context.Context, id string) error {
+	if id == "" {
 		return errors.New("invalid user ID")
 	}
 
@@ -144,15 +144,15 @@ func (r *PostgresUserRepository) ResetUser(ctx context.Context, id int) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("user with id %d not found", id)
+		return fmt.Errorf("user with id %s not found", id)
 	}
 
 	return nil
 }
 
 // Restore restores a soft-deleted user by setting deleted_at to NULL
-func (r *PostgresUserRepository) RestoreUser(ctx context.Context, id int) error {
-	if id <= 0 {
+func (r *PostgresUserRepository) RestoreUser(ctx context.Context, id string) error {
+	if id == "" {
 		return errors.New("invalid user ID")
 	}
 
@@ -162,7 +162,7 @@ func (r *PostgresUserRepository) RestoreUser(ctx context.Context, id int) error 
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("user with id %d not found", id)
+		return fmt.Errorf("user with id %s not found", id)
 	}
 
 	return nil

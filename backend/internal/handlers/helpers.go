@@ -32,6 +32,16 @@ func ParseIDParam(c *fiber.Ctx, paramName string) (int, error) {
 	return id, nil
 }
 
+// ParseStringParam парсит строку из параметра пути
+func ParseStringParam(c *fiber.Ctx, paramName string) (string, error) {
+	str := c.Params(paramName)
+	if str == "" {
+		return "", apperrors.BadRequest(paramName + " обязателен")
+	}
+
+	return str, nil
+}
+
 // ParseInt64Query парсит int64 из query параметра
 func ParseInt64Query(c *fiber.Ctx, paramName string) (int64, error) {
 	str := c.Query(paramName)

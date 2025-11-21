@@ -14,13 +14,13 @@ import (
 // PetService определяет интерфейс для бизнес-логики питомцев
 type PetService interface {
 	// CreatePet создает нового питомца для пользователя
-	CreatePet(ctx context.Context, userID int, petData PetCreate) (*models.Pet, error)
+	CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error)
 
 	// GetPetByID получает питомца по ID
 	GetPetByID(ctx context.Context, petID int) (*models.Pet, error)
 
 	// GetUserPets получает всех питомцев пользователя
-	GetUserPets(ctx context.Context, userID int) ([]*models.Pet, error)
+	GetUserPets(ctx context.Context, userID string) ([]*models.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
 	UpdatePet(ctx context.Context, petID int, updates PetUpdate) error
@@ -88,7 +88,7 @@ func NewPetService(petRepo repositories.PetRepository, userRepo repositories.Use
 }
 
 // CreatePet создает нового питомца для пользователя
-func (s *PetServiceImpl) CreatePet(ctx context.Context, userID int, petData PetCreate) (*models.Pet, error) {
+func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error) {
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -170,7 +170,7 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID int) (*models.Pet
 }
 
 // GetUserPets получает всех питомцев пользователя
-func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID int) ([]*models.Pet, error) {
+func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*models.Pet, error) {
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {

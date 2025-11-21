@@ -12,7 +12,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *models.User) error
 
 	// GetByID получает пользователя по его ID
-	GetByID(ctx context.Context, id int) (*models.User, error)
+	GetByID(ctx context.Context, id string) (*models.User, error)
 
 	// GetByTelegramID получает пользователя по его Telegram ID
 	GetByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
@@ -21,16 +21,16 @@ type UserRepository interface {
 	Update(ctx context.Context, user *models.User) error
 
 	// Delete удаляет пользователя по его ID
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id string) error
 
 	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
 	ExistsByTelegramID(ctx context.Context, telegramID int64) (bool, error)
 
 	// ResetUser сбрасывает email и номер телефона пользователя по ID
-	ResetUser(ctx context.Context, id int) error
+	ResetUser(ctx context.Context, id string) error
 
 	// RestoreUser восстанавливает пользователя по его ID
-	RestoreUser(ctx context.Context, id int) error
+	RestoreUser(ctx context.Context, id string) error
 
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*models.User, error)

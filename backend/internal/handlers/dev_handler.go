@@ -31,25 +31,25 @@ type DevResponse struct {
 // @Description Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота
 // @Tags dev
 // @Produce json
-// @Param id path int true "ID пользователя"
+// @Param id path string true "ID пользователя"
 // @Success 200 {object} DevResponse "Успешный сброс пользователя"
 // @Router /dev/reset-user/{id} [post]
 func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
 	logger.Log.Info("Сброс пользователя к заводским настройкам")
 
-	id, err := ParseIDParam(c, "id")
+	id, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("Сброс пользователя", zap.Int("userId", id))
+	logger.Log.Info("Сброс пользователя", zap.String("userId", id))
 
 	if err := h.userRepo.ResetUser(c.Context(), id); err != nil {
-		logger.Log.Error("Ошибка при сбросе пользователя", zap.Error(err), zap.Int("userId", id))
+		logger.Log.Error("Ошибка при сбросе пользователя", zap.Error(err), zap.String("userId", id))
 		return err
 	}
 
-	logger.Log.Info("Пользователь успешно сброшен", zap.Int("userId", id))
+	logger.Log.Info("Пользователь успешно сброшен", zap.String("userId", id))
 
 	return SendJSON(c, DevResponse{
 		Status:  true,
@@ -62,25 +62,25 @@ func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
 // @Description Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL
 // @Tags dev
 // @Produce json
-// @Param id path int true "ID пользователя"
+// @Param id path string true "ID пользователя"
 // @Success 200 {object} DevResponse "Успешное восстановление пользователя"
 // @Router /dev/restore-user/{id} [post]
 func (h *DevHandler) RestoreUserHandler(c *fiber.Ctx) error {
 	logger.Log.Info("Восстановление удаленного пользователя")
 
-	id, err := ParseIDParam(c, "id")
+	id, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("Восстановление пользователя", zap.Int("userId", id))
+	logger.Log.Info("Восстановление пользователя", zap.String("userId", id))
 
 	if err := h.userRepo.RestoreUser(c.Context(), id); err != nil {
-		logger.Log.Error("Ошибка при восстановлении пользователя", zap.Error(err), zap.Int("userId", id))
+		logger.Log.Error("Ошибка при восстановлении пользователя", zap.Error(err), zap.String("userId", id))
 		return err
 	}
 
-	logger.Log.Info("Пользователь успешно восстановлен", zap.Int("userId", id))
+	logger.Log.Info("Пользователь успешно восстановлен", zap.String("userId", id))
 
 	return SendJSON(c, DevResponse{
 		Status:  true,

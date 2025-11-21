@@ -8,7 +8,7 @@ import (
 
 // User представляет пользователя в системе
 type User struct {
-	ID               int             `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
+	ID               string          `gorm:"primaryKey;" json:"id" example:"USR-25-0001"`
 	TelegramID       int64           `gorm:"not null" json:"telegramId" example:"123456789"`
 	FullName         string          `gorm:"size:255" json:"fullName,omitempty" example:"Иван Иванов"`
 	Phone            string          `gorm:"size:20" json:"phone,omitempty" example:"+79991234567"`
@@ -21,4 +21,12 @@ type User struct {
 	LocationID       int             `json:"locationId,omitempty" example:"1"`
 	Role             UserRole        `json:"role,omitempty" example:"user"`
 	DeletedAt        *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
+}
+
+// В BeforeCreate хуках
+func (v *User) BeforeCreate(tx *gorm.DB) error {
+	var nextVal int
+	tx.Raw("SELECT nextval('vet_clinic_id_seq')").Scan(&nextVal)
+	v.ID = PrefixUSR.Generate(nextVal)
+	return nil
 }

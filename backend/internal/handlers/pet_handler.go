@@ -25,7 +25,7 @@ func NewPetHandler(petService services.PetService) *PetHandler {
 // @Tags pets
 // @Accept json
 // @Produce json
-// @Param user_id path int true "ID пользователя"
+// @Param user_id path string true "ID пользователя"
 // @Param request body services.PetCreate true "Данные питомца"
 // @Success 201 {object} models.Pet "Созданный питомец"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
@@ -33,7 +33,7 @@ func NewPetHandler(petService services.PetService) *PetHandler {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [post]
 func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
-	userID, err := ParseIDParam(c, "user_id")
+	userID, err := ParseStringParam(c, "user_id")
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	logger.Log.Info("создание питомца", zap.Int("userId", userID), zap.String("petName", petData.Name))
+	logger.Log.Info("создание питомца", zap.String("userId", userID), zap.String("petName", petData.Name))
 
 	pet, err := h.petService.CreatePet(c.Context(), userID, petData)
 	if err != nil {
@@ -85,19 +85,19 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 // @Description Возвращает всех питомцев конкретного пользователя
 // @Tags pets
 // @Produce json
-// @Param user_id path int true "ID пользователя"
+// @Param user_id path string true "ID пользователя"
 // @Success 200 {array} models.Pet "Список питомцев"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 404 {object} ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [get]
 func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
-	userID, err := ParseIDParam(c, "user_id")
+	userID, err := ParseStringParam(c, "user_id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("получение питомцев пользователя", zap.Int("userId", userID))
+	logger.Log.Info("получение питомцев пользователя", zap.String("userId", userID))
 
 	pets, err := h.petService.GetUserPets(c.Context(), userID)
 	if err != nil {

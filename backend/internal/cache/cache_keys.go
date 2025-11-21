@@ -5,13 +5,13 @@ import "time"
 // CacheKey представляет шаблоны ключей для кэша
 const (
 	// User keys
-	UserByIDKey       = "user:id:%d"
+	UserByIDKey       = "user:id:%s"
 	UserByTelegramKey = "user:telegram:%d"
-	UserProfileKey    = "user:profile:%d"
+	UserProfileKey    = "user:profile:%s"
 
 	// Pet keys
 	PetByIDKey    = "pet:id:%d"
-	PetsByUserKey = "pets:user:%d"
+	PetsByUserKey = "pets:user:%s"
 	PetProfileKey = "pet:profile:%d"
 
 	// Vet clinic keys
