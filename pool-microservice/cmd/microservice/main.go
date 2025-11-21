@@ -1,24 +1,69 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/poolservice/gen/api/greet/v1/greetv1connect"
 	v1 "github.com/artesipov-alt/odnoi-krovi-app/poolservice/internal/services"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/adaptor"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
-	app := fiber.New()
+	// Создаем Chi роутер
+	r := chi.NewRouter()
+	r.Use(middleware.Logger,
+		middleware.Recoverer,
+		middleware.RealIP)
 
 	// Создаем gRPC сервер
 	greeter := &v1.GreetServer{}
 	path, handler := greetv1connect.NewGreetServiceHandler(greeter)
 
-	// Подключаем gRPC handler к Fiber
-	app.Post(path+"*", adaptor.HTTPHandler(handler))
+	// Подключаем gRPC handler к Chi
+	r.Handle(path+"*", handler)
 
-	log.Println("Сервер запущен на :8080")
-	log.Fatal(app.Listen(":8080"))
+	// Настраиваем протоколы для поддержки HTTP/2 без TLS
+	p := new(http.Protocols)
+	p.SetHTTP1(true)
+	// Use h2c so we can serve HTTP/2 without TLS.
+	p.SetUnencryptedHTTP2(true)
+
+	// Создаем HTTP сервер с поддержкой HTTP/2
+	s := http.Server{
+		Addr:      ":8080",
+		Handler:   r,
+		Protocols: p,
+	}
+
+	// Запускаем сервер в отдельной горутине
+	go func() {
+		log.Println("Сервер запущен на :8080")
+		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Ошибка запуска сервера: %v", err)
+		}
+	}()
+
+	// Ожидаем сигналы для graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Получен сигнал завершения работы...")
+
+	// Graceful shutdown с таймаутом
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := s.Shutdown(ctx); err != nil {
+		log.Fatalf("Ошибка при завершении работы сервера: %v", err)
+	}
+
+	log.Println("Сервер корректно завершил работу")
 }
