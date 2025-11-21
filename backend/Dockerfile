@@ -14,7 +14,6 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 COPY pkg/ ./pkg/
-COPY app/ ./app/
 
 # Генерация Swagger (без фатального падения, если swag не нужен)
 RUN swag init -g cmd/server/main.go -o docs || echo "Swagger generation skipped"
