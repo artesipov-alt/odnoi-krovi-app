@@ -1,5 +1,5 @@
 import { Bot } from "grammy";
-import { Configuration, UsersApi } from "./api/index";
+import { Configuration, UsersApi } from "../../shared/index";
 
 import type { Context } from "grammy";
 import pino from "pino";

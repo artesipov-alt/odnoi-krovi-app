@@ -1,0 +1,95 @@
+version: "3"
+
+env:
+  ENV_FILE: .env
+
+tasks:
+  generate-api:
+    desc: "Сгенерировать типы API Backend для TypeScript"
+    cmds:
+      - task: generate-swagger
+      - openapi-generator generate -i ./backend/docs/swagger.json -g typescript-fetch -o shared
+
+  generate-swagger:
+    desc: "Сгенерировать Swagger документацию"
+    cmds:
+      - swag init -g ./backend/cmd/server/main.go -o ./backend/docs
+
+  install:
+    desc: "Установить все зависимости проекта"
+    cmds:
+      - task: install-backend
+      - task: install-frontend
+      - task: install-bot
+
+  install-backend:
+    desc: "Установить зависимости backend"
+    dir: backend
+    cmds:
+      - go mod tidy
+
+  install-frontend:
+    desc: "Установить зависимости frontend"
+    dir: frontend
+    cmds:
+      - bun install
+
+  install-bot:
+    desc: "Установить зависимости bot"
+    dir: bot
+    cmds:
+      - bun install
+
+  # Запуск в режиме разработки
+  dev:
+    desc: "Запустить все сервисы в режиме разработки"
+    cmds:
+      - task: dev-backend
+      - task: dev-frontend
+      - task: dev-bot
+
+  dev-backend:
+    desc: "Запустить backend в dev режиме"
+    dir: backend
+    cmds:
+      - go run cmd/server/main.go
+
+  dev-frontend:
+    desc: "Запустить frontend в dev режиме"
+    dir: frontend
+    cmds:
+      - npm run dev
+
+  dev-bot:
+    desc: "Запустить bot в dev режиме"
+    dir: bot
+    cmds:
+      - bun run dev
+
+  # Сборка проекта
+  build:
+    desc: "Собрать все компоненты проекта"
+    cmds:
+      - task: build-backend
+      - task: build-frontend
+      - task: build-bot
+
+  build-backend:
+    desc: "Собрать backend"
+    dir: backend
+    cmds:
+      - go build -o app/server cmd/server/main.go
+
+  build-frontend:
+    desc: "Собрать frontend"
+    dir: frontend
+    cmds:
+      - rm -rf build
+      - bun run build
+
+  build-bot:
+    desc: "Собрать bot"
+    dir: bot
+    cmds:
+      - rm -rf dist
+      - bun run build
