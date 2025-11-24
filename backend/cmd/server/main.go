@@ -13,17 +13,18 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware" // Промежуточное ПО
 
 	// Репозитории для работы с БД
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	cacherepo "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/cache"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg" // Репозитории для работы с БД
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                     // Бизнес-логика
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                            // Конфигурация приложения
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                            // Логирование
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"                         // Управление миграциями
-	"github.com/gofiber/fiber/v2"                                                    // Веб-фреймворк
-	"github.com/gofiber/fiber/v2/middleware/cors"                                    // CORS middleware
-	"github.com/gofiber/swagger"                                                     // Swagger UI
-	"github.com/joho/godotenv"                                                       // Загрузка .env файлов
-	"go.uber.org/zap"                                                                // Структурированное логирование
+	pgrepositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg" // Репозитории для работы с БД
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                              // Конфигурация приложения
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                              // Логирование
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"                           // Управление миграциями
+	"github.com/gofiber/fiber/v2"                                                      // Веб-фреймворк
+	"github.com/gofiber/fiber/v2/middleware/cors"                                      // CORS middleware
+	"github.com/gofiber/swagger"                                                       // Swagger UI
+	"github.com/joho/godotenv"                                                         // Загрузка .env файлов
+	"go.uber.org/zap"                                                                  // Структурированное логирование
 	// ORM для работы с БД
 )
 
@@ -33,6 +34,7 @@ import (
 // @host
 // @BasePath /api/v1
 func main() {
+
 	// Загрузка переменных окружения из .env файла
 	godotenv.Load("../.env")
 
@@ -49,39 +51,50 @@ func main() {
 		logger.Log.Fatal("Ошибка подключения к базе данных", zap.Error(err))
 	}
 
+	// Создаем кэш, но если ошибка - используем nil
 	rCache, err := cache.NewCacheFromEnv()
 	if err != nil {
-		logger.Log.Fatal("Ошибка подключения к Redis", zap.Error(err))
+		logger.Log.Warn("Redis недоступен, работаем без кэша", zap.Error(err))
+		rCache = nil
 	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
 	migration.AutoMigrate(db, logger.Log)
 	migration.SeedDatabase(db, logger.Log)
 
-	// Инициализация репозиториев
-	userRepo := repositories.NewPostgresUserRepository(db)
-	petRepo := repositories.NewPostgresPetRepository(db)
-	breedRepo := repositories.NewPostgresBreedRepository(db)
-	bloodRepo := repositories.NewPostgresBloodRepository(db)
-	vetClinicRepo := repositories.NewVetClinicRepository(db)
-	bloodStockRepo := repositories.NewPostgresBloodStockRepository(db)
-	locationRepo := repositories.NewPostgresLocationRepository(db)
+	//Создание репозиториев для определения доступности кеша
 
-	// Кеширующие репозитории
-	cachedBloodRepo := cacherepo.NewCachedBloodRepository(bloodRepo, rCache)
+	// Инициализация репозиториев
+	userRepo := pgrepositories.NewPostgresUserRepository(db)
+	petRepo := pgrepositories.NewPostgresPetRepository(db)
+	breedRepo := pgrepositories.NewPostgresBreedRepository(db)
+	bloodRepo := pgrepositories.NewPostgresBloodRepository(db)
+	vetClinicRepo := pgrepositories.NewVetClinicRepository(db)
+	bloodStockRepo := pgrepositories.NewPostgresBloodStockRepository(db)
+	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
+
+	// Создаем репозиторий в зависимости от наличия кэша
+	var bloodRepoInit repositories.BloodRepository
+	if rCache != nil {
+		// Кеширующие репозитории
+		bloodRepoInit = cacherepo.NewCachedBloodRepository(bloodRepo, rCache)
+	} else {
+		// Используем обычный репозиторий без кэша
+		bloodRepoInit = bloodRepo
+	}
 
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
 	petService := services.NewPetService(petRepo, userRepo)
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
-	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepo, vetClinicRepo)
+	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
-	referenceHandler := handlers.NewReferenceHandler(breedRepo, cachedBloodRepo, locationRepo)
+	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок

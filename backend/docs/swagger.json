@@ -2,9 +2,9 @@
     "swagger": "2.0",
     "info": {
         "description": "API сервиса однойкрови.рф для донороcства крови и помощи животным",
-        "title": "однойкрови.рф",
+        "title": "1krovi.app",
         "contact": {},
-        "version": "1.0"
+        "version": "1.1.0"
     },
     "basePath": "/api/v1",
     "paths": {
@@ -641,7 +641,7 @@
                 "summary": "Получение питомца по ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID питомца",
                         "name": "id",
                         "in": "path",
@@ -689,7 +689,7 @@
                 "summary": "Обновление данных питомца",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID питомца",
                         "name": "id",
                         "in": "path",
@@ -743,7 +743,7 @@
                 "summary": "Удаление питомца по ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID питомца",
                         "name": "id",
                         "in": "path",
@@ -1897,8 +1897,8 @@
                     "example": false
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "PET-25-000001"
                 },
                 "isGuideDog": {
                     "type": "boolean",

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"

@@ -58,19 +58,19 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 // @Description Возвращает информацию о питомце по его идентификатору
 // @Tags pets
 // @Produce json
-// @Param id path int true "ID питомца"
+// @Param id path string true "ID питомца"
 // @Success 200 {object} models.Pet "Данные питомца"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 404 {object} ErrorResponse "Питомец не найден"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [get]
 func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
-	petID, err := ParseIDParam(c, "id")
+	petID, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("получение питомца", zap.Int("petId", petID))
+	logger.Log.Info("получение питомца", zap.String("petId", petID))
 
 	pet, err := h.petService.GetPetByID(c.Context(), petID)
 	if err != nil {
@@ -113,7 +113,7 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 // @Tags pets
 // @Accept json
 // @Produce json
-// @Param id path int true "ID питомца"
+// @Param id path string true "ID питомца"
 // @Param request body services.PetUpdate true "Данные для обновления"
 // @Success 200 {object} SuccessResponse "Данные успешно обновлены"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
@@ -121,7 +121,7 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [put]
 func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
-	petID, err := ParseIDParam(c, "id")
+	petID, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	logger.Log.Info("обновление питомца", zap.Int("petId", petID))
+	logger.Log.Info("обновление питомца", zap.String("petId", petID))
 
 	if err := h.petService.UpdatePet(c.Context(), petID, updateData); err != nil {
 		return err
@@ -145,19 +145,19 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 // @Description Удаляет питомца из системы
 // @Tags pets
 // @Produce json
-// @Param id path int true "ID питомца"
+// @Param id path string true "ID питомца"
 // @Success 200 {object} SuccessResponse "Питомец успешно удален"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 404 {object} ErrorResponse "Питомец не найден"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [delete]
 func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
-	petID, err := ParseIDParam(c, "id")
+	petID, err := ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
-	logger.Log.Info("удаление питомца", zap.Int("petId", petID))
+	logger.Log.Info("удаление питомца", zap.String("petId", petID))
 
 	if err := h.petService.DeletePet(c.Context(), petID); err != nil {
 		return err

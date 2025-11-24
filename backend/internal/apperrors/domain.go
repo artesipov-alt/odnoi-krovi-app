@@ -94,7 +94,7 @@ func NewUserAlreadyExistsError(telegramID int64) *AppError {
 }
 
 // NewPetNotFoundError создает ошибку с ID питомца
-func NewPetNotFoundError(petID int) *AppError {
+func NewPetNotFoundError(petID string) *AppError {
 	return NotFound("питомец не найден").WithDetails(map[string]any{
 		"pet_id": petID,
 	})

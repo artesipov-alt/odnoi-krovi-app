@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache/interfaces"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -29,7 +29,7 @@ func NewServerConfig() *ServerConfig {
 }
 
 // GracefulShutdown выполняет graceful shutdown сервера
-func GracefulShutdown(app *fiber.App, db *gorm.DB, cache interfaces.Cache, timeout time.Duration) {
+func GracefulShutdown(app *fiber.App, db *gorm.DB, cache cache.ICache, timeout time.Duration) {
 	logger := logger.Log
 
 	// Создание контекста с таймаутом для завершения

@@ -8,7 +8,7 @@ import (
 
 // Pet represents a pet in the system
 type Pet struct {
-	ID                  int             `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
+	ID                  string          `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
 	OwnerID             string          `json:"ownerId,omitempty" example:"1"`
 	Name                string          `gorm:"size:100;not null" json:"name" example:"Бобик"`
 	HasChip             bool            `json:"hasChip" example:"false"`
@@ -33,4 +33,12 @@ type Pet struct {
 	Type                PetType         `json:"type,omitempty" example:"dog"`
 	BloodGroup          string          `json:"bloodGroup,omitempty" example:"DEA 1.1"`
 	DeletedAt           *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
+}
+
+// В BeforeCreate хуках
+func (v *Pet) BeforeCreate(tx *gorm.DB) error {
+	var nextVal int
+	tx.Raw("SELECT nextval('user_id_seq')").Scan(&nextVal)
+	v.ID = PrefixPET.Generate(nextVal)
+	return nil
 }

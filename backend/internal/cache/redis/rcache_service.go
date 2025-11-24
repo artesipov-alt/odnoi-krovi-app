@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache/interfaces"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
 )
 
 // Config содержит конфигурацию для кэша
@@ -23,7 +23,7 @@ type Config struct {
 }
 
 // NewCache создает новый экземпляр кэша на основе конфигурации
-func NewCache(config Config) (interfaces.Cache, error) {
+func NewCache(config Config) (cache.ICache, error) {
 	// Валидация конфигурации
 	if config.RedisAddr == "" {
 		return nil, fmt.Errorf("redis address is required")
@@ -43,7 +43,7 @@ func NewCache(config Config) (interfaces.Cache, error) {
 }
 
 // NewCacheFromEnv создает кэш из переменных окружения
-func NewCacheFromEnv() (interfaces.Cache, error) {
+func NewCacheFromEnv() (cache.ICache, error) {
 	redisHost := getEnv("REDIS_HOST", "localhost")
 	redisPort := getEnv("REDIS_PORT", "6379")
 	redisAddr := getEnv("REDIS_ADDR", redisHost+":"+redisPort)
@@ -60,7 +60,7 @@ func NewCacheFromEnv() (interfaces.Cache, error) {
 }
 
 // NewDefaultCache создает кэш с настройками по умолчанию
-func NewDefaultCache() (interfaces.Cache, error) {
+func NewDefaultCache() (cache.ICache, error) {
 	config := Config{
 		RedisAddr:       "localhost:6379",
 		RedisPassword:   "",

@@ -36,8 +36,8 @@ func (r *PostgresPetRepository) Create(ctx context.Context, pet *models.Pet) err
 }
 
 // GetByID retrieves a pet by their ID
-func (r *PostgresPetRepository) GetByID(ctx context.Context, id int) (*models.Pet, error) {
-	if id <= 0 {
+func (r *PostgresPetRepository) GetByID(ctx context.Context, id string) (*models.Pet, error) {
+	if id == "" {
 		return nil, errors.New("invalid pet ID")
 	}
 
@@ -45,9 +45,9 @@ func (r *PostgresPetRepository) GetByID(ctx context.Context, id int) (*models.Pe
 	result := r.db.WithContext(ctx).First(&pet, id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("pet with id %d not found: %w", id, gorm.ErrRecordNotFound)
+			return nil, fmt.Errorf("pet with id %s not found: %w", id, gorm.ErrRecordNotFound)
 		}
-		return nil, fmt.Errorf("failed to get pet by id %d: %w", id, result.Error)
+		return nil, fmt.Errorf("failed to get pet by id %s: %w", id, result.Error)
 	}
 
 	return &pet, nil
@@ -74,7 +74,7 @@ func (r *PostgresPetRepository) Update(ctx context.Context, pet *models.Pet) err
 		return errors.New("pet cannot be nil")
 	}
 
-	if pet.ID <= 0 {
+	if pet.ID != "" {
 		return errors.New("invalid pet ID")
 	}
 
@@ -84,15 +84,15 @@ func (r *PostgresPetRepository) Update(ctx context.Context, pet *models.Pet) err
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("pet with id %d not found", pet.ID)
+		return fmt.Errorf("pet with id %s not found", pet.ID)
 	}
 
 	return nil
 }
 
 // Delete deletes a pet by their ID
-func (r *PostgresPetRepository) Delete(ctx context.Context, id int) error {
-	if id <= 0 {
+func (r *PostgresPetRepository) Delete(ctx context.Context, id string) error {
+	if id == "" {
 		return errors.New("invalid pet ID")
 	}
 
@@ -101,9 +101,9 @@ func (r *PostgresPetRepository) Delete(ctx context.Context, id int) error {
 	result := r.db.WithContext(ctx).First(&pet, id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("pet with id %d not found", id)
+			return fmt.Errorf("pet with id %s not found", id)
 		}
-		return fmt.Errorf("failed to get pet by id %d: %w", id, result.Error)
+		return fmt.Errorf("failed to get pet by id %s: %w", id, result.Error)
 	}
 
 	// Perform delete
@@ -116,15 +116,15 @@ func (r *PostgresPetRepository) Delete(ctx context.Context, id int) error {
 }
 
 // ExistsByID checks if a pet with the given ID exists
-func (r *PostgresPetRepository) ExistsByID(ctx context.Context, id int) (bool, error) {
-	if id <= 0 {
+func (r *PostgresPetRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
+	if id == "" {
 		return false, errors.New("invalid pet ID")
 	}
 
 	var count int64
 	result := r.db.WithContext(ctx).Model(&models.Pet{}).Where("id = ?", id).Count(&count)
 	if result.Error != nil {
-		return false, fmt.Errorf("failed to check pet existence by id %d: %w", id, result.Error)
+		return false, fmt.Errorf("failed to check pet existence by id %s: %w", id, result.Error)
 	}
 
 	return count > 0, nil

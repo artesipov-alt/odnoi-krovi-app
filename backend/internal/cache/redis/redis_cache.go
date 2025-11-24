@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"go.uber.org/zap"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache/interfaces"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -45,7 +45,7 @@ func (r *RedisCache) Get(ctx context.Context, key string) ([]byte, error) {
 	if err != nil {
 		if err == redis.Nil {
 			logger.Log.Debug("Кеш-промах", zap.String("cache_key", key))
-			return nil, interfaces.ErrCacheMiss
+			return nil, cache.ErrCacheMiss
 		}
 		return nil, fmt.Errorf("failed to get key %s: %w", key, err)
 	}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"gorm.io/gorm"
 )
@@ -17,16 +17,16 @@ type PetService interface {
 	CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error)
 
 	// GetPetByID получает питомца по ID
-	GetPetByID(ctx context.Context, petID int) (*models.Pet, error)
+	GetPetByID(ctx context.Context, petID string) (*models.Pet, error)
 
 	// GetUserPets получает всех питомцев пользователя
 	GetUserPets(ctx context.Context, userID string) ([]*models.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
-	UpdatePet(ctx context.Context, petID int, updates PetUpdate) error
+	UpdatePet(ctx context.Context, petID string, updates PetUpdate) error
 
 	// DeletePet удаляет питомца по ID
-	DeletePet(ctx context.Context, petID int) error
+	DeletePet(ctx context.Context, petID string) error
 }
 
 // PetCreate содержит данные для создания питомца
@@ -152,7 +152,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 }
 
 // GetPetByID получает питомца по ID
-func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID int) (*models.Pet, error) {
+func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*models.Pet, error) {
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
 		// Если питомец не найден - возвращаем 404, а не 500
@@ -194,7 +194,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*mod
 }
 
 // UpdatePet обновляет информацию о питомце
-func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUpdate) error {
+func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates PetUpdate) error {
 	// Получаем существующего питомца
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
@@ -286,7 +286,7 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID int, updates PetUp
 }
 
 // DeletePet удаляет питомца по ID
-func (s *PetServiceImpl) DeletePet(ctx context.Context, petID int) error {
+func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	// Проверяем, существует ли питомец
 	pet, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {

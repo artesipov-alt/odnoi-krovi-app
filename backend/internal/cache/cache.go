@@ -1,4 +1,4 @@
-package interfaces
+package cache
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 var ErrCacheMiss = errors.New("cache miss")
 
 // Cache определяет интерфейс для операций с кэшем
-type Cache interface {
+type ICache interface {
 	// Get получает значение по ключу
 	Get(ctx context.Context, key string) ([]byte, error)
 

@@ -12,7 +12,7 @@ type PetRepository interface {
 	Create(ctx context.Context, pet *models.Pet) error
 
 	// GetByID получает питомца по его ID
-	GetByID(ctx context.Context, id int) (*models.Pet, error)
+	GetByID(ctx context.Context, id string) (*models.Pet, error)
 
 	// GetByUserID получает всех питомцев конкретного пользователя
 	GetByUserID(ctx context.Context, userID string) ([]*models.Pet, error)
@@ -21,8 +21,8 @@ type PetRepository interface {
 	Update(ctx context.Context, pet *models.Pet) error
 
 	// Delete удаляет питомца по его ID
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id string) error
 
 	// ExistsByID проверяет, существует ли питомец с заданным ID
-	ExistsByID(ctx context.Context, id int) (bool, error)
+	ExistsByID(ctx context.Context, id string) (bool, error)
 }

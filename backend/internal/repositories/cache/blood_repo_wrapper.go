@@ -5,19 +5,18 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache/interfaces"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/interfaces"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
 // CachedBloodRepository реализует кеширующий репозиторий для работы с группами крови
 type CachedBloodRepository struct {
 	repo  repositories.BloodRepository
-	cache interfaces.Cache
+	cache cache.ICache
 }
 
 // NewCachedBloodRepository создает новый экземпляр кеширующего репозитория
-func NewCachedBloodRepository(repo repositories.BloodRepository, cache interfaces.Cache) *CachedBloodRepository {
+func NewCachedBloodRepository(repo repositories.BloodRepository, cache cache.ICache) *CachedBloodRepository {
 	return &CachedBloodRepository{
 		repo:  repo,
 		cache: cache,

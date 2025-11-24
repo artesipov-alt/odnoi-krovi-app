@@ -648,7 +648,7 @@ const docTemplate = `{
                 "summary": "Получение питомца по ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID питомца",
                         "name": "id",
                         "in": "path",
@@ -696,7 +696,7 @@ const docTemplate = `{
                 "summary": "Обновление данных питомца",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID питомца",
                         "name": "id",
                         "in": "path",
@@ -750,7 +750,7 @@ const docTemplate = `{
                 "summary": "Удаление питомца по ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "ID питомца",
                         "name": "id",
                         "in": "path",
@@ -1904,8 +1904,8 @@ const docTemplate = `{
                     "example": false
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "PET-25-000001"
                 },
                 "isGuideDog": {
                     "type": "boolean",
@@ -2500,11 +2500,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.1.0",
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "однойкрови.рф",
+	Title:            "1krovi.app",
 	Description:      "API сервиса однойкрови.рф для донороcства крови и помощи животным",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
