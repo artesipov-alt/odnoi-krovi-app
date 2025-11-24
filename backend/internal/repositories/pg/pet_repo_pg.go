@@ -42,7 +42,7 @@ func (r *PostgresPetRepository) GetByID(ctx context.Context, id string) (*models
 	}
 
 	var pet models.Pet
-	result := r.db.WithContext(ctx).First(&pet, id)
+	result := r.db.WithContext(ctx).Where("id = ?", id).First(&pet)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("pet with id %s not found: %w", id, gorm.ErrRecordNotFound)
@@ -74,7 +74,7 @@ func (r *PostgresPetRepository) Update(ctx context.Context, pet *models.Pet) err
 		return errors.New("pet cannot be nil")
 	}
 
-	if pet.ID != "" {
+	if pet.ID == "" {
 		return errors.New("invalid pet ID")
 	}
 
@@ -98,7 +98,7 @@ func (r *PostgresPetRepository) Delete(ctx context.Context, id string) error {
 
 	// First get the pet to ensure it exists
 	var pet models.Pet
-	result := r.db.WithContext(ctx).First(&pet, id)
+	result := r.db.WithContext(ctx).Where("id = ?", id).First(&pet)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("pet with id %s not found", id)
