@@ -32,7 +32,14 @@ func GetAllUserRoles() []models.UserRole {
 		models.UserRoleUser,
 		models.UserRoleClinic,
 		models.UserRoleAdmin,
-		models.UserRoleDonor,
+	}
+}
+
+// GetAllPetRoles возвращает все доступные роли пользователей
+func GetAllPetRoles() []models.PetRole {
+	return []models.PetRole{
+		models.PetRoleRecipient,
+		models.PetRoleDonor,
 	}
 }
 
@@ -119,8 +126,19 @@ func LocalizeUserRole(role string) (models.UserRole, error) {
 		return "Клиника", nil
 	case models.UserRoleAdmin:
 		return "Администратор", nil
-	case models.UserRoleDonor:
+	default:
+		return "", fmt.Errorf("недопустимая роль: %s", role)
+	}
+}
+
+// LocalizePetRole локализует роль пользователя в русское название
+func LocalizePetRole(role string) (models.PetRole, error) {
+	r := models.PetRole(role)
+	switch r {
+	case models.PetRoleDonor:
 		return "Донор", nil
+	case models.PetRoleRecipient:
+		return "Реципиент", nil
 	default:
 		return "", fmt.Errorf("недопустимая роль: %s", role)
 	}

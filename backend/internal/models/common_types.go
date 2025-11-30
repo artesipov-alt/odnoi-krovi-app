@@ -46,7 +46,14 @@ const (
 	UserRoleUser   UserRole = "user"
 	UserRoleClinic UserRole = "clinic"
 	UserRoleAdmin  UserRole = "admin"
-	UserRoleDonor  UserRole = "donor"
+)
+
+// PetRole представляет роль питомца в системе донорства крови
+type PetRole string
+
+const (
+	PetRoleDonor     PetRole = "donor"
+	PetRoleRecipient PetRole = "recipient"
 )
 
 // BloodSearchStatus представляет статус поиска донора
