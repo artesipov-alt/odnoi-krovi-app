@@ -19,6 +19,7 @@ var (
 	ErrPetNotFound            = NotFound("питомец не найден")
 	ErrPetNameRequired        = BadRequest("имя питомца обязательно")
 	ErrInvalidPetType         = BadRequest("неверный тип питомца")
+	ErrPetInvalidRole         = BadRequest("неверная роль пользователя")
 	ErrInvalidGender          = BadRequest("неверный пол животного")
 	ErrInvalidLivingCondition = BadRequest("неверные условия проживания")
 	ErrInvalidWeight          = BadRequest("вес должен быть положительным числом")

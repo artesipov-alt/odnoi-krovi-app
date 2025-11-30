@@ -173,6 +173,37 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 	return c.JSON(ReferenceResponse{Data: items})
 }
 
+// GetPetRolesHandler godoc
+// @Summary Получение всех ролей питомцев
+// @Description Возвращает все доступные роли питомцев для выбора на фронтенде
+// @Tags reference
+// @Produce json
+// @Success 200 {object} ReferenceResponse "Список ролей питомцев"
+// @Router /reference/pet-roles [get]
+func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
+	logger.Log.Info("получение справочника ролей питомцев")
+
+	roles := enums.GetAllPetRoles()
+	items := make([]ReferenceItem, len(roles))
+
+	for i, role := range roles {
+		ruValue, err := validation.LocalizePetRole(string(role))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error: apperrors.ErrPetInvalidRole.Error(),
+			})
+		}
+
+		items[i] = ReferenceItem{
+			Value: string(role),
+			Label: string(ruValue),
+		}
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(ReferenceResponse{Data: items})
+}
+
 // GetBloodSearchStatusesHandler godoc
 // @Summary Получение всех статусов поиска крови
 // @Description Возвращает все доступные статусы поиска крови для выбора на фронтенде
