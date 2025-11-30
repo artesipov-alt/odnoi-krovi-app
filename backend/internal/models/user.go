@@ -6,8 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// User представляет пользователя в системе
+// Представление пользователя в системе
 type User struct {
+	//Сигнатура ID пользователя включает в себя префикс пользователя, год и четырёхзначный номер
 	ID               string          `gorm:"primaryKey;" json:"id" example:"USR-25-0001"`
 	TelegramID       int64           `gorm:"not null" json:"telegramId" example:"123456789"`
 	FullName         string          `gorm:"size:255" json:"fullName,omitempty" example:"Иван Иванов"`
