@@ -12,7 +12,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/artesipov-alt/odnoi-krovi-app/poolservice/gen
+      value: github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen
   disable:
     - file_option: go_package
       module: buf.build/bufbuild/protovalidate

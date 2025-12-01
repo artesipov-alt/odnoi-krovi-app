@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/poolservice/gen/api/blood/v1/bloodv1connect"
-	v1 "github.com/artesipov-alt/odnoi-krovi-app/poolservice/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1/bloodpoolv1connect"
+	v1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/services"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -24,8 +24,8 @@ func main() {
 		middleware.RealIP)
 
 	// Создаем gRPC сервер
-	greeter := &v1.BloodServer{}
-	path, handler := bloodv1connect.NewBloodServiceHandler(greeter)
+	poolService := &v1.BloodPoolService{}
+	path, handler := bloodpoolv1connect.NewBloodSerchPoolHandler(poolService)
 
 	// Подключаем gRPC handler к Chi
 	r.Handle(path+"*", handler)

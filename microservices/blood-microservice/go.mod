@@ -1,4 +1,4 @@
-module github.com/artesipov-alt/odnoi-krovi-app/poolservice
+module github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice
 
 go 1.25.1
 
