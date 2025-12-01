@@ -21,8 +21,8 @@ import (
 const _ = connect.IsAtLeastVersion1_13_0
 
 const (
-	// BloodSerchPoolName is the fully-qualified name of the BloodSerchPool service.
-	BloodSerchPoolName = "bloodpool.v1.BloodSerchPool"
+	// BloodSearchPoolName is the fully-qualified name of the BloodSearchPool service.
+	BloodSearchPoolName = "bloodpool.v1.BloodSearchPool"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -33,53 +33,52 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// BloodSerchPoolAddPetProcedure is the fully-qualified name of the BloodSerchPool's AddPet RPC.
-	BloodSerchPoolAddPetProcedure = "/bloodpool.v1.BloodSerchPool/AddPet"
-	// BloodSerchPoolGetPetsByCriteriasProcedure is the fully-qualified name of the BloodSerchPool's
-	// GetPetsByCriterias RPC.
-	BloodSerchPoolGetPetsByCriteriasProcedure = "/bloodpool.v1.BloodSerchPool/GetPetsByCriterias"
+	// BloodSearchPoolAddPetProcedure is the fully-qualified name of the BloodSearchPool's AddPet RPC.
+	BloodSearchPoolAddPetProcedure = "/bloodpool.v1.BloodSearchPool/AddPet"
+	// BloodSearchPoolGetPetsProcedure is the fully-qualified name of the BloodSearchPool's GetPets RPC.
+	BloodSearchPoolGetPetsProcedure = "/bloodpool.v1.BloodSearchPool/GetPets"
 )
 
-// BloodSerchPoolClient is a client for the bloodpool.v1.BloodSerchPool service.
-type BloodSerchPoolClient interface {
-	AddPet(context.Context, *v1.AddToSearchPoolReq) (*v1.AddToSearchPoolResp, error)
-	GetPetsByCriterias(context.Context, *v1.GetPetsByCriteriaReq) (*v1.GetPetsByCriteriaResp, error)
+// BloodSearchPoolClient is a client for the bloodpool.v1.BloodSearchPool service.
+type BloodSearchPoolClient interface {
+	AddPet(context.Context, *v1.PetRow) (*v1.PetRowStatus, error)
+	GetPets(context.Context, *v1.GetPetRows) (*v1.PetRows, error)
 }
 
-// NewBloodSerchPoolClient constructs a client for the bloodpool.v1.BloodSerchPool service. By
+// NewBloodSearchPoolClient constructs a client for the bloodpool.v1.BloodSearchPool service. By
 // default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
 // and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
 // connect.WithGRPC() or connect.WithGRPCWeb() options.
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
-func NewBloodSerchPoolClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BloodSerchPoolClient {
+func NewBloodSearchPoolClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BloodSearchPoolClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	bloodSerchPoolMethods := v1.File_api_bloodpool_v1_bloodpool_proto.Services().ByName("BloodSerchPool").Methods()
-	return &bloodSerchPoolClient{
-		addPet: connect.NewClient[v1.AddToSearchPoolReq, v1.AddToSearchPoolResp](
+	bloodSearchPoolMethods := v1.File_api_bloodpool_v1_bloodpool_proto.Services().ByName("BloodSearchPool").Methods()
+	return &bloodSearchPoolClient{
+		addPet: connect.NewClient[v1.PetRow, v1.PetRowStatus](
 			httpClient,
-			baseURL+BloodSerchPoolAddPetProcedure,
-			connect.WithSchema(bloodSerchPoolMethods.ByName("AddPet")),
+			baseURL+BloodSearchPoolAddPetProcedure,
+			connect.WithSchema(bloodSearchPoolMethods.ByName("AddPet")),
 			connect.WithClientOptions(opts...),
 		),
-		getPetsByCriterias: connect.NewClient[v1.GetPetsByCriteriaReq, v1.GetPetsByCriteriaResp](
+		getPets: connect.NewClient[v1.GetPetRows, v1.PetRows](
 			httpClient,
-			baseURL+BloodSerchPoolGetPetsByCriteriasProcedure,
-			connect.WithSchema(bloodSerchPoolMethods.ByName("GetPetsByCriterias")),
+			baseURL+BloodSearchPoolGetPetsProcedure,
+			connect.WithSchema(bloodSearchPoolMethods.ByName("GetPets")),
 			connect.WithClientOptions(opts...),
 		),
 	}
 }
 
-// bloodSerchPoolClient implements BloodSerchPoolClient.
-type bloodSerchPoolClient struct {
-	addPet             *connect.Client[v1.AddToSearchPoolReq, v1.AddToSearchPoolResp]
-	getPetsByCriterias *connect.Client[v1.GetPetsByCriteriaReq, v1.GetPetsByCriteriaResp]
+// bloodSearchPoolClient implements BloodSearchPoolClient.
+type bloodSearchPoolClient struct {
+	addPet  *connect.Client[v1.PetRow, v1.PetRowStatus]
+	getPets *connect.Client[v1.GetPetRows, v1.PetRows]
 }
 
-// AddPet calls bloodpool.v1.BloodSerchPool.AddPet.
-func (c *bloodSerchPoolClient) AddPet(ctx context.Context, req *v1.AddToSearchPoolReq) (*v1.AddToSearchPoolResp, error) {
+// AddPet calls bloodpool.v1.BloodSearchPool.AddPet.
+func (c *bloodSearchPoolClient) AddPet(ctx context.Context, req *v1.PetRow) (*v1.PetRowStatus, error) {
 	response, err := c.addPet.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
@@ -87,59 +86,59 @@ func (c *bloodSerchPoolClient) AddPet(ctx context.Context, req *v1.AddToSearchPo
 	return nil, err
 }
 
-// GetPetsByCriterias calls bloodpool.v1.BloodSerchPool.GetPetsByCriterias.
-func (c *bloodSerchPoolClient) GetPetsByCriterias(ctx context.Context, req *v1.GetPetsByCriteriaReq) (*v1.GetPetsByCriteriaResp, error) {
-	response, err := c.getPetsByCriterias.CallUnary(ctx, connect.NewRequest(req))
+// GetPets calls bloodpool.v1.BloodSearchPool.GetPets.
+func (c *bloodSearchPoolClient) GetPets(ctx context.Context, req *v1.GetPetRows) (*v1.PetRows, error) {
+	response, err := c.getPets.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
 	return nil, err
 }
 
-// BloodSerchPoolHandler is an implementation of the bloodpool.v1.BloodSerchPool service.
-type BloodSerchPoolHandler interface {
-	AddPet(context.Context, *v1.AddToSearchPoolReq) (*v1.AddToSearchPoolResp, error)
-	GetPetsByCriterias(context.Context, *v1.GetPetsByCriteriaReq) (*v1.GetPetsByCriteriaResp, error)
+// BloodSearchPoolHandler is an implementation of the bloodpool.v1.BloodSearchPool service.
+type BloodSearchPoolHandler interface {
+	AddPet(context.Context, *v1.PetRow) (*v1.PetRowStatus, error)
+	GetPets(context.Context, *v1.GetPetRows) (*v1.PetRows, error)
 }
 
-// NewBloodSerchPoolHandler builds an HTTP handler from the service implementation. It returns the
+// NewBloodSearchPoolHandler builds an HTTP handler from the service implementation. It returns the
 // path on which to mount the handler and the handler itself.
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
-func NewBloodSerchPoolHandler(svc BloodSerchPoolHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	bloodSerchPoolMethods := v1.File_api_bloodpool_v1_bloodpool_proto.Services().ByName("BloodSerchPool").Methods()
-	bloodSerchPoolAddPetHandler := connect.NewUnaryHandlerSimple(
-		BloodSerchPoolAddPetProcedure,
+func NewBloodSearchPoolHandler(svc BloodSearchPoolHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	bloodSearchPoolMethods := v1.File_api_bloodpool_v1_bloodpool_proto.Services().ByName("BloodSearchPool").Methods()
+	bloodSearchPoolAddPetHandler := connect.NewUnaryHandlerSimple(
+		BloodSearchPoolAddPetProcedure,
 		svc.AddPet,
-		connect.WithSchema(bloodSerchPoolMethods.ByName("AddPet")),
+		connect.WithSchema(bloodSearchPoolMethods.ByName("AddPet")),
 		connect.WithHandlerOptions(opts...),
 	)
-	bloodSerchPoolGetPetsByCriteriasHandler := connect.NewUnaryHandlerSimple(
-		BloodSerchPoolGetPetsByCriteriasProcedure,
-		svc.GetPetsByCriterias,
-		connect.WithSchema(bloodSerchPoolMethods.ByName("GetPetsByCriterias")),
+	bloodSearchPoolGetPetsHandler := connect.NewUnaryHandlerSimple(
+		BloodSearchPoolGetPetsProcedure,
+		svc.GetPets,
+		connect.WithSchema(bloodSearchPoolMethods.ByName("GetPets")),
 		connect.WithHandlerOptions(opts...),
 	)
-	return "/bloodpool.v1.BloodSerchPool/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/bloodpool.v1.BloodSearchPool/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case BloodSerchPoolAddPetProcedure:
-			bloodSerchPoolAddPetHandler.ServeHTTP(w, r)
-		case BloodSerchPoolGetPetsByCriteriasProcedure:
-			bloodSerchPoolGetPetsByCriteriasHandler.ServeHTTP(w, r)
+		case BloodSearchPoolAddPetProcedure:
+			bloodSearchPoolAddPetHandler.ServeHTTP(w, r)
+		case BloodSearchPoolGetPetsProcedure:
+			bloodSearchPoolGetPetsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
 	})
 }
 
-// UnimplementedBloodSerchPoolHandler returns CodeUnimplemented from all methods.
-type UnimplementedBloodSerchPoolHandler struct{}
+// UnimplementedBloodSearchPoolHandler returns CodeUnimplemented from all methods.
+type UnimplementedBloodSearchPoolHandler struct{}
 
-func (UnimplementedBloodSerchPoolHandler) AddPet(context.Context, *v1.AddToSearchPoolReq) (*v1.AddToSearchPoolResp, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("bloodpool.v1.BloodSerchPool.AddPet is not implemented"))
+func (UnimplementedBloodSearchPoolHandler) AddPet(context.Context, *v1.PetRow) (*v1.PetRowStatus, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("bloodpool.v1.BloodSearchPool.AddPet is not implemented"))
 }
 
-func (UnimplementedBloodSerchPoolHandler) GetPetsByCriterias(context.Context, *v1.GetPetsByCriteriaReq) (*v1.GetPetsByCriteriaResp, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("bloodpool.v1.BloodSerchPool.GetPetsByCriterias is not implemented"))
+func (UnimplementedBloodSearchPoolHandler) GetPets(context.Context, *v1.GetPetRows) (*v1.PetRows, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("bloodpool.v1.BloodSearchPool.GetPets is not implemented"))
 }

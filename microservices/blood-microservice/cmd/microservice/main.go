@@ -10,10 +10,12 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1/bloodpoolv1connect"
+	redisrepo "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories/redis"
 	v1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/services"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	redisclient "github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -23,9 +25,26 @@ func main() {
 		middleware.Recoverer,
 		middleware.RealIP)
 
+	// Создаем Redis клиент
+	redisClient := redisclient.NewClient(&redisclient.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	// Проверяем подключение к Redis
+	ctx := context.Background()
+	if err := redisClient.Ping(ctx).Err(); err != nil {
+		log.Fatalf("Не удалось подключиться к Redis: %v", err)
+	}
+	log.Println("Успешное подключение к Redis")
+
+	// Создаем репозиторий
+	petRepo := redisrepo.NewRedisPetRepository(redisClient)
+
 	// Создаем gRPC сервер
-	poolService := &v1.BloodPoolService{}
-	path, handler := bloodpoolv1connect.NewBloodSerchPoolHandler(poolService)
+	poolService := v1.NewBloodPoolService(petRepo)
+	path, handler := bloodpoolv1connect.NewBloodSearchPoolHandler(poolService)
 
 	// Подключаем gRPC handler к Chi
 	r.Handle(path+"*", handler)

@@ -2,28 +2,68 @@ package v1
 
 import (
 	"context"
+	"time"
 
 	bloodpoolv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1"
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories"
 )
 
-type BloodPoolService struct{}
+type bloodPoolService struct {
+	repo repositories.PetRepository
+}
 
-// Обрабатывает запрос добавления питомнца в пулл поиска крови
-func (s *BloodPoolService) AddPet(
+func NewBloodPoolService(repo repositories.PetRepository) *bloodPoolService {
+	return &bloodPoolService{repo: repo}
+}
+
+// AddPet обрабатывает запрос добавления питомца в пул поиска крови
+func (s *bloodPoolService) AddPet(
 	ctx context.Context,
-	req *bloodpoolv1.AddToSearchPoolReq,
-) (*bloodpoolv1.AddToSearchPoolResp, error) {
-	return &bloodpoolv1.AddToSearchPoolResp{
-		Status: true,
+	req *bloodpoolv1.PetRow,
+) (*bloodpoolv1.PetRowStatus, error) {
+	// Для реципиентов устанавливаем TTL 30 минут
+	// Для доноров можно установить другой TTL или 0 (без TTL)
+	var ttl time.Duration
+
+	// Определяем TTL в зависимости от типа питомца или статуса
+	// В данном случае предполагаем, что все добавляемые питомцы - реципиенты с TTL 30 минут
+	ttl = 30 * time.Minute
+
+	// Устанавливаем статус "active" для реципиента
+	req.Status = "active"
+
+	// Сохраняем питомца в репозиторий с TTL
+	err := s.repo.AddPet(ctx, req, ttl)
+	if err != nil {
+		return nil, err
+	}
+
+	return &bloodpoolv1.PetRowStatus{
+		RowId:  req.Id,
+		Status: "added_with_ttl_30min",
 	}, nil
 }
 
-// Обрабатывает запрос добавления питомнца в пулл поиска крови
-func (s *BloodPoolService) GetPetsByCriterias(
+// GetPets обрабатывает запрос получения питомцев по критериям
+func (s *bloodPoolService) GetPets(
 	ctx context.Context,
-	req *bloodpoolv1.GetPetsByCriteriaReq,
-) (*bloodpoolv1.GetPetsByCriteriaResp, error) {
-	return &bloodpoolv1.GetPetsByCriteriaResp{
-		Pets: []*bloodpoolv1.PetSearchResult{},
+	req *bloodpoolv1.GetPetRows,
+) (*bloodpoolv1.PetRows, error) {
+	// Получаем питомцев по критериям
+	pets, err := s.repo.GetPetsByCriteria(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Фильтруем только активных питомцев (статус "active")
+	var activePets []*bloodpoolv1.PetRow
+	for _, pet := range pets {
+		if pet.Status == "active" {
+			activePets = append(activePets, pet)
+		}
+	}
+
+	return &bloodpoolv1.PetRows{
+		Pets: activePets,
 	}, nil
 }
