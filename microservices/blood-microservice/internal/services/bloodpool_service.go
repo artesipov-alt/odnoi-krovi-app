@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	bloodpoolv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1"
@@ -39,7 +40,7 @@ func (s *bloodPoolService) AddPet(
 	}
 
 	return &bloodpoolv1.PetRowStatus{
-		RowId:  req.Id,
+		PetId:  req.PetId,
 		Status: "added_with_ttl_30min",
 	}, nil
 }
@@ -55,13 +56,42 @@ func (s *bloodPoolService) GetPets(
 		return nil, err
 	}
 
-	// Фильтруем только активных питомцев (статус "active")
+	// Дедупликация по pet_id и фильтрация только активных
+	seen := make(map[string]struct{}, len(pets))
 	var activePets []*bloodpoolv1.PetRow
 	for _, pet := range pets {
-		if pet.Status == "active" {
-			activePets = append(activePets, pet)
+		if pet.Status != "active" {
+			continue
 		}
+		if _, ok := seen[pet.PetId]; ok {
+			continue
+		}
+		seen[pet.PetId] = struct{}{}
+		activePets = append(activePets, pet)
 	}
+
+	// Предрасчет оставшегося времени жизни для сортировки
+	timeLeft := make(map[string]time.Duration, len(activePets))
+	for _, pet := range activePets {
+		ttl, err := s.repo.GetTTL(ctx, pet.PetId)
+		if err != nil || ttl <= 0 {
+			// Если TTL недоступен/ошибка — ставим максимально возможное значение,
+			// чтобы такие записи шли в конце при сортировке по времени
+			ttl = time.Duration(1<<63 - 1)
+		}
+		timeLeft[pet.PetId] = ttl
+	}
+
+	// Сортировка: сперва по приоритету (desc), затем по оставшемуся времени (asc)
+	sort.Slice(activePets, func(i, j int) bool {
+		pi, pj := activePets[i], activePets[j]
+		if pi.PriorityLevel != pj.PriorityLevel {
+			return pi.PriorityLevel > pj.PriorityLevel
+		}
+		ti := timeLeft[pi.PetId]
+		tj := timeLeft[pj.PetId]
+		return ti < tj
+	})
 
 	return &bloodpoolv1.PetRows{
 		Pets: activePets,

@@ -41,4 +41,10 @@ type PetRepository interface {
 
 	// GetTTL возвращает оставшееся время жизни записи
 	GetTTL(ctx context.Context, petID string) (time.Duration, error)
+
+	// GetActivePetsFromPool возвращает всех активных питомцев из ZSET-пула (score > now)
+	GetActivePetsFromPool(ctx context.Context) ([]*bloodpoolv1.PetRow, error)
+
+	// CleanExpiredPool удаляет устаревшие записи из пула (score <= now) и пытается удалить соответствующие ключи
+	CleanExpiredPool(ctx context.Context) error
 }

@@ -21,6 +21,9 @@ const (
 	IndexBloodGroupPrefix = "index:blood_group:"
 	// IndexRegionPrefix - префикс для индекса по региону
 	IndexRegionPrefix = "index:region:"
+	// BloodPoolZSet - отсортированный набор с timestamp'ом истечения для пула поиска крови
+	// score = unix timestamp истечения записи (time.Now().Add(ttl).Unix())
+	BloodPoolZSet = "blood_pool"
 )
 
 // RedisPetRepository реализует PetRepository с использованием Redis
@@ -51,6 +54,13 @@ func (r *RedisPetRepository) AddPet(ctx context.Context, pet *bloodpoolv1.PetRow
 	// Обновляем индексы с тем же TTL
 	if err := r.updateIndexesWithTTL(ctx, pipe, pet, ttl); err != nil {
 		return fmt.Errorf("failed to update indexes: %w", err)
+	}
+
+	// Добавляем в ZSET индекс пула доноров/реципиентов с score = unix timestamp истечения (если ttl > 0).
+	// Это позволит быстро получать активных доноров/реципиентов и чистить устаревшие записи.
+	if ttl > 0 {
+		expireAt := time.Now().Add(ttl).Unix()
+		pipe.ZAdd(ctx, BloodPoolZSet, redis.Z{Score: float64(expireAt), Member: key})
 	}
 
 	// Выполняем транзакцию
@@ -202,6 +212,9 @@ func (r *RedisPetRepository) DeletePet(ctx context.Context, petID string) error 
 	key := PetKeyPrefix + petID
 	pipe.Del(ctx, key)
 
+	// Удаляем из ZSET пула (на случай, если запись еще присутствует в индексе)
+	pipe.ZRem(ctx, BloodPoolZSet, key)
+
 	// Выполняем транзакцию
 	_, err = pipe.Exec(ctx)
 	if err != nil {
@@ -348,6 +361,76 @@ func (r *RedisPetRepository) GetTTL(ctx context.Context, petID string) (time.Dur
 	}
 
 	return ttl, nil
+}
+
+// GetActivePetsFromPool возвращает всех активных питомцев из ZSET-пула (те, у которых score > now)
+// Возвращаемые записи дополнительно проверяются на существование и парсятся из JSON.
+func (r *RedisPetRepository) GetActivePetsFromPool(ctx context.Context) ([]*bloodpoolv1.PetRow, error) {
+	now := time.Now().Unix()
+	min := fmt.Sprintf("%d", now+1) // strictly greater than now
+	keys, err := r.client.ZRangeByScore(ctx, BloodPoolZSet, &redis.ZRangeBy{
+		Min: min,
+		Max: "+inf",
+	}).Result()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get active pets from pool: %w", err)
+	}
+
+	var pets []*bloodpoolv1.PetRow
+	for _, key := range keys {
+		data, err := r.client.Get(ctx, key).Bytes()
+		if err != nil {
+			if err == redis.Nil {
+				// Ключ не существует — возможно TTL истек, будем чистить периодически
+				continue
+			}
+			// если другая ошибка — пропускаем текущую запись
+			continue
+		}
+
+		var pet bloodpoolv1.PetRow
+		if err := json.Unmarshal(data, &pet); err != nil {
+			continue
+		}
+		pets = append(pets, &pet)
+	}
+
+	return pets, nil
+}
+
+// CleanExpiredPool удаляет из ZSET все записи с истекшим временем (score <= now).
+// Опционально пытается удалить соответствующие ключи (если они все еще существуют).
+func (r *RedisPetRepository) CleanExpiredPool(ctx context.Context) error {
+	now := time.Now().Unix()
+	max := fmt.Sprintf("%d", now)
+
+	// Получаем устаревшие члены, чтобы попытаться удалить соответствующие ключи (если нужно)
+	expiredMembers, err := r.client.ZRangeByScore(ctx, BloodPoolZSet, &redis.ZRangeBy{
+		Min: "-inf",
+		Max: max,
+	}).Result()
+	if err != nil {
+		return fmt.Errorf("failed to fetch expired pool members: %w", err)
+	}
+
+	// Если ничего нет — всё ок, но всё равно очищаем диапазон (без ошибок)
+	if len(expiredMembers) == 0 {
+		_, _ = r.client.ZRemRangeByScore(ctx, BloodPoolZSet, "-inf", max).Result()
+		return nil
+	}
+
+	pipe := r.client.TxPipeline()
+	// Удаляем range из ZSET
+	pipe.ZRemRangeByScore(ctx, BloodPoolZSet, "-inf", max)
+	// Пытаемся удалить соответствующие ключи (если они ещё существуют)
+	for _, member := range expiredMembers {
+		pipe.Del(ctx, member)
+	}
+	_, err = pipe.Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to clean expired pool entries: %w", err)
+	}
+	return nil
 }
 
 // updateIndexesWithTTL обновляет индексы для питомца с TTL

@@ -3,20 +3,19 @@ syntax = "proto3";
 package bloodpool.v1;
 
 message PetRow {
-  int64 id = 1;
-  string pet_id = 2;
-  string pet_type = 3;
-  string blood_group = 4;
-  repeated string blood_components = 5;
-  float blood_volume = 6;
-  repeated int32 regions = 7;
-  bool small_pets_notify_allowed = 8;
-  string status = 9;
-  int32 priority_level = 10;
+  string pet_id = 1;
+  string pet_type = 2;
+  string blood_group = 3;
+  repeated string blood_components = 4;
+  float blood_volume = 5;
+  repeated int32 regions = 6;
+  bool small_pets_notify_allowed = 7;
+  string status = 8;
+  int32 priority_level = 9;
 }
 
 message PetRowStatus {
-  int64 row_id = 1;
+  string pet_id = 1;
   string status = 2;
 }
 

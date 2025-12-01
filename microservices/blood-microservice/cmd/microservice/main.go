@@ -42,6 +42,23 @@ func main() {
 	// Создаем репозиторий
 	petRepo := redisrepo.NewRedisPetRepository(redisClient)
 
+	// Background cleaner: периодически очищает истекшие записи из ZSET-пула.
+	cleanerCtx, cleanerCancel := context.WithCancel(context.Background())
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				if err := petRepo.CleanExpiredPool(cleanerCtx); err != nil {
+					log.Printf("failed to clean expired pool: %v", err)
+				}
+			case <-cleanerCtx.Done():
+				return
+			}
+		}
+	}()
+
 	// Создаем gRPC сервер
 	poolService := v1.NewBloodPoolService(petRepo)
 	path, handler := bloodpoolv1connect.NewBloodSearchPoolHandler(poolService)
@@ -75,6 +92,9 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Получен сигнал завершения работы...")
+
+	// Останавливаем background cleaner
+	cleanerCancel()
 
 	// Graceful shutdown с таймаутом
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
