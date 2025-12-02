@@ -674,66 +674,6 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
-  /blood-search/pool/pets:
-    post:
-      consumes:
-      - application/json
-      description: Добавляет питомца-реципиента в пул поиска крови
-      parameters:
-      - description: Данные питомца для пула поиска крови
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/bloodsearchv1.PetRow'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Статус добавления питомца
-          schema:
-            $ref: '#/definitions/bloodsearchv1.PetRowStatus'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Добавить питомца в пул поиска крови
-      tags:
-      - blood-search
-  /blood-search/pool/pets/search:
-    post:
-      consumes:
-      - application/json
-      description: Возвращает список питомцев-реципиентов по фильтрам
-      parameters:
-      - description: 'Фильтры поиска: тип, группа крови, регионы'
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/bloodsearchv1.GetPetRows'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список питомцев
-          schema:
-            $ref: '#/definitions/bloodsearchv1.PetRows'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получить питомцев из пула поиска крови
-      tags:
-      - blood-search
   /blood-stocks:
     get:
       description: Возвращает список всех запасов крови в системе
@@ -1162,6 +1102,68 @@ paths:
       summary: Обновление данных питомца
       tags:
       - pets
+  /pets/blood-search/pool:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет питомца-реципиента в пул поиска крови
+      parameters:
+      - description: Данные питомца для пула поиска крови
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bloodsearchv1.PetRow'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Статус добавления питомца
+          schema:
+            $ref: '#/definitions/bloodsearchv1.PetRowStatus'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Добавить питомца в пул поиска крови
+      tags:
+      - pets
+      - blood-search
+  /pets/blood-search/pool/search:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список питомцев-реципиентов по фильтрам
+      parameters:
+      - description: 'Фильтры поиска: тип, группа крови, регионы'
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bloodsearchv1.GetPetRows'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список питомцев
+          schema:
+            $ref: '#/definitions/bloodsearchv1.PetRows'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получить питомцев из пула поиска крови
+      tags:
+      - pets
+      - blood-search
   /pets/user/{user_id}:
     get:
       description: Возвращает всех питомцев конкретного пользователя

@@ -35,98 +35,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/blood-search/pool/pets": {
-            "post": {
-                "description": "Добавляет питомца-реципиента в пул поиска крови",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-search"
-                ],
-                "summary": "Добавить питомца в пул поиска крови",
-                "parameters": [
-                    {
-                        "description": "Данные питомца для пула поиска крови",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/bloodsearchv1.PetRow"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Статус добавления питомца",
-                        "schema": {
-                            "$ref": "#/definitions/bloodsearchv1.PetRowStatus"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/blood-search/pool/pets/search": {
-            "post": {
-                "description": "Возвращает список питомцев-реципиентов по фильтрам",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-search"
-                ],
-                "summary": "Получить питомцев из пула поиска крови",
-                "parameters": [
-                    {
-                        "description": "Фильтры поиска: тип, группа крови, регионы",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/bloodsearchv1.GetPetRows"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список питомцев",
-                        "schema": {
-                            "$ref": "#/definitions/bloodsearchv1.PetRows"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/blood-stocks": {
             "get": {
                 "description": "Возвращает список всех запасов крови в системе",
@@ -616,6 +524,100 @@ const docTemplate = `{
                         "description": "Успешное восстановление пользователя",
                         "schema": {
                             "$ref": "#/definitions/handlers.DevResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pets/blood-search/pool": {
+            "post": {
+                "description": "Добавляет питомца-реципиента в пул поиска крови",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets",
+                    "blood-search"
+                ],
+                "summary": "Добавить питомца в пул поиска крови",
+                "parameters": [
+                    {
+                        "description": "Данные питомца для пула поиска крови",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.PetRow"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Статус добавления питомца",
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.PetRowStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pets/blood-search/pool/search": {
+            "post": {
+                "description": "Возвращает список питомцев-реципиентов по фильтрам",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets",
+                    "blood-search"
+                ],
+                "summary": "Получить питомцев из пула поиска крови",
+                "parameters": [
+                    {
+                        "description": "Фильтры поиска: тип, группа крови, регионы",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.GetPetRows"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список питомцев",
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.PetRows"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }

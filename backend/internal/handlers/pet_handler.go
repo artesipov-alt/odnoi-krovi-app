@@ -173,14 +173,14 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 // AddPetToBloodSearchPoolHandler godoc
 // @Summary Добавить питомца в пул поиска крови
 // @Description Добавляет питомца-реципиента в пул поиска крови
-// @Tags blood-search
+// @Tags pets, blood-search
 // @Accept json
 // @Produce json
 // @Param request body bloodsearchv1.PetRow true "Данные питомца для пула поиска крови"
 // @Success 201 {object} bloodsearchv1.PetRowStatus "Статус добавления питомца"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /blood-search/pool/pets [post]
+// @Router /pets/blood-search/pool [post]
 func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
 	var pet bloodsearchv1.PetRow
 	if err := ParseBody(c, &pet); err != nil {
@@ -205,14 +205,14 @@ func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
 // GetPetsFromBloodSearchPoolHandler godoc
 // @Summary Получить питомцев из пула поиска крови
 // @Description Возвращает список питомцев-реципиентов по фильтрам
-// @Tags blood-search
+// @Tags pets, blood-search
 // @Accept json
 // @Produce json
 // @Param request body bloodsearchv1.GetPetRows true "Фильтры поиска: тип, группа крови, регионы"
 // @Success 200 {object} bloodsearchv1.PetRows "Список питомцев"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /blood-search/pool/pets/search [post]
+// @Router /pets/blood-search/pool/search [post]
 func (h *PetHandler) GetPetsFromBloodSearchPoolHandler(c *fiber.Ctx) error {
 	var filter bloodsearchv1.GetPetRows
 	if err := ParseBody(c, &filter); err != nil {

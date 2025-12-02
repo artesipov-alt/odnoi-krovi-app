@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"connectrpc.com/connect"
 	bloodsearchv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1"
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1/bloodsearchv1connect"
 )
@@ -18,7 +17,6 @@ func NewBloodSearchService(baseURL string) *BloodSearchService {
 	client := bloodsearchv1connect.NewBloodSearchPoolClient(
 		http.DefaultClient,
 		baseURL,
-		connect.WithGRPC(),
 	)
 	return &BloodSearchService{client: client}
 }

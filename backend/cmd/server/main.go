@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                              // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                              // Логирование
+
 	// Управление миграциями
 	"github.com/gofiber/fiber/v2"                 // Веб-фреймворк
 	"github.com/gofiber/fiber/v2/middleware/cors" // CORS middleware
