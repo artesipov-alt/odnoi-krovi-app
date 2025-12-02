@@ -1,53 +1,94 @@
 basePath: /api/v1
 definitions:
-  bloodsearchv1.GetPetRows:
+  handlers.BloodSearchFilterRequest:
+    description: Фильтры для поиска питомцев-реципиентов
     properties:
-      blood_group:
+      bloodGroup:
+        description: Группа крови для поиска
+        example: DEA 1.1+
         type: string
-      pet_type:
+      petType:
+        description: Тип животного для поиска
+        example: dog
         type: string
       regions:
+        description: ID регионов для фильтрации
+        example:
+        - 1
+        - 2
+        - 3
         items:
           type: integer
         type: array
     type: object
-  bloodsearchv1.PetRow:
+  handlers.BloodSearchPetRequest:
+    description: Данные питомца-реципиента для пула поиска крови
     properties:
-      blood_components:
+      bloodComponents:
+        description: Необходимые компоненты крови
+        example:
+        - whole_blood
+        - plasma
         items:
           type: string
         type: array
-      blood_group:
+      bloodGroup:
+        description: Группа крови животного
+        example: DEA 1.1+
         type: string
-      blood_volume_needed:
+      bloodVolumeNeeded:
+        description: Необходимый объем крови в мл
+        example: 500
         type: integer
-      blood_volume_reserved:
+      bloodVolumeReserved:
+        description: Зарезервированный объем крови в мл
+        example: 100
         type: integer
-      pet_id:
+      petId:
+        description: ID питомца в системе
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
-      pet_type:
+      petType:
+        description: Тип животного (dog, cat и т.д.)
+        example: dog
         type: string
       regions:
+        description: ID регионов для поиска доноров
+        example:
+        - 1
+        - 2
+        - 3
         items:
           type: integer
         type: array
-      small_pets_notify_allowed:
+      smallPetsNotifyAllowed:
+        description: Разрешить уведомления для маленьких питомцев
+        example: true
         type: boolean
       status:
+        description: Статус поиска
+        example: active
         type: string
     type: object
-  bloodsearchv1.PetRowStatus:
+  handlers.BloodSearchPetResponse:
+    description: Статус операции с питомцем в пуле поиска крови
     properties:
-      pet_id:
+      petId:
+        description: ID питомца в системе
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       status:
+        description: Статус операции
+        example: added
         type: string
     type: object
-  bloodsearchv1.PetRows:
+  handlers.BloodSearchPetsResponse:
+    description: Список питомцев из пула поиска крови
     properties:
       pets:
+        description: Список питомцев
         items:
-          $ref: '#/definitions/bloodsearchv1.PetRow'
+          $ref: '#/definitions/handlers.BloodSearchPetRequest'
         type: array
     type: object
   handlers.DevResponse:
@@ -1113,14 +1154,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/bloodsearchv1.PetRow'
+          $ref: '#/definitions/handlers.BloodSearchPetRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Статус добавления питомца
           schema:
-            $ref: '#/definitions/bloodsearchv1.PetRowStatus'
+            $ref: '#/definitions/handlers.BloodSearchPetResponse'
         "400":
           description: Неверный запрос
           schema:
@@ -1144,14 +1185,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/bloodsearchv1.GetPetRows'
+          $ref: '#/definitions/handlers.BloodSearchFilterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Список питомцев
           schema:
-            $ref: '#/definitions/bloodsearchv1.PetRows'
+            $ref: '#/definitions/handlers.BloodSearchPetsResponse'
         "400":
           description: Неверный запрос
           schema:
