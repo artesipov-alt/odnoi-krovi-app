@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package bloodpool.v1;
+package bloodsearch.v1;
 
 message PetRow {
   string pet_id = 1;
@@ -11,11 +11,10 @@ message PetRow {
   repeated int32 regions = 6;
   bool small_pets_notify_allowed = 7;
   string status = 8;
-  int32 priority_level = 9;
 }
 
 message PetRowStatus {
-  string pet_id = 1;
+  int64 row_id = 1;
   string status = 2;
 }
 

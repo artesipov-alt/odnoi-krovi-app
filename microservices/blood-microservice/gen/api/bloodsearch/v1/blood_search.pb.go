@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        (unknown)
-// source: api/bloodpool/v1/bloodpool.proto
+// source: api/bloodsearch/v1/blood_search.proto
 
-package bloodpoolv1
+package bloodsearchv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -31,14 +31,13 @@ type PetRow struct {
 	Regions                []int32                `protobuf:"varint,6,rep,packed,name=regions,proto3" json:"regions,omitempty"`
 	SmallPetsNotifyAllowed bool                   `protobuf:"varint,7,opt,name=small_pets_notify_allowed,json=smallPetsNotifyAllowed,proto3" json:"small_pets_notify_allowed,omitempty"`
 	Status                 string                 `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
-	PriorityLevel          int32                  `protobuf:"varint,9,opt,name=priority_level,json=priorityLevel,proto3" json:"priority_level,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
 
 func (x *PetRow) Reset() {
 	*x = PetRow{}
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[0]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -50,7 +49,7 @@ func (x *PetRow) String() string {
 func (*PetRow) ProtoMessage() {}
 
 func (x *PetRow) ProtoReflect() protoreflect.Message {
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[0]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -63,7 +62,7 @@ func (x *PetRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PetRow.ProtoReflect.Descriptor instead.
 func (*PetRow) Descriptor() ([]byte, []int) {
-	return file_api_bloodpool_v1_bloodpool_proto_rawDescGZIP(), []int{0}
+	return file_api_bloodsearch_v1_blood_search_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *PetRow) GetPetId() string {
@@ -122,16 +121,9 @@ func (x *PetRow) GetStatus() string {
 	return ""
 }
 
-func (x *PetRow) GetPriorityLevel() int32 {
-	if x != nil {
-		return x.PriorityLevel
-	}
-	return 0
-}
-
 type PetRowStatus struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	PetId         string                 `protobuf:"bytes,1,opt,name=pet_id,json=petId,proto3" json:"pet_id,omitempty"`
+	RowId         int64                  `protobuf:"varint,1,opt,name=row_id,json=rowId,proto3" json:"row_id,omitempty"`
 	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -139,7 +131,7 @@ type PetRowStatus struct {
 
 func (x *PetRowStatus) Reset() {
 	*x = PetRowStatus{}
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[1]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +143,7 @@ func (x *PetRowStatus) String() string {
 func (*PetRowStatus) ProtoMessage() {}
 
 func (x *PetRowStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[1]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,14 +156,14 @@ func (x *PetRowStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PetRowStatus.ProtoReflect.Descriptor instead.
 func (*PetRowStatus) Descriptor() ([]byte, []int) {
-	return file_api_bloodpool_v1_bloodpool_proto_rawDescGZIP(), []int{1}
+	return file_api_bloodsearch_v1_blood_search_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PetRowStatus) GetPetId() string {
+func (x *PetRowStatus) GetRowId() int64 {
 	if x != nil {
-		return x.PetId
+		return x.RowId
 	}
-	return ""
+	return 0
 }
 
 func (x *PetRowStatus) GetStatus() string {
@@ -192,7 +184,7 @@ type GetPetRows struct {
 
 func (x *GetPetRows) Reset() {
 	*x = GetPetRows{}
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[2]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -204,7 +196,7 @@ func (x *GetPetRows) String() string {
 func (*GetPetRows) ProtoMessage() {}
 
 func (x *GetPetRows) ProtoReflect() protoreflect.Message {
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[2]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -217,7 +209,7 @@ func (x *GetPetRows) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPetRows.ProtoReflect.Descriptor instead.
 func (*GetPetRows) Descriptor() ([]byte, []int) {
-	return file_api_bloodpool_v1_bloodpool_proto_rawDescGZIP(), []int{2}
+	return file_api_bloodsearch_v1_blood_search_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetPetRows) GetPetType() string {
@@ -250,7 +242,7 @@ type PetRows struct {
 
 func (x *PetRows) Reset() {
 	*x = PetRows{}
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[3]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -262,7 +254,7 @@ func (x *PetRows) String() string {
 func (*PetRows) ProtoMessage() {}
 
 func (x *PetRows) ProtoReflect() protoreflect.Message {
-	mi := &file_api_bloodpool_v1_bloodpool_proto_msgTypes[3]
+	mi := &file_api_bloodsearch_v1_blood_search_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -275,7 +267,7 @@ func (x *PetRows) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PetRows.ProtoReflect.Descriptor instead.
 func (*PetRows) Descriptor() ([]byte, []int) {
-	return file_api_bloodpool_v1_bloodpool_proto_rawDescGZIP(), []int{3}
+	return file_api_bloodsearch_v1_blood_search_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PetRows) GetPets() []*PetRow {
@@ -285,11 +277,11 @@ func (x *PetRows) GetPets() []*PetRow {
 	return nil
 }
 
-var File_api_bloodpool_v1_bloodpool_proto protoreflect.FileDescriptor
+var File_api_bloodsearch_v1_blood_search_proto protoreflect.FileDescriptor
 
-const file_api_bloodpool_v1_bloodpool_proto_rawDesc = "" +
+const file_api_bloodsearch_v1_blood_search_proto_rawDesc = "" +
 	"\n" +
-	" api/bloodpool/v1/bloodpool.proto\x12\fbloodpool.v1\"\xbd\x02\n" +
+	"%api/bloodsearch/v1/blood_search.proto\x12\x0ebloodsearch.v1\"\x96\x02\n" +
 	"\x06PetRow\x12\x15\n" +
 	"\x06pet_id\x18\x01 \x01(\tR\x05petId\x12\x19\n" +
 	"\bpet_type\x18\x02 \x01(\tR\apetType\x12\x1f\n" +
@@ -299,49 +291,48 @@ const file_api_bloodpool_v1_bloodpool_proto_rawDesc = "" +
 	"\fblood_volume\x18\x05 \x01(\x02R\vbloodVolume\x12\x18\n" +
 	"\aregions\x18\x06 \x03(\x05R\aregions\x129\n" +
 	"\x19small_pets_notify_allowed\x18\a \x01(\bR\x16smallPetsNotifyAllowed\x12\x16\n" +
-	"\x06status\x18\b \x01(\tR\x06status\x12%\n" +
-	"\x0epriority_level\x18\t \x01(\x05R\rpriorityLevel\"=\n" +
+	"\x06status\x18\b \x01(\tR\x06status\"=\n" +
 	"\fPetRowStatus\x12\x15\n" +
-	"\x06pet_id\x18\x01 \x01(\tR\x05petId\x12\x16\n" +
+	"\x06row_id\x18\x01 \x01(\x03R\x05rowId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"b\n" +
 	"\n" +
 	"GetPetRows\x12\x19\n" +
 	"\bpet_type\x18\x01 \x01(\tR\apetType\x12\x1f\n" +
 	"\vblood_group\x18\x02 \x01(\tR\n" +
 	"bloodGroup\x12\x18\n" +
-	"\aregions\x18\x03 \x03(\x05R\aregions\"3\n" +
-	"\aPetRows\x12(\n" +
-	"\x04pets\x18\x01 \x03(\v2\x14.bloodpool.v1.PetRowR\x04pets2\x89\x01\n" +
-	"\x0fBloodSearchPool\x12:\n" +
-	"\x06AddPet\x12\x14.bloodpool.v1.PetRow\x1a\x1a.bloodpool.v1.PetRowStatus\x12:\n" +
-	"\aGetPets\x12\x18.bloodpool.v1.GetPetRows\x1a\x15.bloodpool.v1.PetRowsB\xdf\x01\n" +
-	"\x10com.bloodpool.v1B\x0eBloodpoolProtoP\x01Zjgithub.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1;bloodpoolv1\xa2\x02\x03BXX\xaa\x02\fBloodpool.V1\xca\x02\fBloodpool\\V1\xe2\x02\x18Bloodpool\\V1\\GPBMetadata\xea\x02\rBloodpool::V1b\x06proto3"
+	"\aregions\x18\x03 \x03(\x05R\aregions\"5\n" +
+	"\aPetRows\x12*\n" +
+	"\x04pets\x18\x01 \x03(\v2\x16.bloodsearch.v1.PetRowR\x04pets2\x91\x01\n" +
+	"\x0fBloodSearchPool\x12>\n" +
+	"\x06AddPet\x12\x16.bloodsearch.v1.PetRow\x1a\x1c.bloodsearch.v1.PetRowStatus\x12>\n" +
+	"\aGetPets\x12\x1a.bloodsearch.v1.GetPetRows\x1a\x17.bloodsearch.v1.PetRowsB\xef\x01\n" +
+	"\x12com.bloodsearch.v1B\x10BloodSearchProtoP\x01Zngithub.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1;bloodsearchv1\xa2\x02\x03BXX\xaa\x02\x0eBloodsearch.V1\xca\x02\x0eBloodsearch\\V1\xe2\x02\x1aBloodsearch\\V1\\GPBMetadata\xea\x02\x0fBloodsearch::V1b\x06proto3"
 
 var (
-	file_api_bloodpool_v1_bloodpool_proto_rawDescOnce sync.Once
-	file_api_bloodpool_v1_bloodpool_proto_rawDescData []byte
+	file_api_bloodsearch_v1_blood_search_proto_rawDescOnce sync.Once
+	file_api_bloodsearch_v1_blood_search_proto_rawDescData []byte
 )
 
-func file_api_bloodpool_v1_bloodpool_proto_rawDescGZIP() []byte {
-	file_api_bloodpool_v1_bloodpool_proto_rawDescOnce.Do(func() {
-		file_api_bloodpool_v1_bloodpool_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_bloodpool_v1_bloodpool_proto_rawDesc), len(file_api_bloodpool_v1_bloodpool_proto_rawDesc)))
+func file_api_bloodsearch_v1_blood_search_proto_rawDescGZIP() []byte {
+	file_api_bloodsearch_v1_blood_search_proto_rawDescOnce.Do(func() {
+		file_api_bloodsearch_v1_blood_search_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_bloodsearch_v1_blood_search_proto_rawDesc), len(file_api_bloodsearch_v1_blood_search_proto_rawDesc)))
 	})
-	return file_api_bloodpool_v1_bloodpool_proto_rawDescData
+	return file_api_bloodsearch_v1_blood_search_proto_rawDescData
 }
 
-var file_api_bloodpool_v1_bloodpool_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_api_bloodpool_v1_bloodpool_proto_goTypes = []any{
-	(*PetRow)(nil),       // 0: bloodpool.v1.PetRow
-	(*PetRowStatus)(nil), // 1: bloodpool.v1.PetRowStatus
-	(*GetPetRows)(nil),   // 2: bloodpool.v1.GetPetRows
-	(*PetRows)(nil),      // 3: bloodpool.v1.PetRows
+var file_api_bloodsearch_v1_blood_search_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_bloodsearch_v1_blood_search_proto_goTypes = []any{
+	(*PetRow)(nil),       // 0: bloodsearch.v1.PetRow
+	(*PetRowStatus)(nil), // 1: bloodsearch.v1.PetRowStatus
+	(*GetPetRows)(nil),   // 2: bloodsearch.v1.GetPetRows
+	(*PetRows)(nil),      // 3: bloodsearch.v1.PetRows
 }
-var file_api_bloodpool_v1_bloodpool_proto_depIdxs = []int32{
-	0, // 0: bloodpool.v1.PetRows.pets:type_name -> bloodpool.v1.PetRow
-	0, // 1: bloodpool.v1.BloodSearchPool.AddPet:input_type -> bloodpool.v1.PetRow
-	2, // 2: bloodpool.v1.BloodSearchPool.GetPets:input_type -> bloodpool.v1.GetPetRows
-	1, // 3: bloodpool.v1.BloodSearchPool.AddPet:output_type -> bloodpool.v1.PetRowStatus
-	3, // 4: bloodpool.v1.BloodSearchPool.GetPets:output_type -> bloodpool.v1.PetRows
+var file_api_bloodsearch_v1_blood_search_proto_depIdxs = []int32{
+	0, // 0: bloodsearch.v1.PetRows.pets:type_name -> bloodsearch.v1.PetRow
+	0, // 1: bloodsearch.v1.BloodSearchPool.AddPet:input_type -> bloodsearch.v1.PetRow
+	2, // 2: bloodsearch.v1.BloodSearchPool.GetPets:input_type -> bloodsearch.v1.GetPetRows
+	1, // 3: bloodsearch.v1.BloodSearchPool.AddPet:output_type -> bloodsearch.v1.PetRowStatus
+	3, // 4: bloodsearch.v1.BloodSearchPool.GetPets:output_type -> bloodsearch.v1.PetRows
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -349,26 +340,26 @@ var file_api_bloodpool_v1_bloodpool_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_api_bloodpool_v1_bloodpool_proto_init() }
-func file_api_bloodpool_v1_bloodpool_proto_init() {
-	if File_api_bloodpool_v1_bloodpool_proto != nil {
+func init() { file_api_bloodsearch_v1_blood_search_proto_init() }
+func file_api_bloodsearch_v1_blood_search_proto_init() {
+	if File_api_bloodsearch_v1_blood_search_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_bloodpool_v1_bloodpool_proto_rawDesc), len(file_api_bloodpool_v1_bloodpool_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_bloodsearch_v1_blood_search_proto_rawDesc), len(file_api_bloodsearch_v1_blood_search_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_bloodpool_v1_bloodpool_proto_goTypes,
-		DependencyIndexes: file_api_bloodpool_v1_bloodpool_proto_depIdxs,
-		MessageInfos:      file_api_bloodpool_v1_bloodpool_proto_msgTypes,
+		GoTypes:           file_api_bloodsearch_v1_blood_search_proto_goTypes,
+		DependencyIndexes: file_api_bloodsearch_v1_blood_search_proto_depIdxs,
+		MessageInfos:      file_api_bloodsearch_v1_blood_search_proto_msgTypes,
 	}.Build()
-	File_api_bloodpool_v1_bloodpool_proto = out.File
-	file_api_bloodpool_v1_bloodpool_proto_goTypes = nil
-	file_api_bloodpool_v1_bloodpool_proto_depIdxs = nil
+	File_api_bloodsearch_v1_blood_search_proto = out.File
+	file_api_bloodsearch_v1_blood_search_proto_goTypes = nil
+	file_api_bloodsearch_v1_blood_search_proto_depIdxs = nil
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	bloodpoolv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1"
+	bloodsearchv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -37,7 +37,7 @@ func NewRedisPetRepository(client *redis.Client) *RedisPetRepository {
 }
 
 // AddPet добавляет или обновляет информацию о питомце в Redis с TTL
-func (r *RedisPetRepository) AddPet(ctx context.Context, pet *bloodpoolv1.PetRow, ttl time.Duration) error {
+func (r *RedisPetRepository) AddPet(ctx context.Context, pet *bloodsearchv1.PetRow, ttl time.Duration) error {
 	// Используем транзакцию для атомарности
 	pipe := r.client.TxPipeline()
 
@@ -73,7 +73,7 @@ func (r *RedisPetRepository) AddPet(ctx context.Context, pet *bloodpoolv1.PetRow
 }
 
 // GetPetByID возвращает питомца по его идентификатору
-func (r *RedisPetRepository) GetPetByID(ctx context.Context, petID string) (*bloodpoolv1.PetRow, error) {
+func (r *RedisPetRepository) GetPetByID(ctx context.Context, petID string) (*bloodsearchv1.PetRow, error) {
 	key := PetKeyPrefix + petID
 	data, err := r.client.Get(ctx, key).Bytes()
 	if err != nil {
@@ -83,7 +83,7 @@ func (r *RedisPetRepository) GetPetByID(ctx context.Context, petID string) (*blo
 		return nil, fmt.Errorf("failed to get pet from Redis: %w", err)
 	}
 
-	var pet bloodpoolv1.PetRow
+	var pet bloodsearchv1.PetRow
 	if err := json.Unmarshal(data, &pet); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal pet data: %w", err)
 	}
@@ -92,7 +92,7 @@ func (r *RedisPetRepository) GetPetByID(ctx context.Context, petID string) (*blo
 }
 
 // GetPetsByCriteria возвращает список питомцев по заданным критериям
-func (r *RedisPetRepository) GetPetsByCriteria(ctx context.Context, criteria *bloodpoolv1.GetPetRows) ([]*bloodpoolv1.PetRow, error) {
+func (r *RedisPetRepository) GetPetsByCriteria(ctx context.Context, criteria *bloodsearchv1.GetPetRows) ([]*bloodsearchv1.PetRow, error) {
 	// Собираем ключи для поиска
 	var keys []string
 
@@ -152,7 +152,7 @@ func (r *RedisPetRepository) GetPetsByCriteria(ctx context.Context, criteria *bl
 	}
 
 	// Получаем данные питомцев, фильтруя несуществующие (с истекшим TTL)
-	var pets []*bloodpoolv1.PetRow
+	var pets []*bloodsearchv1.PetRow
 	for _, key := range keys {
 		data, err := r.client.Get(ctx, key).Bytes()
 		if err != nil {
@@ -164,7 +164,7 @@ func (r *RedisPetRepository) GetPetsByCriteria(ctx context.Context, criteria *bl
 			continue // Пропускаем если другая ошибка
 		}
 
-		var pet bloodpoolv1.PetRow
+		var pet bloodsearchv1.PetRow
 		if err := json.Unmarshal(data, &pet); err != nil {
 			continue // Пропускаем если не удалось распарсить
 		}
@@ -225,7 +225,7 @@ func (r *RedisPetRepository) DeletePet(ctx context.Context, petID string) error 
 }
 
 // GetPetsByRegion возвращает питомцев в указанном регионе
-func (r *RedisPetRepository) GetPetsByRegion(ctx context.Context, region int32) ([]*bloodpoolv1.PetRow, error) {
+func (r *RedisPetRepository) GetPetsByRegion(ctx context.Context, region int32) ([]*bloodsearchv1.PetRow, error) {
 	regionKey := fmt.Sprintf("%s%d", IndexRegionPrefix, region)
 	keys, err := r.client.SMembers(ctx, regionKey).Result()
 	if err != nil {
@@ -233,7 +233,7 @@ func (r *RedisPetRepository) GetPetsByRegion(ctx context.Context, region int32) 
 	}
 
 	// Получаем данные питомцев, фильтруя несуществующие (с истекшим TTL)
-	var pets []*bloodpoolv1.PetRow
+	var pets []*bloodsearchv1.PetRow
 	for _, key := range keys {
 		data, err := r.client.Get(ctx, key).Bytes()
 		if err != nil {
@@ -244,7 +244,7 @@ func (r *RedisPetRepository) GetPetsByRegion(ctx context.Context, region int32) 
 			continue
 		}
 
-		var pet bloodpoolv1.PetRow
+		var pet bloodsearchv1.PetRow
 		if err := json.Unmarshal(data, &pet); err != nil {
 			continue
 		}
@@ -256,7 +256,7 @@ func (r *RedisPetRepository) GetPetsByRegion(ctx context.Context, region int32) 
 }
 
 // GetPetsByBloodGroup возвращает питомцев с указанной группой крови
-func (r *RedisPetRepository) GetPetsByBloodGroup(ctx context.Context, bloodGroup string) ([]*bloodpoolv1.PetRow, error) {
+func (r *RedisPetRepository) GetPetsByBloodGroup(ctx context.Context, bloodGroup string) ([]*bloodsearchv1.PetRow, error) {
 	bloodKey := IndexBloodGroupPrefix + bloodGroup
 	keys, err := r.client.SMembers(ctx, bloodKey).Result()
 	if err != nil {
@@ -264,7 +264,7 @@ func (r *RedisPetRepository) GetPetsByBloodGroup(ctx context.Context, bloodGroup
 	}
 
 	// Получаем данные питомцев, фильтруя несуществующие (с истекшим TTL)
-	var pets []*bloodpoolv1.PetRow
+	var pets []*bloodsearchv1.PetRow
 	for _, key := range keys {
 		data, err := r.client.Get(ctx, key).Bytes()
 		if err != nil {
@@ -275,7 +275,7 @@ func (r *RedisPetRepository) GetPetsByBloodGroup(ctx context.Context, bloodGroup
 			continue
 		}
 
-		var pet bloodpoolv1.PetRow
+		var pet bloodsearchv1.PetRow
 		if err := json.Unmarshal(data, &pet); err != nil {
 			continue
 		}
@@ -287,7 +287,7 @@ func (r *RedisPetRepository) GetPetsByBloodGroup(ctx context.Context, bloodGroup
 }
 
 // GetAllPets возвращает всех питомцев (с пагинацией)
-func (r *RedisPetRepository) GetAllPets(ctx context.Context, limit, offset int64) ([]*bloodpoolv1.PetRow, error) {
+func (r *RedisPetRepository) GetAllPets(ctx context.Context, limit, offset int64) ([]*bloodsearchv1.PetRow, error) {
 	// Получаем все ключи питомцев с использованием SCAN
 	allKeys, err := r.scanKeys(ctx, PetKeyPrefix+"*")
 	if err != nil {
@@ -298,7 +298,7 @@ func (r *RedisPetRepository) GetAllPets(ctx context.Context, limit, offset int64
 	start := offset
 	end := offset + limit
 	if start > int64(len(allKeys)) {
-		return []*bloodpoolv1.PetRow{}, nil
+		return []*bloodsearchv1.PetRow{}, nil
 	}
 	if end > int64(len(allKeys)) {
 		end = int64(len(allKeys))
@@ -306,7 +306,7 @@ func (r *RedisPetRepository) GetAllPets(ctx context.Context, limit, offset int64
 	keys := allKeys[start:end]
 
 	// Получаем данные питомцев, фильтруя несуществующие (с истекшим TTL)
-	var pets []*bloodpoolv1.PetRow
+	var pets []*bloodsearchv1.PetRow
 	for _, key := range keys {
 		data, err := r.client.Get(ctx, key).Bytes()
 		if err != nil {
@@ -317,7 +317,7 @@ func (r *RedisPetRepository) GetAllPets(ctx context.Context, limit, offset int64
 			continue
 		}
 
-		var pet bloodpoolv1.PetRow
+		var pet bloodsearchv1.PetRow
 		if err := json.Unmarshal(data, &pet); err != nil {
 			continue
 		}
@@ -365,7 +365,7 @@ func (r *RedisPetRepository) GetTTL(ctx context.Context, petID string) (time.Dur
 
 // GetActivePetsFromPool возвращает всех активных питомцев из ZSET-пула (те, у которых score > now)
 // Возвращаемые записи дополнительно проверяются на существование и парсятся из JSON.
-func (r *RedisPetRepository) GetActivePetsFromPool(ctx context.Context) ([]*bloodpoolv1.PetRow, error) {
+func (r *RedisPetRepository) GetActivePetsFromPool(ctx context.Context) ([]*bloodsearchv1.PetRow, error) {
 	now := time.Now().Unix()
 	min := fmt.Sprintf("%d", now+1) // strictly greater than now
 	keys, err := r.client.ZRangeByScore(ctx, BloodPoolZSet, &redis.ZRangeBy{
@@ -376,7 +376,7 @@ func (r *RedisPetRepository) GetActivePetsFromPool(ctx context.Context) ([]*bloo
 		return nil, fmt.Errorf("failed to get active pets from pool: %w", err)
 	}
 
-	var pets []*bloodpoolv1.PetRow
+	var pets []*bloodsearchv1.PetRow
 	for _, key := range keys {
 		data, err := r.client.Get(ctx, key).Bytes()
 		if err != nil {
@@ -388,7 +388,7 @@ func (r *RedisPetRepository) GetActivePetsFromPool(ctx context.Context) ([]*bloo
 			continue
 		}
 
-		var pet bloodpoolv1.PetRow
+		var pet bloodsearchv1.PetRow
 		if err := json.Unmarshal(data, &pet); err != nil {
 			continue
 		}
@@ -434,7 +434,7 @@ func (r *RedisPetRepository) CleanExpiredPool(ctx context.Context) error {
 }
 
 // updateIndexesWithTTL обновляет индексы для питомца с TTL
-func (r *RedisPetRepository) updateIndexesWithTTL(ctx context.Context, pipe redis.Pipeliner, pet *bloodpoolv1.PetRow, ttl time.Duration) error {
+func (r *RedisPetRepository) updateIndexesWithTTL(ctx context.Context, pipe redis.Pipeliner, pet *bloodsearchv1.PetRow, ttl time.Duration) error {
 	key := PetKeyPrefix + pet.PetId
 
 	// Индекс по типу питомца
@@ -468,7 +468,7 @@ func (r *RedisPetRepository) updateIndexesWithTTL(ctx context.Context, pipe redi
 }
 
 // removeFromIndexes удаляет питомца из индексов
-func (r *RedisPetRepository) removeFromIndexes(ctx context.Context, pipe redis.Pipeliner, pet *bloodpoolv1.PetRow) error {
+func (r *RedisPetRepository) removeFromIndexes(ctx context.Context, pipe redis.Pipeliner, pet *bloodsearchv1.PetRow) error {
 	key := PetKeyPrefix + pet.PetId
 
 	// Удаляем из индекса типа питомца
