@@ -84,7 +84,7 @@ export interface ModelsPet {
      */
     ectoparasiteDate?: string;
     /**
-     * 
+     * ==============Дополнительная регистрация для донорства включает в себя=================
      * @type {ModelsGender}
      * @memberof ModelsPet
      */
@@ -96,7 +96,7 @@ export interface ModelsPet {
      */
     hasChip?: boolean;
     /**
-     * 
+     * Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный номер
      * @type {string}
      * @memberof ModelsPet
      */
@@ -150,11 +150,17 @@ export interface ModelsPet {
      */
     name?: string;
     /**
-     * 
+     * ==============Простая регистрация для поиска крови включает в себя=====================
      * @type {string}
      * @memberof ModelsPet
      */
     ownerId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelsPet
+     */
+    petStatus?: string;
     /**
      * 
      * @type {string}
@@ -225,6 +231,7 @@ export function ModelsPetFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'longitude': json['longitude'] == null ? undefined : json['longitude'],
         'name': json['name'] == null ? undefined : json['name'],
         'ownerId': json['ownerId'] == null ? undefined : json['ownerId'],
+        'petStatus': json['petStatus'] == null ? undefined : json['petStatus'],
         'photoUrl': json['photoUrl'] == null ? undefined : json['photoUrl'],
         'sterilized': json['sterilized'] == null ? undefined : json['sterilized'],
         'type': json['type'] == null ? undefined : ModelsPetTypeFromJSON(json['type']),
@@ -263,6 +270,7 @@ export function ModelsPetToJSONTyped(value?: ModelsPet | null, ignoreDiscriminat
         'longitude': value['longitude'],
         'name': value['name'],
         'ownerId': value['ownerId'],
+        'petStatus': value['petStatus'],
         'photoUrl': value['photoUrl'],
         'sterilized': value['sterilized'],
         'type': ModelsPetTypeToJSON(value['type']),

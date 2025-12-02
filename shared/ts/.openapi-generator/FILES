@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/BloodStocksApi.ts
 apis/DevApi.ts
 apis/PetsApi.ts

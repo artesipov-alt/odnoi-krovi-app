@@ -8,12 +8,28 @@ tasks:
     desc: "Сгенерировать типы API Backend для TypeScript"
     cmds:
       - task: generate-swagger
-      - openapi-generator generate -i ./backend/docs/swagger.json -g typescript-fetch -o shared
+      - openapi-generator generate -i ./backend/docs/swagger.json -g typescript-fetch -o shared/ts
 
   generate-swagger:
     desc: "Сгенерировать Swagger документацию"
     cmds:
       - swag init -g ./backend/cmd/server/main.go -o ./backend/docs
+
+  generate-proto:
+    desc: "Сгенерировать прото-типы от микросервиса"
+    cmds:
+      - mkdir -p shared/go/blood-microservice
+      - cp -a microservices/blood-microservice/buf.yaml shared/go/blood-microservice/buf.yaml
+      - cp -a microservices/blood-microservice/buf.gen.yaml shared/go/blood-microservice/buf.gen.yaml
+      - rm -rf shared/go/blood-microservice/api
+      - cp -a microservices/blood-microservice/api shared/go/blood-microservice/api
+      - task: gproto
+
+  gproto:
+    internal: true
+    dir: shared/go/blood-microservice
+    cmds:
+      - buf generate
 
   install:
     desc: "Установить все зависимости проекта"

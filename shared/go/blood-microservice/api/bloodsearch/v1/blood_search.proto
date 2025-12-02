@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package bloodsearch.v1;
+
+message PetRow {
+  string pet_id = 1;
+  string pet_type = 2;
+  string blood_group = 3;
+  repeated string blood_components = 4;
+  int32 blood_volume_needed = 5;
+  int32 blood_volume_reserved = 6;
+  repeated int32 regions = 7;
+  bool small_pets_notify_allowed = 8;
+  string status = 9;
+}
+
+message PetRowStatus {
+  string pet_id = 1;
+  string status = 2;
+}
+
+message GetPetRows {
+  string pet_type = 1;
+  string blood_group = 2;
+  repeated int32 regions = 3;
+}
+
+message PetRows {
+  repeated PetRow pets = 1;
+}
+
+service BloodSearchPool {
+  rpc AddPet(PetRow) returns (PetRowStatus);
+  rpc GetPets(GetPetRows) returns (PetRows);
+}

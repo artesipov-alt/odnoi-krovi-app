@@ -58,7 +58,7 @@ export interface ModelsUser {
      */
     fullName?: string;
     /**
-     * 
+     * Сигнатура ID пользователя включает в себя префикс пользователя, год и четырёхзначный номер
      * @type {string}
      * @memberof ModelsUser
      */

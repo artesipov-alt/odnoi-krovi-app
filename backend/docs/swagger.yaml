@@ -179,11 +179,15 @@ definitions:
       gender:
         allOf:
         - $ref: '#/definitions/models.Gender'
+        description: ==============Дополнительная регистрация для донорства включает
+          в себя=================
         example: male
       hasChip:
         example: false
         type: boolean
       id:
+        description: Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный
+          номер
         example: PET-25-000001
         type: string
       isGuideDog:
@@ -212,7 +216,12 @@ definitions:
         example: Бобик
         type: string
       ownerId:
-        example: "1"
+        description: ==============Простая регистрация для поиска крови включает в
+          себя=====================
+        example: USR-25-0001
+        type: string
+      petStatus:
+        example: donor
         type: string
       photoUrl:
         example: https://example.com/photo.jpg
@@ -257,6 +266,8 @@ definitions:
         example: Иван Иванов
         type: string
       id:
+        description: Сигнатура ID пользователя включает в себя префикс пользователя,
+          год и четырёхзначный номер
         example: USR-25-0001
         type: string
       locationId:
@@ -284,13 +295,11 @@ definitions:
     - user
     - clinic
     - admin
-    - donor
     type: string
     x-enum-varnames:
     - UserRoleUser
     - UserRoleClinic
     - UserRoleAdmin
-    - UserRoleDonor
   models.VetClinic:
     properties:
       appointmentRequirementId:
@@ -1283,6 +1292,19 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получение всех локаций
+      tags:
+      - reference
+  /reference/pet-roles:
+    get:
+      description: Возвращает все доступные роли питомцев для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список ролей питомцев
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех ролей питомцев
       tags:
       - reference
   /reference/pet-types:

@@ -1045,6 +1045,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/reference/pet-roles": {
+            "get": {
+                "description": "Возвращает все доступные роли питомцев для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference"
+                ],
+                "summary": "Получение всех ролей питомцев",
+                "responses": {
+                    "200": {
+                        "description": "Список ролей питомцев",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/reference/pet-types": {
             "get": {
                 "description": "Возвращает все доступные типы животных для выбора на фронтенде",
@@ -1892,6 +1912,7 @@ const docTemplate = `{
                     "example": "2023-01-01T12:00:00Z"
                 },
                 "gender": {
+                    "description": "==============Дополнительная регистрация для донорства включает в себя=================",
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.Gender"
@@ -1904,6 +1925,7 @@ const docTemplate = `{
                     "example": false
                 },
                 "id": {
+                    "description": "Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный номер",
                     "type": "string",
                     "example": "PET-25-000001"
                 },
@@ -1944,8 +1966,13 @@ const docTemplate = `{
                     "example": "Бобик"
                 },
                 "ownerId": {
+                    "description": "==============Простая регистрация для поиска крови включает в себя=====================",
                     "type": "string",
-                    "example": "1"
+                    "example": "USR-25-0001"
+                },
+                "petStatus": {
+                    "type": "string",
+                    "example": "donor"
                 },
                 "photoUrl": {
                     "type": "string",
@@ -2008,6 +2035,7 @@ const docTemplate = `{
                     "example": "Иван Иванов"
                 },
                 "id": {
+                    "description": "Сигнатура ID пользователя включает в себя префикс пользователя, год и четырёхзначный номер",
                     "type": "string",
                     "example": "USR-25-0001"
                 },
@@ -2046,14 +2074,12 @@ const docTemplate = `{
             "enum": [
                 "user",
                 "clinic",
-                "admin",
-                "donor"
+                "admin"
             ],
             "x-enum-varnames": [
                 "UserRoleUser",
                 "UserRoleClinic",
-                "UserRoleAdmin",
-                "UserRoleDonor"
+                "UserRoleAdmin"
             ]
         },
         "models.VetClinic": {

@@ -20,8 +20,7 @@
 export const ModelsUserRole = {
     UserRoleUser: 'user',
     UserRoleClinic: 'clinic',
-    UserRoleAdmin: 'admin',
-    UserRoleDonor: 'donor'
+    UserRoleAdmin: 'admin'
 } as const;
 export type ModelsUserRole = typeof ModelsUserRole[keyof typeof ModelsUserRole];
 

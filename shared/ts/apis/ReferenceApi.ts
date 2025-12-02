@@ -371,6 +371,37 @@ export class ReferenceApi extends runtime.BaseAPI {
     }
 
     /**
+     * Возвращает все доступные роли питомцев для выбора на фронтенде
+     * Получение всех ролей питомцев
+     */
+    async referencePetRolesGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<HandlersReferenceResponse>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/reference/pet-roles`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => HandlersReferenceResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает все доступные роли питомцев для выбора на фронтенде
+     * Получение всех ролей питомцев
+     */
+    async referencePetRolesGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<HandlersReferenceResponse> {
+        const response = await this.referencePetRolesGetRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Возвращает все доступные типы животных для выбора на фронтенде
      * Получение всех типов животных
      */
