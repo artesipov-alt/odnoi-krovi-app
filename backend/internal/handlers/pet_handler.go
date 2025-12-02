@@ -182,9 +182,22 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-search/pool [post]
 func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
-	var pet bloodsearchv1.PetRow
-	if err := ParseBody(c, &pet); err != nil {
+	var petReq BloodSearchPetRequest
+	if err := ParseBody(c, &petReq); err != nil {
 		return err
+	}
+
+	// Конвертируем DTO в protobuf структуру
+	pet := &bloodsearchv1.PetRow{
+		PetId:                  petReq.PetID,
+		PetType:                petReq.PetType,
+		BloodGroup:             petReq.BloodGroup,
+		BloodComponents:        petReq.BloodComponents,
+		BloodVolumeNeeded:      petReq.BloodVolumeNeeded,
+		BloodVolumeReserved:    petReq.BloodVolumeReserved,
+		Regions:                petReq.Regions,
+		SmallPetsNotifyAllowed: petReq.SmallPetsNotifyAllowed,
+		Status:                 petReq.Status,
 	}
 
 	logger.Log.Info(
@@ -194,13 +207,19 @@ func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
 		zap.String("bloodGroup", pet.BloodGroup),
 	)
 
-	status, err := h.bloodSearchClient.AddPet(c.Context(), &pet)
+	status, err := h.bloodSearchClient.AddPet(c.Context(), pet)
 	if err != nil {
 		logger.Log.Error("failed to add pet to blood search pool", zap.Error(err))
 		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось добавить питомца в пул поиска крови")
 	}
 
-	return SendCreated(c, status)
+	// Конвертируем protobuf ответ в DTO
+	statusResp := BloodSearchPetResponse{
+		PetID:  status.PetId,
+		Status: status.Status,
+	}
+
+	return SendCreated(c, statusResp)
 }
 
 // GetPetsFromBloodSearchPoolHandler godoc
@@ -215,23 +234,46 @@ func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-search/pool/search [post]
 func (h *PetHandler) GetPetsFromBloodSearchPoolHandler(c *fiber.Ctx) error {
-	var filter bloodsearchv1.GetPetRows
-	if err := ParseBody(c, &filter); err != nil {
+	var filterReq BloodSearchFilterRequest
+	if err := ParseBody(c, &filterReq); err != nil {
 		return err
+	}
+
+	// Конвертируем DTO в protobuf структуру
+	filter := &bloodsearchv1.GetPetRows{
+		PetType:    filterReq.PetType,
+		BloodGroup: filterReq.BloodGroup,
+		Regions:    filterReq.Regions,
 	}
 
 	logger.Log.Info(
 		"получение питомцев из пула поиска крови",
-		zap.String("petType", filter.PetType),
-		zap.String("bloodGroup", filter.BloodGroup),
-		zap.Int("regionsCount", len(filter.Regions)),
+		zap.String("petType", filterReq.PetType),
+		zap.String("bloodGroup", filterReq.BloodGroup),
+		zap.Int("regionsCount", len(filterReq.Regions)),
 	)
 
-	pets, err := h.bloodSearchClient.GetPets(c.Context(), &filter)
+	pets, err := h.bloodSearchClient.GetPets(c.Context(), filter)
 	if err != nil {
 		logger.Log.Error("failed to get pets from blood search pool", zap.Error(err))
 		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось получить питомцев из пула поиска крови")
 	}
 
-	return SendJSON(c, pets)
+	// Конвертируем protobuf ответ в DTO
+	var petsResp BloodSearchPetsResponse
+	for _, pet := range pets.Pets {
+		petsResp.Pets = append(petsResp.Pets, BloodSearchPetRequest{
+			PetID:                  pet.PetId,
+			PetType:                pet.PetType,
+			BloodGroup:             pet.BloodGroup,
+			BloodComponents:        pet.BloodComponents,
+			BloodVolumeNeeded:      pet.BloodVolumeNeeded,
+			BloodVolumeReserved:    pet.BloodVolumeReserved,
+			Regions:                pet.Regions,
+			SmallPetsNotifyAllowed: pet.SmallPetsNotifyAllowed,
+			Status:                 pet.Status,
+		})
+	}
+
+	return SendJSON(c, petsResp)
 }
