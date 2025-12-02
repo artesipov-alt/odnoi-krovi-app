@@ -19,12 +19,12 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                              // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                              // Логирование
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"                           // Управление миграциями
-	"github.com/gofiber/fiber/v2"                                                      // Веб-фреймворк
-	"github.com/gofiber/fiber/v2/middleware/cors"                                      // CORS middleware
-	"github.com/gofiber/swagger"                                                       // Swagger UI
-	"github.com/joho/godotenv"                                                         // Загрузка .env файлов
-	"go.uber.org/zap"                                                                  // Структурированное логирование
+	// Управление миграциями
+	"github.com/gofiber/fiber/v2"                 // Веб-фреймворк
+	"github.com/gofiber/fiber/v2/middleware/cors" // CORS middleware
+	"github.com/gofiber/swagger"                  // Swagger UI
+	"github.com/joho/godotenv"                    // Загрузка .env файлов
+	"go.uber.org/zap"                             // Структурированное логирование
 	// ORM для работы с БД
 )
 
@@ -59,8 +59,8 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
-	migration.AutoMigrate(db, logger.Log)
-	migration.SeedDatabase(db, logger.Log)
+	// migration.AutoMigrate(db, logger.Log)
+	// migration.SeedDatabase(db, logger.Log)
 
 	//Создание репозиториев для определения доступности кеша
 
@@ -89,9 +89,12 @@ func main() {
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
 	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
+	// Инициализация сервиса blood search микросервиса
+	bloodSearchService := services.NewBloodSearchService(serverConfig.BloodMicroserviceURL)
+
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
-	petHandler := handlers.NewPetHandler(petService)
+	petHandler := handlers.NewPetHandler(petService, *bloodSearchService)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
@@ -142,7 +145,7 @@ func main() {
 				devGroup.Get("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
 			}
 
-			// Группа маршрутов для работы с питомцами
+			// Группа маршрутов для работы с питомцами и поиском крови
 			petGroup := v1.Group("/pets")
 			{
 				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler) // Получение всех питомцев пользователя
@@ -150,6 +153,10 @@ func main() {
 				petGroup.Get("/:id", petHandler.GetPetHandler)                // Получение питомца по ID
 				petGroup.Put("/:id", petHandler.UpdatePetHandler)             // Обновление данных питомца
 				petGroup.Delete("/:id", petHandler.DeletePetHandler)          // Удаление питомца по ID
+
+				// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
+				petGroup.Post("/blood-search/pool", petHandler.AddPetToBloodSearchPoolHandler)           // Добавить питомца в пул поиска крови
+				petGroup.Post("/blood-search/pool/search", petHandler.GetPetsFromBloodSearchPoolHandler) // Получить питомцев из пула поиска крови
 			}
 
 			// Группа маршрутов для работы с ветеринарными клиниками

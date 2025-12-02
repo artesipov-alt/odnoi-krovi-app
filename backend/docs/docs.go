@@ -35,6 +35,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/blood-search/pool/pets": {
+            "post": {
+                "description": "Добавляет питомца-реципиента в пул поиска крови",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-search"
+                ],
+                "summary": "Добавить питомца в пул поиска крови",
+                "parameters": [
+                    {
+                        "description": "Данные питомца для пула поиска крови",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.PetRow"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Статус добавления питомца",
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.PetRowStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-search/pool/pets/search": {
+            "post": {
+                "description": "Возвращает список питомцев-реципиентов по фильтрам",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-search"
+                ],
+                "summary": "Получить питомцев из пула поиска крови",
+                "parameters": [
+                    {
+                        "description": "Фильтры поиска: тип, группа крови, регионы",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.GetPetRows"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список питомцев",
+                        "schema": {
+                            "$ref": "#/definitions/bloodsearchv1.PetRows"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/blood-stocks": {
             "get": {
                 "description": "Возвращает список всех запасов крови в системе",
@@ -1654,6 +1746,83 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "bloodsearchv1.GetPetRows": {
+            "type": "object",
+            "properties": {
+                "blood_group": {
+                    "type": "string"
+                },
+                "pet_type": {
+                    "type": "string"
+                },
+                "regions": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "bloodsearchv1.PetRow": {
+            "type": "object",
+            "properties": {
+                "blood_components": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "blood_group": {
+                    "type": "string"
+                },
+                "blood_volume_needed": {
+                    "type": "integer"
+                },
+                "blood_volume_reserved": {
+                    "type": "integer"
+                },
+                "pet_id": {
+                    "type": "string"
+                },
+                "pet_type": {
+                    "type": "string"
+                },
+                "regions": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "small_pets_notify_allowed": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "bloodsearchv1.PetRowStatus": {
+            "type": "object",
+            "properties": {
+                "pet_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "bloodsearchv1.PetRows": {
+            "type": "object",
+            "properties": {
+                "pets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/bloodsearchv1.PetRow"
+                    }
+                }
+            }
+        },
         "handlers.DevResponse": {
             "type": "object",
             "properties": {

@@ -5,17 +5,21 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
+
+	bloodsearchv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1"
 )
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService services.PetService
+	petService         services.PetService
+	bloodSearchService services.BloodSearchService
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService services.PetService) *PetHandler {
+func NewPetHandler(petService services.PetService, bloodSearchService services.BloodSearchService) *PetHandler {
 	return &PetHandler{
-		petService: petService,
+		petService:         petService,
+		bloodSearchService: bloodSearchService,
 	}
 }
 
@@ -164,4 +168,68 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 	}
 
 	return SendSuccess(c, "Питомец успешно удален")
+}
+
+// AddPetToBloodSearchPoolHandler godoc
+// @Summary Добавить питомца в пул поиска крови
+// @Description Добавляет питомца-реципиента в пул поиска крови
+// @Tags blood-search
+// @Accept json
+// @Produce json
+// @Param request body bloodsearchv1.PetRow true "Данные питомца для пула поиска крови"
+// @Success 201 {object} bloodsearchv1.PetRowStatus "Статус добавления питомца"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /blood-search/pool/pets [post]
+func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
+	var pet bloodsearchv1.PetRow
+	if err := ParseBody(c, &pet); err != nil {
+		return err
+	}
+
+	logger.Log.Info(
+		"добавление питомца в пул поиска крови",
+		zap.String("petId", pet.PetId),
+		zap.String("petType", pet.PetType),
+		zap.String("bloodGroup", pet.BloodGroup),
+	)
+
+	status, err := h.bloodSearchService.AddPet(c.Context(), &pet)
+	if err != nil {
+		return err
+	}
+
+	return SendCreated(c, status)
+}
+
+// GetPetsFromBloodSearchPoolHandler godoc
+// @Summary Получить питомцев из пула поиска крови
+// @Description Возвращает список питомцев-реципиентов по фильтрам
+// @Tags blood-search
+// @Accept json
+// @Produce json
+// @Param request body bloodsearchv1.GetPetRows true "Фильтры поиска: тип, группа крови, регионы"
+// @Success 200 {object} bloodsearchv1.PetRows "Список питомцев"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /blood-search/pool/pets/search [post]
+func (h *PetHandler) GetPetsFromBloodSearchPoolHandler(c *fiber.Ctx) error {
+	var filter bloodsearchv1.GetPetRows
+	if err := ParseBody(c, &filter); err != nil {
+		return err
+	}
+
+	logger.Log.Info(
+		"получение питомцев из пула поиска крови",
+		zap.String("petType", filter.PetType),
+		zap.String("bloodGroup", filter.BloodGroup),
+		zap.Int("regionsCount", len(filter.Regions)),
+	)
+
+	pets, err := h.bloodSearchService.GetPets(c.Context(), &filter)
+	if err != nil {
+		return err
+	}
+
+	return SendJSON(c, pets)
 }

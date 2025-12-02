@@ -13,18 +13,17 @@ import (
 
 // ServerConfig содержит настройки сервера
 type ServerConfig struct {
-	Port string
-	Env  string
+	Port                 string
+	Env                  string
+	BloodMicroserviceURL string
 }
 
 // NewServerConfig создает конфигурацию сервера из переменных окружения
 func NewServerConfig() *ServerConfig {
-	port := GetEnv("SERVER_PORT", "3000")
-	env := GetEnv("ENVIRONMENT", "dev")
-
 	return &ServerConfig{
-		Port: port,
-		Env:  env,
+		Port:                 GetEnv("SERVER_PORT", "8080"),
+		Env:                  GetEnv("ENV", "development"),
+		BloodMicroserviceURL: GetEnv("BLOOD_MICROSERVICE_URL", "http://localhost:8081"),
 	}
 }
 

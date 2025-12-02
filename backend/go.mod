@@ -7,12 +7,21 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/swagger v1.1.1
 	github.com/joho/godotenv v1.5.1
-	github.com/redis/go-redis/v9 v9.16.0
+	github.com/redis/go-redis/v9 v9.17.1
 	github.com/swaggo/swag v1.16.6
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 	gorm.io/driver/postgres v1.6.0
-	gorm.io/gorm v1.31.0
+	gorm.io/gorm v1.31.1
 )
+
+replace github.com/artesipov-alt/odnoi-krovi-app/shared/go/blood-microservice => ../shared/go/blood-microservice
+
+require (
+	connectrpc.com/connect v1.19.1
+	github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice v0.0.0
+)
+
+replace github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice => ../microservices/blood-microservice
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -56,5 +65,6 @@ require (
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
+	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

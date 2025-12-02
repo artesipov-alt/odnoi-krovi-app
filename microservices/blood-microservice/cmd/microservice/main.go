@@ -81,14 +81,14 @@ func main() {
 
 	// Создаем HTTP сервер с поддержкой HTTP/2
 	s := http.Server{
-		Addr:      ":8080",
+		Addr:      ":8081",
 		Handler:   r,
 		Protocols: p,
 	}
 
 	// Запускаем сервер в отдельной горутине
 	go func() {
-		logger.Log.Info("Сервер запущен на :8080")
+		logger.Log.Info("Сервер запущен на :8081")
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 		}

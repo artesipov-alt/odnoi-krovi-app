@@ -15,32 +15,41 @@ tasks:
     cmds:
       - swag init -g ./backend/cmd/server/main.go -o ./backend/docs
 
-  generate-proto:
-    desc: "Сгенерировать прото-типы от микросервиса"
-    cmds:
-      - mkdir -p shared/go/blood-microservice
-      - cp -a microservices/blood-microservice/buf.yaml shared/go/blood-microservice/buf.yaml
-      - cp -a microservices/blood-microservice/buf.gen.yaml shared/go/blood-microservice/buf.gen.yaml
-      - rm -rf shared/go/blood-microservice/api
-      - cp -a microservices/blood-microservice/api shared/go/blood-microservice/api
-      - task: gproto
+  # generate-proto:
+  #   desc: "Сгенерировать прото-типы от микросервиса"
+  #   cmds:
+  #     - mkdir -p shared/go/blood-microservice
+  #     - cp -a microservices/blood-microservice/buf.yaml shared/go/blood-microservice/buf.yaml
+  #     - cp -a microservices/blood-microservice/buf.gen.yaml shared/go/blood-microservice/buf.gen.yaml
+  #     - rm -rf shared/go/blood-microservice/api
+  #     - cp -a microservices/blood-microservice/api shared/go/blood-microservice/api
+  #     - task: gproto
 
-  gproto:
-    internal: true
-    dir: shared/go/blood-microservice
-    cmds:
-      - buf generate
+  # gproto:
+  #   internal: true
+  #   dir: shared/go/blood-microservice
+  #   cmds:
+  #     - go mod init github.com/artesipov-alt/odnoi-krovi-app/shared/go/blood-microservice
+  #     - buf generate
+  #     - go mod tidy
 
   install:
     desc: "Установить все зависимости проекта"
     cmds:
       - task: install-backend
+      - task: install-microservice
       - task: install-frontend
       - task: install-bot
 
   install-backend:
     desc: "Установить зависимости backend"
     dir: backend
+    cmds:
+      - go mod tidy
+
+  install-microservice:
+    desc: "Установить зависимости backend"
+    dir: microservices/blood-microservice
     cmds:
       - go mod tidy
 
@@ -69,6 +78,12 @@ tasks:
     dir: backend
     cmds:
       - go run cmd/server/main.go
+
+  dev-micoservice:
+    desc: "Запустить миеросервис в dev режиме"
+    dir: microservices/blood-microservice
+    cmds:
+      - go run cmd/microservice/main.go
 
   dev-frontend:
     desc: "Запустить frontend в dev режиме"

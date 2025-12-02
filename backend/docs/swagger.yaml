@@ -1,5 +1,55 @@
 basePath: /api/v1
 definitions:
+  bloodsearchv1.GetPetRows:
+    properties:
+      blood_group:
+        type: string
+      pet_type:
+        type: string
+      regions:
+        items:
+          type: integer
+        type: array
+    type: object
+  bloodsearchv1.PetRow:
+    properties:
+      blood_components:
+        items:
+          type: string
+        type: array
+      blood_group:
+        type: string
+      blood_volume_needed:
+        type: integer
+      blood_volume_reserved:
+        type: integer
+      pet_id:
+        type: string
+      pet_type:
+        type: string
+      regions:
+        items:
+          type: integer
+        type: array
+      small_pets_notify_allowed:
+        type: boolean
+      status:
+        type: string
+    type: object
+  bloodsearchv1.PetRowStatus:
+    properties:
+      pet_id:
+        type: string
+      status:
+        type: string
+    type: object
+  bloodsearchv1.PetRows:
+    properties:
+      pets:
+        items:
+          $ref: '#/definitions/bloodsearchv1.PetRow'
+        type: array
+    type: object
   handlers.DevResponse:
     properties:
       message:
@@ -624,6 +674,66 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
+  /blood-search/pool/pets:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет питомца-реципиента в пул поиска крови
+      parameters:
+      - description: Данные питомца для пула поиска крови
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bloodsearchv1.PetRow'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Статус добавления питомца
+          schema:
+            $ref: '#/definitions/bloodsearchv1.PetRowStatus'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Добавить питомца в пул поиска крови
+      tags:
+      - blood-search
+  /blood-search/pool/pets/search:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список питомцев-реципиентов по фильтрам
+      parameters:
+      - description: 'Фильтры поиска: тип, группа крови, регионы'
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bloodsearchv1.GetPetRows'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список питомцев
+          schema:
+            $ref: '#/definitions/bloodsearchv1.PetRows'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получить питомцев из пула поиска крови
+      tags:
+      - blood-search
   /blood-stocks:
     get:
       description: Возвращает список всех запасов крови в системе
