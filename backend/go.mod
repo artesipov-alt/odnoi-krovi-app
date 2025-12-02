@@ -16,14 +16,12 @@ require (
 
 replace github.com/artesipov-alt/odnoi-krovi-app/shared/go/blood-microservice => ../shared/go/blood-microservice
 
-require (
-	connectrpc.com/connect v1.19.1
-	github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice v0.0.0
-)
+require github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice v0.0.0
 
 replace github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice => ../microservices/blood-microservice
 
 require (
+	connectrpc.com/connect v1.19.1 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect

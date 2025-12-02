@@ -34,8 +34,9 @@ odnoi-krovi-app/
 ├── backend/         # Go API сервер (Fiber + GORM + Swagger)
 ├── frontend/        # Telegram Mini App (React + TypeScript)
 ├── bot/             # Telegram Bot (Bun + Grammy)
+├── microservices/   # Микросервисы
+│   └── blood-microservice/  # Микросервис управления пулом поиска крови
 ├── shared/          # Автосгенерированные TypeScript типы c бэкенда (Swagger -> types)
-├── microservices/   # Дополнительная логика и сервисы для backend
 ├── docs/            # Документация
 └── README.md
 ```
@@ -44,10 +45,10 @@ odnoi-krovi-app/
 
 ### Предварительные требования
 
-- **Go 1.25+** для backend
+- **Go 1.25+** для backend и микросервисов
 - **Node.js 18+** и **npm** для Telegram Mini App
 - **Bun 1.3+** для бота (используется в `bot/`)
-- **PostgreSQL 16+** для базы данных
+- **PostgreSQL 16+** для баз данных (основная + bloodsearch)
 - **Telegram Bot Token** от @BotFather
 - **Docker** (опционально, для разработки)
 
@@ -64,7 +65,7 @@ cd odnoi-krovi-app
 Создайте файл `.env` в **корневой директории проекта** со следующими переменными:
 
 ```env
-# Database Configuration
+# Database Configuration (Main Backend)
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=your_db_user
@@ -72,20 +73,27 @@ DB_PASSWORD=your_db_password
 DB_NAME=odnoi_krovi
 DB_SSLMODE=disable
 
-# Секретные настройки для Бота
-BOT_TOKEN=your_telegram_bot_token
-PROD_BOT_API_KEY=your_prod_bot_token
+# Database Configuration (Blood Search Microservice)
+DB_NAME_BLOOD_SEARCH=bloodsearch
 
-MINIAPP_DOMAIN=https://your-miniapp-domain.com
-
-API_BASE_URL=http://localhost:3000
-
-# Server Configuration
+# Server Configuration (Backend)
 SERVER_PORT=3000
 ENVIRONMENT=development
 
+# Microservices URLs
+BLOOD_MICROSERVICE_URL=http://localhost:8081
+
+# Telegram Bot Configuration
+BOT_TOKEN=your_telegram_bot_token
+PROD_BOT_API_KEY=your_prod_bot_token
+MINIAPP_DOMAIN=https://your-miniapp-domain.com
+
+# API Configuration
+API_BASE_URL=http://localhost:3000/api/v1
+
 # Logging
 LOG_LEVEL=info
+APP_ENV=development
 ```
 
 **Получение Telegram Bot Token:**
@@ -104,6 +112,7 @@ LOG_LEVEL=info
 
 Следуйте инструкциям по установке для каждого компонента:
 - [Backend Setup](backend/README.md) - Go API сервер
+- [Blood Microservice Setup](microservices/blood-microservice/README.md) - Микросервис поиска крови
 - [Bot Setup](bot/README.md) - Telegram Bot
 - [Frontend Setup](frontend/README.md) - Telegram Mini App
 
@@ -124,7 +133,11 @@ task dev
 
 #### 4. Запуск через Docker (рекомендуется)
 ```bash
+# Запуск всех сервисов
 docker-compose up -d
+
+# Или только нужных сервисов
+docker-compose up backend blood-microservice -d
 ```
 
 ## 📁 Структура проекта
@@ -132,15 +145,17 @@ docker-compose up -d
 ### 🚀 Backend (Go + Fiber + GORM + Swagger)
 Мощный API сервер с современным стеком технологий. Подробное описание архитектуры и возможностей доступно в [документации backend-сервера](backend/README.md).
 
+### 🩸 Blood Microservice (Go + Connect + GORM)
+Микросервис для управления пулом поиска крови. Обрабатывает запросы на поиск доноров, управляет заявками и статусами. Использует Connect протокол для межсервисного взаимодействия. Подробнее в [документации микросервиса](microservices/blood-microservice/README.md).
+
 ### 💻 Telegram Mini App (React + TypeScript + Telegram Web App SDK)
 Интуитивный интерфейс для пользователей с полной интеграцией в Telegram. Узнайте больше о фронтенд-архитектуре в [документации по фронтенду](frontend/README.md).
 
-### 🤖 Telegram Bot
+### 🤖 Telegram Bot (Bun + Grammy)
 Быстрый бот для уведомлений и коммуникации между пользователями. Полное описание функциональности и настройки смотрите в [документации бота](bot/README.md).
 
-### 📦 Shared и Microservices
+### 📦 Shared
 - `shared/` — содержит автосгенерированные TypeScript типы и утилиты, сгенерированные из Swagger (используется фронтом и ботом для согласованных типов).
-- `microservices/` — дополнительная логика и отдельные сервисы для backend (в перспективе — отдельные деплои/контейнеры).
 
 ## 🛠️ Технологический стек
 
@@ -152,6 +167,15 @@ docker-compose up -d
 - **Redis** - Кэширование и сессии (планируется)
 - **Validator** - Валидация данных
 - **Swagger** - Документация API (swaggo/swag)
+
+### Microservices
+- **Go 1.25+** - Основной язык программирования
+- **Connect** - RPC фреймворк (вместо gRPC)
+- **Chi** - HTTP роутер
+- **GORM** - ORM для работы с базой данных
+- **PostgreSQL** - База данных микросервиса
+- **Zap** - Структурированное логирование
+- **Buf** - Генерация кода из protobuf
 
 ### Telegram Mini App
 - **React 18+** - UI библиотека

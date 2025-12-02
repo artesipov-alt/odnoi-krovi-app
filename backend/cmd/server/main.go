@@ -90,12 +90,12 @@ func main() {
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
 	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
-	// Инициализация сервиса blood search микросервиса
-	bloodSearchService := services.NewBloodSearchService(serverConfig.BloodMicroserviceURL)
+	// Инициализация клиента blood search микросервиса
+	bloodSearchClient := services.NewBloodSearchClient(serverConfig.BloodMicroserviceURL)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
-	petHandler := handlers.NewPetHandler(petService, *bloodSearchService)
+	petHandler := handlers.NewPetHandler(petService, *bloodSearchClient)
 	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
 	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)

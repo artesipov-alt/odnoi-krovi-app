@@ -14,11 +14,35 @@ services:
       ENVIRONMENT: production
       REDIS_HOST: 10.0.0.73
       REDIS_PORT: 6379
+      BLOOD_MICROSERVICE_URL: http://blood-microservice:8081
     ports:
       - "3000:3000"
     networks:
       - odnoi_net
     restart: unless-stopped
+    depends_on:
+      blood-microservice:
+        condition: service_healthy
+
+  blood-microservice:
+    build:
+      context: .
+      dockerfile: microservices/blood-microservice/Dockerfile
+    environment:
+      DATABASE_URL: host=10.0.0.129 user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME_BLOOD_SEARCH:-bloodsearch} port=5432 sslmode=disable
+      APP_ENV: production
+      SERVER_PORT: 8081
+    expose:
+      - 8081
+    networks:
+      - odnoi_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   bot:
     build:

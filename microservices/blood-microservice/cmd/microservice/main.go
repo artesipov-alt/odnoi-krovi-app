@@ -31,6 +31,12 @@ func main() {
 		env = "dev"
 	}
 
+	// Читаем порт из переменной окружения
+	serverPort := os.Getenv("SERVER_PORT")
+	if serverPort == "" {
+		serverPort = "8081"
+	}
+
 	if err := logger.Init(env); err != nil {
 		panic(err)
 	}
@@ -67,28 +73,28 @@ func main() {
 	// Создаем сервис
 	bloodSearchService := services.NewBloodSearchService(bloodSearchRepo, logger.Log)
 
+	// Health check endpoint
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"healthy","service":"blood-microservice"}`))
+	})
+
 	// Создаем Connect handler
 	path, handler := bloodsearchv1connect.NewBloodSearchPoolHandler(bloodSearchService)
 
 	// Подключаем handler к Chi
 	r.Handle(path+"*", handler)
 
-	// Настраиваем протоколы для поддержки HTTP/2 без TLS
-	p := new(http.Protocols)
-	p.SetHTTP1(true)
-	// Use h2c so we can serve HTTP/2 without TLS.
-	p.SetUnencryptedHTTP2(true)
-
-	// Создаем HTTP сервер с поддержкой HTTP/2
+	// Создаем HTTP сервер
 	s := http.Server{
-		Addr:      ":8081",
-		Handler:   r,
-		Protocols: p,
+		Addr:    ":" + serverPort,
+		Handler: r,
 	}
 
 	// Запускаем сервер в отдельной горутине
 	go func() {
-		logger.Log.Info("Сервер запущен на :8081")
+		logger.Log.Info("Сервер запущен", zap.String("port", serverPort))
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 		}

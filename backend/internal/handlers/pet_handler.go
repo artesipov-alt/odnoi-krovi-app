@@ -11,15 +11,15 @@ import (
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService         services.PetService
-	bloodSearchService services.BloodSearchService
+	petService        services.PetService
+	bloodSearchClient services.BloodSearchClient
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService services.PetService, bloodSearchService services.BloodSearchService) *PetHandler {
+func NewPetHandler(petService services.PetService, bloodSearchClient services.BloodSearchClient) *PetHandler {
 	return &PetHandler{
-		petService:         petService,
-		bloodSearchService: bloodSearchService,
+		petService:        petService,
+		bloodSearchClient: bloodSearchClient,
 	}
 }
 
@@ -194,9 +194,10 @@ func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
 		zap.String("bloodGroup", pet.BloodGroup),
 	)
 
-	status, err := h.bloodSearchService.AddPet(c.Context(), &pet)
+	status, err := h.bloodSearchClient.AddPet(c.Context(), &pet)
 	if err != nil {
-		return err
+		logger.Log.Error("failed to add pet to blood search pool", zap.Error(err))
+		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось добавить питомца в пул поиска крови")
 	}
 
 	return SendCreated(c, status)
@@ -226,9 +227,10 @@ func (h *PetHandler) GetPetsFromBloodSearchPoolHandler(c *fiber.Ctx) error {
 		zap.Int("regionsCount", len(filter.Regions)),
 	)
 
-	pets, err := h.bloodSearchService.GetPets(c.Context(), &filter)
+	pets, err := h.bloodSearchClient.GetPets(c.Context(), &filter)
 	if err != nil {
-		return err
+		logger.Log.Error("failed to get pets from blood search pool", zap.Error(err))
+		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось получить питомцев из пула поиска крови")
 	}
 
 	return SendJSON(c, pets)
