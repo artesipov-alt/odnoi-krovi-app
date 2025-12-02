@@ -23,8 +23,9 @@ COPY backend/cmd/ ./cmd/
 COPY backend/internal/ ./internal/
 COPY backend/pkg/ ./pkg/
 COPY backend/app/ ./app/
+COPY backend/docs/ ./docs/
 
-# Генерация Swagger
+# Регенерация Swagger (обновляем существующие docs)
 RUN swag init -g cmd/server/main.go -o docs || echo "Swagger generation skipped"
 
 # Сборка бинарника

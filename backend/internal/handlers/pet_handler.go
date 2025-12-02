@@ -176,8 +176,8 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 // @Tags pets, blood-search
 // @Accept json
 // @Produce json
-// @Param request body bloodsearchv1.PetRow true "Данные питомца для пула поиска крови"
-// @Success 201 {object} bloodsearchv1.PetRowStatus "Статус добавления питомца"
+// @Param request body object true "Данные питомца для пула поиска крови"
+// @Success 201 {object} object "Статус добавления питомца"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-search/pool [post]
@@ -209,8 +209,8 @@ func (h *PetHandler) AddPetToBloodSearchPoolHandler(c *fiber.Ctx) error {
 // @Tags pets, blood-search
 // @Accept json
 // @Produce json
-// @Param request body bloodsearchv1.GetPetRows true "Фильтры поиска: тип, группа крови, регионы"
-// @Success 200 {object} bloodsearchv1.PetRows "Список питомцев"
+// @Param request body object true "Фильтры поиска: тип, группа крови, регионы"
+// @Success 200 {object} object "Список питомцев"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-search/pool/search [post]
