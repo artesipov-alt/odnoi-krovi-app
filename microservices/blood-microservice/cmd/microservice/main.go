@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,18 +11,33 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1/bloodpoolv1connect"
 	redisrepo "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories/redis"
 	v1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/pkg/logger"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/pkg/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	redisclient "github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 func main() {
+	// Инициализируем логгер
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "dev"
+	}
+
+	if err := logger.Init(env); err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
+
 	// Создаем Chi роутер
 	r := chi.NewRouter()
-	r.Use(middleware.Logger,
-		middleware.Recoverer,
-		middleware.RealIP)
+	r.Use(middleware.RequestID,
+		middleware.ZapLogger,
+		chimiddleware.Recoverer,
+		chimiddleware.RealIP)
 
 	// Создаем Redis клиент
 	redisClient := redisclient.NewClient(&redisclient.Options{
@@ -35,9 +49,9 @@ func main() {
 	// Проверяем подключение к Redis
 	ctx := context.Background()
 	if err := redisClient.Ping(ctx).Err(); err != nil {
-		log.Fatalf("Не удалось подключиться к Redis: %v", err)
+		logger.Log.Fatal("Не удалось подключиться к Redis", zap.Error(err))
 	}
-	log.Println("Успешное подключение к Redis")
+	logger.Log.Info("Успешное подключение к Redis")
 
 	// Создаем репозиторий
 	petRepo := redisrepo.NewRedisPetRepository(redisClient)
@@ -51,7 +65,7 @@ func main() {
 			select {
 			case <-ticker.C:
 				if err := petRepo.CleanExpiredPool(cleanerCtx); err != nil {
-					log.Printf("failed to clean expired pool: %v", err)
+					logger.Log.Error("failed to clean expired pool", zap.Error(err))
 				}
 			case <-cleanerCtx.Done():
 				return
@@ -81,9 +95,9 @@ func main() {
 
 	// Запускаем сервер в отдельной горутине
 	go func() {
-		log.Println("Сервер запущен на :8080")
+		logger.Log.Info("Сервер запущен на :8080")
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Ошибка запуска сервера: %v", err)
+			logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 		}
 	}()
 
@@ -91,7 +105,7 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Получен сигнал завершения работы...")
+	logger.Log.Info("Получен сигнал завершения работы...")
 
 	// Останавливаем background cleaner
 	cleanerCancel()
@@ -101,8 +115,8 @@ func main() {
 	defer cancel()
 
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatalf("Ошибка при завершении работы сервера: %v", err)
+		logger.Log.Fatal("Ошибка при завершении работы сервера", zap.Error(err))
 	}
 
-	log.Println("Сервер корректно завершил работу")
+	logger.Log.Info("Сервер корректно завершил работу")
 }
