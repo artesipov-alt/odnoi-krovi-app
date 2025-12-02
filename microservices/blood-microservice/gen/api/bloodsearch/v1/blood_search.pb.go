@@ -27,10 +27,11 @@ type PetRow struct {
 	PetType                string                 `protobuf:"bytes,2,opt,name=pet_type,json=petType,proto3" json:"pet_type,omitempty"`
 	BloodGroup             string                 `protobuf:"bytes,3,opt,name=blood_group,json=bloodGroup,proto3" json:"blood_group,omitempty"`
 	BloodComponents        []string               `protobuf:"bytes,4,rep,name=blood_components,json=bloodComponents,proto3" json:"blood_components,omitempty"`
-	BloodVolume            float32                `protobuf:"fixed32,5,opt,name=blood_volume,json=bloodVolume,proto3" json:"blood_volume,omitempty"`
-	Regions                []int32                `protobuf:"varint,6,rep,packed,name=regions,proto3" json:"regions,omitempty"`
-	SmallPetsNotifyAllowed bool                   `protobuf:"varint,7,opt,name=small_pets_notify_allowed,json=smallPetsNotifyAllowed,proto3" json:"small_pets_notify_allowed,omitempty"`
-	Status                 string                 `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
+	BloodVolumeNeeded      int32                  `protobuf:"varint,5,opt,name=blood_volume_needed,json=bloodVolumeNeeded,proto3" json:"blood_volume_needed,omitempty"`
+	BloodVolumeReserved    int32                  `protobuf:"varint,6,opt,name=blood_volume_reserved,json=bloodVolumeReserved,proto3" json:"blood_volume_reserved,omitempty"`
+	Regions                []int32                `protobuf:"varint,7,rep,packed,name=regions,proto3" json:"regions,omitempty"`
+	SmallPetsNotifyAllowed bool                   `protobuf:"varint,8,opt,name=small_pets_notify_allowed,json=smallPetsNotifyAllowed,proto3" json:"small_pets_notify_allowed,omitempty"`
+	Status                 string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -93,9 +94,16 @@ func (x *PetRow) GetBloodComponents() []string {
 	return nil
 }
 
-func (x *PetRow) GetBloodVolume() float32 {
+func (x *PetRow) GetBloodVolumeNeeded() int32 {
 	if x != nil {
-		return x.BloodVolume
+		return x.BloodVolumeNeeded
+	}
+	return 0
+}
+
+func (x *PetRow) GetBloodVolumeReserved() int32 {
+	if x != nil {
+		return x.BloodVolumeReserved
 	}
 	return 0
 }
@@ -281,17 +289,18 @@ var File_api_bloodsearch_v1_blood_search_proto protoreflect.FileDescriptor
 
 const file_api_bloodsearch_v1_blood_search_proto_rawDesc = "" +
 	"\n" +
-	"%api/bloodsearch/v1/blood_search.proto\x12\x0ebloodsearch.v1\"\x96\x02\n" +
+	"%api/bloodsearch/v1/blood_search.proto\x12\x0ebloodsearch.v1\"\xd7\x02\n" +
 	"\x06PetRow\x12\x15\n" +
 	"\x06pet_id\x18\x01 \x01(\tR\x05petId\x12\x19\n" +
 	"\bpet_type\x18\x02 \x01(\tR\apetType\x12\x1f\n" +
 	"\vblood_group\x18\x03 \x01(\tR\n" +
 	"bloodGroup\x12)\n" +
-	"\x10blood_components\x18\x04 \x03(\tR\x0fbloodComponents\x12!\n" +
-	"\fblood_volume\x18\x05 \x01(\x02R\vbloodVolume\x12\x18\n" +
-	"\aregions\x18\x06 \x03(\x05R\aregions\x129\n" +
-	"\x19small_pets_notify_allowed\x18\a \x01(\bR\x16smallPetsNotifyAllowed\x12\x16\n" +
-	"\x06status\x18\b \x01(\tR\x06status\"=\n" +
+	"\x10blood_components\x18\x04 \x03(\tR\x0fbloodComponents\x12.\n" +
+	"\x13blood_volume_needed\x18\x05 \x01(\x05R\x11bloodVolumeNeeded\x122\n" +
+	"\x15blood_volume_reserved\x18\x06 \x01(\x05R\x13bloodVolumeReserved\x12\x18\n" +
+	"\aregions\x18\a \x03(\x05R\aregions\x129\n" +
+	"\x19small_pets_notify_allowed\x18\b \x01(\bR\x16smallPetsNotifyAllowed\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\"=\n" +
 	"\fPetRowStatus\x12\x15\n" +
 	"\x06pet_id\x18\x01 \x01(\tR\x05petId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"b\n" +

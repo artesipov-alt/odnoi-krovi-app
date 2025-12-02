@@ -14,7 +14,8 @@ type PetRow struct {
 	PetType                string         `gorm:"column:pet_type;type:varchar(100);not null" json:"pet_type"`
 	BloodGroup             string         `gorm:"column:blood_group;type:varchar(50);not null" json:"blood_group"`
 	BloodComponents        datatypes.JSON `gorm:"column:blood_components;type:jsonb" json:"blood_components"`
-	BloodVolume            float32        `gorm:"column:blood_volume;type:real" json:"blood_volume"`
+	BloodVolumeNeeded      int32          `gorm:"column:blood_volume_needed;type:integer" json:"blood_volume_needed"`
+	BloodVolumeReserved    int32          `gorm:"column:blood_volume_reserved;type:integer" json:"blood_volume_reserved"`
 	Regions                datatypes.JSON `gorm:"column:regions;type:jsonb" json:"regions"`
 	SmallPetsNotifyAllowed bool           `gorm:"column:small_pets_notify_allowed;type:boolean;default:false" json:"small_pets_notify_allowed"`
 	Status                 string         `gorm:"column:status;type:varchar(50);default:'active'" json:"status"`
@@ -40,7 +41,8 @@ func (m *PetRow) ToProto() *bloodsearchv1.PetRow {
 		PetType:                m.PetType,
 		BloodGroup:             m.BloodGroup,
 		BloodComponents:        bloodComponents,
-		BloodVolume:            m.BloodVolume,
+		BloodVolumeNeeded:      m.BloodVolumeNeeded,
+		BloodVolumeReserved:    m.BloodVolumeReserved,
 		Regions:                regions,
 		SmallPetsNotifyAllowed: m.SmallPetsNotifyAllowed,
 		Status:                 m.Status,
@@ -52,7 +54,8 @@ func (m *PetRow) FromProto(proto *bloodsearchv1.PetRow) error {
 	m.PetID = proto.PetId
 	m.PetType = proto.PetType
 	m.BloodGroup = proto.BloodGroup
-	m.BloodVolume = proto.BloodVolume
+	m.BloodVolumeNeeded = proto.BloodVolumeNeeded
+	m.BloodVolumeReserved = proto.BloodVolumeReserved
 	m.SmallPetsNotifyAllowed = proto.SmallPetsNotifyAllowed
 	m.Status = proto.Status
 

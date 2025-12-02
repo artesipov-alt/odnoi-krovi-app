@@ -45,8 +45,12 @@ func (s *BloodSearchService) AddPet(ctx context.Context, req *bloodsearchv1.PetR
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_group is required"))
 	}
 
-	if req.BloodVolume <= 0 {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_volume must be positive"))
+	if req.BloodVolumeNeeded <= 0 {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_volume_needed must be positive"))
+	}
+
+	if req.BloodVolumeReserved < 0 {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_volume_reserved cannot be negative"))
 	}
 
 	if len(req.Regions) == 0 {
