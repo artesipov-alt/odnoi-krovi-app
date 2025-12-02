@@ -1,26 +1,34 @@
 # ---------- STAGE 1: build ----------
 FROM golang:1.25-alpine AS builder
 
-WORKDIR /app
+# Устанавливаем рабочую директорию на уровень монорепо
+WORKDIR /build
 
-# Установка swag (один раз)
+# Установка swag
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 
-# Копируем модули отдельно, чтобы кешировать зависимости
-COPY backend/go.mod backend/go.sum ./
+# Копируем go.mod и go.sum из backend
+COPY backend/go.mod backend/go.sum ./backend/
+
+# Копируем локальные зависимости (для replace директив в go.mod)
+COPY microservices/blood-microservice/go.mod microservices/blood-microservice/go.sum ./microservices/blood-microservice/
+COPY microservices/blood-microservice/ ./microservices/blood-microservice/
+
+# Скачиваем зависимости из директории backend
+WORKDIR /build/backend
 RUN go mod download
 
-# Копируем только исходный код для сборки
+# Копируем исходный код backend
 COPY backend/cmd/ ./cmd/
 COPY backend/internal/ ./internal/
 COPY backend/pkg/ ./pkg/
 COPY backend/app/ ./app/
 
-# Генерация Swagger (без фатального падения, если swag не нужен)
+# Генерация Swagger
 RUN swag init -g cmd/server/main.go -o docs || echo "Swagger generation skipped"
 
 # Сборка бинарника
-RUN go build -v -o main ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server
 
 
 # ---------- STAGE 2: runtime ----------
@@ -30,9 +38,9 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-# Копируем бинарник и нужные файлы
-COPY --from=builder /app/main .
-COPY --from=builder /app/docs ./docs
+# Копируем бинарник и документацию
+COPY --from=builder /build/backend/main .
+COPY --from=builder /build/backend/docs ./docs
 
 EXPOSE 3000
 CMD ["./main"]

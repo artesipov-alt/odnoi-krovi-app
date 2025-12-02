@@ -29,7 +29,7 @@ services:
       context: .
       dockerfile: microservices/blood-microservice/Dockerfile
     environment:
-      DATABASE_URL: host=10.0.0.129 user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME_BLOOD_SEARCH:-bloodsearch} port=5432 sslmode=disable
+      DATABASE_URL: host=10.0.0.129 user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable
       APP_ENV: production
       SERVER_PORT: 8081
     expose:
