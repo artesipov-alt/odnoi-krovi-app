@@ -12,7 +12,7 @@ import (
 type PetRow struct {
 	PetID                  string         `gorm:"primaryKey;column:pet_id;type:varchar(255);not null" json:"pet_id"`
 	PetType                string         `gorm:"column:pet_type;type:varchar(100);not null" json:"pet_type"`
-	BloodGroup             string         `gorm:"column:blood_group;type:varchar(10);not null" json:"blood_group"`
+	BloodGroup             string         `gorm:"column:blood_group;type:varchar(50);not null" json:"blood_group"`
 	BloodComponents        datatypes.JSON `gorm:"column:blood_components;type:jsonb" json:"blood_components"`
 	BloodVolume            float32        `gorm:"column:blood_volume;type:real" json:"blood_volume"`
 	Regions                datatypes.JSON `gorm:"column:regions;type:jsonb" json:"regions"`
@@ -20,11 +20,6 @@ type PetRow struct {
 	Status                 string         `gorm:"column:status;type:varchar(50);default:'active'" json:"status"`
 	CreatedAt              time.Time      `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt              time.Time      `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
-}
-
-// TableName specifies the table name for GORM
-func (PetRow) TableName() string {
-	return "pet_rows"
 }
 
 // ToProto converts PetRow model to proto message

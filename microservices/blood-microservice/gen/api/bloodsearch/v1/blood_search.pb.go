@@ -123,7 +123,7 @@ func (x *PetRow) GetStatus() string {
 
 type PetRowStatus struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RowId         int64                  `protobuf:"varint,1,opt,name=row_id,json=rowId,proto3" json:"row_id,omitempty"`
+	PetId         string                 `protobuf:"bytes,1,opt,name=pet_id,json=petId,proto3" json:"pet_id,omitempty"`
 	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -159,11 +159,11 @@ func (*PetRowStatus) Descriptor() ([]byte, []int) {
 	return file_api_bloodsearch_v1_blood_search_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PetRowStatus) GetRowId() int64 {
+func (x *PetRowStatus) GetPetId() string {
 	if x != nil {
-		return x.RowId
+		return x.PetId
 	}
-	return 0
+	return ""
 }
 
 func (x *PetRowStatus) GetStatus() string {
@@ -293,7 +293,7 @@ const file_api_bloodsearch_v1_blood_search_proto_rawDesc = "" +
 	"\x19small_pets_notify_allowed\x18\a \x01(\bR\x16smallPetsNotifyAllowed\x12\x16\n" +
 	"\x06status\x18\b \x01(\tR\x06status\"=\n" +
 	"\fPetRowStatus\x12\x15\n" +
-	"\x06row_id\x18\x01 \x01(\x03R\x05rowId\x12\x16\n" +
+	"\x06pet_id\x18\x01 \x01(\tR\x05petId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"b\n" +
 	"\n" +
 	"GetPetRows\x12\x19\n" +

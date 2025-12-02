@@ -8,19 +8,23 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodpool/v1/bloodpoolv1connect"
-	redisrepo "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories/redis"
-	v1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/services"
+	bloodsearchv1connect "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1/bloodsearchv1connect"
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/models"
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories/pg"
+	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/pkg/logger"
+	"github.com/joho/godotenv"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	redisclient "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
+	godotenv.Load()
 	// Инициализируем логгер
 	env := os.Getenv("APP_ENV")
 	if env == "" {
@@ -39,45 +43,34 @@ func main() {
 		chimiddleware.Recoverer,
 		chimiddleware.RealIP)
 
-	// Создаем Redis клиент
-	redisClient := redisclient.NewClient(&redisclient.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	// Проверяем подключение к Redis
-	ctx := context.Background()
-	if err := redisClient.Ping(ctx).Err(); err != nil {
-		logger.Log.Fatal("Не удалось подключиться к Redis", zap.Error(err))
+	// Подключаемся к PostgreSQL
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		dsn = "host=localhost user=postgres password=postgres dbname=bloodsearch port=5432 sslmode=disable"
 	}
-	logger.Log.Info("Успешное подключение к Redis")
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		logger.Log.Fatal("Не удалось подключиться к PostgreSQL", zap.Error(err))
+	}
+
+	// Автомиграция таблиц
+	if err := db.AutoMigrate(&models.PetRow{}); err != nil {
+		logger.Log.Fatal("Не удалось выполнить миграцию таблиц", zap.Error(err))
+	}
+
+	logger.Log.Info("Успешное подключение к PostgreSQL")
 
 	// Создаем репозиторий
-	petRepo := redisrepo.NewRedisPetRepository(redisClient)
+	bloodSearchRepo := pg.NewBloodSearchRepositoryGorm(db)
 
-	// Background cleaner: периодически очищает истекшие записи из ZSET-пула.
-	cleanerCtx, cleanerCancel := context.WithCancel(context.Background())
-	go func() {
-		ticker := time.NewTicker(1 * time.Minute)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ticker.C:
-				if err := petRepo.CleanExpiredPool(cleanerCtx); err != nil {
-					logger.Log.Error("failed to clean expired pool", zap.Error(err))
-				}
-			case <-cleanerCtx.Done():
-				return
-			}
-		}
-	}()
+	// Создаем сервис
+	bloodSearchService := services.NewBloodSearchService(bloodSearchRepo, logger.Log)
 
-	// Создаем gRPC сервер
-	poolService := v1.NewBloodPoolService(petRepo)
-	path, handler := bloodpoolv1connect.NewBloodSearchPoolHandler(poolService)
+	// Создаем Connect handler
+	path, handler := bloodsearchv1connect.NewBloodSearchPoolHandler(bloodSearchService)
 
-	// Подключаем gRPC handler к Chi
+	// Подключаем handler к Chi
 	r.Handle(path+"*", handler)
 
 	// Настраиваем протоколы для поддержки HTTP/2 без TLS
@@ -106,9 +99,6 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	logger.Log.Info("Получен сигнал завершения работы...")
-
-	// Останавливаем background cleaner
-	cleanerCancel()
 
 	// Graceful shutdown с таймаутом
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

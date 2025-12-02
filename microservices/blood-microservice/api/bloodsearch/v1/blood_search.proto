@@ -14,7 +14,7 @@ message PetRow {
 }
 
 message PetRowStatus {
-  int64 row_id = 1;
+  string pet_id = 1;
   string status = 2;
 }
 
