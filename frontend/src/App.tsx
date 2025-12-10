@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
+import Adding from './pages/adding';
 import Owner from './pages/owner';
 import Registration from './pages/registration';
 import { useTelegram } from './TelegramProvider';
@@ -19,6 +20,7 @@ const App: FC = () => {
         <>
             <Routes>
                 <Route path='/owner' element={<Owner user={user} />} />
+                <Route path='/adding' element={<Adding user={user} />} />
                 <Route path='/registration' element={<Registration user={user} />} />
                 <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <Registration user={user} />} />
             </Routes>

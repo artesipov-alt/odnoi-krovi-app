@@ -10,18 +10,17 @@ const classes = {
 const Switch = styled((props: SwitchProps) => (
     <UISwitch focusVisibleClassName='.Mui-focusVisible' disableRipple classes={classes} {...props} />
 ))(({ theme }) => ({
-    width: 58,
-    height: 42,
+    width: 46,
+    height: 26,
     padding: 0,
     '& .MuiSwitch-switchBase': {
         padding: 0,
-        margin: 5,
+        margin: 3,
         transitionDuration: '300ms',
         '&.Mui-checked': {
-            transform: 'translateX(16px)',
             color: '#fff',
             '& + .MuiSwitch-track': {
-                backgroundColor: '#B27B89',
+                backgroundColor: '#914759',
                 opacity: 1,
                 border: 0,
                 ...theme.applyStyles('dark', {
@@ -51,8 +50,8 @@ const Switch = styled((props: SwitchProps) => (
     },
     '& .MuiSwitch-thumb': {
         boxSizing: 'border-box',
-        width: 32,
-        height: 32,
+        width: 20,
+        height: 20,
     },
     '& .MuiSwitch-track': {
         borderRadius: 86 / 2,

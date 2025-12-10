@@ -13,6 +13,7 @@ export const alias = {
     api: resolveApp('src/api'),
     imgs: resolveApp('src/imgs'),
     pages: resolveApp('src/pages'),
+    utils: resolveApp('src/utils'),
     hooks: resolveApp('src/hooks'),
     styles: resolveApp('src/styles'),
     context: resolveApp('src/context'),
