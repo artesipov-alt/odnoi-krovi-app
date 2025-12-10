@@ -1,5 +1,6 @@
 @import 'styles/normalize.css';
 @import 'styles/colors';
+@import 'react-photo-view/dist/react-photo-view.css';
 
 @font-face {
     font-family: Marmelad;
@@ -15,7 +16,25 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: MTSCompact;
+    src: url('./styles/MTSCompact-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: MTSCompactBold;
+    src: url('./styles/MTSCompact-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 html {
     font: 14px/1.7 Marmelad, Arial, sans-serif;
     background: @white-bg;
+
+    &.useWhiteBg1 {
+        background: @white-bg1;
+    }
 }

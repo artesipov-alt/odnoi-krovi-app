@@ -1,0 +1,258 @@
+import { Button } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Big from 'big.js';
+import cn from 'classnames';
+import Lock from 'imgs/svg/lock';
+import { ChangeEvent, FC, useState } from 'react';
+import { regexReal } from 'utils/regexps';
+
+import { Dict } from 'api/reference';
+import { PetType } from 'api/types';
+import Alert from 'components/Alert';
+import Multiselect from 'components/Multiselect';
+import Switch from 'components/Switch';
+
+import styles from './Second.module.less';
+
+type Props = {
+    weight: string;
+    petType: string;
+    bloodGroup: string;
+    locations: string[];
+    bloodVolume: string;
+    locationsDict: Dict[];
+    bloodComponents: string[];
+    bloodComponentsDict: Dict[];
+    desiredBloodGroups: string[];
+    notifyOfSmallDonors: boolean;
+    bloodGroupDict: Record<PetType, Dict[]>;
+    onConfirmButtonClick: (step: number) => void;
+    onChangeBloodVolume: (volume: string) => void;
+    onChangeLocations: (locations: string[]) => void;
+    onChangeNotifyOfSmallDonors: (isChecked: boolean) => void;
+    onChangeDesiredBloodGroups: (bloodGroups: string[]) => void;
+    onChangeBloodComponents: (bloodComponents: string[]) => void;
+};
+
+const Second: FC<Props> = ({
+    weight,
+    petType,
+    locations,
+    bloodGroup,
+    bloodVolume,
+    locationsDict,
+    bloodGroupDict,
+    bloodComponents,
+    onChangeLocations,
+    desiredBloodGroups,
+    notifyOfSmallDonors,
+    bloodComponentsDict,
+    onChangeBloodVolume,
+    onConfirmButtonClick,
+    onChangeBloodComponents,
+    onChangeDesiredBloodGroups,
+    onChangeNotifyOfSmallDonors,
+}) => {
+    const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(
+        !!bloodComponents.length && !!bloodVolume && !!locations.length,
+    );
+
+    const onChangeDesiredBloodGroupHandler = (newBloodGroup: string) => () => {
+        if (newBloodGroup === bloodGroup) {
+            return;
+        }
+
+        const index = desiredBloodGroups.findIndex((group) => group === newBloodGroup);
+
+        if (index === -1) {
+            onChangeDesiredBloodGroups([...desiredBloodGroups, newBloodGroup]);
+        } else {
+            const clonedArr = [...desiredBloodGroups];
+
+            clonedArr.splice(index, 1);
+
+            onChangeDesiredBloodGroups(clonedArr);
+        }
+    };
+
+    const onChangeBloodComponentsHandler = ({ target: { value } }: SelectChangeEvent<typeof bloodComponents>) => {
+        const newComponents = typeof value === 'string' ? value.split(',') : value;
+
+        if (newComponents.length > 3) {
+            return;
+        }
+
+        setIsConfirmButtonActive(!!newComponents.length && !!bloodVolume && !!locations.length);
+
+        onChangeBloodComponents(newComponents);
+    };
+
+    const onChangeBloodVolumeHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const newValue = value.replaceAll(' ', '');
+
+        if (!newValue) {
+            setIsConfirmButtonActive(false);
+
+            onChangeBloodVolume('');
+
+            return;
+        }
+
+        if (!newValue.match(regexReal)) {
+            setIsConfirmButtonActive(false);
+
+            return;
+        }
+
+        if (petType === PetType.CAT && Number(newValue) > Number(weight) * 0.07 * 1000) {
+            setIsConfirmButtonActive(false);
+
+            return;
+        }
+
+        if (petType === PetType.DOG && Number(newValue) > Number(weight) * 0.1 * 1000) {
+            setIsConfirmButtonActive(false);
+
+            return;
+        }
+
+        setIsConfirmButtonActive(!!bloodComponents.length && !!locations.length);
+
+        onChangeBloodVolume(newValue);
+    };
+
+    const onChangeLocationsHandler = ({ target: { value } }: SelectChangeEvent<typeof locations>) => {
+        const newLocations = typeof value === 'string' ? value.split(',') : value;
+
+        setIsConfirmButtonActive(!!newLocations.length && !!bloodVolume && !!bloodComponents.length);
+
+        onChangeLocations(newLocations);
+    };
+
+    const onChangeSwitchHandler = (_, isChecked) => {
+        onChangeNotifyOfSmallDonors(isChecked);
+    };
+
+    const onConfirmButtonClickHandler = () => {
+        onConfirmButtonClick(2);
+    };
+
+    return (
+        <>
+            <div className={styles.formItem}>
+                <p className={styles.label}>Какую группу ищете?</p>
+                <div className={styles.bloodGroups}>
+                    {bloodGroupDict[petType].map(({ label, value }) => {
+                        const isGroupChecked = desiredBloodGroups.includes(value);
+
+                        return (
+                            <div
+                                key={value}
+                                onClick={onChangeDesiredBloodGroupHandler(value)}
+                                className={cn(styles.bloodItem, { [styles.checked]: isGroupChecked })}
+                            >
+                                <span>{label}</span>
+                                {isGroupChecked && value === bloodGroup && (
+                                    <div className={styles.lockIcon}>
+                                        <Lock />
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+                {((petType === PetType.CAT && desiredBloodGroups.length > 1) ||
+                    (petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === '2')) && (
+                    <Alert
+                        className={cn(styles.alert, { [styles.isTopMargin]: true })}
+                        text='Переливание неподходящей группы крови может быть ОПАСНО! Проконсультируйтесь с врачом!'
+                    />
+                )}
+                {petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === '1' && (
+                    <Alert
+                        className={cn(styles.alert, { [styles.isTopMargin]: true })}
+                        text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу(DEA 1 +), чтобы не создавать дефицит для других собак.'
+                    />
+                )}
+            </div>
+            <div className={styles.formItem}>
+                <div className={styles.labelWrapper}>
+                    <p className={styles.label}>Какие компоненты нужны?</p>
+                    <span className={styles.subLabel}>до 3 компонентов</span>
+                </div>
+                <Multiselect
+                    selectValue={bloodComponents}
+                    dict={bloodComponentsDict}
+                    onChange={onChangeBloodComponentsHandler}
+                />
+            </div>
+            <div className={styles.formItem}>
+                <div className={styles.labelWrapper}>
+                    <p className={styles.label}>Какой объем требуется?</p>
+                    <span className={styles.subLabel}>
+                        {`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
+                    </span>
+                </div>
+                <TextField
+                    fullWidth
+                    name='volume'
+                    value={bloodVolume}
+                    placeholder='Укажите нужный объем'
+                    onChange={onChangeBloodVolumeHandler}
+                    slotProps={{
+                        input: {
+                            endAdornment: <div className={styles.endAdornment}>мл</div>,
+                            className: styles.inputWrapper,
+                        },
+                        htmlInput: {
+                            className: styles.input,
+                        },
+                    }}
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#dee2e9',
+                            },
+                            '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#dee2e9',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#dee2e9',
+                                borderWidth: '1px',
+                            },
+                        },
+                    }}
+                />
+                <Alert
+                    className={cn(styles.alert, { [styles.firstOfFew]: true })}
+                    text='Чем меньше объем - тем выше шансы найти кровь'
+                />
+                <Alert className={styles.alert} text='Могут быть показаны предложения меньшего объема' />
+            </div>
+            <div className={styles.formItem}>
+                <p className={styles.label}>В каком регионе искать?</p>
+                <Multiselect dict={locationsDict} selectValue={locations} onChange={onChangeLocationsHandler} />
+            </div>
+            <div className={styles.formItem}>
+                <div className={cn(styles.labelWrapper, { [styles.noMargin]: true })}>
+                    <p className={cn(styles.label, { [styles.noMargin]: true })}>Уведомлять о небольших донорах</p>
+                    <Switch checked={notifyOfSmallDonors} onChange={onChangeSwitchHandler} />
+                </div>
+                <p className={styles.donorDescr}>
+                    Покажем доноров с меньшим объемом -<br />
+                    лучше перелить меньше, чем не перелить совсем.
+                </p>
+            </div>
+            <Button
+                fullWidth
+                onClick={onConfirmButtonClickHandler}
+                className={cn(styles.confirm, { [styles.enabled]: isConfirmButtonActive })}
+            >
+                Далее
+            </Button>
+        </>
+    );
+};
+
+export default Second;

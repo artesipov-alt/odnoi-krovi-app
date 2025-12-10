@@ -1,0 +1,66 @@
+@import 'styles/colors';
+
+.wrapper {
+    display: flex;
+    height: 100vh;
+    min-height: 600px;
+    background: url('imgs/addingBg2.png') no-repeat top,
+    url('imgs/addingBg3.png') no-repeat bottom,
+    url('imgs/addingBg1.png') no-repeat center;
+    background-size: contain, contain, cover;
+    text-align: center;
+
+    @media (orientation: landscape) {
+        background-size: 400px;
+    }
+}
+
+.content {
+    margin: auto;
+    width: 264px;
+}
+
+.logo {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.title {
+    margin: 32px 0;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 27px;
+    color: @textColor2;
+}
+
+.button {
+    height: 50px;
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-family: Marmelad, sans-serif !important;
+    background: @white !important;
+    color: @textColor2 !important;
+    box-shadow: none !important;
+
+    &:first-child {
+        margin-right: 7px;
+        color: @textColor3 !important;
+        background: @common-red !important;
+    }
+}
+
+.link {
+    display: inline-block;
+    margin-top: 31px;
+    font-size: 14px;
+    line-height: 16px;
+    text-decoration: none;
+    color: @textColor2;
+    opacity: .6;
+}

@@ -10,7 +10,7 @@ enum Role {
 }
 
 export type GetUserResponse = {
-    id: number;
+    id: string;
     role?: Role;
     phone?: string;
     email?: string;
@@ -26,7 +26,7 @@ export type GetUserResponse = {
 };
 
 export type UpdateUserRequest = {
-    id: number;
+    id: string;
     phone?: string;
     email?: string;
     fullName: string;
