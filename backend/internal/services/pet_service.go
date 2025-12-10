@@ -28,6 +28,9 @@ type PetService interface {
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
+
+	// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
+	GetAvatarUploadURL(ctx context.Context, petID string) (string, error)
 }
 
 // PetCreate содержит данные для создания питомца
@@ -123,6 +126,8 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 	if err != nil {
 		return nil, apperrors.ErrInvalidLivingCondition
 	}
+
+	// Логика создания временной ссылки на загрузку фотографии
 
 	// Создаем нового питомца
 	pet := &models.Pet{
@@ -310,4 +315,29 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	}
 
 	return nil
+}
+
+// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
+func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, error) {
+	// Проверяем, существует ли питомец
+	pet, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		// Если питомец не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", apperrors.NewPetNotFoundError(petID)
+		}
+		return "", apperrors.Internal(err, "не удалось получить питомца")
+	}
+
+	if pet == nil {
+		return "", apperrors.NewPetNotFoundError(petID)
+	}
+
+	// Генерируем ссылку питомца
+	url, err := s.storage.GenerateAvatarURL(ctx, petID)
+	if err != nil {
+		return "", apperrors.Internal(err, "не удалось сгенерировать URL для загрузки аватара")
+	}
+
+	return url, nil
 }

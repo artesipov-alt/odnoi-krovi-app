@@ -11,4 +11,5 @@ type FileStorage interface {
 	Download(ctx context.Context, filepath string) (io.ReadCloser, error)
 	Delete(ctx context.Context, filepath string) error
 	GetURL(filepath string) string
+	GenerateAvatarURL(ctx context.Context, petID string) (string, error)
 }

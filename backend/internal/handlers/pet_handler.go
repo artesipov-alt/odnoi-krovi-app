@@ -277,3 +277,30 @@ func (h *PetHandler) GetPetsFromBloodSearchPoolHandler(c *fiber.Ctx) error {
 
 	return SendJSON(c, petsResp)
 }
+
+// GetAvatarUploadURL godoc
+// @Summary Получить ссылку для загрузки фотографии питомца
+// @Description Возвращает временную ссылку для загрузки фотографии питомца по ID
+// @Tags pets
+// @Produce json
+// @Param id path string true "ID питомца"
+// @Success 200 {object} map[string]string "Ссылка для загрузки фотографии"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Питомец не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /pets/upload/avatar/{id} [get]
+func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
+	petID, err := ParseStringParam(c, "id")
+	if err != nil {
+		return err
+	}
+
+	logger.Log.Info("получение ссылки для загрузки фотографии питомца", zap.String("petId", petID))
+
+	url, err := h.petService.GetAvatarUploadURL(c.Context(), petID)
+	if err != nil {
+		return err
+	}
+
+	return SendJSON(c, map[string]string{"url": url})
+}
