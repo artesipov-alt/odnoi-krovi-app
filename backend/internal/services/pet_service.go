@@ -7,6 +7,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/storage"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"gorm.io/gorm"
 )
@@ -77,13 +78,15 @@ type PetUpdate struct {
 type PetServiceImpl struct {
 	petRepo  repositories.PetRepository
 	userRepo repositories.UserRepository
+	storage  storage.FileStorage
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository) *PetServiceImpl {
+func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, storage storage.FileStorage) *PetServiceImpl {
 	return &PetServiceImpl{
 		petRepo:  petRepo,
 		userRepo: userRepo,
+		storage:  storage,
 	}
 }
 
