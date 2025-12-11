@@ -79,6 +79,7 @@ jobs:
             # Build frontend on server if needed
             if [[ "$FRONTEND_CHANGED" == "true" ]]; then
               echo "Building frontend using Taskfile"
+              task install-frontend
               task build-frontend
             fi
 
