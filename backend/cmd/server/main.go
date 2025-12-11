@@ -20,6 +20,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                              // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                              // Логирование
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"
 
 	// Управление миграциями
 	"github.com/gofiber/fiber/v2"                 // Веб-фреймворк
@@ -61,8 +62,8 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
-	// migration.AutoMigrate(db, logger.Log)
-	// migration.SeedDatabase(db, logger.Log)
+	migration.AutoMigrate(db, logger.Log)
+	migration.SeedDatabase(db, logger.Log)
 
 	//Создание репозиториев для определения доступности кеша
 
