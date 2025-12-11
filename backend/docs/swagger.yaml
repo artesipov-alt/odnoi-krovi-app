@@ -1205,6 +1205,74 @@ paths:
       tags:
       - pets
       - blood-search
+  /pets/upload/avatar/{id}:
+    get:
+      description: Возвращает временную ссылку для загрузки фотографии питомца по
+        ID
+      parameters:
+      - description: ID питомца
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ссылка для загрузки фотографии и путь к файлу
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Питомец не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Получить ссылку для загрузки фотографии питомца
+      tags:
+      - pets
+  /pets/upload/avatar/confirm/{path}:
+    post:
+      description: Подтверждает загрузку аватарки питомца, делает её публичной и возвращает
+        публичную ссылку
+      parameters:
+      - description: 'Путь к аватарке питомца (например: pets/PET-25-000001/avatar.jpg)'
+        in: path
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Публичная ссылка на аватарку
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Питомец не найден
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Подтверждение загрузки аватарки питомца
+      tags:
+      - pets
   /pets/user/{user_id}:
     get:
       description: Возвращает всех питомцев конкретного пользователя

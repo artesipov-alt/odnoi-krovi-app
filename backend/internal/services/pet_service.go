@@ -3,11 +3,15 @@ package services
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/storage"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -27,6 +31,12 @@ type PetService interface {
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
+
+	// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
+	GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error)
+
+	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
+	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
 }
 
 // PetCreate содержит данные для создания питомца
@@ -77,14 +87,24 @@ type PetUpdate struct {
 type PetServiceImpl struct {
 	petRepo  repositories.PetRepository
 	userRepo repositories.UserRepository
+	storage  storage.FileStorage
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository) *PetServiceImpl {
+func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, storage storage.FileStorage) *PetServiceImpl {
 	return &PetServiceImpl{
 		petRepo:  petRepo,
 		userRepo: userRepo,
+		storage:  storage,
 	}
+}
+
+// buildFullPhotoURL преобразует путь к фото в полный публичный URL
+func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
+	if path == "" {
+		return ""
+	}
+	return s.storage.GetPublicURLFromPath(path)
 }
 
 // CreatePet создает нового питомца для пользователя
@@ -121,6 +141,8 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		return nil, apperrors.ErrInvalidLivingCondition
 	}
 
+	// Логика создания временной ссылки на загрузку фотографии
+
 	// Создаем нового питомца
 	pet := &models.Pet{
 		OwnerID:         userID,
@@ -148,6 +170,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		return nil, apperrors.Internal(err, "не удалось создать питомца")
 	}
 
+	// Преобразуем путь к фото в полный URL
+	pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
+
 	return pet, nil
 }
 
@@ -165,6 +190,9 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*models.
 	if pet == nil {
 		return nil, apperrors.NewPetNotFoundError(petID)
 	}
+
+	// Преобразуем путь к фото в полный URL
+	pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
 
 	return pet, nil
 }
@@ -188,6 +216,13 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*mod
 	pets, err := s.petRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
+	}
+
+	// Преобразуем пути к фото в полные URL для каждого питомца
+	for i := range pets {
+		if pets[i] != nil {
+			pets[i].PhotoURL = s.buildFullPhotoURL(pets[i].PhotoURL)
+		}
 	}
 
 	return pets, nil
@@ -307,4 +342,86 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	}
 
 	return nil
+}
+
+// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
+func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error) {
+	// Проверяем, существует ли питомец
+	pet, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		// Если питомец не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", "", apperrors.NewPetNotFoundError(petID)
+		}
+		return "", "", apperrors.Internal(err, "не удалось получить питомца")
+	}
+
+	if pet == nil {
+		return "", "", apperrors.NewPetNotFoundError(petID)
+	}
+
+	// Генерируем ссылку питомца
+	url, path, err := s.storage.GetAvatarUploadInfo(ctx, petID)
+	if err != nil {
+		return "", "", apperrors.Internal(err, "не удалось сгенерировать URL для загрузки аватара")
+	}
+
+	return url, path, nil
+}
+
+// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
+func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error) {
+	// Извлекаем petID из пути. Пример: "pets%2FPET-25-000006%2Favatar.jpg"
+	// Сначала декодируем URL, затем разбиваем по "/"
+	decodedPath := strings.ReplaceAll(avatarPath, "%2F", "/")
+
+	parts := strings.Split(decodedPath, "/")
+	logger.Log.Debug("Parts:", zap.Strings("p", parts))
+	if len(parts) < 2 {
+		return "", apperrors.Internal(nil, "некорректный формат пути аватара")
+	}
+	petID := parts[1]
+
+	// Проверяем, существует ли питомец
+	pet, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		// Если питомец не найден - возвращаем 404, а не 500
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", apperrors.NewPetNotFoundError(petID)
+		}
+		return "", apperrors.Internal(err, "не удалось получить питомца")
+	}
+
+	if pet == nil {
+		return "", apperrors.NewPetNotFoundError(petID)
+	}
+
+	// Проверяем, что файл действительно загружен
+	exists, err := s.storage.CheckObjectExists(ctx, decodedPath)
+	if err != nil {
+		return "", apperrors.Internal(err, "не удалось проверить существование файла")
+	}
+	if !exists {
+		return "", apperrors.Internal(nil, "файл не найден")
+	}
+
+	// Устанавливаем публичный ACL для объекта
+	err = s.storage.SetObjectPublicACL(ctx, decodedPath)
+	if err != nil {
+		return "", apperrors.Internal(err, "не удалось установить публичный ACL")
+	}
+
+	// Получаем публичный URL для аватарки
+	publicURL := s.storage.GetAvatarPublicURL(petID)
+	if publicURL == "" {
+		return "", apperrors.Internal(nil, "не удалось получить публичный URL для аватарки")
+	}
+
+	// Обновляем photoURL в базе данных
+	pet.PhotoURL = decodedPath
+	if err := s.petRepo.Update(ctx, pet); err != nil {
+		return "", apperrors.Internal(err, "не удалось обновить photoURL питомца")
+	}
+
+	return publicURL, nil
 }

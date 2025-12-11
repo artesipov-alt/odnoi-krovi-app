@@ -623,6 +623,106 @@ const docTemplate = `{
                 }
             }
         },
+        "/pets/upload/avatar/confirm/{path}": {
+            "post": {
+                "description": "Подтверждает загрузку аватарки питомца, делает её публичной и возвращает публичную ссылку",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Подтверждение загрузки аватарки питомца",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Путь к аватарке питомца (например: pets/PET-25-000001/avatar.jpg)",
+                        "name": "path",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Публичная ссылка на аватарку",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Питомец не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pets/upload/avatar/{id}": {
+            "get": {
+                "description": "Возвращает временную ссылку для загрузки фотографии питомца по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pets"
+                ],
+                "summary": "Получить ссылку для загрузки фотографии питомца",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID питомца",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ссылка для загрузки фотографии и путь к файлу",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Питомец не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/pets/user/{user_id}": {
             "get": {
                 "description": "Возвращает всех питомцев конкретного пользователя",

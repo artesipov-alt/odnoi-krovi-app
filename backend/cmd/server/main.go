@@ -11,6 +11,7 @@ import (
 	cache "github.com/artesipov-alt/odnoi-krovi-app/internal/cache/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"   // Обработчики HTTP запросов
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware" // Промежуточное ПО
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/storage/s3"
 
 	// Репозитории для работы с БД
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
@@ -19,7 +20,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                              // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                              // Логирование
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"
 
 	// Управление миграциями
 	"github.com/gofiber/fiber/v2"                 // Веб-фреймворк
@@ -61,8 +61,8 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
-	migration.AutoMigrate(db, logger.Log)
-	migration.SeedDatabase(db, logger.Log)
+	// migration.AutoMigrate(db, logger.Log)
+	// migration.SeedDatabase(db, logger.Log)
 
 	//Создание репозиториев для определения доступности кеша
 
@@ -84,10 +84,12 @@ func main() {
 		// Используем обычный репозиторий без кэша
 		bloodRepoInit = bloodRepo
 	}
+	// Инитилизация s3
+	s3VKCloud := s3.NewS3Storage(nil).WithDefaults()
 
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
-	petService := services.NewPetService(petRepo, userRepo)
+	petService := services.NewPetService(petRepo, userRepo, s3VKCloud)
 	vetClinicService := services.NewVetClinicService(vetClinicRepo)
 	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
@@ -150,11 +152,13 @@ func main() {
 			// Группа маршрутов для работы с питомцами и поиском крови
 			petGroup := v1.Group("/pets")
 			{
-				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler) // Получение всех питомцев пользователя
-				petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)  // Создание питомца для пользователя
-				petGroup.Get("/:id", petHandler.GetPetHandler)                // Получение питомца по ID
-				petGroup.Put("/:id", petHandler.UpdatePetHandler)             // Обновление данных питомца
-				petGroup.Delete("/:id", petHandler.DeletePetHandler)          // Удаление питомца по ID
+				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler)                   // Получение всех питомцев пользователя
+				petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)                    // Создание питомца для пользователя
+				petGroup.Get("/:id", petHandler.GetPetHandler)                                  // Получение питомца по ID
+				petGroup.Put("/:id", petHandler.UpdatePetHandler)                               // Обновление данных питомца
+				petGroup.Delete("/:id", petHandler.DeletePetHandler)                            // Удаление питомца по ID
+				petGroup.Get("upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
+				petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Получение ссылки на загрузку в фотографии питомцев в storage
 
 				// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
 				petGroup.Post("/blood-search/pool", petHandler.AddPetToBloodSearchPoolHandler)           // Добавить питомца в пул поиска крови

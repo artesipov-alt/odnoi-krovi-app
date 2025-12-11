@@ -277,3 +277,57 @@ func (h *PetHandler) GetPetsFromBloodSearchPoolHandler(c *fiber.Ctx) error {
 
 	return SendJSON(c, petsResp)
 }
+
+// GetAvatarUploadURL godoc
+// @Summary Получить ссылку для загрузки фотографии питомца
+// @Description Возвращает временную ссылку для загрузки фотографии питомца по ID
+// @Tags pets
+// @Produce json
+// @Param id path string true "ID питомца"
+// @Success 200 {object} map[string]string "Ссылка для загрузки фотографии и путь к файлу"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Питомец не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /pets/upload/avatar/{id} [get]
+func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
+	petID, err := ParseStringParam(c, "id")
+	if err != nil {
+		return err
+	}
+
+	logger.Log.Info("получение ссылки для загрузки фотографии питомца", zap.String("petId", petID))
+
+	url, path, err := h.petService.GetAvatarUploadURL(c.Context(), petID)
+	if err != nil {
+		return err
+	}
+
+	return SendJSON(c, map[string]string{"url": url, "path": path})
+}
+
+// ConfirmPetAvatarUpload godoc
+// @Summary Подтверждение загрузки аватарки питомца
+// @Description Подтверждает загрузку аватарки питомца, делает её публичной и возвращает публичную ссылку
+// @Tags pets
+// @Produce json
+// @Param path path string true "Путь к аватарке питомца (например: pets/PET-25-000001/avatar.jpg)"
+// @Success 200 {object} map[string]string "Публичная ссылка на аватарку"
+// @Failure 400 {object} ErrorResponse "Неверный запрос"
+// @Failure 404 {object} ErrorResponse "Питомец не найден"
+// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router /pets/upload/avatar/confirm/{path} [post]
+func (h *PetHandler) ConfirmPetAvatarUpload(c *fiber.Ctx) error {
+	avatarPath, err := ParseStringParam(c, "path")
+	if err != nil {
+		return err
+	}
+
+	logger.Log.Info("подтверждение загрузки аватарки питомца", zap.String("avatarPath", avatarPath))
+
+	publicURL, err := h.petService.UpdatePetAvatar(c.Context(), avatarPath)
+	if err != nil {
+		return err
+	}
+
+	return SendJSON(c, map[string]string{"publicUrl": publicURL})
+}
