@@ -3,6 +3,7 @@ import { TelegramUser } from 'types';
 
 import Layout from 'components/Layout';
 
+import Donor from './Donor';
 import Recipient from './Recipient';
 import Start from './Start';
 
@@ -35,6 +36,9 @@ const Adding: FC<Props> = ({ user }) => {
         switch (view) {
             case View.RECIPIENT: {
                 return <Recipient onBackToStart={onBackToStartClickHandler} />;
+            }
+            case View.DONOR: {
+                return <Donor onBackToStart={onBackToStartClickHandler} />;
             }
             default: {
                 return (
