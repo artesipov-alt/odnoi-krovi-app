@@ -12,11 +12,11 @@ import { getPetsTypes } from 'api/apiServices/getPetsTypes';
 import { Dict, PetDict } from 'api/reference';
 import { PetType } from 'api/types';
 
-import Check from '../Steps/Check';
-import Final from '../Steps/Final';
-import First from '../Steps/First';
-import Second from '../Steps/Second';
-import Three from '../Steps/Three';
+import Check from './Steps/Check';
+import Final from './Steps/Final';
+import First from './Steps/First';
+import Second from './Steps/Second';
+import Three from './Steps/Three';
 import styles from './Recipient.module.less';
 
 type Props = {
