@@ -10,6 +10,8 @@ import (
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/storage"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -97,6 +99,14 @@ func NewPetService(petRepo repositories.PetRepository, userRepo repositories.Use
 	}
 }
 
+// buildFullPhotoURL преобразует путь к фото в полный публичный URL
+func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
+	if path == "" {
+		return ""
+	}
+	return s.storage.GetPublicURLFromPath(path)
+}
+
 // CreatePet создает нового питомца для пользователя
 func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error) {
 	// Проверяем, существует ли пользователь
@@ -160,6 +170,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		return nil, apperrors.Internal(err, "не удалось создать питомца")
 	}
 
+	// Преобразуем путь к фото в полный URL
+	pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
+
 	return pet, nil
 }
 
@@ -177,6 +190,9 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*models.
 	if pet == nil {
 		return nil, apperrors.NewPetNotFoundError(petID)
 	}
+
+	// Преобразуем путь к фото в полный URL
+	pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
 
 	return pet, nil
 }
@@ -200,6 +216,13 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*mod
 	pets, err := s.petRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
+	}
+
+	// Преобразуем пути к фото в полные URL для каждого питомца
+	for i := range pets {
+		if pets[i] != nil {
+			pets[i].PhotoURL = s.buildFullPhotoURL(pets[i].PhotoURL)
+		}
 	}
 
 	return pets, nil
@@ -348,8 +371,12 @@ func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (
 
 // UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
 func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error) {
-	// Извлекаем petID из пути, например: pets/PET-25-000001/avatar.jpg
-	parts := strings.Split(avatarPath, "/")
+	// Извлекаем petID из пути. Пример: "pets%2FPET-25-000006%2Favatar.jpg"
+	// Сначала декодируем URL, затем разбиваем по "/"
+	decodedPath := strings.ReplaceAll(avatarPath, "%2F", "/")
+
+	parts := strings.Split(decodedPath, "/")
+	logger.Log.Debug("Parts:", zap.Strings("p", parts))
 	if len(parts) < 2 {
 		return "", apperrors.Internal(nil, "некорректный формат пути аватара")
 	}
@@ -369,19 +396,29 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 		return "", apperrors.NewPetNotFoundError(petID)
 	}
 
-	// Делаем аватарку публичной в хранилище по avatarPath
-	if err := s.storage.MakeAvatarPublic(ctx, avatarPath); err != nil {
-		return "", apperrors.Internal(err, "не удалось сделать аватарку публичной")
+	// Проверяем, что файл действительно загружен
+	exists, err := s.storage.CheckObjectExists(ctx, decodedPath)
+	if err != nil {
+		return "", apperrors.Internal(err, "не удалось проверить существование файла")
+	}
+	if !exists {
+		return "", apperrors.Internal(nil, "файл не найден")
 	}
 
-	// Получаем публичный URL для аватарки по avatarPath
-	publicURL := s.storage.GetAvatarPublicURL(avatarPath)
+	// Устанавливаем публичный ACL для объекта
+	err = s.storage.SetObjectPublicACL(ctx, decodedPath)
+	if err != nil {
+		return "", apperrors.Internal(err, "не удалось установить публичный ACL")
+	}
+
+	// Получаем публичный URL для аватарки
+	publicURL := s.storage.GetAvatarPublicURL(petID)
 	if publicURL == "" {
 		return "", apperrors.Internal(nil, "не удалось получить публичный URL для аватарки")
 	}
 
 	// Обновляем photoURL в базе данных
-	pet.PhotoURL = publicURL
+	pet.PhotoURL = decodedPath
 	if err := s.petRepo.Update(ctx, pet); err != nil {
 		return "", apperrors.Internal(err, "не удалось обновить photoURL питомца")
 	}
