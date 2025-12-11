@@ -83,6 +83,13 @@ ENVIRONMENT=development
 # Microservices URLs
 BLOOD_MICROSERVICE_URL=http://localhost:8081
 
+# S3 Storage Configuration
+S3_ENDPOINT=your_s3_endpoint
+S3_ACCESS_KEY=your_s3_access_key
+S3_SECRET_KEY=your_s3_secret_key
+S3_BUCKET_NAME=your_s3_bucket_name
+S3_REGION=ru-central1
+
 # Telegram Bot Configuration
 BOT_TOKEN=your_telegram_bot_token
 PROD_BOT_API_KEY=your_prod_bot_token

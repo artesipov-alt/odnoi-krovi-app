@@ -15,6 +15,11 @@ services:
       REDIS_HOST: 10.0.0.73
       REDIS_PORT: 6379
       BLOOD_MICROSERVICE_URL: http://blood-microservice:8081
+      S3_ENDPOINT: hb.ru-msk.vkcloud-storage.ru
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      S3_REGION: ${S3_REGION:-ru-central1}
     ports:
       - "3000:3000"
     networks:
