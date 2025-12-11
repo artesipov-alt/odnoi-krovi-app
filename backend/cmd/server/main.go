@@ -152,12 +152,13 @@ func main() {
 			// Группа маршрутов для работы с питомцами и поиском крови
 			petGroup := v1.Group("/pets")
 			{
-				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler)    // Получение всех питомцев пользователя
-				petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)     // Создание питомца для пользователя
-				petGroup.Get("/:id", petHandler.GetPetHandler)                   // Получение питомца по ID
-				petGroup.Put("/:id", petHandler.UpdatePetHandler)                // Обновление данных питомца
-				petGroup.Delete("/:id", petHandler.DeletePetHandler)             // Удаление питомца по ID
-				petGroup.Get("upload/avatar/:id", petHandler.GetAvatarUploadURL) // Получение ссылки на загрузку в фотографии питомцев в storage
+				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler)                   // Получение всех питомцев пользователя
+				petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)                    // Создание питомца для пользователя
+				petGroup.Get("/:id", petHandler.GetPetHandler)                                  // Получение питомца по ID
+				petGroup.Put("/:id", petHandler.UpdatePetHandler)                               // Обновление данных питомца
+				petGroup.Delete("/:id", petHandler.DeletePetHandler)                            // Удаление питомца по ID
+				petGroup.Get("upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
+				petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Получение ссылки на загрузку в фотографии питомцев в storage
 
 				// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
 				petGroup.Post("/blood-search/pool", petHandler.AddPetToBloodSearchPoolHandler)           // Добавить питомца в пул поиска крови

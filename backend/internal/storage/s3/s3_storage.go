@@ -212,34 +212,6 @@ func (s *S3Storage) GetPresignedURL(ctx context.Context, filepath string, expire
 	return url.String(), nil
 }
 
-// GenerateAvatarURL генерирует URL для загрузки аватарки
-func (s *S3Storage) GenerateAvatarURL(ctx context.Context, id string) (string, error) {
-	var format string
-	switch {
-	case strings.HasPrefix(id, "USR"):
-		format = "users/%s/avatar.jpg"
-	case strings.HasPrefix(id, "PET"):
-		format = "pets/%s/avatar.jpg"
-	default:
-		return "", fmt.Errorf("неподдерживаемый тип файла")
-	}
-
-	path := fmt.Sprintf(format, id)
-
-	presignedURL, err := s.Client().PresignedPutObject(
-		ctx,
-		s.cfg.bucketName,
-		path,
-		s.cfg.expire,
-	)
-
-	if err != nil {
-		return "", fmt.Errorf("ошибка создания presigned URL для загрузки: %v", err)
-	}
-
-	return presignedURL.String(), nil
-}
-
 // GetAvatarUploadInfo возвращает информацию для загрузки аватарки
 // Возвращает: uploadURL (подписанная ссылка), objectPath (путь в S3), error
 func (s *S3Storage) GetAvatarUploadInfo(ctx context.Context, id string) (string, string, error) {
