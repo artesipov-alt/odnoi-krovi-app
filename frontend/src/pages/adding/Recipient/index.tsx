@@ -12,12 +12,12 @@ import { getPetsTypes } from 'api/apiServices/getPetsTypes';
 import { Dict, PetDict } from 'api/reference';
 import { PetType } from 'api/types';
 
+import styles from './Recipient.module.less';
 import Check from './Steps/Check';
 import Final from './Steps/Final';
 import First from './Steps/First';
 import Second from './Steps/Second';
 import Three from './Steps/Three';
-import styles from './Recipient.module.less';
 
 type Props = {
     onBackToStart: () => void;
@@ -130,9 +130,9 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
         onBackToStart();
     };
 
-    const onLoadPhotoHandler = (newPhoto: File | null) => {
+    const onLoadPhotoHandler = useCallback((newPhoto: File | null) => {
         setPhoto(newPhoto);
-    };
+    }, []);
 
     const onChangeNameHandler = (newName: string) => {
         setName(newName);
