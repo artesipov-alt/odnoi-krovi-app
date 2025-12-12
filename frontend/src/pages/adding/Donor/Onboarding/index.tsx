@@ -1,5 +1,6 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
+import onboarding from 'imgs/onboarding.png';
 import Caution from 'imgs/svg/caution';
 import ExclamationSquare from 'imgs/svg/exclamationSquare';
 import MainLogo from 'imgs/svg/mainLogo';
@@ -90,7 +91,7 @@ const Onboarding: FC<Props> = ({ onFinish, onBackToStart }) => {
                     Вернуться
                 </p>
             </div>
-            {!isFirstStep && <img className={styles.photos} alt='pets' src='src/imgs/onboarding.png' />}
+            {!isFirstStep && <img className={styles.photos} alt='pets' src={onboarding} />}
         </div>
     );
 };

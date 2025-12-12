@@ -117,7 +117,7 @@ const ImgEditor: FC<Props> = ({ src, className, onLoad, serverSrc, petType, show
             )}
             {!file && (serverSrc || src) && isLoadImageError && <div>{renderErrorStub()}</div>}
             {!file && serverSrc && !isLoadImageError && (
-                <div>
+                <div className={styles.imgWrapper}>
                     <img
                         alt=''
                         src={serverSrc}
@@ -130,7 +130,7 @@ const ImgEditor: FC<Props> = ({ src, className, onLoad, serverSrc, petType, show
                 </div>
             )}
             {file && (
-                <div className={cn({ [styles.imgWithLabels]: showStub })}>
+                <div className={cn(styles.imgWrapper, { [styles.imgWithLabels]: showStub })}>
                     <img className={styles.img} src={URL.createObjectURL(file)} onClick={onImgClickHandler} alt='' />
                     {onLoad && renderDeleteButton()}
                     {showStub && renderLabels()}
