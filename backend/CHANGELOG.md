@@ -5,6 +5,56 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [1.2.101] - 2025-12-13
+
+### Изменено
+- Переход с BloodSearch API на BloodRequest API
+- Переименование proto-пакета с bloodsearch на bloodrequest
+- Обновление типов клиентов, обработчиков и названий сервисов
+- Переименование PetRow в BloodRequest в моделях и репозиториях
+- Обновление миграций; удаление модели BloodSearch из бэкенда
+
+### Технические детали
+- Коммит: 9468f08 - Switch to BloodRequest API and remove BloodSearch
+- Обновлены все импорты и сгенерирован новый proto/connect код
+- Изменены поля DTO: bloodGroup на []string, bloodComponents на []int32, добавлено description
+
+## [1.2.100] - 2025-12-13
+
+### Добавлено
+- Добавлен petStatus в модель Pet (PetRole) и DTO; поддержка обновлений
+- Валидация enum-значений с сохранением оригинальных значений
+
+### Изменено
+- Обновление Swagger: теги, типы запросов/ответов; переименование godoc
+- Переименование blood_search_service.go в blood_request_service.go
+- Обновление примеров крови и названий компонентов плазмы в seeds
+- Комментирование миграций для VetClinic, BloodStock, Donation
+
+### Технические детали
+- Коммит: 6fc10f7 - Add PetStatus; refine validation, docs, seeds
+- Добавлена поддержка статуса питомца в сервисах и обработчиках
+
+## [1.2.0] - 2025-12-13
+
+### Исправлено
+- Исправление путей эндпоинтов и маппинга обработчиков для BloodRequest Pool
+- Обновление main.go и pet_handler.go для корректной работы с новыми путями
+
+### Технические детали
+- Коммит: 5e46542 - Fix blood request pool endpoint paths and handler mapping
+- Исправлены пути подключения и обработчики для микросервиса крови
+
+## [1.1.103] - 2025-12-12
+
+### Изменено
+- Встраивание сборки фронтенда в Docker-образ; удаление монтирования томов
+- Обновление docker-compose.yml и frontend/Dockerfile
+
+### Технические детали
+- Коммит: c987617 - Embed frontend build into image; drop mount
+- Улучшение процесса деплоя и уменьшение зависимостей от томов
+
 ## [1.1.102] - 2025-11-25
 
 ### Исправлено
