@@ -230,8 +230,8 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 // @Tags pets, blood-request
 // @Accept json
 // @Produce json
-// @Param request body BloodSearchFilterRequest true "Фильтры поиска: тип, группа крови, регионы"
-// @Success 200 {object} BloodSearchPetsResponse "Список питомцев"
+// @Param request body models.BloodSearchFilterRequest true "Фильтры поиска: тип, группа крови, регионы"
+// @Success 200 {object} models.BloodSearchPetsResponse "Список питомцев"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-request/pool/search [post]

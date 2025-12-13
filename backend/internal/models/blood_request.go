@@ -10,13 +10,13 @@ type BloodSearchPetRequest struct {
 	// Группа крови животного
 	BloodGroup []string `json:"bloodGroup" example:"DEA 1+"`
 	// Необходимые компоненты крови
-	BloodComponents []int32 `json:"bloodComponents" example:"1, 4"`
+	BloodComponents []int32 `json:"bloodComponents" example:"1,4"`
 	// Необходимый объем крови в мл
 	BloodVolumeNeeded int32 `json:"bloodVolumeNeeded" example:"500"`
 	// Зарезервированный объем крови в мл
 	BloodVolumeReserved int32 `json:"bloodVolumeReserved" example:"100"`
 	// ID регионов для поиска доноров
-	Regions []int32 `json:"regions" example:"1, 2, 3"`
+	Regions []int32 `json:"regions" example:"1,2,3"`
 	// Разрешить уведомления для маленьких питомцев
 	SmallPetsNotifyAllowed bool `json:"smallPetsNotifyAllowed" example:"true"`
 	// Статус поиска

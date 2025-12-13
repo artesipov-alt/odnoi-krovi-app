@@ -529,7 +529,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/pets/blood-search/pool": {
+        "/pets/blood-request/pool": {
             "post": {
                 "description": "Добавляет питомца-реципиента в пул поиска крови",
                 "consumes": [
@@ -540,7 +540,7 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "pets",
-                    "blood-search"
+                    "blood-request"
                 ],
                 "summary": "Добавить питомца в пул поиска крови",
                 "parameters": [
@@ -550,7 +550,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchPetRequest"
+                            "$ref": "#/definitions/models.BloodSearchPetRequest"
                         }
                     }
                 ],
@@ -558,7 +558,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Статус добавления питомца",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchPetResponse"
+                            "$ref": "#/definitions/models.BloodSearchPetResponse"
                         }
                     },
                     "400": {
@@ -576,7 +576,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/pets/blood-search/pool/search": {
+        "/pets/blood-request/pool/search": {
             "post": {
                 "description": "Возвращает список питомцев-реципиентов по фильтрам",
                 "consumes": [
@@ -587,7 +587,7 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "pets",
-                    "blood-search"
+                    "blood-request"
                 ],
                 "summary": "Получить питомцев из пула поиска крови",
                 "parameters": [
@@ -597,7 +597,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchFilterRequest"
+                            "$ref": "#/definitions/models.BloodSearchFilterRequest"
                         }
                     }
                 ],
@@ -605,7 +605,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Список питомцев",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchPetsResponse"
+                            "$ref": "#/definitions/models.BloodSearchPetsResponse"
                         }
                     },
                     "400": {
@@ -1848,127 +1848,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handlers.BloodSearchFilterRequest": {
-            "description": "Фильтры для поиска питомцев-реципиентов",
-            "type": "object",
-            "properties": {
-                "bloodGroup": {
-                    "description": "Группа крови для поиска",
-                    "type": "string",
-                    "example": "DEA 1.1+"
-                },
-                "petType": {
-                    "description": "Тип животного для поиска",
-                    "type": "string",
-                    "example": "dog"
-                },
-                "regions": {
-                    "description": "ID регионов для фильтрации",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "example": [
-                        1,
-                        2,
-                        3
-                    ]
-                }
-            }
-        },
-        "handlers.BloodSearchPetRequest": {
-            "description": "Данные питомца-реципиента для пула поиска крови",
-            "type": "object",
-            "properties": {
-                "bloodComponents": {
-                    "description": "Необходимые компоненты крови",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "whole_blood",
-                        "plasma"
-                    ]
-                },
-                "bloodGroup": {
-                    "description": "Группа крови животного",
-                    "type": "string",
-                    "example": "DEA 1.1+"
-                },
-                "bloodVolumeNeeded": {
-                    "description": "Необходимый объем крови в мл",
-                    "type": "integer",
-                    "example": 500
-                },
-                "bloodVolumeReserved": {
-                    "description": "Зарезервированный объем крови в мл",
-                    "type": "integer",
-                    "example": 100
-                },
-                "petId": {
-                    "description": "ID питомца в системе",
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "petType": {
-                    "description": "Тип животного (dog, cat и т.д.)",
-                    "type": "string",
-                    "example": "dog"
-                },
-                "regions": {
-                    "description": "ID регионов для поиска доноров",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "example": [
-                        1,
-                        2,
-                        3
-                    ]
-                },
-                "smallPetsNotifyAllowed": {
-                    "description": "Разрешить уведомления для маленьких питомцев",
-                    "type": "boolean",
-                    "example": true
-                },
-                "status": {
-                    "description": "Статус поиска",
-                    "type": "string",
-                    "example": "active"
-                }
-            }
-        },
-        "handlers.BloodSearchPetResponse": {
-            "description": "Статус операции с питомцем в пуле поиска крови",
-            "type": "object",
-            "properties": {
-                "petId": {
-                    "description": "ID питомца в системе",
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "status": {
-                    "description": "Статус операции",
-                    "type": "string",
-                    "example": "added"
-                }
-            }
-        },
-        "handlers.BloodSearchPetsResponse": {
-            "description": "Список питомцев из пула поиска крови",
-            "type": "object",
-            "properties": {
-                "pets": {
-                    "description": "Список питомцев",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handlers.BloodSearchPetRequest"
-                    }
-                }
-            }
-        },
         "handlers.DevResponse": {
             "type": "object",
             "properties": {
@@ -2074,6 +1953,142 @@ const docTemplate = `{
                 "data": {},
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "models.BloodSearchFilterRequest": {
+            "description": "Фильтры для поиска питомцев-реципиентов",
+            "type": "object",
+            "properties": {
+                "bloodGroup": {
+                    "description": "Группа крови для поиска",
+                    "type": "string",
+                    "example": "DEA 1+"
+                },
+                "petId": {
+                    "description": "ID питомца в системе",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "petType": {
+                    "description": "Тип животного для поиска",
+                    "type": "string",
+                    "example": "dog"
+                },
+                "regions": {
+                    "description": "ID регионов для фильтрации",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2,
+                        3
+                    ]
+                }
+            }
+        },
+        "models.BloodSearchPetRequest": {
+            "description": "Данные питомца-реципиента для пула поиска крови",
+            "type": "object",
+            "properties": {
+                "bloodComponents": {
+                    "description": "Необходимые компоненты крови",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        4
+                    ]
+                },
+                "bloodGroup": {
+                    "description": "Группа крови животного",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "DEA 1+"
+                    ]
+                },
+                "bloodVolumeNeeded": {
+                    "description": "Необходимый объем крови в мл",
+                    "type": "integer",
+                    "example": 500
+                },
+                "bloodVolumeReserved": {
+                    "description": "Зарезервированный объем крови в мл",
+                    "type": "integer",
+                    "example": 100
+                },
+                "description": {
+                    "description": "Описание",
+                    "type": "string",
+                    "example": "Описание проблемы питомца"
+                },
+                "petId": {
+                    "description": "ID питомца в системе",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "petType": {
+                    "description": "Тип животного (dog, cat и т.д.)",
+                    "type": "string",
+                    "example": "dog"
+                },
+                "regions": {
+                    "description": "ID регионов для поиска доноров",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "smallPetsNotifyAllowed": {
+                    "description": "Разрешить уведомления для маленьких питомцев",
+                    "type": "boolean",
+                    "example": true
+                },
+                "status": {
+                    "description": "Статус поиска",
+                    "type": "string",
+                    "example": "active"
+                }
+            }
+        },
+        "models.BloodSearchPetResponse": {
+            "description": "Статус операции с питомцем в пуле поиска крови",
+            "type": "object",
+            "properties": {
+                "petId": {
+                    "description": "ID питомца в системе",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "status": {
+                    "description": "Статус операции",
+                    "type": "string",
+                    "example": "added"
+                }
+            }
+        },
+        "models.BloodSearchPetsResponse": {
+            "description": "Список питомцев из пула поиска крови",
+            "type": "object",
+            "properties": {
+                "pets": {
+                    "description": "Список питомцев",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BloodSearchPetRequest"
+                    }
                 }
             }
         },
@@ -2208,7 +2223,7 @@ const docTemplate = `{
                 },
                 "bloodGroup": {
                     "type": "string",
-                    "example": "DEA 1.1"
+                    "example": "DEA 1+"
                 },
                 "breed": {
                     "type": "string",
@@ -2286,7 +2301,11 @@ const docTemplate = `{
                     "example": "USR-25-0001"
                 },
                 "petStatus": {
-                    "type": "string",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetRole"
+                        }
+                    ],
                     "example": "donor"
                 },
                 "photoUrl": {
@@ -2314,6 +2333,17 @@ const docTemplate = `{
                     "example": 25.5
                 }
             }
+        },
+        "models.PetRole": {
+            "type": "string",
+            "enum": [
+                "donor",
+                "recipient"
+            ],
+            "x-enum-varnames": [
+                "PetRoleDonor",
+                "PetRoleRecipient"
+            ]
         },
         "models.PetType": {
             "type": "string",
@@ -2587,6 +2617,14 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 1
                 },
+                "petStatus": {
+                    "maxLength": 50,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetRole"
+                        }
+                    ]
+                },
                 "photoUrl": {
                     "type": "string",
                     "maxLength": 255
@@ -2655,6 +2693,14 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 1
+                },
+                "petStatus": {
+                    "maxLength": 50,
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetRole"
+                        }
+                    ]
                 },
                 "photoUrl": {
                     "type": "string",

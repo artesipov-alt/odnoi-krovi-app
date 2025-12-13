@@ -1,96 +1,5 @@
 basePath: /api/v1
 definitions:
-  handlers.BloodSearchFilterRequest:
-    description: Фильтры для поиска питомцев-реципиентов
-    properties:
-      bloodGroup:
-        description: Группа крови для поиска
-        example: DEA 1.1+
-        type: string
-      petType:
-        description: Тип животного для поиска
-        example: dog
-        type: string
-      regions:
-        description: ID регионов для фильтрации
-        example:
-        - 1
-        - 2
-        - 3
-        items:
-          type: integer
-        type: array
-    type: object
-  handlers.BloodSearchPetRequest:
-    description: Данные питомца-реципиента для пула поиска крови
-    properties:
-      bloodComponents:
-        description: Необходимые компоненты крови
-        example:
-        - whole_blood
-        - plasma
-        items:
-          type: string
-        type: array
-      bloodGroup:
-        description: Группа крови животного
-        example: DEA 1.1+
-        type: string
-      bloodVolumeNeeded:
-        description: Необходимый объем крови в мл
-        example: 500
-        type: integer
-      bloodVolumeReserved:
-        description: Зарезервированный объем крови в мл
-        example: 100
-        type: integer
-      petId:
-        description: ID питомца в системе
-        example: 123e4567-e89b-12d3-a456-426614174000
-        type: string
-      petType:
-        description: Тип животного (dog, cat и т.д.)
-        example: dog
-        type: string
-      regions:
-        description: ID регионов для поиска доноров
-        example:
-        - 1
-        - 2
-        - 3
-        items:
-          type: integer
-        type: array
-      smallPetsNotifyAllowed:
-        description: Разрешить уведомления для маленьких питомцев
-        example: true
-        type: boolean
-      status:
-        description: Статус поиска
-        example: active
-        type: string
-    type: object
-  handlers.BloodSearchPetResponse:
-    description: Статус операции с питомцем в пуле поиска крови
-    properties:
-      petId:
-        description: ID питомца в системе
-        example: 123e4567-e89b-12d3-a456-426614174000
-        type: string
-      status:
-        description: Статус операции
-        example: added
-        type: string
-    type: object
-  handlers.BloodSearchPetsResponse:
-    description: Список питомцев из пула поиска крови
-    properties:
-      pets:
-        description: Список питомцев
-        items:
-          $ref: '#/definitions/handlers.BloodSearchPetRequest'
-        type: array
-    type: object
   handlers.DevResponse:
     properties:
       message:
@@ -161,6 +70,108 @@ definitions:
       data: {}
       message:
         type: string
+    type: object
+  models.BloodSearchFilterRequest:
+    description: Фильтры для поиска питомцев-реципиентов
+    properties:
+      bloodGroup:
+        description: Группа крови для поиска
+        example: DEA 1+
+        type: string
+      petId:
+        description: ID питомца в системе
+        example: PET-25-000001
+        type: string
+      petType:
+        description: Тип животного для поиска
+        example: dog
+        type: string
+      regions:
+        description: ID регионов для фильтрации
+        example:
+        - 1
+        - 2
+        - 3
+        items:
+          type: integer
+        type: array
+    type: object
+  models.BloodSearchPetRequest:
+    description: Данные питомца-реципиента для пула поиска крови
+    properties:
+      bloodComponents:
+        description: Необходимые компоненты крови
+        example:
+        - 1
+        - 4
+        items:
+          type: integer
+        type: array
+      bloodGroup:
+        description: Группа крови животного
+        example:
+        - DEA 1+
+        items:
+          type: string
+        type: array
+      bloodVolumeNeeded:
+        description: Необходимый объем крови в мл
+        example: 500
+        type: integer
+      bloodVolumeReserved:
+        description: Зарезервированный объем крови в мл
+        example: 100
+        type: integer
+      description:
+        description: Описание
+        example: Описание проблемы питомца
+        type: string
+      petId:
+        description: ID питомца в системе
+        example: PET-25-000001
+        type: string
+      petType:
+        description: Тип животного (dog, cat и т.д.)
+        example: dog
+        type: string
+      regions:
+        description: ID регионов для поиска доноров
+        example:
+        - 1
+        - 2
+        - 3
+        items:
+          type: integer
+        type: array
+      smallPetsNotifyAllowed:
+        description: Разрешить уведомления для маленьких питомцев
+        example: true
+        type: boolean
+      status:
+        description: Статус поиска
+        example: active
+        type: string
+    type: object
+  models.BloodSearchPetResponse:
+    description: Статус операции с питомцем в пуле поиска крови
+    properties:
+      petId:
+        description: ID питомца в системе
+        example: PET-25-000001
+        type: string
+      status:
+        description: Статус операции
+        example: added
+        type: string
+    type: object
+  models.BloodSearchPetsResponse:
+    description: Список питомцев из пула поиска крови
+    properties:
+      pets:
+        description: Список питомцев
+        items:
+          $ref: '#/definitions/models.BloodSearchPetRequest'
+        type: array
     type: object
   models.BloodStock:
     properties:
@@ -253,7 +264,7 @@ definitions:
         example: 3
         type: integer
       bloodGroup:
-        example: DEA 1.1
+        example: DEA 1+
         type: string
       breed:
         example: Лабрадор
@@ -312,8 +323,9 @@ definitions:
         example: USR-25-0001
         type: string
       petStatus:
+        allOf:
+        - $ref: '#/definitions/models.PetRole'
         example: donor
-        type: string
       photoUrl:
         example: https://example.com/photo.jpg
         type: string
@@ -331,6 +343,14 @@ definitions:
         example: 25.5
         type: number
     type: object
+  models.PetRole:
+    enum:
+    - donor
+    - recipient
+    type: string
+    x-enum-varnames:
+    - PetRoleDonor
+    - PetRoleRecipient
   models.PetType:
     enum:
     - dog
@@ -521,6 +541,10 @@ definitions:
         maxLength: 100
         minLength: 1
         type: string
+      petStatus:
+        allOf:
+        - $ref: '#/definitions/models.PetRole'
+        maxLength: 50
       photoUrl:
         maxLength: 255
         type: string
@@ -572,6 +596,10 @@ definitions:
         maxLength: 100
         minLength: 1
         type: string
+      petStatus:
+        allOf:
+        - $ref: '#/definitions/models.PetRole'
+        maxLength: 50
       photoUrl:
         maxLength: 255
         type: string
@@ -1143,7 +1171,7 @@ paths:
       summary: Обновление данных питомца
       tags:
       - pets
-  /pets/blood-search/pool:
+  /pets/blood-request/pool:
     post:
       consumes:
       - application/json
@@ -1154,14 +1182,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.BloodSearchPetRequest'
+          $ref: '#/definitions/models.BloodSearchPetRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Статус добавления питомца
           schema:
-            $ref: '#/definitions/handlers.BloodSearchPetResponse'
+            $ref: '#/definitions/models.BloodSearchPetResponse'
         "400":
           description: Неверный запрос
           schema:
@@ -1173,8 +1201,8 @@ paths:
       summary: Добавить питомца в пул поиска крови
       tags:
       - pets
-      - blood-search
-  /pets/blood-search/pool/search:
+      - blood-request
+  /pets/blood-request/pool/search:
     post:
       consumes:
       - application/json
@@ -1185,14 +1213,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.BloodSearchFilterRequest'
+          $ref: '#/definitions/models.BloodSearchFilterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Список питомцев
           schema:
-            $ref: '#/definitions/handlers.BloodSearchPetsResponse'
+            $ref: '#/definitions/models.BloodSearchPetsResponse'
         "400":
           description: Неверный запрос
           schema:
@@ -1204,7 +1232,7 @@ paths:
       summary: Получить питомцев из пула поиска крови
       tags:
       - pets
-      - blood-search
+      - blood-request
   /pets/upload/avatar/{id}:
     get:
       description: Возвращает временную ссылку для загрузки фотографии питомца по
