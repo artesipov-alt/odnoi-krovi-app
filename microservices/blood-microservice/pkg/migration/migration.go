@@ -9,7 +9,7 @@ import (
 // AutoMigrate выполняет автоматическую миграцию всех моделей для blood microservice
 func AutoMigrate(db *gorm.DB, logger *zap.Logger) {
 	modelsToMigrate := []any{
-		&models.PetRow{},
+		&models.BloodRequest{},
 	}
 
 	// Автоматическая миграция всех моделей
@@ -19,12 +19,12 @@ func AutoMigrate(db *gorm.DB, logger *zap.Logger) {
 
 	// Создание индексов для оптимизации запросов
 	indexes := []string{
-		"CREATE INDEX IF NOT EXISTS idx_pet_rows_pet_id ON pet_rows(pet_id)",
-		"CREATE INDEX IF NOT EXISTS idx_pet_rows_blood_group ON pet_rows(blood_group)",
-		"CREATE INDEX IF NOT EXISTS idx_pet_rows_pet_type ON pet_rows(pet_type)",
-		"CREATE INDEX IF NOT EXISTS idx_pet_rows_status ON pet_rows(status)",
-		"CREATE INDEX IF NOT EXISTS idx_pet_rows_regions_gin ON pet_rows USING gin(regions)",
-		"CREATE INDEX IF NOT EXISTS idx_pet_rows_created_at ON pet_rows(created_at)",
+		"CREATE INDEX IF NOT EXISTS idx_blood_requests_pet_id ON blood_requests(pet_id)",
+		"CREATE INDEX IF NOT EXISTS idx_blood_requests_blood_group ON blood_requests(blood_group)",
+		"CREATE INDEX IF NOT EXISTS idx_blood_requests_pet_type ON blood_requests(pet_type)",
+		"CREATE INDEX IF NOT EXISTS idx_blood_requests_status ON blood_requests(status)",
+		"CREATE INDEX IF NOT EXISTS idx_blood_requests_regions_gin ON blood_requests USING gin(regions)",
+		"CREATE INDEX IF NOT EXISTS idx_blood_requests_created_at ON blood_requests(created_at)",
 	}
 
 	for _, sql := range indexes {

@@ -22,7 +22,7 @@ curl http://localhost:8081/health
 ### Добавить питомца
 
 ```bash
-curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/AddPet \
+curl -X POST http://localhost:8081/bloodrequest.v1.BloodRequestPool/AddPet \
   -H "Content-Type: application/json" \
   -d '{
     "pet_id": "pet-123",
@@ -39,7 +39,7 @@ curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/AddPet \
 ### Поиск питомцев
 
 ```bash
-curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/GetPets \
+curl -X POST http://localhost:8081/bloodrequest.v1.BloodRequestPool/GetPets \
   -H "Content-Type: application/json" \
   -d '{
     "pet_type": "dog",
@@ -54,14 +54,14 @@ curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/GetPets \
 
 | Переменная  | Описание           | Значение по умолчанию                              |
 |-------------|--------------------|---------------------------------------------------|
-| DATABASE_URL| Подключение к базе | `host=localhost user=postgres password=postgres dbname=bloodsearch port=5432 sslmode=disable` |
+| DATABASE_URL| Подключение к базе | `host=localhost user=postgres password=postgres dbname=bloodrequest port=5432 sslmode=disable` |
 | SERVER_PORT | Порт сервера       | `8081`                                            |
 | APP_ENV     | Окружение          | `dev`                                             |
 
 Пример файла `.env`:
 
 ```env
-DATABASE_URL=host=localhost user=postgres password=postgres dbname=bloodsearch port=5432 sslmode=disable
+DATABASE_URL=host=localhost user=postgres password=postgres dbname=bloodrequest port=5432 sslmode=disable
 SERVER_PORT=8081
 APP_ENV=development
 ```
@@ -77,7 +77,7 @@ go mod download
 
 2. Создайте базу данных:
 ```bash
-psql -U postgres -c "CREATE DATABASE bloodsearch;"
+psql -U postgres -c "CREATE DATABASE bloodrequest;"
 ```
 
 3. Настройте переменные окружения:
@@ -103,7 +103,7 @@ docker build -f microservices/blood-microservice/Dockerfile -t blood-microservic
 2. Запустите контейнер:
 ```bash
 docker run -p 8081:8081 \
-  -e DATABASE_URL="host=host.docker.internal user=postgres password=postgres dbname=bloodsearch port=5432 sslmode=disable" \
+  -e DATABASE_URL="host=host.docker.internal user=postgres password=postgres dbname=bloodrequest port=5432 sslmode=disable" \
   -e APP_ENV=production \
   blood-microservice
 ```
@@ -125,7 +125,7 @@ curl http://localhost:8081/health
 ### Добавление питомца
 
 ```bash
-curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/AddPet \
+curl -X POST http://localhost:8081/bloodrequest.v1.BloodRequestPool/AddPet \
   -H "Content-Type: application/json" \
   -d '{
     "pet_id": "test-pet-1",
@@ -140,7 +140,7 @@ curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/AddPet \
 ### Поиск питомцев
 
 ```bash
-curl -X POST http://localhost:8081/bloodsearch.v1.BloodSearchPool/GetPets \
+curl -X POST http://localhost:8081/bloodrequest.v1.BloodRequestPool/GetPets \
   -H "Content-Type: application/json" \
   -d '{
     "pet_type": "dog",

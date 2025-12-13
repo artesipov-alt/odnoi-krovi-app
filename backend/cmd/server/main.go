@@ -95,7 +95,7 @@ func main() {
 	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
 	// Инициализация клиента blood search микросервиса
-	bloodSearchClient := services.NewBloodSearchClient(serverConfig.BloodMicroserviceURL)
+	bloodSearchClient := services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
@@ -162,8 +162,8 @@ func main() {
 				petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Получение ссылки на загрузку в фотографии питомцев в storage
 
 				// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
-				petGroup.Post("/blood-search/pool", petHandler.AddPetToBloodSearchPoolHandler)           // Добавить питомца в пул поиска крови
-				petGroup.Post("/blood-search/pool/search", petHandler.GetPetsFromBloodSearchPoolHandler) // Получить питомцев из пула поиска крови
+				petGroup.Post("/blood-search/pool", petHandler.AddPetToBloodRequestPool)        // Добавить питомца в пул поиска крови
+				petGroup.Post("/blood-search/pool/search", petHandler.AddPetToBloodRequestPool) // Получить питомцев из пула поиска крови
 			}
 
 			// Группа маршрутов для работы с ветеринарными клиниками

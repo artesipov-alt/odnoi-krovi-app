@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
-	bloodsearchv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1"
+	bloodrequestv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodrequest/v1"
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories"
 
 	"go.uber.org/zap"
@@ -13,12 +13,12 @@ import (
 
 // BloodSearchService implements the BloodSearchPool service
 type BloodSearchService struct {
-	repo repositories.BloodSearchRepository
+	repo repositories.BloodRequestRepository
 	log  *zap.Logger
 }
 
 // NewBloodSearchService creates a new instance of BloodSearchService
-func NewBloodSearchService(repo repositories.BloodSearchRepository, log *zap.Logger) *BloodSearchService {
+func NewBloodSearchService(repo repositories.BloodRequestRepository, log *zap.Logger) *BloodSearchService {
 	if log == nil {
 		log = zap.NewNop()
 	}
@@ -29,28 +29,32 @@ func NewBloodSearchService(repo repositories.BloodSearchRepository, log *zap.Log
 }
 
 // AddPet adds a new pet blood search request to the database
-func (s *BloodSearchService) AddPet(ctx context.Context, req *bloodsearchv1.PetRow) (*bloodsearchv1.PetRowStatus, error) {
+func (s *BloodSearchService) AddPet(ctx context.Context, req *bloodrequestv1.BloodRequest) (*bloodrequestv1.BloodRequestStatus, error) {
 	s.log.Info("AddPet called", zap.String("pet_id", req.PetId))
 
 	// Validate request
 	if req.PetId == "" {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("pet_id is required"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("petId is required"))
 	}
 
 	if req.PetType == "" {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("pet_type is required"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("petType is required"))
 	}
 
-	if req.BloodGroup == "" {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_group is required"))
+	if len(req.BloodComponents) == 0 {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bloodComponents is required"))
+	}
+
+	if len(req.BloodGroup) == 0 {
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bloodGroup is required"))
 	}
 
 	if req.BloodVolumeNeeded <= 0 {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_volume_needed must be positive"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bloodVolumeNeeded must be positive"))
 	}
 
 	if req.BloodVolumeReserved < 0 {
-		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("blood_volume_reserved cannot be negative"))
+		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("bloodVolumeReserved cannot be negative"))
 	}
 
 	if len(req.Regions) == 0 {
@@ -81,7 +85,7 @@ func (s *BloodSearchService) AddPet(ctx context.Context, req *bloodsearchv1.PetR
 	}
 
 	// Create response
-	response := &bloodsearchv1.PetRowStatus{
+	response := &bloodrequestv1.BloodRequestStatus{
 		PetId:  req.PetId,
 		Status: req.Status,
 	}
@@ -91,7 +95,7 @@ func (s *BloodSearchService) AddPet(ctx context.Context, req *bloodsearchv1.PetR
 }
 
 // GetPets retrieves pet blood search requests based on criteria
-func (s *BloodSearchService) GetPets(ctx context.Context, req *bloodsearchv1.GetPetRows) (*bloodsearchv1.PetRows, error) {
+func (s *BloodSearchService) GetPets(ctx context.Context, req *bloodrequestv1.GetBloodRequests) (*bloodrequestv1.BloodRequests, error) {
 	s.log.Info("GetPets called",
 		zap.String("pet_type", req.PetType),
 		zap.String("blood_group", req.BloodGroup),
@@ -105,7 +109,7 @@ func (s *BloodSearchService) GetPets(ctx context.Context, req *bloodsearchv1.Get
 	}
 
 	// Create response
-	response := &bloodsearchv1.PetRows{
+	response := &bloodrequestv1.BloodRequests{
 		Pets: petRows,
 	}
 

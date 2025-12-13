@@ -14,7 +14,6 @@ func AutoMigrate(db *gorm.DB, logger *zap.Logger) {
 		&models.Pet{},
 		&models.VetClinic{},
 		&models.Breed{},
-		&models.BloodSearch{},
 		&models.BloodStock{},
 		&models.BloodComponent{},
 		&models.BloodGroup{},

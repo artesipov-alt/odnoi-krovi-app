@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	bloodsearchv1connect "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodsearch/v1/bloodsearchv1connect"
+	bloodrequest1connect "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodrequest/v1/bloodrequestv1connect"
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/models"
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/internal/services"
@@ -61,14 +61,14 @@ func main() {
 	}
 
 	// Автомиграция таблиц
-	if err := db.AutoMigrate(&models.PetRow{}); err != nil {
+	if err := db.AutoMigrate(&models.BloodRequest{}); err != nil {
 		logger.Log.Fatal("Не удалось выполнить миграцию таблиц", zap.Error(err))
 	}
 
 	logger.Log.Info("Успешное подключение к PostgreSQL")
 
 	// Создаем репозиторий
-	bloodSearchRepo := pg.NewBloodSearchRepositoryGorm(db)
+	bloodSearchRepo := pg.NewBloodRequestRepositoryGorm(db)
 
 	// Создаем сервис
 	bloodSearchService := services.NewBloodSearchService(bloodSearchRepo, logger.Log)
@@ -81,7 +81,7 @@ func main() {
 	})
 
 	// Создаем Connect handler
-	path, handler := bloodsearchv1connect.NewBloodSearchPoolHandler(bloodSearchService)
+	path, handler := bloodrequest1connect.NewBloodRequestPoolHandler(bloodSearchService)
 
 	// Подключаем handler к Chi
 	r.Handle(path+"*", handler)
