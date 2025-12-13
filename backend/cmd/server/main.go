@@ -72,8 +72,8 @@ func main() {
 	petRepo := pgrepositories.NewPostgresPetRepository(db)
 	breedRepo := pgrepositories.NewPostgresBreedRepository(db)
 	bloodRepo := pgrepositories.NewPostgresBloodRepository(db)
-	vetClinicRepo := pgrepositories.NewVetClinicRepository(db)
-	bloodStockRepo := pgrepositories.NewPostgresBloodStockRepository(db)
+	// vetClinicRepo := pgrepositories.NewVetClinicRepository(db)
+	// bloodStockRepo := pgrepositories.NewPostgresBloodStockRepository(db)
 	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
 
 	// Создаем репозиторий в зависимости от наличия кэша
@@ -91,8 +91,8 @@ func main() {
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
 	petService := services.NewPetService(petRepo, userRepo, s3VKCloud)
-	vetClinicService := services.NewVetClinicService(vetClinicRepo)
-	bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
+	// vetClinicService := services.NewVetClinicService(vetClinicRepo)
+	// bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
 	// Инициализация клиента blood search микросервиса
 	bloodSearchClient := services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
@@ -100,8 +100,8 @@ func main() {
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService, *bloodSearchClient)
-	vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
-	bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
+	// vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
+	// bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
 
@@ -167,32 +167,33 @@ func main() {
 			}
 
 			// Группа маршрутов для работы с ветеринарными клиниками
-			vetClinicGroup := v1.Group("/vet-clinics")
-			{
-				vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
-				vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
-				vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
-				vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
-				vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
-			}
+			// vetClinicGroup := v1.Group("/vet-clinics")
+			// {
+			// 	vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
+			// 	vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
+			// 	vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
+			// 	vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
+			// 	vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
+			// }
 
 			// Группа маршрутов для работы с запасами крови
-			bloodStockGroup := v1.Group("/blood-stocks")
-			{
-				bloodStockGroup.Get("/", bloodStockHandler.GetAllBloodStocksHandler)                                    // Получение всех запасов крови
-				bloodStockGroup.Get("/search", bloodStockHandler.SearchBloodStocksHandler)                              // Поиск запасов крови с фильтрами
-				bloodStockGroup.Get("/:id", bloodStockHandler.GetBloodStockByIDHandler)                                 // Получение запаса крови по ID
-				bloodStockGroup.Get("/clinic/:clinic_id", bloodStockHandler.GetBloodStocksByClinicIDHandler)            // Получение запасов крови клиники
-				bloodStockGroup.Get("/blood-type/:blood_type_id", bloodStockHandler.GetBloodStocksByBloodTypeIDHandler) // Получение запасов крови по типу крови
-				bloodStockGroup.Post("/", bloodStockHandler.CreateBloodStockHandler)                                    // Создание нового запаса крови
-				bloodStockGroup.Put("/:id", bloodStockHandler.UpdateBloodStockHandler)                                  // Обновление запаса крови
-				bloodStockGroup.Delete("/:id", bloodStockHandler.DeleteBloodStockHandler)                               // Удаление запаса крови
-			}
+			// bloodStockGroup := v1.Group("/blood-stocks")
+			// {
+			// 	bloodStockGroup.Get("/", bloodStockHandler.GetAllBloodStocksHandler)                                    // Получение всех запасов крови
+			// 	bloodStockGroup.Get("/search", bloodStockHandler.SearchBloodStocksHandler)                              // Поиск запасов крови с фильтрами
+			// 	bloodStockGroup.Get("/:id", bloodStockHandler.GetBloodStockByIDHandler)                                 // Получение запаса крови по ID
+			// 	bloodStockGroup.Get("/clinic/:clinic_id", bloodStockHandler.GetBloodStocksByClinicIDHandler)            // Получение запасов крови клиники
+			// 	bloodStockGroup.Get("/blood-type/:blood_type_id", bloodStockHandler.GetBloodStocksByBloodTypeIDHandler) // Получение запасов крови по типу крови
+			// 	bloodStockGroup.Post("/", bloodStockHandler.CreateBloodStockHandler)                                    // Создание нового запаса крови
+			// 	bloodStockGroup.Put("/:id", bloodStockHandler.UpdateBloodStockHandler)                                  // Обновление запаса крови
+			// 	bloodStockGroup.Delete("/:id", bloodStockHandler.DeleteBloodStockHandler)                               // Удаление запаса крови
+			// }
 
 			// Группа маршрутов для справочных данных
 			referenceGroup := v1.Group("/reference")
 			{
 				referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)                 // Типы животных
+				referenceGroup.Get("/pet-roles", referenceHandler.GetPetRolesHandler)                 // Типы животных
 				referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)                    // Пол животного
 				referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler) // Условия проживания
 				referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)               // Роли пользователей

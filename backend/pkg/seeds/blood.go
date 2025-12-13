@@ -66,7 +66,7 @@ func SeedBloodComponents(db *gorm.DB, log *zap.Logger) error {
 			Name: "Эритроцитарная масса",
 		},
 		{
-			Name: "Свежезамороженная Плазма",
+			Name: "Свежезамороженная плазма",
 		},
 		{
 			Name: "Замороженная плазма",
