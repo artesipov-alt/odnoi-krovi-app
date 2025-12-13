@@ -227,14 +227,14 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 // GetPetsFromBloodRequestPool godoc
 // @Summary Получить питомцев из пула поиска крови
 // @Description Возвращает список питомцев-реципиентов по фильтрам
-// @Tags pets, blood-Request
+// @Tags pets, blood-request
 // @Accept json
 // @Produce json
 // @Param request body BloodSearchFilterRequest true "Фильтры поиска: тип, группа крови, регионы"
 // @Success 200 {object} BloodSearchPetsResponse "Список питомцев"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/blood-Request/pool/Request [post]
+// @Router /pets/blood-request/pool/search [post]
 func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	var filterReq models.BloodSearchFilterRequest
 	if err := ParseBody(c, &filterReq); err != nil {
