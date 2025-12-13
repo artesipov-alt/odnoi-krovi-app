@@ -13,7 +13,7 @@ func SeedBloodGroups(db *gorm.DB, log *zap.Logger) error {
 		{
 			PetType:     "dog",
 			BloodGroup:  "DEA 1.1+",
-			Description: "Универсальный донор для собак с положительным DEA 1.1",
+			Description: "Универсальный донор для собак с положительным DEA 1+",
 		},
 		{
 			PetType:     "dog",
@@ -66,7 +66,7 @@ func SeedBloodComponents(db *gorm.DB, log *zap.Logger) error {
 			Name: "Эритроцитарная масса",
 		},
 		{
-			Name: "Плазма",
+			Name: "Свежезамороженная Плазма",
 		},
 		{
 			Name: "Замороженная плазма",

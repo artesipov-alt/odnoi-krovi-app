@@ -59,6 +59,7 @@ type PetCreate struct {
 	Gender          models.Gender          `json:"gender,omitempty"`
 	Type            models.PetType         `json:"type,omitempty"`
 	BloodGroup      string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
+	PetStatus       models.PetRole         `json:"petStatus,omitempty" validate:"omitempty,max=50"`
 }
 
 // PetUpdate содержит поля, которые можно обновить для питомца
@@ -81,6 +82,7 @@ type PetUpdate struct {
 	Gender          *models.Gender          `json:"gender,omitempty"`
 	Type            *models.PetType         `json:"type,omitempty"`
 	BloodGroup      *string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
+	PetStatus       *models.PetRole         `json:"petStatus,omitempty" validate:"omitempty,max=50"`
 }
 
 // PetServiceImpl реализует PetService
@@ -124,19 +126,19 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 	}
 
 	// Валидируем тип животного
-	validatedType, err := validation.LocalizePetType(string(petData.Type))
+	_, err = validation.LocalizePetType(string(petData.Type))
 	if err != nil {
 		return nil, apperrors.ErrInvalidPetType
 	}
 
 	// Валидируем пол животного
-	validatedGender, err := validation.LocalizeGender(string(petData.Gender))
+	_, err = validation.LocalizeGender(string(petData.Gender))
 	if err != nil {
 		return nil, apperrors.ErrInvalidGender
 	}
 
 	// Валидируем условия проживания
-	validatedLivingCondition, err := validation.LocalizeLivingCondition(string(petData.LivingCondition))
+	_, err = validation.LocalizeLivingCondition(string(petData.LivingCondition))
 	if err != nil {
 		return nil, apperrors.ErrInvalidLivingCondition
 	}
@@ -160,10 +162,11 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		Sterilized:      petData.Sterilized,
 		Latitude:        petData.Latitude,
 		Longitude:       petData.Longitude,
-		LivingCondition: validatedLivingCondition,
-		Gender:          validatedGender,
-		Type:            validatedType,
+		LivingCondition: petData.LivingCondition,
+		Gender:          petData.Gender,
+		Type:            petData.Type,
 		BloodGroup:      petData.BloodGroup,
+		PetStatus:       petData.PetStatus,
 	}
 
 	if err := s.petRepo.Create(ctx, pet); err != nil {
@@ -288,28 +291,31 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 		pet.Longitude = *updates.Longitude
 	}
 	if updates.LivingCondition != nil {
-		validatedLivingCondition, err := validation.LocalizeLivingCondition(string(*updates.LivingCondition))
+		_, err := validation.LocalizeLivingCondition(string(*updates.LivingCondition))
 		if err != nil {
 			return apperrors.ErrInvalidLivingCondition
 		}
-		pet.LivingCondition = validatedLivingCondition
+		pet.LivingCondition = *updates.LivingCondition
 	}
 	if updates.Gender != nil {
-		validatedGender, err := validation.LocalizeGender(string(*updates.Gender))
+		_, err := validation.LocalizeGender(string(*updates.Gender))
 		if err != nil {
 			return apperrors.ErrInvalidGender
 		}
-		pet.Gender = validatedGender
+		pet.Gender = *updates.Gender
 	}
 	if updates.Type != nil {
-		validatedType, err := validation.LocalizePetType(string(*updates.Type))
+		_, err := validation.LocalizePetType(string(*updates.Type))
 		if err != nil {
 			return apperrors.ErrInvalidPetType
 		}
-		pet.Type = validatedType
+		pet.Type = *updates.Type
 	}
 	if updates.BloodGroup != nil {
 		pet.BloodGroup = *updates.BloodGroup
+	}
+	if updates.PetStatus != nil {
+		pet.PetStatus = *updates.PetStatus
 	}
 
 	// Сохраняем обновленного питомца

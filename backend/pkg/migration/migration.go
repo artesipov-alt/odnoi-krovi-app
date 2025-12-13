@@ -12,13 +12,13 @@ func AutoMigrate(db *gorm.DB, logger *zap.Logger) {
 	modelsToMigrate := []any{
 		&models.User{},
 		&models.Pet{},
-		&models.VetClinic{},
+		// &models.VetClinic{},
 		&models.Breed{},
-		&models.BloodStock{},
+		// &models.BloodStock{},
 		&models.BloodComponent{},
 		&models.BloodGroup{},
 		&models.Location{},
-		&models.Donation{},
+		// &models.Donation{},
 	}
 
 	// Автоматическая миграция всех моделей

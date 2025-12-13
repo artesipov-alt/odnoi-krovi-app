@@ -171,14 +171,14 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 	return SendSuccess(c, "Питомец успешно удален")
 }
 
-// AddPetToBloodRequestPoolHandler godoc
+// AddPetToBloodRequestPool godoc
 // @Summary Добавить питомца в пул поиска крови
 // @Description Добавляет питомца-реципиента в пул поиска крови
-// @Tags pets, blood-Request
+// @Tags pets, blood-request
 // @Accept json
 // @Produce json
-// @Param request body BloodRequestPetRequest true "Данные питомца для пула поиска крови"
-// @Success 201 {object} BloodRequestPetResponse "Статус добавления питомца"
+// @Param request body models.BloodSearchPetRequest true "Данные питомца для пула поиска крови"
+// @Success 201 {object} models.BloodSearchPetResponse "Статус добавления питомца"
 // @Failure 400 {object} ErrorResponse "Неверный запрос"
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-request/pool [post]
@@ -224,7 +224,7 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 	return SendCreated(c, statusResp)
 }
 
-// GetPetsFromBloodRequestPoolHandler godoc
+// GetPetsFromBloodRequestPool godoc
 // @Summary Получить питомцев из пула поиска крови
 // @Description Возвращает список питомцев-реципиентов по фильтрам
 // @Tags pets, blood-Request

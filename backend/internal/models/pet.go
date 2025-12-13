@@ -14,9 +14,9 @@ type Pet struct {
 	OwnerID    string  `json:"ownerId,omitempty" example:"USR-25-0001"`
 	Name       string  `gorm:"size:100;not null" json:"name" example:"Бобик"`
 	Type       PetType `json:"type,omitempty" example:"dog"`
-	PetStatus  string  `json:"petStatus" example:"donor"`
+	PetStatus  PetRole `json:"petStatus" example:"donor"`
 	WeightKg   float64 `gorm:"type:numeric" json:"weightKg,omitempty" example:"25.5"`
-	BloodGroup string  `json:"bloodGroup,omitempty" example:"DEA 1.1"`
+	BloodGroup string  `json:"bloodGroup,omitempty" example:"DEA 1+"`
 	//==============Дополнительная регистрация для донорства включает в себя=================
 	Gender              Gender          `json:"gender,omitempty" example:"male"`
 	AgeYears            int             `json:"ageYears,omitempty" example:"3"`
