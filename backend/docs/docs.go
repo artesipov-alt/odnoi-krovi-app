@@ -782,6 +782,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/reference/health-statuses": {
+            "get": {
+                "description": "Возвращает все доступные статусы здоровья для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference",
+                    "pets"
+                ],
+                "summary": "Получение всех статусов здоровья",
+                "responses": {
+                    "200": {
+                        "description": "Список статусов здоровья",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/reference/living-conditions": {
             "get": {
                 "description": "Возвращает все доступные условия проживания для выбора на фронтенде",
@@ -864,6 +885,27 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Список типов животных",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ReferenceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reference/reproductive-statuses": {
+            "get": {
+                "description": "Возвращает все доступные репродуктивные состояния для выбора на фронтенде",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reference",
+                    "pets"
+                ],
+                "summary": "Получение всех репродуктивных состояний",
+                "responses": {
+                    "200": {
+                        "description": "Список репродуктивных состояний",
                         "schema": {
                             "$ref": "#/definitions/handlers.ReferenceResponse"
                         }
@@ -1437,16 +1479,14 @@ const docTemplate = `{
         "models.LivingCondition": {
             "type": "string",
             "enum": [
-                "apartment",
-                "house",
-                "aviary",
-                "other"
+                "indoor",
+                "leash_walking",
+                "outdoor"
             ],
             "x-enum-varnames": [
-                "LivingConditionApartment",
-                "LivingConditionHouse",
-                "LivingConditionAviary",
-                "LivingConditionOther"
+                "LivingConditionIndoor",
+                "LivingConditionLeash",
+                "LivingConditionOutdoor"
             ]
         },
         "models.Pet": {
@@ -1912,7 +1952,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.2.3",
+	Version:          "1.2.4",
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

@@ -172,16 +172,14 @@ definitions:
     - GenderFemale
   models.LivingCondition:
     enum:
-    - apartment
-    - house
-    - aviary
-    - other
+    - indoor
+    - leash_walking
+    - outdoor
     type: string
     x-enum-varnames:
-    - LivingConditionApartment
-    - LivingConditionHouse
-    - LivingConditionAviary
-    - LivingConditionOther
+    - LivingConditionIndoor
+    - LivingConditionLeash
+    - LivingConditionOutdoor
   models.Pet:
     properties:
       ageMonths:
@@ -507,7 +505,7 @@ info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
   title: 1krovi.app
-  version: 1.2.3
+  version: 1.2.4
 paths:
   /:
     get:
@@ -1021,6 +1019,20 @@ paths:
       tags:
       - reference
       - pets
+  /reference/health-statuses:
+    get:
+      description: Возвращает все доступные статусы здоровья для выбора на фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список статусов здоровья
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех статусов здоровья
+      tags:
+      - reference
+      - pets
   /reference/living-conditions:
     get:
       description: Возвращает все доступные условия проживания для выбора на фронтенде
@@ -1077,6 +1089,21 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ReferenceResponse'
       summary: Получение всех типов животных
+      tags:
+      - reference
+      - pets
+  /reference/reproductive-statuses:
+    get:
+      description: Возвращает все доступные репродуктивные состояния для выбора на
+        фронтенде
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список репродуктивных состояний
+          schema:
+            $ref: '#/definitions/handlers.ReferenceResponse'
+      summary: Получение всех репродуктивных состояний
       tags:
       - reference
       - pets
