@@ -32,7 +32,7 @@ import (
 )
 
 // @title 1krovi.app
-// @version 1.2.3
+// @version 1.2.4
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
 // @BasePath /api/v1
