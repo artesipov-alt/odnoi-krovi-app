@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     environment:
+      ENV: production
       DB_HOST: 10.0.0.129
       DB_PORT: 5432
       DB_USER: ${DB_USER}
@@ -11,7 +12,6 @@ services:
       DB_NAME: ${DB_NAME}
       DB_SSLMODE: disable
       SERVER_PORT: 3000
-      ENVIRONMENT: production
       REDIS_HOST: 10.0.0.73
       REDIS_PORT: 6379
       BLOOD_MICROSERVICE_URL: http://blood-microservice:8081
