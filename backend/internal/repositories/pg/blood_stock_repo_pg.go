@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	models "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/alpha"
 	"gorm.io/gorm"
 )
 

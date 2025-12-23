@@ -6,6 +6,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	alpha "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"gorm.io/gorm"
@@ -54,9 +55,9 @@ type UserUpdate struct {
 
 // UserProfile представляет полный профиль пользователя с связанными данными
 type UserProfile struct {
-	User   *models.User      `json:"user"`
-	Pets   []*models.Pet     `json:"pets,omitempty"`
-	Clinic *models.VetClinic `json:"clinic,omitempty"`
+	User   *models.User     `json:"user"`
+	Pets   []*models.Pet    `json:"pets,omitempty"`
+	Clinic *alpha.VetClinic `json:"clinic,omitempty"`
 }
 
 // UserServiceImpl реализует UserService

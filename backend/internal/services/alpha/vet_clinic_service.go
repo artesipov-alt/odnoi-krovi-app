@@ -5,15 +5,15 @@ import (
 	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	alpha "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/alpha"
 	"gorm.io/gorm"
 )
 
 // VetClinicService определяет интерфейс для бизнес-логики ветеринарных клиник
 type VetClinicService interface {
 	// RegisterClinic регистрирует новую ветеринарную клинику в системе
-	RegisterClinic(ctx context.Context, clinicData VetClinicRegistration) (*models.VetClinic, error)
+	RegisterClinic(ctx context.Context, clinicData VetClinicRegistration) (*alpha.VetClinic, error)
 
 	// GetClinicProfile получает полный профиль ветеринарной клиники
 	GetClinicProfile(ctx context.Context, clinicID int) (*VetClinicProfile, error)
@@ -22,7 +22,7 @@ type VetClinicService interface {
 	UpdateClinicProfile(ctx context.Context, clinicID int, updates VetClinicUpdate) error
 
 	// GetClinicsByLocationID получает все клиники по ID локации
-	GetClinicsByLocationID(ctx context.Context, locationID int) ([]*models.VetClinic, error)
+	GetClinicsByLocationID(ctx context.Context, locationID int) ([]*alpha.VetClinic, error)
 
 	// DeleteClinic удаляет клинику по ID (soft delete)
 	DeleteClinic(ctx context.Context, clinicID int) error
@@ -60,7 +60,7 @@ type VetClinicUpdate struct {
 
 // VetClinicProfile представляет полный профиль ветеринарной клиники
 type VetClinicProfile struct {
-	Clinic *models.VetClinic `json:"clinic"`
+	Clinic *alpha.VetClinic `json:"clinic"`
 }
 
 // VetClinicServiceImpl реализует VetClinicService
@@ -76,9 +76,9 @@ func NewVetClinicService(vetClinicRepo repositories.VetClinicRepository) *VetCli
 }
 
 // RegisterClinic регистрирует новую ветеринарную клинику в системе
-func (s *VetClinicServiceImpl) RegisterClinic(ctx context.Context, clinicData VetClinicRegistration) (*models.VetClinic, error) {
+func (s *VetClinicServiceImpl) RegisterClinic(ctx context.Context, clinicData VetClinicRegistration) (*alpha.VetClinic, error) {
 	// Создаем новую клинику
-	clinic := &models.VetClinic{
+	clinic := &alpha.VetClinic{
 		Name:                     clinicData.Name,
 		Phone:                    clinicData.Phone,
 		Website:                  clinicData.Website,
@@ -203,12 +203,12 @@ func (s *VetClinicServiceImpl) UpdateClinicProfile(ctx context.Context, clinicID
 }
 
 // GetClinicsByLocationID получает все клиники по ID локации
-func (s *VetClinicServiceImpl) GetClinicsByLocationID(ctx context.Context, locationID int) ([]*models.VetClinic, error) {
+func (s *VetClinicServiceImpl) GetClinicsByLocationID(ctx context.Context, locationID int) ([]*alpha.VetClinic, error) {
 	clinics, err := s.vetClinicRepo.GetByLocationID(ctx, locationID)
 	if err != nil {
 		// Если клиники не найдены - возвращаем пустой массив, а не 500
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return []*models.VetClinic{}, nil
+			return []*alpha.VetClinic{}, nil
 		}
 		return nil, apperrors.Internal(err, "не удалось получить клиники по локации")
 	}

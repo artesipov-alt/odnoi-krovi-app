@@ -3,22 +3,22 @@ package repositories
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	alpha "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
 )
 
 // VetClinicRepository определяет интерфейс для операций с данными ветеринарных клиник
 type VetClinicRepository interface {
 	// Create создает новую ветеринарную клинику в базе данных
-	Create(ctx context.Context, clinic *models.VetClinic) error
+	Create(ctx context.Context, clinic *alpha.VetClinic) error
 
 	// GetByID получает ветеринарную клинику по её ID
-	GetByID(ctx context.Context, id int) (*models.VetClinic, error)
+	GetByID(ctx context.Context, id int) (*alpha.VetClinic, error)
 
 	// GetByLocationID получает все ветеринарные клиники по ID локации
-	GetByLocationID(ctx context.Context, locationID int) ([]*models.VetClinic, error)
+	GetByLocationID(ctx context.Context, locationID int) ([]*alpha.VetClinic, error)
 
 	// Update обновляет существующую ветеринарную клинику в базе данных
-	Update(ctx context.Context, clinic *models.VetClinic) error
+	Update(ctx context.Context, clinic *alpha.VetClinic) error
 
 	// Delete удаляет ветеринарную клинику по её ID (soft delete)
 	Delete(ctx context.Context, id int) error

@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -38,13 +39,13 @@ func NewPetHandler(petService services.PetService, bloodRequestClient services.B
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [post]
 func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
-	userID, err := ParseStringParam(c, "user_id")
+	userID, err := utils.ParseStringParam(c, "user_id")
 	if err != nil {
 		return err
 	}
 
 	var petData services.PetCreate
-	if err := ParseBody(c, &petData); err != nil {
+	if err := utils.ParseBody(c, &petData); err != nil {
 		return err
 	}
 
@@ -55,7 +56,7 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendCreated(c, pet)
+	return utils.SendCreated(c, pet)
 }
 
 // GetPetHandler godoc
@@ -70,7 +71,7 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [get]
 func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
-	petID, err := ParseStringParam(c, "id")
+	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -82,7 +83,7 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, pet)
+	return utils.SendJSON(c, pet)
 }
 
 // GetUserPetsHandler godoc
@@ -97,7 +98,7 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [get]
 func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
-	userID, err := ParseStringParam(c, "user_id")
+	userID, err := utils.ParseStringParam(c, "user_id")
 	if err != nil {
 		return err
 	}
@@ -109,7 +110,7 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, pets)
+	return utils.SendJSON(c, pets)
 }
 
 // UpdatePetHandler godoc
@@ -126,13 +127,13 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [put]
 func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
-	petID, err := ParseStringParam(c, "id")
+	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
 	var updateData services.PetUpdate
-	if err := ParseBody(c, &updateData); err != nil {
+	if err := utils.ParseBody(c, &updateData); err != nil {
 		return err
 	}
 
@@ -142,7 +143,7 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendSuccess(c, "Питомец успешно обновлен")
+	return utils.SendSuccess(c, "Питомец успешно обновлен")
 }
 
 // DeletePetHandler godoc
@@ -157,7 +158,7 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [delete]
 func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
-	petID, err := ParseStringParam(c, "id")
+	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -168,7 +169,7 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendSuccess(c, "Питомец успешно удален")
+	return utils.SendSuccess(c, "Питомец успешно удален")
 }
 
 // AddPetToBloodRequestPool godoc
@@ -184,7 +185,7 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 // @Router /pets/blood-request/pool [post]
 func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 	var petReq models.BloodSearchPetRequest
-	if err := ParseBody(c, &petReq); err != nil {
+	if err := utils.ParseBody(c, &petReq); err != nil {
 		return err
 	}
 
@@ -221,7 +222,7 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 		Status: status.Status,
 	}
 
-	return SendCreated(c, statusResp)
+	return utils.SendCreated(c, statusResp)
 }
 
 // GetPetsFromBloodRequestPool godoc
@@ -237,7 +238,7 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 // @Router /pets/blood-request/pool/search [post]
 func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	var filterReq models.BloodSearchFilterRequest
-	if err := ParseBody(c, &filterReq); err != nil {
+	if err := utils.ParseBody(c, &filterReq); err != nil {
 		return err
 	}
 
@@ -280,7 +281,7 @@ func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 		})
 	}
 
-	return SendJSON(c, petsResp)
+	return utils.SendJSON(c, petsResp)
 }
 
 // GetAvatarUploadURL godoc
@@ -295,7 +296,7 @@ func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/upload/avatar/{id} [get]
 func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
-	petID, err := ParseStringParam(c, "id")
+	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -307,7 +308,7 @@ func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, map[string]string{"url": url, "path": path})
+	return utils.SendJSON(c, map[string]string{"url": url, "path": path})
 }
 
 // ConfirmPetAvatarUpload godoc
@@ -322,7 +323,7 @@ func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/upload/avatar/confirm/{path} [post]
 func (h *PetHandler) ConfirmPetAvatarUpload(c *fiber.Ctx) error {
-	avatarPath, err := ParseStringParam(c, "path")
+	avatarPath, err := utils.ParseStringParam(c, "path")
 	if err != nil {
 		return err
 	}
@@ -334,5 +335,5 @@ func (h *PetHandler) ConfirmPetAvatarUpload(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, map[string]string{"publicUrl": publicURL})
+	return utils.SendJSON(c, map[string]string{"publicUrl": publicURL})
 }

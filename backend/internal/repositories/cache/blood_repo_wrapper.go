@@ -9,22 +9,22 @@ import (
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
-// CachedBloodRepository реализует кеширующий репозиторий для работы с группами крови
-type CachedBloodRepository struct {
-	repo  repositories.BloodRepository
+// CachedBloodInfoRepository реализует кеширующий репозиторий для работы с группами крови
+type CachedBloodInfoRepository struct {
+	repo  repositories.BloodInfoRepository
 	cache cache.ICache
 }
 
-// NewCachedBloodRepository создает новый экземпляр кеширующего репозитория
-func NewCachedBloodRepository(repo repositories.BloodRepository, cache cache.ICache) *CachedBloodRepository {
-	return &CachedBloodRepository{
+// NewCachedBloodInfoRepository создает новый экземпляр кеширующего репозитория
+func NewCachedBloodInfoRepository(repo repositories.BloodInfoRepository, cache cache.ICache) *CachedBloodInfoRepository {
+	return &CachedBloodInfoRepository{
 		repo:  repo,
 		cache: cache,
 	}
 }
 
 // GetAllComponents возвращает все компоненты крови с кешированием
-func (r *CachedBloodRepository) GetAllComponents(ctx context.Context) ([]models.BloodComponent, error) {
+func (r *CachedBloodInfoRepository) GetAllComponents(ctx context.Context) ([]models.BloodComponent, error) {
 	cacheKey := fmt.Sprintf(cache.BloodTypesListKey)
 
 	// Пытаемся получить из кэша
@@ -49,7 +49,7 @@ func (r *CachedBloodRepository) GetAllComponents(ctx context.Context) ([]models.
 }
 
 // GetComponentByID возвращает компонент крови по ID с кешированием
-func (r *CachedBloodRepository) GetComponentByID(ctx context.Context, id int) (*models.BloodComponent, error) {
+func (r *CachedBloodInfoRepository) GetComponentByID(ctx context.Context, id int) (*models.BloodComponent, error) {
 	cacheKey := fmt.Sprintf(cache.BloodComponentByIDKey, id)
 
 	// Пытаемся получить из кэша
@@ -74,7 +74,7 @@ func (r *CachedBloodRepository) GetComponentByID(ctx context.Context, id int) (*
 }
 
 // GetBloodGroupsByPetType возвращает группы крови по типу животного с кешированием
-func (r *CachedBloodRepository) GetBloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error) {
+func (r *CachedBloodInfoRepository) GetBloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error) {
 	cacheKey := fmt.Sprintf(cache.BloodGroupsByPetTypeKey, petType)
 
 	// Пытаемся получить из кэша

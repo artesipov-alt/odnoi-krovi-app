@@ -32,7 +32,7 @@ import (
 )
 
 // @title 1krovi.app
-// @version 1.1.0
+// @version 1.2.0
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
 // @BasePath /api/v1
@@ -65,27 +65,25 @@ func main() {
 	migration.AutoMigrate(db, logger.Log)
 	migration.SeedDatabase(db, logger.Log)
 
-	//Создание репозиториев для определения доступности кеша
-
 	// Инициализация репозиториев
 	userRepo := pgrepositories.NewPostgresUserRepository(db)
 	petRepo := pgrepositories.NewPostgresPetRepository(db)
 	breedRepo := pgrepositories.NewPostgresBreedRepository(db)
 	bloodRepo := pgrepositories.NewPostgresBloodRepository(db)
+	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
 	// vetClinicRepo := pgrepositories.NewVetClinicRepository(db)
 	// bloodStockRepo := pgrepositories.NewPostgresBloodStockRepository(db)
-	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
 
 	// Создаем репозиторий в зависимости от наличия кэша
-	var bloodRepoInit repositories.BloodRepository
+	var bloodRepoInit repositories.BloodInfoRepository
 	if rCache != nil {
 		// Кеширующие репозитории
-		bloodRepoInit = cacherepo.NewCachedBloodRepository(bloodRepo, rCache)
+		bloodRepoInit = cacherepo.NewCachedBloodInfoRepository(bloodRepo, rCache)
 	} else {
 		// Используем обычный репозиторий без кэша
 		bloodRepoInit = bloodRepo
 	}
-	// Инитилизация s3
+	// Инициализация S3
 	s3VKCloud := s3.NewS3Storage(nil).WithDefaults()
 
 	// Инициализация сервисов
@@ -95,15 +93,15 @@ func main() {
 	// bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
 	// Инициализация клиента blood search микросервиса
-	bloodSearchClient := services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
+	bloodSearchClient := *services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
-	petHandler := handlers.NewPetHandler(petService, *bloodSearchClient)
-	// vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
-	// bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
+	petHandler := handlers.NewPetHandler(petService, bloodSearchClient)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
+	// vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
+	// bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
@@ -121,93 +119,87 @@ func main() {
 
 	// Группировка API маршрутов с префиксом /api
 	api := app.Group("/api")
-	{
-		// Документация Swagger - доступна по адресу /api/swagger/*
-		api.Get("/swagger/*", swagger.HandlerDefault)
 
-		// Группировка API маршрутов с префиксом /api/v1
-		v1 := api.Group("/v1")
-		{
-			// Корневой маршрут API
-			v1.Get("/", handlers.RootHandler)
+	// Документация Swagger - доступна по адресу /api/swagger/*
+	api.Get("/swagger/*", swagger.HandlerDefault)
 
-			// Группа маршрутов для работы с пользователями
-			userGroup := v1.Group("/user")
-			{
-				userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
-				userGroup.Post("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
-				userGroup.Post("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
-				userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
-				userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
-				userGroup.Delete("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
-			}
+	// Группировка API маршрутов с префиксом /api/v1
+	v1 := api.Group("/v1")
 
-			// Группа маршрутов для разработчиков
-			devGroup := v1.Group("/dev")
-			{
-				devGroup.Post("/restore-user/:id", devHandler.RestoreUserHandler)
-				devGroup.Post("/reset-user/:id", devHandler.ResetUserHandler)     // Сброс пользователя к заводским настройкам
-				devGroup.Get("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
-			}
+	// Корневой маршрут API
+	v1.Get("/", handlers.RootHandler)
 
-			// Группа маршрутов для работы с питомцами и поиском крови
-			petGroup := v1.Group("/pets")
-			{
-				petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler)                   // Получение всех питомцев пользователя
-				petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)                    // Создание питомца для пользователя
-				petGroup.Get("/:id", petHandler.GetPetHandler)                                  // Получение питомца по ID
-				petGroup.Put("/:id", petHandler.UpdatePetHandler)                               // Обновление данных питомца
-				petGroup.Delete("/:id", petHandler.DeletePetHandler)                            // Удаление питомца по ID
-				petGroup.Get("upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
-				petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Получение ссылки на загрузку в фотографии питомцев в storage
+	// Группа маршрутов для работы с пользователями
+	userGroup := v1.Group("/user")
 
-				// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
-				petGroup.Post("/blood-request/pool", petHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
-				petGroup.Post("/blood-request/pool/search", petHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
-			}
+	userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
+	userGroup.Post("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
+	userGroup.Post("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
+	userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
+	userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
+	userGroup.Delete("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
 
-			// Группа маршрутов для работы с ветеринарными клиниками
-			// vetClinicGroup := v1.Group("/vet-clinics")
-			// {
-			// 	vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
-			// 	vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
-			// 	vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
-			// 	vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
-			// 	vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
-			// }
+	// Группа маршрутов для разработчиков
+	devGroup := v1.Group("/dev")
 
-			// Группа маршрутов для работы с запасами крови
-			// bloodStockGroup := v1.Group("/blood-stocks")
-			// {
-			// 	bloodStockGroup.Get("/", bloodStockHandler.GetAllBloodStocksHandler)                                    // Получение всех запасов крови
-			// 	bloodStockGroup.Get("/search", bloodStockHandler.SearchBloodStocksHandler)                              // Поиск запасов крови с фильтрами
-			// 	bloodStockGroup.Get("/:id", bloodStockHandler.GetBloodStockByIDHandler)                                 // Получение запаса крови по ID
-			// 	bloodStockGroup.Get("/clinic/:clinic_id", bloodStockHandler.GetBloodStocksByClinicIDHandler)            // Получение запасов крови клиники
-			// 	bloodStockGroup.Get("/blood-type/:blood_type_id", bloodStockHandler.GetBloodStocksByBloodTypeIDHandler) // Получение запасов крови по типу крови
-			// 	bloodStockGroup.Post("/", bloodStockHandler.CreateBloodStockHandler)                                    // Создание нового запаса крови
-			// 	bloodStockGroup.Put("/:id", bloodStockHandler.UpdateBloodStockHandler)                                  // Обновление запаса крови
-			// 	bloodStockGroup.Delete("/:id", bloodStockHandler.DeleteBloodStockHandler)                               // Удаление запаса крови
-			// }
+	devGroup.Post("/restore-user/:id", devHandler.RestoreUserHandler)
+	devGroup.Post("/reset-user/:id", devHandler.ResetUserHandler)     // Сброс пользователя к заводским настройкам
+	devGroup.Get("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
 
-			// Группа маршрутов для справочных данных
-			referenceGroup := v1.Group("/reference")
-			{
-				referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)                 // Типы животных
-				referenceGroup.Get("/pet-roles", referenceHandler.GetPetRolesHandler)                 // Типы животных
-				referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)                    // Пол животного
-				referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler) // Условия проживания
-				referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)               // Роли пользователей
-				referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
-				referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler) // Породы животных
-				referenceGroup.Get("/blood-components", referenceHandler.GetBloodComponentsHandler)
-				referenceGroup.Get("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)        // Группы крови
-				referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler) // Статусы поиска крови
-				referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)   // Статусы запаса крови
-				referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)        // Статусы донорства
-				referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)                       // Локации
-			}
-		}
-	}
+	// Группа маршрутов для работы с питомцами и поиском крови
+	petGroup := v1.Group("/pets")
+
+	petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler)                   // Получение всех питомцев пользователя
+	petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)                    // Создание питомца для пользователя
+	petGroup.Get("/:id", petHandler.GetPetHandler)                                  // Получение питомца по ID
+	petGroup.Put("/:id", petHandler.UpdatePetHandler)                               // Обновление данных питомца
+	petGroup.Delete("/:id", petHandler.DeletePetHandler)                            // Удаление питомца по ID
+	petGroup.Get("upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
+	petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Получение ссылки на загрузку в фотографии питомцев в storage
+
+	// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
+	petGroup.Post("/blood-request/pool", petHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
+	petGroup.Post("/blood-request/pool/search", petHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
+
+	// Группа маршрутов для работы с ветеринарными клиниками
+	// vetClinicGroup := v1.Group("/vet-clinics")
+	// {
+	// 	vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
+	// 	vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
+	// 	vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
+	// 	vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
+	// 	vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
+	// }
+
+	// Группа маршрутов для работы с запасами крови
+	// bloodStockGroup := v1.Group("/blood-stocks")
+	// {
+	// 	bloodStockGroup.Get("/", bloodStockHandler.GetAllBloodStocksHandler)                                    // Получение всех запасов крови
+	// 	bloodStockGroup.Get("/search", bloodStockHandler.SearchBloodStocksHandler)                              // Поиск запасов крови с фильтрами
+	// 	bloodStockGroup.Get("/:id", bloodStockHandler.GetBloodStockByIDHandler)                                 // Получение запаса крови по ID
+	// 	bloodStockGroup.Get("/clinic/:clinic_id", bloodStockHandler.GetBloodStocksByClinicIDHandler)            // Получение запасов крови клиники
+	// 	bloodStockGroup.Get("/blood-type/:blood_type_id", bloodStockHandler.GetBloodStocksByBloodTypeIDHandler) // Получение запасов крови по типу крови
+	// 	bloodStockGroup.Post("/", bloodStockHandler.CreateBloodStockHandler)                                    // Создание нового запаса крови
+	// 	bloodStockGroup.Put("/:id", bloodStockHandler.UpdateBloodStockHandler)                                  // Обновление запаса крови
+	// 	bloodStockGroup.Delete("/:id", bloodStockHandler.DeleteBloodStockHandler)                               // Удаление запаса крови
+	// }
+
+	// Группа маршрутов для справочных данных
+	referenceGroup := v1.Group("/reference")
+
+	referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)
+	referenceGroup.Get("/pet-roles", referenceHandler.GetPetRolesHandler)
+	referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)
+	referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler)
+	referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)
+	referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
+	referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)
+	referenceGroup.Get("/blood-components", referenceHandler.GetBloodComponentsHandler)
+	referenceGroup.Get("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)
+	referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler)
+	referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)
+	referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)
+	referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)
 
 	// Канал для graceful shutdown
 	quit := make(chan os.Signal, 1)

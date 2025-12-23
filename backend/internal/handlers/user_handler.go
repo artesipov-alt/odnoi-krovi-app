@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -38,7 +39,7 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
-	id, err := ParseStringParam(c, "id")
+	id, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -50,7 +51,7 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, profile.User)
+	return utils.SendJSON(c, profile.User)
 }
 
 // RegisterUserSimpleHandler godoc
@@ -67,7 +68,7 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 // @Router /user/register/simple [post]
 func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 	var request SimpleRegistrationRequest
-	if err := ParseBody(c, &request); err != nil {
+	if err := utils.ParseBody(c, &request); err != nil {
 		return err
 	}
 
@@ -84,7 +85,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendCreated(c, user)
+	return utils.SendCreated(c, user)
 }
 
 // RegisterUserHandler godoc
@@ -102,7 +103,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 // @Router /user/register [post]
 func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 	var registrationData services.UserRegistration
-	if err := ParseBody(c, &registrationData); err != nil {
+	if err := utils.ParseBody(c, &registrationData); err != nil {
 		return err
 	}
 
@@ -119,7 +120,7 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendCreated(c, user)
+	return utils.SendCreated(c, user)
 }
 
 // UpdateUserHandler godoc
@@ -136,13 +137,13 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
-	id, err := ParseStringParam(c, "id")
+	id, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
 
 	var updateData services.UserUpdate
-	if err := ParseBody(c, &updateData); err != nil {
+	if err := utils.ParseBody(c, &updateData); err != nil {
 		return err
 	}
 
@@ -152,7 +153,7 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendSuccess(c, "Пользователь успешно обновлен")
+	return utils.SendSuccess(c, "Пользователь успешно обновлен")
 }
 
 // GetUserByTelegramHandler godoc
@@ -167,7 +168,7 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/telegram [get]
 func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
-	telegramID, err := ParseInt64Query(c, "telegram_id")
+	telegramID, err := utils.ParseInt64Query(c, "telegram_id")
 	if err != nil {
 		return err
 	}
@@ -179,7 +180,7 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, user)
+	return utils.SendJSON(c, user)
 }
 
 // DeleteUserHandler godoc
@@ -194,7 +195,7 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
-	id, err := ParseStringParam(c, "id")
+	id, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -205,5 +206,5 @@ func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendSuccess(c, "Пользователь успешно удален")
+	return utils.SendSuccess(c, "Пользователь успешно удален")
 }

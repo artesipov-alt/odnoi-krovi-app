@@ -12,13 +12,29 @@ func SeedBloodGroups(db *gorm.DB, log *zap.Logger) error {
 		// Группы крови для собак
 		{
 			PetType:     "dog",
-			BloodGroup:  "DEA 1.1+",
+			BloodGroup:  "DEA 1+",
 			Description: "Универсальный донор для собак с положительным DEA 1+",
 		},
 		{
 			PetType:     "dog",
-			BloodGroup:  "DEA 1.1-",
+			BloodGroup:  "DEA 1-",
 			Description: "Универсальный донор для всех собак",
+		},
+		// Группы крови для кошек
+		{
+			PetType:     "cat",
+			BloodGroup:  "A",
+			Description: "Самая распространенная группа крови у кошек",
+		},
+		{
+			PetType:     "cat",
+			BloodGroup:  "B",
+			Description: "Часто встречается у определенных пород (британская, рекс)",
+		},
+		{
+			PetType:     "cat",
+			BloodGroup:  "AB",
+			Description: "Очень редкая группа крови",
 		},
 	}
 

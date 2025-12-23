@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	alpha "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
 	"gorm.io/gorm"
 )
 
@@ -20,13 +20,13 @@ func NewVetClinicRepository(db *gorm.DB) *VetClinicRepositoryImpl {
 }
 
 // Create создает новую ветеринарную клинику в базе данных
-func (r *VetClinicRepositoryImpl) Create(ctx context.Context, clinic *models.VetClinic) error {
+func (r *VetClinicRepositoryImpl) Create(ctx context.Context, clinic *alpha.VetClinic) error {
 	return r.db.WithContext(ctx).Create(clinic).Error
 }
 
 // GetByID получает клинику по её ID
-func (r *VetClinicRepositoryImpl) GetByID(ctx context.Context, id int) (*models.VetClinic, error) {
-	var clinic models.VetClinic
+func (r *VetClinicRepositoryImpl) GetByID(ctx context.Context, id int) (*alpha.VetClinic, error) {
+	var clinic alpha.VetClinic
 	err := r.db.WithContext(ctx).Where("clinic_id = ?", id).First(&clinic).Error
 	if err != nil {
 		return nil, err
@@ -35,8 +35,8 @@ func (r *VetClinicRepositoryImpl) GetByID(ctx context.Context, id int) (*models.
 }
 
 // GetByLocationID получает все клиники по ID локации
-func (r *VetClinicRepositoryImpl) GetByLocationID(ctx context.Context, locationID int) ([]*models.VetClinic, error) {
-	var clinics []*models.VetClinic
+func (r *VetClinicRepositoryImpl) GetByLocationID(ctx context.Context, locationID int) ([]*alpha.VetClinic, error) {
+	var clinics []*alpha.VetClinic
 	err := r.db.WithContext(ctx).Where("location_id = ?", locationID).Find(&clinics).Error
 	if err != nil {
 		return nil, err
@@ -45,11 +45,11 @@ func (r *VetClinicRepositoryImpl) GetByLocationID(ctx context.Context, locationI
 }
 
 // Update обновляет существующую клинику в базе данных
-func (r *VetClinicRepositoryImpl) Update(ctx context.Context, clinic *models.VetClinic) error {
+func (r *VetClinicRepositoryImpl) Update(ctx context.Context, clinic *alpha.VetClinic) error {
 	return r.db.WithContext(ctx).Save(clinic).Error
 }
 
 // Delete удаляет клинику по её ID (soft delete)
 func (r *VetClinicRepositoryImpl) Delete(ctx context.Context, id int) error {
-	return r.db.WithContext(ctx).Where("clinic_id = ?", id).Delete(&models.VetClinic{}).Error
+	return r.db.WithContext(ctx).Where("clinic_id = ?", id).Delete(&alpha.VetClinic{}).Error
 }

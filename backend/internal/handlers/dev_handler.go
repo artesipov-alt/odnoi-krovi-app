@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -37,7 +38,7 @@ type DevResponse struct {
 func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
 	logger.Log.Info("Сброс пользователя к заводским настройкам")
 
-	id, err := ParseStringParam(c, "id")
+	id, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -51,7 +52,7 @@ func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("Пользователь успешно сброшен", zap.String("userId", id))
 
-	return SendJSON(c, DevResponse{
+	return utils.SendJSON(c, DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно сброшен к заводским настройкам",
 	})
@@ -68,7 +69,7 @@ func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
 func (h *DevHandler) RestoreUserHandler(c *fiber.Ctx) error {
 	logger.Log.Info("Восстановление удаленного пользователя")
 
-	id, err := ParseStringParam(c, "id")
+	id, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -82,7 +83,7 @@ func (h *DevHandler) RestoreUserHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("Пользователь успешно восстановлен", zap.String("userId", id))
 
-	return SendJSON(c, DevResponse{
+	return utils.SendJSON(c, DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно восстановлен",
 	})
@@ -106,7 +107,7 @@ func (h *DevHandler) GetDeletedUsersHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("Удаленные пользователи успешно получены", zap.Int("count", len(users)))
 
-	return SendJSON(c, GetDeletedUsersResponse{
+	return utils.SendJSON(c, GetDeletedUsersResponse{
 		Status:  true,
 		Message: "Удаленные пользователи успешно получены",
 		Users:   users,

@@ -4,33 +4,34 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	alpha "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
 )
 
 // BloodStockRepository определяет интерфейс для работы с запасами крови
 type BloodStockRepository interface {
 	// GetAll возвращает все запасы крови
-	GetAll(ctx context.Context) ([]models.BloodStock, error)
+	GetAll(ctx context.Context) ([]alpha.BloodStock, error)
 
 	// GetByID возвращает запас крови по ID
-	GetByID(ctx context.Context, id int) (*models.BloodStock, error)
+	GetByID(ctx context.Context, id int) (*alpha.BloodStock, error)
 
 	// GetByClinicID возвращает все запасы крови для конкретной клиники
-	GetByClinicID(ctx context.Context, clinicID int) ([]models.BloodStock, error)
+	GetByClinicID(ctx context.Context, clinicID int) ([]alpha.BloodStock, error)
 
 	// GetByBloodTypeID возвращает все запасы крови по типу крови
-	GetByBloodTypeID(ctx context.Context, bloodTypeID int) ([]models.BloodStock, error)
+	GetByBloodTypeID(ctx context.Context, bloodTypeID int) ([]alpha.BloodStock, error)
 
 	// Create создает новый запас крови
-	Create(ctx context.Context, bloodStock *models.BloodStock) error
+	Create(ctx context.Context, bloodStock *alpha.BloodStock) error
 
 	// Update обновляет существующий запас крови
-	Update(ctx context.Context, bloodStock *models.BloodStock) error
+	Update(ctx context.Context, bloodStock *alpha.BloodStock) error
 
 	// Delete удаляет запас крови по ID
 	Delete(ctx context.Context, id int) error
 
 	// Search выполняет поиск запасов крови по различным фильтрам
-	Search(ctx context.Context, filters BloodStockFilters) ([]models.BloodStock, error)
+	Search(ctx context.Context, filters BloodStockFilters) ([]alpha.BloodStock, error)
 }
 
 // BloodStockFilters представляет фильтры для поиска запасов крови

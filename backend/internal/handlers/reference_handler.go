@@ -4,6 +4,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
@@ -14,12 +15,12 @@ import (
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
 	breedRepo    repositories.BreedRepository
-	bloodRepo    repositories.BloodRepository
+	bloodRepo    repositories.BloodInfoRepository
 	locationRepo repositories.LocationRepository
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodRepository, locationRepo repositories.LocationRepository) *ReferenceHandler {
+func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodInfoRepository, locationRepo repositories.LocationRepository) *ReferenceHandler {
 	return &ReferenceHandler{
 		breedRepo:    breedRepo,
 		bloodRepo:    bloodTypeRepo,
@@ -65,7 +66,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 	for i, petType := range petTypes {
 		ruValue, err := validation.LocalizePetType(string(petType))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrInvalidPetType.Error(),
 			})
 		}
@@ -96,7 +97,7 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 	for i, gender := range genders {
 		ruValue, err := validation.LocalizeGender(string(gender))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrInvalidGender.Error(),
 			})
 		}
@@ -127,7 +128,7 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 	for i, condition := range conditions {
 		ruValue, err := validation.LocalizeLivingCondition(string(condition))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrInvalidLivingCondition.Error(),
 			})
 		}
@@ -158,7 +159,7 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 	for i, role := range roles {
 		ruValue, err := validation.LocalizeUserRole(string(role))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrUserInvalidRole.Error(),
 			})
 		}
@@ -189,7 +190,7 @@ func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
 	for i, role := range roles {
 		ruValue, err := validation.LocalizePetRole(string(role))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrPetInvalidRole.Error(),
 			})
 		}
@@ -220,7 +221,7 @@ func (h *ReferenceHandler) GetBloodSearchStatusesHandler(c *fiber.Ctx) error {
 	for i, status := range statuses {
 		ruValue, err := validation.LocalizeBloodSearchStatus(string(status))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrInvalidSearchStatus.Error(),
 			})
 		}
@@ -251,7 +252,7 @@ func (h *ReferenceHandler) GetBloodStockStatusesHandler(c *fiber.Ctx) error {
 	for i, status := range statuses {
 		ruValue, err := validation.LocalizeBloodStockStatus(string(status))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrInvalidBloodStatus.Error(),
 			})
 		}
@@ -282,7 +283,7 @@ func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 	for i, status := range statuses {
 		ruValue, err := validation.LocalizeDonationStatus(string(status))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 				Error: apperrors.ErrInvalidDonationStatus.Error(),
 			})
 		}
@@ -311,7 +312,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 	breeds, err := h.breedRepo.GetAll(c.Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 			Error: "Не удалось получить список пород",
 		})
 	}
@@ -342,7 +343,7 @@ func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 	locations, err := h.locationRepo.GetAll(c.Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить локации из БД", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 			Error: "Не удалось получить список локаций",
 		})
 	}
@@ -375,7 +376,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 	petTypeStr := c.Query("petType")
 	if petTypeStr == "" {
 		logger.Log.Error("не указан тип животного")
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
 			Error: "Необходимо указать тип животного",
 		})
 	}
@@ -383,7 +384,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 	petType, err := validation.LocalizePetType(petTypeStr)
 	if err != nil {
 		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
 			Error: "Неверный тип животного",
 		})
 	}
@@ -391,7 +392,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 	breeds, err := h.breedRepo.GetByPetType(c.Context(), petType)
 	if err != nil {
 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err), zap.String("petType", petTypeStr))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 			Error: "Не удалось получить список пород",
 		})
 	}
@@ -422,7 +423,7 @@ func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 	bloodComponents, err := h.bloodRepo.GetAllComponents(c.Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить компоненотов крови из БД", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 			Error: "Не удалось получить список компоненотов крови",
 		})
 	}
@@ -453,7 +454,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 	petType := c.Params("pet_type")
 	if petType == "" {
 		logger.Log.Error("не указан тип животного")
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
 			Error: "Необходимо указать тип животного",
 		})
 	}
@@ -463,7 +464,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 	bloodGroups, err := h.bloodRepo.GetBloodGroupsByPetType(c.Context(), models.PetType(petType))
 	if err != nil {
 		logger.Log.Error("не удалось получить группы крови из БД", zap.Error(err), zap.String("petType", petType))
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
 			Error: "Не удалось получить список групп крови",
 		})
 	}

@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	services "github.com/artesipov-alt/odnoi-krovi-app/internal/services/alpha"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -33,7 +34,7 @@ func NewVetClinicHandler(vetClinicService services.VetClinicService) *VetClinicH
 // @Router /vet-clinics/register [post]
 func (h *VetClinicHandler) RegisterClinicHandler(c *fiber.Ctx) error {
 	var clinicData services.VetClinicRegistration
-	if err := ParseBody(c, &clinicData); err != nil {
+	if err := utils.ParseBody(c, &clinicData); err != nil {
 		return err
 	}
 
@@ -44,7 +45,7 @@ func (h *VetClinicHandler) RegisterClinicHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendCreated(c, clinic)
+	return utils.SendCreated(c, clinic)
 }
 
 // GetClinicProfileHandler godoc
@@ -59,7 +60,7 @@ func (h *VetClinicHandler) RegisterClinicHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/{id} [get]
 func (h *VetClinicHandler) GetClinicProfileHandler(c *fiber.Ctx) error {
-	clinicID, err := ParseIDParam(c, "id")
+	clinicID, err := utils.ParseIDParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -71,7 +72,7 @@ func (h *VetClinicHandler) GetClinicProfileHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, profile)
+	return utils.SendJSON(c, profile)
 }
 
 // GetClinicsByLocationIDHandler godoc
@@ -85,7 +86,7 @@ func (h *VetClinicHandler) GetClinicProfileHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/location/{location_id} [get]
 func (h *VetClinicHandler) GetClinicsByLocationIDHandler(c *fiber.Ctx) error {
-	locationID, err := ParseIDParam(c, "location_id")
+	locationID, err := utils.ParseIDParam(c, "location_id")
 	if err != nil {
 		return err
 	}
@@ -97,7 +98,7 @@ func (h *VetClinicHandler) GetClinicsByLocationIDHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendJSON(c, clinics)
+	return utils.SendJSON(c, clinics)
 }
 
 // UpdateClinicProfileHandler godoc
@@ -114,13 +115,13 @@ func (h *VetClinicHandler) GetClinicsByLocationIDHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/{id} [put]
 func (h *VetClinicHandler) UpdateClinicProfileHandler(c *fiber.Ctx) error {
-	clinicID, err := ParseIDParam(c, "id")
+	clinicID, err := utils.ParseIDParam(c, "id")
 	if err != nil {
 		return err
 	}
 
 	var updateData services.VetClinicUpdate
-	if err := ParseBody(c, &updateData); err != nil {
+	if err := utils.ParseBody(c, &updateData); err != nil {
 		return err
 	}
 
@@ -130,7 +131,7 @@ func (h *VetClinicHandler) UpdateClinicProfileHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendSuccess(c, "Профиль клиники успешно обновлен")
+	return utils.SendSuccess(c, "Профиль клиники успешно обновлен")
 }
 
 // DeleteClinicHandler godoc
@@ -145,7 +146,7 @@ func (h *VetClinicHandler) UpdateClinicProfileHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
 // @Router /vet-clinics/{id} [delete]
 func (h *VetClinicHandler) DeleteClinicHandler(c *fiber.Ctx) error {
-	clinicID, err := ParseIDParam(c, "id")
+	clinicID, err := utils.ParseIDParam(c, "id")
 	if err != nil {
 		return err
 	}
@@ -156,5 +157,5 @@ func (h *VetClinicHandler) DeleteClinicHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	return SendSuccess(c, "Клиника успешно удалена")
+	return utils.SendSuccess(c, "Клиника успешно удалена")
 }
