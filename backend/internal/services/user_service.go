@@ -86,8 +86,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	}
 
 	// Валидируем роль пользователя
-	role, err := validation.LocalizeUserRole(string(userData.Role))
-	if err != nil {
+	if _, err := validation.LocalizeUserRole(string(userData.Role)); err != nil {
 		return nil, apperrors.BadRequest("неверная роль пользователя")
 	}
 
@@ -99,7 +98,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		Email:      userData.Email,
 		ConsentPD:  userData.ConsentPD,
 		LocationID: userData.LocationID,
-		Role:       role,
+		Role:       userData.Role,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {

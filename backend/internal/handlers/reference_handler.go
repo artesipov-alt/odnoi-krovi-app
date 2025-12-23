@@ -381,15 +381,14 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	petType, err := validation.LocalizePetType(petTypeStr)
-	if err != nil {
+	if _, err := validation.LocalizePetType(petTypeStr); err != nil {
 		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
 		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
 			Error: "Неверный тип животного",
 		})
 	}
 
-	breeds, err := h.breedRepo.GetByPetType(c.Context(), petType)
+	breeds, err := h.breedRepo.GetByPetType(c.Context(), models.PetType(petTypeStr))
 	if err != nil {
 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err), zap.String("petType", petTypeStr))
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
@@ -479,4 +478,66 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 
 	c.Set("Content-Type", "application/json; charset=utf-8")
 	return c.JSON(ReferenceResponseDB{Data: items})
+}
+
+// GetHealthStatusesHandler godoc
+// @Summary Получение всех статусов здоровья
+// @Description Возвращает все доступные статусы здоровья для выбора на фронтенде
+// @Tags reference, pets
+// @Produce json
+// @Success 200 {object} ReferenceResponse "Список статусов здоровья"
+// @Router /reference/health-statuses [get]
+func (h *ReferenceHandler) GetHealthStatusesHandler(c *fiber.Ctx) error {
+	logger.Log.Info("получение справочника статусов здоровья")
+
+	statuses := enums.GetAllHealthStatuses()
+	items := make([]ReferenceItem, len(statuses))
+
+	for i, status := range statuses {
+		ruValue, err := validation.LocalizeHealthStatus(string(status))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
+				Error: "Не удалось получить список статусов здоровья",
+			})
+		}
+
+		items[i] = ReferenceItem{
+			Value: string(status),
+			Label: string(ruValue),
+		}
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(ReferenceResponse{Data: items})
+}
+
+// GetReproductiveStatusesHandler godoc
+// @Summary Получение всех репродуктивных состояний
+// @Description Возвращает все доступные репродуктивные состояния для выбора на фронтенде
+// @Tags reference, pets
+// @Produce json
+// @Success 200 {object} ReferenceResponse "Список репродуктивных состояний"
+// @Router /reference/reproductive-statuses [get]
+func (h *ReferenceHandler) GetReproductiveStatusesHandler(c *fiber.Ctx) error {
+	logger.Log.Info("получение справочника репродуктивных состояний")
+
+	statuses := enums.GetAllReproductiveStatuses()
+	items := make([]ReferenceItem, len(statuses))
+
+	for i, status := range statuses {
+		ruValue, err := validation.LocalizeReproductiveStatus(string(status))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
+				Error: "Не удалось получить список репродуктивных состояний",
+			})
+		}
+
+		items[i] = ReferenceItem{
+			Value: string(status),
+			Label: string(ruValue),
+		}
+	}
+
+	c.Set("Content-Type", "application/json; charset=utf-8")
+	return c.JSON(ReferenceResponse{Data: items})
 }

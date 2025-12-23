@@ -33,10 +33,28 @@ const (
 type LivingCondition string
 
 const (
-	LivingConditionApartment LivingCondition = "apartment"
-	LivingConditionHouse     LivingCondition = "house"
-	LivingConditionAviary    LivingCondition = "aviary"
-	LivingConditionOther     LivingCondition = "other"
+	LivingConditionIndoor  LivingCondition = "indoor"
+	LivingConditionLeash   LivingCondition = "leash_walking"
+	LivingConditionOutdoor LivingCondition = "outdoor"
+)
+
+// HealthStatus представляет состояние здоровья животного
+type HealthStatus string
+
+const (
+	HealthStatusHealthy HealthStatus = "healthy"
+	HealthStatusIll     HealthStatus = "ill"
+	HealthStatusUnknown HealthStatus = "unknown"
+)
+
+// ReproductiveStatus представляет физиологическое состояние животного
+type ReproductiveStatus string
+
+const (
+	ReproductiveStatusPregnancy ReproductiveStatus = "pregnancy"
+	ReproductiveStatusLactation ReproductiveStatus = "lactation"
+	ReproductiveStatusEstrus    ReproductiveStatus = "estrus"
+	ReproductiveStatusNone      ReproductiveStatus = "none"
 )
 
 // UserRole представляет роль пользователя в системе

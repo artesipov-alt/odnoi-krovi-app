@@ -19,10 +19,28 @@ func GetAllGenders() []models.Gender {
 // GetAllLivingConditions возвращает все доступные условия проживания
 func GetAllLivingConditions() []models.LivingCondition {
 	return []models.LivingCondition{
-		models.LivingConditionApartment,
-		models.LivingConditionHouse,
-		models.LivingConditionAviary,
-		models.LivingConditionOther,
+		models.LivingConditionIndoor,
+		models.LivingConditionLeash,
+		models.LivingConditionOutdoor,
+	}
+}
+
+// GetAllHealthStatuses возвращает все доступные статусы здоровья
+func GetAllHealthStatuses() []models.HealthStatus {
+	return []models.HealthStatus{
+		models.HealthStatusHealthy,
+		models.HealthStatusIll,
+		models.HealthStatusUnknown,
+	}
+}
+
+// GetAllReproductiveStatuses возвращает все доступные физиологические состояния
+func GetAllReproductiveStatuses() []models.ReproductiveStatus {
+	return []models.ReproductiveStatus{
+		models.ReproductiveStatusPregnancy,
+		models.ReproductiveStatusLactation,
+		models.ReproductiveStatusEstrus,
+		models.ReproductiveStatusNone,
 	}
 }
 
@@ -35,7 +53,7 @@ func GetAllUserRoles() []models.UserRole {
 	}
 }
 
-// GetAllPetRoles возвращает все доступные роли пользователей
+// GetAllPetRoles возвращает все доступные роли животных
 func GetAllPetRoles() []models.PetRole {
 	return []models.PetRole{
 		models.PetRoleRecipient,
@@ -74,6 +92,7 @@ func GetAllDonationStatuses() []models.DonationStatus {
 }
 
 // LocalizePetType локализует тип животного в русское название
+// Можно валидировать через проверку.
 func LocalizePetType(petType string) (models.PetType, error) {
 	pt := models.PetType(petType)
 	switch pt {
@@ -87,7 +106,7 @@ func LocalizePetType(petType string) (models.PetType, error) {
 }
 
 // LocalizeGender локализует пол животного в русское название
-func LocalizeGender(gender string) (models.Gender, error) {
+func LocalizeGender(gender string) (string, error) {
 	g := models.Gender(gender)
 	switch g {
 	case models.GenderMale:
@@ -103,16 +122,29 @@ func LocalizeGender(gender string) (models.Gender, error) {
 func LocalizeLivingCondition(condition string) (models.LivingCondition, error) {
 	lc := models.LivingCondition(condition)
 	switch lc {
-	case models.LivingConditionApartment:
-		return "Квартира", nil
-	case models.LivingConditionHouse:
-		return "Дом", nil
-	case models.LivingConditionAviary:
-		return "Вольер", nil
-	case models.LivingConditionOther:
-		return "Другое", nil
+	case models.LivingConditionIndoor:
+		return "В помещении", nil
+	case models.LivingConditionLeash:
+		return "Выгул на поводке", nil
+	case models.LivingConditionOutdoor:
+		return "Уличное содержание", nil
 	default:
 		return "", fmt.Errorf("недопустимое условие проживания: %s", condition)
+	}
+}
+
+// LocalizeHealthStatus локализует состояние здоровья в русское название
+func LocalizeHealthStatus(status string) (models.HealthStatus, error) {
+	hs := models.HealthStatus(status)
+	switch hs {
+	case models.HealthStatusHealthy:
+		return "Здоров", nil
+	case models.HealthStatusIll:
+		return "Болен", nil
+	case models.HealthStatusUnknown:
+		return "Неизвестно", nil
+	default:
+		return "", fmt.Errorf("недопустимый статус здоровья: %s", status)
 	}
 }
 
@@ -131,7 +163,7 @@ func LocalizeUserRole(role string) (models.UserRole, error) {
 	}
 }
 
-// LocalizePetRole локализует роль пользователя в русское название
+// LocalizePetRole локализует роль животного в русское название
 func LocalizePetRole(role string) (models.PetRole, error) {
 	r := models.PetRole(role)
 	switch r {
@@ -141,6 +173,23 @@ func LocalizePetRole(role string) (models.PetRole, error) {
 		return "Реципиент", nil
 	default:
 		return "", fmt.Errorf("недопустимая роль: %s", role)
+	}
+}
+
+// LocalizeReproductiveStatus локализует физиологическое состояние в русское название
+func LocalizeReproductiveStatus(status string) (models.ReproductiveStatus, error) {
+	rs := models.ReproductiveStatus(status)
+	switch rs {
+	case models.ReproductiveStatusPregnancy:
+		return "Беременность", nil
+	case models.ReproductiveStatusLactation:
+		return "Лактация", nil
+	case models.ReproductiveStatusEstrus:
+		return "Течка", nil
+	case models.ReproductiveStatusNone:
+		return "Нет", nil
+	default:
+		return "", fmt.Errorf("недопустимое физиологическое состояние: %s", status)
 	}
 }
 
@@ -166,7 +215,7 @@ func LocalizeBloodStockStatus(status string) (models.BloodStockStatus, error) {
 	s := models.BloodStockStatus(status)
 	switch s {
 	case models.BloodStockStatusActive:
-		return "Активный", nil
+		return "В наличии", nil
 	case models.BloodStockStatusReserved:
 		return "Зарезервирован", nil
 	case models.BloodStockStatusUsed:

@@ -197,6 +197,8 @@ func main() {
 	referenceGroup.Get("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)
 	referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler)
 	referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)
+	referenceGroup.Get("/health-statuses", referenceHandler.GetHealthStatusesHandler)
+	referenceGroup.Get("/reproductive-statuses", referenceHandler.GetReproductiveStatusesHandler)
 	// referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler)
 	// referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)
 	// referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)
