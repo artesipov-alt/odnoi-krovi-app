@@ -35,7 +35,7 @@ type LivingCondition string
 const (
 	LivingConditionIndoor  LivingCondition = "indoor"
 	LivingConditionLeash   LivingCondition = "leash_walking"
-	LivingConditionOutdoor LivingCondition = "outdoor"
+	LivingConditionOutdoor LivingCondition = "self_outdoor"
 )
 
 // HealthStatus представляет состояние здоровья животного

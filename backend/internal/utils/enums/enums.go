@@ -123,11 +123,11 @@ func LocalizeLivingCondition(condition string) (models.LivingCondition, error) {
 	lc := models.LivingCondition(condition)
 	switch lc {
 	case models.LivingConditionIndoor:
-		return "В помещении", nil
+		return "Домашний", nil
 	case models.LivingConditionLeash:
-		return "Выгул на поводке", nil
+		return "Выгул на шлейке", nil
 	case models.LivingConditionOutdoor:
-		return "Уличное содержание", nil
+		return "Самовыгул", nil
 	default:
 		return "", fmt.Errorf("недопустимое условие проживания: %s", condition)
 	}
@@ -140,7 +140,7 @@ func LocalizeHealthStatus(status string) (models.HealthStatus, error) {
 	case models.HealthStatusHealthy:
 		return "Здоров", nil
 	case models.HealthStatusIll:
-		return "Болен", nil
+		return "Есть заболевания", nil
 	case models.HealthStatusUnknown:
 		return "Неизвестно", nil
 	default:
