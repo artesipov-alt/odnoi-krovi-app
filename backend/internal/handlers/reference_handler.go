@@ -304,7 +304,7 @@ func (h *ReferenceHandler) GetDonationStatusesHandler(c *fiber.Ctx) error {
 // @Tags reference, pets
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список пород животных"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/breeds [get]
 func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника пород животных")
@@ -335,7 +335,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponseDB "Список локаций"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/locations [get]
 func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника локаций")
@@ -367,8 +367,8 @@ func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param petType query string true "Тип животного (dog, cat, etc.)"
 // @Success 200 {object} ReferenceResponse "Список пород животных"
-// @Failure 400 {object} ErrorResponse "Неверный тип животного"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/breeds-by-type [get]
 func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника пород животных по типу животного")
@@ -415,7 +415,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 // @Tags reference, pets
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список компонентов крови"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/blood-components [get]
 func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника компоненотов крови")
@@ -447,8 +447,8 @@ func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param pet_type path string true "Тип животного"
 // @Success 200 {object} ReferenceResponseDB "Список групп крови"
-// @Failure 400 {object} ErrorResponse "Неверный тип животного"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/blood-groups/{pet_type} [get]
 func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 	petType := c.Params("pet_type")

@@ -34,9 +34,9 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Produce json
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} models.User "Данные пользователя"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Пользователь не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 	id, err := utils.ParseStringParam(c, "id")
@@ -62,9 +62,9 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body SimpleRegistrationRequest true "Данные для простой регистрации"
 // @Success 201 {object} models.User "Зарегистрированный пользователь"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 409 {object} ErrorResponse "Пользователь уже существует"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/register/simple [post]
 func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 	var request SimpleRegistrationRequest
@@ -96,9 +96,9 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body services.UserRegistration true "Данные для регистрации пользователя"
 // @Success 201 {object} models.User "Зарегистрированный пользователь"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 409 {object} ErrorResponse "Пользователь уже существует"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Deprecated
 // @Router /user/register [post]
 func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
@@ -131,10 +131,10 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "ID пользователя"
 // @Param request body services.UserUpdate true "Данные для обновления"
-// @Success 200 {object} SuccessResponse "Данные успешно обновлены"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Пользователь не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 	id, err := utils.ParseStringParam(c, "id")
@@ -163,9 +163,9 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param telegram_id query int64 true "Telegram ID пользователя"
 // @Success 200 {object} models.User "Данные пользователя"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Пользователь не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/telegram [get]
 func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 	telegramID, err := utils.ParseInt64Query(c, "telegram_id")
@@ -189,10 +189,10 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 // @Tags users
 // @Produce json
 // @Param id path string true "ID пользователя"
-// @Success 200 {object} SuccessResponse "Пользователь успешно удален"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Пользователь не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Success 200 {object} utils.SuccessResponse "Пользователь успешно удален"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
 	id, err := utils.ParseStringParam(c, "id")

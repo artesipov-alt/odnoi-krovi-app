@@ -34,9 +34,9 @@ func NewPetHandler(petService services.PetService, bloodRequestClient services.B
 // @Param user_id path string true "ID пользователя"
 // @Param request body services.PetCreate true "Данные питомца"
 // @Success 201 {object} models.Pet "Созданный питомец"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Пользователь не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [post]
 func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 	userID, err := utils.ParseStringParam(c, "user_id")
@@ -66,9 +66,9 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "ID питомца"
 // @Success 200 {object} models.Pet "Данные питомца"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Питомец не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [get]
 func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 	petID, err := utils.ParseStringParam(c, "id")
@@ -93,9 +93,9 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param user_id path string true "ID пользователя"
 // @Success 200 {array} models.Pet "Список питомцев"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Пользователь не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [get]
 func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 	userID, err := utils.ParseStringParam(c, "user_id")
@@ -121,10 +121,10 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "ID питомца"
 // @Param request body services.PetUpdate true "Данные для обновления"
-// @Success 200 {object} SuccessResponse "Данные успешно обновлены"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Питомец не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [put]
 func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 	petID, err := utils.ParseStringParam(c, "id")
@@ -152,10 +152,10 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 // @Tags pets
 // @Produce json
 // @Param id path string true "ID питомца"
-// @Success 200 {object} SuccessResponse "Питомец успешно удален"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Питомец не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Success 200 {object} utils.SuccessResponse "Питомец успешно удален"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [delete]
 func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 	petID, err := utils.ParseStringParam(c, "id")
@@ -180,8 +180,8 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body models.BloodSearchPetRequest true "Данные питомца для пула поиска крови"
 // @Success 201 {object} models.BloodSearchPetResponse "Статус добавления питомца"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-request/pool [post]
 func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 	var petReq models.BloodSearchPetRequest
@@ -233,8 +233,8 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body models.BloodSearchFilterRequest true "Фильтры поиска: тип, группа крови, регионы"
 // @Success 200 {object} models.BloodSearchPetsResponse "Список питомцев"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/blood-request/pool/search [post]
 func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	var filterReq models.BloodSearchFilterRequest
@@ -291,9 +291,9 @@ func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "ID питомца"
 // @Success 200 {object} map[string]string "Ссылка для загрузки фотографии и путь к файлу"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Питомец не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/upload/avatar/{id} [get]
 func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
 	petID, err := utils.ParseStringParam(c, "id")
@@ -318,9 +318,9 @@ func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
 // @Produce json
 // @Param path path string true "Путь к аватарке питомца (например: pets/PET-25-000001/avatar.jpg)"
 // @Success 200 {object} map[string]string "Публичная ссылка на аватарку"
-// @Failure 400 {object} ErrorResponse "Неверный запрос"
-// @Failure 404 {object} ErrorResponse "Питомец не найден"
-// @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
+// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/upload/avatar/confirm/{path} [post]
 func (h *PetHandler) ConfirmPetAvatarUpload(c *fiber.Ctx) error {
 	avatarPath, err := utils.ParseStringParam(c, "path")

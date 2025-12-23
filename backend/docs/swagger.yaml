@@ -7,11 +7,6 @@ definitions:
       status:
         type: boolean
     type: object
-  handlers.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
   handlers.GetDeletedUsersResponse:
     properties:
       message:
@@ -64,12 +59,6 @@ definitions:
         type: integer
     required:
     - telegramId
-    type: object
-  handlers.SuccessResponse:
-    properties:
-      data: {}
-      message:
-        type: string
     type: object
   models.BloodSearchFilterRequest:
     description: Фильтры для поиска питомцев-реципиентов
@@ -171,68 +160,6 @@ definitions:
         description: Список питомцев
         items:
           $ref: '#/definitions/models.BloodSearchPetRequest'
-        type: array
-    type: object
-  models.BloodStock:
-    properties:
-      bloodTypeId:
-        example: 1
-        type: integer
-      clinicId:
-        example: 1
-        type: integer
-      expirationDate:
-        example: "2024-12-31"
-        type: string
-      id:
-        example: 1
-        type: integer
-      petType:
-        allOf:
-        - $ref: '#/definitions/models.PetType'
-        example: dog
-      priceRub:
-        example: 5000
-        type: number
-      status:
-        allOf:
-        - $ref: '#/definitions/models.BloodStockStatus'
-        example: active
-      volumeMl:
-        example: 500
-        type: integer
-    type: object
-  models.BloodStockStatus:
-    enum:
-    - active
-    - reserved
-    - used
-    - expired
-    type: string
-    x-enum-varnames:
-    - BloodStockStatusActive
-    - BloodStockStatusReserved
-    - BloodStockStatusUsed
-    - BloodStockStatusExpired
-  models.DonorRequirements:
-    properties:
-      bloodTypes:
-        items:
-          type: string
-        type: array
-      healthConditions:
-        items:
-          type: string
-        type: array
-      maxAge:
-        type: integer
-      minAge:
-        type: integer
-      minWeight:
-        type: number
-      vaccinations:
-        items:
-          type: string
         type: array
     type: object
   models.Gender:
@@ -411,98 +338,6 @@ definitions:
     - UserRoleUser
     - UserRoleClinic
     - UserRoleAdmin
-  models.VetClinic:
-    properties:
-      appointmentRequirementId:
-        example: 1
-        type: integer
-      clinicId:
-        example: 1
-        type: integer
-      contactPersonName:
-        example: Мария Петрова
-        type: string
-      contactPersonPosition:
-        example: Администратор
-        type: string
-      donorBonusPrograms:
-        example: Бонусные программы для доноров
-        type: string
-      donorRequirements:
-        $ref: '#/definitions/models.DonorRequirements'
-      latitude:
-        example: 55.7558
-        type: number
-      locationId:
-        example: 1
-        type: integer
-      longitude:
-        example: 37.6173
-        type: number
-      name:
-        example: ВетКлиника ЗооДоктор
-        type: string
-      phone:
-        example: "+79991234567"
-        type: string
-      transfusionConditions:
-        example: Условия для переливания крови
-        type: string
-      website:
-        example: https://vetclinic.example.com
-        type: string
-      workHours:
-        example: 'Пн-Пт: 9:00-18:00'
-        type: string
-    type: object
-  services.BloodStockCreate:
-    properties:
-      bloodTypeId:
-        minimum: 1
-        type: integer
-      clinicId:
-        minimum: 1
-        type: integer
-      expirationDate:
-        description: 'формат: "2024-12-31"'
-        type: string
-      petType:
-        allOf:
-        - $ref: '#/definitions/models.PetType'
-        enum:
-        - dog
-        - cat
-      status:
-        allOf:
-        - $ref: '#/definitions/models.BloodStockStatus'
-        enum:
-        - active
-        - reserved
-        - used
-        - expired
-      volumeMl:
-        minimum: 1
-        type: integer
-    required:
-    - bloodTypeId
-    - petType
-    type: object
-  services.BloodStockUpdate:
-    properties:
-      expirationDate:
-        type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/models.BloodStockStatus'
-        enum:
-        - active
-        - reserved
-        - used
-        - expired
-      volumeMl:
-        minimum: 1
-        type: integer
-    type: object
   services.PetCreate:
     properties:
       ageMonths:
@@ -657,78 +492,22 @@ definitions:
       phone:
         type: string
     type: object
-  services.VetClinicProfile:
+  utils.ErrorResponse:
     properties:
-      clinic:
-        $ref: '#/definitions/models.VetClinic'
+      error:
+        type: string
     type: object
-  services.VetClinicRegistration:
+  utils.SuccessResponse:
     properties:
-      appointmentRequirementId:
-        minimum: 1
-        type: integer
-      contactPersonName:
-        type: string
-      contactPersonPosition:
-        type: string
-      donorBonusPrograms:
-        type: string
-      latitude:
-        type: number
-      locationId:
-        minimum: 1
-        type: integer
-      longitude:
-        type: number
-      name:
-        maxLength: 255
-        minLength: 2
-        type: string
-      phone:
-        type: string
-      transfusionConditions:
-        type: string
-      website:
-        type: string
-      workHours:
-        type: string
-    required:
-    - appointmentRequirementId
-    - locationId
-    - name
-    type: object
-  services.VetClinicUpdate:
-    properties:
-      appointmentRequirementId:
-        minimum: 1
-        type: integer
-      contactPersonName:
-        type: string
-      contactPersonPosition:
-        type: string
-      donorBonusPrograms:
-        type: string
-      locationId:
-        minimum: 1
-        type: integer
-      name:
-        maxLength: 255
-        minLength: 2
-        type: string
-      phone:
-        type: string
-      transfusionConditions:
-        type: string
-      website:
-        type: string
-      workHours:
+      data: {}
+      message:
         type: string
     type: object
 info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
   title: 1krovi.app
-  version: 1.1.0
+  version: 1.2.2
 paths:
   /:
     get:
@@ -743,282 +522,6 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
-  /blood-stocks:
-    get:
-      description: Возвращает список всех запасов крови в системе
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список запасов крови
-          schema:
-            items:
-              $ref: '#/definitions/models.BloodStock'
-            type: array
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение всех запасов крови
-      tags:
-      - blood-stocks
-    post:
-      consumes:
-      - application/json
-      description: Создает новый запас крови в системе
-      parameters:
-      - description: Данные запаса крови
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/services.BloodStockCreate'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Созданный запас крови
-          schema:
-            $ref: '#/definitions/models.BloodStock'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Клиника или тип крови не найдены
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Создание нового запаса крови
-      tags:
-      - blood-stocks
-  /blood-stocks/{id}:
-    delete:
-      description: Удаляет запас крови из системы
-      parameters:
-      - description: ID запаса крови
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Запас крови успешно удален
-          schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Запас крови не найден
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Удаление запаса крови
-      tags:
-      - blood-stocks
-    get:
-      description: Возвращает информацию о конкретном запасе крови
-      parameters:
-      - description: ID запаса крови
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Запас крови
-          schema:
-            $ref: '#/definitions/models.BloodStock'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Запас крови не найден
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение запаса крови по ID
-      tags:
-      - blood-stocks
-    put:
-      consumes:
-      - application/json
-      description: Обновляет информацию о запасе крови
-      parameters:
-      - description: ID запаса крови
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Данные для обновления
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/services.BloodStockUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Запас крови успешно обновлен
-          schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Запас крови не найден
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Обновление запаса крови
-      tags:
-      - blood-stocks
-  /blood-stocks/blood-type/{blood_type_id}:
-    get:
-      description: Возвращает все запасы крови для конкретного типа крови
-      parameters:
-      - description: ID типа крови
-        in: path
-        name: blood_type_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список запасов крови
-          schema:
-            items:
-              $ref: '#/definitions/models.BloodStock'
-            type: array
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Тип крови не найден
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение запасов крови по типу крови
-      tags:
-      - blood-stocks
-  /blood-stocks/clinic/{clinic_id}:
-    get:
-      description: Возвращает все запасы крови для конкретной клиники
-      parameters:
-      - description: ID клиники
-        in: path
-        name: clinic_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список запасов крови клиники
-          schema:
-            items:
-              $ref: '#/definitions/models.BloodStock'
-            type: array
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Клиника не найдена
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение запасов крови клиники
-      tags:
-      - blood-stocks
-  /blood-stocks/search:
-    get:
-      consumes:
-      - application/json
-      description: Выполняет поиск запасов крови по различным параметрам (клиника,
-        тип животного, тип крови, статус, объем, цена)
-      parameters:
-      - description: ID клиники
-        in: query
-        name: clinic_id
-        type: integer
-      - description: Тип животного (dog/cat)
-        in: query
-        name: pet_type
-        type: string
-      - description: ID типа крови
-        in: query
-        name: blood_type_id
-        type: integer
-      - description: Статус (active/reserved/used/expired)
-        in: query
-        name: status
-        type: string
-      - description: Минимальный объем (мл)
-        in: query
-        name: min_volume
-        type: integer
-      - description: Максимальный объем (мл)
-        in: query
-        name: max_volume
-        type: integer
-      - description: Минимальная цена (руб)
-        in: query
-        name: min_price
-        type: number
-      - description: Максимальная цена (руб)
-        in: query
-        name: max_price
-        type: number
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список найденных запасов крови
-          schema:
-            items:
-              $ref: '#/definitions/models.BloodStock'
-            type: array
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Поиск запасов крови с фильтрами
-      tags:
-      - blood-stocks
   /dev/deleted-users:
     get:
       description: Возвращает список всех мягко удаленных пользователей
@@ -1087,19 +590,19 @@ paths:
         "200":
           description: Питомец успешно удален
           schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
+            $ref: '#/definitions/utils.SuccessResponse'
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Питомец не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Удаление питомца по ID
       tags:
       - pets
@@ -1121,15 +624,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Питомец не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение питомца по ID
       tags:
       - pets
@@ -1155,19 +658,19 @@ paths:
         "200":
           description: Данные успешно обновлены
           schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
+            $ref: '#/definitions/utils.SuccessResponse'
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Питомец не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Обновление данных питомца
       tags:
       - pets
@@ -1193,11 +696,11 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Добавить питомца в пул поиска крови
       tags:
       - pets
@@ -1224,11 +727,11 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получить питомцев из пула поиска крови
       tags:
       - pets
@@ -1255,15 +758,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Питомец не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получить ссылку для загрузки фотографии питомца
       tags:
       - pets
@@ -1289,15 +792,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Питомец не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Подтверждение загрузки аватарки питомца
       tags:
       - pets
@@ -1322,15 +825,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение питомцев пользователя
       tags:
       - pets
@@ -1360,15 +863,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Создание нового питомца
       tags:
       - pets
@@ -1385,10 +888,11 @@ paths:
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение компонентов крови животных
       tags:
       - reference
+      - pets
   /reference/blood-groups/{pet_type}:
     get:
       description: Возвращает список групп крови животных для выбора на фронтенде
@@ -1408,14 +912,15 @@ paths:
         "400":
           description: Неверный тип животного
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение групп крови животных по типу животного
       tags:
       - reference
+      - pets
   /reference/blood-search-statuses:
     get:
       description: Возвращает все доступные статусы поиска крови для выбора на фронтенде
@@ -1455,10 +960,11 @@ paths:
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение всех пород животных
       tags:
       - reference
+      - pets
   /reference/breeds-by-type:
     get:
       description: Возвращает список пород животных для указанного типа животного
@@ -1479,14 +985,15 @@ paths:
         "400":
           description: Неверный тип животного
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение пород животных по типу
       tags:
       - reference
+      - pets
   /reference/donation-statuses:
     get:
       description: Возвращает все доступные статусы донорства для выбора на фронтенде
@@ -1513,6 +1020,7 @@ paths:
       summary: Получение всех значений пола
       tags:
       - reference
+      - pers
   /reference/living-conditions:
     get:
       description: Возвращает все доступные условия проживания для выбора на фронтенде
@@ -1526,6 +1034,7 @@ paths:
       summary: Получение всех условий проживания
       tags:
       - reference
+      - pets
   /reference/locations:
     get:
       description: Возвращает список всех локаций в системе для выбора на фронтенде
@@ -1539,7 +1048,7 @@ paths:
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение всех локаций
       tags:
       - reference
@@ -1556,6 +1065,7 @@ paths:
       summary: Получение всех ролей питомцев
       tags:
       - reference
+      - pets
   /reference/pet-types:
     get:
       description: Возвращает все доступные типы животных для выбора на фронтенде
@@ -1569,6 +1079,7 @@ paths:
       summary: Получение всех типов животных
       tags:
       - reference
+      - pets
   /reference/user-roles:
     get:
       description: Возвращает все доступные роли пользователей для выбора на фронтенде
@@ -1582,6 +1093,7 @@ paths:
       summary: Получение всех ролей пользователей
       tags:
       - reference
+      - users
   /user/{id}:
     delete:
       description: Удаляет пользователя из системы (soft delete)
@@ -1597,19 +1109,19 @@ paths:
         "200":
           description: Пользователь успешно удален
           schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
+            $ref: '#/definitions/utils.SuccessResponse'
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Удаление пользователя по ID
       tags:
       - users
@@ -1631,15 +1143,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение пользователя по ID
       tags:
       - users
@@ -1665,19 +1177,19 @@ paths:
         "200":
           description: Данные успешно обновлены
           schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
+            $ref: '#/definitions/utils.SuccessResponse'
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Обновление данных пользователя
       tags:
       - users
@@ -1704,15 +1216,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "409":
           description: Пользователь уже существует
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Регистрация нового пользователя
       tags:
       - users
@@ -1738,15 +1250,15 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "409":
           description: Пользователь уже существует
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Простая регистрация пользователя
       tags:
       - users
@@ -1770,178 +1282,16 @@ paths:
         "400":
           description: Неверный запрос
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: Пользователь не найден
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение пользователя по Telegram ID
       tags:
       - users
-  /vet-clinics/{id}:
-    delete:
-      description: Удаляет клинику из системы (soft delete)
-      parameters:
-      - description: ID клиники
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Клиника успешно удалена
-          schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Клиника не найдена
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Удаление клиники по ID
-      tags:
-      - vet-clinics
-    get:
-      description: Возвращает полный профиль ветеринарной клиники
-      parameters:
-      - description: ID клиники
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Профиль клиники
-          schema:
-            $ref: '#/definitions/services.VetClinicProfile'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Клиника не найдена
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение профиля клиники по ID
-      tags:
-      - vet-clinics
-    put:
-      consumes:
-      - application/json
-      description: Обновляет информацию о ветеринарной клинике
-      parameters:
-      - description: ID клиники
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Данные для обновления
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/services.VetClinicUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Данные успешно обновлены
-          schema:
-            $ref: '#/definitions/handlers.SuccessResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "404":
-          description: Клиника не найдена
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Обновление профиля клиники
-      tags:
-      - vet-clinics
-  /vet-clinics/location/{location_id}:
-    get:
-      description: Возвращает список всех ветеринарных клиник в указанной локации
-      parameters:
-      - description: ID локации
-        in: path
-        name: location_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список клиник
-          schema:
-            items:
-              $ref: '#/definitions/models.VetClinic'
-            type: array
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Получение всех клиник по ID локации
-      tags:
-      - vet-clinics
-  /vet-clinics/register:
-    post:
-      consumes:
-      - application/json
-      description: Регистрирует новую ветеринарную клинику в системе
-      parameters:
-      - description: Данные клиники
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/services.VetClinicRegistration'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Созданная клиника
-          schema:
-            $ref: '#/definitions/models.VetClinic'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "409":
-          description: Клиника уже существует
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: Регистрация новой ветеринарной клиники
-      tags:
-      - vet-clinics
 swagger: "2.0"

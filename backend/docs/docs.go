@@ -35,422 +35,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/blood-stocks": {
-            "get": {
-                "description": "Возвращает список всех запасов крови в системе",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Получение всех запасов крови",
-                "responses": {
-                    "200": {
-                        "description": "Список запасов крови",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.BloodStock"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Создает новый запас крови в системе",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Создание нового запаса крови",
-                "parameters": [
-                    {
-                        "description": "Данные запаса крови",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.BloodStockCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Созданный запас крови",
-                        "schema": {
-                            "$ref": "#/definitions/models.BloodStock"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Клиника или тип крови не найдены",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/blood-stocks/blood-type/{blood_type_id}": {
-            "get": {
-                "description": "Возвращает все запасы крови для конкретного типа крови",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Получение запасов крови по типу крови",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID типа крови",
-                        "name": "blood_type_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список запасов крови",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.BloodStock"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Тип крови не найден",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/blood-stocks/clinic/{clinic_id}": {
-            "get": {
-                "description": "Возвращает все запасы крови для конкретной клиники",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Получение запасов крови клиники",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID клиники",
-                        "name": "clinic_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список запасов крови клиники",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.BloodStock"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Клиника не найдена",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/blood-stocks/search": {
-            "get": {
-                "description": "Выполняет поиск запасов крови по различным параметрам (клиника, тип животного, тип крови, статус, объем, цена)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Поиск запасов крови с фильтрами",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID клиники",
-                        "name": "clinic_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Тип животного (dog/cat)",
-                        "name": "pet_type",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID типа крови",
-                        "name": "blood_type_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Статус (active/reserved/used/expired)",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Минимальный объем (мл)",
-                        "name": "min_volume",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Максимальный объем (мл)",
-                        "name": "max_volume",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Минимальная цена (руб)",
-                        "name": "min_price",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Максимальная цена (руб)",
-                        "name": "max_price",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список найденных запасов крови",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.BloodStock"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/blood-stocks/{id}": {
-            "get": {
-                "description": "Возвращает информацию о конкретном запасе крови",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Получение запаса крови по ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID запаса крови",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Запас крови",
-                        "schema": {
-                            "$ref": "#/definitions/models.BloodStock"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Запас крови не найден",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Обновляет информацию о запасе крови",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Обновление запаса крови",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID запаса крови",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные для обновления",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.BloodStockUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Запас крови успешно обновлен",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Запас крови не найден",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Удаляет запас крови из системы",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "blood-stocks"
-                ],
-                "summary": "Удаление запаса крови",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID запаса крови",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Запас крови успешно удален",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Запас крови не найден",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/dev/deleted-users": {
             "get": {
                 "description": "Возвращает список всех мягко удаленных пользователей",
@@ -564,13 +148,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -611,13 +195,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -655,19 +239,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Питомец не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -705,19 +289,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Питомец не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -755,19 +339,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -812,19 +396,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -859,19 +443,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Питомец не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -910,25 +494,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Данные успешно обновлены",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Питомец не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -955,25 +539,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Питомец успешно удален",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Питомец не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -986,7 +570,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение компонентов крови животных",
                 "responses": {
@@ -999,7 +584,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1012,7 +597,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение групп крови животных по типу животного",
                 "parameters": [
@@ -1034,13 +620,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный тип животного",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1093,7 +679,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение всех пород животных",
                 "responses": {
@@ -1106,7 +693,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1119,7 +706,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение пород животных по типу",
                 "parameters": [
@@ -1141,13 +729,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный тип животного",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1180,7 +768,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pers"
                 ],
                 "summary": "Получение всех значений пола",
                 "responses": {
@@ -1200,7 +789,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение всех условий проживания",
                 "responses": {
@@ -1233,7 +823,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1246,7 +836,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение всех ролей питомцев",
                 "responses": {
@@ -1266,7 +857,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "pets"
                 ],
                 "summary": "Получение всех типов животных",
                 "responses": {
@@ -1286,7 +878,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference"
+                    "reference",
+                    "users"
                 ],
                 "summary": "Получение всех ролей пользователей",
                 "responses": {
@@ -1334,19 +927,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Пользователь уже существует",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1386,19 +979,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Пользователь уже существует",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1434,19 +1027,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1481,19 +1074,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1532,25 +1125,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Данные успешно обновлены",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1577,270 +1170,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь успешно удален",
                         "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/vet-clinics/location/{location_id}": {
-            "get": {
-                "description": "Возвращает список всех ветеринарных клиник в указанной локации",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vet-clinics"
-                ],
-                "summary": "Получение всех клиник по ID локации",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID локации",
-                        "name": "location_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список клиник",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.VetClinic"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/vet-clinics/register": {
-            "post": {
-                "description": "Регистрирует новую ветеринарную клинику в системе",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vet-clinics"
-                ],
-                "summary": "Регистрация новой ветеринарной клиники",
-                "parameters": [
-                    {
-                        "description": "Данные клиники",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.VetClinicRegistration"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Созданная клиника",
-                        "schema": {
-                            "$ref": "#/definitions/models.VetClinic"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Клиника уже существует",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/vet-clinics/{id}": {
-            "get": {
-                "description": "Возвращает полный профиль ветеринарной клиники",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vet-clinics"
-                ],
-                "summary": "Получение профиля клиники по ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID клиники",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Профиль клиники",
-                        "schema": {
-                            "$ref": "#/definitions/services.VetClinicProfile"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Клиника не найдена",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Обновляет информацию о ветеринарной клинике",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vet-clinics"
-                ],
-                "summary": "Обновление профиля клиники",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID клиники",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Данные для обновления",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.VetClinicUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Данные успешно обновлены",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Клиника не найдена",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Удаляет клинику из системы (soft delete)",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vet-clinics"
-                ],
-                "summary": "Удаление клиники по ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID клиники",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Клиника успешно удалена",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Клиника не найдена",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1856,14 +1204,6 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "boolean"
-                }
-            }
-        },
-        "handlers.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
                 }
             }
         },
@@ -1944,15 +1284,6 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 1,
                     "example": 123456789
-                }
-            }
-        },
-        "handlers.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "message": {
-                    "type": "string"
                 }
             }
         },
@@ -2088,98 +1419,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.BloodSearchPetRequest"
-                    }
-                }
-            }
-        },
-        "models.BloodStock": {
-            "type": "object",
-            "properties": {
-                "bloodTypeId": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "clinicId": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "expirationDate": {
-                    "type": "string",
-                    "example": "2024-12-31"
-                },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "petType": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.PetType"
-                        }
-                    ],
-                    "example": "dog"
-                },
-                "priceRub": {
-                    "type": "number",
-                    "example": 5000
-                },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.BloodStockStatus"
-                        }
-                    ],
-                    "example": "active"
-                },
-                "volumeMl": {
-                    "type": "integer",
-                    "example": 500
-                }
-            }
-        },
-        "models.BloodStockStatus": {
-            "type": "string",
-            "enum": [
-                "active",
-                "reserved",
-                "used",
-                "expired"
-            ],
-            "x-enum-varnames": [
-                "BloodStockStatusActive",
-                "BloodStockStatusReserved",
-                "BloodStockStatusUsed",
-                "BloodStockStatusExpired"
-            ]
-        },
-        "models.DonorRequirements": {
-            "type": "object",
-            "properties": {
-                "bloodTypes": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "healthConditions": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "maxAge": {
-                    "type": "integer"
-                },
-                "minAge": {
-                    "type": "integer"
-                },
-                "minWeight": {
-                    "type": "number"
-                },
-                "vaccinations": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
                     }
                 }
             }
@@ -2427,140 +1666,6 @@ const docTemplate = `{
                 "UserRoleAdmin"
             ]
         },
-        "models.VetClinic": {
-            "type": "object",
-            "properties": {
-                "appointmentRequirementId": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "clinicId": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "contactPersonName": {
-                    "type": "string",
-                    "example": "Мария Петрова"
-                },
-                "contactPersonPosition": {
-                    "type": "string",
-                    "example": "Администратор"
-                },
-                "donorBonusPrograms": {
-                    "type": "string",
-                    "example": "Бонусные программы для доноров"
-                },
-                "donorRequirements": {
-                    "$ref": "#/definitions/models.DonorRequirements"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 55.7558
-                },
-                "locationId": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 37.6173
-                },
-                "name": {
-                    "type": "string",
-                    "example": "ВетКлиника ЗооДоктор"
-                },
-                "phone": {
-                    "type": "string",
-                    "example": "+79991234567"
-                },
-                "transfusionConditions": {
-                    "type": "string",
-                    "example": "Условия для переливания крови"
-                },
-                "website": {
-                    "type": "string",
-                    "example": "https://vetclinic.example.com"
-                },
-                "workHours": {
-                    "type": "string",
-                    "example": "Пн-Пт: 9:00-18:00"
-                }
-            }
-        },
-        "services.BloodStockCreate": {
-            "type": "object",
-            "required": [
-                "bloodTypeId",
-                "petType"
-            ],
-            "properties": {
-                "bloodTypeId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "clinicId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "expirationDate": {
-                    "description": "формат: \"2024-12-31\"",
-                    "type": "string"
-                },
-                "petType": {
-                    "enum": [
-                        "dog",
-                        "cat"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.PetType"
-                        }
-                    ]
-                },
-                "status": {
-                    "enum": [
-                        "active",
-                        "reserved",
-                        "used",
-                        "expired"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.BloodStockStatus"
-                        }
-                    ]
-                },
-                "volumeMl": {
-                    "type": "integer",
-                    "minimum": 1
-                }
-            }
-        },
-        "services.BloodStockUpdate": {
-            "type": "object",
-            "properties": {
-                "expirationDate": {
-                    "type": "string"
-                },
-                "status": {
-                    "enum": [
-                        "active",
-                        "reserved",
-                        "used",
-                        "expired"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.BloodStockStatus"
-                        }
-                    ]
-                },
-                "volumeMl": {
-                    "type": "integer",
-                    "minimum": 1
-                }
-            }
-        },
         "services.PetCreate": {
             "type": "object",
             "required": [
@@ -2785,99 +1890,19 @@ const docTemplate = `{
                 }
             }
         },
-        "services.VetClinicProfile": {
+        "utils.ErrorResponse": {
             "type": "object",
             "properties": {
-                "clinic": {
-                    "$ref": "#/definitions/models.VetClinic"
-                }
-            }
-        },
-        "services.VetClinicRegistration": {
-            "type": "object",
-            "required": [
-                "appointmentRequirementId",
-                "locationId",
-                "name"
-            ],
-            "properties": {
-                "appointmentRequirementId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "contactPersonName": {
-                    "type": "string"
-                },
-                "contactPersonPosition": {
-                    "type": "string"
-                },
-                "donorBonusPrograms": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "locationId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 2
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "transfusionConditions": {
-                    "type": "string"
-                },
-                "website": {
-                    "type": "string"
-                },
-                "workHours": {
+                "error": {
                     "type": "string"
                 }
             }
         },
-        "services.VetClinicUpdate": {
+        "utils.SuccessResponse": {
             "type": "object",
             "properties": {
-                "appointmentRequirementId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "contactPersonName": {
-                    "type": "string"
-                },
-                "contactPersonPosition": {
-                    "type": "string"
-                },
-                "donorBonusPrograms": {
-                    "type": "string"
-                },
-                "locationId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 2
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "transfusionConditions": {
-                    "type": "string"
-                },
-                "website": {
-                    "type": "string"
-                },
-                "workHours": {
+                "data": {},
+                "message": {
                     "type": "string"
                 }
             }
@@ -2887,7 +1912,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.1.0",
+	Version:          "1.2.2",
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

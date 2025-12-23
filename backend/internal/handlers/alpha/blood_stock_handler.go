@@ -30,7 +30,7 @@ package handlers
 // // @Tags blood-stocks
 // // @Produce json
 // // @Success 200 {array} models.BloodStock "Список запасов крови"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 500 {object} utils.utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks [get]
 // func (h *BloodStockHandler) GetAllBloodStocksHandler(c *fiber.Ctx) error {
 // 	logger.Log.Info("получение всех запасов крови")
@@ -50,9 +50,9 @@ package handlers
 // // @Produce json
 // // @Param id path int true "ID запаса крови"
 // // @Success 200 {object} models.BloodStock "Запас крови"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Запас крови не найден"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Запас крови не найден"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks/{id} [get]
 // func (h *BloodStockHandler) GetBloodStockByIDHandler(c *fiber.Ctx) error {
 // 	id, err := ParseIDParam(c, "id")
@@ -77,9 +77,9 @@ package handlers
 // // @Produce json
 // // @Param clinic_id path int true "ID клиники"
 // // @Success 200 {array} models.BloodStock "Список запасов крови клиники"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Клиника не найдена"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Клиника не найдена"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks/clinic/{clinic_id} [get]
 // func (h *BloodStockHandler) GetBloodStocksByClinicIDHandler(c *fiber.Ctx) error {
 // 	clinicID, err := ParseIDParam(c, "clinic_id")
@@ -104,9 +104,9 @@ package handlers
 // // @Produce json
 // // @Param blood_type_id path int true "ID типа крови"
 // // @Success 200 {array} models.BloodStock "Список запасов крови"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Тип крови не найден"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Тип крови не найден"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks/blood-type/{blood_type_id} [get]
 // func (h *BloodStockHandler) GetBloodStocksByBloodTypeIDHandler(c *fiber.Ctx) error {
 // 	bloodTypeID, err := ParseIDParam(c, "blood_type_id")
@@ -139,8 +139,8 @@ package handlers
 // // @Param min_price query number false "Минимальная цена (руб)"
 // // @Param max_price query number false "Максимальная цена (руб)"
 // // @Success 200 {array} models.BloodStock "Список найденных запасов крови"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks/search [get]
 // func (h *BloodStockHandler) SearchBloodStocksHandler(c *fiber.Ctx) error {
 // 	filters := repositories.BloodStockFilters{}
@@ -214,9 +214,9 @@ package handlers
 // // @Produce json
 // // @Param request body services.BloodStockCreate true "Данные запаса крови"
 // // @Success 201 {object} models.BloodStock "Созданный запас крови"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Клиника или тип крови не найдены"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Клиника или тип крови не найдены"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks [post]
 // func (h *BloodStockHandler) CreateBloodStockHandler(c *fiber.Ctx) error {
 // 	var stockData services.BloodStockCreate
@@ -242,10 +242,10 @@ package handlers
 // // @Produce json
 // // @Param id path int true "ID запаса крови"
 // // @Param request body services.BloodStockUpdate true "Данные для обновления"
-// // @Success 200 {object} SuccessResponse "Запас крови успешно обновлен"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Запас крови не найден"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Success 200 {object} utils.SuccessResponse "Запас крови успешно обновлен"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Запас крови не найден"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks/{id} [put]
 // func (h *BloodStockHandler) UpdateBloodStockHandler(c *fiber.Ctx) error {
 // 	id, err := ParseIDParam(c, "id")
@@ -273,10 +273,10 @@ package handlers
 // // @Tags blood-stocks
 // // @Produce json
 // // @Param id path int true "ID запаса крови"
-// // @Success 200 {object} SuccessResponse "Запас крови успешно удален"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Запас крови не найден"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Success 200 {object} utils.SuccessResponse "Запас крови успешно удален"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Запас крови не найден"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /blood-stocks/{id} [delete]
 // func (h *BloodStockHandler) DeleteBloodStockHandler(c *fiber.Ctx) error {
 // 	id, err := ParseIDParam(c, "id")

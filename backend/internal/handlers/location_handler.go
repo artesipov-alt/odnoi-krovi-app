@@ -36,9 +36,9 @@ package handlers
 // // @Produce json
 // // @Param request body LocationCreateRequest true "Данные для создания локации"
 // // @Success 201 {object} models.Location "Созданная локация"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 409 {object} ErrorResponse "Локация с таким названием уже существует"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 409 {object} utils.ErrorResponse "Локация с таким названием уже существует"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /locations [post]
 // func (h *LocationHandler) CreateLocationHandler(c *fiber.Ctx) error {
 // 	var request LocationCreateRequest
@@ -67,9 +67,9 @@ package handlers
 // // @Produce json
 // // @Param id path int true "ID локации"
 // // @Success 200 {object} models.Location "Данные локации"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Локация не найдена"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Локация не найдена"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /locations/{id} [get]
 // func (h *LocationHandler) GetLocationHandler(c *fiber.Ctx) error {
 // 	id, err := ParseIDParam(c, "id")
@@ -93,7 +93,7 @@ package handlers
 // // @Tags locations
 // // @Produce json
 // // @Success 200 {array} models.Location "Список локаций"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /locations [get]
 // func (h *LocationHandler) GetAllLocationsHandler(c *fiber.Ctx) error {
 // 	logger.Log.Info("получение всех локаций")
@@ -114,11 +114,11 @@ package handlers
 // // @Produce json
 // // @Param id path int true "ID локации"
 // // @Param request body LocationUpdateRequest true "Данные для обновления"
-// // @Success 200 {object} SuccessResponse "Данные успешно обновлены"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Локация не найдена"
-// // @Failure 409 {object} ErrorResponse "Локация с таким названием уже существует"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Локация не найдена"
+// // @Failure 409 {object} utils.ErrorResponse "Локация с таким названием уже существует"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /locations/{id} [put]
 // func (h *LocationHandler) UpdateLocationHandler(c *fiber.Ctx) error {
 // 	id, err := ParseIDParam(c, "id")
@@ -150,10 +150,10 @@ package handlers
 // // @Tags locations
 // // @Produce json
 // // @Param id path int true "ID локации"
-// // @Success 200 {object} SuccessResponse "Локация успешно удалена"
-// // @Failure 400 {object} ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} ErrorResponse "Локация не найдена"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Success 200 {object} utils.SuccessResponse "Локация успешно удалена"
+// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
+// // @Failure 404 {object} utils.ErrorResponse "Локация не найдена"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /locations/{id} [delete]
 // func (h *LocationHandler) DeleteLocationHandler(c *fiber.Ctx) error {
 // 	id, err := ParseIDParam(c, "id")
@@ -176,7 +176,7 @@ package handlers
 // // @Tags reference
 // // @Produce json
 // // @Success 200 {object} ReferenceResponseDB "Список локаций в формате справочника"
-// // @Failure 500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // // @Router /reference/locations [get]
 // func (h *LocationHandler) GetLocationsReferenceHandler(c *fiber.Ctx) error {
 // 	logger.Log.Info("получение справочника локаций")
