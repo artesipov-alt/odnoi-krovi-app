@@ -32,7 +32,7 @@ import (
 )
 
 // @title 1krovi.app
-// @version 1.2.0
+// @version 1.2.2
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
 // @BasePath /api/v1
@@ -155,7 +155,7 @@ func main() {
 	petGroup.Put("/:id", petHandler.UpdatePetHandler)                               // Обновление данных питомца
 	petGroup.Delete("/:id", petHandler.DeletePetHandler)                            // Удаление питомца по ID
 	petGroup.Get("upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
-	petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Получение ссылки на загрузку в фотографии питомцев в storage
+	petGroup.Post("upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
 
 	// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
 	petGroup.Post("/blood-request/pool", petHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
@@ -190,16 +190,16 @@ func main() {
 	referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)
 	referenceGroup.Get("/pet-roles", referenceHandler.GetPetRolesHandler)
 	referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)
-	referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler)
 	referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)
 	referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
 	referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)
 	referenceGroup.Get("/blood-components", referenceHandler.GetBloodComponentsHandler)
 	referenceGroup.Get("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)
-	referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler)
-	referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)
-	referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)
+	referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler)
 	referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)
+	// referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler)
+	// referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)
+	// referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)
 
 	// Канал для graceful shutdown
 	quit := make(chan os.Signal, 1)
