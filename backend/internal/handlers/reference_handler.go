@@ -84,7 +84,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 // GetGendersHandler godoc
 // @Summary Получение всех значений пола
 // @Description Возвращает все доступные значения пола для выбора на фронтенде
-// @Tags reference, pers
+// @Tags reference, pets
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список значений пола"
 // @Router /reference/genders [get]
