@@ -4,7 +4,7 @@
         "description": "API сервиса однойкрови.рф для донороcства крови и помощи животным",
         "title": "1krovi.app",
         "contact": {},
-        "version": "1.2.2"
+        "version": "1.2.3"
     },
     "basePath": "/api/v1",
     "paths": {
@@ -762,7 +762,7 @@
                 ],
                 "tags": [
                     "reference",
-                    "pers"
+                    "pets"
                 ],
                 "summary": "Получение всех значений пола",
                 "responses": {

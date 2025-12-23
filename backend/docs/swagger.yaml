@@ -507,7 +507,7 @@ info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
   title: 1krovi.app
-  version: 1.2.2
+  version: 1.2.3
 paths:
   /:
     get:
@@ -1020,7 +1020,7 @@ paths:
       summary: Получение всех значений пола
       tags:
       - reference
-      - pers
+      - pets
   /reference/living-conditions:
     get:
       description: Возвращает все доступные условия проживания для выбора на фронтенде
