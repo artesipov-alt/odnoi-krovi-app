@@ -4,7 +4,7 @@
         "description": "API сервиса однойкрови.рф для донороcства крови и помощи животным",
         "title": "1krovi.app",
         "contact": {},
-        "version": "1.2.4"
+        "version": "1.3.1"
     },
     "basePath": "/api/v1",
     "paths": {
@@ -317,6 +317,36 @@
                         "name": "user_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные о здоровье",
+                        "name": "with_health",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные о ветеринарных обработках",
+                        "name": "with_treatments",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные об анализах",
+                        "name": "with_analysis",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные о бонусах",
+                        "name": "with_bonuses",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить все связанные данные",
+                        "name": "with_all",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -424,6 +454,36 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные о здоровье",
+                        "name": "with_health",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные о ветеринарных обработках",
+                        "name": "with_treatments",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные об анализах",
+                        "name": "with_analysis",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить данные о бонусах",
+                        "name": "with_bonuses",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Включить все связанные данные",
+                        "name": "with_all",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -625,46 +685,6 @@
                 }
             }
         },
-        "/reference/blood-search-statuses": {
-            "get": {
-                "description": "Возвращает все доступные статусы поиска крови для выбора на фронтенде",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reference"
-                ],
-                "summary": "Получение всех статусов поиска крови",
-                "responses": {
-                    "200": {
-                        "description": "Список статусов поиска крови",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ReferenceResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/reference/blood-stock-statuses": {
-            "get": {
-                "description": "Возвращает все доступные статусы запаса крови для выбора на фронтенде",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reference"
-                ],
-                "summary": "Получение всех статусов запаса крови",
-                "responses": {
-                    "200": {
-                        "description": "Список статусов запаса крови",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ReferenceResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/reference/breeds": {
             "get": {
                 "description": "Возвращает список всех пород животных в базе для выбора на фронтенде",
@@ -729,26 +749,6 @@
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/reference/donation-statuses": {
-            "get": {
-                "description": "Возвращает все доступные статусы донорства для выбора на фронтенде",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reference"
-                ],
-                "summary": "Получение всех статусов донорства",
-                "responses": {
-                    "200": {
-                        "description": "Список статусов донорства",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ReferenceResponse"
                         }
                     }
                 }
@@ -1322,6 +1322,37 @@
                 }
             }
         },
+        "models.AnalysisType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-comments": {
+                "AnalysisTypeELISA": "ИФА",
+                "AnalysisTypeExpress": "Экспресс-тест",
+                "AnalysisTypeICA": "ИХА",
+                "AnalysisTypeMicroscopy": "Микроскопия мазка",
+                "AnalysisTypePCR": "ПЦР"
+            },
+            "x-enum-descriptions": [
+                "ПЦР",
+                "ИФА",
+                "ИХА",
+                "Микроскопия мазка",
+                "Экспресс-тест"
+            ],
+            "x-enum-varnames": [
+                "AnalysisTypePCR",
+                "AnalysisTypeELISA",
+                "AnalysisTypeICA",
+                "AnalysisTypeMicroscopy",
+                "AnalysisTypeExpress"
+            ]
+        },
         "models.BloodSearchFilterRequest": {
             "description": "Фильтры для поиска питомцев-реципиентов",
             "type": "object",
@@ -1469,12 +1500,25 @@
                 "GenderFemale"
             ]
         },
+        "models.HealthStatus": {
+            "type": "string",
+            "enum": [
+                "healthy",
+                "ill",
+                "unknown"
+            ],
+            "x-enum-varnames": [
+                "HealthStatusHealthy",
+                "HealthStatusIll",
+                "HealthStatusUnknown"
+            ]
+        },
         "models.LivingCondition": {
             "type": "string",
             "enum": [
                 "indoor",
                 "leash_walking",
-                "outdoor"
+                "self_outdoor"
             ],
             "x-enum-varnames": [
                 "LivingConditionIndoor",
@@ -1493,9 +1537,15 @@
                     "type": "integer",
                     "example": 3
                 },
+                "analysis": {
+                    "$ref": "#/definitions/models.PetAnalysis"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "example": "DEA 1+"
+                },
+                "bonuses": {
+                    "$ref": "#/definitions/models.PetBonus"
                 },
                 "breed": {
                     "type": "string",
@@ -1503,15 +1553,11 @@
                 },
                 "chipNumber": {
                     "type": "string",
-                    "example": "123456789"
+                    "example": "123456789012345"
                 },
-                "dewormingDate": {
+                "createdAt": {
                     "type": "string",
-                    "example": "2023-01-01T12:00:00Z"
-                },
-                "ectoparasiteDate": {
-                    "type": "string",
-                    "example": "2023-01-01T12:00:00Z"
+                    "example": "2023-01-01T00:00:00Z"
                 },
                 "gender": {
                     "description": "==============Дополнительная регистрация для донорства включает в себя=================",
@@ -1522,34 +1568,18 @@
                     ],
                     "example": "male"
                 },
-                "hasChip": {
-                    "type": "boolean",
-                    "example": false
+                "health": {
+                    "description": "--- СВЯЗИ ---\nHas One: У питомца есть одна запись о здоровье.\nforeignKey:ID говорит, что в таблице PetHealth ключом является ID, который ссылается на Pet.ID",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetHealth"
+                        }
+                    ]
                 },
                 "id": {
                     "description": "Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный номер",
                     "type": "string",
                     "example": "PET-25-000001"
-                },
-                "isGuideDog": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "isTherapist": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "knowsBloodGroup": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "lastTransfusionDate": {
-                    "type": "string",
-                    "example": "2023-01-01T12:00:00Z"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": 55.7558
                 },
                 "livingCondition": {
                     "allOf": [
@@ -1557,11 +1587,7 @@
                             "$ref": "#/definitions/models.LivingCondition"
                         }
                     ],
-                    "example": "apartment"
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 37.6173
+                    "example": "indoor"
                 },
                 "name": {
                     "type": "string",
@@ -1584,9 +1610,8 @@
                     "type": "string",
                     "example": "https://example.com/photo.jpg"
                 },
-                "sterilized": {
-                    "type": "boolean",
-                    "example": false
+                "treatments": {
+                    "$ref": "#/definitions/models.PetTreatment"
                 },
                 "type": {
                     "allOf": [
@@ -1596,13 +1621,230 @@
                     ],
                     "example": "dog"
                 },
-                "vaccinationDate": {
+                "updatedAt": {
                     "type": "string",
-                    "example": "2023-01-01T12:00:00Z"
+                    "example": "2023-01-01T00:00:00Z"
                 },
                 "weightKg": {
                     "type": "number",
                     "example": 25.5
+                }
+            }
+        },
+        "models.PetAnalysis": {
+            "type": "object",
+            "properties": {
+                "anaplasmosisDate": {
+                    "description": "Анаплазмоз",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "anaplasmosisType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "PCR"
+                },
+                "babesiosisDate": {
+                    "description": "Бабезиоз",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "babesiosisType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "Microscopy"
+                },
+                "bartonellosisDate": {
+                    "description": "Бартонеллез",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "bartonellosisType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "PCR"
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "dirofilariaDate": {
+                    "description": "Дирофиляриоз",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "dirofilariaType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "PCR"
+                },
+                "ehrlichiosisDate": {
+                    "description": "Эрлихиоз",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "ehrlichiosisType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "Express"
+                },
+                "hemoplasmosisDate": {
+                    "description": "Гемоплазмоз",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "hemoplasmosisType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "PCR"
+                },
+                "id": {
+                    "description": "ID питомца (соответствует ID в структуре Pet)",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "immunodeficiencyDate": {
+                    "description": "Иммунодефицит (FIV)",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "immunodeficiencyType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "ELISA"
+                },
+                "leukemiaDate": {
+                    "description": "Лейкоз (FeLV)",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "leukemiaType": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AnalysisType"
+                        }
+                    ],
+                    "example": "PCR"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                }
+            }
+        },
+        "models.PetBonus": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "id": {
+                    "description": "ID питомца (соответствует ID в структуре Pet)",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "isArtist": {
+                    "description": "Является ли животное артистом",
+                    "type": "boolean",
+                    "example": false
+                },
+                "isFormerDonor": {
+                    "description": "Является ли животное бывшим донором",
+                    "type": "boolean",
+                    "example": true
+                },
+                "isGuideDog": {
+                    "description": "Является ли животное собакой-проводником",
+                    "type": "boolean",
+                    "example": false
+                },
+                "isTherapist": {
+                    "description": "Является ли животное терапесты",
+                    "type": "boolean",
+                    "example": false
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                }
+            }
+        },
+        "models.PetHealth": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Дополнительные данные базы",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "healthStatus": {
+                    "description": "Текущее состояние здоровья",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.HealthStatus"
+                        }
+                    ],
+                    "example": "healthy"
+                },
+                "id": {
+                    "description": "ID питомца (соответствует ID в структуре Pet)",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "lastDonation": {
+                    "description": "Дата последней донации",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "medications": {
+                    "description": "Принимаемые лекарственные препараты",
+                    "type": "string",
+                    "example": "antibiotics"
+                },
+                "reproductiveStatus": {
+                    "description": "Репродуктивный статус (беременность, лактация и т.д.)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ReproductiveStatus"
+                        }
+                    ],
+                    "example": "pregnancy"
+                },
+                "surgicalInterventions": {
+                    "description": "Хирургические вмешательства перечисление",
+                    "type": "string",
+                    "example": "spaying"
+                },
+                "transfused": {
+                    "description": "Было ли раннее переливание крови?",
+                    "type": "boolean",
+                    "example": true
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
@@ -1617,6 +1859,45 @@
                 "PetRoleRecipient"
             ]
         },
+        "models.PetTreatment": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Дополнительные данные базы",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "dewormingDate": {
+                    "description": "Дата последней дегельминтизации (обработка от глистов)",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "ectoparasiteTreatmentDate": {
+                    "description": "Дата последней обработки от эктопаразитов (блохи, клещи)",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "id": {
+                    "description": "ID питомца (соответствует ID в структуре Pet)",
+                    "type": "string",
+                    "example": "PET-25-000001"
+                },
+                "infectionVaccinationDate": {
+                    "description": "Дата последней вакцинации от инфекций",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "rabiesVaccinationDate": {
+                    "description": "Дата последней вакцинации от бешенства",
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
+                }
+            }
+        },
         "models.PetType": {
             "type": "string",
             "enum": [
@@ -1626,6 +1907,21 @@
             "x-enum-varnames": [
                 "PetTypeDog",
                 "PetTypeCat"
+            ]
+        },
+        "models.ReproductiveStatus": {
+            "type": "string",
+            "enum": [
+                "pregnancy",
+                "lactation",
+                "estrus",
+                "none"
+            ],
+            "x-enum-varnames": [
+                "ReproductiveStatusPregnancy",
+                "ReproductiveStatusLactation",
+                "ReproductiveStatusEstrus",
+                "ReproductiveStatusNone"
             ]
         },
         "models.User": {
@@ -1714,41 +2010,36 @@
                     "type": "integer",
                     "minimum": 0
                 },
+                "analysis": {
+                    "$ref": "#/definitions/models.PetAnalysis"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "maxLength": 50
+                },
+                "bonuses": {
+                    "$ref": "#/definitions/models.PetBonus"
                 },
                 "breed": {
                     "type": "string",
                     "maxLength": 100
                 },
                 "chipNumber": {
-                    "type": "string",
-                    "maxLength": 50
+                    "type": "string"
                 },
                 "gender": {
                     "$ref": "#/definitions/models.Gender"
                 },
-                "hasChip": {
-                    "type": "boolean"
-                },
-                "isGuideDog": {
-                    "type": "boolean"
-                },
-                "isTherapist": {
-                    "type": "boolean"
-                },
-                "knowsBloodGroup": {
-                    "type": "boolean"
-                },
-                "latitude": {
-                    "type": "number"
+                "health": {
+                    "description": "Вложенные структуры",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetHealth"
+                        }
+                    ]
                 },
                 "livingCondition": {
                     "$ref": "#/definitions/models.LivingCondition"
-                },
-                "longitude": {
-                    "type": "number"
                 },
                 "name": {
                     "type": "string",
@@ -1767,8 +2058,8 @@
                     "type": "string",
                     "maxLength": 255
                 },
-                "sterilized": {
-                    "type": "boolean"
+                "treatments": {
+                    "$ref": "#/definitions/models.PetTreatment"
                 },
                 "type": {
                     "$ref": "#/definitions/models.PetType"
@@ -1791,41 +2082,36 @@
                     "type": "integer",
                     "minimum": 0
                 },
+                "analysis": {
+                    "$ref": "#/definitions/models.PetAnalysis"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "maxLength": 50
+                },
+                "bonuses": {
+                    "$ref": "#/definitions/models.PetBonus"
                 },
                 "breed": {
                     "type": "string",
                     "maxLength": 100
                 },
                 "chipNumber": {
-                    "type": "string",
-                    "maxLength": 50
+                    "type": "string"
                 },
                 "gender": {
                     "$ref": "#/definitions/models.Gender"
                 },
-                "hasChip": {
-                    "type": "boolean"
-                },
-                "isGuideDog": {
-                    "type": "boolean"
-                },
-                "isTherapist": {
-                    "type": "boolean"
-                },
-                "knowsBloodGroup": {
-                    "type": "boolean"
-                },
-                "latitude": {
-                    "type": "number"
+                "health": {
+                    "description": "Вложенные структуры",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PetHealth"
+                        }
+                    ]
                 },
                 "livingCondition": {
                     "$ref": "#/definitions/models.LivingCondition"
-                },
-                "longitude": {
-                    "type": "number"
                 },
                 "name": {
                     "type": "string",
@@ -1844,8 +2130,8 @@
                     "type": "string",
                     "maxLength": 255
                 },
-                "sterilized": {
-                    "type": "boolean"
+                "treatments": {
+                    "$ref": "#/definitions/models.PetTreatment"
                 },
                 "type": {
                     "$ref": "#/definitions/models.PetType"

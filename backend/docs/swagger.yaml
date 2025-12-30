@@ -60,6 +60,32 @@ definitions:
     required:
     - telegramId
     type: object
+  models.AnalysisType:
+    enum:
+    - PCR
+    - ELISA
+    - ICA
+    - Microscopy
+    - Express
+    type: string
+    x-enum-comments:
+      AnalysisTypeELISA: ИФА
+      AnalysisTypeExpress: Экспресс-тест
+      AnalysisTypeICA: ИХА
+      AnalysisTypeMicroscopy: Микроскопия мазка
+      AnalysisTypePCR: ПЦР
+    x-enum-descriptions:
+    - ПЦР
+    - ИФА
+    - ИХА
+    - Микроскопия мазка
+    - Экспресс-тест
+    x-enum-varnames:
+    - AnalysisTypePCR
+    - AnalysisTypeELISA
+    - AnalysisTypeICA
+    - AnalysisTypeMicroscopy
+    - AnalysisTypeExpress
   models.BloodSearchFilterRequest:
     description: Фильтры для поиска питомцев-реципиентов
     properties:
@@ -170,11 +196,21 @@ definitions:
     x-enum-varnames:
     - GenderMale
     - GenderFemale
+  models.HealthStatus:
+    enum:
+    - healthy
+    - ill
+    - unknown
+    type: string
+    x-enum-varnames:
+    - HealthStatusHealthy
+    - HealthStatusIll
+    - HealthStatusUnknown
   models.LivingCondition:
     enum:
     - indoor
     - leash_walking
-    - outdoor
+    - self_outdoor
     type: string
     x-enum-varnames:
     - LivingConditionIndoor
@@ -188,20 +224,21 @@ definitions:
       ageYears:
         example: 3
         type: integer
+      analysis:
+        $ref: '#/definitions/models.PetAnalysis'
       bloodGroup:
         example: DEA 1+
         type: string
+      bonuses:
+        $ref: '#/definitions/models.PetBonus'
       breed:
         example: Лабрадор
         type: string
       chipNumber:
-        example: "123456789"
+        example: "123456789012345"
         type: string
-      dewormingDate:
-        example: "2023-01-01T12:00:00Z"
-        type: string
-      ectoparasiteDate:
-        example: "2023-01-01T12:00:00Z"
+      createdAt:
+        example: "2023-01-01T00:00:00Z"
         type: string
       gender:
         allOf:
@@ -209,36 +246,22 @@ definitions:
         description: ==============Дополнительная регистрация для донорства включает
           в себя=================
         example: male
-      hasChip:
-        example: false
-        type: boolean
+      health:
+        allOf:
+        - $ref: '#/definitions/models.PetHealth'
+        description: |-
+          --- СВЯЗИ ---
+          Has One: У питомца есть одна запись о здоровье.
+          foreignKey:ID говорит, что в таблице PetHealth ключом является ID, который ссылается на Pet.ID
       id:
         description: Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный
           номер
         example: PET-25-000001
         type: string
-      isGuideDog:
-        example: false
-        type: boolean
-      isTherapist:
-        example: false
-        type: boolean
-      knowsBloodGroup:
-        example: false
-        type: boolean
-      lastTransfusionDate:
-        example: "2023-01-01T12:00:00Z"
-        type: string
-      latitude:
-        example: 55.7558
-        type: number
       livingCondition:
         allOf:
         - $ref: '#/definitions/models.LivingCondition'
-        example: apartment
-      longitude:
-        example: 37.6173
-        type: number
+        example: indoor
       name:
         example: Бобик
         type: string
@@ -254,19 +277,164 @@ definitions:
       photoUrl:
         example: https://example.com/photo.jpg
         type: string
-      sterilized:
-        example: false
-        type: boolean
+      treatments:
+        $ref: '#/definitions/models.PetTreatment'
       type:
         allOf:
         - $ref: '#/definitions/models.PetType'
         example: dog
-      vaccinationDate:
-        example: "2023-01-01T12:00:00Z"
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
         type: string
       weightKg:
         example: 25.5
         type: number
+    type: object
+  models.PetAnalysis:
+    properties:
+      anaplasmosisDate:
+        description: Анаплазмоз
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      anaplasmosisType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: PCR
+      babesiosisDate:
+        description: Бабезиоз
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      babesiosisType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: Microscopy
+      bartonellosisDate:
+        description: Бартонеллез
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      bartonellosisType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: PCR
+      createdAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      dirofilariaDate:
+        description: Дирофиляриоз
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      dirofilariaType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: PCR
+      ehrlichiosisDate:
+        description: Эрлихиоз
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      ehrlichiosisType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: Express
+      hemoplasmosisDate:
+        description: Гемоплазмоз
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      hemoplasmosisType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: PCR
+      id:
+        description: ID питомца (соответствует ID в структуре Pet)
+        example: PET-25-000001
+        type: string
+      immunodeficiencyDate:
+        description: Иммунодефицит (FIV)
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      immunodeficiencyType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: ELISA
+      leukemiaDate:
+        description: Лейкоз (FeLV)
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      leukemiaType:
+        allOf:
+        - $ref: '#/definitions/models.AnalysisType'
+        example: PCR
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.PetBonus:
+    properties:
+      createdAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      id:
+        description: ID питомца (соответствует ID в структуре Pet)
+        example: PET-25-000001
+        type: string
+      isArtist:
+        description: Является ли животное артистом
+        example: false
+        type: boolean
+      isFormerDonor:
+        description: Является ли животное бывшим донором
+        example: true
+        type: boolean
+      isGuideDog:
+        description: Является ли животное собакой-проводником
+        example: false
+        type: boolean
+      isTherapist:
+        description: Является ли животное терапесты
+        example: false
+        type: boolean
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.PetHealth:
+    properties:
+      createdAt:
+        description: Дополнительные данные базы
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      healthStatus:
+        allOf:
+        - $ref: '#/definitions/models.HealthStatus'
+        description: Текущее состояние здоровья
+        example: healthy
+      id:
+        description: ID питомца (соответствует ID в структуре Pet)
+        example: PET-25-000001
+        type: string
+      lastDonation:
+        description: Дата последней донации
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      medications:
+        description: Принимаемые лекарственные препараты
+        example: antibiotics
+        type: string
+      reproductiveStatus:
+        allOf:
+        - $ref: '#/definitions/models.ReproductiveStatus'
+        description: Репродуктивный статус (беременность, лактация и т.д.)
+        example: pregnancy
+      surgicalInterventions:
+        description: Хирургические вмешательства перечисление
+        example: spaying
+        type: string
+      transfused:
+        description: Было ли раннее переливание крови?
+        example: true
+        type: boolean
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
     type: object
   models.PetRole:
     enum:
@@ -276,6 +444,36 @@ definitions:
     x-enum-varnames:
     - PetRoleDonor
     - PetRoleRecipient
+  models.PetTreatment:
+    properties:
+      createdAt:
+        description: Дополнительные данные базы
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      dewormingDate:
+        description: Дата последней дегельминтизации (обработка от глистов)
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      ectoparasiteTreatmentDate:
+        description: Дата последней обработки от эктопаразитов (блохи, клещи)
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      id:
+        description: ID питомца (соответствует ID в структуре Pet)
+        example: PET-25-000001
+        type: string
+      infectionVaccinationDate:
+        description: Дата последней вакцинации от инфекций
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      rabiesVaccinationDate:
+        description: Дата последней вакцинации от бешенства
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      updatedAt:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
   models.PetType:
     enum:
     - dog
@@ -284,6 +482,18 @@ definitions:
     x-enum-varnames:
     - PetTypeDog
     - PetTypeCat
+  models.ReproductiveStatus:
+    enum:
+    - pregnancy
+    - lactation
+    - estrus
+    - none
+    type: string
+    x-enum-varnames:
+    - ReproductiveStatusPregnancy
+    - ReproductiveStatusLactation
+    - ReproductiveStatusEstrus
+    - ReproductiveStatusNone
   models.User:
     properties:
       allowGeo:
@@ -345,31 +555,26 @@ definitions:
       ageYears:
         minimum: 0
         type: integer
+      analysis:
+        $ref: '#/definitions/models.PetAnalysis'
       bloodGroup:
         maxLength: 50
         type: string
+      bonuses:
+        $ref: '#/definitions/models.PetBonus'
       breed:
         maxLength: 100
         type: string
       chipNumber:
-        maxLength: 50
         type: string
       gender:
         $ref: '#/definitions/models.Gender'
-      hasChip:
-        type: boolean
-      isGuideDog:
-        type: boolean
-      isTherapist:
-        type: boolean
-      knowsBloodGroup:
-        type: boolean
-      latitude:
-        type: number
+      health:
+        allOf:
+        - $ref: '#/definitions/models.PetHealth'
+        description: Вложенные структуры
       livingCondition:
         $ref: '#/definitions/models.LivingCondition'
-      longitude:
-        type: number
       name:
         maxLength: 100
         minLength: 1
@@ -381,8 +586,8 @@ definitions:
       photoUrl:
         maxLength: 255
         type: string
-      sterilized:
-        type: boolean
+      treatments:
+        $ref: '#/definitions/models.PetTreatment'
       type:
         $ref: '#/definitions/models.PetType'
       weightKg:
@@ -400,31 +605,26 @@ definitions:
       ageYears:
         minimum: 0
         type: integer
+      analysis:
+        $ref: '#/definitions/models.PetAnalysis'
       bloodGroup:
         maxLength: 50
         type: string
+      bonuses:
+        $ref: '#/definitions/models.PetBonus'
       breed:
         maxLength: 100
         type: string
       chipNumber:
-        maxLength: 50
         type: string
       gender:
         $ref: '#/definitions/models.Gender'
-      hasChip:
-        type: boolean
-      isGuideDog:
-        type: boolean
-      isTherapist:
-        type: boolean
-      knowsBloodGroup:
-        type: boolean
-      latitude:
-        type: number
+      health:
+        allOf:
+        - $ref: '#/definitions/models.PetHealth'
+        description: Вложенные структуры
       livingCondition:
         $ref: '#/definitions/models.LivingCondition'
-      longitude:
-        type: number
       name:
         maxLength: 100
         minLength: 1
@@ -436,8 +636,8 @@ definitions:
       photoUrl:
         maxLength: 255
         type: string
-      sterilized:
-        type: boolean
+      treatments:
+        $ref: '#/definitions/models.PetTreatment'
       type:
         $ref: '#/definitions/models.PetType'
       weightKg:
@@ -505,7 +705,7 @@ info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
   title: 1krovi.app
-  version: 1.2.4
+  version: 1.3.1
 paths:
   /:
     get:
@@ -612,6 +812,26 @@ paths:
         name: id
         required: true
         type: string
+      - description: Включить данные о здоровье
+        in: query
+        name: with_health
+        type: boolean
+      - description: Включить данные о ветеринарных обработках
+        in: query
+        name: with_treatments
+        type: boolean
+      - description: Включить данные об анализах
+        in: query
+        name: with_analysis
+        type: boolean
+      - description: Включить данные о бонусах
+        in: query
+        name: with_bonuses
+        type: boolean
+      - description: Включить все связанные данные
+        in: query
+        name: with_all
+        type: boolean
       produces:
       - application/json
       responses:
@@ -811,6 +1031,26 @@ paths:
         name: user_id
         required: true
         type: string
+      - description: Включить данные о здоровье
+        in: query
+        name: with_health
+        type: boolean
+      - description: Включить данные о ветеринарных обработках
+        in: query
+        name: with_treatments
+        type: boolean
+      - description: Включить данные об анализах
+        in: query
+        name: with_analysis
+        type: boolean
+      - description: Включить данные о бонусах
+        in: query
+        name: with_bonuses
+        type: boolean
+      - description: Включить все связанные данные
+        in: query
+        name: with_all
+        type: boolean
       produces:
       - application/json
       responses:
@@ -919,32 +1159,6 @@ paths:
       tags:
       - reference
       - pets
-  /reference/blood-search-statuses:
-    get:
-      description: Возвращает все доступные статусы поиска крови для выбора на фронтенде
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список статусов поиска крови
-          schema:
-            $ref: '#/definitions/handlers.ReferenceResponse'
-      summary: Получение всех статусов поиска крови
-      tags:
-      - reference
-  /reference/blood-stock-statuses:
-    get:
-      description: Возвращает все доступные статусы запаса крови для выбора на фронтенде
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список статусов запаса крови
-          schema:
-            $ref: '#/definitions/handlers.ReferenceResponse'
-      summary: Получение всех статусов запаса крови
-      tags:
-      - reference
   /reference/breeds:
     get:
       description: Возвращает список всех пород животных в базе для выбора на фронтенде
@@ -992,19 +1206,6 @@ paths:
       tags:
       - reference
       - pets
-  /reference/donation-statuses:
-    get:
-      description: Возвращает все доступные статусы донорства для выбора на фронтенде
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список статусов донорства
-          schema:
-            $ref: '#/definitions/handlers.ReferenceResponse'
-      summary: Получение всех статусов донорства
-      tags:
-      - reference
   /reference/genders:
     get:
       description: Возвращает все доступные значения пола для выбора на фронтенде
