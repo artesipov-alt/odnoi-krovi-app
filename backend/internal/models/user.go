@@ -15,17 +15,6 @@ const (
 	UserIDPrefix UserPrefix = "USR"
 )
 
-// Generate создает префикс для сущности пользователя
-func (e UserPrefix) Generate(sequenceNum int) string {
-	year := time.Now().Year() % 100
-	return fmt.Sprintf("%s-%02d-%04d", e, year, sequenceNum)
-}
-
-// IsValid проверяет валидность префикса пользователя
-func (e UserPrefix) IsValid() bool {
-	return e == UserIDPrefix
-}
-
 // Представление пользователя в системе
 type User struct {
 	//Сигнатура ID пользователя включает в себя префикс пользователя, год и четырёхзначный номер
@@ -52,6 +41,17 @@ const (
 	UserRoleClinic UserRole = "clinic"
 	UserRoleAdmin  UserRole = "admin"
 )
+
+// Generate создает префикс для сущности пользователя
+func (e UserPrefix) Generate(sequenceNum int) string {
+	year := time.Now().Year() % 100
+	return fmt.Sprintf("%s-%02d-%04d", e, year, sequenceNum)
+}
+
+// IsValid проверяет валидность префикса пользователя
+func (e UserPrefix) IsValid() bool {
+	return e == UserIDPrefix
+}
 
 // BeforeCreate хук для генерации ID
 func (v *User) BeforeCreate(tx *gorm.DB) error {

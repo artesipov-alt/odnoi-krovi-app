@@ -33,6 +33,7 @@ type Pet struct {
 	Health     PetHealth    `gorm:"foreignKey:ID" json:"health"`
 	Treatments PetTreatment `gorm:"foreignKey:ID" json:"treatments"`
 	Analysis   PetAnalysis  `gorm:"foreignKey:ID" json:"analysis"`
+	Bonuses    PetBonus     `gorm:"foreignKey:ID" json:"bonuses"`
 
 	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
 	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
@@ -113,6 +114,25 @@ type PetAnalysis struct {
 	// Анаплазмоз
 	AnaplasmosisDate string       `json:"anaplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	AnaplasmosisType AnalysisType `json:"anaplasmosisType,omitempty" example:"PCR"`
+
+	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
+}
+
+// Информация о бонусах и социальных метках питомца для приоритетного поиска
+type PetBonus struct {
+	// ID питомца (соответствует ID в структуре Pet)
+	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
+
+	// Является ли животное артистом
+	IsArtist bool `json:"isArtist" example:"false"`
+	// Является ли животное терапевтом
+	IsTherapist bool `json:"isTherapist" example:"false"`
+	// Является ли животное бывшим донором
+	IsFormerDonor bool `json:"isFormerDonor" example:"true"`
+	// Является ли животное собакой-проводником
+	IsGuideDog bool `json:"isGuideDog" example:"false"`
 
 	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
 	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
