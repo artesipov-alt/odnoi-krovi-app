@@ -53,3 +53,17 @@ type BloodSearchPetsResponse struct {
 	// Список питомцев
 	Pets []BloodSearchPetRequest `json:"pets"`
 }
+
+// BloodComponent представляет компонент крови в системе
+type BloodComponent struct {
+	ID   int    `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
+	Name string `gorm:"type:varchar(255);not null" json:"name" example:"Плазма"`
+}
+
+// BloodGroup представляет группу крови животного в системе
+type BloodGroup struct {
+	ID          int    `gorm:"primaryKey;autoIncrement" json:"id" example:"1"`
+	PetType     string `gorm:"type:varchar(50);not null" json:"PetType" example:"dog"`
+	BloodGroup  string `gorm:"type:varchar(50);not null" json:"bloodGroup" example:"DEA 1+"`
+	Description string `gorm:"type:text" json:"description,omitempty" example:"Универсальный донор для собак"`
+}
