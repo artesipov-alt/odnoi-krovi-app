@@ -28,11 +28,10 @@ import (
 	"github.com/gofiber/swagger"                  // Swagger UI
 	"github.com/joho/godotenv"                    // Загрузка .env файлов
 	"go.uber.org/zap"                             // Структурированное логирование
-	// ORM для работы с БД
 )
 
 // @title 1krovi.app
-// @version 1.2.5
+// @version 1.3.0
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
 // @BasePath /api/v1
@@ -71,8 +70,6 @@ func main() {
 	breedRepo := pgrepositories.NewPostgresBreedRepository(db)
 	bloodRepo := pgrepositories.NewPostgresBloodRepository(db)
 	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
-	// vetClinicRepo := pgrepositories.NewVetClinicRepository(db)
-	// bloodStockRepo := pgrepositories.NewPostgresBloodStockRepository(db)
 
 	// Создаем репозиторий в зависимости от наличия кэша
 	var bloodRepoInit repositories.BloodInfoRepository
@@ -89,8 +86,6 @@ func main() {
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo)
 	petService := services.NewPetService(petRepo, userRepo, s3VKCloud)
-	// vetClinicService := services.NewVetClinicService(vetClinicRepo)
-	// bloodStockService := services.NewBloodStockService(bloodStockRepo, bloodRepoInit, vetClinicRepo)
 
 	// Инициализация клиента blood search микросервиса
 	bloodSearchClient := *services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
@@ -100,8 +95,6 @@ func main() {
 	petHandler := handlers.NewPetHandler(petService, bloodSearchClient)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
-	// vetClinicHandler := handlers.NewVetClinicHandler(vetClinicService)
-	// bloodStockHandler := handlers.NewBloodStockHandler(bloodStockService)
 
 	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
 	app := fiber.New(fiber.Config{
@@ -161,29 +154,6 @@ func main() {
 	petGroup.Post("/blood-request/pool", petHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
 	petGroup.Post("/blood-request/pool/search", petHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
 
-	// Группа маршрутов для работы с ветеринарными клиниками
-	// vetClinicGroup := v1.Group("/vet-clinics")
-	// {
-	// 	vetClinicGroup.Post("/register", vetClinicHandler.RegisterClinicHandler)                     // Регистрация новой клиники
-	// 	vetClinicGroup.Get("/location/:location_id", vetClinicHandler.GetClinicsByLocationIDHandler) // Получение клиник по ID локации
-	// 	vetClinicGroup.Get("/:id", vetClinicHandler.GetClinicProfileHandler)                         // Получение профиля клиники по ID
-	// 	vetClinicGroup.Put("/:id", vetClinicHandler.UpdateClinicProfileHandler)                      // Обновление профиля клиники
-	// 	vetClinicGroup.Delete("/:id", vetClinicHandler.DeleteClinicHandler)                          // Удаление клиники
-	// }
-
-	// Группа маршрутов для работы с запасами крови
-	// bloodStockGroup := v1.Group("/blood-stocks")
-	// {
-	// 	bloodStockGroup.Get("/", bloodStockHandler.GetAllBloodStocksHandler)                                    // Получение всех запасов крови
-	// 	bloodStockGroup.Get("/search", bloodStockHandler.SearchBloodStocksHandler)                              // Поиск запасов крови с фильтрами
-	// 	bloodStockGroup.Get("/:id", bloodStockHandler.GetBloodStockByIDHandler)                                 // Получение запаса крови по ID
-	// 	bloodStockGroup.Get("/clinic/:clinic_id", bloodStockHandler.GetBloodStocksByClinicIDHandler)            // Получение запасов крови клиники
-	// 	bloodStockGroup.Get("/blood-type/:blood_type_id", bloodStockHandler.GetBloodStocksByBloodTypeIDHandler) // Получение запасов крови по типу крови
-	// 	bloodStockGroup.Post("/", bloodStockHandler.CreateBloodStockHandler)                                    // Создание нового запаса крови
-	// 	bloodStockGroup.Put("/:id", bloodStockHandler.UpdateBloodStockHandler)                                  // Обновление запаса крови
-	// 	bloodStockGroup.Delete("/:id", bloodStockHandler.DeleteBloodStockHandler)                               // Удаление запаса крови
-	// }
-
 	// Группа маршрутов для справочных данных
 	referenceGroup := v1.Group("/reference")
 
@@ -199,9 +169,6 @@ func main() {
 	referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)
 	referenceGroup.Get("/health-statuses", referenceHandler.GetHealthStatusesHandler)
 	referenceGroup.Get("/reproductive-statuses", referenceHandler.GetReproductiveStatusesHandler)
-	// referenceGroup.Get("/blood-search-statuses", referenceHandler.GetBloodSearchStatusesHandler)
-	// referenceGroup.Get("/blood-stock-statuses", referenceHandler.GetBloodStockStatusesHandler)
-	// referenceGroup.Get("/donation-statuses", referenceHandler.GetDonationStatusesHandler)
 
 	// Канал для graceful shutdown
 	quit := make(chan os.Signal, 1)
