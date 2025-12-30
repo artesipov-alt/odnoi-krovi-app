@@ -1,5 +1,4 @@
-// internal/storage/storage.go
-package storage
+package repositories
 
 import (
 	"context"

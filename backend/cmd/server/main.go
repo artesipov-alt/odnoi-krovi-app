@@ -11,7 +11,7 @@ import (
 	cache "github.com/artesipov-alt/odnoi-krovi-app/internal/cache/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"   // Обработчики HTTP запросов
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware" // Промежуточное ПО
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/storage/s3"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 
 	// Репозитории для работы с БД
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
