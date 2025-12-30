@@ -22,6 +22,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.93.2
 	github.com/aws/smithy-go v1.24.0
+	github.com/mitchellh/mapstructure v1.5.0
 )
 
 replace github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice => ../microservices/blood-microservice

@@ -6,6 +6,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/gofiber/fiber/v2"
+	"github.com/mitchellh/mapstructure"
 	"go.uber.org/zap"
 
 	bloodrequestv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodrequest/v1"
@@ -225,17 +226,9 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 	}
 
 	// Конвертируем DTO в protobuf структуру
-	pet := &bloodrequestv1.BloodRequest{
-		PetId:                  petReq.PetID,
-		PetType:                petReq.PetType,
-		BloodGroup:             petReq.BloodGroup,
-		BloodComponents:        petReq.BloodComponents,
-		BloodVolumeNeeded:      petReq.BloodVolumeNeeded,
-		BloodVolumeReserved:    petReq.BloodVolumeReserved,
-		Regions:                petReq.Regions,
-		SmallPetsNotifyAllowed: petReq.SmallPetsNotifyAllowed,
-		Status:                 petReq.Status,
-		Description:            petReq.Description,
+	pet := &bloodrequestv1.BloodRequest{}
+	if err := mapstructure.Decode(petReq, pet); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации данных")
 	}
 
 	logger.Log.Info(
@@ -252,9 +245,9 @@ func (h *PetHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 	}
 
 	// Конвертируем protobuf ответ в DTO
-	statusResp := models.BloodSearchPetResponse{
-		PetID:  status.PetId,
-		Status: status.Status,
+	var statusResp models.BloodSearchPetResponse
+	if err := mapstructure.Decode(status, &statusResp); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации ответа")
 	}
 
 	return utils.SendCreated(c, statusResp)
@@ -278,11 +271,9 @@ func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	}
 
 	// Конвертируем DTO в protobuf структуру
-	filter := &bloodrequestv1.GetBloodRequests{
-		PetId:      filterReq.PetID,
-		PetType:    filterReq.PetType,
-		BloodGroup: filterReq.BloodGroup,
-		Regions:    filterReq.Regions,
+	filter := &bloodrequestv1.GetBloodRequests{}
+	if err := mapstructure.Decode(filterReq, filter); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации фильтров")
 	}
 
 	logger.Log.Info(
@@ -302,18 +293,11 @@ func (h *PetHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	// Конвертируем protobuf ответ в DTO
 	var petsResp models.BloodSearchPetsResponse
 	for _, pet := range pets.Pets {
-		petsResp.Pets = append(petsResp.Pets, models.BloodSearchPetRequest{
-			PetID:                  pet.PetId,
-			PetType:                pet.PetType,
-			BloodGroup:             pet.BloodGroup,
-			BloodComponents:        pet.BloodComponents,
-			BloodVolumeNeeded:      pet.BloodVolumeNeeded,
-			BloodVolumeReserved:    pet.BloodVolumeReserved,
-			Regions:                pet.Regions,
-			SmallPetsNotifyAllowed: pet.SmallPetsNotifyAllowed,
-			Status:                 pet.Status,
-			Description:            pet.Description,
-		})
+		var dtoPet models.BloodSearchPetRequest
+		if err := mapstructure.Decode(pet, &dtoPet); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации данных питомца")
+		}
+		petsResp.Pets = append(petsResp.Pets, dtoPet)
 	}
 
 	return utils.SendJSON(c, petsResp)
