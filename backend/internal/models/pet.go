@@ -30,9 +30,9 @@ type Pet struct {
 	// --- СВЯЗИ ---
 	// Has One: У питомца есть одна запись о здоровье.
 	// foreignKey:ID говорит, что в таблице PetHealth ключом является ID, который ссылается на Pet.ID
-	Health     PetHealth     `gorm:"foreignKey:ID" json:"health"`
-	Treatments PetTreatments `gorm:"foreignKey:ID" json:"treatments"`
-	Analysis   PetAnalysis   `gorm:"foreignKey:ID" json:"analysis"`
+	Health     PetHealth    `gorm:"foreignKey:ID" json:"health"`
+	Treatments PetTreatment `gorm:"foreignKey:ID" json:"treatments"`
+	Analysis   PetAnalysis  `gorm:"foreignKey:ID" json:"analysis"`
 
 	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
 	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
@@ -61,7 +61,7 @@ type PetHealth struct {
 }
 
 // Информация о ветеринарных обработках питомца
-type PetTreatments struct {
+type PetTreatment struct {
 	// ID питомца (соответствует ID в структуре Pet)
 	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
 	// Дата последней вакцинации от бешенства
