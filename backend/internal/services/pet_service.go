@@ -9,7 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -19,11 +19,11 @@ type PetService interface {
 	// CreatePet создает нового питомца для пользователя
 	CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error)
 
-	// GetPetByID получает питомца по ID
-	GetPetByID(ctx context.Context, petID string) (*models.Pet, error)
+	// GetPetByID получает питомца по ID с возможностью предзагрузки связей
+	GetPetByID(ctx context.Context, petID string, preloads ...string) (*models.Pet, error)
 
-	// GetUserPets получает всех питомцев пользователя
-	GetUserPets(ctx context.Context, userID string) ([]*models.Pet, error)
+	// GetUserPets получает всех питомцев пользователя с возможностью предзагрузки связей
+	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*models.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
 	UpdatePet(ctx context.Context, petID string, updates PetUpdate) error
@@ -52,6 +52,12 @@ type PetCreate struct {
 	Type            models.PetType         `json:"type,omitempty"`
 	BloodGroup      string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
 	PetStatus       models.PetRole         `json:"petStatus,omitempty" validate:"omitempty,max=50"`
+
+	// Вложенные структуры
+	Health     *models.PetHealth    `json:"health,omitempty"`
+	Treatments *models.PetTreatment `json:"treatments,omitempty"`
+	Analysis   *models.PetAnalysis  `json:"analysis,omitempty"`
+	Bonuses    *models.PetBonus     `json:"bonuses,omitempty"`
 }
 
 // PetUpdate содержит поля, которые можно обновить для питомца
@@ -68,6 +74,12 @@ type PetUpdate struct {
 	Type            *models.PetType         `json:"type,omitempty"`
 	BloodGroup      *string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
 	PetStatus       *models.PetRole         `json:"petStatus,omitempty" validate:"omitempty,max=50"`
+
+	// Вложенные структуры
+	Health     *models.PetHealth    `json:"health,omitempty"`
+	Treatments *models.PetTreatment `json:"treatments,omitempty"`
+	Analysis   *models.PetAnalysis  `json:"analysis,omitempty"`
+	Bonuses    *models.PetBonus     `json:"bonuses,omitempty"`
 }
 
 // PetServiceImpl реализует PetService
@@ -145,6 +157,20 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		PetStatus:       petData.PetStatus,
 	}
 
+	// Копируем вложенные структуры, если они есть
+	if petData.Health != nil {
+		pet.Health = *petData.Health
+	}
+	if petData.Treatments != nil {
+		pet.Treatments = *petData.Treatments
+	}
+	if petData.Analysis != nil {
+		pet.Analysis = *petData.Analysis
+	}
+	if petData.Bonuses != nil {
+		pet.Bonuses = *petData.Bonuses
+	}
+
 	if err := s.petRepo.Create(ctx, pet); err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать питомца")
 	}
@@ -156,8 +182,8 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 }
 
 // GetPetByID получает питомца по ID
-func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*models.Pet, error) {
-	pet, err := s.petRepo.GetByID(ctx, petID)
+func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads ...string) (*models.Pet, error) {
+	pet, err := s.petRepo.GetByID(ctx, petID, preloads...)
 	if err != nil {
 		// Если питомец не найден - возвращаем 404, а не 500
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -177,7 +203,7 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*models.
 }
 
 // GetUserPets получает всех питомцев пользователя
-func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*models.Pet, error) {
+func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*models.Pet, error) {
 	// Проверяем, существует ли пользователь
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -192,7 +218,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*mod
 		return nil, apperrors.NewUserNotFoundError(userID)
 	}
 
-	pets, err := s.petRepo.GetByUserID(ctx, userID)
+	pets, err := s.petRepo.GetByUserID(ctx, userID, preloads...)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
 	}
@@ -209,8 +235,8 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*mod
 
 // UpdatePet обновляет информацию о питомце
 func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates PetUpdate) error {
-	// Получаем существующего питомца
-	pet, err := s.petRepo.GetByID(ctx, petID)
+	// Получаем существующего питомца со всеми связями для корректного обновления
+	pet, err := s.petRepo.GetByID(ctx, petID, "Health", "Treatments", "Analysis", "Bonuses")
 	if err != nil {
 		// Если питомец не найден - возвращаем 404, а не 500
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -273,6 +299,24 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 		pet.PetStatus = *updates.PetStatus
 	}
 
+	// Обновляем вложенные структуры
+	if updates.Health != nil {
+		pet.Health = *updates.Health
+		pet.Health.ID = pet.ID // Гарантируем правильный ID
+	}
+	if updates.Treatments != nil {
+		pet.Treatments = *updates.Treatments
+		pet.Treatments.ID = pet.ID
+	}
+	if updates.Analysis != nil {
+		pet.Analysis = *updates.Analysis
+		pet.Analysis.ID = pet.ID
+	}
+	if updates.Bonuses != nil {
+		pet.Bonuses = *updates.Bonuses
+		pet.Bonuses.ID = pet.ID
+	}
+
 	// Сохраняем обновленного питомца
 	if err := s.petRepo.Update(ctx, pet); err != nil {
 		return apperrors.Internal(err, "не удалось обновить питомца")
@@ -284,16 +328,11 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 // DeletePet удаляет питомца по ID
 func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	// Проверяем, существует ли питомец
-	pet, err := s.petRepo.GetByID(ctx, petID)
+	exists, err := s.petRepo.ExistsByID(ctx, petID)
 	if err != nil {
-		// Если питомец не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.NewPetNotFoundError(petID)
-		}
-		return apperrors.Internal(err, "не удалось получить питомца")
+		return apperrors.Internal(err, "не удалось проверить существование питомца")
 	}
-
-	if pet == nil {
+	if !exists {
 		return apperrors.NewPetNotFoundError(petID)
 	}
 
@@ -308,16 +347,11 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 // GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
 func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error) {
 	// Проверяем, существует ли питомец
-	pet, err := s.petRepo.GetByID(ctx, petID)
+	exists, err := s.petRepo.ExistsByID(ctx, petID)
 	if err != nil {
-		// Если питомец не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", "", apperrors.NewPetNotFoundError(petID)
-		}
-		return "", "", apperrors.Internal(err, "не удалось получить питомца")
+		return "", "", apperrors.Internal(err, "не удалось проверить существование питомца")
 	}
-
-	if pet == nil {
+	if !exists {
 		return "", "", apperrors.NewPetNotFoundError(petID)
 	}
 

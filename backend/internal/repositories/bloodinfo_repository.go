@@ -8,7 +8,7 @@ import (
 
 // BloodInfoRepository определяет интерфейс для работы с типами крови
 type BloodInfoRepository interface {
-	GetAllComponents(ctx context.Context) ([]models.BloodComponent, error)
-	GetComponentByID(ctx context.Context, id int) (*models.BloodComponent, error)
-	GetBloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error)
+	AllComponents(ctx context.Context) ([]models.BloodComponent, error)
+	ComponentByID(ctx context.Context, id int) (*models.BloodComponent, error)
+	BloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error)
 }

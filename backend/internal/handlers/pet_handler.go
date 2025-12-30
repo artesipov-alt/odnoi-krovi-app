@@ -4,7 +4,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 
@@ -23,6 +23,27 @@ func NewPetHandler(petService services.PetService, bloodRequestClient services.B
 		petService:         petService,
 		bloodRequestClient: bloodRequestClient,
 	}
+}
+
+// getPreloads извлекает список связей для предзагрузки из query-параметров
+func (h *PetHandler) getPreloads(c *fiber.Ctx) []string {
+	var preloads []string
+	if c.Query("with_health") == "true" {
+		preloads = append(preloads, "Health")
+	}
+	if c.Query("with_treatments") == "true" {
+		preloads = append(preloads, "Treatments")
+	}
+	if c.Query("with_analysis") == "true" {
+		preloads = append(preloads, "Analysis")
+	}
+	if c.Query("with_bonuses") == "true" {
+		preloads = append(preloads, "Bonuses")
+	}
+	if c.Query("with_all") == "true" {
+		return []string{"Health", "Treatments", "Analysis", "Bonuses"}
+	}
+	return preloads
 }
 
 // CreatePetHandler godoc
@@ -65,6 +86,11 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 // @Tags pets
 // @Produce json
 // @Param id path string true "ID питомца"
+// @Param with_health query bool false "Включить данные о здоровье"
+// @Param with_treatments query bool false "Включить данные о ветеринарных обработках"
+// @Param with_analysis query bool false "Включить данные об анализах"
+// @Param with_bonuses query bool false "Включить данные о бонусах"
+// @Param with_all query bool false "Включить все связанные данные"
 // @Success 200 {object} models.Pet "Данные питомца"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
@@ -76,9 +102,11 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	logger.Log.Info("получение питомца", zap.String("petId", petID))
+	preloads := h.getPreloads(c)
 
-	pet, err := h.petService.GetPetByID(c.Context(), petID)
+	logger.Log.Info("получение питомца", zap.String("petId", petID), zap.Strings("preloads", preloads))
+
+	pet, err := h.petService.GetPetByID(c.Context(), petID, preloads...)
 	if err != nil {
 		return err
 	}
@@ -92,6 +120,11 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 // @Tags pets
 // @Produce json
 // @Param user_id path string true "ID пользователя"
+// @Param with_health query bool false "Включить данные о здоровье"
+// @Param with_treatments query bool false "Включить данные о ветеринарных обработках"
+// @Param with_analysis query bool false "Включить данные об анализах"
+// @Param with_bonuses query bool false "Включить данные о бонусах"
+// @Param with_all query bool false "Включить все связанные данные"
 // @Success 200 {array} models.Pet "Список питомцев"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
@@ -103,9 +136,11 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	logger.Log.Info("получение питомцев пользователя", zap.String("userId", userID))
+	preloads := h.getPreloads(c)
 
-	pets, err := h.petService.GetUserPets(c.Context(), userID)
+	logger.Log.Info("получение питомцев пользователя", zap.String("userId", userID), zap.Strings("preloads", preloads))
+
+	pets, err := h.petService.GetUserPets(c.Context(), userID, preloads...)
 	if err != nil {
 		return err
 	}

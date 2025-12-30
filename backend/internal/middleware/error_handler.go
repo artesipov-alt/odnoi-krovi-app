@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )

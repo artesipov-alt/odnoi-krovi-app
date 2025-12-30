@@ -21,12 +21,14 @@ func NewPostgresPetRepository(db *gorm.DB) *PostgresPetRepository {
 	}
 }
 
-// Create creates a new pet in the database
+// Create creates a new pet in the database along with its related entities
 func (r *PostgresPetRepository) Create(ctx context.Context, pet *models.Pet) error {
 	if pet == nil {
 		return errors.New("pet cannot be nil")
 	}
 
+	// GORM will handle the creation of related Health, Treatments, Analysis, and Bonuses
+	// because they are embedded in the Pet struct and have foreign keys pointing to Pet.ID
 	result := r.db.WithContext(ctx).Create(pet)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create pet: %w", result.Error)
@@ -35,14 +37,21 @@ func (r *PostgresPetRepository) Create(ctx context.Context, pet *models.Pet) err
 	return nil
 }
 
-// GetByID retrieves a pet by their ID
-func (r *PostgresPetRepository) GetByID(ctx context.Context, id string) (*models.Pet, error) {
+// GetByID retrieves a pet by their ID with optional preloads
+func (r *PostgresPetRepository) GetByID(ctx context.Context, id string, preloads ...string) (*models.Pet, error) {
 	if id == "" {
 		return nil, errors.New("invalid pet ID")
 	}
 
 	var pet models.Pet
-	result := r.db.WithContext(ctx).Where("id = ?", id).First(&pet)
+	query := r.db.WithContext(ctx)
+
+	for _, preload := range preloads {
+		query = query.Preload(preload)
+	}
+
+	result := query.Where("id = ?", id).First(&pet)
+
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("pet with id %s not found: %w", id, gorm.ErrRecordNotFound)
@@ -53,14 +62,21 @@ func (r *PostgresPetRepository) GetByID(ctx context.Context, id string) (*models
 	return &pet, nil
 }
 
-// GetByUserID retrieves all pets for a specific user
-func (r *PostgresPetRepository) GetByUserID(ctx context.Context, userID string) ([]*models.Pet, error) {
+// GetByUserID retrieves all pets for a specific user with optional preloads
+func (r *PostgresPetRepository) GetByUserID(ctx context.Context, userID string, preloads ...string) ([]*models.Pet, error) {
 	if userID == "" {
 		return nil, errors.New("invalid user ID")
 	}
 
 	var pets []*models.Pet
-	result := r.db.WithContext(ctx).Where("owner_id = ?", userID).Find(&pets)
+	query := r.db.WithContext(ctx)
+
+	for _, preload := range preloads {
+		query = query.Preload(preload)
+	}
+
+	result := query.Where("owner_id = ?", userID).Find(&pets)
+
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to get pets for user %s: %w", userID, result.Error)
 	}
@@ -68,7 +84,7 @@ func (r *PostgresPetRepository) GetByUserID(ctx context.Context, userID string) 
 	return pets, nil
 }
 
-// Update updates an existing pet in the database
+// Update updates an existing pet and its related entities in the database
 func (r *PostgresPetRepository) Update(ctx context.Context, pet *models.Pet) error {
 	if pet == nil {
 		return errors.New("pet cannot be nil")
@@ -78,7 +94,8 @@ func (r *PostgresPetRepository) Update(ctx context.Context, pet *models.Pet) err
 		return errors.New("invalid pet ID")
 	}
 
-	result := r.db.WithContext(ctx).Save(pet)
+	// Full save including associations
+	result := r.db.WithContext(ctx).Session(&gorm.Session{FullSaveAssociations: true}).Save(pet)
 	if result.Error != nil {
 		return fmt.Errorf("failed to update pet: %w", result.Error)
 	}
@@ -90,26 +107,21 @@ func (r *PostgresPetRepository) Update(ctx context.Context, pet *models.Pet) err
 	return nil
 }
 
-// Delete deletes a pet by their ID
+// Delete deletes a pet by their ID (soft delete via gorm.DeletedAt)
 func (r *PostgresPetRepository) Delete(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("invalid pet ID")
 	}
 
-	// First get the pet to ensure it exists
-	var pet models.Pet
-	result := r.db.WithContext(ctx).Where("id = ?", id).First(&pet)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("pet with id %s not found", id)
-		}
-		return fmt.Errorf("failed to get pet by id %s: %w", id, result.Error)
-	}
-
-	// Perform delete
-	result = r.db.WithContext(ctx).Delete(&pet)
+	// We use a transaction to ensure all related records are deleted if necessary,
+	// though GORM's Delete on the parent with constraints handles this.
+	result := r.db.WithContext(ctx).Select("Health", "Treatments", "Analysis", "Bonuses").Delete(&models.Pet{ID: id})
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete pet: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("pet with id %s not found", id)
 	}
 
 	return nil

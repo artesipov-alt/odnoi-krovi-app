@@ -2,7 +2,7 @@ package migration
 
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

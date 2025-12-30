@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/gofiber/fiber/v2"
 )
 

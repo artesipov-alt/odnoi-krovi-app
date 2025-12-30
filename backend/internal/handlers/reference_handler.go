@@ -7,7 +7,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
@@ -326,7 +326,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 	logger.Log.Info("получение справочника компоненотов крови")
 
-	bloodComponents, err := h.bloodRepo.GetAllComponents(c.Context())
+	bloodComponents, err := h.bloodRepo.AllComponents(c.Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить компоненотов крови из БД", zap.Error(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
@@ -367,7 +367,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("получение групп крови по типу животного", zap.String("petType", petType))
 
-	bloodGroups, err := h.bloodRepo.GetBloodGroupsByPetType(c.Context(), models.PetType(petType))
+	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(c.Context(), models.PetType(petType))
 	if err != nil {
 		logger.Log.Error("не удалось получить группы крови из БД", zap.Error(err), zap.String("petType", petType))
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"go.uber.org/zap"
 
 	"github.com/redis/go-redis/v9"

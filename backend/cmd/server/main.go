@@ -18,9 +18,9 @@ import (
 	cacherepo "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/cache"
 	pgrepositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg" // Репозитории для работы с БД
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"                              // Конфигурация приложения
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"                              // Логирование
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/migration"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"                   // Конфигурация приложения
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"                   // Логирование
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/migration"
 
 	// Управление миграциями
 	"github.com/gofiber/fiber/v2"                 // Веб-фреймворк
@@ -68,7 +68,7 @@ func main() {
 	userRepo := pgrepositories.NewPostgresUserRepository(db)
 	petRepo := pgrepositories.NewPostgresPetRepository(db)
 	breedRepo := pgrepositories.NewPostgresBreedRepository(db)
-	bloodRepo := pgrepositories.NewPostgresBloodRepository(db)
+	bloodRepo := pgrepositories.NewPostgresBloodInfoRepo(db)
 	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
 
 	// Создаем репозиторий в зависимости от наличия кэша

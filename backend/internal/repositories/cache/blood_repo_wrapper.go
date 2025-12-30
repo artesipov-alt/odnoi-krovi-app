@@ -24,7 +24,7 @@ func NewCachedBloodInfoRepository(repo repositories.BloodInfoRepository, cache c
 }
 
 // GetAllComponents возвращает все компоненты крови с кешированием
-func (r *CachedBloodInfoRepository) GetAllComponents(ctx context.Context) ([]models.BloodComponent, error) {
+func (r *CachedBloodInfoRepository) AllComponents(ctx context.Context) ([]models.BloodComponent, error) {
 	cacheKey := fmt.Sprintf(cache.BloodTypesListKey)
 
 	// Пытаемся получить из кэша
@@ -36,7 +36,7 @@ func (r *CachedBloodInfoRepository) GetAllComponents(ctx context.Context) ([]mod
 
 	// Получаем из БД
 
-	components, err := r.repo.GetAllComponents(ctx)
+	components, err := r.repo.AllComponents(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (r *CachedBloodInfoRepository) GetAllComponents(ctx context.Context) ([]mod
 }
 
 // GetComponentByID возвращает компонент крови по ID с кешированием
-func (r *CachedBloodInfoRepository) GetComponentByID(ctx context.Context, id int) (*models.BloodComponent, error) {
+func (r *CachedBloodInfoRepository) ComponentByID(ctx context.Context, id int) (*models.BloodComponent, error) {
 	cacheKey := fmt.Sprintf(cache.BloodComponentByIDKey, id)
 
 	// Пытаемся получить из кэша
@@ -61,7 +61,7 @@ func (r *CachedBloodInfoRepository) GetComponentByID(ctx context.Context, id int
 
 	// Получаем из БД
 
-	componentPtr, err := r.repo.GetComponentByID(ctx, id)
+	componentPtr, err := r.repo.ComponentByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (r *CachedBloodInfoRepository) GetComponentByID(ctx context.Context, id int
 }
 
 // GetBloodGroupsByPetType возвращает группы крови по типу животного с кешированием
-func (r *CachedBloodInfoRepository) GetBloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error) {
+func (r *CachedBloodInfoRepository) BloodGroupsByPetType(ctx context.Context, petType models.PetType) ([]*models.BloodGroup, error) {
 	cacheKey := fmt.Sprintf(cache.BloodGroupsByPetTypeKey, petType)
 
 	// Пытаемся получить из кэша
@@ -86,7 +86,7 @@ func (r *CachedBloodInfoRepository) GetBloodGroupsByPetType(ctx context.Context,
 
 	// Получаем из БД
 
-	bloodGroups, err := r.repo.GetBloodGroupsByPetType(ctx, petType)
+	bloodGroups, err := r.repo.BloodGroupsByPetType(ctx, petType)
 	if err != nil {
 		return nil, err
 	}
