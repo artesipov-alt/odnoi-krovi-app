@@ -1,6 +1,6 @@
 package models
 
-// BloodSearchPetRequest представляет данные питомца для добавления в пул поиска крови
+// BloodSearchPetRequest DTO представляет данные питомца для добавления в пул поиска крови
 // @Description Данные питомца-реципиента для пула поиска крови
 type BloodSearchPetRequest struct {
 	// ID питомца в системе
@@ -25,7 +25,7 @@ type BloodSearchPetRequest struct {
 	Description string `json:"description" mapstructure:"description" example:"Описание проблемы питомца"`
 }
 
-// BloodSearchPetResponse представляет статус добавления питомца в пул
+// BloodSearchPetResponse DTO представляет статус добавления питомца в пул
 // @Description Статус операции с питомцем в пуле поиска крови
 type BloodSearchPetResponse struct {
 	// ID питомца в системе
@@ -34,7 +34,7 @@ type BloodSearchPetResponse struct {
 	Status string `json:"status" mapstructure:"status" example:"added"`
 }
 
-// BloodSearchFilterRequest представляет фильтры для поиска питомцев в пуле
+// BloodSearchFilterRequest DTO представляет фильтры для поиска питомцев в пуле
 // @Description Фильтры для поиска питомцев-реципиентов
 type BloodSearchFilterRequest struct {
 	// ID питомца в системе
@@ -47,7 +47,7 @@ type BloodSearchFilterRequest struct {
 	Regions []int32 `json:"regions" mapstructure:"regions" example:"1,2,3"`
 }
 
-// BloodSearchPetsResponse представляет список найденных питомцев
+// BloodSearchPetsResponse DTO представляет список найденных питомцев
 // @Description Список питомцев из пула поиска крови
 type BloodSearchPetsResponse struct {
 	// Список питомцев
