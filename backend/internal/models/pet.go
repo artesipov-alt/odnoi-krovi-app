@@ -49,16 +49,17 @@ type PetHealth struct {
 	// Текущее состояние здоровья
 	HealthStatus HealthStatus `json:"healthStatus,omitempty" example:"healthy"`
 	// Дата последней донации
-	LastDonation string `json:"lastDonation,omitempty" example:"2023-01-01T00:00:00Z"`
+	LastDonation *time.Time `json:"lastDonation,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Было ли раннее переливание крови?
 	Transfused bool `json:"transfused,omitempty" example:"true"`
 	// Принимаемые лекарственные препараты
 	Medications string `json:"medications,omitempty" example:"antibiotics"`
 	// Хирургические вмешательства перечисление
-	SurgicalInterventions string          `json:"surgicalInterventions,omitempty" example:"spaying"`
-	CreatedAt             time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt             time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
-	DeletedAt             *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
+	SurgicalInterventions string `json:"surgicalInterventions,omitempty" example:"spaying"`
+	// Дополнительные данные базы
+	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
 // Информация о ветеринарных обработках питомца
@@ -66,16 +67,17 @@ type PetTreatment struct {
 	// ID питомца (соответствует ID в структуре Pet)
 	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
 	// Дата последней вакцинации от бешенства
-	RabiesVaccinationDate string `json:"rabiesVaccinationDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	RabiesVaccinationDate *time.Time `json:"rabiesVaccinationDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Дата последней вакцинации от инфекций
-	InfectionVaccinationDate string `json:"infectionVaccinationDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	InfectionVaccinationDate *time.Time `json:"infectionVaccinationDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Дата последней обработки от эктопаразитов (блохи, клещи)
-	EctoparasiteTreatmentDate string `json:"ectoparasiteTreatmentDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Дата последней дегельминтизации (обработка от глистов)
-	DewormingDate string          `json:"dewormingDate,omitempty" example:"2023-01-01T00:00:00Z"`
-	CreatedAt     time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt     time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
-	DeletedAt     *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
+	DewormingDate *time.Time `json:"dewormingDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	// Дополнительные данные базы
+	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
 // Информация о последних анализах питомца
@@ -84,35 +86,35 @@ type PetAnalysis struct {
 	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
 
 	// Лейкоз (FeLV)
-	LeukemiaDate string       `json:"leukemiaDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	LeukemiaDate *time.Time   `json:"leukemiaDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	LeukemiaType AnalysisType `json:"leukemiaType,omitempty" example:"PCR"`
 
 	// Иммунодефицит (FIV)
-	ImmunodeficiencyDate string       `json:"immunodeficiencyDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	ImmunodeficiencyDate *time.Time   `json:"immunodeficiencyDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	ImmunodeficiencyType AnalysisType `json:"immunodeficiencyType,omitempty" example:"ELISA"`
 
 	// Гемоплазмоз
-	HemoplasmosisDate string       `json:"hemoplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	HemoplasmosisDate *time.Time   `json:"hemoplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	HemoplasmosisType AnalysisType `json:"hemoplasmosisType,omitempty" example:"PCR"`
 
 	// Бартонеллез
-	BartonellosisDate string       `json:"bartonellosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	BartonellosisDate *time.Time   `json:"bartonellosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	BartonellosisType AnalysisType `json:"bartonellosisType,omitempty" example:"PCR"`
 
 	// Бабезиоз
-	BabesiosisDate string       `json:"babesiosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	BabesiosisDate *time.Time   `json:"babesiosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	BabesiosisType AnalysisType `json:"babesiosisType,omitempty" example:"Microscopy"`
 
 	// Дирофиляриоз
-	DirofilariaDate string       `json:"dirofilariaDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	DirofilariaDate *time.Time   `json:"dirofilariaDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	DirofilariaType AnalysisType `json:"dirofilariaType,omitempty" example:"PCR"`
 
 	// Эрлихиоз
-	EhrlichiosisDate string       `json:"ehrlichiosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	EhrlichiosisDate *time.Time   `json:"ehrlichiosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	EhrlichiosisType AnalysisType `json:"ehrlichiosisType,omitempty" example:"Express"`
 
 	// Анаплазмоз
-	AnaplasmosisDate string       `json:"anaplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
+	AnaplasmosisDate *time.Time   `json:"anaplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	AnaplasmosisType AnalysisType `json:"anaplasmosisType,omitempty" example:"PCR"`
 
 	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
@@ -127,7 +129,7 @@ type PetBonus struct {
 
 	// Является ли животное артистом
 	IsArtist bool `json:"isArtist" example:"false"`
-	// Является ли животное терапевтом
+	// Является ли животное терапесты
 	IsTherapist bool `json:"isTherapist" example:"false"`
 	// Является ли животное бывшим донором
 	IsFormerDonor bool `json:"isFormerDonor" example:"true"`
