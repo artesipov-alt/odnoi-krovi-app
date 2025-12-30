@@ -1,10 +1,30 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
 )
+
+// UserPrefix определяет тип для префиксов пользователя
+type UserPrefix string
+
+const (
+	// UserIDPrefix — основной префикс для пользователей
+	UserIDPrefix UserPrefix = "USR"
+)
+
+// Generate создает префикс для сущности пользователя
+func (e UserPrefix) Generate(sequenceNum int) string {
+	year := time.Now().Year() % 100
+	return fmt.Sprintf("%s-%02d-%04d", e, year, sequenceNum)
+}
+
+// IsValid проверяет валидность префикса пользователя
+func (e UserPrefix) IsValid() bool {
+	return e == UserIDPrefix
+}
 
 // Представление пользователя в системе
 type User struct {
@@ -24,10 +44,21 @@ type User struct {
 	DeletedAt        *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
-// В BeforeCreate хуках
+// UserRole представляет роль пользователя в системе
+type UserRole string
+
+const (
+	UserRoleUser   UserRole = "user"
+	UserRoleClinic UserRole = "clinic"
+	UserRoleAdmin  UserRole = "admin"
+)
+
+// BeforeCreate хук для генерации ID
 func (v *User) BeforeCreate(tx *gorm.DB) error {
 	var nextVal int
-	tx.Raw("SELECT nextval('user_id_seq')").Scan(&nextVal)
-	v.ID = PrefixUSR.Generate(nextVal)
+	if err := tx.Raw("SELECT nextval('user_id_seq')").Scan(&nextVal).Error; err != nil {
+		return err
+	}
+	v.ID = UserIDPrefix.Generate(nextVal)
 	return nil
 }

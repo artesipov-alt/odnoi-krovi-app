@@ -6,7 +6,6 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	alpha "github.com/artesipov-alt/odnoi-krovi-app/internal/models/alpha"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"gorm.io/gorm"
@@ -20,11 +19,11 @@ type UserService interface {
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
 	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error)
 
-	// GetUserProfile получает полный профиль пользователя с питомцами и клиниками
-	GetUserProfile(ctx context.Context, userID string) (*UserProfile, error)
-
 	// UpdateUserProfile обновляет информацию о пользователе
 	UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error
+
+	// GetUserByID получает пользователя по его внутреннему ID
+	GetUserByID(ctx context.Context, userID string) (*models.User, error)
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
@@ -51,13 +50,6 @@ type UserUpdate struct {
 	AllowGeo   *bool   `json:"allowGeo,omitempty" validate:"omitempty"`
 	OnBoarding *bool   `json:"onBoarding,omitempty" validate:"omitempty"`
 	LocationID *int    `json:"locationId,omitempty" validate:"omitempty,min=1"`
-}
-
-// UserProfile представляет полный профиль пользователя с связанными данными
-type UserProfile struct {
-	User   *models.User     `json:"user"`
-	Pets   []*models.Pet    `json:"pets,omitempty"`
-	Clinic *alpha.VetClinic `json:"clinic,omitempty"`
 }
 
 // UserServiceImpl реализует UserService
@@ -165,11 +157,10 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	return nil
 }
 
-// GetUserProfile получает полный профиль пользователя с питомцами и клиниками
-func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID string) (*UserProfile, error) {
+// GetUserByID получает пользователя по ID
+func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		// Если пользователь не найден - возвращаем 404, а не 500
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperrors.NewUserNotFoundError(userID)
 		}
@@ -180,14 +171,7 @@ func (s *UserServiceImpl) GetUserProfile(ctx context.Context, userID string) (*U
 		return nil, apperrors.NewUserNotFoundError(userID)
 	}
 
-	profile := &UserProfile{
-		User: user,
-		// TODO: Добавить данные о питомцах и клинике, когда репозитории будут доступны
-		Pets:   []*models.Pet{},
-		Clinic: nil,
-	}
-
-	return profile, nil
+	return user, nil
 }
 
 // UpdateUserProfile обновляет информацию о пользователе
@@ -243,7 +227,7 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 	if err != nil {
 		// Если пользователь не найден - возвращаем 404, а не 500
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]interface{}{
+			return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]any{
 				"telegram_id": telegramID,
 			})
 		}
@@ -251,7 +235,7 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 	}
 
 	if user == nil {
-		return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]interface{}{
+		return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]any{
 			"telegram_id": telegramID,
 		})
 	}

@@ -42,19 +42,12 @@ type PetService interface {
 // PetCreate содержит данные для создания питомца
 type PetCreate struct {
 	Name            string                 `json:"name" validate:"required,min=1,max=100"`
-	HasChip         bool                   `json:"hasChip"`
-	ChipNumber      string                 `json:"chipNumber,omitempty" validate:"omitempty,max=50"`
+	ChipNumber      string                 `json:"chipNumber,omitempty" validate:"omitempty,len=15"`
 	PhotoURL        string                 `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
-	KnowsBloodGroup bool                   `json:"knowsBloodGroup"`
-	IsGuideDog      bool                   `json:"isGuideDog"`
-	IsTherapist     bool                   `json:"isTherapist"`
 	Breed           string                 `json:"breed,omitempty" validate:"omitempty,max=100"`
 	WeightKg        float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
 	AgeYears        int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
 	AgeMonths       int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
-	Sterilized      bool                   `json:"sterilized"`
-	Latitude        float64                `json:"latitude,omitempty" validate:"omitempty,latitude"`
-	Longitude       float64                `json:"longitude,omitempty" validate:"omitempty,longitude"`
 	LivingCondition models.LivingCondition `json:"livingCondition,omitempty"`
 	Gender          models.Gender          `json:"gender,omitempty"`
 	Type            models.PetType         `json:"type,omitempty"`
@@ -65,19 +58,12 @@ type PetCreate struct {
 // PetUpdate содержит поля, которые можно обновить для питомца
 type PetUpdate struct {
 	Name            *string                 `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
-	HasChip         *bool                   `json:"hasChip,omitempty"`
-	ChipNumber      *string                 `json:"chipNumber,omitempty" validate:"omitempty,max=50"`
+	ChipNumber      *string                 `json:"chipNumber,omitempty" validate:"omitempty,len=15"`
 	PhotoURL        *string                 `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
-	KnowsBloodGroup *bool                   `json:"knowsBloodGroup,omitempty"`
-	IsGuideDog      *bool                   `json:"isGuideDog,omitempty"`
-	IsTherapist     *bool                   `json:"isTherapist,omitempty"`
 	Breed           *string                 `json:"breed,omitempty" validate:"omitempty,max=100"`
 	WeightKg        *float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
 	AgeYears        *int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
 	AgeMonths       *int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
-	Sterilized      *bool                   `json:"sterilized,omitempty"`
-	Latitude        *float64                `json:"latitude,omitempty" validate:"omitempty,latitude"`
-	Longitude       *float64                `json:"longitude,omitempty" validate:"omitempty,longitude"`
 	LivingCondition *models.LivingCondition `json:"livingCondition,omitempty"`
 	Gender          *models.Gender          `json:"gender,omitempty"`
 	Type            *models.PetType         `json:"type,omitempty"`
@@ -143,25 +129,16 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		return nil, apperrors.ErrInvalidLivingCondition
 	}
 
-	// Логика создания временной ссылки на загрузку фотографии
-
 	// Создаем нового питомца
 	pet := &models.Pet{
 		OwnerID:         userID,
 		Name:            petData.Name,
-		HasChip:         petData.HasChip,
 		ChipNumber:      petData.ChipNumber,
 		PhotoURL:        petData.PhotoURL,
-		KnowsBloodGroup: petData.KnowsBloodGroup,
-		IsGuideDog:      petData.IsGuideDog,
-		IsTherapist:     petData.IsTherapist,
 		Breed:           petData.Breed,
 		WeightKg:        petData.WeightKg,
 		AgeYears:        petData.AgeYears,
 		AgeMonths:       petData.AgeMonths,
-		Sterilized:      petData.Sterilized,
-		Latitude:        petData.Latitude,
-		Longitude:       petData.Longitude,
 		LivingCondition: petData.LivingCondition,
 		Gender:          petData.Gender,
 		Type:            petData.Type,
@@ -251,23 +228,11 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 	if updates.Name != nil {
 		pet.Name = *updates.Name
 	}
-	if updates.HasChip != nil {
-		pet.HasChip = *updates.HasChip
-	}
 	if updates.ChipNumber != nil {
 		pet.ChipNumber = *updates.ChipNumber
 	}
 	if updates.PhotoURL != nil {
 		pet.PhotoURL = *updates.PhotoURL
-	}
-	if updates.KnowsBloodGroup != nil {
-		pet.KnowsBloodGroup = *updates.KnowsBloodGroup
-	}
-	if updates.IsGuideDog != nil {
-		pet.IsGuideDog = *updates.IsGuideDog
-	}
-	if updates.IsTherapist != nil {
-		pet.IsTherapist = *updates.IsTherapist
 	}
 	if updates.Breed != nil {
 		pet.Breed = *updates.Breed
@@ -280,15 +245,6 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 	}
 	if updates.AgeMonths != nil {
 		pet.AgeMonths = *updates.AgeMonths
-	}
-	if updates.Sterilized != nil {
-		pet.Sterilized = *updates.Sterilized
-	}
-	if updates.Latitude != nil {
-		pet.Latitude = *updates.Latitude
-	}
-	if updates.Longitude != nil {
-		pet.Longitude = *updates.Longitude
 	}
 	if updates.LivingCondition != nil {
 		_, err := validation.LocalizeLivingCondition(string(*updates.LivingCondition))

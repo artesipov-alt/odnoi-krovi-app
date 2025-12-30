@@ -61,36 +61,6 @@ func GetAllPetRoles() []models.PetRole {
 	}
 }
 
-// GetAllBloodSearchStatuses возвращает все доступные статусы поиска крови
-func GetAllBloodSearchStatuses() []models.BloodSearchStatus {
-	return []models.BloodSearchStatus{
-		models.BloodSearchStatusActive,
-		models.BloodSearchStatusCompleted,
-		models.BloodSearchStatusCancelled,
-		models.BloodSearchStatusExpired,
-	}
-}
-
-// GetAllBloodStockStatuses возвращает все доступные статусы запаса крови
-func GetAllBloodStockStatuses() []models.BloodStockStatus {
-	return []models.BloodStockStatus{
-		models.BloodStockStatusActive,
-		models.BloodStockStatusReserved,
-		models.BloodStockStatusUsed,
-		models.BloodStockStatusExpired,
-	}
-}
-
-// GetAllDonationStatuses возвращает все доступные статусы донорства
-func GetAllDonationStatuses() []models.DonationStatus {
-	return []models.DonationStatus{
-		models.DonationStatusScheduled,
-		models.DonationStatusCompleted,
-		models.DonationStatusCancelled,
-		models.DonationStatusNoShow,
-	}
-}
-
 // LocalizePetType локализует тип животного в русское название
 // Можно валидировать через проверку.
 func LocalizePetType(petType string) (models.PetType, error) {
@@ -190,56 +160,5 @@ func LocalizeReproductiveStatus(status string) (models.ReproductiveStatus, error
 		return "Нет", nil
 	default:
 		return "", fmt.Errorf("недопустимое физиологическое состояние: %s", status)
-	}
-}
-
-// LocalizeBloodSearchStatus локализует статус поиска крови в русское название
-func LocalizeBloodSearchStatus(status string) (models.BloodSearchStatus, error) {
-	s := models.BloodSearchStatus(status)
-	switch s {
-	case models.BloodSearchStatusActive:
-		return "Активный", nil
-	case models.BloodSearchStatusCompleted:
-		return "Завершен", nil
-	case models.BloodSearchStatusCancelled:
-		return "Отменен", nil
-	case models.BloodSearchStatusExpired:
-		return "Истек", nil
-	default:
-		return "", fmt.Errorf("недопустимый статус поиска: %s", status)
-	}
-}
-
-// LocalizeBloodStockStatus локализует статус запаса крови в русское название
-func LocalizeBloodStockStatus(status string) (models.BloodStockStatus, error) {
-	s := models.BloodStockStatus(status)
-	switch s {
-	case models.BloodStockStatusActive:
-		return "В наличии", nil
-	case models.BloodStockStatusReserved:
-		return "Зарезервирован", nil
-	case models.BloodStockStatusUsed:
-		return "Использован", nil
-	case models.BloodStockStatusExpired:
-		return "Истек", nil
-	default:
-		return "", fmt.Errorf("недопустимый статус запаса: %s", status)
-	}
-}
-
-// LocalizeDonationStatus локализует статус донорства в русское название
-func LocalizeDonationStatus(status string) (models.DonationStatus, error) {
-	s := models.DonationStatus(status)
-	switch s {
-	case models.DonationStatusScheduled:
-		return "Запланирован", nil
-	case models.DonationStatusCompleted:
-		return "Завершен", nil
-	case models.DonationStatusCancelled:
-		return "Отменен", nil
-	case models.DonationStatusNoShow:
-		return "Не явился", nil
-	default:
-		return "", fmt.Errorf("недопустимый статус донорства: %s", status)
 	}
 }

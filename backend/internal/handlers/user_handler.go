@@ -46,12 +46,12 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("получение пользователя", zap.String("userId", id))
 
-	profile, err := h.userService.GetUserProfile(c.Context(), id)
+	user, err := h.userService.GetUserByID(c.Context(), id)
 	if err != nil {
 		return err
 	}
 
-	return utils.SendJSON(c, profile.User)
+	return utils.SendJSON(c, user)
 }
 
 // RegisterUserSimpleHandler godoc
