@@ -30,10 +30,10 @@ type Pet struct {
 	// --- СВЯЗИ ---
 	// Has One: У питомца есть одна запись о здоровье.
 	// foreignKey:ID говорит, что в таблице PetHealth ключом является ID, который ссылается на Pet.ID
-	Health     PetHealth    `gorm:"foreignKey:ID" json:"health"`
-	Treatments PetTreatment `gorm:"foreignKey:ID" json:"treatments"`
-	Analysis   PetAnalysis  `gorm:"foreignKey:ID" json:"analysis"`
-	Bonuses    PetBonus     `gorm:"foreignKey:ID" json:"bonuses"`
+	Health     *PetHealth    `gorm:"foreignKey:ID" json:"health,omitempty"`
+	Treatments *PetTreatment `gorm:"foreignKey:ID" json:"treatments,omitempty"`
+	Analysis   *PetAnalysis  `gorm:"foreignKey:ID" json:"analysis,omitempty"`
+	Bonuses    *PetBonus     `gorm:"foreignKey:ID" json:"bonuses,omitempty"`
 
 	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
 	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`

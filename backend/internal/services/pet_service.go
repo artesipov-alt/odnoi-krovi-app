@@ -159,16 +159,16 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 
 	// Копируем вложенные структуры, если они есть
 	if petData.Health != nil {
-		pet.Health = *petData.Health
+		pet.Health = petData.Health
 	}
 	if petData.Treatments != nil {
-		pet.Treatments = *petData.Treatments
+		pet.Treatments = petData.Treatments
 	}
 	if petData.Analysis != nil {
-		pet.Analysis = *petData.Analysis
+		pet.Analysis = petData.Analysis
 	}
 	if petData.Bonuses != nil {
-		pet.Bonuses = *petData.Bonuses
+		pet.Bonuses = petData.Bonuses
 	}
 
 	if err := s.petRepo.Create(ctx, pet); err != nil {
@@ -301,19 +301,19 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 
 	// Обновляем вложенные структуры
 	if updates.Health != nil {
-		pet.Health = *updates.Health
+		pet.Health = updates.Health
 		pet.Health.ID = pet.ID // Гарантируем правильный ID
 	}
 	if updates.Treatments != nil {
-		pet.Treatments = *updates.Treatments
+		pet.Treatments = updates.Treatments
 		pet.Treatments.ID = pet.ID
 	}
 	if updates.Analysis != nil {
-		pet.Analysis = *updates.Analysis
+		pet.Analysis = updates.Analysis
 		pet.Analysis.ID = pet.ID
 	}
 	if updates.Bonuses != nil {
-		pet.Bonuses = *updates.Bonuses
+		pet.Bonuses = updates.Bonuses
 		pet.Bonuses.ID = pet.ID
 	}
 
