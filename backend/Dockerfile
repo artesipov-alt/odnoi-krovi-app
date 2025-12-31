@@ -21,7 +21,6 @@ RUN go mod download
 # Копируем исходный код backend
 COPY backend/cmd/ ./cmd/
 COPY backend/internal/ ./internal/
-COPY backend/pkg/ ./pkg/
 COPY backend/app/ ./app/
 COPY backend/docs/ ./docs/
 
