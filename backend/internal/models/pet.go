@@ -43,7 +43,7 @@ type Pet struct {
 // Информация о здоровье питомца
 type PetHealth struct {
 	// ID питомца (соответствует ID в структуре Pet)
-	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
+	ID string `gorm:"primaryKey;" json:"id" swaggerignore:"true" example:"PET-25-000001"`
 	// Репродуктивный статус (беременность, лактация и т.д.)
 	ReproductiveStatus ReproductiveStatus `json:"reproductiveStatus,omitempty" example:"pregnancy"`
 	// Текущее состояние здоровья
@@ -57,15 +57,15 @@ type PetHealth struct {
 	// Хирургические вмешательства перечисление
 	SurgicalInterventions string `json:"surgicalInterventions,omitempty" example:"spaying"`
 	// Дополнительные данные базы
-	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
 // Информация о ветеринарных обработках питомца
 type PetTreatment struct {
 	// ID питомца (соответствует ID в структуре Pet)
-	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
+	ID string `gorm:"primaryKey;" json:"id" swaggerignore:"true" example:"PET-25-000001"`
 	// Дата последней вакцинации от бешенства
 	RabiesVaccinationDate *time.Time `json:"rabiesVaccinationDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Дата последней вакцинации от инфекций
@@ -75,15 +75,15 @@ type PetTreatment struct {
 	// Дата последней дегельминтизации (обработка от глистов)
 	DewormingDate *time.Time `json:"dewormingDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Дополнительные данные базы
-	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
 // Информация о последних анализах питомца
 type PetAnalysis struct {
 	// ID питомца (соответствует ID в структуре Pet)
-	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
+	ID string `gorm:"primaryKey;" json:"id" swaggerignore:"true" example:"PET-25-000001"`
 
 	// Лейкоз (FeLV)
 	LeukemiaDate *time.Time   `json:"leukemiaDate,omitempty" example:"2023-01-01T00:00:00Z"`
@@ -117,15 +117,15 @@ type PetAnalysis struct {
 	AnaplasmosisDate *time.Time   `json:"anaplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	AnaplasmosisType AnalysisType `json:"anaplasmosisType,omitempty" example:"PCR"`
 
-	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
 // Информация о бонусах и социальных метках питомца для приоритетного поиска
 type PetBonus struct {
 	// ID питомца (соответствует ID в структуре Pet)
-	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
+	ID string `gorm:"primaryKey;" json:"id" swaggerignore:"true" example:"PET-25-000001"`
 
 	// Является ли животное артистом
 	IsArtist bool `json:"isArtist" example:"false"`
@@ -136,8 +136,8 @@ type PetBonus struct {
 	// Является ли животное собакой-проводником
 	IsGuideDog bool `json:"isGuideDog" example:"false"`
 
-	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
