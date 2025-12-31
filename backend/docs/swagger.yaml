@@ -316,9 +316,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.AnalysisType'
         example: PCR
-      createdAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
       dirofilariaDate:
         description: Дирофиляриоз
         example: "2023-01-01T00:00:00Z"
@@ -343,10 +340,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.AnalysisType'
         example: PCR
-      id:
-        description: ID питомца (соответствует ID в структуре Pet)
-        example: PET-25-000001
-        type: string
       immunodeficiencyDate:
         description: Иммунодефицит (FIV)
         example: "2023-01-01T00:00:00Z"
@@ -363,19 +356,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.AnalysisType'
         example: PCR
-      updatedAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
     type: object
   models.PetBonus:
     properties:
-      createdAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      id:
-        description: ID питомца (соответствует ID в структуре Pet)
-        example: PET-25-000001
-        type: string
       isArtist:
         description: Является ли животное артистом
         example: false
@@ -392,25 +375,14 @@ definitions:
         description: Является ли животное терапесты
         example: false
         type: boolean
-      updatedAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
     type: object
   models.PetHealth:
     properties:
-      createdAt:
-        description: Дополнительные данные базы
-        example: "2023-01-01T00:00:00Z"
-        type: string
       healthStatus:
         allOf:
         - $ref: '#/definitions/models.HealthStatus'
         description: Текущее состояние здоровья
         example: healthy
-      id:
-        description: ID питомца (соответствует ID в структуре Pet)
-        example: PET-25-000001
-        type: string
       lastDonation:
         description: Дата последней донации
         example: "2023-01-01T00:00:00Z"
@@ -432,9 +404,6 @@ definitions:
         description: Было ли раннее переливание крови?
         example: true
         type: boolean
-      updatedAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
     type: object
   models.PetRole:
     enum:
@@ -446,10 +415,6 @@ definitions:
     - PetRoleRecipient
   models.PetTreatment:
     properties:
-      createdAt:
-        description: Дополнительные данные базы
-        example: "2023-01-01T00:00:00Z"
-        type: string
       dewormingDate:
         description: Дата последней дегельминтизации (обработка от глистов)
         example: "2023-01-01T00:00:00Z"
@@ -458,19 +423,12 @@ definitions:
         description: Дата последней обработки от эктопаразитов (блохи, клещи)
         example: "2023-01-01T00:00:00Z"
         type: string
-      id:
-        description: ID питомца (соответствует ID в структуре Pet)
-        example: PET-25-000001
-        type: string
       infectionVaccinationDate:
         description: Дата последней вакцинации от инфекций
         example: "2023-01-01T00:00:00Z"
         type: string
       rabiesVaccinationDate:
         description: Дата последней вакцинации от бешенства
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      updatedAt:
         example: "2023-01-01T00:00:00Z"
         type: string
     type: object
@@ -502,10 +460,6 @@ definitions:
       consentPd:
         example: true
         type: boolean
-      createdAt:
-        description: Дополнительные данные базы
-        example: "2023-01-01T00:00:00Z"
-        type: string
       email:
         example: user@example.com
         type: string
@@ -515,7 +469,7 @@ definitions:
       id:
         description: Сигнатура ID пользователя включает в себя префикс пользователя,
           год и четырёхзначный номер
-        example: USR-25-0001
+        example: USR-25-000001
         type: string
       locationId:
         example: 1
@@ -536,19 +490,14 @@ definitions:
       telegramId:
         example: 123456789
         type: integer
-      updatedAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
     type: object
   models.UserRole:
     enum:
     - user
-    - clinic
     - admin
     type: string
     x-enum-varnames:
     - UserRoleUser
-    - UserRoleClinic
     - UserRoleAdmin
   services.PetCreate:
     properties:
@@ -709,7 +658,7 @@ info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
   title: 1krovi.app
-  version: 1.3.2
+  version: 1.3.4
 paths:
   /:
     get:
@@ -724,6 +673,66 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
+  /blood-request/pool:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет питомца-реципиента в пул поиска крови
+      parameters:
+      - description: Данные питомца для пула поиска крови
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BloodSearchPetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Статус добавления питомца
+          schema:
+            $ref: '#/definitions/models.BloodSearchPetResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Добавить питомца в пул поиска крови
+      tags:
+      - blood-request
+  /blood-request/pool/search:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список питомцев-реципиентов по фильтрам
+      parameters:
+      - description: 'Фильтры поиска: тип, группа крови, регионы'
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BloodSearchFilterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список питомцев
+          schema:
+            $ref: '#/definitions/models.BloodSearchPetsResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Получить питомцев из пула поиска крови
+      tags:
+      - blood-request
   /dev/deleted-users:
     get:
       description: Возвращает список всех мягко удаленных пользователей
@@ -896,68 +905,6 @@ paths:
       summary: Обновление данных питомца
       tags:
       - pets
-  /pets/blood-request/pool:
-    post:
-      consumes:
-      - application/json
-      description: Добавляет питомца-реципиента в пул поиска крови
-      parameters:
-      - description: Данные питомца для пула поиска крови
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.BloodSearchPetRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Статус добавления питомца
-          schema:
-            $ref: '#/definitions/models.BloodSearchPetResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Добавить питомца в пул поиска крови
-      tags:
-      - pets
-      - blood-request
-  /pets/blood-request/pool/search:
-    post:
-      consumes:
-      - application/json
-      description: Возвращает список питомцев-реципиентов по фильтрам
-      parameters:
-      - description: 'Фильтры поиска: тип, группа крови, регионы'
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.BloodSearchFilterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список питомцев
-          schema:
-            $ref: '#/definitions/models.BloodSearchPetsResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Получить питомцев из пула поиска крови
-      tags:
-      - pets
-      - blood-request
   /pets/upload/avatar/{id}:
     get:
       description: Возвращает временную ссылку для загрузки фотографии питомца по

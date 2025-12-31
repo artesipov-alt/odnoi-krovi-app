@@ -35,6 +35,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/blood-request/pool": {
+            "post": {
+                "description": "Добавляет питомца-реципиента в пул поиска крови",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-request"
+                ],
+                "summary": "Добавить питомца в пул поиска крови",
+                "parameters": [
+                    {
+                        "description": "Данные питомца для пула поиска крови",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BloodSearchPetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Статус добавления питомца",
+                        "schema": {
+                            "$ref": "#/definitions/models.BloodSearchPetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-request/pool/search": {
+            "post": {
+                "description": "Возвращает список питомцев-реципиентов по фильтрам",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-request"
+                ],
+                "summary": "Получить питомцев из пула поиска крови",
+                "parameters": [
+                    {
+                        "description": "Фильтры поиска: тип, группа крови, регионы",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BloodSearchFilterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список питомцев",
+                        "schema": {
+                            "$ref": "#/definitions/models.BloodSearchPetsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dev/deleted-users": {
             "get": {
                 "description": "Возвращает список всех мягко удаленных пользователей",
@@ -108,100 +200,6 @@ const docTemplate = `{
                         "description": "Успешное восстановление пользователя",
                         "schema": {
                             "$ref": "#/definitions/handlers.DevResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/pets/blood-request/pool": {
-            "post": {
-                "description": "Добавляет питомца-реципиента в пул поиска крови",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pets",
-                    "blood-request"
-                ],
-                "summary": "Добавить питомца в пул поиска крови",
-                "parameters": [
-                    {
-                        "description": "Данные питомца для пула поиска крови",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BloodSearchPetRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Статус добавления питомца",
-                        "schema": {
-                            "$ref": "#/definitions/models.BloodSearchPetResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/pets/blood-request/pool/search": {
-            "post": {
-                "description": "Возвращает список питомцев-реципиентов по фильтрам",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pets",
-                    "blood-request"
-                ],
-                "summary": "Получить питомцев из пула поиска крови",
-                "parameters": [
-                    {
-                        "description": "Фильтры поиска: тип, группа крови, регионы",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.BloodSearchFilterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список питомцев",
-                        "schema": {
-                            "$ref": "#/definitions/models.BloodSearchPetsResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -1670,10 +1668,6 @@ const docTemplate = `{
                     ],
                     "example": "PCR"
                 },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
-                },
                 "dirofilariaDate": {
                     "description": "Дирофиляриоз",
                     "type": "string",
@@ -1713,11 +1707,6 @@ const docTemplate = `{
                     ],
                     "example": "PCR"
                 },
-                "id": {
-                    "description": "ID питомца (соответствует ID в структуре Pet)",
-                    "type": "string",
-                    "example": "PET-25-000001"
-                },
                 "immunodeficiencyDate": {
                     "description": "Иммунодефицит (FIV)",
                     "type": "string",
@@ -1743,25 +1732,12 @@ const docTemplate = `{
                         }
                     ],
                     "example": "PCR"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
         "models.PetBonus": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
-                },
-                "id": {
-                    "description": "ID питомца (соответствует ID в структуре Pet)",
-                    "type": "string",
-                    "example": "PET-25-000001"
-                },
                 "isArtist": {
                     "description": "Является ли животное артистом",
                     "type": "boolean",
@@ -1781,21 +1757,12 @@ const docTemplate = `{
                     "description": "Является ли животное терапесты",
                     "type": "boolean",
                     "example": false
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
         "models.PetHealth": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "Дополнительные данные базы",
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
-                },
                 "healthStatus": {
                     "description": "Текущее состояние здоровья",
                     "allOf": [
@@ -1804,11 +1771,6 @@ const docTemplate = `{
                         }
                     ],
                     "example": "healthy"
-                },
-                "id": {
-                    "description": "ID питомца (соответствует ID в структуре Pet)",
-                    "type": "string",
-                    "example": "PET-25-000001"
                 },
                 "lastDonation": {
                     "description": "Дата последней донации",
@@ -1838,10 +1800,6 @@ const docTemplate = `{
                     "description": "Было ли раннее переливание крови?",
                     "type": "boolean",
                     "example": true
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
@@ -1859,11 +1817,6 @@ const docTemplate = `{
         "models.PetTreatment": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "Дополнительные данные базы",
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
-                },
                 "dewormingDate": {
                     "description": "Дата последней дегельминтизации (обработка от глистов)",
                     "type": "string",
@@ -1874,11 +1827,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2023-01-01T00:00:00Z"
                 },
-                "id": {
-                    "description": "ID питомца (соответствует ID в структуре Pet)",
-                    "type": "string",
-                    "example": "PET-25-000001"
-                },
                 "infectionVaccinationDate": {
                     "description": "Дата последней вакцинации от инфекций",
                     "type": "string",
@@ -1886,10 +1834,6 @@ const docTemplate = `{
                 },
                 "rabiesVaccinationDate": {
                     "description": "Дата последней вакцинации от бешенства",
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
-                },
-                "updatedAt": {
                     "type": "string",
                     "example": "2023-01-01T00:00:00Z"
                 }
@@ -1932,11 +1876,6 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": true
                 },
-                "createdAt": {
-                    "description": "Дополнительные данные базы",
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
-                },
                 "email": {
                     "type": "string",
                     "example": "user@example.com"
@@ -1948,7 +1887,7 @@ const docTemplate = `{
                 "id": {
                     "description": "Сигнатура ID пользователя включает в себя префикс пользователя, год и четырёхзначный номер",
                     "type": "string",
-                    "example": "USR-25-0001"
+                    "example": "USR-25-000001"
                 },
                 "locationId": {
                     "type": "integer",
@@ -1977,10 +1916,6 @@ const docTemplate = `{
                 "telegramId": {
                     "type": "integer",
                     "example": 123456789
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
@@ -1988,12 +1923,10 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "user",
-                "clinic",
                 "admin"
             ],
             "x-enum-varnames": [
                 "UserRoleUser",
-                "UserRoleClinic",
                 "UserRoleAdmin"
             ]
         },
@@ -2233,7 +2166,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.3.2",
+	Version:          "1.3.4",
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

@@ -27,7 +27,7 @@ func NewBloodRequestHandler(bloodRequestClient services.BloodRequestClient) *Blo
 // AddPetToBloodRequestPool godoc
 // @Summary Добавить питомца в пул поиска крови
 // @Description Добавляет питомца-реципиента в пул поиска крови
-// @Tags pets, blood-request
+// @Tags  blood-request
 // @Accept json
 // @Produce json
 // @Param request body models.BloodSearchPetRequest true "Данные питомца для пула поиска крови"
@@ -72,7 +72,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 // GetPetsFromBloodRequestPool godoc
 // @Summary Получить питомцев из пула поиска крови
 // @Description Возвращает список питомцев-реципиентов по фильтрам
-// @Tags pets, blood-request
+// @Tags blood-request
 // @Accept json
 // @Produce json
 // @Param request body models.BloodSearchFilterRequest true "Фильтры поиска: тип, группа крови, регионы"
