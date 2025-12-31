@@ -10,7 +10,7 @@ import (
 // Представление структуры питомца в системе
 type Pet struct {
 	//Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный номер
-	ID string `gorm:"primaryKey;" json:"id" example:"PET-25-000001"`
+	ID string `gorm:"primaryKey;size:15" json:"id" example:"PET-25-000001"`
 	//==============Простая регистрация для поиска крови включает в себя=====================
 	OwnerID    string  `json:"ownerId,omitempty" example:"USR-25-0001"`
 	Name       string  `gorm:"size:100;not null" json:"name" example:"Бобик"`

@@ -48,7 +48,6 @@ func GetAllReproductiveStatuses() []models.ReproductiveStatus {
 func GetAllUserRoles() []models.UserRole {
 	return []models.UserRole{
 		models.UserRoleUser,
-		models.UserRoleClinic,
 		models.UserRoleAdmin,
 	}
 }
@@ -124,8 +123,6 @@ func LocalizeUserRole(role string) (models.UserRole, error) {
 	switch r {
 	case models.UserRoleUser:
 		return "Пользователь", nil
-	case models.UserRoleClinic:
-		return "Клиника", nil
 	case models.UserRoleAdmin:
 		return "Администратор", nil
 	default:

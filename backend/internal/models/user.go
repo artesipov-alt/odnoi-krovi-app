@@ -18,7 +18,7 @@ const (
 // Представление пользователя в системе
 type User struct {
 	//Сигнатура ID пользователя включает в себя префикс пользователя, год и четырёхзначный номер
-	ID               string   `gorm:"primaryKey;" json:"id" example:"USR-25-0001"`
+	ID               string   `gorm:"primaryKey;size:15" json:"id" example:"USR-25-000001"`
 	TelegramID       int64    `gorm:"not null" json:"telegramId" example:"123456789"`
 	FullName         string   `gorm:"size:255" json:"fullName,omitempty" example:"Иван Иванов"`
 	Phone            string   `gorm:"size:20" json:"phone,omitempty" example:"+79991234567"`
@@ -39,15 +39,14 @@ type User struct {
 type UserRole string
 
 const (
-	UserRoleUser   UserRole = "user"
-	UserRoleClinic UserRole = "clinic"
-	UserRoleAdmin  UserRole = "admin"
+	UserRoleUser  UserRole = "user"
+	UserRoleAdmin UserRole = "admin"
 )
 
 // Generate создает префикс для сущности пользователя
 func (e UserPrefix) Generate(sequenceNum int) string {
 	year := time.Now().Year() % 100
-	return fmt.Sprintf("%s-%02d-%04d", e, year, sequenceNum)
+	return fmt.Sprintf("%s-%02d-%06d", e, year, sequenceNum)
 }
 
 // IsValid проверяет валидность префикса пользователя
