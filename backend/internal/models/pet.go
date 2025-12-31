@@ -22,6 +22,7 @@ type Pet struct {
 	Gender          Gender          `json:"gender,omitempty" example:"male"`
 	AgeYears        int             `json:"ageYears,omitempty" example:"3"`
 	AgeMonths       int             `json:"ageMonths,omitempty" example:"6"`
+	BirthDate       *time.Time      `json:"birthDate,omitempty" example:"2021-06-15T00:00:00Z"`
 	ChipNumber      string          `gorm:"size:15" json:"chipNumber,omitempty" example:"123456789012345"`
 	PhotoURL        string          `gorm:"size:255" json:"photoUrl,omitempty" example:"https://example.com/photo.jpg"`
 	Breed           string          `gorm:"size:100" json:"breed,omitempty" example:"Лабрадор"`

@@ -4,15 +4,44 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+// calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
+func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
+	now := time.Now()
+	if *birthDate != nil && **birthDate != (time.Time{}) {
+		// Вычисляем возраст из даты рождения
+		birth := **birthDate
+		years := now.Year() - birth.Year()
+		months := int(now.Month()) - int(birth.Month())
+		if now.Day() < birth.Day() {
+			months--
+		}
+		if months < 0 {
+			years--
+			months += 12
+		}
+		if ageYears != nil {
+			*ageYears = years
+		}
+		if ageMonths != nil {
+			*ageMonths = months
+		}
+	} else if ageYears != nil && ageMonths != nil && (*ageYears > 0 || *ageMonths > 0) {
+		// Вычисляем дату рождения из возраста
+		*birthDate = new(time.Time)
+		**birthDate = now.AddDate(-*ageYears, -*ageMonths, 0)
+	}
+}
 
 // PetService определяет интерфейс для бизнес-логики питомцев
 type PetService interface {
@@ -47,6 +76,7 @@ type PetCreate struct {
 	WeightKg        float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
 	AgeYears        int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
 	AgeMonths       int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
+	BirthDate       *time.Time             `json:"birthDate,omitempty"`
 	LivingCondition models.LivingCondition `json:"livingCondition,omitempty"`
 	Gender          models.Gender          `json:"gender,omitempty"`
 	Type            models.PetType         `json:"type,omitempty"`
@@ -69,6 +99,7 @@ type PetUpdate struct {
 	WeightKg        *float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
 	AgeYears        *int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
 	AgeMonths       *int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
+	BirthDate       *time.Time              `json:"birthDate,omitempty"`
 	LivingCondition *models.LivingCondition `json:"livingCondition,omitempty"`
 	Gender          *models.Gender          `json:"gender,omitempty"`
 	Type            *models.PetType         `json:"type,omitempty"`
@@ -140,6 +171,12 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		return nil, apperrors.ErrInvalidLivingCondition
 	}
 
+	// Вычисляем возраст или дату рождения
+	ageYears := petData.AgeYears
+	ageMonths := petData.AgeMonths
+	birthDate := petData.BirthDate
+	calculateAgeFields(&ageYears, &ageMonths, &birthDate)
+
 	// Создаем нового питомца
 	pet := &models.Pet{
 		OwnerID:         userID,
@@ -148,8 +185,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		PhotoURL:        petData.PhotoURL,
 		Breed:           petData.Breed,
 		WeightKg:        petData.WeightKg,
-		AgeYears:        petData.AgeYears,
-		AgeMonths:       petData.AgeMonths,
+		AgeYears:        ageYears,
+		AgeMonths:       ageMonths,
+		BirthDate:       birthDate,
 		LivingCondition: petData.LivingCondition,
 		Gender:          petData.Gender,
 		Type:            petData.Type,
@@ -271,6 +309,9 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 	if updates.AgeMonths != nil {
 		pet.AgeMonths = *updates.AgeMonths
 	}
+	if updates.BirthDate != nil {
+		pet.BirthDate = updates.BirthDate
+	}
 	if updates.LivingCondition != nil {
 		_, err := validation.LocalizeLivingCondition(string(*updates.LivingCondition))
 		if err != nil {
@@ -297,6 +338,17 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 	}
 	if updates.PetStatus != nil {
 		pet.PetStatus = *updates.PetStatus
+	}
+
+	// Вычисляем возраст или дату рождения при обновлении
+	if updates.BirthDate != nil {
+		calculateAgeFields(updates.AgeYears, updates.AgeMonths, &updates.BirthDate)
+	} else if updates.AgeYears != nil && updates.AgeMonths != nil {
+		calculateAgeFields(updates.AgeYears, updates.AgeMonths, &updates.BirthDate)
+	}
+
+	if updates.BirthDate != nil {
+		pet.BirthDate = updates.BirthDate
 	}
 
 	// Обновляем вложенные структуры
