@@ -630,8 +630,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение компонентов крови животных",
                 "responses": {
@@ -657,8 +656,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение групп крови животных по типу животного",
                 "parameters": [
@@ -699,8 +697,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех пород животных",
                 "responses": {
@@ -726,8 +723,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение пород животных по типу",
                 "parameters": [
@@ -768,8 +764,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех значений пола",
                 "responses": {
@@ -789,8 +784,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех статусов здоровья",
                 "responses": {
@@ -810,8 +804,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех условий проживания",
                 "responses": {
@@ -857,8 +850,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех ролей питомцев",
                 "responses": {
@@ -878,8 +870,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех типов животных",
                 "responses": {
@@ -899,8 +890,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "reference",
-                    "pets"
+                    "reference"
                 ],
                 "summary": "Получение всех репродуктивных состояний",
                 "responses": {
@@ -1943,8 +1933,9 @@ const docTemplate = `{
                     "example": true
                 },
                 "createdAt": {
+                    "description": "Дополнительные данные базы",
                     "type": "string",
-                    "example": "2023-01-01T12:00:00Z"
+                    "example": "2023-01-01T00:00:00Z"
                 },
                 "email": {
                     "type": "string",
@@ -1986,6 +1977,10 @@ const docTemplate = `{
                 "telegramId": {
                     "type": "integer",
                     "example": 123456789
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2023-01-01T00:00:00Z"
                 }
             }
         },
@@ -2238,7 +2233,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.3.1",
+	Version:          "1.3.2",
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

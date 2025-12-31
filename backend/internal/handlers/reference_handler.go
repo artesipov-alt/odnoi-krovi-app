@@ -53,7 +53,7 @@ type ReferenceItemDB struct {
 // GetPetTypesHandler godoc
 // @Summary Получение всех типов животных
 // @Description Возвращает все доступные типы животных для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список типов животных"
 // @Router /reference/pet-types [get]
@@ -84,7 +84,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 // GetGendersHandler godoc
 // @Summary Получение всех значений пола
 // @Description Возвращает все доступные значения пола для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список значений пола"
 // @Router /reference/genders [get]
@@ -115,7 +115,7 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 // GetLivingConditionsHandler godoc
 // @Summary Получение всех условий проживания
 // @Description Возвращает все доступные условия проживания для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список условий проживания"
 // @Router /reference/living-conditions [get]
@@ -177,7 +177,7 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 // GetPetRolesHandler godoc
 // @Summary Получение всех ролей питомцев
 // @Description Возвращает все доступные роли питомцев для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список ролей питомцев"
 // @Router /reference/pet-roles [get]
@@ -208,7 +208,7 @@ func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
 // GetBreedsHandler godoc
 // @Summary Получение всех пород животных
 // @Description Возвращает список всех пород животных в базе для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список пород животных"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
@@ -270,7 +270,7 @@ func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 // GetBreedsByTypeHandler godoc
 // @Summary Получение пород животных по типу
 // @Description Возвращает список пород животных для указанного типа животного для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Param petType query string true "Тип животного (dog, cat, etc.)"
 // @Success 200 {object} ReferenceResponse "Список пород животных"
@@ -318,7 +318,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 // GetBloodComponentsHandler godoc
 // @Summary Получение компонентов крови животных
 // @Description Возвращает список компонентов крови животных для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список компонентов крови"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
@@ -349,7 +349,7 @@ func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 // GetBloodGroupsHandler godoc
 // @Summary Получение групп крови животных по типу животного
 // @Description Возвращает список групп крови животных для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Param pet_type path string true "Тип животного"
 // @Success 200 {object} ReferenceResponseDB "Список групп крови"
@@ -390,7 +390,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 // GetHealthStatusesHandler godoc
 // @Summary Получение всех статусов здоровья
 // @Description Возвращает все доступные статусы здоровья для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список статусов здоровья"
 // @Router /reference/health-statuses [get]
@@ -421,7 +421,7 @@ func (h *ReferenceHandler) GetHealthStatusesHandler(c *fiber.Ctx) error {
 // GetReproductiveStatusesHandler godoc
 // @Summary Получение всех репродуктивных состояний
 // @Description Возвращает все доступные репродуктивные состояния для выбора на фронтенде
-// @Tags reference, pets
+// @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список репродуктивных состояний"
 // @Router /reference/reproductive-statuses [get]
