@@ -57,8 +57,8 @@ type PetHealth struct {
 	// Хирургические вмешательства перечисление
 	SurgicalInterventions string `json:"surgicalInterventions,omitempty" example:"spaying"`
 	// Дополнительные данные базы
-	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
@@ -75,8 +75,8 @@ type PetTreatment struct {
 	// Дата последней дегельминтизации (обработка от глистов)
 	DewormingDate *time.Time `json:"dewormingDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	// Дополнительные данные базы
-	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
@@ -117,8 +117,8 @@ type PetAnalysis struct {
 	AnaplasmosisDate *time.Time   `json:"anaplasmosisDate,omitempty" example:"2023-01-01T00:00:00Z"`
 	AnaplasmosisType AnalysisType `json:"anaplasmosisType,omitempty" example:"PCR"`
 
-	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
@@ -136,8 +136,8 @@ type PetBonus struct {
 	// Является ли животное собакой-проводником
 	IsGuideDog bool `json:"isGuideDog" example:"false"`
 
-	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 

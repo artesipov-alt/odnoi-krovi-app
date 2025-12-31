@@ -30,8 +30,8 @@ type User struct {
 	LocationID       int      `json:"locationId,omitempty" example:"1"`
 	Role             UserRole `json:"role,omitempty" example:"user"`
 	// Дополнительные данные базы
-	CreatedAt time.Time       `json:"createdAt" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt time.Time       `json:"updatedAt" example:"2023-01-01T00:00:00Z"`
+	CreatedAt time.Time       `json:"createdAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time       `json:"updatedAt,omitempty" swaggerignore:"true" example:"2023-01-01T00:00:00Z"`
 	DeletedAt *gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty" swaggerignore:"true"`
 }
 
