@@ -31,7 +31,7 @@ import (
 )
 
 // @title 1krovi.app
-// @version 1.3.3
+// @version 1.3.4
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
 // @BasePath /api/v1
@@ -92,7 +92,8 @@ func main() {
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
-	petHandler := handlers.NewPetHandler(petService, bloodSearchClient)
+	petHandler := handlers.NewPetHandler(petService)
+	bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchClient)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
 
@@ -150,9 +151,11 @@ func main() {
 	petGroup.Get("/upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
 	petGroup.Post("/upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
 
-	// Поиск крови связан с питомцами: добавление и поиск питомцев для поиска крови
-	petGroup.Post("/blood-request/pool", petHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
-	petGroup.Post("/blood-request/pool/search", petHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
+	// Группа маршрутов для пула запросов крови
+	bloodRequestGroup := v1.Group("/blood-request")
+
+	bloodRequestGroup.Post("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
+	bloodRequestGroup.Post("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
 
 	// Группа маршрутов для справочных данных
 	referenceGroup := v1.Group("/reference")
