@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"strconv"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -38,20 +39,20 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [get]
-func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
-	id, err := utils.ParseStringParam(c, "id")
-	if err != nil {
-		return err
+func (h *UserHandler) GetUserHandler(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
 	}
 
 	logger.Log.Info("получение пользователя", zap.String("userId", id))
 
-	user, err := h.userService.GetUserByID(c.Context(), id)
+	user, err := h.userService.GetUserByID(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
 
-	return utils.SendJSON(c, user)
+	return c.JSON(200, user)
 }
 
 // RegisterUserSimpleHandler godoc
@@ -66,10 +67,10 @@ func (h *UserHandler) GetUserHandler(c *fiber.Ctx) error {
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/register/simple [post]
-func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
+func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 	var request SimpleRegistrationRequest
-	if err := utils.ParseBody(c, &request); err != nil {
-		return err
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
 	}
 
 	// Использовать предоставленное полное имя или установить значение по умолчанию "Пользователь Telegram"
@@ -80,12 +81,12 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("регистрация пользователя", zap.Int64("telegramId", request.TelegramID))
 
-	user, err := h.userService.RegisterUserSimple(c.Context(), request.TelegramID, fullName)
+	user, err := h.userService.RegisterUserSimple(c.Request().Context(), request.TelegramID, fullName)
 	if err != nil {
 		return err
 	}
 
-	return utils.SendCreated(c, user)
+	return c.JSON(201, user)
 }
 
 // RegisterUserHandler godoc
@@ -101,26 +102,26 @@ func (h *UserHandler) RegisterUserSimpleHandler(c *fiber.Ctx) error {
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Deprecated
 // @Router /user/register [post]
-func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
+func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
 	var registrationData services.UserRegistration
-	if err := utils.ParseBody(c, &registrationData); err != nil {
-		return err
+	if err := c.Bind(&registrationData); err != nil {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
 	}
 
 	// Получить Telegram ID из контекста (должен быть установлен промежуточным ПО)
-	telegramID, ok := c.Locals("telegram_id").(int64)
+	telegramID, ok := c.Get("telegram_id").(int64)
 	if !ok {
-		return apperrors.BadRequest("Telegram ID обязателен")
+		return c.JSON(400, utils.ErrorResponse{Message: "Telegram ID обязателен"})
 	}
 
 	logger.Log.Info("регистрация пользователя", zap.Int64("telegramId", telegramID))
 
-	user, err := h.userService.RegisterUser(c.Context(), telegramID, registrationData)
+	user, err := h.userService.RegisterUser(c.Request().Context(), telegramID, registrationData)
 	if err != nil {
 		return err
 	}
 
-	return utils.SendCreated(c, user)
+	return c.JSON(201, user)
 }
 
 // UpdateUserHandler godoc
@@ -136,24 +137,24 @@ func (h *UserHandler) RegisterUserHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [put]
-func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
-	id, err := utils.ParseStringParam(c, "id")
-	if err != nil {
-		return err
+func (h *UserHandler) UpdateUserHandler(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
 	}
 
 	var updateData services.UserUpdate
-	if err := utils.ParseBody(c, &updateData); err != nil {
-		return err
+	if err := c.Bind(&updateData); err != nil {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
 	}
 
 	logger.Log.Info("обновление пользователя", zap.String("userId", id))
 
-	if err := h.userService.UpdateUserProfile(c.Context(), id, updateData); err != nil {
+	if err := h.userService.UpdateUserProfile(c.Request().Context(), id, updateData); err != nil {
 		return err
 	}
 
-	return utils.SendSuccess(c, "Пользователь успешно обновлен")
+	return c.JSON(200, map[string]string{"message": "Пользователь успешно обновлен"})
 }
 
 // GetUserByTelegramHandler godoc
@@ -167,20 +168,24 @@ func (h *UserHandler) UpdateUserHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/telegram [get]
-func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
-	telegramID, err := utils.ParseInt64Query(c, "telegram_id")
+func (h *UserHandler) GetUserByTelegramHandler(c echo.Context) error {
+	telegramIDStr := c.QueryParam("telegram_id")
+	if telegramIDStr == "" {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid telegram_id"})
+	}
+	telegramID, err := strconv.ParseInt(telegramIDStr, 10, 64)
 	if err != nil {
-		return err
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid telegram_id"})
 	}
 
 	logger.Log.Info("получение пользователя по Telegram ID", zap.Int64("telegramId", telegramID))
 
-	user, err := h.userService.GetUserByTelegramID(c.Context(), telegramID)
+	user, err := h.userService.GetUserByTelegramID(c.Request().Context(), telegramID)
 	if err != nil {
 		return err
 	}
 
-	return utils.SendJSON(c, user)
+	return c.JSON(200, user)
 }
 
 // DeleteUserHandler godoc
@@ -194,17 +199,17 @@ func (h *UserHandler) GetUserByTelegramHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/{id} [delete]
-func (h *UserHandler) DeleteUserHandler(c *fiber.Ctx) error {
-	id, err := utils.ParseStringParam(c, "id")
-	if err != nil {
-		return err
+func (h *UserHandler) DeleteUserHandler(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
 	}
 
 	logger.Log.Info("удаление пользователя", zap.String("userId", id))
 
-	if err := h.userService.DeleteUser(c.Context(), id); err != nil {
+	if err := h.userService.DeleteUser(c.Request().Context(), id); err != nil {
 		return err
 	}
 
-	return utils.SendSuccess(c, "Пользователь успешно удален")
+	return c.JSON(200, map[string]string{"message": "Пользователь успешно удален"})
 }

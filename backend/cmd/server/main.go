@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,8 +10,9 @@ import (
 
 	_ "github.com/artesipov-alt/odnoi-krovi-app/docs" // Документация Swagger
 	cache "github.com/artesipov-alt/odnoi-krovi-app/internal/cache/redis"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"   // Обработчики HTTP запросов
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware" // Промежуточное ПО
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers" // Обработчики HTTP запросов
+
+	// Промежуточное ПО
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 
 	// Репозитории для работы с БД
@@ -20,14 +22,13 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"                   // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"                   // Логирование
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/migration"
 
 	// Управление миграциями
-	"github.com/gofiber/fiber/v2"                 // Веб-фреймворк
-	"github.com/gofiber/fiber/v2/middleware/cors" // CORS middleware
-	"github.com/gofiber/swagger"                  // Swagger UI
-	"github.com/joho/godotenv"                    // Загрузка .env файлов
-	"go.uber.org/zap"                             // Структурированное логирование
+	"github.com/joho/godotenv"                              // Загрузка .env файлов
+	"github.com/labstack/echo/v4"                           // Веб-фреймворк
+	echomiddleware "github.com/labstack/echo/v4/middleware" // CORS middleware
+	echoSwagger "github.com/swaggo/echo-swagger"            // Swagger UI
+	"go.uber.org/zap"                                       // Структурированное логирование
 )
 
 // @title 1krovi.app
@@ -61,8 +62,8 @@ func main() {
 	}
 
 	// Автоматическое создание/обновление таблиц в БД на проде
-	migration.AutoMigrate(db, logger.Log)
-	migration.SeedDatabase(db, logger.Log)
+	// migration.AutoMigrate(db, logger.Log)
+	// migration.SeedDatabase(db, logger.Log)
 
 	// Инициализация репозиториев
 	userRepo := pgrepositories.NewPostgresUserRepository(db)
@@ -97,17 +98,16 @@ func main() {
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
 
-	// Создание экземпляра Fiber приложения с кастомным обработчиком ошибок
-	app := fiber.New(fiber.Config{
-		ErrorHandler: middleware.ErrorHandler(),
-	})
+	// Создание экземпляра echo приложения с кастомным обработчиком ошибок
+	app := echo.New()
+	// app.HTTPErrorHandler = middleware.ErrorHandler()
 
 	// Настройка CORS для кросс-доменных запросов
-	app.Use(cors.New(config.CORSOptions()))
+	app.Use(echomiddleware.CORS())
 
 	// Подключение middleware
-	app.Use(middleware.RecoveryMiddleware()) // Восстановление после паники
-	app.Use(middleware.LoggerMiddleware)     // Логирование запросов
+	app.Use(echomiddleware.Recover())       // Восстановление после паники
+	app.Use(echomiddleware.RequestLogger()) // Логирование запросов
 	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
 	// app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 
@@ -115,63 +115,63 @@ func main() {
 	api := app.Group("/api")
 
 	// Документация Swagger - доступна по адресу /api/swagger/*
-	api.Get("/swagger/*", swagger.HandlerDefault)
+	api.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// Группировка API маршрутов с префиксом /api/v1
 	v1 := api.Group("/v1")
 
 	// Корневой маршрут API
-	v1.Get("/", handlers.RootHandler)
+	v1.GET("/", handlers.RootHandler)
 
 	// Группа маршрутов для работы с пользователями
 	userGroup := v1.Group("/user")
 
-	userGroup.Get("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
-	userGroup.Post("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
-	userGroup.Post("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
-	userGroup.Get("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
-	userGroup.Put("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
-	userGroup.Delete("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
+	userGroup.GET("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
+	userGroup.POST("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
+	userGroup.POST("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
+	userGroup.GET("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
+	userGroup.PUT("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
+	userGroup.DELETE("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
 
 	// Группа маршрутов для разработчиков
 	devGroup := v1.Group("/dev")
 
-	devGroup.Post("/restore-user/:id", devHandler.RestoreUserHandler)
-	devGroup.Post("/reset-user/:id", devHandler.ResetUserHandler)     // Сброс пользователя к заводским настройкам
-	devGroup.Get("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
+	devGroup.POST("/restore-user/:id", devHandler.RestoreUserHandler)
+	devGroup.POST("/reset-user/:id", devHandler.ResetUserHandler)     // Сброс пользователя к заводским настройкам
+	devGroup.GET("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
 
 	// Группа маршрутов для работы с питомцами и поиском крови
 	petGroup := v1.Group("/pets")
 
-	petGroup.Get("/user/:user_id", petHandler.GetUserPetsHandler)                    // Получение всех питомцев пользователя
-	petGroup.Post("/user/:user_id", petHandler.CreatePetHandler)                     // Создание питомца для пользователя
-	petGroup.Get("/:id", petHandler.GetPetHandler)                                   // Получение питомца по ID
-	petGroup.Put("/:id", petHandler.UpdatePetHandler)                                // Обновление данных питомца
-	petGroup.Delete("/:id", petHandler.DeletePetHandler)                             // Удаление питомца по ID
-	petGroup.Get("/upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
-	petGroup.Post("/upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
+	petGroup.GET("/user/:user_id", petHandler.GetUserPetsHandler)                    // Получение всех питомцев пользователя
+	petGroup.POST("/user/:user_id", petHandler.CreatePetHandler)                     // Создание питомца для пользователя
+	petGroup.GET("/:id", petHandler.GetPetHandler)                                   // Получение питомца по ID
+	petGroup.PUT("/:id", petHandler.UpdatePetHandler)                                // Обновление данных питомца
+	petGroup.DELETE("/:id", petHandler.DeletePetHandler)                             // Удаление питомца по ID
+	petGroup.GET("/upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
+	petGroup.POST("/upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
 
 	// Группа маршрутов для пула запросов крови
 	bloodRequestGroup := v1.Group("/blood-request")
 
-	bloodRequestGroup.Post("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
-	bloodRequestGroup.Post("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
+	bloodRequestGroup.POST("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
+	bloodRequestGroup.POST("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
 
 	// Группа маршрутов для справочных данных
 	referenceGroup := v1.Group("/reference")
 
-	referenceGroup.Get("/pet-types", referenceHandler.GetPetTypesHandler)
-	referenceGroup.Get("/pet-roles", referenceHandler.GetPetRolesHandler)
-	referenceGroup.Get("/genders", referenceHandler.GetGendersHandler)
-	referenceGroup.Get("/user-roles", referenceHandler.GetUserRolesHandler)
-	referenceGroup.Get("/breeds", referenceHandler.GetBreedsHandler)
-	referenceGroup.Get("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)
-	referenceGroup.Get("/blood-components", referenceHandler.GetBloodComponentsHandler)
-	referenceGroup.Get("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)
-	referenceGroup.Get("/living-conditions", referenceHandler.GetLivingConditionsHandler)
-	referenceGroup.Get("/locations", referenceHandler.GetLocationsHandler)
-	referenceGroup.Get("/health-statuses", referenceHandler.GetHealthStatusesHandler)
-	referenceGroup.Get("/reproductive-statuses", referenceHandler.GetReproductiveStatusesHandler)
+	referenceGroup.GET("/pet-types", referenceHandler.GetPetTypesHandler)
+	referenceGroup.GET("/pet-roles", referenceHandler.GetPetRolesHandler)
+	referenceGroup.GET("/genders", referenceHandler.GetGendersHandler)
+	referenceGroup.GET("/user-roles", referenceHandler.GetUserRolesHandler)
+	referenceGroup.GET("/breeds", referenceHandler.GetBreedsHandler)
+	referenceGroup.GET("/breeds-by-type", referenceHandler.GetBreedsByTypeHandler)
+	referenceGroup.GET("/blood-components", referenceHandler.GetBloodComponentsHandler)
+	referenceGroup.GET("/blood-groups/:pet_type", referenceHandler.GetBloodGroupsHandler)
+	referenceGroup.GET("/living-conditions", referenceHandler.GetLivingConditionsHandler)
+	referenceGroup.GET("/locations", referenceHandler.GetLocationsHandler)
+	referenceGroup.GET("/health-statuses", referenceHandler.GetHealthStatusesHandler)
+	referenceGroup.GET("/reproductive-statuses", referenceHandler.GetReproductiveStatusesHandler)
 
 	// Канал для graceful shutdown
 	quit := make(chan os.Signal, 1)
@@ -180,7 +180,7 @@ func main() {
 	// Запуск сервера в отдельной горутине
 	go func() {
 		logger.Log.Info("Сервер запускается", zap.String("port", serverConfig.Port))
-		if err := app.Listen(":" + serverConfig.Port); err != nil {
+		if err := app.Start(":" + serverConfig.Port); err != nil {
 			logger.Log.Fatal("Ошибка запуска сервера", zap.Error(err))
 		}
 	}()
@@ -192,5 +192,14 @@ func main() {
 	logger.Log.Info("🚨 Получен сигнал завершения работы сервера")
 
 	// Graceful shutdown сервера
-	config.GracefulShutdown(app, db, rCache, 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := app.Shutdown(ctx); err != nil {
+		logger.Log.Error("Ошибка завершения работы сервера", zap.Error(err))
+	}
+	if rCache != nil {
+		if err := rCache.Close(); err != nil {
+			logger.Log.Error("Ошибка закрытия кэша", zap.Error(err))
+		}
+	}
 }

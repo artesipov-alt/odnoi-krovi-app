@@ -5,17 +5,17 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/validation"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 )
 
 // ErrorResponse представляет ответ с ошибкой (для обратной совместимости с Swagger)
 type ErrorResponse struct {
-	Error string `json:"error"`
+	Message string `json:"message"`
 }
 
 // ParseIDParam парсит ID из параметра пути
-func ParseIDParam(c *fiber.Ctx, paramName string) (int, error) {
-	idStr := c.Params(paramName)
+func ParseIDParam(c echo.Context, paramName string) (int, error) {
+	idStr := c.Param(paramName)
 	if idStr == "" {
 		return 0, apperrors.BadRequest(paramName + " обязателен")
 	}
@@ -33,8 +33,8 @@ func ParseIDParam(c *fiber.Ctx, paramName string) (int, error) {
 }
 
 // ParseStringParam парсит строку из параметра пути
-func ParseStringParam(c *fiber.Ctx, paramName string) (string, error) {
-	str := c.Params(paramName)
+func ParseStringParam(c echo.Context, paramName string) (string, error) {
+	str := c.Param(paramName)
 	if str == "" {
 		return "", apperrors.BadRequest(paramName + " обязателен")
 	}
@@ -43,8 +43,8 @@ func ParseStringParam(c *fiber.Ctx, paramName string) (string, error) {
 }
 
 // ParseInt64Query парсит int64 из query параметра
-func ParseInt64Query(c *fiber.Ctx, paramName string) (int64, error) {
-	str := c.Query(paramName)
+func ParseInt64Query(c echo.Context, paramName string) (int64, error) {
+	str := c.QueryParam(paramName)
 	if str == "" {
 		return 0, apperrors.BadRequest(paramName + " обязателен")
 	}
@@ -62,8 +62,8 @@ func ParseInt64Query(c *fiber.Ctx, paramName string) (int64, error) {
 }
 
 // ParseIntQuery парсит int из query параметра
-func ParseIntQuery(c *fiber.Ctx, paramName string) (int, error) {
-	str := c.Query(paramName)
+func ParseIntQuery(c echo.Context, paramName string) (int, error) {
+	str := c.QueryParam(paramName)
 	if str == "" {
 		return 0, apperrors.BadRequest(paramName + " обязателен")
 	}
@@ -81,8 +81,8 @@ func ParseIntQuery(c *fiber.Ctx, paramName string) (int, error) {
 }
 
 // ParseOptionalIntQuery парсит опциональный int из query параметра
-func ParseOptionalIntQuery(c *fiber.Ctx, paramName string) (*int, error) {
-	str := c.Query(paramName)
+func ParseOptionalIntQuery(c echo.Context, paramName string) (*int, error) {
+	str := c.QueryParam(paramName)
 	if str == "" {
 		return nil, nil
 	}
@@ -96,8 +96,8 @@ func ParseOptionalIntQuery(c *fiber.Ctx, paramName string) (*int, error) {
 }
 
 // ParseFloatQuery парсит float64 из query параметра
-func ParseFloatQuery(c *fiber.Ctx, paramName string) (float64, error) {
-	str := c.Query(paramName)
+func ParseFloatQuery(c echo.Context, paramName string) (float64, error) {
+	str := c.QueryParam(paramName)
 	if str == "" {
 		return 0, apperrors.BadRequest(paramName + " обязателен")
 	}
@@ -111,8 +111,8 @@ func ParseFloatQuery(c *fiber.Ctx, paramName string) (float64, error) {
 }
 
 // ParseBody парсит тело запроса и валидирует структуру
-func ParseBody(c *fiber.Ctx, target any) error {
-	if err := c.BodyParser(target); err != nil {
+func ParseBody(c echo.Context, target any) error {
+	if err := c.Bind(target); err != nil {
 		return apperrors.BadRequest("неверное тело запроса")
 	}
 
@@ -135,27 +135,26 @@ type SuccessResponse struct {
 }
 
 // SendSuccess отправляет успешный JSON ответ
-func SendSuccess(c *fiber.Ctx, message string) error {
-	return c.JSON(SuccessResponse{
+func SendSuccess(c echo.Context, message string) error {
+	return c.JSON(200, SuccessResponse{
 		Message: message,
 	})
 }
 
 // SendSuccessWithData отправляет успешный JSON ответ с данными
-func SendSuccessWithData(c *fiber.Ctx, message string, data any) error {
-	return c.JSON(SuccessResponse{
+func SendSuccessWithData(c echo.Context, message string, data any) error {
+	return c.JSON(200, SuccessResponse{
 		Message: message,
 		Data:    data,
 	})
 }
 
 // SendCreated отправляет ответ с кодом 201 Created
-func SendCreated(c *fiber.Ctx, data any) error {
-	return c.Status(fiber.StatusCreated).JSON(data)
+func SendCreated(c echo.Context, data any) error {
+	return c.JSON(201, data)
 }
 
 // SendJSON отправляет JSON ответ
-func SendJSON(c *fiber.Ctx, data any) error {
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(data)
+func SendJSON(c echo.Context, data any) error {
+	return c.JSON(200, data)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -57,7 +57,7 @@ type ReferenceItemDB struct {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список типов животных"
 // @Router /reference/pet-types [get]
-func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetPetTypesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника типов животных")
 
 	petTypes := enums.GetAllPetTypes()
@@ -66,8 +66,8 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 	for i, petType := range petTypes {
 		ruValue, err := validation.LocalizePetType(string(petType))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: apperrors.ErrInvalidPetType.Error(),
+			return c.JSON(500, utils.ErrorResponse{
+				Message: apperrors.ErrInvalidPetType.Error(),
 			})
 		}
 
@@ -77,8 +77,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }
 
 // GetGendersHandler godoc
@@ -88,7 +87,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список значений пола"
 // @Router /reference/genders [get]
-func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetGendersHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника полов")
 
 	genders := enums.GetAllGenders()
@@ -97,8 +96,8 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 	for i, gender := range genders {
 		ruValue, err := validation.LocalizeGender(string(gender))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: apperrors.ErrInvalidGender.Error(),
+			return c.JSON(500, utils.ErrorResponse{
+				Message: apperrors.ErrInvalidGender.Error(),
 			})
 		}
 
@@ -108,8 +107,7 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }
 
 // GetLivingConditionsHandler godoc
@@ -119,7 +117,7 @@ func (h *ReferenceHandler) GetGendersHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список условий проживания"
 // @Router /reference/living-conditions [get]
-func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetLivingConditionsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника условий проживания")
 
 	conditions := enums.GetAllLivingConditions()
@@ -128,8 +126,8 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 	for i, condition := range conditions {
 		ruValue, err := validation.LocalizeLivingCondition(string(condition))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: apperrors.ErrInvalidLivingCondition.Error(),
+			return c.JSON(500, utils.ErrorResponse{
+				Message: apperrors.ErrInvalidLivingCondition.Error(),
 			})
 		}
 
@@ -139,8 +137,7 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }
 
 // GetUserRolesHandler godoc
@@ -150,7 +147,7 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список ролей пользователей"
 // @Router /reference/user-roles [get]
-func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetUserRolesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника ролей пользователей")
 
 	roles := enums.GetAllUserRoles()
@@ -159,8 +156,8 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 	for i, role := range roles {
 		ruValue, err := validation.LocalizeUserRole(string(role))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: apperrors.ErrUserInvalidRole.Error(),
+			return c.JSON(500, utils.ErrorResponse{
+				Message: apperrors.ErrUserInvalidRole.Error(),
 			})
 		}
 
@@ -170,8 +167,7 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }
 
 // GetPetRolesHandler godoc
@@ -181,7 +177,7 @@ func (h *ReferenceHandler) GetUserRolesHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список ролей питомцев"
 // @Router /reference/pet-roles [get]
-func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetPetRolesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника ролей питомцев")
 
 	roles := enums.GetAllPetRoles()
@@ -190,8 +186,8 @@ func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
 	for i, role := range roles {
 		ruValue, err := validation.LocalizePetRole(string(role))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: apperrors.ErrPetInvalidRole.Error(),
+			return c.JSON(500, utils.ErrorResponse{
+				Message: apperrors.ErrPetInvalidRole.Error(),
 			})
 		}
 
@@ -201,8 +197,7 @@ func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }
 
 // GetBreedsHandler godoc
@@ -213,14 +208,14 @@ func (h *ReferenceHandler) GetPetRolesHandler(c *fiber.Ctx) error {
 // @Success 200 {object} ReferenceResponse "Список пород животных"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/breeds [get]
-func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetBreedsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника пород животных")
 
-	breeds, err := h.breedRepo.GetAll(c.Context())
+	breeds, err := h.breedRepo.GetAll(c.Request().Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-			Error: "Не удалось получить список пород",
+		return c.JSON(500, utils.ErrorResponse{
+			Message: "Не удалось получить список пород",
 		})
 	}
 
@@ -232,8 +227,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponseDB{Data: items})
+	return c.JSON(200, ReferenceResponseDB{Data: items})
 }
 
 // GetLocationsHandler godoc
@@ -244,14 +238,14 @@ func (h *ReferenceHandler) GetBreedsHandler(c *fiber.Ctx) error {
 // @Success 200 {object} ReferenceResponseDB "Список локаций"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/locations [get]
-func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetLocationsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника локаций")
 
-	locations, err := h.locationRepo.GetAll(c.Context())
+	locations, err := h.locationRepo.GetAll(c.Request().Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить локации из БД", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-			Error: "Не удалось получить список локаций",
+		return c.JSON(500, utils.ErrorResponse{
+			Message: "Не удалось получить список локаций",
 		})
 	}
 
@@ -263,8 +257,7 @@ func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponseDB{Data: items})
+	return c.JSON(200, ReferenceResponseDB{Data: items})
 }
 
 // GetBreedsByTypeHandler godoc
@@ -277,29 +270,29 @@ func (h *ReferenceHandler) GetLocationsHandler(c *fiber.Ctx) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/breeds-by-type [get]
-func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetBreedsByTypeHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника пород животных по типу животного")
 
-	petTypeStr := c.Query("petType")
+	petTypeStr := c.QueryParam("petType")
 	if petTypeStr == "" {
 		logger.Log.Error("не указан тип животного")
-		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
-			Error: "Необходимо указать тип животного",
+		return c.JSON(400, utils.ErrorResponse{
+			Message: "Необходимо указать тип животного",
 		})
 	}
 
 	if _, err := validation.LocalizePetType(petTypeStr); err != nil {
 		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
-		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
-			Error: "Неверный тип животного",
+		return c.JSON(400, utils.ErrorResponse{
+			Message: "Неверный тип животного",
 		})
 	}
 
-	breeds, err := h.breedRepo.GetByPetType(c.Context(), models.PetType(petTypeStr))
+	breeds, err := h.breedRepo.GetByPetType(c.Request().Context(), models.PetType(petTypeStr))
 	if err != nil {
 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err), zap.String("petType", petTypeStr))
-		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-			Error: "Не удалось получить список пород",
+		return c.JSON(500, utils.ErrorResponse{
+			Message: "Не удалось получить список пород",
 		})
 	}
 
@@ -311,8 +304,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponseDB{Data: items})
+	return c.JSON(200, ReferenceResponseDB{Data: items})
 }
 
 // GetBloodComponentsHandler godoc
@@ -323,14 +315,14 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c *fiber.Ctx) error {
 // @Success 200 {object} ReferenceResponse "Список компонентов крови"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/blood-components [get]
-func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetBloodComponentsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника компоненотов крови")
 
-	bloodComponents, err := h.bloodRepo.AllComponents(c.Context())
+	bloodComponents, err := h.bloodRepo.AllComponents(c.Request().Context())
 	if err != nil {
 		logger.Log.Error("не удалось получить компоненотов крови из БД", zap.Error(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-			Error: "Не удалось получить список компоненотов крови",
+		return c.JSON(500, utils.ErrorResponse{
+			Message: "Не удалось получить список компоненотов крови",
 		})
 	}
 
@@ -342,8 +334,7 @@ func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponseDB{Data: items})
+	return c.JSON(200, ReferenceResponseDB{Data: items})
 }
 
 // GetBloodGroupsHandler godoc
@@ -356,22 +347,22 @@ func (h *ReferenceHandler) GetBloodComponentsHandler(c *fiber.Ctx) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /reference/blood-groups/{pet_type} [get]
-func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
-	petType := c.Params("pet_type")
+func (h *ReferenceHandler) GetBloodGroupsHandler(c echo.Context) error {
+	petType := c.Param("pet_type")
 	if petType == "" {
 		logger.Log.Error("не указан тип животного")
-		return c.Status(fiber.StatusBadRequest).JSON(utils.ErrorResponse{
-			Error: "Необходимо указать тип животного",
+		return c.JSON(400, utils.ErrorResponse{
+			Message: "Необходимо указать тип животного",
 		})
 	}
 
 	logger.Log.Info("получение групп крови по типу животного", zap.String("petType", petType))
 
-	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(c.Context(), models.PetType(petType))
+	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(c.Request().Context(), models.PetType(petType))
 	if err != nil {
 		logger.Log.Error("не удалось получить группы крови из БД", zap.Error(err), zap.String("petType", petType))
-		return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-			Error: "Не удалось получить список групп крови",
+		return c.JSON(500, utils.ErrorResponse{
+			Message: "Не удалось получить список групп крови",
 		})
 	}
 
@@ -383,8 +374,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponseDB{Data: items})
+	return c.JSON(200, ReferenceResponseDB{Data: items})
 }
 
 // GetHealthStatusesHandler godoc
@@ -394,7 +384,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список статусов здоровья"
 // @Router /reference/health-statuses [get]
-func (h *ReferenceHandler) GetHealthStatusesHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetHealthStatusesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника статусов здоровья")
 
 	statuses := enums.GetAllHealthStatuses()
@@ -403,8 +393,8 @@ func (h *ReferenceHandler) GetHealthStatusesHandler(c *fiber.Ctx) error {
 	for i, status := range statuses {
 		ruValue, err := validation.LocalizeHealthStatus(string(status))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: "Не удалось получить список статусов здоровья",
+			return c.JSON(500, utils.ErrorResponse{
+				Message: "Не удалось получить список статусов здоровья",
 			})
 		}
 
@@ -414,8 +404,7 @@ func (h *ReferenceHandler) GetHealthStatusesHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }
 
 // GetReproductiveStatusesHandler godoc
@@ -425,7 +414,7 @@ func (h *ReferenceHandler) GetHealthStatusesHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список репродуктивных состояний"
 // @Router /reference/reproductive-statuses [get]
-func (h *ReferenceHandler) GetReproductiveStatusesHandler(c *fiber.Ctx) error {
+func (h *ReferenceHandler) GetReproductiveStatusesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника репродуктивных состояний")
 
 	statuses := enums.GetAllReproductiveStatuses()
@@ -434,8 +423,8 @@ func (h *ReferenceHandler) GetReproductiveStatusesHandler(c *fiber.Ctx) error {
 	for i, status := range statuses {
 		ruValue, err := validation.LocalizeReproductiveStatus(string(status))
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
-				Error: "Не удалось получить список репродуктивных состояний",
+			return c.JSON(500, utils.ErrorResponse{
+				Message: "Не удалось получить список репродуктивных состояний",
 			})
 		}
 
@@ -445,6 +434,5 @@ func (h *ReferenceHandler) GetReproductiveStatusesHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Set("Content-Type", "application/json; charset=utf-8")
-	return c.JSON(ReferenceResponse{Data: items})
+	return c.JSON(200, ReferenceResponse{Data: items})
 }

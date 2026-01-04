@@ -226,6 +226,9 @@ definitions:
         type: integer
       analysis:
         $ref: '#/definitions/models.PetAnalysis'
+      birthDate:
+        example: "2021-06-15T00:00:00Z"
+        type: string
       bloodGroup:
         example: DEA 1+
         type: string
@@ -510,6 +513,8 @@ definitions:
         type: integer
       analysis:
         $ref: '#/definitions/models.PetAnalysis'
+      birthDate:
+        type: string
       bloodGroup:
         maxLength: 50
         type: string
@@ -560,6 +565,8 @@ definitions:
         type: integer
       analysis:
         $ref: '#/definitions/models.PetAnalysis'
+      birthDate:
+        type: string
       bloodGroup:
         maxLength: 50
         type: string
@@ -645,7 +652,7 @@ definitions:
     type: object
   utils.ErrorResponse:
     properties:
-      error:
+      message:
         type: string
     type: object
   utils.SuccessResponse:
@@ -658,7 +665,7 @@ info:
   contact: {}
   description: API сервиса однойкрови.рф для донороcства крови и помощи животным
   title: 1krovi.app
-  version: 1.3.4
+  version: 1.3.5
 paths:
   /:
     get:

@@ -4,7 +4,7 @@
         "description": "API сервиса однойкрови.рф для донороcства крови и помощи животным",
         "title": "1krovi.app",
         "contact": {},
-        "version": "1.3.4"
+        "version": "1.3.5"
     },
     "basePath": "/api/v1",
     "paths": {
@@ -1528,6 +1528,10 @@
                 "analysis": {
                     "$ref": "#/definitions/models.PetAnalysis"
                 },
+                "birthDate": {
+                    "type": "string",
+                    "example": "2021-06-15T00:00:00Z"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "example": "DEA 1+"
@@ -1941,6 +1945,9 @@
                 "analysis": {
                     "$ref": "#/definitions/models.PetAnalysis"
                 },
+                "birthDate": {
+                    "type": "string"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "maxLength": 50
@@ -2012,6 +2019,9 @@
                 },
                 "analysis": {
                     "$ref": "#/definitions/models.PetAnalysis"
+                },
+                "birthDate": {
+                    "type": "string"
                 },
                 "bloodGroup": {
                     "type": "string",
@@ -2140,7 +2150,7 @@
         "utils.ErrorResponse": {
             "type": "object",
             "properties": {
-                "error": {
+                "message": {
                     "type": "string"
                 }
             }

@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"github.com/mitchellh/mapstructure"
 	"go.uber.org/zap"
 
@@ -35,7 +37,7 @@ func NewBloodRequestHandler(bloodRequestClient services.BloodRequestClient) *Blo
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-request/pool [post]
-func (h *BloodRequestHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
+func (h *BloodRequestHandler) AddPetToBloodRequestPool(c echo.Context) error {
 	var petReq models.BloodSearchPetRequest
 	if err := utils.ParseBody(c, &petReq); err != nil {
 		return err
@@ -44,7 +46,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 	// Конвертируем DTO в protobuf структуру
 	pet := &bloodrequestv1.BloodRequest{}
 	if err := mapstructure.Decode(petReq, pet); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации данных")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Ошибка конвертации данных")
 	}
 
 	logger.Log.Info(
@@ -54,16 +56,16 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 		zap.Strings("bloodGroup", pet.BloodGroup),
 	)
 
-	status, err := h.bloodRequestClient.AddPet(c.Context(), pet)
+	status, err := h.bloodRequestClient.AddPet(c.Request().Context(), pet)
 	if err != nil {
 		logger.Log.Error("failed to add pet to blood Request pool", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось добавить питомца в пул поиска крови")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Не удалось добавить питомца в пул поиска крови")
 	}
 
 	// Конвертируем protobuf ответ в DTO
 	var statusResp models.BloodSearchPetResponse
 	if err := mapstructure.Decode(status, &statusResp); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации ответа")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Ошибка конвертации ответа")
 	}
 
 	return utils.SendCreated(c, statusResp)
@@ -80,7 +82,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-request/pool/search [post]
-func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
+func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c echo.Context) error {
 	var filterReq models.BloodSearchFilterRequest
 	if err := utils.ParseBody(c, &filterReq); err != nil {
 		return err
@@ -89,7 +91,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	// Конвертируем DTO в protobuf структуру
 	filter := &bloodrequestv1.GetBloodRequests{}
 	if err := mapstructure.Decode(filterReq, filter); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации фильтров")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Ошибка конвертации фильтров")
 	}
 
 	logger.Log.Info(
@@ -100,10 +102,10 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 		zap.Int("regionsCount", len(filterReq.Regions)),
 	)
 
-	pets, err := h.bloodRequestClient.GetPets(c.Context(), filter)
+	pets, err := h.bloodRequestClient.GetPets(c.Request().Context(), filter)
 	if err != nil {
 		logger.Log.Error("failed to get pets from blood Request pool", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось получить питомцев из пула поиска крови")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Не удалось получить питомцев из пула поиска крови")
 	}
 
 	// Конвертируем protobuf ответ в DTO
@@ -111,7 +113,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
 	for _, pet := range pets.Pets {
 		var dtoPet models.BloodSearchPetRequest
 		if err := mapstructure.Decode(pet, &dtoPet); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации данных питомца")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Ошибка конвертации данных питомца")
 		}
 		petsResp.Pets = append(petsResp.Pets, dtoPet)
 	}

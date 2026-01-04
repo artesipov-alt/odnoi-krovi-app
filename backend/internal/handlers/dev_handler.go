@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -35,24 +36,24 @@ type DevResponse struct {
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} DevResponse "Успешный сброс пользователя"
 // @Router /dev/reset-user/{id} [post]
-func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
+func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 	logger.Log.Info("Сброс пользователя к заводским настройкам")
 
-	id, err := utils.ParseStringParam(c, "id")
-	if err != nil {
-		return err
+	id := c.Param("id")
+	if id == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
 	logger.Log.Info("Сброс пользователя", zap.String("userId", id))
 
-	if err := h.userRepo.ResetUser(c.Context(), id); err != nil {
+	if err := h.userRepo.ResetUser(c.Request().Context(), id); err != nil {
 		logger.Log.Error("Ошибка при сбросе пользователя", zap.Error(err), zap.String("userId", id))
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	logger.Log.Info("Пользователь успешно сброшен", zap.String("userId", id))
 
-	return utils.SendJSON(c, DevResponse{
+	return c.JSON(http.StatusOK, DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно сброшен к заводским настройкам",
 	})
@@ -66,24 +67,24 @@ func (h *DevHandler) ResetUserHandler(c *fiber.Ctx) error {
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} DevResponse "Успешное восстановление пользователя"
 // @Router /dev/restore-user/{id} [post]
-func (h *DevHandler) RestoreUserHandler(c *fiber.Ctx) error {
+func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 	logger.Log.Info("Восстановление удаленного пользователя")
 
-	id, err := utils.ParseStringParam(c, "id")
-	if err != nil {
-		return err
+	id := c.Param("id")
+	if id == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
 	logger.Log.Info("Восстановление пользователя", zap.String("userId", id))
 
-	if err := h.userRepo.RestoreUser(c.Context(), id); err != nil {
+	if err := h.userRepo.RestoreUser(c.Request().Context(), id); err != nil {
 		logger.Log.Error("Ошибка при восстановлении пользователя", zap.Error(err), zap.String("userId", id))
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	logger.Log.Info("Пользователь успешно восстановлен", zap.String("userId", id))
 
-	return utils.SendJSON(c, DevResponse{
+	return c.JSON(http.StatusOK, DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно восстановлен",
 	})
@@ -96,18 +97,18 @@ func (h *DevHandler) RestoreUserHandler(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} GetDeletedUsersResponse "Список удаленных пользователей"
 // @Router /dev/deleted-users [get]
-func (h *DevHandler) GetDeletedUsersHandler(c *fiber.Ctx) error {
+func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
 	logger.Log.Info("Получение списка удаленных пользователей")
 
-	users, err := h.userRepo.GetDeletedUsers(c.Context())
+	users, err := h.userRepo.GetDeletedUsers(c.Request().Context())
 	if err != nil {
 		logger.Log.Error("Ошибка при получении удаленных пользователей", zap.Error(err))
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	logger.Log.Info("Удаленные пользователи успешно получены", zap.Int("count", len(users)))
 
-	return utils.SendJSON(c, GetDeletedUsersResponse{
+	return c.JSON(http.StatusOK, GetDeletedUsersResponse{
 		Status:  true,
 		Message: "Удаленные пользователи успешно получены",
 		Users:   users,

@@ -4,7 +4,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -21,21 +21,21 @@ func NewPetHandler(petService services.PetService) *PetHandler {
 }
 
 // getPreloads извлекает список связей для предзагрузки из query-параметров
-func (h *PetHandler) getPreloads(c *fiber.Ctx) []string {
+func (h *PetHandler) getPreloads(c echo.Context) []string {
 	var preloads []string
-	if c.Query("with_health") == "true" {
+	if c.QueryParam("with_health") == "true" {
 		preloads = append(preloads, "Health")
 	}
-	if c.Query("with_treatments") == "true" {
+	if c.QueryParam("with_treatments") == "true" {
 		preloads = append(preloads, "Treatments")
 	}
-	if c.Query("with_analysis") == "true" {
+	if c.QueryParam("with_analysis") == "true" {
 		preloads = append(preloads, "Analysis")
 	}
-	if c.Query("with_bonuses") == "true" {
+	if c.QueryParam("with_bonuses") == "true" {
 		preloads = append(preloads, "Bonuses")
 	}
-	if c.Query("with_all") == "true" {
+	if c.QueryParam("with_all") == "true" {
 		return []string{"Health", "Treatments", "Analysis", "Bonuses"}
 	}
 	return preloads
@@ -54,7 +54,7 @@ func (h *PetHandler) getPreloads(c *fiber.Ctx) []string {
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [post]
-func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
+func (h *PetHandler) CreatePetHandler(c echo.Context) error {
 	userID, err := utils.ParseStringParam(c, "user_id")
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("создание питомца", zap.String("userId", userID), zap.String("petName", petData.Name))
 
-	pet, err := h.petService.CreatePet(c.Context(), userID, petData)
+	pet, err := h.petService.CreatePet(c.Request().Context(), userID, petData)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func (h *PetHandler) CreatePetHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [get]
-func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
+func (h *PetHandler) GetPetHandler(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("получение питомца", zap.String("petId", petID), zap.Strings("preloads", preloads))
 
-	pet, err := h.petService.GetPetByID(c.Context(), petID, preloads...)
+	pet, err := h.petService.GetPetByID(c.Request().Context(), petID, preloads...)
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (h *PetHandler) GetPetHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/user/{user_id} [get]
-func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
+func (h *PetHandler) GetUserPetsHandler(c echo.Context) error {
 	userID, err := utils.ParseStringParam(c, "user_id")
 	if err != nil {
 		return err
@@ -135,7 +135,7 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("получение питомцев пользователя", zap.String("userId", userID), zap.Strings("preloads", preloads))
 
-	pets, err := h.petService.GetUserPets(c.Context(), userID, preloads...)
+	pets, err := h.petService.GetUserPets(c.Request().Context(), userID, preloads...)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (h *PetHandler) GetUserPetsHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [put]
-func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
+func (h *PetHandler) UpdatePetHandler(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
@@ -169,7 +169,7 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("обновление питомца", zap.String("petId", petID))
 
-	if err := h.petService.UpdatePet(c.Context(), petID, updateData); err != nil {
+	if err := h.petService.UpdatePet(c.Request().Context(), petID, updateData); err != nil {
 		return err
 	}
 
@@ -187,7 +187,7 @@ func (h *PetHandler) UpdatePetHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/{id} [delete]
-func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
+func (h *PetHandler) DeletePetHandler(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
@@ -195,7 +195,7 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 
 	logger.Log.Info("удаление питомца", zap.String("petId", petID))
 
-	if err := h.petService.DeletePet(c.Context(), petID); err != nil {
+	if err := h.petService.DeletePet(c.Request().Context(), petID); err != nil {
 		return err
 	}
 
@@ -213,7 +213,7 @@ func (h *PetHandler) DeletePetHandler(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/upload/avatar/{id} [get]
-func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
+func (h *PetHandler) GetAvatarUploadURL(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
 		return err
@@ -221,7 +221,7 @@ func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
 
 	logger.Log.Info("получение ссылки для загрузки фотографии питомца", zap.String("petId", petID))
 
-	url, path, err := h.petService.GetAvatarUploadURL(c.Context(), petID)
+	url, path, err := h.petService.GetAvatarUploadURL(c.Request().Context(), petID)
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func (h *PetHandler) GetAvatarUploadURL(c *fiber.Ctx) error {
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /pets/upload/avatar/confirm/{path} [post]
-func (h *PetHandler) ConfirmPetAvatarUpload(c *fiber.Ctx) error {
+func (h *PetHandler) ConfirmPetAvatarUpload(c echo.Context) error {
 	avatarPath, err := utils.ParseStringParam(c, "path")
 	if err != nil {
 		return err
@@ -248,7 +248,7 @@ func (h *PetHandler) ConfirmPetAvatarUpload(c *fiber.Ctx) error {
 
 	logger.Log.Info("подтверждение загрузки аватарки питомца", zap.String("avatarPath", avatarPath))
 
-	publicURL, err := h.petService.UpdatePetAvatar(c.Context(), avatarPath)
+	publicURL, err := h.petService.UpdatePetAvatar(c.Request().Context(), avatarPath)
 	if err != nil {
 		return err
 	}

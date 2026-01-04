@@ -1535,6 +1535,10 @@ const docTemplate = `{
                 "analysis": {
                     "$ref": "#/definitions/models.PetAnalysis"
                 },
+                "birthDate": {
+                    "type": "string",
+                    "example": "2021-06-15T00:00:00Z"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "example": "DEA 1+"
@@ -1948,6 +1952,9 @@ const docTemplate = `{
                 "analysis": {
                     "$ref": "#/definitions/models.PetAnalysis"
                 },
+                "birthDate": {
+                    "type": "string"
+                },
                 "bloodGroup": {
                     "type": "string",
                     "maxLength": 50
@@ -2019,6 +2026,9 @@ const docTemplate = `{
                 },
                 "analysis": {
                     "$ref": "#/definitions/models.PetAnalysis"
+                },
+                "birthDate": {
+                    "type": "string"
                 },
                 "bloodGroup": {
                     "type": "string",
@@ -2147,7 +2157,7 @@ const docTemplate = `{
         "utils.ErrorResponse": {
             "type": "object",
             "properties": {
-                "error": {
+                "message": {
                     "type": "string"
                 }
             }
@@ -2166,7 +2176,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.3.4",
+	Version:          "1.3.5",
 	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
