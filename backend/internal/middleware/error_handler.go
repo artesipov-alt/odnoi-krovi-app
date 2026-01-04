@@ -5,7 +5,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -17,9 +17,9 @@ type ErrorResponse struct {
 }
 
 // ErrorHandler middleware для централизованной обработки ошибок
-// Использует этот обработчик в fiber.Config при создании приложения
-func ErrorHandler() fiber.ErrorHandler {
-	return func(c *fiber.Ctx, err error) error {
+// Использует этот обработчик в Echo при создании приложения
+func ErrorHandler() echo.HTTPErrorHandler {
+	return func(err error, c echo.Context) {
 		// Пытаемся привести к AppError
 		var appErr *apperrors.AppError
 		if errors.As(err, &appErr) {
@@ -31,8 +31,8 @@ func ErrorHandler() fiber.ErrorHandler {
 					zap.String("message", appErr.Message),
 					zap.Error(appErr.Internal),
 					zap.String("path", c.Path()),
-					zap.String("method", c.Method()),
-					zap.String("ip", c.IP()),
+					zap.String("method", c.Request().Method),
+					zap.String("ip", c.RealIP()),
 					zap.Any("details", appErr.Details),
 				)
 			} else if appErr.HTTPStatus >= 500 {
@@ -41,7 +41,7 @@ func ErrorHandler() fiber.ErrorHandler {
 					zap.String("code", string(appErr.Code)),
 					zap.String("message", appErr.Message),
 					zap.String("path", c.Path()),
-					zap.String("method", c.Method()),
+					zap.String("method", c.Request().Method),
 					zap.Any("details", appErr.Details),
 				)
 			} else if appErr.HTTPStatus >= 400 {
@@ -50,44 +50,50 @@ func ErrorHandler() fiber.ErrorHandler {
 					zap.String("code", string(appErr.Code)),
 					zap.String("message", appErr.Message),
 					zap.String("path", c.Path()),
-					zap.String("method", c.Method()),
+					zap.String("method", c.Request().Method),
 					zap.Any("details", appErr.Details),
 				)
 			}
 
 			// Отправляем JSON ответ
-			c.Set("Content-Type", "application/json; charset=utf-8")
-			return c.Status(appErr.HTTPStatus).JSON(ErrorResponse{
+			c.Response().Header().Set("Content-Type", "application/json; charset=utf-8")
+			c.JSON(appErr.HTTPStatus, ErrorResponse{
 				Code:    appErr.Code,
 				Message: appErr.Message,
 				Details: appErr.Details,
 			})
 		}
 
-		// Если это ошибка Fiber
-		var fiberErr *fiber.Error
-		if errors.As(err, &fiberErr) {
+		// Если это ошибка Echo
+		var echoErr *echo.HTTPError
+		if errors.As(err, &echoErr) {
+			// Получаем сообщение с type assertion
+			message, ok := echoErr.Message.(string)
+			if !ok {
+				message = "Unknown error"
+			}
+
 			// Для 404 используем INFO (без stack trace), для остальных - WARN
-			if fiberErr.Code == 404 {
+			if echoErr.Code == 404 {
 				logger.Log.Info("not found",
-					zap.Int("status", fiberErr.Code),
-					zap.String("message", fiberErr.Message),
+					zap.Int("status", echoErr.Code),
+					zap.String("message", message),
 					zap.String("path", c.Path()),
-					zap.String("method", c.Method()),
+					zap.String("method", c.Request().Method),
 				)
 			} else {
-				logger.Log.Warn("fiber error",
-					zap.Int("status", fiberErr.Code),
-					zap.String("message", fiberErr.Message),
+				logger.Log.Warn("echo error",
+					zap.Int("status", echoErr.Code),
+					zap.String("message", message),
 					zap.String("path", c.Path()),
-					zap.String("method", c.Method()),
+					zap.String("method", c.Request().Method),
 				)
 			}
 
-			c.Set("Content-Type", "application/json; charset=utf-8")
-			return c.Status(fiberErr.Code).JSON(ErrorResponse{
+			c.Response().Header().Set("Content-Type", "application/json; charset=utf-8")
+			c.JSON(echoErr.Code, ErrorResponse{
 				Code:    apperrors.ErrCodeBadRequest,
-				Message: fiberErr.Message,
+				Message: message,
 			})
 		}
 
@@ -95,14 +101,14 @@ func ErrorHandler() fiber.ErrorHandler {
 		logger.Log.Error("unexpected error",
 			zap.Error(err),
 			zap.String("path", c.Path()),
-			zap.String("method", c.Method()),
-			zap.String("ip", c.IP()),
-			zap.String("user_agent", c.Get("User-Agent")),
+			zap.String("method", c.Request().Method),
+			zap.String("ip", c.RealIP()),
+			zap.String("user_agent", c.Request().Header.Get("User-Agent")),
 		)
 
 		// Не показываем детали непредвиденных ошибок клиенту
-		c.Set("Content-Type", "application/json; charset=utf-8")
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		c.Response().Header().Set("Content-Type", "application/json; charset=utf-8")
+		c.JSON(500, ErrorResponse{
 			Code:    apperrors.ErrCodeInternal,
 			Message: "Внутренняя ошибка сервера",
 		})
@@ -110,28 +116,30 @@ func ErrorHandler() fiber.ErrorHandler {
 }
 
 // RecoveryMiddleware ловит панику и конвертирует в ошибку
-func RecoveryMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		defer func() {
-			if r := recover(); r != nil {
-				logger.Log.Error("panic recovered",
-					zap.Any("panic", r),
-					zap.String("path", c.Path()),
-					zap.String("method", c.Method()),
-					zap.Stack("stack"),
-				)
+func RecoveryMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Log.Error("panic recovered",
+						zap.Any("panic", r),
+						zap.String("path", c.Path()),
+						zap.String("method", c.Request().Method),
+						zap.Stack("stack"),
+					)
 
-				// Конвертируем панику в AppError
-				err := apperrors.Internal(
-					errors.New("panic recovered"),
-					"Произошла критическая ошибка",
-				)
+					// Конвертируем панику в AppError
+					err := apperrors.Internal(
+						errors.New("panic recovered"),
+						"Произошла критическая ошибка",
+					)
 
-				// Обрабатываем через ErrorHandler
-				_ = ErrorHandler()(c, err)
-			}
-		}()
+					// Обрабатываем через ErrorHandler
+					c.Error(err)
+				}
+			}()
 
-		return c.Next()
+			return next(c)
+		}
 	}
 }

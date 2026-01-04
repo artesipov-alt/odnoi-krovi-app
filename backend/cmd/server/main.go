@@ -2,15 +2,14 @@
 package main
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	_ "github.com/artesipov-alt/odnoi-krovi-app/docs" // Документация Swagger
 	cache "github.com/artesipov-alt/odnoi-krovi-app/internal/cache/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers" // Обработчики HTTP запросов
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
 
 	// Промежуточное ПО
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
@@ -100,14 +99,14 @@ func main() {
 
 	// Создание экземпляра echo приложения с кастомным обработчиком ошибок
 	app := echo.New()
-	// app.HTTPErrorHandler = middleware.ErrorHandler()
+	app.HTTPErrorHandler = middleware.ErrorHandler()
 
 	// Настройка CORS для кросс-доменных запросов
-	app.Use(echomiddleware.CORS())
+	app.Use(echomiddleware.CORSWithConfig(echomiddleware.DefaultCORSConfig))
 
 	// Подключение middleware
-	app.Use(echomiddleware.Recover())       // Восстановление после паники
-	app.Use(echomiddleware.RequestLogger()) // Логирование запросов
+	app.Use(echomiddleware.Recover())   // Восстановление после паники
+	app.Use(middleware.RequestLogger()) // Логирование запросов с кастомным логгером
 	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
 	// app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 
@@ -190,16 +189,5 @@ func main() {
 
 	// Подробное логирование перед graceful shutdown
 	logger.Log.Info("🚨 Получен сигнал завершения работы сервера")
-
-	// Graceful shutdown сервера
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	if err := app.Shutdown(ctx); err != nil {
-		logger.Log.Error("Ошибка завершения работы сервера", zap.Error(err))
-	}
-	if rCache != nil {
-		if err := rCache.Close(); err != nil {
-			logger.Log.Error("Ошибка закрытия кэша", zap.Error(err))
-		}
-	}
+	config.GracefulShutdown(app, db, rCache, 30)
 }

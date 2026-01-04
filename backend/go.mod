@@ -4,7 +4,6 @@ go 1.25.1
 
 require (
 	github.com/go-playground/validator/v10 v10.28.0
-	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/swagger v1.1.1
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.17.1
