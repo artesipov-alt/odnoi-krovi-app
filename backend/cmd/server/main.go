@@ -116,8 +116,10 @@ func main() {
 	// Группировка API маршрутов с префиксом /api
 	api := app.Group("/api")
 
-	// Документация Swagger - доступна по адресу /api/swagger/*
-	api.GET("/swagger/*", echoSwagger.WrapHandler)
+	// Документация Swagger - доступна по адресу /api/swagger/index.html
+	api.GET("/swagger/*", echoSwagger.EchoWrapHandler(
+		echoSwagger.URL("/api/swagger/doc.json"),
+	))
 
 	// Группировка API маршрутов с префиксом /api/v1
 	v1 := api.Group("/v1")

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	_ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 
 	"entgo.io/ent/dialect"
 	_ "github.com/lib/pq"

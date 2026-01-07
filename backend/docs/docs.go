@@ -1040,7 +1040,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "format": "int64",
                         "description": "Telegram ID пользователя",
                         "name": "telegram_id",
                         "in": "query",
@@ -1226,6 +1225,945 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "bloodgroup.PetType": {
+            "type": "string",
+            "enum": [
+                "dog",
+                "cat"
+            ],
+            "x-enum-varnames": [
+                "PetTypeDog",
+                "PetTypeCat"
+            ]
+        },
+        "bloodsearchrequest.Status": {
+            "type": "string",
+            "enum": [
+                "active",
+                "active",
+                "closed",
+                "draft"
+            ],
+            "x-enum-varnames": [
+                "DefaultStatus",
+                "StatusActive",
+                "StatusClosed",
+                "StatusDraft"
+            ]
+        },
+        "breed.Type": {
+            "type": "string",
+            "enum": [
+                "dog",
+                "cat"
+            ],
+            "x-enum-varnames": [
+                "TypeDog",
+                "TypeCat"
+            ]
+        },
+        "ent.BloodComponent": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BloodComponentQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.BloodComponentEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.BloodComponentEdges": {
+            "type": "object",
+            "properties": {
+                "search_requests": {
+                    "description": "SearchRequests holds the value of the search_requests edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.BloodSearchRequest"
+                    }
+                }
+            }
+        },
+        "ent.BloodGroup": {
+            "type": "object",
+            "properties": {
+                "bloodGroup": {
+                    "description": "BloodGroup holds the value of the \"blood_group\" field.",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BloodGroupQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.BloodGroupEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "petType": {
+                    "description": "PetType holds the value of the \"pet_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/bloodgroup.PetType"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.BloodGroupEdges": {
+            "type": "object",
+            "properties": {
+                "search_requests": {
+                    "description": "SearchRequests holds the value of the search_requests edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.BloodSearchRequest"
+                    }
+                }
+            }
+        },
+        "ent.BloodSearchRequest": {
+            "type": "object",
+            "properties": {
+                "bloodGroupId": {
+                    "description": "BloodGroupID holds the value of the \"blood_group_id\" field.",
+                    "type": "integer"
+                },
+                "bloodVolumeNeeded": {
+                    "description": "BloodVolumeNeeded holds the value of the \"blood_volume_needed\" field.",
+                    "type": "integer"
+                },
+                "bloodVolumeReserved": {
+                    "description": "BloodVolumeReserved holds the value of the \"blood_volume_reserved\" field.",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BloodSearchRequestQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.BloodSearchRequestEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "petId": {
+                    "description": "PetID holds the value of the \"pet_id\" field.",
+                    "type": "string"
+                },
+                "photoUrls": {
+                    "description": "PhotoUrls holds the value of the \"photo_urls\" field.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "regions": {
+                    "description": "Regions holds the value of the \"regions\" field.",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "smallPetsNotifyAllowed": {
+                    "description": "SmallPetsNotifyAllowed holds the value of the \"small_pets_notify_allowed\" field.",
+                    "type": "boolean"
+                },
+                "status": {
+                    "description": "Status holds the value of the \"status\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/bloodsearchrequest.Status"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.BloodSearchRequestEdges": {
+            "type": "object",
+            "properties": {
+                "bloodComponents": {
+                    "description": "BloodComponents holds the value of the blood_components edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.BloodComponent"
+                    }
+                },
+                "blood_group": {
+                    "description": "BloodGroup holds the value of the blood_group edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.BloodGroup"
+                        }
+                    ]
+                },
+                "pet": {
+                    "description": "Pet holds the value of the pet edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Pet"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.Breed": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BreedQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.BreedEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type holds the value of the \"type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/breed.Type"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.BreedEdges": {
+            "type": "object",
+            "properties": {
+                "pets": {
+                    "description": "Pets holds the value of the pets edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Pet"
+                    }
+                }
+            }
+        },
+        "ent.Location": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the LocationQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.LocationEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.LocationEdges": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "description": "Users holds the value of the users edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                }
+            }
+        },
+        "ent.Pet": {
+            "type": "object",
+            "properties": {
+                "ageMonths": {
+                    "description": "AgeMonths holds the value of the \"age_months\" field.",
+                    "type": "integer"
+                },
+                "ageYears": {
+                    "description": "AgeYears holds the value of the \"age_years\" field.",
+                    "type": "integer"
+                },
+                "birthDate": {
+                    "description": "BirthDate holds the value of the \"birth_date\" field.",
+                    "type": "string"
+                },
+                "bloodGroup": {
+                    "description": "BloodGroup holds the value of the \"blood_group\" field.",
+                    "type": "string"
+                },
+                "breedId": {
+                    "description": "BreedID holds the value of the \"breed_id\" field.",
+                    "type": "integer"
+                },
+                "chipNumber": {
+                    "description": "ChipNumber holds the value of the \"chip_number\" field.",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetEdges"
+                        }
+                    ]
+                },
+                "gender": {
+                    "description": "Gender holds the value of the \"gender\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pet.Gender"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "livingCondition": {
+                    "description": "LivingCondition holds the value of the \"living_condition\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pet.LivingCondition"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "petStatus": {
+                    "description": "PetStatus holds the value of the \"pet_status\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pet.PetStatus"
+                        }
+                    ]
+                },
+                "photoUrl": {
+                    "description": "PhotoURL holds the value of the \"photo_url\" field.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type holds the value of the \"type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pet.Type"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "UserID holds the value of the \"user_id\" field.",
+                    "type": "string"
+                },
+                "weightKg": {
+                    "description": "WeightKg holds the value of the \"weight_kg\" field.",
+                    "type": "number"
+                }
+            }
+        },
+        "ent.PetAnalysis": {
+            "type": "object",
+            "properties": {
+                "anaplasmosisDate": {
+                    "description": "AnaplasmosisDate holds the value of the \"anaplasmosis_date\" field.",
+                    "type": "string"
+                },
+                "anaplasmosisType": {
+                    "description": "AnaplasmosisType holds the value of the \"anaplasmosis_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.AnaplasmosisType"
+                        }
+                    ]
+                },
+                "babesiosisDate": {
+                    "description": "BabesiosisDate holds the value of the \"babesiosis_date\" field.",
+                    "type": "string"
+                },
+                "babesiosisType": {
+                    "description": "BabesiosisType holds the value of the \"babesiosis_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.BabesiosisType"
+                        }
+                    ]
+                },
+                "bartonellosisDate": {
+                    "description": "BartonellosisDate holds the value of the \"bartonellosis_date\" field.",
+                    "type": "string"
+                },
+                "bartonellosisType": {
+                    "description": "BartonellosisType holds the value of the \"bartonellosis_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.BartonellosisType"
+                        }
+                    ]
+                },
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "dirofilariaDate": {
+                    "description": "DirofilariaDate holds the value of the \"dirofilaria_date\" field.",
+                    "type": "string"
+                },
+                "dirofilariaType": {
+                    "description": "DirofilariaType holds the value of the \"dirofilaria_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.DirofilariaType"
+                        }
+                    ]
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetAnalysisQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetAnalysisEdges"
+                        }
+                    ]
+                },
+                "ehrlichiosisDate": {
+                    "description": "EhrlichiosisDate holds the value of the \"ehrlichiosis_date\" field.",
+                    "type": "string"
+                },
+                "ehrlichiosisType": {
+                    "description": "EhrlichiosisType holds the value of the \"ehrlichiosis_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.EhrlichiosisType"
+                        }
+                    ]
+                },
+                "hemoplasmosisDate": {
+                    "description": "HemoplasmosisDate holds the value of the \"hemoplasmosis_date\" field.",
+                    "type": "string"
+                },
+                "hemoplasmosisType": {
+                    "description": "HemoplasmosisType holds the value of the \"hemoplasmosis_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.HemoplasmosisType"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "immunodeficiencyDate": {
+                    "description": "ImmunodeficiencyDate holds the value of the \"immunodeficiency_date\" field.",
+                    "type": "string"
+                },
+                "immunodeficiencyType": {
+                    "description": "ImmunodeficiencyType holds the value of the \"immunodeficiency_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.ImmunodeficiencyType"
+                        }
+                    ]
+                },
+                "leukemiaDate": {
+                    "description": "LeukemiaDate holds the value of the \"leukemia_date\" field.",
+                    "type": "string"
+                },
+                "leukemiaType": {
+                    "description": "LeukemiaType holds the value of the \"leukemia_type\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/petanalysis.LeukemiaType"
+                        }
+                    ]
+                },
+                "petId": {
+                    "description": "PetID holds the value of the \"pet_id\" field.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.PetAnalysisEdges": {
+            "type": "object",
+            "properties": {
+                "pet": {
+                    "description": "Pet holds the value of the pet edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Pet"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.PetBonus": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetBonusQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetBonusEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "isArtist": {
+                    "description": "IsArtist holds the value of the \"is_artist\" field.",
+                    "type": "boolean"
+                },
+                "isFormerDonor": {
+                    "description": "IsFormerDonor holds the value of the \"is_former_donor\" field.",
+                    "type": "boolean"
+                },
+                "isGuideDog": {
+                    "description": "IsGuideDog holds the value of the \"is_guide_dog\" field.",
+                    "type": "boolean"
+                },
+                "isTherapist": {
+                    "description": "IsTherapist holds the value of the \"is_therapist\" field.",
+                    "type": "boolean"
+                },
+                "petId": {
+                    "description": "PetID holds the value of the \"pet_id\" field.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.PetBonusEdges": {
+            "type": "object",
+            "properties": {
+                "pet": {
+                    "description": "Pet holds the value of the pet edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Pet"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.PetEdges": {
+            "type": "object",
+            "properties": {
+                "analyses": {
+                    "description": "Analyses holds the value of the analyses edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetAnalysis"
+                        }
+                    ]
+                },
+                "blood_search_request": {
+                    "description": "BloodSearchRequest holds the value of the blood_search_request edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.BloodSearchRequest"
+                        }
+                    ]
+                },
+                "bonuses": {
+                    "description": "Bonuses holds the value of the bonuses edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetBonus"
+                        }
+                    ]
+                },
+                "breed_ref": {
+                    "description": "BreedRef holds the value of the breed_ref edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Breed"
+                        }
+                    ]
+                },
+                "health": {
+                    "description": "Health holds the value of the health edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetHealth"
+                        }
+                    ]
+                },
+                "owner": {
+                    "description": "Owner holds the value of the owner edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    ]
+                },
+                "treatments": {
+                    "description": "Treatments holds the value of the treatments edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetTreatment"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.PetHealth": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetHealthQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetHealthEdges"
+                        }
+                    ]
+                },
+                "healthStatus": {
+                    "description": "HealthStatus holds the value of the \"health_status\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pethealth.HealthStatus"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "lastDonation": {
+                    "description": "LastDonation holds the value of the \"last_donation\" field.",
+                    "type": "string"
+                },
+                "medications": {
+                    "description": "Medications holds the value of the \"medications\" field.",
+                    "type": "string"
+                },
+                "petId": {
+                    "description": "PetID holds the value of the \"pet_id\" field.",
+                    "type": "string"
+                },
+                "reproductiveStatus": {
+                    "description": "ReproductiveStatus holds the value of the \"reproductive_status\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pethealth.ReproductiveStatus"
+                        }
+                    ]
+                },
+                "surgicalInterventions": {
+                    "description": "SurgicalInterventions holds the value of the \"surgical_interventions\" field.",
+                    "type": "string"
+                },
+                "transfused": {
+                    "description": "Transfused holds the value of the \"transfused\" field.",
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.PetHealthEdges": {
+            "type": "object",
+            "properties": {
+                "pet": {
+                    "description": "Pet holds the value of the pet edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Pet"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.PetTreatment": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "dewormingDate": {
+                    "description": "DewormingDate holds the value of the \"deworming_date\" field.",
+                    "type": "string"
+                },
+                "ectoparasiteTreatmentDate": {
+                    "description": "EctoparasiteTreatmentDate holds the value of the \"ectoparasite_treatment_date\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetTreatmentQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.PetTreatmentEdges"
+                        }
+                    ]
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "infectionVaccinationDate": {
+                    "description": "InfectionVaccinationDate holds the value of the \"infection_vaccination_date\" field.",
+                    "type": "string"
+                },
+                "petId": {
+                    "description": "PetID holds the value of the \"pet_id\" field.",
+                    "type": "string"
+                },
+                "rabiesVaccinationDate": {
+                    "description": "RabiesVaccinationDate holds the value of the \"rabies_vaccination_date\" field.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.PetTreatmentEdges": {
+            "type": "object",
+            "properties": {
+                "pet": {
+                    "description": "Pet holds the value of the pet edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Pet"
+                        }
+                    ]
+                }
+            }
+        },
+        "ent.User": {
+            "type": "object",
+            "properties": {
+                "allowGeo": {
+                    "description": "AllowGeo holds the value of the \"allow_geo\" field.",
+                    "type": "boolean"
+                },
+                "consentPd": {
+                    "description": "ConsentPd holds the value of the \"consent_pd\" field.",
+                    "type": "boolean"
+                },
+                "createdAt": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the UserQuery when eager-loading is set.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.UserEdges"
+                        }
+                    ]
+                },
+                "email": {
+                    "description": "Email holds the value of the \"email\" field.",
+                    "type": "string"
+                },
+                "fullName": {
+                    "description": "FullName holds the value of the \"full_name\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "locationId": {
+                    "description": "LocationID holds the value of the \"location_id\" field.",
+                    "type": "integer"
+                },
+                "onBoarding": {
+                    "description": "OnBoarding holds the value of the \"on_boarding\" field.",
+                    "type": "boolean"
+                },
+                "organizationName": {
+                    "description": "OrganizationName holds the value of the \"organization_name\" field.",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "Phone holds the value of the \"phone\" field.",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "Role holds the value of the \"role\" field.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/user.Role"
+                        }
+                    ]
+                },
+                "telegramId": {
+                    "description": "TelegramID holds the value of the \"telegram_id\" field.",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.UserEdges": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "description": "Location holds the value of the location edge.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Location"
+                        }
+                    ]
+                },
+                "pets": {
+                    "description": "Pets holds the value of the pets edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Pet"
+                    }
+                }
+            }
+        },
         "handlers.DevResponse": {
             "type": "object",
             "properties": {
@@ -1249,7 +2187,7 @@ const docTemplate = `{
                 "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.User"
+                        "$ref": "#/definitions/ent.User"
                     }
                 }
             }
@@ -1333,13 +2271,6 @@ const docTemplate = `{
                 "AnalysisTypeMicroscopy": "Микроскопия мазка",
                 "AnalysisTypePCR": "ПЦР"
             },
-            "x-enum-descriptions": [
-                "ПЦР",
-                "ИФА",
-                "ИХА",
-                "Микроскопия мазка",
-                "Экспресс-тест"
-            ],
             "x-enum-varnames": [
                 "AnalysisTypePCR",
                 "AnalysisTypeELISA",
@@ -1934,10 +2865,222 @@ const docTemplate = `{
                 "UserRoleAdmin"
             ]
         },
+        "pet.Gender": {
+            "type": "string",
+            "enum": [
+                "male",
+                "female"
+            ],
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale"
+            ]
+        },
+        "pet.LivingCondition": {
+            "type": "string",
+            "enum": [
+                "indoor",
+                "leash_walking",
+                "self_outdoor"
+            ],
+            "x-enum-varnames": [
+                "LivingConditionIndoor",
+                "LivingConditionLeashWalking",
+                "LivingConditionSelfOutdoor"
+            ]
+        },
+        "pet.PetStatus": {
+            "type": "string",
+            "enum": [
+                "donor",
+                "recipient"
+            ],
+            "x-enum-varnames": [
+                "PetStatusDonor",
+                "PetStatusRecipient"
+            ]
+        },
+        "pet.Type": {
+            "type": "string",
+            "enum": [
+                "dog",
+                "cat"
+            ],
+            "x-enum-varnames": [
+                "TypeDog",
+                "TypeCat"
+            ]
+        },
+        "petanalysis.AnaplasmosisType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "AnaplasmosisTypePCR",
+                "AnaplasmosisTypeELISA",
+                "AnaplasmosisTypeICA",
+                "AnaplasmosisTypeMicroscopy",
+                "AnaplasmosisTypeExpress"
+            ]
+        },
+        "petanalysis.BabesiosisType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "BabesiosisTypePCR",
+                "BabesiosisTypeELISA",
+                "BabesiosisTypeICA",
+                "BabesiosisTypeMicroscopy",
+                "BabesiosisTypeExpress"
+            ]
+        },
+        "petanalysis.BartonellosisType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "BartonellosisTypePCR",
+                "BartonellosisTypeELISA",
+                "BartonellosisTypeICA",
+                "BartonellosisTypeMicroscopy",
+                "BartonellosisTypeExpress"
+            ]
+        },
+        "petanalysis.DirofilariaType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "DirofilariaTypePCR",
+                "DirofilariaTypeELISA",
+                "DirofilariaTypeICA",
+                "DirofilariaTypeMicroscopy",
+                "DirofilariaTypeExpress"
+            ]
+        },
+        "petanalysis.EhrlichiosisType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "EhrlichiosisTypePCR",
+                "EhrlichiosisTypeELISA",
+                "EhrlichiosisTypeICA",
+                "EhrlichiosisTypeMicroscopy",
+                "EhrlichiosisTypeExpress"
+            ]
+        },
+        "petanalysis.HemoplasmosisType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "HemoplasmosisTypePCR",
+                "HemoplasmosisTypeELISA",
+                "HemoplasmosisTypeICA",
+                "HemoplasmosisTypeMicroscopy",
+                "HemoplasmosisTypeExpress"
+            ]
+        },
+        "petanalysis.ImmunodeficiencyType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "ImmunodeficiencyTypePCR",
+                "ImmunodeficiencyTypeELISA",
+                "ImmunodeficiencyTypeICA",
+                "ImmunodeficiencyTypeMicroscopy",
+                "ImmunodeficiencyTypeExpress"
+            ]
+        },
+        "petanalysis.LeukemiaType": {
+            "type": "string",
+            "enum": [
+                "PCR",
+                "ELISA",
+                "ICA",
+                "Microscopy",
+                "Express"
+            ],
+            "x-enum-varnames": [
+                "LeukemiaTypePCR",
+                "LeukemiaTypeELISA",
+                "LeukemiaTypeICA",
+                "LeukemiaTypeMicroscopy",
+                "LeukemiaTypeExpress"
+            ]
+        },
+        "pethealth.HealthStatus": {
+            "type": "string",
+            "enum": [
+                "healthy",
+                "ill",
+                "unknown"
+            ],
+            "x-enum-varnames": [
+                "HealthStatusHealthy",
+                "HealthStatusIll",
+                "HealthStatusUnknown"
+            ]
+        },
+        "pethealth.ReproductiveStatus": {
+            "type": "string",
+            "enum": [
+                "pregnancy",
+                "lactation",
+                "estrus",
+                "none"
+            ],
+            "x-enum-varnames": [
+                "ReproductiveStatusPregnancy",
+                "ReproductiveStatusLactation",
+                "ReproductiveStatusEstrus",
+                "ReproductiveStatusNone"
+            ]
+        },
         "services.PetCreate": {
             "type": "object",
             "required": [
-                "name"
+                "name",
+                "petStatus",
+                "type"
             ],
             "properties": {
                 "ageMonths": {
@@ -1949,8 +3092,8 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 0
                 },
-                "analysis": {
-                    "$ref": "#/definitions/models.PetAnalysis"
+                "analyses": {
+                    "$ref": "#/definitions/ent.PetAnalysis"
                 },
                 "birthDate": {
                     "type": "string"
@@ -1960,28 +3103,28 @@ const docTemplate = `{
                     "maxLength": 50
                 },
                 "bonuses": {
-                    "$ref": "#/definitions/models.PetBonus"
+                    "$ref": "#/definitions/ent.PetBonus"
                 },
-                "breed": {
-                    "type": "string",
-                    "maxLength": 100
+                "breedId": {
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "chipNumber": {
                     "type": "string"
                 },
                 "gender": {
-                    "$ref": "#/definitions/models.Gender"
+                    "$ref": "#/definitions/pet.Gender"
                 },
                 "health": {
-                    "description": "Вложенные структуры",
+                    "description": "Вложенные структуры (DTO)",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.PetHealth"
+                            "$ref": "#/definitions/ent.PetHealth"
                         }
                     ]
                 },
                 "livingCondition": {
-                    "$ref": "#/definitions/models.LivingCondition"
+                    "$ref": "#/definitions/pet.LivingCondition"
                 },
                 "name": {
                     "type": "string",
@@ -1989,22 +3132,17 @@ const docTemplate = `{
                     "minLength": 1
                 },
                 "petStatus": {
-                    "maxLength": 50,
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.PetRole"
-                        }
-                    ]
+                    "$ref": "#/definitions/pet.PetStatus"
                 },
                 "photoUrl": {
                     "type": "string",
                     "maxLength": 255
                 },
                 "treatments": {
-                    "$ref": "#/definitions/models.PetTreatment"
+                    "$ref": "#/definitions/ent.PetTreatment"
                 },
                 "type": {
-                    "$ref": "#/definitions/models.PetType"
+                    "$ref": "#/definitions/pet.Type"
                 },
                 "weightKg": {
                     "type": "number",
@@ -2024,8 +3162,8 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 0
                 },
-                "analysis": {
-                    "$ref": "#/definitions/models.PetAnalysis"
+                "analyses": {
+                    "$ref": "#/definitions/ent.PetAnalysis"
                 },
                 "birthDate": {
                     "type": "string"
@@ -2035,28 +3173,28 @@ const docTemplate = `{
                     "maxLength": 50
                 },
                 "bonuses": {
-                    "$ref": "#/definitions/models.PetBonus"
+                    "$ref": "#/definitions/ent.PetBonus"
                 },
-                "breed": {
-                    "type": "string",
-                    "maxLength": 100
+                "breedId": {
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "chipNumber": {
                     "type": "string"
                 },
                 "gender": {
-                    "$ref": "#/definitions/models.Gender"
+                    "$ref": "#/definitions/pet.Gender"
                 },
                 "health": {
                     "description": "Вложенные структуры",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.PetHealth"
+                            "$ref": "#/definitions/ent.PetHealth"
                         }
                     ]
                 },
                 "livingCondition": {
-                    "$ref": "#/definitions/models.LivingCondition"
+                    "$ref": "#/definitions/pet.LivingCondition"
                 },
                 "name": {
                     "type": "string",
@@ -2067,7 +3205,7 @@ const docTemplate = `{
                     "maxLength": 50,
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.PetRole"
+                            "$ref": "#/definitions/pet.PetStatus"
                         }
                     ]
                 },
@@ -2076,10 +3214,10 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "treatments": {
-                    "$ref": "#/definitions/models.PetTreatment"
+                    "$ref": "#/definitions/ent.PetTreatment"
                 },
                 "type": {
-                    "$ref": "#/definitions/models.PetType"
+                    "$ref": "#/definitions/pet.Type"
                 },
                 "weightKg": {
                     "type": "number",
@@ -2118,11 +3256,11 @@ const docTemplate = `{
                 "role": {
                     "enum": [
                         "user",
-                        "clinic_admin"
+                        "admin"
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.UserRole"
+                            "$ref": "#/definitions/user.Role"
                         }
                     ]
                 }
@@ -2153,6 +3291,19 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "user.Role": {
+            "type": "string",
+            "enum": [
+                "user",
+                "user",
+                "admin"
+            ],
+            "x-enum-varnames": [
+                "DefaultRole",
+                "RoleUser",
+                "RoleAdmin"
+            ]
         },
         "utils.ErrorResponse": {
             "type": "object",
