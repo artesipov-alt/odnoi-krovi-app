@@ -68,7 +68,7 @@ func (PetHealth) Fields() []ent.Field {
 // Mixins of the PetHealth.
 func (PetHealth) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(PetHealthPrefix),
+		AuditMixin{},
 	}
 }
 
@@ -97,7 +97,7 @@ func (PetTreatment) Fields() []ent.Field {
 // Mixins of the PetTreatment.
 func (PetTreatment) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(PetTreatmentPrefix),
+		AuditMixin{},
 	}
 }
 
@@ -138,7 +138,7 @@ func (PetAnalysis) Fields() []ent.Field {
 // Mixins of the PetAnalysis.
 func (PetAnalysis) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(PetAnalysisPrefix),
+		AuditMixin{},
 	}
 }
 
@@ -167,7 +167,7 @@ func (PetBonus) Fields() []ent.Field {
 // Mixins of the PetBonus.
 func (PetBonus) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(PetBonusPrefix),
+		AuditMixin{},
 	}
 }
 
