@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -90,6 +91,48 @@ func (_c *PetTreatmentCreate) SetNillablePetID(v *string) *PetTreatmentCreate {
 	return _c
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetTreatmentCreate) SetCreatedAt(v time.Time) *PetTreatmentCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetTreatmentCreate) SetNillableCreatedAt(v *time.Time) *PetTreatmentCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetTreatmentCreate) SetUpdatedAt(v time.Time) *PetTreatmentCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetTreatmentCreate) SetNillableUpdatedAt(v *time.Time) *PetTreatmentCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetTreatmentCreate) SetDeletedAt(v time.Time) *PetTreatmentCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetTreatmentCreate) SetNillableDeletedAt(v *time.Time) *PetTreatmentCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_c *PetTreatmentCreate) SetPet(v *Pet) *PetTreatmentCreate {
 	return _c.SetPetID(v.ID)
@@ -102,6 +145,7 @@ func (_c *PetTreatmentCreate) Mutation() *PetTreatmentMutation {
 
 // Save creates the PetTreatment in the database.
 func (_c *PetTreatmentCreate) Save(ctx context.Context) (*PetTreatment, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -127,8 +171,26 @@ func (_c *PetTreatmentCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *PetTreatmentCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := pettreatment.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := pettreatment.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetTreatmentCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetTreatment.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetTreatment.updated_at"`)}
+	}
 	return nil
 }
 
@@ -171,6 +233,18 @@ func (_c *PetTreatmentCreate) createSpec() (*PetTreatment, *sqlgraph.CreateSpec)
 		_spec.SetField(pettreatment.FieldDewormingDate, field.TypeTime, value)
 		_node.DewormingDate = &value
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(pettreatment.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -209,6 +283,7 @@ func (_c *PetTreatmentCreateBulk) Save(ctx context.Context) ([]*PetTreatment, er
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PetTreatmentMutation)
 				if !ok {

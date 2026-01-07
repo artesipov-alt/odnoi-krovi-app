@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -104,6 +105,32 @@ func (_u *PetBonusUpdate) ClearPetID() *PetBonusUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetBonusUpdate) SetUpdatedAt(v time.Time) *PetBonusUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetBonusUpdate) SetDeletedAt(v time.Time) *PetBonusUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetBonusUpdate) SetNillableDeletedAt(v *time.Time) *PetBonusUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetBonusUpdate) ClearDeletedAt() *PetBonusUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *PetBonusUpdate) SetPet(v *Pet) *PetBonusUpdate {
 	return _u.SetPetID(v.ID)
@@ -122,6 +149,7 @@ func (_u *PetBonusUpdate) ClearPet() *PetBonusUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PetBonusUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -147,6 +175,14 @@ func (_u *PetBonusUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *PetBonusUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := petbonus.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(petbonus.Table, petbonus.Columns, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
@@ -167,6 +203,15 @@ func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.IsGuideDog(); ok {
 		_spec.SetField(petbonus.FieldIsGuideDog, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -293,6 +338,32 @@ func (_u *PetBonusUpdateOne) ClearPetID() *PetBonusUpdateOne {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetBonusUpdateOne) SetUpdatedAt(v time.Time) *PetBonusUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetBonusUpdateOne) SetDeletedAt(v time.Time) *PetBonusUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetBonusUpdateOne) SetNillableDeletedAt(v *time.Time) *PetBonusUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetBonusUpdateOne) ClearDeletedAt() *PetBonusUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *PetBonusUpdateOne) SetPet(v *Pet) *PetBonusUpdateOne {
 	return _u.SetPetID(v.ID)
@@ -324,6 +395,7 @@ func (_u *PetBonusUpdateOne) Select(field string, fields ...string) *PetBonusUpd
 
 // Save executes the query and returns the updated PetBonus entity.
 func (_u *PetBonusUpdateOne) Save(ctx context.Context) (*PetBonus, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -346,6 +418,14 @@ func (_u *PetBonusUpdateOne) Exec(ctx context.Context) error {
 func (_u *PetBonusUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *PetBonusUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := petbonus.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -386,6 +466,15 @@ func (_u *PetBonusUpdateOne) sqlSave(ctx context.Context) (_node *PetBonus, err 
 	}
 	if value, ok := _u.mutation.IsGuideDog(); ok {
 		_spec.SetField(petbonus.FieldIsGuideDog, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{

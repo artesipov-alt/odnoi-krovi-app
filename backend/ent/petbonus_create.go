@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -58,6 +59,48 @@ func (_c *PetBonusCreate) SetNillablePetID(v *string) *PetBonusCreate {
 	return _c
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetBonusCreate) SetCreatedAt(v time.Time) *PetBonusCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetBonusCreate) SetNillableCreatedAt(v *time.Time) *PetBonusCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetBonusCreate) SetUpdatedAt(v time.Time) *PetBonusCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetBonusCreate) SetNillableUpdatedAt(v *time.Time) *PetBonusCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetBonusCreate) SetDeletedAt(v time.Time) *PetBonusCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetBonusCreate) SetNillableDeletedAt(v *time.Time) *PetBonusCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_c *PetBonusCreate) SetPet(v *Pet) *PetBonusCreate {
 	return _c.SetPetID(v.ID)
@@ -70,6 +113,7 @@ func (_c *PetBonusCreate) Mutation() *PetBonusMutation {
 
 // Save creates the PetBonus in the database.
 func (_c *PetBonusCreate) Save(ctx context.Context) (*PetBonus, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -95,6 +139,18 @@ func (_c *PetBonusCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *PetBonusCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := petbonus.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := petbonus.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetBonusCreate) check() error {
 	if _, ok := _c.mutation.IsArtist(); !ok {
@@ -108,6 +164,12 @@ func (_c *PetBonusCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsGuideDog(); !ok {
 		return &ValidationError{Name: "is_guide_dog", err: errors.New(`ent: missing required field "PetBonus.is_guide_dog"`)}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetBonus.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetBonus.updated_at"`)}
 	}
 	return nil
 }
@@ -151,6 +213,18 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 		_spec.SetField(petbonus.FieldIsGuideDog, field.TypeBool, value)
 		_node.IsGuideDog = value
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(petbonus.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -189,6 +263,7 @@ func (_c *PetBonusCreateBulk) Save(ctx context.Context) ([]*PetBonus, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PetBonusMutation)
 				if !ok {

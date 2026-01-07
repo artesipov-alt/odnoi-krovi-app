@@ -52,6 +52,12 @@ type PetAnalysis struct {
 	AnaplasmosisType petanalysis.AnaplasmosisType `json:"anaplasmosisType"`
 	// PetID holds the value of the "pet_id" field.
 	PetID string `json:"petId"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deletedAt"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetAnalysisQuery when eager-loading is set.
 	Edges        PetAnalysisEdges `json:"edges"`
@@ -87,7 +93,7 @@ func (*PetAnalysis) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType, petanalysis.FieldPetID:
 			values[i] = new(sql.NullString)
-		case petanalysis.FieldLeukemiaDate, petanalysis.FieldImmunodeficiencyDate, petanalysis.FieldHemoplasmosisDate, petanalysis.FieldBartonellosisDate, petanalysis.FieldBabesiosisDate, petanalysis.FieldDirofilariaDate, petanalysis.FieldEhrlichiosisDate, petanalysis.FieldAnaplasmosisDate:
+		case petanalysis.FieldLeukemiaDate, petanalysis.FieldImmunodeficiencyDate, petanalysis.FieldHemoplasmosisDate, petanalysis.FieldBartonellosisDate, petanalysis.FieldBabesiosisDate, petanalysis.FieldDirofilariaDate, petanalysis.FieldEhrlichiosisDate, petanalysis.FieldAnaplasmosisDate, petanalysis.FieldCreatedAt, petanalysis.FieldUpdatedAt, petanalysis.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -220,6 +226,25 @@ func (_m *PetAnalysis) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.PetID = value.String
 			}
+		case petanalysis.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case petanalysis.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case petanalysis.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -327,6 +352,17 @@ func (_m *PetAnalysis) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("pet_id=")
 	builder.WriteString(_m.PetID)
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

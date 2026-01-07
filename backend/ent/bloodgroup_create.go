@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -46,6 +47,48 @@ func (_c *BloodGroupCreate) SetNillableDescription(v *string) *BloodGroupCreate 
 	return _c
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *BloodGroupCreate) SetCreatedAt(v time.Time) *BloodGroupCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableCreatedAt(v *time.Time) *BloodGroupCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *BloodGroupCreate) SetUpdatedAt(v time.Time) *BloodGroupCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableUpdatedAt(v *time.Time) *BloodGroupCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *BloodGroupCreate) SetDeletedAt(v time.Time) *BloodGroupCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableDeletedAt(v *time.Time) *BloodGroupCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by IDs.
 func (_c *BloodGroupCreate) AddSearchRequestIDs(ids ...string) *BloodGroupCreate {
 	_c.mutation.AddSearchRequestIDs(ids...)
@@ -68,6 +111,7 @@ func (_c *BloodGroupCreate) Mutation() *BloodGroupMutation {
 
 // Save creates the BloodGroup in the database.
 func (_c *BloodGroupCreate) Save(ctx context.Context) (*BloodGroup, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -93,6 +137,18 @@ func (_c *BloodGroupCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *BloodGroupCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := bloodgroup.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := bloodgroup.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *BloodGroupCreate) check() error {
 	if _, ok := _c.mutation.PetType(); !ok {
@@ -110,6 +166,12 @@ func (_c *BloodGroupCreate) check() error {
 		if err := bloodgroup.BloodGroupValidator(v); err != nil {
 			return &ValidationError{Name: "blood_group", err: fmt.Errorf(`ent: validator failed for field "BloodGroup.blood_group": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "BloodGroup.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "BloodGroup.updated_at"`)}
 	}
 	return nil
 }
@@ -149,6 +211,18 @@ func (_c *BloodGroupCreate) createSpec() (*BloodGroup, *sqlgraph.CreateSpec) {
 		_spec.SetField(bloodgroup.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(bloodgroup.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if nodes := _c.mutation.SearchRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -186,6 +260,7 @@ func (_c *BloodGroupCreateBulk) Save(ctx context.Context) ([]*BloodGroup, error)
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BloodGroupMutation)
 				if !ok {

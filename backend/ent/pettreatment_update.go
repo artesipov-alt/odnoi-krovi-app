@@ -129,6 +129,32 @@ func (_u *PetTreatmentUpdate) ClearPetID() *PetTreatmentUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetTreatmentUpdate) SetUpdatedAt(v time.Time) *PetTreatmentUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetTreatmentUpdate) SetDeletedAt(v time.Time) *PetTreatmentUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetTreatmentUpdate) SetNillableDeletedAt(v *time.Time) *PetTreatmentUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetTreatmentUpdate) ClearDeletedAt() *PetTreatmentUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *PetTreatmentUpdate) SetPet(v *Pet) *PetTreatmentUpdate {
 	return _u.SetPetID(v.ID)
@@ -147,6 +173,7 @@ func (_u *PetTreatmentUpdate) ClearPet() *PetTreatmentUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PetTreatmentUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -169,6 +196,14 @@ func (_u *PetTreatmentUpdate) Exec(ctx context.Context) error {
 func (_u *PetTreatmentUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *PetTreatmentUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := pettreatment.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -204,6 +239,15 @@ func (_u *PetTreatmentUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.DewormingDateCleared() {
 		_spec.ClearField(pettreatment.FieldDewormingDate, field.TypeTime)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -354,6 +398,32 @@ func (_u *PetTreatmentUpdateOne) ClearPetID() *PetTreatmentUpdateOne {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetTreatmentUpdateOne) SetUpdatedAt(v time.Time) *PetTreatmentUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetTreatmentUpdateOne) SetDeletedAt(v time.Time) *PetTreatmentUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetTreatmentUpdateOne) SetNillableDeletedAt(v *time.Time) *PetTreatmentUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetTreatmentUpdateOne) ClearDeletedAt() *PetTreatmentUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *PetTreatmentUpdateOne) SetPet(v *Pet) *PetTreatmentUpdateOne {
 	return _u.SetPetID(v.ID)
@@ -385,6 +455,7 @@ func (_u *PetTreatmentUpdateOne) Select(field string, fields ...string) *PetTrea
 
 // Save executes the query and returns the updated PetTreatment entity.
 func (_u *PetTreatmentUpdateOne) Save(ctx context.Context) (*PetTreatment, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -407,6 +478,14 @@ func (_u *PetTreatmentUpdateOne) Exec(ctx context.Context) error {
 func (_u *PetTreatmentUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *PetTreatmentUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := pettreatment.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -459,6 +538,15 @@ func (_u *PetTreatmentUpdateOne) sqlSave(ctx context.Context) (_node *PetTreatme
 	}
 	if _u.mutation.DewormingDateCleared() {
 		_spec.ClearField(pettreatment.FieldDewormingDate, field.TypeTime)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{

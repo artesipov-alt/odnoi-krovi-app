@@ -199,6 +199,48 @@ func (_c *PetCreate) SetNillableLivingCondition(v *pet.LivingCondition) *PetCrea
 	return _c
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetCreate) SetCreatedAt(v time.Time) *PetCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetCreate) SetNillableCreatedAt(v *time.Time) *PetCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetCreate) SetUpdatedAt(v time.Time) *PetCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetCreate) SetNillableUpdatedAt(v *time.Time) *PetCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetCreate) SetDeletedAt(v time.Time) *PetCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetCreate) SetNillableDeletedAt(v *time.Time) *PetCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PetCreate) SetID(v string) *PetCreate {
 	_c.mutation.SetID(v)
@@ -381,6 +423,14 @@ func (_c *PetCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *PetCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := pet.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := pet.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := pet.DefaultID()
 		_c.mutation.SetID(v)
@@ -432,6 +482,12 @@ func (_c *PetCreate) check() error {
 		if err := pet.LivingConditionValidator(v); err != nil {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Pet.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Pet.updated_at"`)}
 	}
 	return nil
 }
@@ -515,6 +571,18 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.LivingCondition(); ok {
 		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)
 		_node.LivingCondition = value
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(pet.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(pet.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(pet.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

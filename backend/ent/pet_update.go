@@ -318,6 +318,32 @@ func (_u *PetUpdate) ClearLivingCondition() *PetUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetUpdate) SetUpdatedAt(v time.Time) *PetUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetUpdate) SetDeletedAt(v time.Time) *PetUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableDeletedAt(v *time.Time) *PetUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetUpdate) ClearDeletedAt() *PetUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdate) SetOwnerID(id string) *PetUpdate {
 	_u.mutation.SetOwnerID(id)
@@ -500,6 +526,7 @@ func (_u *PetUpdate) ClearBloodSearchRequest() *PetUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PetUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -522,6 +549,14 @@ func (_u *PetUpdate) Exec(ctx context.Context) error {
 func (_u *PetUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *PetUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := pet.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -648,6 +683,15 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.LivingConditionCleared() {
 		_spec.ClearField(pet.FieldLivingCondition, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(pet.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(pet.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(pet.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1155,6 +1199,32 @@ func (_u *PetUpdateOne) ClearLivingCondition() *PetUpdateOne {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetUpdateOne) SetUpdatedAt(v time.Time) *PetUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetUpdateOne) SetDeletedAt(v time.Time) *PetUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableDeletedAt(v *time.Time) *PetUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetUpdateOne) ClearDeletedAt() *PetUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdateOne) SetOwnerID(id string) *PetUpdateOne {
 	_u.mutation.SetOwnerID(id)
@@ -1350,6 +1420,7 @@ func (_u *PetUpdateOne) Select(field string, fields ...string) *PetUpdateOne {
 
 // Save executes the query and returns the updated Pet entity.
 func (_u *PetUpdateOne) Save(ctx context.Context) (*Pet, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -1372,6 +1443,14 @@ func (_u *PetUpdateOne) Exec(ctx context.Context) error {
 func (_u *PetUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *PetUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := pet.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -1515,6 +1594,15 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.LivingConditionCleared() {
 		_spec.ClearField(pet.FieldLivingCondition, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(pet.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(pet.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(pet.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

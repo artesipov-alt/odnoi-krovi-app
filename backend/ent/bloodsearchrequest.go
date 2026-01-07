@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -37,6 +38,12 @@ type BloodSearchRequest struct {
 	PhotoUrls []string `json:"photoUrls"`
 	// BloodGroupID holds the value of the "blood_group_id" field.
 	BloodGroupID int `json:"bloodGroupId"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deletedAt"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BloodSearchRequestQuery when eager-loading is set.
 	Edges        BloodSearchRequestEdges `json:"edges"`
@@ -100,6 +107,8 @@ func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case bloodsearchrequest.FieldID, bloodsearchrequest.FieldPetID, bloodsearchrequest.FieldStatus, bloodsearchrequest.FieldDescription:
 			values[i] = new(sql.NullString)
+		case bloodsearchrequest.FieldCreatedAt, bloodsearchrequest.FieldUpdatedAt, bloodsearchrequest.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -179,6 +188,25 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				_m.BloodGroupID = int(value.Int64)
 			}
+		case bloodsearchrequest.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case bloodsearchrequest.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case bloodsearchrequest.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -256,6 +284,17 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("blood_group_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.BloodGroupID))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -39,6 +40,32 @@ func (_u *LocationUpdate) SetNillableName(v *string) *LocationUpdate {
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *LocationUpdate) SetUpdatedAt(v time.Time) *LocationUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *LocationUpdate) SetDeletedAt(v time.Time) *LocationUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *LocationUpdate) SetNillableDeletedAt(v *time.Time) *LocationUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *LocationUpdate) ClearDeletedAt() *LocationUpdate {
+	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -85,6 +112,7 @@ func (_u *LocationUpdate) RemoveUsers(v ...*User) *LocationUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *LocationUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -107,6 +135,14 @@ func (_u *LocationUpdate) Exec(ctx context.Context) error {
 func (_u *LocationUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *LocationUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := location.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -134,6 +170,15 @@ func (_u *LocationUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(location.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(location.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(location.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(location.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -214,6 +259,32 @@ func (_u *LocationUpdateOne) SetNillableName(v *string) *LocationUpdateOne {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *LocationUpdateOne) SetUpdatedAt(v time.Time) *LocationUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *LocationUpdateOne) SetDeletedAt(v time.Time) *LocationUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *LocationUpdateOne) SetNillableDeletedAt(v *time.Time) *LocationUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *LocationUpdateOne) ClearDeletedAt() *LocationUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // AddUserIDs adds the "users" edge to the User entity by IDs.
 func (_u *LocationUpdateOne) AddUserIDs(ids ...string) *LocationUpdateOne {
 	_u.mutation.AddUserIDs(ids...)
@@ -270,6 +341,7 @@ func (_u *LocationUpdateOne) Select(field string, fields ...string) *LocationUpd
 
 // Save executes the query and returns the updated Location entity.
 func (_u *LocationUpdateOne) Save(ctx context.Context) (*Location, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -292,6 +364,14 @@ func (_u *LocationUpdateOne) Exec(ctx context.Context) error {
 func (_u *LocationUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *LocationUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := location.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -336,6 +416,15 @@ func (_u *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err 
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(location.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(location.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(location.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(location.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -118,6 +119,48 @@ func (_c *PetHealthCreate) SetNillablePetID(v *string) *PetHealthCreate {
 	return _c
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetHealthCreate) SetCreatedAt(v time.Time) *PetHealthCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableCreatedAt(v *time.Time) *PetHealthCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetHealthCreate) SetUpdatedAt(v time.Time) *PetHealthCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableUpdatedAt(v *time.Time) *PetHealthCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetHealthCreate) SetDeletedAt(v time.Time) *PetHealthCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableDeletedAt(v *time.Time) *PetHealthCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_c *PetHealthCreate) SetPet(v *Pet) *PetHealthCreate {
 	return _c.SetPetID(v.ID)
@@ -130,6 +173,7 @@ func (_c *PetHealthCreate) Mutation() *PetHealthMutation {
 
 // Save creates the PetHealth in the database.
 func (_c *PetHealthCreate) Save(ctx context.Context) (*PetHealth, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -155,6 +199,18 @@ func (_c *PetHealthCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *PetHealthCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := pethealth.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := pethealth.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetHealthCreate) check() error {
 	if v, ok := _c.mutation.ReproductiveStatus(); ok {
@@ -166,6 +222,12 @@ func (_c *PetHealthCreate) check() error {
 		if err := pethealth.HealthStatusValidator(v); err != nil {
 			return &ValidationError{Name: "health_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.health_status": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetHealth.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetHealth.updated_at"`)}
 	}
 	return nil
 }
@@ -217,6 +279,18 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 		_spec.SetField(pethealth.FieldSurgicalInterventions, field.TypeString, value)
 		_node.SurgicalInterventions = value
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(pethealth.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(pethealth.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(pethealth.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -255,6 +329,7 @@ func (_c *PetHealthCreateBulk) Save(ctx context.Context) ([]*PetHealth, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PetHealthMutation)
 				if !ok {

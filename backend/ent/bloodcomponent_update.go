@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -39,6 +40,32 @@ func (_u *BloodComponentUpdate) SetNillableName(v *string) *BloodComponentUpdate
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodComponentUpdate) SetUpdatedAt(v time.Time) *BloodComponentUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodComponentUpdate) SetDeletedAt(v time.Time) *BloodComponentUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodComponentUpdate) SetNillableDeletedAt(v *time.Time) *BloodComponentUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodComponentUpdate) ClearDeletedAt() *BloodComponentUpdate {
+	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -85,6 +112,7 @@ func (_u *BloodComponentUpdate) RemoveSearchRequests(v ...*BloodSearchRequest) *
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *BloodComponentUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -107,6 +135,14 @@ func (_u *BloodComponentUpdate) Exec(ctx context.Context) error {
 func (_u *BloodComponentUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *BloodComponentUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := bloodcomponent.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -134,6 +170,15 @@ func (_u *BloodComponentUpdate) sqlSave(ctx context.Context) (_node int, err err
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(bloodcomponent.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodcomponent.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodcomponent.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodcomponent.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.SearchRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -214,6 +259,32 @@ func (_u *BloodComponentUpdateOne) SetNillableName(v *string) *BloodComponentUpd
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodComponentUpdateOne) SetUpdatedAt(v time.Time) *BloodComponentUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodComponentUpdateOne) SetDeletedAt(v time.Time) *BloodComponentUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodComponentUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodComponentUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodComponentUpdateOne) ClearDeletedAt() *BloodComponentUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by IDs.
 func (_u *BloodComponentUpdateOne) AddSearchRequestIDs(ids ...string) *BloodComponentUpdateOne {
 	_u.mutation.AddSearchRequestIDs(ids...)
@@ -270,6 +341,7 @@ func (_u *BloodComponentUpdateOne) Select(field string, fields ...string) *Blood
 
 // Save executes the query and returns the updated BloodComponent entity.
 func (_u *BloodComponentUpdateOne) Save(ctx context.Context) (*BloodComponent, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -292,6 +364,14 @@ func (_u *BloodComponentUpdateOne) Exec(ctx context.Context) error {
 func (_u *BloodComponentUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *BloodComponentUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := bloodcomponent.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -336,6 +416,15 @@ func (_u *BloodComponentUpdateOne) sqlSave(ctx context.Context) (_node *BloodCom
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(bloodcomponent.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodcomponent.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodcomponent.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodcomponent.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.SearchRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -185,6 +186,32 @@ func (_u *BloodSearchRequestUpdate) ClearBloodGroupID() *BloodSearchRequestUpdat
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodSearchRequestUpdate) SetUpdatedAt(v time.Time) *BloodSearchRequestUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodSearchRequestUpdate) SetDeletedAt(v time.Time) *BloodSearchRequestUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdate) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodSearchRequestUpdate) ClearDeletedAt() *BloodSearchRequestUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdate) SetPet(v *Pet) *BloodSearchRequestUpdate {
 	return _u.SetPetID(v.ID)
@@ -250,6 +277,7 @@ func (_u *BloodSearchRequestUpdate) ClearBloodGroup() *BloodSearchRequestUpdate 
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *BloodSearchRequestUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -272,6 +300,14 @@ func (_u *BloodSearchRequestUpdate) Exec(ctx context.Context) error {
 func (_u *BloodSearchRequestUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *BloodSearchRequestUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := bloodsearchrequest.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -342,6 +378,15 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.PhotoUrlsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -620,6 +665,32 @@ func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupID() *BloodSearchRequestUp
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodSearchRequestUpdateOne) SetUpdatedAt(v time.Time) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodSearchRequestUpdateOne) SetDeletedAt(v time.Time) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodSearchRequestUpdateOne) ClearDeletedAt() *BloodSearchRequestUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdateOne) SetPet(v *Pet) *BloodSearchRequestUpdateOne {
 	return _u.SetPetID(v.ID)
@@ -698,6 +769,7 @@ func (_u *BloodSearchRequestUpdateOne) Select(field string, fields ...string) *B
 
 // Save executes the query and returns the updated BloodSearchRequest entity.
 func (_u *BloodSearchRequestUpdateOne) Save(ctx context.Context) (*BloodSearchRequest, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -720,6 +792,14 @@ func (_u *BloodSearchRequestUpdateOne) Exec(ctx context.Context) error {
 func (_u *BloodSearchRequestUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_u *BloodSearchRequestUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := bloodsearchrequest.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -807,6 +887,15 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.PhotoUrlsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -1,58 +1,67 @@
-# План миграции и разработки схем ENT
+# План миграции GORM -> ENT (Odnoi Krovi App)
 
-Этот файл является основным руководством и трекером прогресса для разработки базы данных. Каждый раз после внесения изменений в схемы или выполнения этапа миграции, необходимо обновлять этот файл.
-
-## 🛠 Общие правила разработки (Guidelines)
-
-При создании или изменении любой схемы ENT необходимо строго придерживаться следующих правил:
-
-1.  **JSON Аннотации**: Все поля должны иметь тег `StructTag` с именованием в стиле **camelCase** для фронтенд-разработчиков.
-    *   *Пример:* `field.String("full_name").StructTag("json:\"fullName\"")`
-2.  **Идентификация (ID)**:
-    *   Для сущностей с NanoID использовать явное объявление `field.String("id")` с `DefaultFunc` и префиксом.
-    *   Префиксы определены в `common.go` (USR, PET, BLS и т.д.).
-3.  **Явные внешние ключи (Explicit FK)**:
-    *   Всегда объявлять поле внешнего ключа явно (например, `field.String("pet_id")` или `field.Int("location_id")`).
-    *   Связывать ребро с полем через `.Field("field_name")`. Это предотвращает ошибки несоответствия типов (string vs int).
-4.  **Аудит и Мягкое удаление**:
-    *   Всегда подключать `AuditMixin`.
-    *   Это обеспечивает наличие полей `created_at`, `updated_at`, `deleted_at` и автоматическую фильтрацию удаленных записей.
-5.  **Диагностика**:
-    *   Перед фиксацией изменений **обязательно** запускать генерацию кода (`go generate ./ent/generate.go`). Успешная генерация — гарантия целостности связей.
+## 🎯 Текущий статус
+Мы успешно перенесли основные схемы базы данных на ENT и начали процесс переписывания репозиториев. Главное достижение — стабилизация генерации кода ENT через отказ от сложных миксинов в пользу явного объявления ID и внешних ключей.
 
 ---
 
-## 📋 Статус разработки схем
+## 🛠 Архитектурные решения (Guidelines для следующей сессии)
 
-### 1. Базовые компоненты (`common.go`)
-- [x] Определение префиксов ID
-- [x] Реализация генератора NanoID
-- [x] `AuditMixin` (Soft Delete + Timestamps)
-- [x] Интерцептор для фильтрации `deleted_at`
+При работе с ENT в этом проекте **ОБЯЗАТЕЛЬНО** придерживаться следующих правил:
 
-### 2. Сущности (Schemas)
-- [x] **User** (NanoID, Audit)
-- [x] **Location** (Int ID, Audit)
-- [x] **Breed** (Int ID, Audit)
-- [x] **Pet** (NanoID, Audit)
-    - [x] **PetHealth** (1:1 к Pet, Audit)
-    - [x] **PetTreatment** (1:1 к Pet, Audit)
-    - [x] **PetAnalysis** (1:1 к Pet, Audit)
-    - [x] **PetBonus** (1:1 к Pet, Audit)
-- [x] **BloodGroup** (Int ID, Audit)
-- [x] **BloodComponent** (Int ID, Audit)
-- [x] **BloodSearchRequest** (NanoID, Audit, 1:1 к Pet)
+1.  **Явные ID (Explicit IDs)**:
+    *   Для сущностей с NanoID (User, Pet, BloodSearchRequest) поле `id` прописывается вручную в `Fields()`.
+    *   Использовать `DefaultFunc` с соответствующим префиксом из `common.go`.
+    *   *Пример:* `field.String("id").DefaultFunc(func() string { return generateID(UserPrefix) })`
+
+2.  **Явные внешние ключи (Explicit Foreign Keys)**:
+    *   **НИКОГДА** не полагаться на магию ENT при создании связей.
+    *   Всегда объявлять поле ключа в `Fields()` (например, `field.String("pet_id")` или `field.Int("location_id")`).
+    *   В определении `Edges()` всегда указывать `.Field("field_name")`. Это критично для предотвращения ошибок несоответствия типов (`string` vs `int`).
+
+3.  **Аудит и Soft Delete**:
+    *   Поля `created_at`, `updated_at`, `deleted_at` и соответствующие `Interceptors` для фильтрации удаленных записей прописываются **явно в каждой схеме** (из-за капризов генератора при работе с миксинами в одном пакете).
+
+4.  **CamelCase**:
+    *   Все поля и связи должны иметь `StructTag` с `json:"camelCase"`.
+
+---
+
+## 📋 Статус компонентов
+
+### 1. Схемы (Schemas) — [DONE]
+- [x] **User**: NanoID, Audit, Связь с Location и Pets.
+- [x] **Location**: Int ID, Audit, справочник городов.
+- [x] **Breed**: Int ID, Audit, справочник пород.
+- [x] **Pet**: NanoID, Audit. Включает в себя (в одном файле `pet.go`):
+    - `PetHealth`, `PetTreatment`, `PetAnalysis`, `PetBonus` (все 1:1 к Pet).
+- [x] **BloodGroup** & **BloodComponent**: Справочники.
+- [x] **BloodSearchRequest**: NanoID, Audit, связь 1:1 к Pet (один питомец — одна активная заявка).
+
+### 2. Инфраструктура — [DONE]
+- [x] **Config**: `backend/internal/utils/config/ent_db.go` для подключения `ent.Client`.
+- [x] **Enums**: `backend/internal/utils/enums/ent_enums.go` с типизацией ENT и локализацией на русский.
+- [x] **Generate**: `backend/ent/generate.go` настроен.
+
+### 3. Репозитории (Repositories) — [IN PROGRESS]
+- [x] **EntUserRepository**: Реализован, проверен диагностикой. Поддерживает Soft Delete и Restore.
+- [ ] **EntPetRepository**: Начата подготовка (требуется реализация транзакционного создания Pet + Health + Analysis).
+- [ ] **EntLocationRepository**: Ожидает реализации.
+- [ ] **EntBreedRepository**: Ожидает реализации.
 
 ---
 
-## 🚀 План действий (Next Steps)
+## 🚀 Следующие шаги (Next Steps)
 
-1.  [x] **Проверка текущего состояния**: `go generate ./ent/generate.go` выполнено успешно.
-2.  [ ] **Рефакторинг Enums**: Перевод `internal/utils/enums/enums.go` на использование типов из пакета `ent`.
-3.  [ ] **Расширение схем**: Добавление сущностей `Donation` и `Request` (при необходимости).
-4.  [ ] **Миграция**: Подготовка и запуск миграции в реальную БД.
-5.  [ ] **Тестирование**: Проверка логики Soft Delete и корректности генерации NanoID.
+1.  **Завершить репозитории**:
+    *   Реализовать `EntPetRepository` в `backend/internal/repositories/pg/pet_repo_ent.go`.
+    *   Реализовать остальные репозитории (Location, Breed, Blood).
+2.  **Интеграция в Service Layer**:
+    *   Постепенно заменять `GormRepository` на `EntRepository` в конструкторах сервисов.
+3.  **Миграция данных**:
+    *   Подготовить скрипт переноса данных из старых таблиц GORM в новые таблицы ENT (учитывая NanoID).
+4.  **Тестирование**:
+    *   Проверить работу `Interceptors` для Soft Delete на реальных запросах.
 
 ---
-*Последнее обновление: 24.05.2024*
-*Статус: Базовые схемы полностью перенесены и проверены генератором.*
+*Обнял, ушел, но фундамент оставил бетонный. Удачи, бро!* 🐾

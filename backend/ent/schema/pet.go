@@ -1,7 +1,11 @@
 package schema
 
 import (
+	"context"
+	"time"
+
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -33,6 +37,19 @@ func (Pet) Fields() []ent.Field {
 		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
 		field.String("user_id").Optional().StructTag(`json:"userId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
+		// Audit fields
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			StructTag(`json:"createdAt"`),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			StructTag(`json:"updatedAt"`),
+		field.Time("deleted_at").
+			Optional().
+			Nillable().
+			StructTag(`json:"deletedAt"`),
 	}
 }
 
@@ -55,10 +72,23 @@ func (Pet) Edges() []ent.Edge {
 	}
 }
 
-// Mixins of the Pet.
-func (Pet) Mixins() []ent.Mixin {
-	return []ent.Mixin{
-		AuditMixin{},
+// Interceptors of the Pet.
+func (Pet) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
+			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+				return nil
+			}
+			type query interface {
+				WhereP(...func(*sql.Selector))
+			}
+			if w, ok := q.(query); ok {
+				w.WhereP(func(s *sql.Selector) {
+					s.Where(sql.IsNull(s.C("deleted_at")))
+				})
+			}
+			return nil
+		}),
 	}
 }
 
@@ -77,13 +107,19 @@ func (PetHealth) Fields() []ent.Field {
 		field.String("medications").Optional().StructTag(`json:"medications"`),
 		field.String("surgical_interventions").Optional().StructTag(`json:"surgicalInterventions"`),
 		field.String("pet_id").Optional().StructTag(`json:"petId"`),
-	}
-}
-
-// Mixins of the PetHealth.
-func (PetHealth) Mixins() []ent.Mixin {
-	return []ent.Mixin{
-		AuditMixin{},
+		// Audit fields
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			StructTag(`json:"createdAt"`),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			StructTag(`json:"updatedAt"`),
+		field.Time("deleted_at").
+			Optional().
+			Nillable().
+			StructTag(`json:"deletedAt"`),
 	}
 }
 
@@ -94,6 +130,26 @@ func (PetHealth) Edges() []ent.Edge {
 			Ref("health").
 			Unique().
 			Field("pet_id"),
+	}
+}
+
+// Interceptors of the PetHealth.
+func (PetHealth) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
+			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+				return nil
+			}
+			type query interface {
+				WhereP(...func(*sql.Selector))
+			}
+			if w, ok := q.(query); ok {
+				w.WhereP(func(s *sql.Selector) {
+					s.Where(sql.IsNull(s.C("deleted_at")))
+				})
+			}
+			return nil
+		}),
 	}
 }
 
@@ -110,13 +166,19 @@ func (PetTreatment) Fields() []ent.Field {
 		field.Time("ectoparasite_treatment_date").Optional().Nillable().StructTag(`json:"ectoparasiteTreatmentDate"`),
 		field.Time("deworming_date").Optional().Nillable().StructTag(`json:"dewormingDate"`),
 		field.String("pet_id").Optional().StructTag(`json:"petId"`),
-	}
-}
-
-// Mixins of the PetTreatment.
-func (PetTreatment) Mixins() []ent.Mixin {
-	return []ent.Mixin{
-		AuditMixin{},
+		// Audit fields
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			StructTag(`json:"createdAt"`),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			StructTag(`json:"updatedAt"`),
+		field.Time("deleted_at").
+			Optional().
+			Nillable().
+			StructTag(`json:"deletedAt"`),
 	}
 }
 
@@ -127,6 +189,26 @@ func (PetTreatment) Edges() []ent.Edge {
 			Ref("treatments").
 			Unique().
 			Field("pet_id"),
+	}
+}
+
+// Interceptors of the PetTreatment.
+func (PetTreatment) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
+			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+				return nil
+			}
+			type query interface {
+				WhereP(...func(*sql.Selector))
+			}
+			if w, ok := q.(query); ok {
+				w.WhereP(func(s *sql.Selector) {
+					s.Where(sql.IsNull(s.C("deleted_at")))
+				})
+			}
+			return nil
+		}),
 	}
 }
 
@@ -155,13 +237,19 @@ func (PetAnalysis) Fields() []ent.Field {
 		field.Time("anaplasmosis_date").Optional().Nillable().StructTag(`json:"anaplasmosisDate"`),
 		field.Enum("anaplasmosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"anaplasmosisType"`),
 		field.String("pet_id").Optional().StructTag(`json:"petId"`),
-	}
-}
-
-// Mixins of the PetAnalysis.
-func (PetAnalysis) Mixins() []ent.Mixin {
-	return []ent.Mixin{
-		AuditMixin{},
+		// Audit fields
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			StructTag(`json:"createdAt"`),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			StructTag(`json:"updatedAt"`),
+		field.Time("deleted_at").
+			Optional().
+			Nillable().
+			StructTag(`json:"deletedAt"`),
 	}
 }
 
@@ -175,6 +263,26 @@ func (PetAnalysis) Edges() []ent.Edge {
 	}
 }
 
+// Interceptors of the PetAnalysis.
+func (PetAnalysis) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
+			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+				return nil
+			}
+			type query interface {
+				WhereP(...func(*sql.Selector))
+			}
+			if w, ok := q.(query); ok {
+				w.WhereP(func(s *sql.Selector) {
+					s.Where(sql.IsNull(s.C("deleted_at")))
+				})
+			}
+			return nil
+		}),
+	}
+}
+
 // PetBonus holds the schema definition for the PetBonus entity.
 type PetBonus struct {
 	ent.Schema
@@ -183,18 +291,24 @@ type PetBonus struct {
 // Fields of the PetBonus.
 func (PetBonus) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 		field.Bool("is_artist").StructTag(`json:"isArtist"`),
 		field.Bool("is_therapist").StructTag(`json:"isTherapist"`),
 		field.Bool("is_former_donor").StructTag(`json:"isFormerDonor"`),
 		field.Bool("is_guide_dog").StructTag(`json:"isGuideDog"`),
-		field.String("pet_id").Optional().StructTag(`json:"petId"`),
-	}
-}
-
-// Mixins of the PetBonus.
-func (PetBonus) Mixins() []ent.Mixin {
-	return []ent.Mixin{
-		AuditMixin{},
+		// Audit fields
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			StructTag(`json:"createdAt"`),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			StructTag(`json:"updatedAt"`),
+		field.Time("deleted_at").
+			Optional().
+			Nillable().
+			StructTag(`json:"deletedAt"`),
 	}
 }
 
@@ -205,5 +319,25 @@ func (PetBonus) Edges() []ent.Edge {
 			Ref("bonuses").
 			Unique().
 			Field("pet_id"),
+	}
+}
+
+// Interceptors of the PetBonus.
+func (PetBonus) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
+			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+				return nil
+			}
+			type query interface {
+				WhereP(...func(*sql.Selector))
+			}
+			if w, ok := q.(query); ok {
+				w.WhereP(func(s *sql.Selector) {
+					s.Where(sql.IsNull(s.C("deleted_at")))
+				})
+			}
+			return nil
+		}),
 	}
 }

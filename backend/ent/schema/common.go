@@ -37,7 +37,6 @@ func SkipSoftDelete(parent context.Context) context.Context {
 }
 
 // AuditMixin предоставляет поля времени создания, обновления и мягкого удаления.
-// Используйте этот миксин для сущностей с автоинкрементным ID.
 type AuditMixin struct {
 	mixin.Schema
 }
@@ -45,9 +44,18 @@ type AuditMixin struct {
 // Fields возвращает поля аудита.
 func (AuditMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Time("created_at").Default(time.Now).Immutable().StructTag(`json:"createdAt"`),
-		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now).StructTag(`json:"updatedAt"`),
-		field.Time("deleted_at").Optional().Nillable().StructTag(`json:"deletedAt"`),
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			StructTag(`json:"createdAt"`),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			StructTag(`json:"updatedAt"`),
+		field.Time("deleted_at").
+			Optional().
+			Nillable().
+			StructTag(`json:"deletedAt"`),
 	}
 }
 

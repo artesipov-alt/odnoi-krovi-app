@@ -32,6 +32,12 @@ type PetHealth struct {
 	SurgicalInterventions string `json:"surgicalInterventions"`
 	// PetID holds the value of the "pet_id" field.
 	PetID string `json:"petId"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deletedAt"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetHealthQuery when eager-loading is set.
 	Edges        PetHealthEdges `json:"edges"`
@@ -69,7 +75,7 @@ func (*PetHealth) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case pethealth.FieldReproductiveStatus, pethealth.FieldHealthStatus, pethealth.FieldMedications, pethealth.FieldSurgicalInterventions, pethealth.FieldPetID:
 			values[i] = new(sql.NullString)
-		case pethealth.FieldLastDonation:
+		case pethealth.FieldLastDonation, pethealth.FieldCreatedAt, pethealth.FieldUpdatedAt, pethealth.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -135,6 +141,25 @@ func (_m *PetHealth) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.PetID = value.String
 			}
+		case pethealth.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case pethealth.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case pethealth.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -198,6 +223,17 @@ func (_m *PetHealth) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("pet_id=")
 	builder.WriteString(_m.PetID)
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }
