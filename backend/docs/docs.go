@@ -1667,7 +1667,7 @@ const docTemplate = `{
                 },
                 "id": {
                     "description": "ID of the ent.",
-                    "type": "string"
+                    "type": "integer"
                 },
                 "immunodeficiencyDate": {
                     "description": "ImmunodeficiencyDate holds the value of the \"immunodeficiency_date\" field.",

@@ -26,6 +26,15 @@ func NewEntPetRepository(client *ent.Client) *EntPetRepository {
 	}
 }
 
+// nillable возвращает указатель на значение, если оно не является нулевым для своего типа, иначе nil.
+func nillable[T comparable](v T) *T {
+	var zero T
+	if v == zero {
+		return nil
+	}
+	return &v
+}
+
 // Create creates a new pet in the database along with its related entities in a transaction
 func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) (*ent.Pet, error) {
 	if p == nil {
@@ -43,27 +52,17 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		SetName(p.Name).
 		SetType(p.Type).
 		SetPetStatus(p.PetStatus).
-		SetNillableWeightKg(&p.WeightKg).
-		SetNillableBloodGroup(&p.BloodGroup).
-		SetNillableGender(&p.Gender).
-		SetNillableAgeYears(&p.AgeYears).
-		SetNillableAgeMonths(&p.AgeMonths).
+		SetNillableWeightKg(nillable(p.WeightKg)).
+		SetNillableBloodGroup(nillable(p.BloodGroup)).
+		SetNillableGender(nillable(p.Gender)).
+		SetNillableAgeYears(nillable(p.AgeYears)).
+		SetNillableAgeMonths(nillable(p.AgeMonths)).
 		SetNillableBirthDate(p.BirthDate).
-		SetNillableChipNumber(&p.ChipNumber).
-		SetNillablePhotoURL(&p.PhotoURL).
-		SetNillableBreedID(func() *int {
-			if p.BreedID > 0 {
-				return &p.BreedID
-			}
-			return nil
-		}()).
-		SetNillableUserID(func() *string {
-			if p.UserID != "" {
-				return &p.UserID
-			}
-			return nil
-		}()).
-		SetNillableLivingCondition(&p.LivingCondition)
+		SetNillableChipNumber(nillable(p.ChipNumber)).
+		SetNillablePhotoURL(nillable(p.PhotoURL)).
+		SetNillableBreedID(nillable(p.BreedID)).
+		SetNillableUserID(nillable(p.UserID)).
+		SetNillableLivingCondition(nillable(p.LivingCondition))
 
 	newPet, err := petCreate.Save(ctx)
 	if err != nil {
@@ -76,8 +75,8 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		_, err = tx.PetHealth.Create().
 			SetID(newPet.ID).
 			SetOwner(newPet).
-			SetNillableReproductiveStatus(&health.ReproductiveStatus).
-			SetNillableHealthStatus(&health.HealthStatus).
+			SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
+			SetNillableHealthStatus(nillable(health.HealthStatus)).
 			SetNillableLastDonation(health.LastDonation).
 			SetTransfused(health.Transfused).
 			SetMedications(health.Medications).
@@ -108,21 +107,21 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		_, err = tx.PetAnalysis.Create().
 			AddOwner(newPet).
 			SetNillableLeukemiaDate(a.LeukemiaDate).
-			SetNillableLeukemiaType(&a.LeukemiaType).
+			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
 			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-			SetNillableImmunodeficiencyType(&a.ImmunodeficiencyType).
+			SetNillableImmunodeficiencyType(nillable(a.ImmunodeficiencyType)).
 			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-			SetNillableHemoplasmosisType(&a.HemoplasmosisType).
+			SetNillableHemoplasmosisType(nillable(a.HemoplasmosisType)).
 			SetNillableBartonellosisDate(a.BartonellosisDate).
-			SetNillableBartonellosisType(&a.BartonellosisType).
+			SetNillableBartonellosisType(nillable(a.BartonellosisType)).
 			SetNillableBabesiosisDate(a.BabesiosisDate).
-			SetNillableBabesiosisType(&a.BabesiosisType).
+			SetNillableBabesiosisType(nillable(a.BabesiosisType)).
 			SetNillableDirofilariaDate(a.DirofilariaDate).
-			SetNillableDirofilariaType(&a.DirofilariaType).
+			SetNillableDirofilariaType(nillable(a.DirofilariaType)).
 			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-			SetNillableEhrlichiosisType(&a.EhrlichiosisType).
+			SetNillableEhrlichiosisType(nillable(a.EhrlichiosisType)).
 			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-			SetNillableAnaplasmosisType(&a.AnaplasmosisType).
+			SetNillableAnaplasmosisType(nillable(a.AnaplasmosisType)).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
@@ -240,27 +239,17 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		SetName(p.Name).
 		SetType(p.Type).
 		SetPetStatus(p.PetStatus).
-		SetNillableWeightKg(&p.WeightKg).
-		SetNillableBloodGroup(&p.BloodGroup).
-		SetNillableGender(&p.Gender).
-		SetNillableAgeYears(&p.AgeYears).
-		SetNillableAgeMonths(&p.AgeMonths).
+		SetNillableWeightKg(nillable(p.WeightKg)).
+		SetNillableBloodGroup(nillable(p.BloodGroup)).
+		SetNillableGender(nillable(p.Gender)).
+		SetNillableAgeYears(nillable(p.AgeYears)).
+		SetNillableAgeMonths(nillable(p.AgeMonths)).
 		SetNillableBirthDate(p.BirthDate).
-		SetNillableChipNumber(&p.ChipNumber).
-		SetNillablePhotoURL(&p.PhotoURL).
-		SetNillableBreedID(func() *int {
-			if p.BreedID > 0 {
-				return &p.BreedID
-			}
-			return nil
-		}()).
-		SetNillableUserID(func() *string {
-			if p.UserID != "" {
-				return &p.UserID
-			}
-			return nil
-		}()).
-		SetNillableLivingCondition(&p.LivingCondition).
+		SetNillableChipNumber(nillable(p.ChipNumber)).
+		SetNillablePhotoURL(nillable(p.PhotoURL)).
+		SetNillableBreedID(nillable(p.BreedID)).
+		SetNillableUserID(nillable(p.UserID)).
+		SetNillableLivingCondition(nillable(p.LivingCondition)).
 		Exec(ctx)
 
 	if err != nil {
@@ -277,8 +266,8 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		}
 		if exists {
 			err = tx.PetHealth.UpdateOneID(p.ID).
-				SetReproductiveStatus(health.ReproductiveStatus).
-				SetHealthStatus(health.HealthStatus).
+				SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
+				SetNillableHealthStatus(nillable(health.HealthStatus)).
 				SetNillableLastDonation(health.LastDonation).
 				SetTransfused(health.Transfused).
 				SetMedications(health.Medications).
@@ -288,8 +277,8 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 			_, err = tx.PetHealth.Create().
 				SetID(p.ID).
 				SetOwner(p).
-				SetReproductiveStatus(health.ReproductiveStatus).
-				SetHealthStatus(health.HealthStatus).
+				SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
+				SetNillableHealthStatus(nillable(health.HealthStatus)).
 				SetNillableLastDonation(health.LastDonation).
 				SetTransfused(health.Transfused).
 				SetMedications(health.Medications).
@@ -336,21 +325,21 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		_, err = tx.PetAnalysis.Create().
 			AddOwner(p).
 			SetNillableLeukemiaDate(a.LeukemiaDate).
-			SetNillableLeukemiaType(&a.LeukemiaType).
+			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
 			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-			SetNillableImmunodeficiencyType(&a.ImmunodeficiencyType).
+			SetNillableImmunodeficiencyType(nillable(a.ImmunodeficiencyType)).
 			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-			SetNillableHemoplasmosisType(&a.HemoplasmosisType).
+			SetNillableHemoplasmosisType(nillable(a.HemoplasmosisType)).
 			SetNillableBartonellosisDate(a.BartonellosisDate).
-			SetNillableBartonellosisType(&a.BartonellosisType).
+			SetNillableBartonellosisType(nillable(a.BartonellosisType)).
 			SetNillableBabesiosisDate(a.BabesiosisDate).
-			SetNillableBabesiosisType(&a.BabesiosisType).
+			SetNillableBabesiosisType(nillable(a.BabesiosisType)).
 			SetNillableDirofilariaDate(a.DirofilariaDate).
-			SetNillableDirofilariaType(&a.DirofilariaType).
+			SetNillableDirofilariaType(nillable(a.DirofilariaType)).
 			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-			SetNillableEhrlichiosisType(&a.EhrlichiosisType).
+			SetNillableEhrlichiosisType(nillable(a.EhrlichiosisType)).
 			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-			SetNillableAnaplasmosisType(&a.AnaplasmosisType).
+			SetNillableAnaplasmosisType(nillable(a.AnaplasmosisType)).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
