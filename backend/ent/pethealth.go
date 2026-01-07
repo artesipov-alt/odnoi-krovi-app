@@ -17,7 +17,7 @@ import (
 type PetHealth struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID string `json:"id"`
 	// ReproductiveStatus holds the value of the "reproductive_status" field.
 	ReproductiveStatus pethealth.ReproductiveStatus `json:"reproductiveStatus"`
 	// HealthStatus holds the value of the "health_status" field.
@@ -30,8 +30,6 @@ type PetHealth struct {
 	Medications string `json:"medications"`
 	// SurgicalInterventions holds the value of the "surgical_interventions" field.
 	SurgicalInterventions string `json:"surgicalInterventions"`
-	// PetID holds the value of the "pet_id" field.
-	PetID string `json:"petId"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"createdAt"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -46,22 +44,22 @@ type PetHealth struct {
 
 // PetHealthEdges holds the relations/edges for other nodes in the graph.
 type PetHealthEdges struct {
-	// Pet holds the value of the pet edge.
-	Pet *Pet `json:"pet,omitempty"`
+	// Owner holds the value of the owner edge.
+	Owner *Pet `json:"owner,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// PetOrErr returns the Pet value or an error if the edge
+// OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e PetHealthEdges) PetOrErr() (*Pet, error) {
-	if e.Pet != nil {
-		return e.Pet, nil
+func (e PetHealthEdges) OwnerOrErr() (*Pet, error) {
+	if e.Owner != nil {
+		return e.Owner, nil
 	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: pet.Label}
 	}
-	return nil, &NotLoadedError{edge: "pet"}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -71,9 +69,7 @@ func (*PetHealth) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case pethealth.FieldTransfused:
 			values[i] = new(sql.NullBool)
-		case pethealth.FieldID:
-			values[i] = new(sql.NullInt64)
-		case pethealth.FieldReproductiveStatus, pethealth.FieldHealthStatus, pethealth.FieldMedications, pethealth.FieldSurgicalInterventions, pethealth.FieldPetID:
+		case pethealth.FieldID, pethealth.FieldReproductiveStatus, pethealth.FieldHealthStatus, pethealth.FieldMedications, pethealth.FieldSurgicalInterventions:
 			values[i] = new(sql.NullString)
 		case pethealth.FieldLastDonation, pethealth.FieldCreatedAt, pethealth.FieldUpdatedAt, pethealth.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -93,11 +89,11 @@ func (_m *PetHealth) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case pethealth.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				_m.ID = value.String
 			}
-			_m.ID = int(value.Int64)
 		case pethealth.FieldReproductiveStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reproductive_status", values[i])
@@ -135,12 +131,6 @@ func (_m *PetHealth) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.SurgicalInterventions = value.String
 			}
-		case pethealth.FieldPetID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_id", values[i])
-			} else if value.Valid {
-				_m.PetID = value.String
-			}
 		case pethealth.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -173,9 +163,9 @@ func (_m *PetHealth) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryPet queries the "pet" edge of the PetHealth entity.
-func (_m *PetHealth) QueryPet() *PetQuery {
-	return NewPetHealthClient(_m.config).QueryPet(_m)
+// QueryOwner queries the "owner" edge of the PetHealth entity.
+func (_m *PetHealth) QueryOwner() *PetQuery {
+	return NewPetHealthClient(_m.config).QueryOwner(_m)
 }
 
 // Update returns a builder for updating this PetHealth.
@@ -220,9 +210,6 @@ func (_m *PetHealth) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("surgical_interventions=")
 	builder.WriteString(_m.SurgicalInterventions)
-	builder.WriteString(", ")
-	builder.WriteString("pet_id=")
-	builder.WriteString(_m.PetID)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

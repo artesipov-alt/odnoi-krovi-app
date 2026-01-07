@@ -37,6 +37,7 @@ type PetQuery struct {
 	withBonuses            *PetBonusQuery
 	withBreedRef           *BreedQuery
 	withBloodSearchRequest *BloodSearchRequestQuery
+	withFKs                bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -109,7 +110,7 @@ func (_q *PetQuery) QueryHealth() *PetHealthQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(pethealth.Table, pethealth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.HealthTable, pet.HealthColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.HealthTable, pet.HealthColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -131,7 +132,7 @@ func (_q *PetQuery) QueryTreatments() *PetTreatmentQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(pettreatment.Table, pettreatment.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.TreatmentsTable, pet.TreatmentsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.TreatmentsTable, pet.TreatmentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -153,7 +154,7 @@ func (_q *PetQuery) QueryAnalyses() *PetAnalysisQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(petanalysis.Table, petanalysis.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.AnalysesTable, pet.AnalysesColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, pet.AnalysesTable, pet.AnalysesPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -175,7 +176,7 @@ func (_q *PetQuery) QueryBonuses() *PetBonusQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(petbonus.Table, petbonus.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.BonusesTable, pet.BonusesColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.BonusesTable, pet.BonusesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -586,6 +587,7 @@ func (_q *PetQuery) prepareQuery(ctx context.Context) error {
 func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, error) {
 	var (
 		nodes       = []*Pet{}
+		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [7]bool{
 			_q.withOwner != nil,
@@ -597,6 +599,12 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 			_q.withBloodSearchRequest != nil,
 		}
 	)
+	if _q.withHealth != nil || _q.withTreatments != nil || _q.withBonuses != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Pet).scanValues(nil, columns)
 	}
@@ -634,8 +642,9 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 		}
 	}
 	if query := _q.withAnalyses; query != nil {
-		if err := _q.loadAnalyses(ctx, query, nodes, nil,
-			func(n *Pet, e *PetAnalysis) { n.Edges.Analyses = e }); err != nil {
+		if err := _q.loadAnalyses(ctx, query, nodes,
+			func(n *Pet) { n.Edges.Analyses = []*PetAnalysis{} },
+			func(n *Pet, e *PetAnalysis) { n.Edges.Analyses = append(n.Edges.Analyses, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -690,110 +699,159 @@ func (_q *PetQuery) loadOwner(ctx context.Context, query *UserQuery, nodes []*Pe
 	return nil
 }
 func (_q *PetQuery) loadHealth(ctx context.Context, query *PetHealthQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *PetHealth)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Pet)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Pet)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+		if nodes[i].pet_health_owner == nil {
+			continue
+		}
+		fk := *nodes[i].pet_health_owner
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(pethealth.FieldPetID)
+	if len(ids) == 0 {
+		return nil
 	}
-	query.Where(predicate.PetHealth(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(pet.HealthColumn), fks...))
-	}))
+	query.Where(pethealth.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.PetID
-		node, ok := nodeids[fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "pet_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "pet_health_owner" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }
 func (_q *PetQuery) loadTreatments(ctx context.Context, query *PetTreatmentQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *PetTreatment)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Pet)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Pet)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+		if nodes[i].pet_treatment_owner == nil {
+			continue
+		}
+		fk := *nodes[i].pet_treatment_owner
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(pettreatment.FieldPetID)
+	if len(ids) == 0 {
+		return nil
 	}
-	query.Where(predicate.PetTreatment(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(pet.TreatmentsColumn), fks...))
-	}))
+	query.Where(pettreatment.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.PetID
-		node, ok := nodeids[fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "pet_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "pet_treatment_owner" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }
 func (_q *PetQuery) loadAnalyses(ctx context.Context, query *PetAnalysisQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *PetAnalysis)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Pet)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[string]*Pet)
+	nids := make(map[string]map[*Pet]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(petanalysis.FieldPetID)
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(pet.AnalysesTable)
+		s.Join(joinT).On(s.C(petanalysis.FieldID), joinT.C(pet.AnalysesPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(pet.AnalysesPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(pet.AnalysesPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(predicate.PetAnalysis(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(pet.AnalysesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullString)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullString).String
+				inValue := values[1].(*sql.NullString).String
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Pet]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*PetAnalysis](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.PetID
-		node, ok := nodeids[fk]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "pet_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected "analyses" node returned %v`, n.ID)
 		}
-		assign(node, n)
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }
 func (_q *PetQuery) loadBonuses(ctx context.Context, query *PetBonusQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *PetBonus)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Pet)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Pet)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+		if nodes[i].pet_bonus_owner == nil {
+			continue
+		}
+		fk := *nodes[i].pet_bonus_owner
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(petbonus.FieldPetID)
+	if len(ids) == 0 {
+		return nil
 	}
-	query.Where(predicate.PetBonus(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(pet.BonusesColumn), fks...))
-	}))
+	query.Where(petbonus.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.PetID
-		node, ok := nodeids[fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "pet_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "pet_bonus_owner" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }

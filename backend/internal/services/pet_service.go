@@ -82,10 +82,10 @@ type PetCreate struct {
 	PetStatus       pet.PetStatus       `json:"petStatus" validate:"required"`
 
 	// Вложенные структуры (DTO)
-	Health     *ent.PetHealth    `json:"health,omitempty"`
-	Treatments *ent.PetTreatment `json:"treatments,omitempty"`
-	Analyses   *ent.PetAnalysis  `json:"analyses,omitempty"`
-	Bonuses    *ent.PetBonus     `json:"bonuses,omitempty"`
+	Health     *ent.PetHealth     `json:"health,omitempty"`
+	Treatments *ent.PetTreatment  `json:"treatments,omitempty"`
+	Analyses   []*ent.PetAnalysis `json:"analyses,omitempty"`
+	Bonuses    *ent.PetBonus      `json:"bonuses,omitempty"`
 }
 
 // PetUpdate содержит поля, которые можно обновить для питомца
@@ -105,10 +105,10 @@ type PetUpdate struct {
 	PetStatus       *pet.PetStatus       `json:"petStatus,omitempty" validate:"omitempty,max=50"`
 
 	// Вложенные структуры
-	Health     *ent.PetHealth    `json:"health,omitempty"`
-	Treatments *ent.PetTreatment `json:"treatments,omitempty"`
-	Analyses   *ent.PetAnalysis  `json:"analyses,omitempty"`
-	Bonuses    *ent.PetBonus     `json:"bonuses,omitempty"`
+	Health     *ent.PetHealth     `json:"health,omitempty"`
+	Treatments *ent.PetTreatment  `json:"treatments,omitempty"`
+	Analyses   []*ent.PetAnalysis `json:"analyses,omitempty"`
+	Bonuses    *ent.PetBonus      `json:"bonuses,omitempty"`
 }
 
 // PetServiceImpl реализует PetService
@@ -185,45 +185,46 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 	}
 
 	if petData.Analyses != nil {
-		a := petData.Analyses
-		if a.LeukemiaType != "" {
-			if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+		for _, a := range petData.Analyses {
+			if a.LeukemiaType != "" {
+				if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.ImmunodeficiencyType != "" {
-			if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.ImmunodeficiencyType != "" {
+				if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.HemoplasmosisType != "" {
-			if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.HemoplasmosisType != "" {
+				if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.BartonellosisType != "" {
-			if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.BartonellosisType != "" {
+				if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.BabesiosisType != "" {
-			if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.BabesiosisType != "" {
+				if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.DirofilariaType != "" {
-			if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.DirofilariaType != "" {
+				if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.EhrlichiosisType != "" {
-			if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.EhrlichiosisType != "" {
+				if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
-		}
-		if a.AnaplasmosisType != "" {
-			if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
-				return nil, apperrors.ErrInvalidAnalysisType
+			if a.AnaplasmosisType != "" {
+				if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
+					return nil, apperrors.ErrInvalidAnalysisType
+				}
 			}
 		}
 	}
@@ -252,21 +253,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		PetStatus:       petData.PetStatus,
 	}
 
-	// Копируем вложенные структуры в Edges
-	if petData.Health != nil {
-		p.Edges.Health = petData.Health
-	}
-	if petData.Treatments != nil {
-		p.Edges.Treatments = petData.Treatments
-	}
-	if petData.Analyses != nil {
-		p.Edges.Analyses = petData.Analyses
-	}
-	if petData.Bonuses != nil {
-		p.Edges.Bonuses = petData.Bonuses
-	}
-
-	newPet, err := s.petRepo.Create(ctx, p)
+	newPet, err := s.petRepo.Create(ctx, p, petData.Health, petData.Treatments, petData.Analyses, petData.Bonuses)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать питомца")
 	}
@@ -391,7 +378,7 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 		}
 	}
 
-	// Обновляем вложенные структуры через Edges
+	// Валидируем вложенные структуры
 	if updates.Health != nil {
 		h := updates.Health
 		if h.HealthStatus != "" {
@@ -404,61 +391,54 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 				return apperrors.ErrInvalidReproductiveStatus
 			}
 		}
-		p.Edges.Health = h
-	}
-	if updates.Treatments != nil {
-		p.Edges.Treatments = updates.Treatments
 	}
 	if updates.Analyses != nil {
-		a := updates.Analyses
-		if a.LeukemiaType != "" {
-			if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+		for _, a := range updates.Analyses {
+			if a.LeukemiaType != "" {
+				if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.ImmunodeficiencyType != "" {
+				if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.HemoplasmosisType != "" {
+				if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.BartonellosisType != "" {
+				if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.BabesiosisType != "" {
+				if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.DirofilariaType != "" {
+				if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.EhrlichiosisType != "" {
+				if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
+			}
+			if a.AnaplasmosisType != "" {
+				if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
+					return apperrors.ErrInvalidAnalysisType
+				}
 			}
 		}
-		if a.ImmunodeficiencyType != "" {
-			if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		if a.HemoplasmosisType != "" {
-			if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		if a.BartonellosisType != "" {
-			if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		if a.BabesiosisType != "" {
-			if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		if a.DirofilariaType != "" {
-			if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		if a.EhrlichiosisType != "" {
-			if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		if a.AnaplasmosisType != "" {
-			if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
-			}
-		}
-		p.Edges.Analyses = a
-	}
-	if updates.Bonuses != nil {
-		p.Edges.Bonuses = updates.Bonuses
 	}
 
 	// Сохраняем обновленного питомца
-	if _, err := s.petRepo.Update(ctx, p); err != nil {
+	if _, err := s.petRepo.Update(ctx, p, updates.Health, updates.Treatments, updates.Analyses, updates.Bonuses); err != nil {
 		return apperrors.Internal(err, "не удалось обновить питомца")
 	}
 
@@ -536,7 +516,7 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 	}
 
 	p.PhotoURL = decodedPath
-	if _, err := s.petRepo.Update(ctx, p); err != nil {
+	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
 		return "", apperrors.Internal(err, "не удалось обновить photoURL питомца")
 	}
 

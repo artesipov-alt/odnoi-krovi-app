@@ -11,53 +11,58 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.PetBonus {
+func ID(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.PetBonus {
+func IDEQ(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.PetBonus {
+func IDNEQ(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.PetBonus {
+func IDIn(ids ...string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.PetBonus {
+func IDNotIn(ids ...string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.PetBonus {
+func IDGT(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.PetBonus {
+func IDGTE(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.PetBonus {
+func IDLT(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.PetBonus {
+func IDLTE(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldLTE(FieldID, id))
 }
 
-// PetID applies equality check predicate on the "pet_id" field. It's identical to PetIDEQ.
-func PetID(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldPetID, v))
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldContainsFold(FieldID, id))
 }
 
 // IsArtist applies equality check predicate on the "is_artist" field. It's identical to IsArtistEQ.
@@ -93,81 +98,6 @@ func UpdatedAt(v time.Time) predicate.PetBonus {
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v time.Time) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldEQ(FieldDeletedAt, v))
-}
-
-// PetIDEQ applies the EQ predicate on the "pet_id" field.
-func PetIDEQ(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldPetID, v))
-}
-
-// PetIDNEQ applies the NEQ predicate on the "pet_id" field.
-func PetIDNEQ(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNEQ(FieldPetID, v))
-}
-
-// PetIDIn applies the In predicate on the "pet_id" field.
-func PetIDIn(vs ...string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldIn(FieldPetID, vs...))
-}
-
-// PetIDNotIn applies the NotIn predicate on the "pet_id" field.
-func PetIDNotIn(vs ...string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNotIn(FieldPetID, vs...))
-}
-
-// PetIDGT applies the GT predicate on the "pet_id" field.
-func PetIDGT(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldGT(FieldPetID, v))
-}
-
-// PetIDGTE applies the GTE predicate on the "pet_id" field.
-func PetIDGTE(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldGTE(FieldPetID, v))
-}
-
-// PetIDLT applies the LT predicate on the "pet_id" field.
-func PetIDLT(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldLT(FieldPetID, v))
-}
-
-// PetIDLTE applies the LTE predicate on the "pet_id" field.
-func PetIDLTE(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldLTE(FieldPetID, v))
-}
-
-// PetIDContains applies the Contains predicate on the "pet_id" field.
-func PetIDContains(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldContains(FieldPetID, v))
-}
-
-// PetIDHasPrefix applies the HasPrefix predicate on the "pet_id" field.
-func PetIDHasPrefix(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldHasPrefix(FieldPetID, v))
-}
-
-// PetIDHasSuffix applies the HasSuffix predicate on the "pet_id" field.
-func PetIDHasSuffix(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldHasSuffix(FieldPetID, v))
-}
-
-// PetIDIsNil applies the IsNil predicate on the "pet_id" field.
-func PetIDIsNil() predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldIsNull(FieldPetID))
-}
-
-// PetIDNotNil applies the NotNil predicate on the "pet_id" field.
-func PetIDNotNil() predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNotNull(FieldPetID))
-}
-
-// PetIDEqualFold applies the EqualFold predicate on the "pet_id" field.
-func PetIDEqualFold(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEqualFold(FieldPetID, v))
-}
-
-// PetIDContainsFold applies the ContainsFold predicate on the "pet_id" field.
-func PetIDContainsFold(v string) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldContainsFold(FieldPetID, v))
 }
 
 // IsArtistEQ applies the EQ predicate on the "is_artist" field.
@@ -340,21 +270,21 @@ func DeletedAtNotNil() predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// HasPet applies the HasEdge predicate on the "pet" edge.
-func HasPet() predicate.PetBonus {
+// HasOwner applies the HasEdge predicate on the "owner" edge.
+func HasOwner() predicate.PetBonus {
 	return predicate.PetBonus(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, OwnerTable, OwnerColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPetWith applies the HasEdge predicate on the "pet" edge with a given conditions (other predicates).
-func HasPetWith(preds ...predicate.Pet) predicate.PetBonus {
+// HasOwnerWith applies the HasEdge predicate on the "owner" edge with a given conditions (other predicates).
+func HasOwnerWith(preds ...predicate.Pet) predicate.PetBonus {
 	return predicate.PetBonus(func(s *sql.Selector) {
-		step := newPetStep()
+		step := newOwnerStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

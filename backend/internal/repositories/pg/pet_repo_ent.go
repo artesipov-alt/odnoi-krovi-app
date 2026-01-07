@@ -8,7 +8,6 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
@@ -28,7 +27,7 @@ func NewEntPetRepository(client *ent.Client) *EntPetRepository {
 }
 
 // Create creates a new pet in the database along with its related entities in a transaction
-func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet) (*ent.Pet, error) {
+func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) (*ent.Pet, error) {
 	if p == nil {
 		return nil, errors.New("pet cannot be nil")
 	}
@@ -72,17 +71,17 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		return nil, fmt.Errorf("failed to create pet: %w", err)
 	}
 
-	// 2. Create related entities if provided in Edges
-	if p.Edges.Health != nil {
-		h := p.Edges.Health
+	// 2. Create related entities if provided
+	if health != nil {
 		_, err = tx.PetHealth.Create().
-			SetPetID(newPet.ID).
-			SetNillableReproductiveStatus(&h.ReproductiveStatus).
-			SetNillableHealthStatus(&h.HealthStatus).
-			SetNillableLastDonation(h.LastDonation).
-			SetTransfused(h.Transfused).
-			SetMedications(h.Medications).
-			SetSurgicalInterventions(h.SurgicalInterventions).
+			SetID(newPet.ID).
+			SetOwner(newPet).
+			SetNillableReproductiveStatus(&health.ReproductiveStatus).
+			SetNillableHealthStatus(&health.HealthStatus).
+			SetNillableLastDonation(health.LastDonation).
+			SetTransfused(health.Transfused).
+			SetMedications(health.Medications).
+			SetSurgicalInterventions(health.SurgicalInterventions).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
@@ -90,14 +89,14 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		}
 	}
 
-	if p.Edges.Treatments != nil {
-		t := p.Edges.Treatments
+	if treatments != nil {
 		_, err = tx.PetTreatment.Create().
-			SetPetID(newPet.ID).
-			SetNillableRabiesVaccinationDate(t.RabiesVaccinationDate).
-			SetNillableInfectionVaccinationDate(t.InfectionVaccinationDate).
-			SetNillableEctoparasiteTreatmentDate(t.EctoparasiteTreatmentDate).
-			SetNillableDewormingDate(t.DewormingDate).
+			SetID(newPet.ID).
+			SetOwner(newPet).
+			SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
+			SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
+			SetNillableEctoparasiteTreatmentDate(treatments.EctoparasiteTreatmentDate).
+			SetNillableDewormingDate(treatments.DewormingDate).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
@@ -105,10 +104,9 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		}
 	}
 
-	if p.Edges.Analyses != nil {
-		a := p.Edges.Analyses
+	for _, a := range analyses {
 		_, err = tx.PetAnalysis.Create().
-			SetPetID(newPet.ID).
+			AddOwner(newPet).
 			SetNillableLeukemiaDate(a.LeukemiaDate).
 			SetNillableLeukemiaType(&a.LeukemiaType).
 			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
@@ -132,14 +130,14 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		}
 	}
 
-	if p.Edges.Bonuses != nil {
-		b := p.Edges.Bonuses
+	if bonuses != nil {
 		_, err = tx.PetBonus.Create().
-			SetPetID(newPet.ID).
-			SetIsArtist(b.IsArtist).
-			SetIsTherapist(b.IsTherapist).
-			SetIsFormerDonor(b.IsFormerDonor).
-			SetIsGuideDog(b.IsGuideDog).
+			SetID(newPet.ID).
+			SetOwner(newPet).
+			SetIsArtist(bonuses.IsArtist).
+			SetIsTherapist(bonuses.IsTherapist).
+			SetIsFormerDonor(bonuses.IsFormerDonor).
+			SetIsGuideDog(bonuses.IsGuideDog).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
@@ -203,7 +201,7 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string) ([]*e
 }
 
 // Update updates an existing pet and its related entities in a transaction
-func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, error) {
+func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) (*ent.Pet, error) {
 	if p == nil {
 		return nil, errors.New("pet cannot be nil")
 	}
@@ -222,14 +220,14 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		SetName(p.Name).
 		SetType(p.Type).
 		SetPetStatus(p.PetStatus).
-		SetWeightKg(p.WeightKg).
-		SetBloodGroup(p.BloodGroup).
-		SetGender(p.Gender).
-		SetAgeYears(p.AgeYears).
-		SetAgeMonths(p.AgeMonths).
+		SetNillableWeightKg(&p.WeightKg).
+		SetNillableBloodGroup(&p.BloodGroup).
+		SetNillableGender(&p.Gender).
+		SetNillableAgeYears(&p.AgeYears).
+		SetNillableAgeMonths(&p.AgeMonths).
 		SetNillableBirthDate(p.BirthDate).
-		SetChipNumber(p.ChipNumber).
-		SetPhotoURL(p.PhotoURL).
+		SetNillableChipNumber(&p.ChipNumber).
+		SetNillablePhotoURL(&p.PhotoURL).
 		SetNillableBreedID(func() *int {
 			if p.BreedID > 0 {
 				return &p.BreedID
@@ -242,7 +240,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 			}
 			return nil
 		}()).
-		SetLivingCondition(p.LivingCondition).
+		SetNillableLivingCondition(&p.LivingCondition).
 		Exec(ctx)
 
 	if err != nil {
@@ -251,32 +249,31 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 	}
 
 	// 2. Update related entities
-	if p.Edges.Health != nil {
-		h := p.Edges.Health
-		exists, err := tx.PetHealth.Query().Where(pethealth.PetID(p.ID)).Exist(ctx)
+	if health != nil {
+		exists, err := tx.PetHealth.Query().Where(pethealth.ID(p.ID)).Exist(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 		if exists {
-			err = tx.PetHealth.Update().
-				Where(pethealth.PetID(p.ID)).
-				SetReproductiveStatus(h.ReproductiveStatus).
-				SetHealthStatus(h.HealthStatus).
-				SetNillableLastDonation(h.LastDonation).
-				SetTransfused(h.Transfused).
-				SetMedications(h.Medications).
-				SetSurgicalInterventions(h.SurgicalInterventions).
+			err = tx.PetHealth.UpdateOneID(p.ID).
+				SetReproductiveStatus(health.ReproductiveStatus).
+				SetHealthStatus(health.HealthStatus).
+				SetNillableLastDonation(health.LastDonation).
+				SetTransfused(health.Transfused).
+				SetMedications(health.Medications).
+				SetSurgicalInterventions(health.SurgicalInterventions).
 				Exec(ctx)
 		} else {
 			_, err = tx.PetHealth.Create().
-				SetPetID(p.ID).
-				SetReproductiveStatus(h.ReproductiveStatus).
-				SetHealthStatus(h.HealthStatus).
-				SetNillableLastDonation(h.LastDonation).
-				SetTransfused(h.Transfused).
-				SetMedications(h.Medications).
-				SetSurgicalInterventions(h.SurgicalInterventions).
+				SetID(p.ID).
+				SetOwner(p).
+				SetReproductiveStatus(health.ReproductiveStatus).
+				SetHealthStatus(health.HealthStatus).
+				SetNillableLastDonation(health.LastDonation).
+				SetTransfused(health.Transfused).
+				SetMedications(health.Medications).
+				SetSurgicalInterventions(health.SurgicalInterventions).
 				Save(ctx)
 		}
 		if err != nil {
@@ -285,28 +282,27 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		}
 	}
 
-	if p.Edges.Treatments != nil {
-		t := p.Edges.Treatments
-		exists, err := tx.PetTreatment.Query().Where(pettreatment.PetID(p.ID)).Exist(ctx)
+	if treatments != nil {
+		exists, err := tx.PetTreatment.Query().Where(pettreatment.ID(p.ID)).Exist(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 		if exists {
-			err = tx.PetTreatment.Update().
-				Where(pettreatment.PetID(p.ID)).
-				SetNillableRabiesVaccinationDate(t.RabiesVaccinationDate).
-				SetNillableInfectionVaccinationDate(t.InfectionVaccinationDate).
-				SetNillableEctoparasiteTreatmentDate(t.EctoparasiteTreatmentDate).
-				SetNillableDewormingDate(t.DewormingDate).
+			err = tx.PetTreatment.UpdateOneID(p.ID).
+				SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
+				SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
+				SetNillableEctoparasiteTreatmentDate(treatments.EctoparasiteTreatmentDate).
+				SetNillableDewormingDate(treatments.DewormingDate).
 				Exec(ctx)
 		} else {
 			_, err = tx.PetTreatment.Create().
-				SetPetID(p.ID).
-				SetNillableRabiesVaccinationDate(t.RabiesVaccinationDate).
-				SetNillableInfectionVaccinationDate(t.InfectionVaccinationDate).
-				SetNillableEctoparasiteTreatmentDate(t.EctoparasiteTreatmentDate).
-				SetNillableDewormingDate(t.DewormingDate).
+				SetID(p.ID).
+				SetOwner(p).
+				SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
+				SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
+				SetNillableEctoparasiteTreatmentDate(treatments.EctoparasiteTreatmentDate).
+				SetNillableDewormingDate(treatments.DewormingDate).
 				Save(ctx)
 		}
 		if err != nil {
@@ -315,82 +311,54 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		}
 	}
 
-	if p.Edges.Analyses != nil {
-		a := p.Edges.Analyses
-		exists, err := tx.PetAnalysis.Query().Where(petanalysis.PetID(p.ID)).Exist(ctx)
+	// For analyses, add new ones as history (do not delete existing)
+	for _, a := range analyses {
+		_, err = tx.PetAnalysis.Create().
+			AddOwner(p).
+			SetNillableLeukemiaDate(a.LeukemiaDate).
+			SetNillableLeukemiaType(&a.LeukemiaType).
+			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
+			SetNillableImmunodeficiencyType(&a.ImmunodeficiencyType).
+			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
+			SetNillableHemoplasmosisType(&a.HemoplasmosisType).
+			SetNillableBartonellosisDate(a.BartonellosisDate).
+			SetNillableBartonellosisType(&a.BartonellosisType).
+			SetNillableBabesiosisDate(a.BabesiosisDate).
+			SetNillableBabesiosisType(&a.BabesiosisType).
+			SetNillableDirofilariaDate(a.DirofilariaDate).
+			SetNillableDirofilariaType(&a.DirofilariaType).
+			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
+			SetNillableEhrlichiosisType(&a.EhrlichiosisType).
+			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
+			SetNillableAnaplasmosisType(&a.AnaplasmosisType).
+			Save(ctx)
 		if err != nil {
 			tx.Rollback()
-			return nil, err
-		}
-		if exists {
-			err = tx.PetAnalysis.Update().
-				Where(petanalysis.PetID(p.ID)).
-				SetNillableLeukemiaDate(a.LeukemiaDate).
-				SetLeukemiaType(a.LeukemiaType).
-				SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-				SetImmunodeficiencyType(a.ImmunodeficiencyType).
-				SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-				SetHemoplasmosisType(a.HemoplasmosisType).
-				SetNillableBartonellosisDate(a.BartonellosisDate).
-				SetBartonellosisType(a.BartonellosisType).
-				SetNillableBabesiosisDate(a.BabesiosisDate).
-				SetBabesiosisType(a.BabesiosisType).
-				SetNillableDirofilariaDate(a.DirofilariaDate).
-				SetDirofilariaType(a.DirofilariaType).
-				SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-				SetEhrlichiosisType(a.EhrlichiosisType).
-				SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-				SetAnaplasmosisType(a.AnaplasmosisType).
-				Exec(ctx)
-		} else {
-			_, err = tx.PetAnalysis.Create().
-				SetPetID(p.ID).
-				SetNillableLeukemiaDate(a.LeukemiaDate).
-				SetLeukemiaType(a.LeukemiaType).
-				SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-				SetImmunodeficiencyType(a.ImmunodeficiencyType).
-				SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-				SetHemoplasmosisType(a.HemoplasmosisType).
-				SetNillableBartonellosisDate(a.BartonellosisDate).
-				SetBartonellosisType(a.BartonellosisType).
-				SetNillableBabesiosisDate(a.BabesiosisDate).
-				SetBabesiosisType(a.BabesiosisType).
-				SetNillableDirofilariaDate(a.DirofilariaDate).
-				SetDirofilariaType(a.DirofilariaType).
-				SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-				SetEhrlichiosisType(a.EhrlichiosisType).
-				SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-				SetAnaplasmosisType(a.AnaplasmosisType).
-				Save(ctx)
-		}
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("failed to update pet analysis: %w", err)
+			return nil, fmt.Errorf("failed to create pet analysis: %w", err)
 		}
 	}
 
-	if p.Edges.Bonuses != nil {
-		b := p.Edges.Bonuses
-		exists, err := tx.PetBonus.Query().Where(petbonus.PetID(p.ID)).Exist(ctx)
+	if bonuses != nil {
+		exists, err := tx.PetBonus.Query().Where(petbonus.ID(p.ID)).Exist(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 		if exists {
-			err = tx.PetBonus.Update().
-				Where(petbonus.PetID(p.ID)).
-				SetIsArtist(b.IsArtist).
-				SetIsTherapist(b.IsTherapist).
-				SetIsFormerDonor(b.IsFormerDonor).
-				SetIsGuideDog(b.IsGuideDog).
+			err = tx.PetBonus.UpdateOneID(p.ID).
+				SetIsArtist(bonuses.IsArtist).
+				SetIsTherapist(bonuses.IsTherapist).
+				SetIsFormerDonor(bonuses.IsFormerDonor).
+				SetIsGuideDog(bonuses.IsGuideDog).
 				Exec(ctx)
 		} else {
 			_, err = tx.PetBonus.Create().
-				SetPetID(p.ID).
-				SetIsArtist(b.IsArtist).
-				SetIsTherapist(b.IsTherapist).
-				SetIsFormerDonor(b.IsFormerDonor).
-				SetIsGuideDog(b.IsGuideDog).
+				SetID(p.ID).
+				SetOwner(p).
+				SetIsArtist(bonuses.IsArtist).
+				SetIsTherapist(bonuses.IsTherapist).
+				SetIsFormerDonor(bonuses.IsFormerDonor).
+				SetIsGuideDog(bonuses.IsGuideDog).
 				Save(ctx)
 		}
 		if err != nil {

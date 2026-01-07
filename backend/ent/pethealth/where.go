@@ -11,48 +11,58 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.PetHealth {
+func ID(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.PetHealth {
+func IDEQ(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.PetHealth {
+func IDNEQ(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.PetHealth {
+func IDIn(ids ...string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.PetHealth {
+func IDNotIn(ids ...string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.PetHealth {
+func IDGT(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.PetHealth {
+func IDGTE(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.PetHealth {
+func IDLT(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.PetHealth {
+func IDLTE(id string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldLTE(FieldID, id))
+}
+
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.PetHealth {
+	return predicate.PetHealth(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.PetHealth {
+	return predicate.PetHealth(sql.FieldContainsFold(FieldID, id))
 }
 
 // LastDonation applies equality check predicate on the "last_donation" field. It's identical to LastDonationEQ.
@@ -73,11 +83,6 @@ func Medications(v string) predicate.PetHealth {
 // SurgicalInterventions applies equality check predicate on the "surgical_interventions" field. It's identical to SurgicalInterventionsEQ.
 func SurgicalInterventions(v string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldEQ(FieldSurgicalInterventions, v))
-}
-
-// PetID applies equality check predicate on the "pet_id" field. It's identical to PetIDEQ.
-func PetID(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldEQ(FieldPetID, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -375,81 +380,6 @@ func SurgicalInterventionsContainsFold(v string) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldContainsFold(FieldSurgicalInterventions, v))
 }
 
-// PetIDEQ applies the EQ predicate on the "pet_id" field.
-func PetIDEQ(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldEQ(FieldPetID, v))
-}
-
-// PetIDNEQ applies the NEQ predicate on the "pet_id" field.
-func PetIDNEQ(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldNEQ(FieldPetID, v))
-}
-
-// PetIDIn applies the In predicate on the "pet_id" field.
-func PetIDIn(vs ...string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldIn(FieldPetID, vs...))
-}
-
-// PetIDNotIn applies the NotIn predicate on the "pet_id" field.
-func PetIDNotIn(vs ...string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldNotIn(FieldPetID, vs...))
-}
-
-// PetIDGT applies the GT predicate on the "pet_id" field.
-func PetIDGT(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldGT(FieldPetID, v))
-}
-
-// PetIDGTE applies the GTE predicate on the "pet_id" field.
-func PetIDGTE(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldGTE(FieldPetID, v))
-}
-
-// PetIDLT applies the LT predicate on the "pet_id" field.
-func PetIDLT(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldLT(FieldPetID, v))
-}
-
-// PetIDLTE applies the LTE predicate on the "pet_id" field.
-func PetIDLTE(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldLTE(FieldPetID, v))
-}
-
-// PetIDContains applies the Contains predicate on the "pet_id" field.
-func PetIDContains(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldContains(FieldPetID, v))
-}
-
-// PetIDHasPrefix applies the HasPrefix predicate on the "pet_id" field.
-func PetIDHasPrefix(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldHasPrefix(FieldPetID, v))
-}
-
-// PetIDHasSuffix applies the HasSuffix predicate on the "pet_id" field.
-func PetIDHasSuffix(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldHasSuffix(FieldPetID, v))
-}
-
-// PetIDIsNil applies the IsNil predicate on the "pet_id" field.
-func PetIDIsNil() predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldIsNull(FieldPetID))
-}
-
-// PetIDNotNil applies the NotNil predicate on the "pet_id" field.
-func PetIDNotNil() predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldNotNull(FieldPetID))
-}
-
-// PetIDEqualFold applies the EqualFold predicate on the "pet_id" field.
-func PetIDEqualFold(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldEqualFold(FieldPetID, v))
-}
-
-// PetIDContainsFold applies the ContainsFold predicate on the "pet_id" field.
-func PetIDContainsFold(v string) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldContainsFold(FieldPetID, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldEQ(FieldCreatedAt, v))
@@ -580,21 +510,21 @@ func DeletedAtNotNil() predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// HasPet applies the HasEdge predicate on the "pet" edge.
-func HasPet() predicate.PetHealth {
+// HasOwner applies the HasEdge predicate on the "owner" edge.
+func HasOwner() predicate.PetHealth {
 	return predicate.PetHealth(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, OwnerTable, OwnerColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPetWith applies the HasEdge predicate on the "pet" edge with a given conditions (other predicates).
-func HasPetWith(preds ...predicate.Pet) predicate.PetHealth {
+// HasOwnerWith applies the HasEdge predicate on the "owner" edge with a given conditions (other predicates).
+func HasOwnerWith(preds ...predicate.Pet) predicate.PetHealth {
 	return predicate.PetHealth(func(s *sql.Selector) {
-		step := newPetStep()
+		step := newOwnerStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

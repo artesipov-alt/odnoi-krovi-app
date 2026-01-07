@@ -697,442 +697,6 @@ definitions:
     required:
     - telegramId
     type: object
-  models.AnalysisType:
-    enum:
-    - PCR
-    - ELISA
-    - ICA
-    - Microscopy
-    - Express
-    type: string
-    x-enum-comments:
-      AnalysisTypeELISA: ИФА
-      AnalysisTypeExpress: Экспресс-тест
-      AnalysisTypeICA: ИХА
-      AnalysisTypeMicroscopy: Микроскопия мазка
-      AnalysisTypePCR: ПЦР
-    x-enum-varnames:
-    - AnalysisTypePCR
-    - AnalysisTypeELISA
-    - AnalysisTypeICA
-    - AnalysisTypeMicroscopy
-    - AnalysisTypeExpress
-  models.BloodSearchFilterRequest:
-    description: Фильтры для поиска питомцев-реципиентов
-    properties:
-      bloodGroup:
-        description: Группа крови для поиска
-        example: DEA 1+
-        type: string
-      petId:
-        description: ID питомца в системе
-        example: PET-25-000001
-        type: string
-      petType:
-        description: Тип животного для поиска
-        example: dog
-        type: string
-      regions:
-        description: ID регионов для фильтрации
-        example:
-        - 1
-        - 2
-        - 3
-        items:
-          type: integer
-        type: array
-    type: object
-  models.BloodSearchPetRequest:
-    description: Данные питомца-реципиента для пула поиска крови
-    properties:
-      bloodComponents:
-        description: Необходимые компоненты крови
-        example:
-        - 1
-        - 4
-        items:
-          type: integer
-        type: array
-      bloodGroup:
-        description: Группа крови животного
-        example:
-        - DEA 1+
-        items:
-          type: string
-        type: array
-      bloodVolumeNeeded:
-        description: Необходимый объем крови в мл
-        example: 500
-        type: integer
-      bloodVolumeReserved:
-        description: Зарезервированный объем крови в мл
-        example: 100
-        type: integer
-      description:
-        description: Описание
-        example: Описание проблемы питомца
-        type: string
-      petId:
-        description: ID питомца в системе
-        example: PET-25-000001
-        type: string
-      petType:
-        description: Тип животного (dog, cat и т.д.)
-        example: dog
-        type: string
-      regions:
-        description: ID регионов для поиска доноров
-        example:
-        - 1
-        - 2
-        - 3
-        items:
-          type: integer
-        type: array
-      smallPetsNotifyAllowed:
-        description: Разрешить уведомления для маленьких питомцев
-        example: true
-        type: boolean
-      status:
-        description: Статус поиска
-        example: active
-        type: string
-    type: object
-  models.BloodSearchPetResponse:
-    description: Статус операции с питомцем в пуле поиска крови
-    properties:
-      petId:
-        description: ID питомца в системе
-        example: PET-25-000001
-        type: string
-      status:
-        description: Статус операции
-        example: added
-        type: string
-    type: object
-  models.BloodSearchPetsResponse:
-    description: Список питомцев из пула поиска крови
-    properties:
-      pets:
-        description: Список питомцев
-        items:
-          $ref: '#/definitions/models.BloodSearchPetRequest'
-        type: array
-    type: object
-  models.Gender:
-    enum:
-    - male
-    - female
-    type: string
-    x-enum-varnames:
-    - GenderMale
-    - GenderFemale
-  models.HealthStatus:
-    enum:
-    - healthy
-    - ill
-    - unknown
-    type: string
-    x-enum-varnames:
-    - HealthStatusHealthy
-    - HealthStatusIll
-    - HealthStatusUnknown
-  models.LivingCondition:
-    enum:
-    - indoor
-    - leash_walking
-    - self_outdoor
-    type: string
-    x-enum-varnames:
-    - LivingConditionIndoor
-    - LivingConditionLeash
-    - LivingConditionOutdoor
-  models.Pet:
-    properties:
-      ageMonths:
-        example: 6
-        type: integer
-      ageYears:
-        example: 3
-        type: integer
-      analysis:
-        $ref: '#/definitions/models.PetAnalysis'
-      birthDate:
-        example: "2021-06-15T00:00:00Z"
-        type: string
-      bloodGroup:
-        example: DEA 1+
-        type: string
-      bonuses:
-        $ref: '#/definitions/models.PetBonus'
-      breed:
-        example: Лабрадор
-        type: string
-      chipNumber:
-        example: "123456789012345"
-        type: string
-      createdAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      gender:
-        allOf:
-        - $ref: '#/definitions/models.Gender'
-        description: ==============Дополнительная регистрация для донорства включает
-          в себя=================
-        example: male
-      health:
-        allOf:
-        - $ref: '#/definitions/models.PetHealth'
-        description: |-
-          --- СВЯЗИ ---
-          Has One: У питомца есть одна запись о здоровье.
-          foreignKey:ID говорит, что в таблице PetHealth ключом является ID, который ссылается на Pet.ID
-      id:
-        description: Сигнатура ID питомца включает в себя префикс питомца, год и шестизначный
-          номер
-        example: PET-25-000001
-        type: string
-      livingCondition:
-        allOf:
-        - $ref: '#/definitions/models.LivingCondition'
-        example: indoor
-      name:
-        example: Бобик
-        type: string
-      ownerId:
-        description: ==============Простая регистрация для поиска крови включает в
-          себя=====================
-        example: USR-25-0001
-        type: string
-      petStatus:
-        allOf:
-        - $ref: '#/definitions/models.PetRole'
-        example: donor
-      photoUrl:
-        example: https://example.com/photo.jpg
-        type: string
-      treatments:
-        $ref: '#/definitions/models.PetTreatment'
-      type:
-        allOf:
-        - $ref: '#/definitions/models.PetType'
-        example: dog
-      updatedAt:
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      weightKg:
-        example: 25.5
-        type: number
-    type: object
-  models.PetAnalysis:
-    properties:
-      anaplasmosisDate:
-        description: Анаплазмоз
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      anaplasmosisType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: PCR
-      babesiosisDate:
-        description: Бабезиоз
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      babesiosisType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: Microscopy
-      bartonellosisDate:
-        description: Бартонеллез
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      bartonellosisType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: PCR
-      dirofilariaDate:
-        description: Дирофиляриоз
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      dirofilariaType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: PCR
-      ehrlichiosisDate:
-        description: Эрлихиоз
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      ehrlichiosisType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: Express
-      hemoplasmosisDate:
-        description: Гемоплазмоз
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      hemoplasmosisType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: PCR
-      immunodeficiencyDate:
-        description: Иммунодефицит (FIV)
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      immunodeficiencyType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: ELISA
-      leukemiaDate:
-        description: Лейкоз (FeLV)
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      leukemiaType:
-        allOf:
-        - $ref: '#/definitions/models.AnalysisType'
-        example: PCR
-    type: object
-  models.PetBonus:
-    properties:
-      isArtist:
-        description: Является ли животное артистом
-        example: false
-        type: boolean
-      isFormerDonor:
-        description: Является ли животное бывшим донором
-        example: true
-        type: boolean
-      isGuideDog:
-        description: Является ли животное собакой-проводником
-        example: false
-        type: boolean
-      isTherapist:
-        description: Является ли животное терапесты
-        example: false
-        type: boolean
-    type: object
-  models.PetHealth:
-    properties:
-      healthStatus:
-        allOf:
-        - $ref: '#/definitions/models.HealthStatus'
-        description: Текущее состояние здоровья
-        example: healthy
-      lastDonation:
-        description: Дата последней донации
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      medications:
-        description: Принимаемые лекарственные препараты
-        example: antibiotics
-        type: string
-      reproductiveStatus:
-        allOf:
-        - $ref: '#/definitions/models.ReproductiveStatus'
-        description: Репродуктивный статус (беременность, лактация и т.д.)
-        example: pregnancy
-      surgicalInterventions:
-        description: Хирургические вмешательства перечисление
-        example: spaying
-        type: string
-      transfused:
-        description: Было ли раннее переливание крови?
-        example: true
-        type: boolean
-    type: object
-  models.PetRole:
-    enum:
-    - donor
-    - recipient
-    type: string
-    x-enum-varnames:
-    - PetRoleDonor
-    - PetRoleRecipient
-  models.PetTreatment:
-    properties:
-      dewormingDate:
-        description: Дата последней дегельминтизации (обработка от глистов)
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      ectoparasiteTreatmentDate:
-        description: Дата последней обработки от эктопаразитов (блохи, клещи)
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      infectionVaccinationDate:
-        description: Дата последней вакцинации от инфекций
-        example: "2023-01-01T00:00:00Z"
-        type: string
-      rabiesVaccinationDate:
-        description: Дата последней вакцинации от бешенства
-        example: "2023-01-01T00:00:00Z"
-        type: string
-    type: object
-  models.PetType:
-    enum:
-    - dog
-    - cat
-    type: string
-    x-enum-varnames:
-    - PetTypeDog
-    - PetTypeCat
-  models.ReproductiveStatus:
-    enum:
-    - pregnancy
-    - lactation
-    - estrus
-    - none
-    type: string
-    x-enum-varnames:
-    - ReproductiveStatusPregnancy
-    - ReproductiveStatusLactation
-    - ReproductiveStatusEstrus
-    - ReproductiveStatusNone
-  models.User:
-    properties:
-      allowGeo:
-        example: true
-        type: boolean
-      consentPd:
-        example: true
-        type: boolean
-      email:
-        example: user@example.com
-        type: string
-      fullName:
-        example: Иван Иванов
-        type: string
-      id:
-        description: Сигнатура ID пользователя включает в себя префикс пользователя,
-          год и четырёхзначный номер
-        example: USR-25-000001
-        type: string
-      locationId:
-        example: 1
-        type: integer
-      onBoarding:
-        example: false
-        type: boolean
-      organizationName:
-        example: ООО Ромашка
-        type: string
-      phone:
-        example: "+79991234567"
-        type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/models.UserRole'
-        example: user
-      telegramId:
-        example: 123456789
-        type: integer
-    type: object
-  models.UserRole:
-    enum:
-    - user
-    - admin
-    type: string
-    x-enum-varnames:
-    - UserRoleUser
-    - UserRoleAdmin
   pet.Gender:
     enum:
     - male
@@ -1489,66 +1053,6 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
-  /blood-request/pool:
-    post:
-      consumes:
-      - application/json
-      description: Добавляет питомца-реципиента в пул поиска крови
-      parameters:
-      - description: Данные питомца для пула поиска крови
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.BloodSearchPetRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Статус добавления питомца
-          schema:
-            $ref: '#/definitions/models.BloodSearchPetResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Добавить питомца в пул поиска крови
-      tags:
-      - blood-request
-  /blood-request/pool/search:
-    post:
-      consumes:
-      - application/json
-      description: Возвращает список питомцев-реципиентов по фильтрам
-      parameters:
-      - description: 'Фильтры поиска: тип, группа крови, регионы'
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.BloodSearchFilterRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список питомцев
-          schema:
-            $ref: '#/definitions/models.BloodSearchPetsResponse'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/utils.ErrorResponse'
-      summary: Получить питомцев из пула поиска крови
-      tags:
-      - blood-request
   /dev/deleted-users:
     get:
       description: Возвращает список всех мягко удаленных пользователей
@@ -1667,7 +1171,7 @@ paths:
         "200":
           description: Данные питомца
           schema:
-            $ref: '#/definitions/models.Pet'
+            $ref: '#/definitions/ent.Pet'
         "400":
           description: Неверный запрос
           schema:
@@ -1825,7 +1329,7 @@ paths:
           description: Список питомцев
           schema:
             items:
-              $ref: '#/definitions/models.Pet'
+              $ref: '#/definitions/ent.Pet'
             type: array
         "400":
           description: Неверный запрос
@@ -1864,7 +1368,7 @@ paths:
         "201":
           description: Созданный питомец
           schema:
-            $ref: '#/definitions/models.Pet'
+            $ref: '#/definitions/ent.Pet'
         "400":
           description: Неверный запрос
           schema:
@@ -2124,7 +1628,7 @@ paths:
         "200":
           description: Данные пользователя
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/ent.User'
         "400":
           description: Неверный запрос
           schema:
@@ -2197,7 +1701,7 @@ paths:
         "201":
           description: Зарегистрированный пользователь
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/ent.User'
         "400":
           description: Неверный запрос
           schema:
@@ -2231,7 +1735,7 @@ paths:
         "201":
           description: Зарегистрированный пользователь
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/ent.User'
         "400":
           description: Неверный запрос
           schema:
@@ -2262,7 +1766,7 @@ paths:
         "200":
           description: Данные пользователя
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/ent.User'
         "400":
           description: Неверный запрос
           schema:

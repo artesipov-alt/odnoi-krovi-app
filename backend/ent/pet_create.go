@@ -275,13 +275,13 @@ func (_c *PetCreate) SetOwner(v *User) *PetCreate {
 }
 
 // SetHealthID sets the "health" edge to the PetHealth entity by ID.
-func (_c *PetCreate) SetHealthID(id int) *PetCreate {
+func (_c *PetCreate) SetHealthID(id string) *PetCreate {
 	_c.mutation.SetHealthID(id)
 	return _c
 }
 
 // SetNillableHealthID sets the "health" edge to the PetHealth entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableHealthID(id *int) *PetCreate {
+func (_c *PetCreate) SetNillableHealthID(id *string) *PetCreate {
 	if id != nil {
 		_c = _c.SetHealthID(*id)
 	}
@@ -294,13 +294,13 @@ func (_c *PetCreate) SetHealth(v *PetHealth) *PetCreate {
 }
 
 // SetTreatmentsID sets the "treatments" edge to the PetTreatment entity by ID.
-func (_c *PetCreate) SetTreatmentsID(id int) *PetCreate {
+func (_c *PetCreate) SetTreatmentsID(id string) *PetCreate {
 	_c.mutation.SetTreatmentsID(id)
 	return _c
 }
 
 // SetNillableTreatmentsID sets the "treatments" edge to the PetTreatment entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableTreatmentsID(id *int) *PetCreate {
+func (_c *PetCreate) SetNillableTreatmentsID(id *string) *PetCreate {
 	if id != nil {
 		_c = _c.SetTreatmentsID(*id)
 	}
@@ -312,33 +312,29 @@ func (_c *PetCreate) SetTreatments(v *PetTreatment) *PetCreate {
 	return _c.SetTreatmentsID(v.ID)
 }
 
-// SetAnalysesID sets the "analyses" edge to the PetAnalysis entity by ID.
-func (_c *PetCreate) SetAnalysesID(id int) *PetCreate {
-	_c.mutation.SetAnalysesID(id)
+// AddAnalysisIDs adds the "analyses" edge to the PetAnalysis entity by IDs.
+func (_c *PetCreate) AddAnalysisIDs(ids ...string) *PetCreate {
+	_c.mutation.AddAnalysisIDs(ids...)
 	return _c
 }
 
-// SetNillableAnalysesID sets the "analyses" edge to the PetAnalysis entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableAnalysesID(id *int) *PetCreate {
-	if id != nil {
-		_c = _c.SetAnalysesID(*id)
+// AddAnalyses adds the "analyses" edges to the PetAnalysis entity.
+func (_c *PetCreate) AddAnalyses(v ...*PetAnalysis) *PetCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _c
-}
-
-// SetAnalyses sets the "analyses" edge to the PetAnalysis entity.
-func (_c *PetCreate) SetAnalyses(v *PetAnalysis) *PetCreate {
-	return _c.SetAnalysesID(v.ID)
+	return _c.AddAnalysisIDs(ids...)
 }
 
 // SetBonusesID sets the "bonuses" edge to the PetBonus entity by ID.
-func (_c *PetCreate) SetBonusesID(id int) *PetCreate {
+func (_c *PetCreate) SetBonusesID(id string) *PetCreate {
 	_c.mutation.SetBonusesID(id)
 	return _c
 }
 
 // SetNillableBonusesID sets the "bonuses" edge to the PetBonus entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableBonusesID(id *int) *PetCreate {
+func (_c *PetCreate) SetNillableBonusesID(id *string) *PetCreate {
 	if id != nil {
 		_c = _c.SetBonusesID(*id)
 	}
@@ -604,44 +600,46 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if nodes := _c.mutation.HealthIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   pet.HealthTable,
 			Columns: []string{pet.HealthColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pethealth.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(pethealth.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.pet_health_owner = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.TreatmentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   pet.TreatmentsTable,
 			Columns: []string{pet.TreatmentsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.pet_treatment_owner = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.AnalysesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: []string{pet.AnalysesColumn},
+			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -652,17 +650,18 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if nodes := _c.mutation.BonusesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   pet.BonusesTable,
 			Columns: []string{pet.BonusesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.pet_bonus_owner = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.BreedRefIDs(); len(nodes) > 0 {

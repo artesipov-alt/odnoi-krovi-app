@@ -105,20 +105,6 @@ func (_c *PetHealthCreate) SetNillableSurgicalInterventions(v *string) *PetHealt
 	return _c
 }
 
-// SetPetID sets the "pet_id" field.
-func (_c *PetHealthCreate) SetPetID(v string) *PetHealthCreate {
-	_c.mutation.SetPetID(v)
-	return _c
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_c *PetHealthCreate) SetNillablePetID(v *string) *PetHealthCreate {
-	if v != nil {
-		_c.SetPetID(*v)
-	}
-	return _c
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (_c *PetHealthCreate) SetCreatedAt(v time.Time) *PetHealthCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -161,9 +147,21 @@ func (_c *PetHealthCreate) SetNillableDeletedAt(v *time.Time) *PetHealthCreate {
 	return _c
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_c *PetHealthCreate) SetPet(v *Pet) *PetHealthCreate {
-	return _c.SetPetID(v.ID)
+// SetID sets the "id" field.
+func (_c *PetHealthCreate) SetID(v string) *PetHealthCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_c *PetHealthCreate) SetOwnerID(id string) *PetHealthCreate {
+	_c.mutation.SetOwnerID(id)
+	return _c
+}
+
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_c *PetHealthCreate) SetOwner(v *Pet) *PetHealthCreate {
+	return _c.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetHealthMutation object of the builder.
@@ -229,6 +227,9 @@ func (_c *PetHealthCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetHealth.updated_at"`)}
 	}
+	if len(_c.mutation.OwnerIDs()) == 0 {
+		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "PetHealth.owner"`)}
+	}
 	return nil
 }
 
@@ -243,8 +244,13 @@ func (_c *PetHealthCreate) sqlSave(ctx context.Context) (*PetHealth, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected PetHealth.ID type: %T", _spec.ID.Value)
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -253,8 +259,12 @@ func (_c *PetHealthCreate) sqlSave(ctx context.Context) (*PetHealth, error) {
 func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 	var (
 		_node = &PetHealth{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(pethealth.Table, sqlgraph.NewFieldSpec(pethealth.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(pethealth.Table, sqlgraph.NewFieldSpec(pethealth.FieldID, field.TypeString))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := _c.mutation.ReproductiveStatus(); ok {
 		_spec.SetField(pethealth.FieldReproductiveStatus, field.TypeEnum, value)
 		_node.ReproductiveStatus = value
@@ -291,12 +301,12 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 		_spec.SetField(pethealth.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pethealth.PetTable,
-			Columns: []string{pethealth.PetColumn},
+			Inverse: false,
+			Table:   pethealth.OwnerTable,
+			Columns: []string{pethealth.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -305,7 +315,6 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.PetID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -356,10 +365,6 @@ func (_c *PetHealthCreateBulk) Save(ctx context.Context) ([]*PetHealth, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

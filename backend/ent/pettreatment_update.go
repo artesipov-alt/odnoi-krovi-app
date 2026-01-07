@@ -109,26 +109,6 @@ func (_u *PetTreatmentUpdate) ClearDewormingDate() *PetTreatmentUpdate {
 	return _u
 }
 
-// SetPetID sets the "pet_id" field.
-func (_u *PetTreatmentUpdate) SetPetID(v string) *PetTreatmentUpdate {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetTreatmentUpdate) SetNillablePetID(v *string) *PetTreatmentUpdate {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetTreatmentUpdate) ClearPetID() *PetTreatmentUpdate {
-	_u.mutation.ClearPetID()
-	return _u
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *PetTreatmentUpdate) SetUpdatedAt(v time.Time) *PetTreatmentUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -155,9 +135,15 @@ func (_u *PetTreatmentUpdate) ClearDeletedAt() *PetTreatmentUpdate {
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *PetTreatmentUpdate) SetPet(v *Pet) *PetTreatmentUpdate {
-	return _u.SetPetID(v.ID)
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_u *PetTreatmentUpdate) SetOwnerID(id string) *PetTreatmentUpdate {
+	_u.mutation.SetOwnerID(id)
+	return _u
+}
+
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_u *PetTreatmentUpdate) SetOwner(v *Pet) *PetTreatmentUpdate {
+	return _u.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetTreatmentMutation object of the builder.
@@ -165,9 +151,9 @@ func (_u *PetTreatmentUpdate) Mutation() *PetTreatmentMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
-func (_u *PetTreatmentUpdate) ClearPet() *PetTreatmentUpdate {
-	_u.mutation.ClearPet()
+// ClearOwner clears the "owner" edge to the Pet entity.
+func (_u *PetTreatmentUpdate) ClearOwner() *PetTreatmentUpdate {
+	_u.mutation.ClearOwner()
 	return _u
 }
 
@@ -207,8 +193,19 @@ func (_u *PetTreatmentUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PetTreatmentUpdate) check() error {
+	if _u.mutation.OwnerCleared() && len(_u.mutation.OwnerIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "PetTreatment.owner"`)
+	}
+	return nil
+}
+
 func (_u *PetTreatmentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(pettreatment.Table, pettreatment.Columns, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(pettreatment.Table, pettreatment.Columns, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -249,12 +246,12 @@ func (_u *PetTreatmentUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
 	}
-	if _u.mutation.PetCleared() {
+	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pettreatment.PetTable,
-			Columns: []string{pettreatment.PetColumn},
+			Inverse: false,
+			Table:   pettreatment.OwnerTable,
+			Columns: []string{pettreatment.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -262,12 +259,12 @@ func (_u *PetTreatmentUpdate) sqlSave(ctx context.Context) (_node int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pettreatment.PetTable,
-			Columns: []string{pettreatment.PetColumn},
+			Inverse: false,
+			Table:   pettreatment.OwnerTable,
+			Columns: []string{pettreatment.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -378,26 +375,6 @@ func (_u *PetTreatmentUpdateOne) ClearDewormingDate() *PetTreatmentUpdateOne {
 	return _u
 }
 
-// SetPetID sets the "pet_id" field.
-func (_u *PetTreatmentUpdateOne) SetPetID(v string) *PetTreatmentUpdateOne {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetTreatmentUpdateOne) SetNillablePetID(v *string) *PetTreatmentUpdateOne {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetTreatmentUpdateOne) ClearPetID() *PetTreatmentUpdateOne {
-	_u.mutation.ClearPetID()
-	return _u
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *PetTreatmentUpdateOne) SetUpdatedAt(v time.Time) *PetTreatmentUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -424,9 +401,15 @@ func (_u *PetTreatmentUpdateOne) ClearDeletedAt() *PetTreatmentUpdateOne {
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *PetTreatmentUpdateOne) SetPet(v *Pet) *PetTreatmentUpdateOne {
-	return _u.SetPetID(v.ID)
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_u *PetTreatmentUpdateOne) SetOwnerID(id string) *PetTreatmentUpdateOne {
+	_u.mutation.SetOwnerID(id)
+	return _u
+}
+
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_u *PetTreatmentUpdateOne) SetOwner(v *Pet) *PetTreatmentUpdateOne {
+	return _u.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetTreatmentMutation object of the builder.
@@ -434,9 +417,9 @@ func (_u *PetTreatmentUpdateOne) Mutation() *PetTreatmentMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
-func (_u *PetTreatmentUpdateOne) ClearPet() *PetTreatmentUpdateOne {
-	_u.mutation.ClearPet()
+// ClearOwner clears the "owner" edge to the Pet entity.
+func (_u *PetTreatmentUpdateOne) ClearOwner() *PetTreatmentUpdateOne {
+	_u.mutation.ClearOwner()
 	return _u
 }
 
@@ -489,8 +472,19 @@ func (_u *PetTreatmentUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PetTreatmentUpdateOne) check() error {
+	if _u.mutation.OwnerCleared() && len(_u.mutation.OwnerIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "PetTreatment.owner"`)
+	}
+	return nil
+}
+
 func (_u *PetTreatmentUpdateOne) sqlSave(ctx context.Context) (_node *PetTreatment, err error) {
-	_spec := sqlgraph.NewUpdateSpec(pettreatment.Table, pettreatment.Columns, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(pettreatment.Table, pettreatment.Columns, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "PetTreatment.id" for update`)}
@@ -548,12 +542,12 @@ func (_u *PetTreatmentUpdateOne) sqlSave(ctx context.Context) (_node *PetTreatme
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
 	}
-	if _u.mutation.PetCleared() {
+	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pettreatment.PetTable,
-			Columns: []string{pettreatment.PetColumn},
+			Inverse: false,
+			Table:   pettreatment.OwnerTable,
+			Columns: []string{pettreatment.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -561,12 +555,12 @@ func (_u *PetTreatmentUpdateOne) sqlSave(ctx context.Context) (_node *PetTreatme
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pettreatment.PetTable,
-			Columns: []string{pettreatment.PetColumn},
+			Inverse: false,
+			Table:   pettreatment.OwnerTable,
+			Columns: []string{pettreatment.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),

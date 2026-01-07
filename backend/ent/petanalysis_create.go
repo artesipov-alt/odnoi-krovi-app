@@ -245,20 +245,6 @@ func (_c *PetAnalysisCreate) SetNillableAnaplasmosisType(v *petanalysis.Anaplasm
 	return _c
 }
 
-// SetPetID sets the "pet_id" field.
-func (_c *PetAnalysisCreate) SetPetID(v string) *PetAnalysisCreate {
-	_c.mutation.SetPetID(v)
-	return _c
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_c *PetAnalysisCreate) SetNillablePetID(v *string) *PetAnalysisCreate {
-	if v != nil {
-		_c.SetPetID(*v)
-	}
-	return _c
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (_c *PetAnalysisCreate) SetCreatedAt(v time.Time) *PetAnalysisCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -301,9 +287,33 @@ func (_c *PetAnalysisCreate) SetNillableDeletedAt(v *time.Time) *PetAnalysisCrea
 	return _c
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_c *PetAnalysisCreate) SetPet(v *Pet) *PetAnalysisCreate {
-	return _c.SetPetID(v.ID)
+// SetID sets the "id" field.
+func (_c *PetAnalysisCreate) SetID(v string) *PetAnalysisCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *PetAnalysisCreate) SetNillableID(v *string) *PetAnalysisCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddOwnerIDs adds the "owner" edge to the Pet entity by IDs.
+func (_c *PetAnalysisCreate) AddOwnerIDs(ids ...string) *PetAnalysisCreate {
+	_c.mutation.AddOwnerIDs(ids...)
+	return _c
+}
+
+// AddOwner adds the "owner" edges to the Pet entity.
+func (_c *PetAnalysisCreate) AddOwner(v ...*Pet) *PetAnalysisCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddOwnerIDs(ids...)
 }
 
 // Mutation returns the PetAnalysisMutation object of the builder.
@@ -348,6 +358,10 @@ func (_c *PetAnalysisCreate) defaults() {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := petanalysis.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := petanalysis.DefaultID()
+		_c.mutation.SetID(v)
 	}
 }
 
@@ -399,6 +413,9 @@ func (_c *PetAnalysisCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetAnalysis.updated_at"`)}
 	}
+	if len(_c.mutation.OwnerIDs()) == 0 {
+		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "PetAnalysis.owner"`)}
+	}
 	return nil
 }
 
@@ -413,8 +430,13 @@ func (_c *PetAnalysisCreate) sqlSave(ctx context.Context) (*PetAnalysis, error) 
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected PetAnalysis.ID type: %T", _spec.ID.Value)
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -423,8 +445,12 @@ func (_c *PetAnalysisCreate) sqlSave(ctx context.Context) (*PetAnalysis, error) 
 func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 	var (
 		_node = &PetAnalysis{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(petanalysis.Table, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(petanalysis.Table, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := _c.mutation.LeukemiaDate(); ok {
 		_spec.SetField(petanalysis.FieldLeukemiaDate, field.TypeTime, value)
 		_node.LeukemiaDate = &value
@@ -501,12 +527,12 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 		_spec.SetField(petanalysis.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petanalysis.PetTable,
-			Columns: []string{petanalysis.PetColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -515,7 +541,6 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.PetID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -566,10 +591,6 @@ func (_c *PetAnalysisCreateBulk) Save(ctx context.Context) ([]*PetAnalysis, erro
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

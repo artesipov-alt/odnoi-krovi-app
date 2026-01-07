@@ -221,6 +221,10 @@ func init() {
 	petanalysis.DefaultUpdatedAt = petanalysisDescUpdatedAt.Default.(func() time.Time)
 	// petanalysis.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	petanalysis.UpdateDefaultUpdatedAt = petanalysisDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// petanalysisDescID is the schema descriptor for id field.
+	petanalysisDescID := petanalysisFields[0].Descriptor()
+	// petanalysis.DefaultID holds the default value on creation for the id field.
+	petanalysis.DefaultID = petanalysisDescID.Default.(func() string)
 	petbonusInters := schema.PetBonus{}.Interceptors()
 	petbonus.Interceptors[0] = petbonusInters[0]
 	petbonusFields := schema.PetBonus{}.Fields()

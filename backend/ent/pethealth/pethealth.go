@@ -28,25 +28,23 @@ const (
 	FieldMedications = "medications"
 	// FieldSurgicalInterventions holds the string denoting the surgical_interventions field in the database.
 	FieldSurgicalInterventions = "surgical_interventions"
-	// FieldPetID holds the string denoting the pet_id field in the database.
-	FieldPetID = "pet_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// EdgePet holds the string denoting the pet edge name in mutations.
-	EdgePet = "pet"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
 	// Table holds the table name of the pethealth in the database.
 	Table = "pet_healths"
-	// PetTable is the table that holds the pet relation/edge.
-	PetTable = "pet_healths"
-	// PetInverseTable is the table name for the Pet entity.
+	// OwnerTable is the table that holds the owner relation/edge.
+	OwnerTable = "pets"
+	// OwnerInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
-	PetInverseTable = "pets"
-	// PetColumn is the table column denoting the pet relation/edge.
-	PetColumn = "pet_id"
+	OwnerInverseTable = "pets"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "pet_health_owner"
 )
 
 // Columns holds all SQL columns for pethealth fields.
@@ -58,7 +56,6 @@ var Columns = []string{
 	FieldTransfused,
 	FieldMedications,
 	FieldSurgicalInterventions,
-	FieldPetID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
@@ -176,11 +173,6 @@ func BySurgicalInterventions(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSurgicalInterventions, opts...).ToFunc()
 }
 
-// ByPetID orders the results by the pet_id field.
-func ByPetID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPetID, opts...).ToFunc()
-}
-
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -196,16 +188,16 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByPetField orders the results by pet field.
-func ByPetField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByOwnerField orders the results by owner field.
+func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPetStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newPetStep() *sqlgraph.Step {
+func newOwnerStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PetInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+		sqlgraph.To(OwnerInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, OwnerTable, OwnerColumn),
 	)
 }

@@ -349,26 +349,6 @@ func (_u *PetAnalysisUpdate) ClearAnaplasmosisType() *PetAnalysisUpdate {
 	return _u
 }
 
-// SetPetID sets the "pet_id" field.
-func (_u *PetAnalysisUpdate) SetPetID(v string) *PetAnalysisUpdate {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillablePetID(v *string) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetAnalysisUpdate) ClearPetID() *PetAnalysisUpdate {
-	_u.mutation.ClearPetID()
-	return _u
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *PetAnalysisUpdate) SetUpdatedAt(v time.Time) *PetAnalysisUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -395,9 +375,19 @@ func (_u *PetAnalysisUpdate) ClearDeletedAt() *PetAnalysisUpdate {
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *PetAnalysisUpdate) SetPet(v *Pet) *PetAnalysisUpdate {
-	return _u.SetPetID(v.ID)
+// AddOwnerIDs adds the "owner" edge to the Pet entity by IDs.
+func (_u *PetAnalysisUpdate) AddOwnerIDs(ids ...string) *PetAnalysisUpdate {
+	_u.mutation.AddOwnerIDs(ids...)
+	return _u
+}
+
+// AddOwner adds the "owner" edges to the Pet entity.
+func (_u *PetAnalysisUpdate) AddOwner(v ...*Pet) *PetAnalysisUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOwnerIDs(ids...)
 }
 
 // Mutation returns the PetAnalysisMutation object of the builder.
@@ -405,10 +395,25 @@ func (_u *PetAnalysisUpdate) Mutation() *PetAnalysisMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
-func (_u *PetAnalysisUpdate) ClearPet() *PetAnalysisUpdate {
-	_u.mutation.ClearPet()
+// ClearOwner clears all "owner" edges to the Pet entity.
+func (_u *PetAnalysisUpdate) ClearOwner() *PetAnalysisUpdate {
+	_u.mutation.ClearOwner()
 	return _u
+}
+
+// RemoveOwnerIDs removes the "owner" edge to Pet entities by IDs.
+func (_u *PetAnalysisUpdate) RemoveOwnerIDs(ids ...string) *PetAnalysisUpdate {
+	_u.mutation.RemoveOwnerIDs(ids...)
+	return _u
+}
+
+// RemoveOwner removes "owner" edges to Pet entities.
+func (_u *PetAnalysisUpdate) RemoveOwner(v ...*Pet) *PetAnalysisUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOwnerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -496,7 +501,7 @@ func (_u *PetAnalysisUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -609,12 +614,12 @@ func (_u *PetAnalysisUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(petanalysis.FieldDeletedAt, field.TypeTime)
 	}
-	if _u.mutation.PetCleared() {
+	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petanalysis.PetTable,
-			Columns: []string{petanalysis.PetColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -622,12 +627,28 @@ func (_u *PetAnalysisUpdate) sqlSave(ctx context.Context) (_node int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedOwnerIDs(); len(nodes) > 0 && !_u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petanalysis.PetTable,
-			Columns: []string{petanalysis.PetColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -978,26 +999,6 @@ func (_u *PetAnalysisUpdateOne) ClearAnaplasmosisType() *PetAnalysisUpdateOne {
 	return _u
 }
 
-// SetPetID sets the "pet_id" field.
-func (_u *PetAnalysisUpdateOne) SetPetID(v string) *PetAnalysisUpdateOne {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillablePetID(v *string) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetAnalysisUpdateOne) ClearPetID() *PetAnalysisUpdateOne {
-	_u.mutation.ClearPetID()
-	return _u
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *PetAnalysisUpdateOne) SetUpdatedAt(v time.Time) *PetAnalysisUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -1024,9 +1025,19 @@ func (_u *PetAnalysisUpdateOne) ClearDeletedAt() *PetAnalysisUpdateOne {
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *PetAnalysisUpdateOne) SetPet(v *Pet) *PetAnalysisUpdateOne {
-	return _u.SetPetID(v.ID)
+// AddOwnerIDs adds the "owner" edge to the Pet entity by IDs.
+func (_u *PetAnalysisUpdateOne) AddOwnerIDs(ids ...string) *PetAnalysisUpdateOne {
+	_u.mutation.AddOwnerIDs(ids...)
+	return _u
+}
+
+// AddOwner adds the "owner" edges to the Pet entity.
+func (_u *PetAnalysisUpdateOne) AddOwner(v ...*Pet) *PetAnalysisUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOwnerIDs(ids...)
 }
 
 // Mutation returns the PetAnalysisMutation object of the builder.
@@ -1034,10 +1045,25 @@ func (_u *PetAnalysisUpdateOne) Mutation() *PetAnalysisMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
-func (_u *PetAnalysisUpdateOne) ClearPet() *PetAnalysisUpdateOne {
-	_u.mutation.ClearPet()
+// ClearOwner clears all "owner" edges to the Pet entity.
+func (_u *PetAnalysisUpdateOne) ClearOwner() *PetAnalysisUpdateOne {
+	_u.mutation.ClearOwner()
 	return _u
+}
+
+// RemoveOwnerIDs removes the "owner" edge to Pet entities by IDs.
+func (_u *PetAnalysisUpdateOne) RemoveOwnerIDs(ids ...string) *PetAnalysisUpdateOne {
+	_u.mutation.RemoveOwnerIDs(ids...)
+	return _u
+}
+
+// RemoveOwner removes "owner" edges to Pet entities.
+func (_u *PetAnalysisUpdateOne) RemoveOwner(v ...*Pet) *PetAnalysisUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOwnerIDs(ids...)
 }
 
 // Where appends a list predicates to the PetAnalysisUpdate builder.
@@ -1138,7 +1164,7 @@ func (_u *PetAnalysisUpdateOne) sqlSave(ctx context.Context) (_node *PetAnalysis
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "PetAnalysis.id" for update`)}
@@ -1268,12 +1294,12 @@ func (_u *PetAnalysisUpdateOne) sqlSave(ctx context.Context) (_node *PetAnalysis
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(petanalysis.FieldDeletedAt, field.TypeTime)
 	}
-	if _u.mutation.PetCleared() {
+	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petanalysis.PetTable,
-			Columns: []string{petanalysis.PetColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -1281,12 +1307,28 @@ func (_u *PetAnalysisUpdateOne) sqlSave(ctx context.Context) (_node *PetAnalysis
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedOwnerIDs(); len(nodes) > 0 && !_u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petanalysis.PetTable,
-			Columns: []string{petanalysis.PetColumn},
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   petanalysis.OwnerTable,
+			Columns: petanalysis.OwnerPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),

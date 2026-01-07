@@ -12,7 +12,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
@@ -60,8 +59,11 @@ type Pet struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
-	Edges        PetEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges               PetEdges `json:"edges"`
+	pet_bonus_owner     *string
+	pet_health_owner    *string
+	pet_treatment_owner *string
+	selectValues        sql.SelectValues
 }
 
 // PetEdges holds the relations/edges for other nodes in the graph.
@@ -73,7 +75,7 @@ type PetEdges struct {
 	// Treatments holds the value of the treatments edge.
 	Treatments *PetTreatment `json:"treatments,omitempty"`
 	// Analyses holds the value of the analyses edge.
-	Analyses *PetAnalysis `json:"analyses,omitempty"`
+	Analyses []*PetAnalysis `json:"analyses,omitempty"`
 	// Bonuses holds the value of the bonuses edge.
 	Bonuses *PetBonus `json:"bonuses,omitempty"`
 	// BreedRef holds the value of the breed_ref edge.
@@ -119,12 +121,10 @@ func (e PetEdges) TreatmentsOrErr() (*PetTreatment, error) {
 }
 
 // AnalysesOrErr returns the Analyses value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PetEdges) AnalysesOrErr() (*PetAnalysis, error) {
-	if e.Analyses != nil {
+// was not loaded in eager-loading.
+func (e PetEdges) AnalysesOrErr() ([]*PetAnalysis, error) {
+	if e.loadedTypes[3] {
 		return e.Analyses, nil
-	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: petanalysis.Label}
 	}
 	return nil, &NotLoadedError{edge: "analyses"}
 }
@@ -175,6 +175,12 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case pet.FieldBirthDate, pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case pet.ForeignKeys[0]: // pet_bonus_owner
+			values[i] = new(sql.NullString)
+		case pet.ForeignKeys[1]: // pet_health_owner
+			values[i] = new(sql.NullString)
+		case pet.ForeignKeys[2]: // pet_treatment_owner
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -299,6 +305,27 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
+			}
+		case pet.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pet_bonus_owner", values[i])
+			} else if value.Valid {
+				_m.pet_bonus_owner = new(string)
+				*_m.pet_bonus_owner = value.String
+			}
+		case pet.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pet_health_owner", values[i])
+			} else if value.Valid {
+				_m.pet_health_owner = new(string)
+				*_m.pet_health_owner = value.String
+			}
+		case pet.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pet_treatment_owner", values[i])
+			} else if value.Valid {
+				_m.pet_treatment_owner = new(string)
+				*_m.pet_treatment_owner = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])

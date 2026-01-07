@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -23,7 +24,7 @@ type PetTreatmentQuery struct {
 	order      []pettreatment.OrderOption
 	inters     []Interceptor
 	predicates []predicate.PetTreatment
-	withPet    *PetQuery
+	withOwner  *PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,8 +61,8 @@ func (_q *PetTreatmentQuery) Order(o ...pettreatment.OrderOption) *PetTreatmentQ
 	return _q
 }
 
-// QueryPet chains the current query on the "pet" edge.
-func (_q *PetTreatmentQuery) QueryPet() *PetQuery {
+// QueryOwner chains the current query on the "owner" edge.
+func (_q *PetTreatmentQuery) QueryOwner() *PetQuery {
 	query := (&PetClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -74,7 +75,7 @@ func (_q *PetTreatmentQuery) QueryPet() *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pettreatment.Table, pettreatment.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, pettreatment.PetTable, pettreatment.PetColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, pettreatment.OwnerTable, pettreatment.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -106,8 +107,8 @@ func (_q *PetTreatmentQuery) FirstX(ctx context.Context) *PetTreatment {
 
 // FirstID returns the first PetTreatment ID from the query.
 // Returns a *NotFoundError when no PetTreatment ID was found.
-func (_q *PetTreatmentQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *PetTreatmentQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -119,7 +120,7 @@ func (_q *PetTreatmentQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *PetTreatmentQuery) FirstIDX(ctx context.Context) int {
+func (_q *PetTreatmentQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +158,8 @@ func (_q *PetTreatmentQuery) OnlyX(ctx context.Context) *PetTreatment {
 // OnlyID is like Only, but returns the only PetTreatment ID in the query.
 // Returns a *NotSingularError when more than one PetTreatment ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *PetTreatmentQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *PetTreatmentQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -174,7 +175,7 @@ func (_q *PetTreatmentQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *PetTreatmentQuery) OnlyIDX(ctx context.Context) int {
+func (_q *PetTreatmentQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +203,7 @@ func (_q *PetTreatmentQuery) AllX(ctx context.Context) []*PetTreatment {
 }
 
 // IDs executes the query and returns a list of PetTreatment IDs.
-func (_q *PetTreatmentQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *PetTreatmentQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -214,7 +215,7 @@ func (_q *PetTreatmentQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *PetTreatmentQuery) IDsX(ctx context.Context) []int {
+func (_q *PetTreatmentQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -274,21 +275,21 @@ func (_q *PetTreatmentQuery) Clone() *PetTreatmentQuery {
 		order:      append([]pettreatment.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.PetTreatment{}, _q.predicates...),
-		withPet:    _q.withPet.Clone(),
+		withOwner:  _q.withOwner.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithPet tells the query-builder to eager-load the nodes that are connected to
-// the "pet" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *PetTreatmentQuery) WithPet(opts ...func(*PetQuery)) *PetTreatmentQuery {
+// WithOwner tells the query-builder to eager-load the nodes that are connected to
+// the "owner" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PetTreatmentQuery) WithOwner(opts ...func(*PetQuery)) *PetTreatmentQuery {
 	query := (&PetClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withPet = query
+	_q.withOwner = query
 	return _q
 }
 
@@ -371,7 +372,7 @@ func (_q *PetTreatmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		nodes       = []*PetTreatment{}
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			_q.withPet != nil,
+			_q.withOwner != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -392,41 +393,40 @@ func (_q *PetTreatmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withPet; query != nil {
-		if err := _q.loadPet(ctx, query, nodes, nil,
-			func(n *PetTreatment, e *Pet) { n.Edges.Pet = e }); err != nil {
+	if query := _q.withOwner; query != nil {
+		if err := _q.loadOwner(ctx, query, nodes, nil,
+			func(n *PetTreatment, e *Pet) { n.Edges.Owner = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *PetTreatmentQuery) loadPet(ctx context.Context, query *PetQuery, nodes []*PetTreatment, init func(*PetTreatment), assign func(*PetTreatment, *Pet)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*PetTreatment)
+func (_q *PetTreatmentQuery) loadOwner(ctx context.Context, query *PetQuery, nodes []*PetTreatment, init func(*PetTreatment), assign func(*PetTreatment, *Pet)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*PetTreatment)
 	for i := range nodes {
-		fk := nodes[i].PetID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(pet.IDIn(ids...))
+	query.withFKs = true
+	query.Where(predicate.Pet(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(pettreatment.OwnerColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.pet_treatment_owner
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "pet_treatment_owner" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "pet_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "pet_treatment_owner" returned %v for node %v`, *fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -441,7 +441,7 @@ func (_q *PetTreatmentQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *PetTreatmentQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(pettreatment.Table, pettreatment.Columns, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(pettreatment.Table, pettreatment.Columns, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -455,9 +455,6 @@ func (_q *PetTreatmentQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != pettreatment.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withPet != nil {
-			_spec.Node.AddColumnOnce(pettreatment.FieldPetID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

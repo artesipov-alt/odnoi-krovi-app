@@ -17,7 +17,7 @@ import (
 type PetTreatment struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID string `json:"id"`
 	// RabiesVaccinationDate holds the value of the "rabies_vaccination_date" field.
 	RabiesVaccinationDate *time.Time `json:"rabiesVaccinationDate"`
 	// InfectionVaccinationDate holds the value of the "infection_vaccination_date" field.
@@ -26,8 +26,6 @@ type PetTreatment struct {
 	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate"`
 	// DewormingDate holds the value of the "deworming_date" field.
 	DewormingDate *time.Time `json:"dewormingDate"`
-	// PetID holds the value of the "pet_id" field.
-	PetID string `json:"petId"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"createdAt"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -42,22 +40,22 @@ type PetTreatment struct {
 
 // PetTreatmentEdges holds the relations/edges for other nodes in the graph.
 type PetTreatmentEdges struct {
-	// Pet holds the value of the pet edge.
-	Pet *Pet `json:"pet,omitempty"`
+	// Owner holds the value of the owner edge.
+	Owner *Pet `json:"owner,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// PetOrErr returns the Pet value or an error if the edge
+// OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e PetTreatmentEdges) PetOrErr() (*Pet, error) {
-	if e.Pet != nil {
-		return e.Pet, nil
+func (e PetTreatmentEdges) OwnerOrErr() (*Pet, error) {
+	if e.Owner != nil {
+		return e.Owner, nil
 	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: pet.Label}
 	}
-	return nil, &NotLoadedError{edge: "pet"}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -66,8 +64,6 @@ func (*PetTreatment) scanValues(columns []string) ([]any, error) {
 	for i := range columns {
 		switch columns[i] {
 		case pettreatment.FieldID:
-			values[i] = new(sql.NullInt64)
-		case pettreatment.FieldPetID:
 			values[i] = new(sql.NullString)
 		case pettreatment.FieldRabiesVaccinationDate, pettreatment.FieldInfectionVaccinationDate, pettreatment.FieldEctoparasiteTreatmentDate, pettreatment.FieldDewormingDate, pettreatment.FieldCreatedAt, pettreatment.FieldUpdatedAt, pettreatment.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -87,11 +83,11 @@ func (_m *PetTreatment) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case pettreatment.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				_m.ID = value.String
 			}
-			_m.ID = int(value.Int64)
 		case pettreatment.FieldRabiesVaccinationDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field rabies_vaccination_date", values[i])
@@ -119,12 +115,6 @@ func (_m *PetTreatment) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DewormingDate = new(time.Time)
 				*_m.DewormingDate = value.Time
-			}
-		case pettreatment.FieldPetID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_id", values[i])
-			} else if value.Valid {
-				_m.PetID = value.String
 			}
 		case pettreatment.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -158,9 +148,9 @@ func (_m *PetTreatment) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryPet queries the "pet" edge of the PetTreatment entity.
-func (_m *PetTreatment) QueryPet() *PetQuery {
-	return NewPetTreatmentClient(_m.config).QueryPet(_m)
+// QueryOwner queries the "owner" edge of the PetTreatment entity.
+func (_m *PetTreatment) QueryOwner() *PetQuery {
+	return NewPetTreatmentClient(_m.config).QueryOwner(_m)
 }
 
 // Update returns a builder for updating this PetTreatment.
@@ -205,9 +195,6 @@ func (_m *PetTreatment) String() string {
 		builder.WriteString("deworming_date=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
-	builder.WriteString(", ")
-	builder.WriteString("pet_id=")
-	builder.WriteString(_m.PetID)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

@@ -48,25 +48,21 @@ const (
 	FieldAnaplasmosisDate = "anaplasmosis_date"
 	// FieldAnaplasmosisType holds the string denoting the anaplasmosis_type field in the database.
 	FieldAnaplasmosisType = "anaplasmosis_type"
-	// FieldPetID holds the string denoting the pet_id field in the database.
-	FieldPetID = "pet_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// EdgePet holds the string denoting the pet edge name in mutations.
-	EdgePet = "pet"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
 	// Table holds the table name of the petanalysis in the database.
 	Table = "pet_analyses"
-	// PetTable is the table that holds the pet relation/edge.
-	PetTable = "pet_analyses"
-	// PetInverseTable is the table name for the Pet entity.
+	// OwnerTable is the table that holds the owner relation/edge. The primary key declared below.
+	OwnerTable = "pet_analysis_owner"
+	// OwnerInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
-	PetInverseTable = "pets"
-	// PetColumn is the table column denoting the pet relation/edge.
-	PetColumn = "pet_id"
+	OwnerInverseTable = "pets"
 )
 
 // Columns holds all SQL columns for petanalysis fields.
@@ -88,11 +84,16 @@ var Columns = []string{
 	FieldEhrlichiosisType,
 	FieldAnaplasmosisDate,
 	FieldAnaplasmosisType,
-	FieldPetID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
 }
+
+var (
+	// OwnerPrimaryKey and OwnerColumn2 are the table columns denoting the
+	// primary key for the owner relation (M2M).
+	OwnerPrimaryKey = []string{"pet_analysis_id", "pet_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -117,6 +118,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
 )
 
 // LeukemiaType defines the type for the "leukemia_type" enum field.
@@ -415,11 +418,6 @@ func ByAnaplasmosisType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAnaplasmosisType, opts...).ToFunc()
 }
 
-// ByPetID orders the results by the pet_id field.
-func ByPetID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPetID, opts...).ToFunc()
-}
-
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -435,16 +433,23 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByPetField orders the results by pet field.
-func ByPetField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByOwnerCount orders the results by owner count.
+func ByOwnerCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPetStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newOwnerStep(), opts...)
 	}
 }
-func newPetStep() *sqlgraph.Step {
+
+// ByOwner orders the results by owner terms.
+func ByOwner(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newOwnerStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PetInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+		sqlgraph.To(OwnerInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, OwnerTable, OwnerPrimaryKey...),
 	)
 }

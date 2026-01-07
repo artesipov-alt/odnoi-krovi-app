@@ -1201,7 +1201,7 @@ func (c *PetClient) QueryHealth(_m *Pet) *PetHealthQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, id),
 			sqlgraph.To(pethealth.Table, pethealth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.HealthTable, pet.HealthColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.HealthTable, pet.HealthColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1217,7 +1217,7 @@ func (c *PetClient) QueryTreatments(_m *Pet) *PetTreatmentQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, id),
 			sqlgraph.To(pettreatment.Table, pettreatment.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.TreatmentsTable, pet.TreatmentsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.TreatmentsTable, pet.TreatmentsColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1233,7 +1233,7 @@ func (c *PetClient) QueryAnalyses(_m *Pet) *PetAnalysisQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, id),
 			sqlgraph.To(petanalysis.Table, petanalysis.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.AnalysesTable, pet.AnalysesColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, pet.AnalysesTable, pet.AnalysesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1249,7 +1249,7 @@ func (c *PetClient) QueryBonuses(_m *Pet) *PetBonusQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, id),
 			sqlgraph.To(petbonus.Table, petbonus.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.BonusesTable, pet.BonusesColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.BonusesTable, pet.BonusesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1376,7 +1376,7 @@ func (c *PetAnalysisClient) UpdateOne(_m *PetAnalysis) *PetAnalysisUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PetAnalysisClient) UpdateOneID(id int) *PetAnalysisUpdateOne {
+func (c *PetAnalysisClient) UpdateOneID(id string) *PetAnalysisUpdateOne {
 	mutation := newPetAnalysisMutation(c.config, OpUpdateOne, withPetAnalysisID(id))
 	return &PetAnalysisUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1393,7 +1393,7 @@ func (c *PetAnalysisClient) DeleteOne(_m *PetAnalysis) *PetAnalysisDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PetAnalysisClient) DeleteOneID(id int) *PetAnalysisDeleteOne {
+func (c *PetAnalysisClient) DeleteOneID(id string) *PetAnalysisDeleteOne {
 	builder := c.Delete().Where(petanalysis.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1410,12 +1410,12 @@ func (c *PetAnalysisClient) Query() *PetAnalysisQuery {
 }
 
 // Get returns a PetAnalysis entity by its id.
-func (c *PetAnalysisClient) Get(ctx context.Context, id int) (*PetAnalysis, error) {
+func (c *PetAnalysisClient) Get(ctx context.Context, id string) (*PetAnalysis, error) {
 	return c.Query().Where(petanalysis.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PetAnalysisClient) GetX(ctx context.Context, id int) *PetAnalysis {
+func (c *PetAnalysisClient) GetX(ctx context.Context, id string) *PetAnalysis {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1423,15 +1423,15 @@ func (c *PetAnalysisClient) GetX(ctx context.Context, id int) *PetAnalysis {
 	return obj
 }
 
-// QueryPet queries the pet edge of a PetAnalysis.
-func (c *PetAnalysisClient) QueryPet(_m *PetAnalysis) *PetQuery {
+// QueryOwner queries the owner edge of a PetAnalysis.
+func (c *PetAnalysisClient) QueryOwner(_m *PetAnalysis) *PetQuery {
 	query := (&PetClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(petanalysis.Table, petanalysis.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, petanalysis.PetTable, petanalysis.PetColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, petanalysis.OwnerTable, petanalysis.OwnerPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1526,7 +1526,7 @@ func (c *PetBonusClient) UpdateOne(_m *PetBonus) *PetBonusUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PetBonusClient) UpdateOneID(id int) *PetBonusUpdateOne {
+func (c *PetBonusClient) UpdateOneID(id string) *PetBonusUpdateOne {
 	mutation := newPetBonusMutation(c.config, OpUpdateOne, withPetBonusID(id))
 	return &PetBonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1543,7 +1543,7 @@ func (c *PetBonusClient) DeleteOne(_m *PetBonus) *PetBonusDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PetBonusClient) DeleteOneID(id int) *PetBonusDeleteOne {
+func (c *PetBonusClient) DeleteOneID(id string) *PetBonusDeleteOne {
 	builder := c.Delete().Where(petbonus.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1560,12 +1560,12 @@ func (c *PetBonusClient) Query() *PetBonusQuery {
 }
 
 // Get returns a PetBonus entity by its id.
-func (c *PetBonusClient) Get(ctx context.Context, id int) (*PetBonus, error) {
+func (c *PetBonusClient) Get(ctx context.Context, id string) (*PetBonus, error) {
 	return c.Query().Where(petbonus.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PetBonusClient) GetX(ctx context.Context, id int) *PetBonus {
+func (c *PetBonusClient) GetX(ctx context.Context, id string) *PetBonus {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1573,15 +1573,15 @@ func (c *PetBonusClient) GetX(ctx context.Context, id int) *PetBonus {
 	return obj
 }
 
-// QueryPet queries the pet edge of a PetBonus.
-func (c *PetBonusClient) QueryPet(_m *PetBonus) *PetQuery {
+// QueryOwner queries the owner edge of a PetBonus.
+func (c *PetBonusClient) QueryOwner(_m *PetBonus) *PetQuery {
 	query := (&PetClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(petbonus.Table, petbonus.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, petbonus.PetTable, petbonus.PetColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, petbonus.OwnerTable, petbonus.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1676,7 +1676,7 @@ func (c *PetHealthClient) UpdateOne(_m *PetHealth) *PetHealthUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PetHealthClient) UpdateOneID(id int) *PetHealthUpdateOne {
+func (c *PetHealthClient) UpdateOneID(id string) *PetHealthUpdateOne {
 	mutation := newPetHealthMutation(c.config, OpUpdateOne, withPetHealthID(id))
 	return &PetHealthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1693,7 +1693,7 @@ func (c *PetHealthClient) DeleteOne(_m *PetHealth) *PetHealthDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PetHealthClient) DeleteOneID(id int) *PetHealthDeleteOne {
+func (c *PetHealthClient) DeleteOneID(id string) *PetHealthDeleteOne {
 	builder := c.Delete().Where(pethealth.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1710,12 +1710,12 @@ func (c *PetHealthClient) Query() *PetHealthQuery {
 }
 
 // Get returns a PetHealth entity by its id.
-func (c *PetHealthClient) Get(ctx context.Context, id int) (*PetHealth, error) {
+func (c *PetHealthClient) Get(ctx context.Context, id string) (*PetHealth, error) {
 	return c.Query().Where(pethealth.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PetHealthClient) GetX(ctx context.Context, id int) *PetHealth {
+func (c *PetHealthClient) GetX(ctx context.Context, id string) *PetHealth {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1723,15 +1723,15 @@ func (c *PetHealthClient) GetX(ctx context.Context, id int) *PetHealth {
 	return obj
 }
 
-// QueryPet queries the pet edge of a PetHealth.
-func (c *PetHealthClient) QueryPet(_m *PetHealth) *PetQuery {
+// QueryOwner queries the owner edge of a PetHealth.
+func (c *PetHealthClient) QueryOwner(_m *PetHealth) *PetQuery {
 	query := (&PetClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pethealth.Table, pethealth.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, pethealth.PetTable, pethealth.PetColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, pethealth.OwnerTable, pethealth.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1826,7 +1826,7 @@ func (c *PetTreatmentClient) UpdateOne(_m *PetTreatment) *PetTreatmentUpdateOne 
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PetTreatmentClient) UpdateOneID(id int) *PetTreatmentUpdateOne {
+func (c *PetTreatmentClient) UpdateOneID(id string) *PetTreatmentUpdateOne {
 	mutation := newPetTreatmentMutation(c.config, OpUpdateOne, withPetTreatmentID(id))
 	return &PetTreatmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1843,7 +1843,7 @@ func (c *PetTreatmentClient) DeleteOne(_m *PetTreatment) *PetTreatmentDeleteOne 
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PetTreatmentClient) DeleteOneID(id int) *PetTreatmentDeleteOne {
+func (c *PetTreatmentClient) DeleteOneID(id string) *PetTreatmentDeleteOne {
 	builder := c.Delete().Where(pettreatment.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1860,12 +1860,12 @@ func (c *PetTreatmentClient) Query() *PetTreatmentQuery {
 }
 
 // Get returns a PetTreatment entity by its id.
-func (c *PetTreatmentClient) Get(ctx context.Context, id int) (*PetTreatment, error) {
+func (c *PetTreatmentClient) Get(ctx context.Context, id string) (*PetTreatment, error) {
 	return c.Query().Where(pettreatment.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PetTreatmentClient) GetX(ctx context.Context, id int) *PetTreatment {
+func (c *PetTreatmentClient) GetX(ctx context.Context, id string) *PetTreatment {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1873,15 +1873,15 @@ func (c *PetTreatmentClient) GetX(ctx context.Context, id int) *PetTreatment {
 	return obj
 }
 
-// QueryPet queries the pet edge of a PetTreatment.
-func (c *PetTreatmentClient) QueryPet(_m *PetTreatment) *PetQuery {
+// QueryOwner queries the owner edge of a PetTreatment.
+func (c *PetTreatmentClient) QueryOwner(_m *PetTreatment) *PetQuery {
 	query := (&PetClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pettreatment.Table, pettreatment.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, pettreatment.PetTable, pettreatment.PetColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, pettreatment.OwnerTable, pettreatment.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

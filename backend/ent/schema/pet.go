@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -60,10 +62,10 @@ func (Pet) Edges() []ent.Edge {
 			Ref("pets").
 			Unique().
 			Field("user_id"),
-		edge.To("health", PetHealth.Type).Unique(),
-		edge.To("treatments", PetTreatment.Type).Unique(),
-		edge.To("analyses", PetAnalysis.Type).Unique(),
-		edge.To("bonuses", PetBonus.Type).Unique(),
+		edge.From("health", PetHealth.Type).Ref("owner").Unique(),
+		edge.From("treatments", PetTreatment.Type).Ref("owner").Unique(),
+		edge.From("analyses", PetAnalysis.Type).Ref("owner"),
+		edge.From("bonuses", PetBonus.Type).Ref("owner").Unique(),
 		edge.From("breed_ref", Breed.Type).
 			Ref("pets").
 			Unique().
@@ -100,13 +102,16 @@ type PetHealth struct {
 // Fields of the PetHealth.
 func (PetHealth) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			StructTag(`json:"id"`),
 		field.Enum("reproductive_status").Values("pregnancy", "lactation", "estrus", "none").Optional().StructTag(`json:"reproductiveStatus"`),
 		field.Enum("health_status").Values("healthy", "ill", "unknown").Optional().StructTag(`json:"healthStatus"`),
 		field.Time("last_donation").Optional().Nillable().StructTag(`json:"lastDonation"`),
 		field.Bool("transfused").Optional().StructTag(`json:"transfused"`),
 		field.String("medications").Optional().StructTag(`json:"medications"`),
 		field.String("surgical_interventions").Optional().StructTag(`json:"surgicalInterventions"`),
-		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 		// Audit fields
 		field.Time("created_at").
 			Default(time.Now).
@@ -126,10 +131,16 @@ func (PetHealth) Fields() []ent.Field {
 // Edges of the PetHealth.
 func (PetHealth) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).
-			Ref("health").
+		edge.To("owner", Pet.Type).
 			Unique().
-			Field("pet_id"),
+			Required(),
+	}
+}
+
+// Annotations of the PetHealth.
+func (PetHealth) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "pet_healths"},
 	}
 }
 
@@ -161,11 +172,14 @@ type PetTreatment struct {
 // Fields of the PetTreatment.
 func (PetTreatment) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			StructTag(`json:"id"`),
 		field.Time("rabies_vaccination_date").Optional().Nillable().StructTag(`json:"rabiesVaccinationDate"`),
 		field.Time("infection_vaccination_date").Optional().Nillable().StructTag(`json:"infectionVaccinationDate"`),
 		field.Time("ectoparasite_treatment_date").Optional().Nillable().StructTag(`json:"ectoparasiteTreatmentDate"`),
 		field.Time("deworming_date").Optional().Nillable().StructTag(`json:"dewormingDate"`),
-		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 		// Audit fields
 		field.Time("created_at").
 			Default(time.Now).
@@ -185,10 +199,16 @@ func (PetTreatment) Fields() []ent.Field {
 // Edges of the PetTreatment.
 func (PetTreatment) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).
-			Ref("treatments").
+		edge.To("owner", Pet.Type).
 			Unique().
-			Field("pet_id"),
+			Required(),
+	}
+}
+
+// Annotations of the PetTreatment.
+func (PetTreatment) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "pet_treatments"},
 	}
 }
 
@@ -220,6 +240,11 @@ type PetAnalysis struct {
 // Fields of the PetAnalysis.
 func (PetAnalysis) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			DefaultFunc(func() string { return generateID("analysis") }).
+			StructTag(`json:"id"`),
 		field.Time("leukemia_date").Optional().Nillable().StructTag(`json:"leukemiaDate"`),
 		field.Enum("leukemia_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"leukemiaType"`),
 		field.Time("immunodeficiency_date").Optional().Nillable().StructTag(`json:"immunodeficiencyDate"`),
@@ -236,7 +261,6 @@ func (PetAnalysis) Fields() []ent.Field {
 		field.Enum("ehrlichiosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"ehrlichiosisType"`),
 		field.Time("anaplasmosis_date").Optional().Nillable().StructTag(`json:"anaplasmosisDate"`),
 		field.Enum("anaplasmosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"anaplasmosisType"`),
-		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 		// Audit fields
 		field.Time("created_at").
 			Default(time.Now).
@@ -256,10 +280,15 @@ func (PetAnalysis) Fields() []ent.Field {
 // Edges of the PetAnalysis.
 func (PetAnalysis) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).
-			Ref("analyses").
-			Unique().
-			Field("pet_id"),
+		edge.To("owner", Pet.Type).
+			Required(),
+	}
+}
+
+// Annotations of the PetAnalysis.
+func (PetAnalysis) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "pet_analyses"},
 	}
 }
 
@@ -291,7 +320,10 @@ type PetBonus struct {
 // Fields of the PetBonus.
 func (PetBonus) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("pet_id").Optional().StructTag(`json:"petId"`),
+		field.String("id").
+			Unique().
+			Immutable().
+			StructTag(`json:"id"`),
 		field.Bool("is_artist").StructTag(`json:"isArtist"`),
 		field.Bool("is_therapist").StructTag(`json:"isTherapist"`),
 		field.Bool("is_former_donor").StructTag(`json:"isFormerDonor"`),
@@ -315,10 +347,16 @@ func (PetBonus) Fields() []ent.Field {
 // Edges of the PetBonus.
 func (PetBonus) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).
-			Ref("bonuses").
+		edge.To("owner", Pet.Type).
 			Unique().
-			Field("pet_id"),
+			Required(),
+	}
+}
+
+// Annotations of the PetBonus.
+func (PetBonus) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "pet_bonuses"},
 	}
 }
 

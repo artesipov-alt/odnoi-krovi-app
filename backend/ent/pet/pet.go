@@ -74,33 +74,31 @@ const (
 	// OwnerColumn is the table column denoting the owner relation/edge.
 	OwnerColumn = "user_id"
 	// HealthTable is the table that holds the health relation/edge.
-	HealthTable = "pet_healths"
+	HealthTable = "pets"
 	// HealthInverseTable is the table name for the PetHealth entity.
 	// It exists in this package in order to avoid circular dependency with the "pethealth" package.
 	HealthInverseTable = "pet_healths"
 	// HealthColumn is the table column denoting the health relation/edge.
-	HealthColumn = "pet_id"
+	HealthColumn = "pet_health_owner"
 	// TreatmentsTable is the table that holds the treatments relation/edge.
-	TreatmentsTable = "pet_treatments"
+	TreatmentsTable = "pets"
 	// TreatmentsInverseTable is the table name for the PetTreatment entity.
 	// It exists in this package in order to avoid circular dependency with the "pettreatment" package.
 	TreatmentsInverseTable = "pet_treatments"
 	// TreatmentsColumn is the table column denoting the treatments relation/edge.
-	TreatmentsColumn = "pet_id"
-	// AnalysesTable is the table that holds the analyses relation/edge.
-	AnalysesTable = "pet_analyses"
+	TreatmentsColumn = "pet_treatment_owner"
+	// AnalysesTable is the table that holds the analyses relation/edge. The primary key declared below.
+	AnalysesTable = "pet_analysis_owner"
 	// AnalysesInverseTable is the table name for the PetAnalysis entity.
 	// It exists in this package in order to avoid circular dependency with the "petanalysis" package.
 	AnalysesInverseTable = "pet_analyses"
-	// AnalysesColumn is the table column denoting the analyses relation/edge.
-	AnalysesColumn = "pet_id"
 	// BonusesTable is the table that holds the bonuses relation/edge.
-	BonusesTable = "pet_bonus"
+	BonusesTable = "pets"
 	// BonusesInverseTable is the table name for the PetBonus entity.
 	// It exists in this package in order to avoid circular dependency with the "petbonus" package.
-	BonusesInverseTable = "pet_bonus"
+	BonusesInverseTable = "pet_bonuses"
 	// BonusesColumn is the table column denoting the bonuses relation/edge.
-	BonusesColumn = "pet_id"
+	BonusesColumn = "pet_bonus_owner"
 	// BreedRefTable is the table that holds the breed_ref relation/edge.
 	BreedRefTable = "pets"
 	// BreedRefInverseTable is the table name for the Breed entity.
@@ -139,10 +137,29 @@ var Columns = []string{
 	FieldDeletedAt,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "pets"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"pet_bonus_owner",
+	"pet_health_owner",
+	"pet_treatment_owner",
+}
+
+var (
+	// AnalysesPrimaryKey and AnalysesColumn2 are the table columns denoting the
+	// primary key for the analyses relation (M2M).
+	AnalysesPrimaryKey = []string{"pet_analysis_id", "pet_id"}
+)
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -379,10 +396,17 @@ func ByTreatmentsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByAnalysesField orders the results by analyses field.
-func ByAnalysesField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByAnalysesCount orders the results by analyses count.
+func ByAnalysesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAnalysesStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newAnalysesStep(), opts...)
+	}
+}
+
+// ByAnalyses orders the results by analyses terms.
+func ByAnalyses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAnalysesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -417,28 +441,28 @@ func newHealthStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(HealthInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, HealthTable, HealthColumn),
+		sqlgraph.Edge(sqlgraph.O2O, true, HealthTable, HealthColumn),
 	)
 }
 func newTreatmentsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TreatmentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, TreatmentsTable, TreatmentsColumn),
+		sqlgraph.Edge(sqlgraph.O2O, true, TreatmentsTable, TreatmentsColumn),
 	)
 }
 func newAnalysesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AnalysesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, AnalysesTable, AnalysesColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, AnalysesTable, AnalysesPrimaryKey...),
 	)
 }
 func newBonusesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BonusesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, BonusesTable, BonusesColumn),
+		sqlgraph.Edge(sqlgraph.O2O, true, BonusesTable, BonusesColumn),
 	)
 }
 func newBreedRefStep() *sqlgraph.Step {

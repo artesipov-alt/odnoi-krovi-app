@@ -21,20 +21,6 @@ type PetBonusCreate struct {
 	hooks    []Hook
 }
 
-// SetPetID sets the "pet_id" field.
-func (_c *PetBonusCreate) SetPetID(v string) *PetBonusCreate {
-	_c.mutation.SetPetID(v)
-	return _c
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_c *PetBonusCreate) SetNillablePetID(v *string) *PetBonusCreate {
-	if v != nil {
-		_c.SetPetID(*v)
-	}
-	return _c
-}
-
 // SetIsArtist sets the "is_artist" field.
 func (_c *PetBonusCreate) SetIsArtist(v bool) *PetBonusCreate {
 	_c.mutation.SetIsArtist(v)
@@ -101,9 +87,21 @@ func (_c *PetBonusCreate) SetNillableDeletedAt(v *time.Time) *PetBonusCreate {
 	return _c
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_c *PetBonusCreate) SetPet(v *Pet) *PetBonusCreate {
-	return _c.SetPetID(v.ID)
+// SetID sets the "id" field.
+func (_c *PetBonusCreate) SetID(v string) *PetBonusCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_c *PetBonusCreate) SetOwnerID(id string) *PetBonusCreate {
+	_c.mutation.SetOwnerID(id)
+	return _c
+}
+
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_c *PetBonusCreate) SetOwner(v *Pet) *PetBonusCreate {
+	return _c.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetBonusMutation object of the builder.
@@ -171,6 +169,9 @@ func (_c *PetBonusCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetBonus.updated_at"`)}
 	}
+	if len(_c.mutation.OwnerIDs()) == 0 {
+		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "PetBonus.owner"`)}
+	}
 	return nil
 }
 
@@ -185,8 +186,13 @@ func (_c *PetBonusCreate) sqlSave(ctx context.Context) (*PetBonus, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected PetBonus.ID type: %T", _spec.ID.Value)
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -195,8 +201,12 @@ func (_c *PetBonusCreate) sqlSave(ctx context.Context) (*PetBonus, error) {
 func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 	var (
 		_node = &PetBonus{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(petbonus.Table, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(petbonus.Table, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := _c.mutation.IsArtist(); ok {
 		_spec.SetField(petbonus.FieldIsArtist, field.TypeBool, value)
 		_node.IsArtist = value
@@ -225,12 +235,12 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petbonus.PetTable,
-			Columns: []string{petbonus.PetColumn},
+			Inverse: false,
+			Table:   petbonus.OwnerTable,
+			Columns: []string{petbonus.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -239,7 +249,6 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.PetID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -290,10 +299,6 @@ func (_c *PetBonusCreateBulk) Save(ctx context.Context) ([]*PetBonus, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

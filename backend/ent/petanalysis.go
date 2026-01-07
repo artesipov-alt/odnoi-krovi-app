@@ -9,7 +9,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 )
 
@@ -17,7 +16,7 @@ import (
 type PetAnalysis struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID string `json:"id"`
 	// LeukemiaDate holds the value of the "leukemia_date" field.
 	LeukemiaDate *time.Time `json:"leukemiaDate"`
 	// LeukemiaType holds the value of the "leukemia_type" field.
@@ -50,8 +49,6 @@ type PetAnalysis struct {
 	AnaplasmosisDate *time.Time `json:"anaplasmosisDate"`
 	// AnaplasmosisType holds the value of the "anaplasmosis_type" field.
 	AnaplasmosisType petanalysis.AnaplasmosisType `json:"anaplasmosisType"`
-	// PetID holds the value of the "pet_id" field.
-	PetID string `json:"petId"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"createdAt"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -66,22 +63,20 @@ type PetAnalysis struct {
 
 // PetAnalysisEdges holds the relations/edges for other nodes in the graph.
 type PetAnalysisEdges struct {
-	// Pet holds the value of the pet edge.
-	Pet *Pet `json:"pet,omitempty"`
+	// Owner holds the value of the owner edge.
+	Owner []*Pet `json:"owner,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// PetOrErr returns the Pet value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PetAnalysisEdges) PetOrErr() (*Pet, error) {
-	if e.Pet != nil {
-		return e.Pet, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: pet.Label}
+// OwnerOrErr returns the Owner value or an error if the edge
+// was not loaded in eager-loading.
+func (e PetAnalysisEdges) OwnerOrErr() ([]*Pet, error) {
+	if e.loadedTypes[0] {
+		return e.Owner, nil
 	}
-	return nil, &NotLoadedError{edge: "pet"}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -89,9 +84,7 @@ func (*PetAnalysis) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case petanalysis.FieldID:
-			values[i] = new(sql.NullInt64)
-		case petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType, petanalysis.FieldPetID:
+		case petanalysis.FieldID, petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType:
 			values[i] = new(sql.NullString)
 		case petanalysis.FieldLeukemiaDate, petanalysis.FieldImmunodeficiencyDate, petanalysis.FieldHemoplasmosisDate, petanalysis.FieldBartonellosisDate, petanalysis.FieldBabesiosisDate, petanalysis.FieldDirofilariaDate, petanalysis.FieldEhrlichiosisDate, petanalysis.FieldAnaplasmosisDate, petanalysis.FieldCreatedAt, petanalysis.FieldUpdatedAt, petanalysis.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -111,11 +104,11 @@ func (_m *PetAnalysis) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case petanalysis.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				_m.ID = value.String
 			}
-			_m.ID = int(value.Int64)
 		case petanalysis.FieldLeukemiaDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field leukemia_date", values[i])
@@ -220,12 +213,6 @@ func (_m *PetAnalysis) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.AnaplasmosisType = petanalysis.AnaplasmosisType(value.String)
 			}
-		case petanalysis.FieldPetID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_id", values[i])
-			} else if value.Valid {
-				_m.PetID = value.String
-			}
 		case petanalysis.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -258,9 +245,9 @@ func (_m *PetAnalysis) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryPet queries the "pet" edge of the PetAnalysis entity.
-func (_m *PetAnalysis) QueryPet() *PetQuery {
-	return NewPetAnalysisClient(_m.config).QueryPet(_m)
+// QueryOwner queries the "owner" edge of the PetAnalysis entity.
+func (_m *PetAnalysis) QueryOwner() *PetQuery {
+	return NewPetAnalysisClient(_m.config).QueryOwner(_m)
 }
 
 // Update returns a builder for updating this PetAnalysis.
@@ -349,9 +336,6 @@ func (_m *PetAnalysis) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("anaplasmosis_type=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AnaplasmosisType))
-	builder.WriteString(", ")
-	builder.WriteString("pet_id=")
-	builder.WriteString(_m.PetID)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

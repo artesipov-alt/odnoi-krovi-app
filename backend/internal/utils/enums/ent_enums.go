@@ -39,6 +39,16 @@ func GetAllEntHealthStatuses() []pethealth.HealthStatus {
 	}
 }
 
+// GetAllEntReproductiveStatuses возвращает все доступные репродуктивные состояния из ENT
+func GetAllEntReproductiveStatuses() []pethealth.ReproductiveStatus {
+	return []pethealth.ReproductiveStatus{
+		pethealth.ReproductiveStatusPregnancy,
+		pethealth.ReproductiveStatusLactation,
+		pethealth.ReproductiveStatusEstrus,
+		pethealth.ReproductiveStatusNone,
+	}
+}
+
 // GetAllEntUserRoles возвращает все доступные роли пользователей из ENT
 func GetAllEntUserRoles() []user.Role {
 	return []user.Role{

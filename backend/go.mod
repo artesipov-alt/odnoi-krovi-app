@@ -24,7 +24,6 @@ require (
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/lib/pq v1.10.9
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/swaggo/echo-swagger v1.4.1
 )
 

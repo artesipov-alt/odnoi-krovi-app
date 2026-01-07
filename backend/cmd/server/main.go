@@ -100,12 +100,12 @@ func main() {
 	petService := services.NewPetService(petRepo, userRepo, s3VKCloud)
 
 	// Инициализация клиента blood search микросервиса
-	bloodSearchClient := *services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
+	// bloodSearchClient := *services.NewBloodRequestClient(serverConfig.BloodMicroserviceURL)
 
 	// Инициализация обработчиков HTTP запросов (хэндлеров)
 	userHandler := handlers.NewUserHandler(userService)
 	petHandler := handlers.NewPetHandler(petService)
-	bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchClient)
+	// bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchClient)
 	referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodRepoInit, locationRepo)
 	devHandler := handlers.NewDevHandler(userRepo)
 
@@ -164,11 +164,11 @@ func main() {
 	petGroup.GET("/upload/avatar/:id", petHandler.GetAvatarUploadURL)                // Получение ссылки на загрузку в фотографии питомцев в storage
 	petGroup.POST("/upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
 
-	// Группа маршрутов для пула запросов крови
-	bloodRequestGroup := v1.Group("/blood-request")
+	// // Группа маршрутов для пула запросов крови
+	// bloodRequestGroup := v1.Group("/blood-request")
 
-	bloodRequestGroup.POST("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
-	bloodRequestGroup.POST("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
+	// bloodRequestGroup.POST("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
+	// bloodRequestGroup.POST("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
 
 	// Группа маршрутов для справочных данных
 	referenceGroup := v1.Group("/reference")

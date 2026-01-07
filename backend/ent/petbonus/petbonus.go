@@ -15,8 +15,6 @@ const (
 	Label = "pet_bonus"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldPetID holds the string denoting the pet_id field in the database.
-	FieldPetID = "pet_id"
 	// FieldIsArtist holds the string denoting the is_artist field in the database.
 	FieldIsArtist = "is_artist"
 	// FieldIsTherapist holds the string denoting the is_therapist field in the database.
@@ -31,23 +29,22 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// EdgePet holds the string denoting the pet edge name in mutations.
-	EdgePet = "pet"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
 	// Table holds the table name of the petbonus in the database.
-	Table = "pet_bonus"
-	// PetTable is the table that holds the pet relation/edge.
-	PetTable = "pet_bonus"
-	// PetInverseTable is the table name for the Pet entity.
+	Table = "pet_bonuses"
+	// OwnerTable is the table that holds the owner relation/edge.
+	OwnerTable = "pets"
+	// OwnerInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
-	PetInverseTable = "pets"
-	// PetColumn is the table column denoting the pet relation/edge.
-	PetColumn = "pet_id"
+	OwnerInverseTable = "pets"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "pet_bonus_owner"
 )
 
 // Columns holds all SQL columns for petbonus fields.
 var Columns = []string{
 	FieldID,
-	FieldPetID,
 	FieldIsArtist,
 	FieldIsTherapist,
 	FieldIsFormerDonor,
@@ -90,11 +87,6 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByPetID orders the results by the pet_id field.
-func ByPetID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPetID, opts...).ToFunc()
-}
-
 // ByIsArtist orders the results by the is_artist field.
 func ByIsArtist(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsArtist, opts...).ToFunc()
@@ -130,16 +122,16 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByPetField orders the results by pet field.
-func ByPetField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByOwnerField orders the results by owner field.
+func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPetStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newPetStep() *sqlgraph.Step {
+func newOwnerStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PetInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+		sqlgraph.To(OwnerInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, OwnerTable, OwnerColumn),
 	)
 }

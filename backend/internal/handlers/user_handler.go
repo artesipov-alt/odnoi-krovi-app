@@ -34,7 +34,7 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // @Tags users
 // @Produce json
 // @Param id path string true "ID пользователя"
-// @Success 200 {object} models.User "Данные пользователя"
+// @Success 200 {object} ent.User "Данные пользователя"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
@@ -62,7 +62,7 @@ func (h *UserHandler) GetUserHandler(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param request body SimpleRegistrationRequest true "Данные для простой регистрации"
-// @Success 201 {object} models.User "Зарегистрированный пользователь"
+// @Success 201 {object} ent.User "Зарегистрированный пользователь"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
@@ -96,7 +96,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param request body services.UserRegistration true "Данные для регистрации пользователя"
-// @Success 201 {object} models.User "Зарегистрированный пользователь"
+// @Success 201 {object} ent.User "Зарегистрированный пользователь"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
@@ -163,7 +163,7 @@ func (h *UserHandler) UpdateUserHandler(c echo.Context) error {
 // @Tags users
 // @Produce json
 // @Param telegram_id query int64 true "Telegram ID пользователя"
-// @Success 200 {object} models.User "Данные пользователя"
+// @Success 200 {object} ent.User "Данные пользователя"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"

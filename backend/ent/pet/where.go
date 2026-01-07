@@ -983,7 +983,7 @@ func HasHealth() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, HealthTable, HealthColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, HealthTable, HealthColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -1006,7 +1006,7 @@ func HasTreatments() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, TreatmentsTable, TreatmentsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, TreatmentsTable, TreatmentsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -1029,7 +1029,7 @@ func HasAnalyses() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, AnalysesTable, AnalysesColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, AnalysesTable, AnalysesPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -1052,7 +1052,7 @@ func HasBonuses() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, BonusesTable, BonusesColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, BonusesTable, BonusesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

@@ -3,11 +3,9 @@ package handlers
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -61,20 +59,15 @@ type ReferenceItemDB struct {
 func (h *ReferenceHandler) GetPetTypesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника типов животных")
 
-	petTypes := enums.GetAllPetTypes()
+	petTypes := enums.GetAllEntPetTypes()
 	items := make([]ReferenceItem, len(petTypes))
 
 	for i, petType := range petTypes {
-		ruValue, err := validation.LocalizePetType(string(petType))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: apperrors.ErrInvalidPetType.Error(),
-			})
-		}
+		ruValue := enums.LocalizeEntPetType(petType)
 
 		items[i] = ReferenceItem{
 			Value: string(petType),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 
@@ -91,20 +84,15 @@ func (h *ReferenceHandler) GetPetTypesHandler(c echo.Context) error {
 func (h *ReferenceHandler) GetGendersHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника полов")
 
-	genders := enums.GetAllGenders()
+	genders := enums.GetAllEntGenders()
 	items := make([]ReferenceItem, len(genders))
 
 	for i, gender := range genders {
-		ruValue, err := validation.LocalizeGender(string(gender))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: apperrors.ErrInvalidGender.Error(),
-			})
-		}
+		ruValue := enums.LocalizeEntGender(gender)
 
 		items[i] = ReferenceItem{
 			Value: string(gender),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 
@@ -121,20 +109,15 @@ func (h *ReferenceHandler) GetGendersHandler(c echo.Context) error {
 func (h *ReferenceHandler) GetLivingConditionsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника условий проживания")
 
-	conditions := enums.GetAllLivingConditions()
+	conditions := enums.GetAllEntLivingConditions()
 	items := make([]ReferenceItem, len(conditions))
 
 	for i, condition := range conditions {
-		ruValue, err := validation.LocalizeLivingCondition(string(condition))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: apperrors.ErrInvalidLivingCondition.Error(),
-			})
-		}
+		ruValue := enums.LocalizeEntLivingCondition(condition)
 
 		items[i] = ReferenceItem{
 			Value: string(condition),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 
@@ -151,20 +134,15 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c echo.Context) error {
 func (h *ReferenceHandler) GetUserRolesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника ролей пользователей")
 
-	roles := enums.GetAllUserRoles()
+	roles := enums.GetAllEntUserRoles()
 	items := make([]ReferenceItem, len(roles))
 
 	for i, role := range roles {
-		ruValue, err := validation.LocalizeUserRole(string(role))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: apperrors.ErrUserInvalidRole.Error(),
-			})
-		}
+		ruValue := enums.LocalizeEntUserRole(role)
 
 		items[i] = ReferenceItem{
 			Value: string(role),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 
@@ -277,8 +255,15 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c echo.Context) error {
 		})
 	}
 
-	if _, err := validation.LocalizePetType(petTypeStr); err != nil {
-		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr), zap.Error(err))
+	isValid := false
+	for _, pt := range enums.GetAllEntPetTypes() {
+		if string(pt) == petTypeStr {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr))
 		return c.JSON(400, utils.ErrorResponse{
 			Message: "Неверный тип животного",
 		})
@@ -383,20 +368,15 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c echo.Context) error {
 func (h *ReferenceHandler) GetHealthStatusesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника статусов здоровья")
 
-	statuses := enums.GetAllHealthStatuses()
+	statuses := enums.GetAllEntHealthStatuses()
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
-		ruValue, err := validation.LocalizeHealthStatus(string(status))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: "Не удалось получить список статусов здоровья",
-			})
-		}
+		ruValue := enums.LocalizeEntHealthStatus(status)
 
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 
@@ -413,20 +393,15 @@ func (h *ReferenceHandler) GetHealthStatusesHandler(c echo.Context) error {
 func (h *ReferenceHandler) GetReproductiveStatusesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника репродуктивных состояний")
 
-	statuses := enums.GetAllReproductiveStatuses()
+	statuses := enums.GetAllEntReproductiveStatuses()
 	items := make([]ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
-		ruValue, err := validation.LocalizeReproductiveStatus(string(status))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: "Не удалось получить список репродуктивных состояний",
-			})
-		}
+		ruValue := enums.LocalizeEntReproductiveStatus(status)
 
 		items[i] = ReferenceItem{
 			Value: string(status),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 

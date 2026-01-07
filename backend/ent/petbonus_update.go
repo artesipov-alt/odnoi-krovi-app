@@ -29,26 +29,6 @@ func (_u *PetBonusUpdate) Where(ps ...predicate.PetBonus) *PetBonusUpdate {
 	return _u
 }
 
-// SetPetID sets the "pet_id" field.
-func (_u *PetBonusUpdate) SetPetID(v string) *PetBonusUpdate {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetBonusUpdate) SetNillablePetID(v *string) *PetBonusUpdate {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetBonusUpdate) ClearPetID() *PetBonusUpdate {
-	_u.mutation.ClearPetID()
-	return _u
-}
-
 // SetIsArtist sets the "is_artist" field.
 func (_u *PetBonusUpdate) SetIsArtist(v bool) *PetBonusUpdate {
 	_u.mutation.SetIsArtist(v)
@@ -131,9 +111,15 @@ func (_u *PetBonusUpdate) ClearDeletedAt() *PetBonusUpdate {
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *PetBonusUpdate) SetPet(v *Pet) *PetBonusUpdate {
-	return _u.SetPetID(v.ID)
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_u *PetBonusUpdate) SetOwnerID(id string) *PetBonusUpdate {
+	_u.mutation.SetOwnerID(id)
+	return _u
+}
+
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_u *PetBonusUpdate) SetOwner(v *Pet) *PetBonusUpdate {
+	return _u.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetBonusMutation object of the builder.
@@ -141,9 +127,9 @@ func (_u *PetBonusUpdate) Mutation() *PetBonusMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
-func (_u *PetBonusUpdate) ClearPet() *PetBonusUpdate {
-	_u.mutation.ClearPet()
+// ClearOwner clears the "owner" edge to the Pet entity.
+func (_u *PetBonusUpdate) ClearOwner() *PetBonusUpdate {
+	_u.mutation.ClearOwner()
 	return _u
 }
 
@@ -183,8 +169,19 @@ func (_u *PetBonusUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PetBonusUpdate) check() error {
+	if _u.mutation.OwnerCleared() && len(_u.mutation.OwnerIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "PetBonus.owner"`)
+	}
+	return nil
+}
+
 func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(petbonus.Table, petbonus.Columns, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(petbonus.Table, petbonus.Columns, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -213,12 +210,12 @@ func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
 	}
-	if _u.mutation.PetCleared() {
+	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petbonus.PetTable,
-			Columns: []string{petbonus.PetColumn},
+			Inverse: false,
+			Table:   petbonus.OwnerTable,
+			Columns: []string{petbonus.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -226,12 +223,12 @@ func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petbonus.PetTable,
-			Columns: []string{petbonus.PetColumn},
+			Inverse: false,
+			Table:   petbonus.OwnerTable,
+			Columns: []string{petbonus.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -260,26 +257,6 @@ type PetBonusUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PetBonusMutation
-}
-
-// SetPetID sets the "pet_id" field.
-func (_u *PetBonusUpdateOne) SetPetID(v string) *PetBonusUpdateOne {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetBonusUpdateOne) SetNillablePetID(v *string) *PetBonusUpdateOne {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetBonusUpdateOne) ClearPetID() *PetBonusUpdateOne {
-	_u.mutation.ClearPetID()
-	return _u
 }
 
 // SetIsArtist sets the "is_artist" field.
@@ -364,9 +341,15 @@ func (_u *PetBonusUpdateOne) ClearDeletedAt() *PetBonusUpdateOne {
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *PetBonusUpdateOne) SetPet(v *Pet) *PetBonusUpdateOne {
-	return _u.SetPetID(v.ID)
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_u *PetBonusUpdateOne) SetOwnerID(id string) *PetBonusUpdateOne {
+	_u.mutation.SetOwnerID(id)
+	return _u
+}
+
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_u *PetBonusUpdateOne) SetOwner(v *Pet) *PetBonusUpdateOne {
+	return _u.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetBonusMutation object of the builder.
@@ -374,9 +357,9 @@ func (_u *PetBonusUpdateOne) Mutation() *PetBonusMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
-func (_u *PetBonusUpdateOne) ClearPet() *PetBonusUpdateOne {
-	_u.mutation.ClearPet()
+// ClearOwner clears the "owner" edge to the Pet entity.
+func (_u *PetBonusUpdateOne) ClearOwner() *PetBonusUpdateOne {
+	_u.mutation.ClearOwner()
 	return _u
 }
 
@@ -429,8 +412,19 @@ func (_u *PetBonusUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PetBonusUpdateOne) check() error {
+	if _u.mutation.OwnerCleared() && len(_u.mutation.OwnerIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "PetBonus.owner"`)
+	}
+	return nil
+}
+
 func (_u *PetBonusUpdateOne) sqlSave(ctx context.Context) (_node *PetBonus, err error) {
-	_spec := sqlgraph.NewUpdateSpec(petbonus.Table, petbonus.Columns, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeInt))
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(petbonus.Table, petbonus.Columns, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "PetBonus.id" for update`)}
@@ -476,12 +470,12 @@ func (_u *PetBonusUpdateOne) sqlSave(ctx context.Context) (_node *PetBonus, err 
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
 	}
-	if _u.mutation.PetCleared() {
+	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petbonus.PetTable,
-			Columns: []string{petbonus.PetColumn},
+			Inverse: false,
+			Table:   petbonus.OwnerTable,
+			Columns: []string{petbonus.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -489,12 +483,12 @@ func (_u *PetBonusUpdateOne) sqlSave(ctx context.Context) (_node *PetBonus, err 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   petbonus.PetTable,
-			Columns: []string{petbonus.PetColumn},
+			Inverse: false,
+			Table:   petbonus.OwnerTable,
+			Columns: []string{petbonus.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
