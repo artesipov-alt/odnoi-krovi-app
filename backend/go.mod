@@ -15,11 +15,13 @@ require (
 replace github.com/artesipov-alt/odnoi-krovi-app/shared/go/blood-microservice => ../shared/go/blood-microservice
 
 require (
+	entgo.io/ent v0.14.5
 	github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice v0.0.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.93.2
 	github.com/aws/smithy-go v1.24.0
+	github.com/jaevor/go-nanoid v1.4.0
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/swaggo/echo-swagger v1.4.1
