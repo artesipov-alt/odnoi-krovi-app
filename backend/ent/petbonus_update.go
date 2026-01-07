@@ -29,6 +29,26 @@ func (_u *PetBonusUpdate) Where(ps ...predicate.PetBonus) *PetBonusUpdate {
 	return _u
 }
 
+// SetPetID sets the "pet_id" field.
+func (_u *PetBonusUpdate) SetPetID(v string) *PetBonusUpdate {
+	_u.mutation.SetPetID(v)
+	return _u
+}
+
+// SetNillablePetID sets the "pet_id" field if the given value is not nil.
+func (_u *PetBonusUpdate) SetNillablePetID(v *string) *PetBonusUpdate {
+	if v != nil {
+		_u.SetPetID(*v)
+	}
+	return _u
+}
+
+// ClearPetID clears the value of the "pet_id" field.
+func (_u *PetBonusUpdate) ClearPetID() *PetBonusUpdate {
+	_u.mutation.ClearPetID()
+	return _u
+}
+
 // SetIsArtist sets the "is_artist" field.
 func (_u *PetBonusUpdate) SetIsArtist(v bool) *PetBonusUpdate {
 	_u.mutation.SetIsArtist(v)
@@ -82,26 +102,6 @@ func (_u *PetBonusUpdate) SetNillableIsGuideDog(v *bool) *PetBonusUpdate {
 	if v != nil {
 		_u.SetIsGuideDog(*v)
 	}
-	return _u
-}
-
-// SetPetID sets the "pet_id" field.
-func (_u *PetBonusUpdate) SetPetID(v string) *PetBonusUpdate {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetBonusUpdate) SetNillablePetID(v *string) *PetBonusUpdate {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetBonusUpdate) ClearPetID() *PetBonusUpdate {
-	_u.mutation.ClearPetID()
 	return _u
 }
 
@@ -262,6 +262,26 @@ type PetBonusUpdateOne struct {
 	mutation *PetBonusMutation
 }
 
+// SetPetID sets the "pet_id" field.
+func (_u *PetBonusUpdateOne) SetPetID(v string) *PetBonusUpdateOne {
+	_u.mutation.SetPetID(v)
+	return _u
+}
+
+// SetNillablePetID sets the "pet_id" field if the given value is not nil.
+func (_u *PetBonusUpdateOne) SetNillablePetID(v *string) *PetBonusUpdateOne {
+	if v != nil {
+		_u.SetPetID(*v)
+	}
+	return _u
+}
+
+// ClearPetID clears the value of the "pet_id" field.
+func (_u *PetBonusUpdateOne) ClearPetID() *PetBonusUpdateOne {
+	_u.mutation.ClearPetID()
+	return _u
+}
+
 // SetIsArtist sets the "is_artist" field.
 func (_u *PetBonusUpdateOne) SetIsArtist(v bool) *PetBonusUpdateOne {
 	_u.mutation.SetIsArtist(v)
@@ -315,26 +335,6 @@ func (_u *PetBonusUpdateOne) SetNillableIsGuideDog(v *bool) *PetBonusUpdateOne {
 	if v != nil {
 		_u.SetIsGuideDog(*v)
 	}
-	return _u
-}
-
-// SetPetID sets the "pet_id" field.
-func (_u *PetBonusUpdateOne) SetPetID(v string) *PetBonusUpdateOne {
-	_u.mutation.SetPetID(v)
-	return _u
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_u *PetBonusUpdateOne) SetNillablePetID(v *string) *PetBonusUpdateOne {
-	if v != nil {
-		_u.SetPetID(*v)
-	}
-	return _u
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (_u *PetBonusUpdateOne) ClearPetID() *PetBonusUpdateOne {
-	_u.mutation.ClearPetID()
 	return _u
 }
 

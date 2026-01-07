@@ -18,6 +18,8 @@ type PetBonus struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// PetID holds the value of the "pet_id" field.
+	PetID string `json:"petId"`
 	// IsArtist holds the value of the "is_artist" field.
 	IsArtist bool `json:"isArtist"`
 	// IsTherapist holds the value of the "is_therapist" field.
@@ -26,8 +28,6 @@ type PetBonus struct {
 	IsFormerDonor bool `json:"isFormerDonor"`
 	// IsGuideDog holds the value of the "is_guide_dog" field.
 	IsGuideDog bool `json:"isGuideDog"`
-	// PetID holds the value of the "pet_id" field.
-	PetID string `json:"petId"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"createdAt"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -94,6 +94,12 @@ func (_m *PetBonus) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case petbonus.FieldPetID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pet_id", values[i])
+			} else if value.Valid {
+				_m.PetID = value.String
+			}
 		case petbonus.FieldIsArtist:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_artist", values[i])
@@ -117,12 +123,6 @@ func (_m *PetBonus) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_guide_dog", values[i])
 			} else if value.Valid {
 				_m.IsGuideDog = value.Bool
-			}
-		case petbonus.FieldPetID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_id", values[i])
-			} else if value.Valid {
-				_m.PetID = value.String
 			}
 		case petbonus.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -184,6 +184,9 @@ func (_m *PetBonus) String() string {
 	var builder strings.Builder
 	builder.WriteString("PetBonus(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("pet_id=")
+	builder.WriteString(_m.PetID)
+	builder.WriteString(", ")
 	builder.WriteString("is_artist=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsArtist))
 	builder.WriteString(", ")
@@ -195,9 +198,6 @@ func (_m *PetBonus) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_guide_dog=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsGuideDog))
-	builder.WriteString(", ")
-	builder.WriteString("pet_id=")
-	builder.WriteString(_m.PetID)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

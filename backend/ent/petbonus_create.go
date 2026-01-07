@@ -21,6 +21,20 @@ type PetBonusCreate struct {
 	hooks    []Hook
 }
 
+// SetPetID sets the "pet_id" field.
+func (_c *PetBonusCreate) SetPetID(v string) *PetBonusCreate {
+	_c.mutation.SetPetID(v)
+	return _c
+}
+
+// SetNillablePetID sets the "pet_id" field if the given value is not nil.
+func (_c *PetBonusCreate) SetNillablePetID(v *string) *PetBonusCreate {
+	if v != nil {
+		_c.SetPetID(*v)
+	}
+	return _c
+}
+
 // SetIsArtist sets the "is_artist" field.
 func (_c *PetBonusCreate) SetIsArtist(v bool) *PetBonusCreate {
 	_c.mutation.SetIsArtist(v)
@@ -42,20 +56,6 @@ func (_c *PetBonusCreate) SetIsFormerDonor(v bool) *PetBonusCreate {
 // SetIsGuideDog sets the "is_guide_dog" field.
 func (_c *PetBonusCreate) SetIsGuideDog(v bool) *PetBonusCreate {
 	_c.mutation.SetIsGuideDog(v)
-	return _c
-}
-
-// SetPetID sets the "pet_id" field.
-func (_c *PetBonusCreate) SetPetID(v string) *PetBonusCreate {
-	_c.mutation.SetPetID(v)
-	return _c
-}
-
-// SetNillablePetID sets the "pet_id" field if the given value is not nil.
-func (_c *PetBonusCreate) SetNillablePetID(v *string) *PetBonusCreate {
-	if v != nil {
-		_c.SetPetID(*v)
-	}
 	return _c
 }
 

@@ -298,12 +298,12 @@ func (_q *PetBonusQuery) WithPet(opts ...func(*PetQuery)) *PetBonusQuery {
 // Example:
 //
 //	var v []struct {
-//		IsArtist bool `json:"isArtist"`
+//		PetID string `json:"petId"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.PetBonus.Query().
-//		GroupBy(petbonus.FieldIsArtist).
+//		GroupBy(petbonus.FieldPetID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PetBonusQuery) GroupBy(field string, fields ...string) *PetBonusGroupBy {
@@ -321,11 +321,11 @@ func (_q *PetBonusQuery) GroupBy(field string, fields ...string) *PetBonusGroupB
 // Example:
 //
 //	var v []struct {
-//		IsArtist bool `json:"isArtist"`
+//		PetID string `json:"petId"`
 //	}
 //
 //	client.PetBonus.Query().
-//		Select(petbonus.FieldIsArtist).
+//		Select(petbonus.FieldPetID).
 //		Scan(ctx, &v)
 func (_q *PetBonusQuery) Select(fields ...string) *PetBonusSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

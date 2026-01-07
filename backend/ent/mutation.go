@@ -7755,6 +7755,55 @@ func (m *PetBonusMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetPetID sets the "pet_id" field.
+func (m *PetBonusMutation) SetPetID(s string) {
+	m.pet = &s
+}
+
+// PetID returns the value of the "pet_id" field in the mutation.
+func (m *PetBonusMutation) PetID() (r string, exists bool) {
+	v := m.pet
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPetID returns the old "pet_id" field's value of the PetBonus entity.
+// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetBonusMutation) OldPetID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPetID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPetID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPetID: %w", err)
+	}
+	return oldValue.PetID, nil
+}
+
+// ClearPetID clears the value of the "pet_id" field.
+func (m *PetBonusMutation) ClearPetID() {
+	m.pet = nil
+	m.clearedFields[petbonus.FieldPetID] = struct{}{}
+}
+
+// PetIDCleared returns if the "pet_id" field was cleared in this mutation.
+func (m *PetBonusMutation) PetIDCleared() bool {
+	_, ok := m.clearedFields[petbonus.FieldPetID]
+	return ok
+}
+
+// ResetPetID resets all changes to the "pet_id" field.
+func (m *PetBonusMutation) ResetPetID() {
+	m.pet = nil
+	delete(m.clearedFields, petbonus.FieldPetID)
+}
+
 // SetIsArtist sets the "is_artist" field.
 func (m *PetBonusMutation) SetIsArtist(b bool) {
 	m.is_artist = &b
@@ -7897,55 +7946,6 @@ func (m *PetBonusMutation) OldIsGuideDog(ctx context.Context) (v bool, err error
 // ResetIsGuideDog resets all changes to the "is_guide_dog" field.
 func (m *PetBonusMutation) ResetIsGuideDog() {
 	m.is_guide_dog = nil
-}
-
-// SetPetID sets the "pet_id" field.
-func (m *PetBonusMutation) SetPetID(s string) {
-	m.pet = &s
-}
-
-// PetID returns the value of the "pet_id" field in the mutation.
-func (m *PetBonusMutation) PetID() (r string, exists bool) {
-	v := m.pet
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPetID returns the old "pet_id" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldPetID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPetID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPetID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPetID: %w", err)
-	}
-	return oldValue.PetID, nil
-}
-
-// ClearPetID clears the value of the "pet_id" field.
-func (m *PetBonusMutation) ClearPetID() {
-	m.pet = nil
-	m.clearedFields[petbonus.FieldPetID] = struct{}{}
-}
-
-// PetIDCleared returns if the "pet_id" field was cleared in this mutation.
-func (m *PetBonusMutation) PetIDCleared() bool {
-	_, ok := m.clearedFields[petbonus.FieldPetID]
-	return ok
-}
-
-// ResetPetID resets all changes to the "pet_id" field.
-func (m *PetBonusMutation) ResetPetID() {
-	m.pet = nil
-	delete(m.clearedFields, petbonus.FieldPetID)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -8131,6 +8131,9 @@ func (m *PetBonusMutation) Type() string {
 // AddedFields().
 func (m *PetBonusMutation) Fields() []string {
 	fields := make([]string, 0, 8)
+	if m.pet != nil {
+		fields = append(fields, petbonus.FieldPetID)
+	}
 	if m.is_artist != nil {
 		fields = append(fields, petbonus.FieldIsArtist)
 	}
@@ -8142,9 +8145,6 @@ func (m *PetBonusMutation) Fields() []string {
 	}
 	if m.is_guide_dog != nil {
 		fields = append(fields, petbonus.FieldIsGuideDog)
-	}
-	if m.pet != nil {
-		fields = append(fields, petbonus.FieldPetID)
 	}
 	if m.created_at != nil {
 		fields = append(fields, petbonus.FieldCreatedAt)
@@ -8163,6 +8163,8 @@ func (m *PetBonusMutation) Fields() []string {
 // schema.
 func (m *PetBonusMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case petbonus.FieldPetID:
+		return m.PetID()
 	case petbonus.FieldIsArtist:
 		return m.IsArtist()
 	case petbonus.FieldIsTherapist:
@@ -8171,8 +8173,6 @@ func (m *PetBonusMutation) Field(name string) (ent.Value, bool) {
 		return m.IsFormerDonor()
 	case petbonus.FieldIsGuideDog:
 		return m.IsGuideDog()
-	case petbonus.FieldPetID:
-		return m.PetID()
 	case petbonus.FieldCreatedAt:
 		return m.CreatedAt()
 	case petbonus.FieldUpdatedAt:
@@ -8188,6 +8188,8 @@ func (m *PetBonusMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *PetBonusMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case petbonus.FieldPetID:
+		return m.OldPetID(ctx)
 	case petbonus.FieldIsArtist:
 		return m.OldIsArtist(ctx)
 	case petbonus.FieldIsTherapist:
@@ -8196,8 +8198,6 @@ func (m *PetBonusMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldIsFormerDonor(ctx)
 	case petbonus.FieldIsGuideDog:
 		return m.OldIsGuideDog(ctx)
-	case petbonus.FieldPetID:
-		return m.OldPetID(ctx)
 	case petbonus.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case petbonus.FieldUpdatedAt:
@@ -8213,6 +8213,13 @@ func (m *PetBonusMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *PetBonusMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case petbonus.FieldPetID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPetID(v)
+		return nil
 	case petbonus.FieldIsArtist:
 		v, ok := value.(bool)
 		if !ok {
@@ -8240,13 +8247,6 @@ func (m *PetBonusMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsGuideDog(v)
-		return nil
-	case petbonus.FieldPetID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPetID(v)
 		return nil
 	case petbonus.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -8333,6 +8333,9 @@ func (m *PetBonusMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *PetBonusMutation) ResetField(name string) error {
 	switch name {
+	case petbonus.FieldPetID:
+		m.ResetPetID()
+		return nil
 	case petbonus.FieldIsArtist:
 		m.ResetIsArtist()
 		return nil
@@ -8344,9 +8347,6 @@ func (m *PetBonusMutation) ResetField(name string) error {
 		return nil
 	case petbonus.FieldIsGuideDog:
 		m.ResetIsGuideDog()
-		return nil
-	case petbonus.FieldPetID:
-		m.ResetPetID()
 		return nil
 	case petbonus.FieldCreatedAt:
 		m.ResetCreatedAt()

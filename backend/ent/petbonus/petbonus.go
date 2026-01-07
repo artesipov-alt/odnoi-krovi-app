@@ -15,6 +15,8 @@ const (
 	Label = "pet_bonus"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldPetID holds the string denoting the pet_id field in the database.
+	FieldPetID = "pet_id"
 	// FieldIsArtist holds the string denoting the is_artist field in the database.
 	FieldIsArtist = "is_artist"
 	// FieldIsTherapist holds the string denoting the is_therapist field in the database.
@@ -23,8 +25,6 @@ const (
 	FieldIsFormerDonor = "is_former_donor"
 	// FieldIsGuideDog holds the string denoting the is_guide_dog field in the database.
 	FieldIsGuideDog = "is_guide_dog"
-	// FieldPetID holds the string denoting the pet_id field in the database.
-	FieldPetID = "pet_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -47,11 +47,11 @@ const (
 // Columns holds all SQL columns for petbonus fields.
 var Columns = []string{
 	FieldID,
+	FieldPetID,
 	FieldIsArtist,
 	FieldIsTherapist,
 	FieldIsFormerDonor,
 	FieldIsGuideDog,
-	FieldPetID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
@@ -90,6 +90,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByPetID orders the results by the pet_id field.
+func ByPetID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPetID, opts...).ToFunc()
+}
+
 // ByIsArtist orders the results by the is_artist field.
 func ByIsArtist(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsArtist, opts...).ToFunc()
@@ -108,11 +113,6 @@ func ByIsFormerDonor(opts ...sql.OrderTermOption) OrderOption {
 // ByIsGuideDog orders the results by the is_guide_dog field.
 func ByIsGuideDog(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsGuideDog, opts...).ToFunc()
-}
-
-// ByPetID orders the results by the pet_id field.
-func ByPetID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPetID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.
