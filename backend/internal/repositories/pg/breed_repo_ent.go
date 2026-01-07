@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
@@ -113,16 +112,13 @@ func (r *EntBreedRepository) Update(ctx context.Context, b *ent.Breed) (*ent.Bre
 	return updatedBreed, nil
 }
 
-// Delete deletes a breed by its ID (soft delete)
+// Delete deletes a breed by its ID
 func (r *EntBreedRepository) Delete(ctx context.Context, id int) error {
 	if id <= 0 {
 		return errors.New("invalid breed ID")
 	}
 
-	err := r.client.Breed.UpdateOneID(id).
-		SetDeletedAt(time.Now()).
-		Exec(ctx)
-
+	err := r.client.Breed.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return fmt.Errorf("breed with id %d not found", id)
