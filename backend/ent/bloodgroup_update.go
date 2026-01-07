@@ -6,13 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
 
@@ -77,76 +75,13 @@ func (_u *BloodGroupUpdate) ClearDescription() *BloodGroupUpdate {
 	return _u
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *BloodGroupUpdate) SetUpdatedAt(v time.Time) *BloodGroupUpdate {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *BloodGroupUpdate) SetDeletedAt(v time.Time) *BloodGroupUpdate {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *BloodGroupUpdate) SetNillableDeletedAt(v *time.Time) *BloodGroupUpdate {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *BloodGroupUpdate) ClearDeletedAt() *BloodGroupUpdate {
-	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
-// AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by IDs.
-func (_u *BloodGroupUpdate) AddSearchRequestIDs(ids ...string) *BloodGroupUpdate {
-	_u.mutation.AddSearchRequestIDs(ids...)
-	return _u
-}
-
-// AddSearchRequests adds the "search_requests" edges to the BloodSearchRequest entity.
-func (_u *BloodGroupUpdate) AddSearchRequests(v ...*BloodSearchRequest) *BloodGroupUpdate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddSearchRequestIDs(ids...)
-}
-
 // Mutation returns the BloodGroupMutation object of the builder.
 func (_u *BloodGroupUpdate) Mutation() *BloodGroupMutation {
 	return _u.mutation
 }
 
-// ClearSearchRequests clears all "search_requests" edges to the BloodSearchRequest entity.
-func (_u *BloodGroupUpdate) ClearSearchRequests() *BloodGroupUpdate {
-	_u.mutation.ClearSearchRequests()
-	return _u
-}
-
-// RemoveSearchRequestIDs removes the "search_requests" edge to BloodSearchRequest entities by IDs.
-func (_u *BloodGroupUpdate) RemoveSearchRequestIDs(ids ...string) *BloodGroupUpdate {
-	_u.mutation.RemoveSearchRequestIDs(ids...)
-	return _u
-}
-
-// RemoveSearchRequests removes "search_requests" edges to BloodSearchRequest entities.
-func (_u *BloodGroupUpdate) RemoveSearchRequests(v ...*BloodSearchRequest) *BloodGroupUpdate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveSearchRequestIDs(ids...)
-}
-
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *BloodGroupUpdate) Save(ctx context.Context) (int, error) {
-	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -169,14 +104,6 @@ func (_u *BloodGroupUpdate) Exec(ctx context.Context) error {
 func (_u *BloodGroupUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_u *BloodGroupUpdate) defaults() {
-	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := bloodgroup.UpdateDefaultUpdatedAt()
-		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -218,60 +145,6 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(bloodgroup.FieldDescription, field.TypeString)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(bloodgroup.FieldDeletedAt, field.TypeTime)
-	}
-	if _u.mutation.SearchRequestsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   bloodgroup.SearchRequestsTable,
-			Columns: []string{bloodgroup.SearchRequestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedSearchRequestsIDs(); len(nodes) > 0 && !_u.mutation.SearchRequestsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   bloodgroup.SearchRequestsTable,
-			Columns: []string{bloodgroup.SearchRequestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.SearchRequestsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   bloodgroup.SearchRequestsTable,
-			Columns: []string{bloodgroup.SearchRequestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -341,71 +214,9 @@ func (_u *BloodGroupUpdateOne) ClearDescription() *BloodGroupUpdateOne {
 	return _u
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *BloodGroupUpdateOne) SetUpdatedAt(v time.Time) *BloodGroupUpdateOne {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *BloodGroupUpdateOne) SetDeletedAt(v time.Time) *BloodGroupUpdateOne {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *BloodGroupUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodGroupUpdateOne {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *BloodGroupUpdateOne) ClearDeletedAt() *BloodGroupUpdateOne {
-	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
-// AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by IDs.
-func (_u *BloodGroupUpdateOne) AddSearchRequestIDs(ids ...string) *BloodGroupUpdateOne {
-	_u.mutation.AddSearchRequestIDs(ids...)
-	return _u
-}
-
-// AddSearchRequests adds the "search_requests" edges to the BloodSearchRequest entity.
-func (_u *BloodGroupUpdateOne) AddSearchRequests(v ...*BloodSearchRequest) *BloodGroupUpdateOne {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddSearchRequestIDs(ids...)
-}
-
 // Mutation returns the BloodGroupMutation object of the builder.
 func (_u *BloodGroupUpdateOne) Mutation() *BloodGroupMutation {
 	return _u.mutation
-}
-
-// ClearSearchRequests clears all "search_requests" edges to the BloodSearchRequest entity.
-func (_u *BloodGroupUpdateOne) ClearSearchRequests() *BloodGroupUpdateOne {
-	_u.mutation.ClearSearchRequests()
-	return _u
-}
-
-// RemoveSearchRequestIDs removes the "search_requests" edge to BloodSearchRequest entities by IDs.
-func (_u *BloodGroupUpdateOne) RemoveSearchRequestIDs(ids ...string) *BloodGroupUpdateOne {
-	_u.mutation.RemoveSearchRequestIDs(ids...)
-	return _u
-}
-
-// RemoveSearchRequests removes "search_requests" edges to BloodSearchRequest entities.
-func (_u *BloodGroupUpdateOne) RemoveSearchRequests(v ...*BloodSearchRequest) *BloodGroupUpdateOne {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveSearchRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the BloodGroupUpdate builder.
@@ -423,7 +234,6 @@ func (_u *BloodGroupUpdateOne) Select(field string, fields ...string) *BloodGrou
 
 // Save executes the query and returns the updated BloodGroup entity.
 func (_u *BloodGroupUpdateOne) Save(ctx context.Context) (*BloodGroup, error) {
-	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -446,14 +256,6 @@ func (_u *BloodGroupUpdateOne) Exec(ctx context.Context) error {
 func (_u *BloodGroupUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_u *BloodGroupUpdateOne) defaults() {
-	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := bloodgroup.UpdateDefaultUpdatedAt()
-		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -512,60 +314,6 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(bloodgroup.FieldDescription, field.TypeString)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(bloodgroup.FieldDeletedAt, field.TypeTime)
-	}
-	if _u.mutation.SearchRequestsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   bloodgroup.SearchRequestsTable,
-			Columns: []string{bloodgroup.SearchRequestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedSearchRequestsIDs(); len(nodes) > 0 && !_u.mutation.SearchRequestsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   bloodgroup.SearchRequestsTable,
-			Columns: []string{bloodgroup.SearchRequestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.SearchRequestsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   bloodgroup.SearchRequestsTable,
-			Columns: []string{bloodgroup.SearchRequestsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &BloodGroup{config: _u.config}
 	_spec.Assign = _node.assignValues

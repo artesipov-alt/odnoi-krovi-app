@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -30,48 +29,6 @@ func (_c *BreedCreate) SetName(v string) *BreedCreate {
 // SetType sets the "type" field.
 func (_c *BreedCreate) SetType(v breed.Type) *BreedCreate {
 	_c.mutation.SetType(v)
-	return _c
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (_c *BreedCreate) SetCreatedAt(v time.Time) *BreedCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *BreedCreate) SetNillableCreatedAt(v *time.Time) *BreedCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *BreedCreate) SetUpdatedAt(v time.Time) *BreedCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *BreedCreate) SetNillableUpdatedAt(v *time.Time) *BreedCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *BreedCreate) SetDeletedAt(v time.Time) *BreedCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *BreedCreate) SetNillableDeletedAt(v *time.Time) *BreedCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
-	}
 	return _c
 }
 
@@ -103,7 +60,6 @@ func (_c *BreedCreate) Mutation() *BreedMutation {
 
 // Save creates the Breed in the database.
 func (_c *BreedCreate) Save(ctx context.Context) (*Breed, error) {
-	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -129,18 +85,6 @@ func (_c *BreedCreate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (_c *BreedCreate) defaults() {
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		v := breed.DefaultCreatedAt()
-		_c.mutation.SetCreatedAt(v)
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		v := breed.DefaultUpdatedAt()
-		_c.mutation.SetUpdatedAt(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (_c *BreedCreate) check() error {
 	if _, ok := _c.mutation.Name(); !ok {
@@ -158,12 +102,6 @@ func (_c *BreedCreate) check() error {
 		if err := breed.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Breed.type": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Breed.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Breed.updated_at"`)}
 	}
 	return nil
 }
@@ -205,18 +143,6 @@ func (_c *BreedCreate) createSpec() (*Breed, *sqlgraph.CreateSpec) {
 		_spec.SetField(breed.FieldType, field.TypeEnum, value)
 		_node.Type = value
 	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(breed.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(breed.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(breed.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
-	}
 	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -254,7 +180,6 @@ func (_c *BreedCreateBulk) Save(ctx context.Context) ([]*Breed, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BreedMutation)
 				if !ok {

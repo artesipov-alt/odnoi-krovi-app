@@ -32,8 +32,10 @@ const (
 	FieldDescription = "description"
 	// FieldPhotoUrls holds the string denoting the photo_urls field in the database.
 	FieldPhotoUrls = "photo_urls"
-	// FieldBloodGroupID holds the string denoting the blood_group_id field in the database.
-	FieldBloodGroupID = "blood_group_id"
+	// FieldBloodGroupIds holds the string denoting the blood_group_ids field in the database.
+	FieldBloodGroupIds = "blood_group_ids"
+	// FieldBloodComponentIds holds the string denoting the blood_component_ids field in the database.
+	FieldBloodComponentIds = "blood_component_ids"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -42,10 +44,6 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// EdgePet holds the string denoting the pet edge name in mutations.
 	EdgePet = "pet"
-	// EdgeBloodComponents holds the string denoting the blood_components edge name in mutations.
-	EdgeBloodComponents = "blood_components"
-	// EdgeBloodGroup holds the string denoting the blood_group edge name in mutations.
-	EdgeBloodGroup = "blood_group"
 	// Table holds the table name of the bloodsearchrequest in the database.
 	Table = "blood_search_requests"
 	// PetTable is the table that holds the pet relation/edge.
@@ -55,18 +53,6 @@ const (
 	PetInverseTable = "pets"
 	// PetColumn is the table column denoting the pet relation/edge.
 	PetColumn = "pet_id"
-	// BloodComponentsTable is the table that holds the blood_components relation/edge. The primary key declared below.
-	BloodComponentsTable = "blood_search_request_blood_components"
-	// BloodComponentsInverseTable is the table name for the BloodComponent entity.
-	// It exists in this package in order to avoid circular dependency with the "bloodcomponent" package.
-	BloodComponentsInverseTable = "blood_components"
-	// BloodGroupTable is the table that holds the blood_group relation/edge.
-	BloodGroupTable = "blood_search_requests"
-	// BloodGroupInverseTable is the table name for the BloodGroup entity.
-	// It exists in this package in order to avoid circular dependency with the "bloodgroup" package.
-	BloodGroupInverseTable = "blood_groups"
-	// BloodGroupColumn is the table column denoting the blood_group relation/edge.
-	BloodGroupColumn = "blood_group_id"
 )
 
 // Columns holds all SQL columns for bloodsearchrequest fields.
@@ -80,17 +66,12 @@ var Columns = []string{
 	FieldStatus,
 	FieldDescription,
 	FieldPhotoUrls,
-	FieldBloodGroupID,
+	FieldBloodGroupIds,
+	FieldBloodComponentIds,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
 }
-
-var (
-	// BloodComponentsPrimaryKey and BloodComponentsColumn2 are the table columns denoting the
-	// primary key for the blood_components relation (M2M).
-	BloodComponentsPrimaryKey = []string{"blood_search_request_id", "blood_component_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -188,11 +169,6 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByBloodGroupID orders the results by the blood_group_id field.
-func ByBloodGroupID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBloodGroupID, opts...).ToFunc()
-}
-
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -214,45 +190,10 @@ func ByPetField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newPetStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByBloodComponentsCount orders the results by blood_components count.
-func ByBloodComponentsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newBloodComponentsStep(), opts...)
-	}
-}
-
-// ByBloodComponents orders the results by blood_components terms.
-func ByBloodComponents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBloodComponentsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByBloodGroupField orders the results by blood_group field.
-func ByBloodGroupField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBloodGroupStep(), sql.OrderByField(field, opts...))
-	}
-}
 func newPetStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PetInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
-	)
-}
-func newBloodComponentsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(BloodComponentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, BloodComponentsTable, BloodComponentsPrimaryKey...),
-	)
-}
-func newBloodGroupStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(BloodGroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, BloodGroupTable, BloodGroupColumn),
 	)
 }

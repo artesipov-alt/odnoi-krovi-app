@@ -395,22 +395,6 @@ func (c *BloodComponentClient) GetX(ctx context.Context, id int) *BloodComponent
 	return obj
 }
 
-// QuerySearchRequests queries the search_requests edge of a BloodComponent.
-func (c *BloodComponentClient) QuerySearchRequests(_m *BloodComponent) *BloodSearchRequestQuery {
-	query := (&BloodSearchRequestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodcomponent.Table, bloodcomponent.FieldID, id),
-			sqlgraph.To(bloodsearchrequest.Table, bloodsearchrequest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, bloodcomponent.SearchRequestsTable, bloodcomponent.SearchRequestsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *BloodComponentClient) Hooks() []Hook {
 	return c.hooks.BloodComponent
@@ -418,8 +402,7 @@ func (c *BloodComponentClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodComponentClient) Interceptors() []Interceptor {
-	inters := c.inters.BloodComponent
-	return append(inters[:len(inters):len(inters)], bloodcomponent.Interceptors[:]...)
+	return c.inters.BloodComponent
 }
 
 func (c *BloodComponentClient) mutate(ctx context.Context, m *BloodComponentMutation) (Value, error) {
@@ -545,22 +528,6 @@ func (c *BloodGroupClient) GetX(ctx context.Context, id int) *BloodGroup {
 	return obj
 }
 
-// QuerySearchRequests queries the search_requests edge of a BloodGroup.
-func (c *BloodGroupClient) QuerySearchRequests(_m *BloodGroup) *BloodSearchRequestQuery {
-	query := (&BloodSearchRequestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodgroup.Table, bloodgroup.FieldID, id),
-			sqlgraph.To(bloodsearchrequest.Table, bloodsearchrequest.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, bloodgroup.SearchRequestsTable, bloodgroup.SearchRequestsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *BloodGroupClient) Hooks() []Hook {
 	return c.hooks.BloodGroup
@@ -568,8 +535,7 @@ func (c *BloodGroupClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodGroupClient) Interceptors() []Interceptor {
-	inters := c.inters.BloodGroup
-	return append(inters[:len(inters):len(inters)], bloodgroup.Interceptors[:]...)
+	return c.inters.BloodGroup
 }
 
 func (c *BloodGroupClient) mutate(ctx context.Context, m *BloodGroupMutation) (Value, error) {
@@ -704,38 +670,6 @@ func (c *BloodSearchRequestClient) QueryPet(_m *BloodSearchRequest) *PetQuery {
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryBloodComponents queries the blood_components edge of a BloodSearchRequest.
-func (c *BloodSearchRequestClient) QueryBloodComponents(_m *BloodSearchRequest) *BloodComponentQuery {
-	query := (&BloodComponentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, id),
-			sqlgraph.To(bloodcomponent.Table, bloodcomponent.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, bloodsearchrequest.BloodComponentsTable, bloodsearchrequest.BloodComponentsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryBloodGroup queries the blood_group edge of a BloodSearchRequest.
-func (c *BloodSearchRequestClient) QueryBloodGroup(_m *BloodSearchRequest) *BloodGroupQuery {
-	query := (&BloodGroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, id),
-			sqlgraph.To(bloodgroup.Table, bloodgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, bloodsearchrequest.BloodGroupTable, bloodsearchrequest.BloodGroupColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -900,8 +834,7 @@ func (c *BreedClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BreedClient) Interceptors() []Interceptor {
-	inters := c.inters.Breed
-	return append(inters[:len(inters):len(inters)], breed.Interceptors[:]...)
+	return c.inters.Breed
 }
 
 func (c *BreedClient) mutate(ctx context.Context, m *BreedMutation) (Value, error) {
@@ -1050,8 +983,7 @@ func (c *LocationClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *LocationClient) Interceptors() []Interceptor {
-	inters := c.inters.Location
-	return append(inters[:len(inters):len(inters)], location.Interceptors[:]...)
+	return c.inters.Location
 }
 
 func (c *LocationClient) mutate(ctx context.Context, m *LocationMutation) (Value, error) {

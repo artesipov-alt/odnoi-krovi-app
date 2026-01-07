@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 )
@@ -36,8 +35,10 @@ type BloodSearchRequest struct {
 	Description string `json:"description"`
 	// PhotoUrls holds the value of the "photo_urls" field.
 	PhotoUrls []string `json:"photoUrls"`
-	// BloodGroupID holds the value of the "blood_group_id" field.
-	BloodGroupID int `json:"bloodGroupId"`
+	// BloodGroupIds holds the value of the "blood_group_ids" field.
+	BloodGroupIds []int `json:"bloodGroupIds"`
+	// BloodComponentIds holds the value of the "blood_component_ids" field.
+	BloodComponentIds []string `json:"bloodComponentIds"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -54,13 +55,9 @@ type BloodSearchRequest struct {
 type BloodSearchRequestEdges struct {
 	// Pet holds the value of the pet edge.
 	Pet *Pet `json:"pet,omitempty"`
-	// BloodComponents holds the value of the blood_components edge.
-	BloodComponents []*BloodComponent `json:"bloodComponents"`
-	// BloodGroup holds the value of the blood_group edge.
-	BloodGroup *BloodGroup `json:"blood_group,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [1]bool
 }
 
 // PetOrErr returns the Pet value or an error if the edge
@@ -74,36 +71,16 @@ func (e BloodSearchRequestEdges) PetOrErr() (*Pet, error) {
 	return nil, &NotLoadedError{edge: "pet"}
 }
 
-// BloodComponentsOrErr returns the BloodComponents value or an error if the edge
-// was not loaded in eager-loading.
-func (e BloodSearchRequestEdges) BloodComponentsOrErr() ([]*BloodComponent, error) {
-	if e.loadedTypes[1] {
-		return e.BloodComponents, nil
-	}
-	return nil, &NotLoadedError{edge: "blood_components"}
-}
-
-// BloodGroupOrErr returns the BloodGroup value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e BloodSearchRequestEdges) BloodGroupOrErr() (*BloodGroup, error) {
-	if e.BloodGroup != nil {
-		return e.BloodGroup, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: bloodgroup.Label}
-	}
-	return nil, &NotLoadedError{edge: "blood_group"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls:
+		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls, bloodsearchrequest.FieldBloodGroupIds, bloodsearchrequest.FieldBloodComponentIds:
 			values[i] = new([]byte)
 		case bloodsearchrequest.FieldSmallPetsNotifyAllowed:
 			values[i] = new(sql.NullBool)
-		case bloodsearchrequest.FieldBloodVolumeNeeded, bloodsearchrequest.FieldBloodVolumeReserved, bloodsearchrequest.FieldBloodGroupID:
+		case bloodsearchrequest.FieldBloodVolumeNeeded, bloodsearchrequest.FieldBloodVolumeReserved:
 			values[i] = new(sql.NullInt64)
 		case bloodsearchrequest.FieldID, bloodsearchrequest.FieldPetID, bloodsearchrequest.FieldStatus, bloodsearchrequest.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -182,11 +159,21 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 					return fmt.Errorf("unmarshal field photo_urls: %w", err)
 				}
 			}
-		case bloodsearchrequest.FieldBloodGroupID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field blood_group_id", values[i])
-			} else if value.Valid {
-				_m.BloodGroupID = int(value.Int64)
+		case bloodsearchrequest.FieldBloodGroupIds:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field blood_group_ids", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.BloodGroupIds); err != nil {
+					return fmt.Errorf("unmarshal field blood_group_ids: %w", err)
+				}
+			}
+		case bloodsearchrequest.FieldBloodComponentIds:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field blood_component_ids", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.BloodComponentIds); err != nil {
+					return fmt.Errorf("unmarshal field blood_component_ids: %w", err)
+				}
 			}
 		case bloodsearchrequest.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -223,16 +210,6 @@ func (_m *BloodSearchRequest) Value(name string) (ent.Value, error) {
 // QueryPet queries the "pet" edge of the BloodSearchRequest entity.
 func (_m *BloodSearchRequest) QueryPet() *PetQuery {
 	return NewBloodSearchRequestClient(_m.config).QueryPet(_m)
-}
-
-// QueryBloodComponents queries the "blood_components" edge of the BloodSearchRequest entity.
-func (_m *BloodSearchRequest) QueryBloodComponents() *BloodComponentQuery {
-	return NewBloodSearchRequestClient(_m.config).QueryBloodComponents(_m)
-}
-
-// QueryBloodGroup queries the "blood_group" edge of the BloodSearchRequest entity.
-func (_m *BloodSearchRequest) QueryBloodGroup() *BloodGroupQuery {
-	return NewBloodSearchRequestClient(_m.config).QueryBloodGroup(_m)
 }
 
 // Update returns a builder for updating this BloodSearchRequest.
@@ -282,8 +259,11 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString("photo_urls=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
 	builder.WriteString(", ")
-	builder.WriteString("blood_group_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BloodGroupID))
+	builder.WriteString("blood_group_ids=")
+	builder.WriteString(fmt.Sprintf("%v", _m.BloodGroupIds))
+	builder.WriteString(", ")
+	builder.WriteString("blood_component_ids=")
+	builder.WriteString(fmt.Sprintf("%v", _m.BloodComponentIds))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

@@ -5,7 +5,6 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -14,43 +13,16 @@ import (
 
 // BloodGroup is the model entity for the BloodGroup schema.
 type BloodGroup struct {
-	config `json:"-" swaggerignore:"-"`
+	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int `json:"id"`
 	// PetType holds the value of the "pet_type" field.
 	PetType bloodgroup.PetType `json:"petType"`
 	// BloodGroup holds the value of the "blood_group" field.
 	BloodGroup string `json:"bloodGroup"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the BloodGroupQuery when eager-loading is set.
-	Edges        BloodGroupEdges `json:"edges"`
+	Description  string `json:"description"`
 	selectValues sql.SelectValues
-}
-
-// BloodGroupEdges holds the relations/edges for other nodes in the graph.
-type BloodGroupEdges struct {
-	// SearchRequests holds the value of the search_requests edge.
-	SearchRequests []*BloodSearchRequest `json:"search_requests,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-}
-
-// SearchRequestsOrErr returns the SearchRequests value or an error if the edge
-// was not loaded in eager-loading.
-func (e BloodGroupEdges) SearchRequestsOrErr() ([]*BloodSearchRequest, error) {
-	if e.loadedTypes[0] {
-		return e.SearchRequests, nil
-	}
-	return nil, &NotLoadedError{edge: "search_requests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -62,8 +34,6 @@ func (*BloodGroup) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case bloodgroup.FieldPetType, bloodgroup.FieldBloodGroup, bloodgroup.FieldDescription:
 			values[i] = new(sql.NullString)
-		case bloodgroup.FieldCreatedAt, bloodgroup.FieldUpdatedAt, bloodgroup.FieldDeletedAt:
-			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -103,25 +73,6 @@ func (_m *BloodGroup) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Description = value.String
 			}
-		case bloodgroup.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				_m.CreatedAt = value.Time
-			}
-		case bloodgroup.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				_m.UpdatedAt = value.Time
-			}
-		case bloodgroup.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				_m.DeletedAt = new(time.Time)
-				*_m.DeletedAt = value.Time
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -133,11 +84,6 @@ func (_m *BloodGroup) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *BloodGroup) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
-}
-
-// QuerySearchRequests queries the "search_requests" edge of the BloodGroup entity.
-func (_m *BloodGroup) QuerySearchRequests() *BloodSearchRequestQuery {
-	return NewBloodGroupClient(_m.config).QuerySearchRequests(_m)
 }
 
 // Update returns a builder for updating this BloodGroup.
@@ -171,17 +117,6 @@ func (_m *BloodGroup) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)
-	builder.WriteString(", ")
-	builder.WriteString("created_at=")
-	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := _m.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteByte(')')
 	return builder.String()
 }

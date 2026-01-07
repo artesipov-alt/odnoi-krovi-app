@@ -10,8 +10,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 )
@@ -103,17 +101,15 @@ func (_c *BloodSearchRequestCreate) SetPhotoUrls(v []string) *BloodSearchRequest
 	return _c
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (_c *BloodSearchRequestCreate) SetBloodGroupID(v int) *BloodSearchRequestCreate {
-	_c.mutation.SetBloodGroupID(v)
+// SetBloodGroupIds sets the "blood_group_ids" field.
+func (_c *BloodSearchRequestCreate) SetBloodGroupIds(v []int) *BloodSearchRequestCreate {
+	_c.mutation.SetBloodGroupIds(v)
 	return _c
 }
 
-// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
-func (_c *BloodSearchRequestCreate) SetNillableBloodGroupID(v *int) *BloodSearchRequestCreate {
-	if v != nil {
-		_c.SetBloodGroupID(*v)
-	}
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []string) *BloodSearchRequestCreate {
+	_c.mutation.SetBloodComponentIds(v)
 	return _c
 }
 
@@ -176,26 +172,6 @@ func (_c *BloodSearchRequestCreate) SetNillableID(v *string) *BloodSearchRequest
 // SetPet sets the "pet" edge to the Pet entity.
 func (_c *BloodSearchRequestCreate) SetPet(v *Pet) *BloodSearchRequestCreate {
 	return _c.SetPetID(v.ID)
-}
-
-// AddBloodComponentIDs adds the "blood_components" edge to the BloodComponent entity by IDs.
-func (_c *BloodSearchRequestCreate) AddBloodComponentIDs(ids ...int) *BloodSearchRequestCreate {
-	_c.mutation.AddBloodComponentIDs(ids...)
-	return _c
-}
-
-// AddBloodComponents adds the "blood_components" edges to the BloodComponent entity.
-func (_c *BloodSearchRequestCreate) AddBloodComponents(v ...*BloodComponent) *BloodSearchRequestCreate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _c.AddBloodComponentIDs(ids...)
-}
-
-// SetBloodGroup sets the "blood_group" edge to the BloodGroup entity.
-func (_c *BloodSearchRequestCreate) SetBloodGroup(v *BloodGroup) *BloodSearchRequestCreate {
-	return _c.SetBloodGroupID(v.ID)
 }
 
 // Mutation returns the BloodSearchRequestMutation object of the builder.
@@ -356,6 +332,14 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_spec.SetField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON, value)
 		_node.PhotoUrls = value
 	}
+	if value, ok := _c.mutation.BloodGroupIds(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON, value)
+		_node.BloodGroupIds = value
+	}
+	if value, ok := _c.mutation.BloodComponentIds(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)
+		_node.BloodComponentIds = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(bloodsearchrequest.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -383,39 +367,6 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.PetID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.BloodComponentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.BloodGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   bloodsearchrequest.BloodGroupTable,
-			Columns: []string{bloodsearchrequest.BloodGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.BloodGroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

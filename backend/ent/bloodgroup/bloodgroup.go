@@ -4,11 +4,8 @@ package bloodgroup
 
 import (
 	"fmt"
-	"time"
 
-	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -22,23 +19,8 @@ const (
 	FieldBloodGroup = "blood_group"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
-	// EdgeSearchRequests holds the string denoting the search_requests edge name in mutations.
-	EdgeSearchRequests = "search_requests"
 	// Table holds the table name of the bloodgroup in the database.
 	Table = "blood_groups"
-	// SearchRequestsTable is the table that holds the search_requests relation/edge.
-	SearchRequestsTable = "blood_search_requests"
-	// SearchRequestsInverseTable is the table name for the BloodSearchRequest entity.
-	// It exists in this package in order to avoid circular dependency with the "bloodsearchrequest" package.
-	SearchRequestsInverseTable = "blood_search_requests"
-	// SearchRequestsColumn is the table column denoting the search_requests relation/edge.
-	SearchRequestsColumn = "blood_group_id"
 )
 
 // Columns holds all SQL columns for bloodgroup fields.
@@ -47,9 +29,6 @@ var Columns = []string{
 	FieldPetType,
 	FieldBloodGroup,
 	FieldDescription,
-	FieldCreatedAt,
-	FieldUpdatedAt,
-	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -62,21 +41,9 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-// Note that the variables below are initialized by the runtime
-// package on the initialization of the application. Therefore,
-// it should be imported in the main as follows:
-//
-//	import _ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 var (
-	Interceptors [1]ent.Interceptor
 	// BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
 	BloodGroupValidator func(string) error
-	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
-	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
-	DefaultUpdatedAt func() time.Time
-	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
-	UpdateDefaultUpdatedAt func() time.Time
 )
 
 // PetType defines the type for the "pet_type" enum field.
@@ -123,40 +90,4 @@ func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
-}
-
-// BySearchRequestsCount orders the results by search_requests count.
-func BySearchRequestsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSearchRequestsStep(), opts...)
-	}
-}
-
-// BySearchRequests orders the results by search_requests terms.
-func BySearchRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSearchRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newSearchRequestsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SearchRequestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, SearchRequestsTable, SearchRequestsColumn),
-	)
 }

@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -27,45 +26,9 @@ func (_c *LocationCreate) SetName(v string) *LocationCreate {
 	return _c
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (_c *LocationCreate) SetCreatedAt(v time.Time) *LocationCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *LocationCreate) SetNillableCreatedAt(v *time.Time) *LocationCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *LocationCreate) SetUpdatedAt(v time.Time) *LocationCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *LocationCreate) SetNillableUpdatedAt(v *time.Time) *LocationCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *LocationCreate) SetDeletedAt(v time.Time) *LocationCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *LocationCreate) SetNillableDeletedAt(v *time.Time) *LocationCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
-	}
+// SetID sets the "id" field.
+func (_c *LocationCreate) SetID(v int) *LocationCreate {
+	_c.mutation.SetID(v)
 	return _c
 }
 
@@ -91,7 +54,6 @@ func (_c *LocationCreate) Mutation() *LocationMutation {
 
 // Save creates the Location in the database.
 func (_c *LocationCreate) Save(ctx context.Context) (*Location, error) {
-	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -117,18 +79,6 @@ func (_c *LocationCreate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (_c *LocationCreate) defaults() {
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		v := location.DefaultCreatedAt()
-		_c.mutation.SetCreatedAt(v)
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		v := location.DefaultUpdatedAt()
-		_c.mutation.SetUpdatedAt(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (_c *LocationCreate) check() error {
 	if _, ok := _c.mutation.Name(); !ok {
@@ -138,12 +88,6 @@ func (_c *LocationCreate) check() error {
 		if err := location.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Location.name": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Location.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Location.updated_at"`)}
 	}
 	return nil
 }
@@ -159,8 +103,10 @@ func (_c *LocationCreate) sqlSave(ctx context.Context) (*Location, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -171,21 +117,13 @@ func (_c *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 		_node = &Location{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(location.Table, sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(location.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(location.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(location.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(location.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -224,7 +162,6 @@ func (_c *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LocationMutation)
 				if !ok {
@@ -251,7 +188,7 @@ func (_c *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

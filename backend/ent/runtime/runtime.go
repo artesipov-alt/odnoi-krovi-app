@@ -23,12 +23,10 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	bloodcomponentInters := schema.BloodComponent{}.Interceptors()
-	bloodcomponent.Interceptors[0] = bloodcomponentInters[0]
 	bloodcomponentFields := schema.BloodComponent{}.Fields()
 	_ = bloodcomponentFields
 	// bloodcomponentDescName is the schema descriptor for name field.
-	bloodcomponentDescName := bloodcomponentFields[0].Descriptor()
+	bloodcomponentDescName := bloodcomponentFields[1].Descriptor()
 	// bloodcomponent.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	bloodcomponent.NameValidator = func() func(string) error {
 		validators := bloodcomponentDescName.Validators
@@ -45,22 +43,10 @@ func init() {
 			return nil
 		}
 	}()
-	// bloodcomponentDescCreatedAt is the schema descriptor for created_at field.
-	bloodcomponentDescCreatedAt := bloodcomponentFields[1].Descriptor()
-	// bloodcomponent.DefaultCreatedAt holds the default value on creation for the created_at field.
-	bloodcomponent.DefaultCreatedAt = bloodcomponentDescCreatedAt.Default.(func() time.Time)
-	// bloodcomponentDescUpdatedAt is the schema descriptor for updated_at field.
-	bloodcomponentDescUpdatedAt := bloodcomponentFields[2].Descriptor()
-	// bloodcomponent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	bloodcomponent.DefaultUpdatedAt = bloodcomponentDescUpdatedAt.Default.(func() time.Time)
-	// bloodcomponent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	bloodcomponent.UpdateDefaultUpdatedAt = bloodcomponentDescUpdatedAt.UpdateDefault.(func() time.Time)
-	bloodgroupInters := schema.BloodGroup{}.Interceptors()
-	bloodgroup.Interceptors[0] = bloodgroupInters[0]
 	bloodgroupFields := schema.BloodGroup{}.Fields()
 	_ = bloodgroupFields
 	// bloodgroupDescBloodGroup is the schema descriptor for blood_group field.
-	bloodgroupDescBloodGroup := bloodgroupFields[1].Descriptor()
+	bloodgroupDescBloodGroup := bloodgroupFields[2].Descriptor()
 	// bloodgroup.BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
 	bloodgroup.BloodGroupValidator = func() func(string) error {
 		validators := bloodgroupDescBloodGroup.Validators
@@ -77,16 +63,6 @@ func init() {
 			return nil
 		}
 	}()
-	// bloodgroupDescCreatedAt is the schema descriptor for created_at field.
-	bloodgroupDescCreatedAt := bloodgroupFields[3].Descriptor()
-	// bloodgroup.DefaultCreatedAt holds the default value on creation for the created_at field.
-	bloodgroup.DefaultCreatedAt = bloodgroupDescCreatedAt.Default.(func() time.Time)
-	// bloodgroupDescUpdatedAt is the schema descriptor for updated_at field.
-	bloodgroupDescUpdatedAt := bloodgroupFields[4].Descriptor()
-	// bloodgroup.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	bloodgroup.DefaultUpdatedAt = bloodgroupDescUpdatedAt.Default.(func() time.Time)
-	// bloodgroup.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	bloodgroup.UpdateDefaultUpdatedAt = bloodgroupDescUpdatedAt.UpdateDefault.(func() time.Time)
 	bloodsearchrequestInters := schema.BloodSearchRequest{}.Interceptors()
 	bloodsearchrequest.Interceptors[0] = bloodsearchrequestInters[0]
 	bloodsearchrequestFields := schema.BloodSearchRequest{}.Fields()
@@ -100,11 +76,11 @@ func init() {
 	// bloodsearchrequest.DefaultSmallPetsNotifyAllowed holds the default value on creation for the small_pets_notify_allowed field.
 	bloodsearchrequest.DefaultSmallPetsNotifyAllowed = bloodsearchrequestDescSmallPetsNotifyAllowed.Default.(bool)
 	// bloodsearchrequestDescCreatedAt is the schema descriptor for created_at field.
-	bloodsearchrequestDescCreatedAt := bloodsearchrequestFields[10].Descriptor()
+	bloodsearchrequestDescCreatedAt := bloodsearchrequestFields[11].Descriptor()
 	// bloodsearchrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
 	bloodsearchrequest.DefaultCreatedAt = bloodsearchrequestDescCreatedAt.Default.(func() time.Time)
 	// bloodsearchrequestDescUpdatedAt is the schema descriptor for updated_at field.
-	bloodsearchrequestDescUpdatedAt := bloodsearchrequestFields[11].Descriptor()
+	bloodsearchrequestDescUpdatedAt := bloodsearchrequestFields[12].Descriptor()
 	// bloodsearchrequest.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	bloodsearchrequest.DefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.Default.(func() time.Time)
 	// bloodsearchrequest.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -113,8 +89,6 @@ func init() {
 	bloodsearchrequestDescID := bloodsearchrequestFields[0].Descriptor()
 	// bloodsearchrequest.DefaultID holds the default value on creation for the id field.
 	bloodsearchrequest.DefaultID = bloodsearchrequestDescID.Default.(func() string)
-	breedInters := schema.Breed{}.Interceptors()
-	breed.Interceptors[0] = breedInters[0]
 	breedFields := schema.Breed{}.Fields()
 	_ = breedFields
 	// breedDescName is the schema descriptor for name field.
@@ -135,22 +109,10 @@ func init() {
 			return nil
 		}
 	}()
-	// breedDescCreatedAt is the schema descriptor for created_at field.
-	breedDescCreatedAt := breedFields[3].Descriptor()
-	// breed.DefaultCreatedAt holds the default value on creation for the created_at field.
-	breed.DefaultCreatedAt = breedDescCreatedAt.Default.(func() time.Time)
-	// breedDescUpdatedAt is the schema descriptor for updated_at field.
-	breedDescUpdatedAt := breedFields[4].Descriptor()
-	// breed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	breed.DefaultUpdatedAt = breedDescUpdatedAt.Default.(func() time.Time)
-	// breed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	breed.UpdateDefaultUpdatedAt = breedDescUpdatedAt.UpdateDefault.(func() time.Time)
-	locationInters := schema.Location{}.Interceptors()
-	location.Interceptors[0] = locationInters[0]
 	locationFields := schema.Location{}.Fields()
 	_ = locationFields
 	// locationDescName is the schema descriptor for name field.
-	locationDescName := locationFields[0].Descriptor()
+	locationDescName := locationFields[1].Descriptor()
 	// location.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	location.NameValidator = func() func(string) error {
 		validators := locationDescName.Validators
@@ -167,16 +129,6 @@ func init() {
 			return nil
 		}
 	}()
-	// locationDescCreatedAt is the schema descriptor for created_at field.
-	locationDescCreatedAt := locationFields[1].Descriptor()
-	// location.DefaultCreatedAt holds the default value on creation for the created_at field.
-	location.DefaultCreatedAt = locationDescCreatedAt.Default.(func() time.Time)
-	// locationDescUpdatedAt is the schema descriptor for updated_at field.
-	locationDescUpdatedAt := locationFields[2].Descriptor()
-	// location.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	location.DefaultUpdatedAt = locationDescUpdatedAt.Default.(func() time.Time)
-	// location.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	location.UpdateDefaultUpdatedAt = locationDescUpdatedAt.UpdateDefault.(func() time.Time)
 	petInters := schema.Pet{}.Interceptors()
 	pet.Interceptors[0] = petInters[0]
 	petFields := schema.Pet{}.Fields()

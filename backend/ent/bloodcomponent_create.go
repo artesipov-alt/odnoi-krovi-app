@@ -6,12 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 )
 
 // BloodComponentCreate is the builder for creating a BloodComponent entity.
@@ -27,61 +25,10 @@ func (_c *BloodComponentCreate) SetName(v string) *BloodComponentCreate {
 	return _c
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (_c *BloodComponentCreate) SetCreatedAt(v time.Time) *BloodComponentCreate {
-	_c.mutation.SetCreatedAt(v)
+// SetID sets the "id" field.
+func (_c *BloodComponentCreate) SetID(v int) *BloodComponentCreate {
+	_c.mutation.SetID(v)
 	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *BloodComponentCreate) SetNillableCreatedAt(v *time.Time) *BloodComponentCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *BloodComponentCreate) SetUpdatedAt(v time.Time) *BloodComponentCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *BloodComponentCreate) SetNillableUpdatedAt(v *time.Time) *BloodComponentCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *BloodComponentCreate) SetDeletedAt(v time.Time) *BloodComponentCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *BloodComponentCreate) SetNillableDeletedAt(v *time.Time) *BloodComponentCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
-	}
-	return _c
-}
-
-// AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by IDs.
-func (_c *BloodComponentCreate) AddSearchRequestIDs(ids ...string) *BloodComponentCreate {
-	_c.mutation.AddSearchRequestIDs(ids...)
-	return _c
-}
-
-// AddSearchRequests adds the "search_requests" edges to the BloodSearchRequest entity.
-func (_c *BloodComponentCreate) AddSearchRequests(v ...*BloodSearchRequest) *BloodComponentCreate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _c.AddSearchRequestIDs(ids...)
 }
 
 // Mutation returns the BloodComponentMutation object of the builder.
@@ -91,7 +38,6 @@ func (_c *BloodComponentCreate) Mutation() *BloodComponentMutation {
 
 // Save creates the BloodComponent in the database.
 func (_c *BloodComponentCreate) Save(ctx context.Context) (*BloodComponent, error) {
-	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -117,18 +63,6 @@ func (_c *BloodComponentCreate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (_c *BloodComponentCreate) defaults() {
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		v := bloodcomponent.DefaultCreatedAt()
-		_c.mutation.SetCreatedAt(v)
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		v := bloodcomponent.DefaultUpdatedAt()
-		_c.mutation.SetUpdatedAt(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (_c *BloodComponentCreate) check() error {
 	if _, ok := _c.mutation.Name(); !ok {
@@ -138,12 +72,6 @@ func (_c *BloodComponentCreate) check() error {
 		if err := bloodcomponent.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "BloodComponent.name": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "BloodComponent.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "BloodComponent.updated_at"`)}
 	}
 	return nil
 }
@@ -159,8 +87,10 @@ func (_c *BloodComponentCreate) sqlSave(ctx context.Context) (*BloodComponent, e
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -171,37 +101,13 @@ func (_c *BloodComponentCreate) createSpec() (*BloodComponent, *sqlgraph.CreateS
 		_node = &BloodComponent{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bloodcomponent.Table, sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt))
 	)
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(bloodcomponent.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(bloodcomponent.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodcomponent.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodcomponent.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
-	}
-	if nodes := _c.mutation.SearchRequestsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   bloodcomponent.SearchRequestsTable,
-			Columns: bloodcomponent.SearchRequestsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -224,7 +130,6 @@ func (_c *BloodComponentCreateBulk) Save(ctx context.Context) ([]*BloodComponent
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BloodComponentMutation)
 				if !ok {
@@ -251,7 +156,7 @@ func (_c *BloodComponentCreateBulk) Save(ctx context.Context) ([]*BloodComponent
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

@@ -3,11 +3,7 @@
 package bloodcomponent
 
 import (
-	"time"
-
-	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -17,37 +13,15 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
-	// EdgeSearchRequests holds the string denoting the search_requests edge name in mutations.
-	EdgeSearchRequests = "search_requests"
 	// Table holds the table name of the bloodcomponent in the database.
 	Table = "blood_components"
-	// SearchRequestsTable is the table that holds the search_requests relation/edge. The primary key declared below.
-	SearchRequestsTable = "blood_search_request_blood_components"
-	// SearchRequestsInverseTable is the table name for the BloodSearchRequest entity.
-	// It exists in this package in order to avoid circular dependency with the "bloodsearchrequest" package.
-	SearchRequestsInverseTable = "blood_search_requests"
 )
 
 // Columns holds all SQL columns for bloodcomponent fields.
 var Columns = []string{
 	FieldID,
 	FieldName,
-	FieldCreatedAt,
-	FieldUpdatedAt,
-	FieldDeletedAt,
 }
-
-var (
-	// SearchRequestsPrimaryKey and SearchRequestsColumn2 are the table columns denoting the
-	// primary key for the search_requests relation (M2M).
-	SearchRequestsPrimaryKey = []string{"blood_search_request_id", "blood_component_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -59,21 +33,9 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-// Note that the variables below are initialized by the runtime
-// package on the initialization of the application. Therefore,
-// it should be imported in the main as follows:
-//
-//	import _ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 var (
-	Interceptors [1]ent.Interceptor
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
-	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
-	DefaultUpdatedAt func() time.Time
-	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
-	UpdateDefaultUpdatedAt func() time.Time
 )
 
 // OrderOption defines the ordering options for the BloodComponent queries.
@@ -87,40 +49,4 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
-}
-
-// BySearchRequestsCount orders the results by search_requests count.
-func BySearchRequestsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newSearchRequestsStep(), opts...)
-	}
-}
-
-// BySearchRequests orders the results by search_requests terms.
-func BySearchRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSearchRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newSearchRequestsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SearchRequestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, SearchRequestsTable, SearchRequestsPrimaryKey...),
-	)
 }

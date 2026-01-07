@@ -50,20 +50,14 @@ const (
 // BloodComponentMutation represents an operation that mutates the BloodComponent nodes in the graph.
 type BloodComponentMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *int
-	name                   *string
-	created_at             *time.Time
-	updated_at             *time.Time
-	deleted_at             *time.Time
-	clearedFields          map[string]struct{}
-	search_requests        map[string]struct{}
-	removedsearch_requests map[string]struct{}
-	clearedsearch_requests bool
-	done                   bool
-	oldValue               func(context.Context) (*BloodComponent, error)
-	predicates             []predicate.BloodComponent
+	op            Op
+	typ           string
+	id            *int
+	name          *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*BloodComponent, error)
+	predicates    []predicate.BloodComponent
 }
 
 var _ ent.Mutation = (*BloodComponentMutation)(nil)
@@ -136,6 +130,12 @@ func (m BloodComponentMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of BloodComponent entities.
+func (m *BloodComponentMutation) SetID(id int) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
 func (m *BloodComponentMutation) ID() (id int, exists bool) {
@@ -200,181 +200,6 @@ func (m *BloodComponentMutation) ResetName() {
 	m.name = nil
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (m *BloodComponentMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *BloodComponentMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the BloodComponent entity.
-// If the BloodComponent object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodComponentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *BloodComponentMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *BloodComponentMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *BloodComponentMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the BloodComponent entity.
-// If the BloodComponent object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodComponentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *BloodComponentMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *BloodComponentMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *BloodComponentMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the BloodComponent entity.
-// If the BloodComponent object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodComponentMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *BloodComponentMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[bloodcomponent.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *BloodComponentMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[bloodcomponent.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *BloodComponentMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, bloodcomponent.FieldDeletedAt)
-}
-
-// AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by ids.
-func (m *BloodComponentMutation) AddSearchRequestIDs(ids ...string) {
-	if m.search_requests == nil {
-		m.search_requests = make(map[string]struct{})
-	}
-	for i := range ids {
-		m.search_requests[ids[i]] = struct{}{}
-	}
-}
-
-// ClearSearchRequests clears the "search_requests" edge to the BloodSearchRequest entity.
-func (m *BloodComponentMutation) ClearSearchRequests() {
-	m.clearedsearch_requests = true
-}
-
-// SearchRequestsCleared reports if the "search_requests" edge to the BloodSearchRequest entity was cleared.
-func (m *BloodComponentMutation) SearchRequestsCleared() bool {
-	return m.clearedsearch_requests
-}
-
-// RemoveSearchRequestIDs removes the "search_requests" edge to the BloodSearchRequest entity by IDs.
-func (m *BloodComponentMutation) RemoveSearchRequestIDs(ids ...string) {
-	if m.removedsearch_requests == nil {
-		m.removedsearch_requests = make(map[string]struct{})
-	}
-	for i := range ids {
-		delete(m.search_requests, ids[i])
-		m.removedsearch_requests[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedSearchRequests returns the removed IDs of the "search_requests" edge to the BloodSearchRequest entity.
-func (m *BloodComponentMutation) RemovedSearchRequestsIDs() (ids []string) {
-	for id := range m.removedsearch_requests {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// SearchRequestsIDs returns the "search_requests" edge IDs in the mutation.
-func (m *BloodComponentMutation) SearchRequestsIDs() (ids []string) {
-	for id := range m.search_requests {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetSearchRequests resets all changes to the "search_requests" edge.
-func (m *BloodComponentMutation) ResetSearchRequests() {
-	m.search_requests = nil
-	m.clearedsearch_requests = false
-	m.removedsearch_requests = nil
-}
-
 // Where appends a list predicates to the BloodComponentMutation builder.
 func (m *BloodComponentMutation) Where(ps ...predicate.BloodComponent) {
 	m.predicates = append(m.predicates, ps...)
@@ -409,18 +234,9 @@ func (m *BloodComponentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BloodComponentMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 1)
 	if m.name != nil {
 		fields = append(fields, bloodcomponent.FieldName)
-	}
-	if m.created_at != nil {
-		fields = append(fields, bloodcomponent.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, bloodcomponent.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, bloodcomponent.FieldDeletedAt)
 	}
 	return fields
 }
@@ -432,12 +248,6 @@ func (m *BloodComponentMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case bloodcomponent.FieldName:
 		return m.Name()
-	case bloodcomponent.FieldCreatedAt:
-		return m.CreatedAt()
-	case bloodcomponent.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case bloodcomponent.FieldDeletedAt:
-		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -449,12 +259,6 @@ func (m *BloodComponentMutation) OldField(ctx context.Context, name string) (ent
 	switch name {
 	case bloodcomponent.FieldName:
 		return m.OldName(ctx)
-	case bloodcomponent.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case bloodcomponent.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case bloodcomponent.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown BloodComponent field %s", name)
 }
@@ -470,27 +274,6 @@ func (m *BloodComponentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
-		return nil
-	case bloodcomponent.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case bloodcomponent.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case bloodcomponent.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown BloodComponent field %s", name)
@@ -521,11 +304,7 @@ func (m *BloodComponentMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *BloodComponentMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(bloodcomponent.FieldDeletedAt) {
-		fields = append(fields, bloodcomponent.FieldDeletedAt)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -538,11 +317,6 @@ func (m *BloodComponentMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BloodComponentMutation) ClearField(name string) error {
-	switch name {
-	case bloodcomponent.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	}
 	return fmt.Errorf("unknown BloodComponent nullable field %s", name)
 }
 
@@ -553,122 +327,71 @@ func (m *BloodComponentMutation) ResetField(name string) error {
 	case bloodcomponent.FieldName:
 		m.ResetName()
 		return nil
-	case bloodcomponent.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case bloodcomponent.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case bloodcomponent.FieldDeletedAt:
-		m.ResetDeletedAt()
-		return nil
 	}
 	return fmt.Errorf("unknown BloodComponent field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BloodComponentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.search_requests != nil {
-		edges = append(edges, bloodcomponent.EdgeSearchRequests)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *BloodComponentMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case bloodcomponent.EdgeSearchRequests:
-		ids := make([]ent.Value, 0, len(m.search_requests))
-		for id := range m.search_requests {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodComponentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.removedsearch_requests != nil {
-		edges = append(edges, bloodcomponent.EdgeSearchRequests)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BloodComponentMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case bloodcomponent.EdgeSearchRequests:
-		ids := make([]ent.Value, 0, len(m.removedsearch_requests))
-		for id := range m.removedsearch_requests {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BloodComponentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedsearch_requests {
-		edges = append(edges, bloodcomponent.EdgeSearchRequests)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *BloodComponentMutation) EdgeCleared(name string) bool {
-	switch name {
-	case bloodcomponent.EdgeSearchRequests:
-		return m.clearedsearch_requests
-	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *BloodComponentMutation) ClearEdge(name string) error {
-	switch name {
-	}
 	return fmt.Errorf("unknown BloodComponent unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *BloodComponentMutation) ResetEdge(name string) error {
-	switch name {
-	case bloodcomponent.EdgeSearchRequests:
-		m.ResetSearchRequests()
-		return nil
-	}
 	return fmt.Errorf("unknown BloodComponent edge %s", name)
 }
 
 // BloodGroupMutation represents an operation that mutates the BloodGroup nodes in the graph.
 type BloodGroupMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *int
-	pet_type               *bloodgroup.PetType
-	blood_group            *string
-	description            *string
-	created_at             *time.Time
-	updated_at             *time.Time
-	deleted_at             *time.Time
-	clearedFields          map[string]struct{}
-	search_requests        map[string]struct{}
-	removedsearch_requests map[string]struct{}
-	clearedsearch_requests bool
-	done                   bool
-	oldValue               func(context.Context) (*BloodGroup, error)
-	predicates             []predicate.BloodGroup
+	op            Op
+	typ           string
+	id            *int
+	pet_type      *bloodgroup.PetType
+	blood_group   *string
+	description   *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*BloodGroup, error)
+	predicates    []predicate.BloodGroup
 }
 
 var _ ent.Mutation = (*BloodGroupMutation)(nil)
@@ -739,6 +462,12 @@ func (m BloodGroupMutation) Tx() (*Tx, error) {
 	tx := &Tx{config: m.config}
 	tx.init()
 	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of BloodGroup entities.
+func (m *BloodGroupMutation) SetID(id int) {
+	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
@@ -890,181 +619,6 @@ func (m *BloodGroupMutation) ResetDescription() {
 	delete(m.clearedFields, bloodgroup.FieldDescription)
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (m *BloodGroupMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *BloodGroupMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the BloodGroup entity.
-// If the BloodGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodGroupMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *BloodGroupMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *BloodGroupMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *BloodGroupMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the BloodGroup entity.
-// If the BloodGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodGroupMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *BloodGroupMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *BloodGroupMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *BloodGroupMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the BloodGroup entity.
-// If the BloodGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodGroupMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *BloodGroupMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[bloodgroup.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *BloodGroupMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[bloodgroup.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *BloodGroupMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, bloodgroup.FieldDeletedAt)
-}
-
-// AddSearchRequestIDs adds the "search_requests" edge to the BloodSearchRequest entity by ids.
-func (m *BloodGroupMutation) AddSearchRequestIDs(ids ...string) {
-	if m.search_requests == nil {
-		m.search_requests = make(map[string]struct{})
-	}
-	for i := range ids {
-		m.search_requests[ids[i]] = struct{}{}
-	}
-}
-
-// ClearSearchRequests clears the "search_requests" edge to the BloodSearchRequest entity.
-func (m *BloodGroupMutation) ClearSearchRequests() {
-	m.clearedsearch_requests = true
-}
-
-// SearchRequestsCleared reports if the "search_requests" edge to the BloodSearchRequest entity was cleared.
-func (m *BloodGroupMutation) SearchRequestsCleared() bool {
-	return m.clearedsearch_requests
-}
-
-// RemoveSearchRequestIDs removes the "search_requests" edge to the BloodSearchRequest entity by IDs.
-func (m *BloodGroupMutation) RemoveSearchRequestIDs(ids ...string) {
-	if m.removedsearch_requests == nil {
-		m.removedsearch_requests = make(map[string]struct{})
-	}
-	for i := range ids {
-		delete(m.search_requests, ids[i])
-		m.removedsearch_requests[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedSearchRequests returns the removed IDs of the "search_requests" edge to the BloodSearchRequest entity.
-func (m *BloodGroupMutation) RemovedSearchRequestsIDs() (ids []string) {
-	for id := range m.removedsearch_requests {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// SearchRequestsIDs returns the "search_requests" edge IDs in the mutation.
-func (m *BloodGroupMutation) SearchRequestsIDs() (ids []string) {
-	for id := range m.search_requests {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetSearchRequests resets all changes to the "search_requests" edge.
-func (m *BloodGroupMutation) ResetSearchRequests() {
-	m.search_requests = nil
-	m.clearedsearch_requests = false
-	m.removedsearch_requests = nil
-}
-
 // Where appends a list predicates to the BloodGroupMutation builder.
 func (m *BloodGroupMutation) Where(ps ...predicate.BloodGroup) {
 	m.predicates = append(m.predicates, ps...)
@@ -1099,7 +653,7 @@ func (m *BloodGroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BloodGroupMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 3)
 	if m.pet_type != nil {
 		fields = append(fields, bloodgroup.FieldPetType)
 	}
@@ -1108,15 +662,6 @@ func (m *BloodGroupMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, bloodgroup.FieldDescription)
-	}
-	if m.created_at != nil {
-		fields = append(fields, bloodgroup.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, bloodgroup.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, bloodgroup.FieldDeletedAt)
 	}
 	return fields
 }
@@ -1132,12 +677,6 @@ func (m *BloodGroupMutation) Field(name string) (ent.Value, bool) {
 		return m.BloodGroup()
 	case bloodgroup.FieldDescription:
 		return m.Description()
-	case bloodgroup.FieldCreatedAt:
-		return m.CreatedAt()
-	case bloodgroup.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case bloodgroup.FieldDeletedAt:
-		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -1153,12 +692,6 @@ func (m *BloodGroupMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldBloodGroup(ctx)
 	case bloodgroup.FieldDescription:
 		return m.OldDescription(ctx)
-	case bloodgroup.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case bloodgroup.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case bloodgroup.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown BloodGroup field %s", name)
 }
@@ -1188,27 +721,6 @@ func (m *BloodGroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDescription(v)
-		return nil
-	case bloodgroup.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case bloodgroup.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case bloodgroup.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown BloodGroup field %s", name)
@@ -1243,9 +755,6 @@ func (m *BloodGroupMutation) ClearedFields() []string {
 	if m.FieldCleared(bloodgroup.FieldDescription) {
 		fields = append(fields, bloodgroup.FieldDescription)
 	}
-	if m.FieldCleared(bloodgroup.FieldDeletedAt) {
-		fields = append(fields, bloodgroup.FieldDeletedAt)
-	}
 	return fields
 }
 
@@ -1262,9 +771,6 @@ func (m *BloodGroupMutation) ClearField(name string) error {
 	switch name {
 	case bloodgroup.FieldDescription:
 		m.ClearDescription()
-		return nil
-	case bloodgroup.FieldDeletedAt:
-		m.ClearDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown BloodGroup nullable field %s", name)
@@ -1283,100 +789,55 @@ func (m *BloodGroupMutation) ResetField(name string) error {
 	case bloodgroup.FieldDescription:
 		m.ResetDescription()
 		return nil
-	case bloodgroup.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case bloodgroup.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case bloodgroup.FieldDeletedAt:
-		m.ResetDeletedAt()
-		return nil
 	}
 	return fmt.Errorf("unknown BloodGroup field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BloodGroupMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.search_requests != nil {
-		edges = append(edges, bloodgroup.EdgeSearchRequests)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *BloodGroupMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case bloodgroup.EdgeSearchRequests:
-		ids := make([]ent.Value, 0, len(m.search_requests))
-		for id := range m.search_requests {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodGroupMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.removedsearch_requests != nil {
-		edges = append(edges, bloodgroup.EdgeSearchRequests)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BloodGroupMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case bloodgroup.EdgeSearchRequests:
-		ids := make([]ent.Value, 0, len(m.removedsearch_requests))
-		for id := range m.removedsearch_requests {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BloodGroupMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedsearch_requests {
-		edges = append(edges, bloodgroup.EdgeSearchRequests)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *BloodGroupMutation) EdgeCleared(name string) bool {
-	switch name {
-	case bloodgroup.EdgeSearchRequests:
-		return m.clearedsearch_requests
-	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *BloodGroupMutation) ClearEdge(name string) error {
-	switch name {
-	}
 	return fmt.Errorf("unknown BloodGroup unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *BloodGroupMutation) ResetEdge(name string) error {
-	switch name {
-	case bloodgroup.EdgeSearchRequests:
-		m.ResetSearchRequests()
-		return nil
-	}
 	return fmt.Errorf("unknown BloodGroup edge %s", name)
 }
 
@@ -1397,17 +858,16 @@ type BloodSearchRequestMutation struct {
 	description               *string
 	photo_urls                *[]string
 	appendphoto_urls          []string
+	blood_group_ids           *[]int
+	appendblood_group_ids     []int
+	blood_component_ids       *[]string
+	appendblood_component_ids []string
 	created_at                *time.Time
 	updated_at                *time.Time
 	deleted_at                *time.Time
 	clearedFields             map[string]struct{}
 	pet                       *string
 	clearedpet                bool
-	blood_components          map[int]struct{}
-	removedblood_components   map[int]struct{}
-	clearedblood_components   bool
-	blood_group               *int
-	clearedblood_group        bool
 	done                      bool
 	oldValue                  func(context.Context) (*BloodSearchRequest, error)
 	predicates                []predicate.BloodSearchRequest
@@ -1902,53 +1362,134 @@ func (m *BloodSearchRequestMutation) ResetPhotoUrls() {
 	delete(m.clearedFields, bloodsearchrequest.FieldPhotoUrls)
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (m *BloodSearchRequestMutation) SetBloodGroupID(i int) {
-	m.blood_group = &i
+// SetBloodGroupIds sets the "blood_group_ids" field.
+func (m *BloodSearchRequestMutation) SetBloodGroupIds(i []int) {
+	m.blood_group_ids = &i
+	m.appendblood_group_ids = nil
 }
 
-// BloodGroupID returns the value of the "blood_group_id" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodGroupID() (r int, exists bool) {
-	v := m.blood_group
+// BloodGroupIds returns the value of the "blood_group_ids" field in the mutation.
+func (m *BloodSearchRequestMutation) BloodGroupIds() (r []int, exists bool) {
+	v := m.blood_group_ids
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldBloodGroupID returns the old "blood_group_id" field's value of the BloodSearchRequest entity.
+// OldBloodGroupIds returns the old "blood_group_ids" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodGroupID(ctx context.Context) (v int, err error) {
+func (m *BloodSearchRequestMutation) OldBloodGroupIds(ctx context.Context) (v []int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodGroupID is only allowed on UpdateOne operations")
+		return v, errors.New("OldBloodGroupIds is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodGroupID requires an ID field in the mutation")
+		return v, errors.New("OldBloodGroupIds requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodGroupID: %w", err)
+		return v, fmt.Errorf("querying old value for OldBloodGroupIds: %w", err)
 	}
-	return oldValue.BloodGroupID, nil
+	return oldValue.BloodGroupIds, nil
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (m *BloodSearchRequestMutation) ClearBloodGroupID() {
-	m.blood_group = nil
-	m.clearedFields[bloodsearchrequest.FieldBloodGroupID] = struct{}{}
+// AppendBloodGroupIds adds i to the "blood_group_ids" field.
+func (m *BloodSearchRequestMutation) AppendBloodGroupIds(i []int) {
+	m.appendblood_group_ids = append(m.appendblood_group_ids, i...)
 }
 
-// BloodGroupIDCleared returns if the "blood_group_id" field was cleared in this mutation.
-func (m *BloodSearchRequestMutation) BloodGroupIDCleared() bool {
-	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodGroupID]
+// AppendedBloodGroupIds returns the list of values that were appended to the "blood_group_ids" field in this mutation.
+func (m *BloodSearchRequestMutation) AppendedBloodGroupIds() ([]int, bool) {
+	if len(m.appendblood_group_ids) == 0 {
+		return nil, false
+	}
+	return m.appendblood_group_ids, true
+}
+
+// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
+func (m *BloodSearchRequestMutation) ClearBloodGroupIds() {
+	m.blood_group_ids = nil
+	m.appendblood_group_ids = nil
+	m.clearedFields[bloodsearchrequest.FieldBloodGroupIds] = struct{}{}
+}
+
+// BloodGroupIdsCleared returns if the "blood_group_ids" field was cleared in this mutation.
+func (m *BloodSearchRequestMutation) BloodGroupIdsCleared() bool {
+	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodGroupIds]
 	return ok
 }
 
-// ResetBloodGroupID resets all changes to the "blood_group_id" field.
-func (m *BloodSearchRequestMutation) ResetBloodGroupID() {
-	m.blood_group = nil
-	delete(m.clearedFields, bloodsearchrequest.FieldBloodGroupID)
+// ResetBloodGroupIds resets all changes to the "blood_group_ids" field.
+func (m *BloodSearchRequestMutation) ResetBloodGroupIds() {
+	m.blood_group_ids = nil
+	m.appendblood_group_ids = nil
+	delete(m.clearedFields, bloodsearchrequest.FieldBloodGroupIds)
+}
+
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (m *BloodSearchRequestMutation) SetBloodComponentIds(s []string) {
+	m.blood_component_ids = &s
+	m.appendblood_component_ids = nil
+}
+
+// BloodComponentIds returns the value of the "blood_component_ids" field in the mutation.
+func (m *BloodSearchRequestMutation) BloodComponentIds() (r []string, exists bool) {
+	v := m.blood_component_ids
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBloodComponentIds returns the old "blood_component_ids" field's value of the BloodSearchRequest entity.
+// If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBloodComponentIds is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBloodComponentIds requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBloodComponentIds: %w", err)
+	}
+	return oldValue.BloodComponentIds, nil
+}
+
+// AppendBloodComponentIds adds s to the "blood_component_ids" field.
+func (m *BloodSearchRequestMutation) AppendBloodComponentIds(s []string) {
+	m.appendblood_component_ids = append(m.appendblood_component_ids, s...)
+}
+
+// AppendedBloodComponentIds returns the list of values that were appended to the "blood_component_ids" field in this mutation.
+func (m *BloodSearchRequestMutation) AppendedBloodComponentIds() ([]string, bool) {
+	if len(m.appendblood_component_ids) == 0 {
+		return nil, false
+	}
+	return m.appendblood_component_ids, true
+}
+
+// ClearBloodComponentIds clears the value of the "blood_component_ids" field.
+func (m *BloodSearchRequestMutation) ClearBloodComponentIds() {
+	m.blood_component_ids = nil
+	m.appendblood_component_ids = nil
+	m.clearedFields[bloodsearchrequest.FieldBloodComponentIds] = struct{}{}
+}
+
+// BloodComponentIdsCleared returns if the "blood_component_ids" field was cleared in this mutation.
+func (m *BloodSearchRequestMutation) BloodComponentIdsCleared() bool {
+	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodComponentIds]
+	return ok
+}
+
+// ResetBloodComponentIds resets all changes to the "blood_component_ids" field.
+func (m *BloodSearchRequestMutation) ResetBloodComponentIds() {
+	m.blood_component_ids = nil
+	m.appendblood_component_ids = nil
+	delete(m.clearedFields, bloodsearchrequest.FieldBloodComponentIds)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -2099,87 +1640,6 @@ func (m *BloodSearchRequestMutation) ResetPet() {
 	m.clearedpet = false
 }
 
-// AddBloodComponentIDs adds the "blood_components" edge to the BloodComponent entity by ids.
-func (m *BloodSearchRequestMutation) AddBloodComponentIDs(ids ...int) {
-	if m.blood_components == nil {
-		m.blood_components = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.blood_components[ids[i]] = struct{}{}
-	}
-}
-
-// ClearBloodComponents clears the "blood_components" edge to the BloodComponent entity.
-func (m *BloodSearchRequestMutation) ClearBloodComponents() {
-	m.clearedblood_components = true
-}
-
-// BloodComponentsCleared reports if the "blood_components" edge to the BloodComponent entity was cleared.
-func (m *BloodSearchRequestMutation) BloodComponentsCleared() bool {
-	return m.clearedblood_components
-}
-
-// RemoveBloodComponentIDs removes the "blood_components" edge to the BloodComponent entity by IDs.
-func (m *BloodSearchRequestMutation) RemoveBloodComponentIDs(ids ...int) {
-	if m.removedblood_components == nil {
-		m.removedblood_components = make(map[int]struct{})
-	}
-	for i := range ids {
-		delete(m.blood_components, ids[i])
-		m.removedblood_components[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedBloodComponents returns the removed IDs of the "blood_components" edge to the BloodComponent entity.
-func (m *BloodSearchRequestMutation) RemovedBloodComponentsIDs() (ids []int) {
-	for id := range m.removedblood_components {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// BloodComponentsIDs returns the "blood_components" edge IDs in the mutation.
-func (m *BloodSearchRequestMutation) BloodComponentsIDs() (ids []int) {
-	for id := range m.blood_components {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetBloodComponents resets all changes to the "blood_components" edge.
-func (m *BloodSearchRequestMutation) ResetBloodComponents() {
-	m.blood_components = nil
-	m.clearedblood_components = false
-	m.removedblood_components = nil
-}
-
-// ClearBloodGroup clears the "blood_group" edge to the BloodGroup entity.
-func (m *BloodSearchRequestMutation) ClearBloodGroup() {
-	m.clearedblood_group = true
-	m.clearedFields[bloodsearchrequest.FieldBloodGroupID] = struct{}{}
-}
-
-// BloodGroupCleared reports if the "blood_group" edge to the BloodGroup entity was cleared.
-func (m *BloodSearchRequestMutation) BloodGroupCleared() bool {
-	return m.BloodGroupIDCleared() || m.clearedblood_group
-}
-
-// BloodGroupIDs returns the "blood_group" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// BloodGroupID instead. It exists only for internal usage by the builders.
-func (m *BloodSearchRequestMutation) BloodGroupIDs() (ids []int) {
-	if id := m.blood_group; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetBloodGroup resets all changes to the "blood_group" edge.
-func (m *BloodSearchRequestMutation) ResetBloodGroup() {
-	m.blood_group = nil
-	m.clearedblood_group = false
-}
-
 // Where appends a list predicates to the BloodSearchRequestMutation builder.
 func (m *BloodSearchRequestMutation) Where(ps ...predicate.BloodSearchRequest) {
 	m.predicates = append(m.predicates, ps...)
@@ -2214,7 +1674,7 @@ func (m *BloodSearchRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BloodSearchRequestMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.pet != nil {
 		fields = append(fields, bloodsearchrequest.FieldPetID)
 	}
@@ -2239,8 +1699,11 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	if m.photo_urls != nil {
 		fields = append(fields, bloodsearchrequest.FieldPhotoUrls)
 	}
-	if m.blood_group != nil {
-		fields = append(fields, bloodsearchrequest.FieldBloodGroupID)
+	if m.blood_group_ids != nil {
+		fields = append(fields, bloodsearchrequest.FieldBloodGroupIds)
+	}
+	if m.blood_component_ids != nil {
+		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
 	}
 	if m.created_at != nil {
 		fields = append(fields, bloodsearchrequest.FieldCreatedAt)
@@ -2275,8 +1738,10 @@ func (m *BloodSearchRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case bloodsearchrequest.FieldPhotoUrls:
 		return m.PhotoUrls()
-	case bloodsearchrequest.FieldBloodGroupID:
-		return m.BloodGroupID()
+	case bloodsearchrequest.FieldBloodGroupIds:
+		return m.BloodGroupIds()
+	case bloodsearchrequest.FieldBloodComponentIds:
+		return m.BloodComponentIds()
 	case bloodsearchrequest.FieldCreatedAt:
 		return m.CreatedAt()
 	case bloodsearchrequest.FieldUpdatedAt:
@@ -2308,8 +1773,10 @@ func (m *BloodSearchRequestMutation) OldField(ctx context.Context, name string) 
 		return m.OldDescription(ctx)
 	case bloodsearchrequest.FieldPhotoUrls:
 		return m.OldPhotoUrls(ctx)
-	case bloodsearchrequest.FieldBloodGroupID:
-		return m.OldBloodGroupID(ctx)
+	case bloodsearchrequest.FieldBloodGroupIds:
+		return m.OldBloodGroupIds(ctx)
+	case bloodsearchrequest.FieldBloodComponentIds:
+		return m.OldBloodComponentIds(ctx)
 	case bloodsearchrequest.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case bloodsearchrequest.FieldUpdatedAt:
@@ -2381,12 +1848,19 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetPhotoUrls(v)
 		return nil
-	case bloodsearchrequest.FieldBloodGroupID:
-		v, ok := value.(int)
+	case bloodsearchrequest.FieldBloodGroupIds:
+		v, ok := value.([]int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBloodGroupID(v)
+		m.SetBloodGroupIds(v)
+		return nil
+	case bloodsearchrequest.FieldBloodComponentIds:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBloodComponentIds(v)
 		return nil
 	case bloodsearchrequest.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -2472,8 +1946,11 @@ func (m *BloodSearchRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(bloodsearchrequest.FieldPhotoUrls) {
 		fields = append(fields, bloodsearchrequest.FieldPhotoUrls)
 	}
-	if m.FieldCleared(bloodsearchrequest.FieldBloodGroupID) {
-		fields = append(fields, bloodsearchrequest.FieldBloodGroupID)
+	if m.FieldCleared(bloodsearchrequest.FieldBloodGroupIds) {
+		fields = append(fields, bloodsearchrequest.FieldBloodGroupIds)
+	}
+	if m.FieldCleared(bloodsearchrequest.FieldBloodComponentIds) {
+		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
 	}
 	if m.FieldCleared(bloodsearchrequest.FieldDeletedAt) {
 		fields = append(fields, bloodsearchrequest.FieldDeletedAt)
@@ -2498,8 +1975,11 @@ func (m *BloodSearchRequestMutation) ClearField(name string) error {
 	case bloodsearchrequest.FieldPhotoUrls:
 		m.ClearPhotoUrls()
 		return nil
-	case bloodsearchrequest.FieldBloodGroupID:
-		m.ClearBloodGroupID()
+	case bloodsearchrequest.FieldBloodGroupIds:
+		m.ClearBloodGroupIds()
+		return nil
+	case bloodsearchrequest.FieldBloodComponentIds:
+		m.ClearBloodComponentIds()
 		return nil
 	case bloodsearchrequest.FieldDeletedAt:
 		m.ClearDeletedAt()
@@ -2536,8 +2016,11 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 	case bloodsearchrequest.FieldPhotoUrls:
 		m.ResetPhotoUrls()
 		return nil
-	case bloodsearchrequest.FieldBloodGroupID:
-		m.ResetBloodGroupID()
+	case bloodsearchrequest.FieldBloodGroupIds:
+		m.ResetBloodGroupIds()
+		return nil
+	case bloodsearchrequest.FieldBloodComponentIds:
+		m.ResetBloodComponentIds()
 		return nil
 	case bloodsearchrequest.FieldCreatedAt:
 		m.ResetCreatedAt()
@@ -2554,15 +2037,9 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BloodSearchRequestMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 1)
 	if m.pet != nil {
 		edges = append(edges, bloodsearchrequest.EdgePet)
-	}
-	if m.blood_components != nil {
-		edges = append(edges, bloodsearchrequest.EdgeBloodComponents)
-	}
-	if m.blood_group != nil {
-		edges = append(edges, bloodsearchrequest.EdgeBloodGroup)
 	}
 	return edges
 }
@@ -2575,54 +2052,27 @@ func (m *BloodSearchRequestMutation) AddedIDs(name string) []ent.Value {
 		if id := m.pet; id != nil {
 			return []ent.Value{*id}
 		}
-	case bloodsearchrequest.EdgeBloodComponents:
-		ids := make([]ent.Value, 0, len(m.blood_components))
-		for id := range m.blood_components {
-			ids = append(ids, id)
-		}
-		return ids
-	case bloodsearchrequest.EdgeBloodGroup:
-		if id := m.blood_group; id != nil {
-			return []ent.Value{*id}
-		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodSearchRequestMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.removedblood_components != nil {
-		edges = append(edges, bloodsearchrequest.EdgeBloodComponents)
-	}
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BloodSearchRequestMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case bloodsearchrequest.EdgeBloodComponents:
-		ids := make([]ent.Value, 0, len(m.removedblood_components))
-		for id := range m.removedblood_components {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BloodSearchRequestMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 1)
 	if m.clearedpet {
 		edges = append(edges, bloodsearchrequest.EdgePet)
-	}
-	if m.clearedblood_components {
-		edges = append(edges, bloodsearchrequest.EdgeBloodComponents)
-	}
-	if m.clearedblood_group {
-		edges = append(edges, bloodsearchrequest.EdgeBloodGroup)
 	}
 	return edges
 }
@@ -2633,10 +2083,6 @@ func (m *BloodSearchRequestMutation) EdgeCleared(name string) bool {
 	switch name {
 	case bloodsearchrequest.EdgePet:
 		return m.clearedpet
-	case bloodsearchrequest.EdgeBloodComponents:
-		return m.clearedblood_components
-	case bloodsearchrequest.EdgeBloodGroup:
-		return m.clearedblood_group
 	}
 	return false
 }
@@ -2648,9 +2094,6 @@ func (m *BloodSearchRequestMutation) ClearEdge(name string) error {
 	case bloodsearchrequest.EdgePet:
 		m.ClearPet()
 		return nil
-	case bloodsearchrequest.EdgeBloodGroup:
-		m.ClearBloodGroup()
-		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest unique edge %s", name)
 }
@@ -2661,12 +2104,6 @@ func (m *BloodSearchRequestMutation) ResetEdge(name string) error {
 	switch name {
 	case bloodsearchrequest.EdgePet:
 		m.ResetPet()
-		return nil
-	case bloodsearchrequest.EdgeBloodComponents:
-		m.ResetBloodComponents()
-		return nil
-	case bloodsearchrequest.EdgeBloodGroup:
-		m.ResetBloodGroup()
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest edge %s", name)
@@ -2680,9 +2117,6 @@ type BreedMutation struct {
 	id            *int
 	name          *string
 	_type         *breed.Type
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	pets          map[string]struct{}
 	removedpets   map[string]struct{}
@@ -2868,127 +2302,6 @@ func (m *BreedMutation) ResetType() {
 	m._type = nil
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (m *BreedMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *BreedMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the Breed entity.
-// If the Breed object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BreedMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *BreedMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *BreedMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *BreedMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the Breed entity.
-// If the Breed object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BreedMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *BreedMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *BreedMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *BreedMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the Breed entity.
-// If the Breed object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BreedMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *BreedMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[breed.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *BreedMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[breed.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *BreedMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, breed.FieldDeletedAt)
-}
-
 // AddPetIDs adds the "pets" edge to the Pet entity by ids.
 func (m *BreedMutation) AddPetIDs(ids ...string) {
 	if m.pets == nil {
@@ -3077,21 +2390,12 @@ func (m *BreedMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BreedMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 2)
 	if m.name != nil {
 		fields = append(fields, breed.FieldName)
 	}
 	if m._type != nil {
 		fields = append(fields, breed.FieldType)
-	}
-	if m.created_at != nil {
-		fields = append(fields, breed.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, breed.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, breed.FieldDeletedAt)
 	}
 	return fields
 }
@@ -3105,12 +2409,6 @@ func (m *BreedMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case breed.FieldType:
 		return m.GetType()
-	case breed.FieldCreatedAt:
-		return m.CreatedAt()
-	case breed.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case breed.FieldDeletedAt:
-		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -3124,12 +2422,6 @@ func (m *BreedMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldName(ctx)
 	case breed.FieldType:
 		return m.OldType(ctx)
-	case breed.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case breed.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case breed.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Breed field %s", name)
 }
@@ -3152,27 +2444,6 @@ func (m *BreedMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetType(v)
-		return nil
-	case breed.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case breed.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case breed.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Breed field %s", name)
@@ -3203,11 +2474,7 @@ func (m *BreedMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *BreedMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(breed.FieldDeletedAt) {
-		fields = append(fields, breed.FieldDeletedAt)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3220,11 +2487,6 @@ func (m *BreedMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BreedMutation) ClearField(name string) error {
-	switch name {
-	case breed.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	}
 	return fmt.Errorf("unknown Breed nullable field %s", name)
 }
 
@@ -3237,15 +2499,6 @@ func (m *BreedMutation) ResetField(name string) error {
 		return nil
 	case breed.FieldType:
 		m.ResetType()
-		return nil
-	case breed.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case breed.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case breed.FieldDeletedAt:
-		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Breed field %s", name)
@@ -3342,9 +2595,6 @@ type LocationMutation struct {
 	typ           string
 	id            *int
 	name          *string
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	users         map[string]struct{}
 	removedusers  map[string]struct{}
@@ -3424,6 +2674,12 @@ func (m LocationMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Location entities.
+func (m *LocationMutation) SetID(id int) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
 func (m *LocationMutation) ID() (id int, exists bool) {
@@ -3486,127 +2742,6 @@ func (m *LocationMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *LocationMutation) ResetName() {
 	m.name = nil
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *LocationMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *LocationMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the Location entity.
-// If the Location object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *LocationMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *LocationMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *LocationMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the Location entity.
-// If the Location object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *LocationMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *LocationMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *LocationMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the Location entity.
-// If the Location object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LocationMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *LocationMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[location.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *LocationMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[location.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *LocationMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, location.FieldDeletedAt)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
@@ -3697,18 +2832,9 @@ func (m *LocationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LocationMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 1)
 	if m.name != nil {
 		fields = append(fields, location.FieldName)
-	}
-	if m.created_at != nil {
-		fields = append(fields, location.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, location.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, location.FieldDeletedAt)
 	}
 	return fields
 }
@@ -3720,12 +2846,6 @@ func (m *LocationMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case location.FieldName:
 		return m.Name()
-	case location.FieldCreatedAt:
-		return m.CreatedAt()
-	case location.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case location.FieldDeletedAt:
-		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -3737,12 +2857,6 @@ func (m *LocationMutation) OldField(ctx context.Context, name string) (ent.Value
 	switch name {
 	case location.FieldName:
 		return m.OldName(ctx)
-	case location.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case location.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case location.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Location field %s", name)
 }
@@ -3758,27 +2872,6 @@ func (m *LocationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
-		return nil
-	case location.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case location.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case location.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Location field %s", name)
@@ -3809,11 +2902,7 @@ func (m *LocationMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *LocationMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(location.FieldDeletedAt) {
-		fields = append(fields, location.FieldDeletedAt)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3826,11 +2915,6 @@ func (m *LocationMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *LocationMutation) ClearField(name string) error {
-	switch name {
-	case location.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	}
 	return fmt.Errorf("unknown Location nullable field %s", name)
 }
 
@@ -3840,15 +2924,6 @@ func (m *LocationMutation) ResetField(name string) error {
 	switch name {
 	case location.FieldName:
 		m.ResetName()
-		return nil
-	case location.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case location.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case location.FieldDeletedAt:
-		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Location field %s", name)

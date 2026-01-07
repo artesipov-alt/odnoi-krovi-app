@@ -12,8 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -166,23 +164,39 @@ func (_u *BloodSearchRequestUpdate) ClearPhotoUrls() *BloodSearchRequestUpdate {
 	return _u
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (_u *BloodSearchRequestUpdate) SetBloodGroupID(v int) *BloodSearchRequestUpdate {
-	_u.mutation.SetBloodGroupID(v)
+// SetBloodGroupIds sets the "blood_group_ids" field.
+func (_u *BloodSearchRequestUpdate) SetBloodGroupIds(v []int) *BloodSearchRequestUpdate {
+	_u.mutation.SetBloodGroupIds(v)
 	return _u
 }
 
-// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdate) SetNillableBloodGroupID(v *int) *BloodSearchRequestUpdate {
-	if v != nil {
-		_u.SetBloodGroupID(*v)
-	}
+// AppendBloodGroupIds appends value to the "blood_group_ids" field.
+func (_u *BloodSearchRequestUpdate) AppendBloodGroupIds(v []int) *BloodSearchRequestUpdate {
+	_u.mutation.AppendBloodGroupIds(v)
 	return _u
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (_u *BloodSearchRequestUpdate) ClearBloodGroupID() *BloodSearchRequestUpdate {
-	_u.mutation.ClearBloodGroupID()
+// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
+func (_u *BloodSearchRequestUpdate) ClearBloodGroupIds() *BloodSearchRequestUpdate {
+	_u.mutation.ClearBloodGroupIds()
+	return _u
+}
+
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (_u *BloodSearchRequestUpdate) SetBloodComponentIds(v []string) *BloodSearchRequestUpdate {
+	_u.mutation.SetBloodComponentIds(v)
+	return _u
+}
+
+// AppendBloodComponentIds appends value to the "blood_component_ids" field.
+func (_u *BloodSearchRequestUpdate) AppendBloodComponentIds(v []string) *BloodSearchRequestUpdate {
+	_u.mutation.AppendBloodComponentIds(v)
+	return _u
+}
+
+// ClearBloodComponentIds clears the value of the "blood_component_ids" field.
+func (_u *BloodSearchRequestUpdate) ClearBloodComponentIds() *BloodSearchRequestUpdate {
+	_u.mutation.ClearBloodComponentIds()
 	return _u
 }
 
@@ -217,26 +231,6 @@ func (_u *BloodSearchRequestUpdate) SetPet(v *Pet) *BloodSearchRequestUpdate {
 	return _u.SetPetID(v.ID)
 }
 
-// AddBloodComponentIDs adds the "blood_components" edge to the BloodComponent entity by IDs.
-func (_u *BloodSearchRequestUpdate) AddBloodComponentIDs(ids ...int) *BloodSearchRequestUpdate {
-	_u.mutation.AddBloodComponentIDs(ids...)
-	return _u
-}
-
-// AddBloodComponents adds the "blood_components" edges to the BloodComponent entity.
-func (_u *BloodSearchRequestUpdate) AddBloodComponents(v ...*BloodComponent) *BloodSearchRequestUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddBloodComponentIDs(ids...)
-}
-
-// SetBloodGroup sets the "blood_group" edge to the BloodGroup entity.
-func (_u *BloodSearchRequestUpdate) SetBloodGroup(v *BloodGroup) *BloodSearchRequestUpdate {
-	return _u.SetBloodGroupID(v.ID)
-}
-
 // Mutation returns the BloodSearchRequestMutation object of the builder.
 func (_u *BloodSearchRequestUpdate) Mutation() *BloodSearchRequestMutation {
 	return _u.mutation
@@ -245,33 +239,6 @@ func (_u *BloodSearchRequestUpdate) Mutation() *BloodSearchRequestMutation {
 // ClearPet clears the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdate) ClearPet() *BloodSearchRequestUpdate {
 	_u.mutation.ClearPet()
-	return _u
-}
-
-// ClearBloodComponents clears all "blood_components" edges to the BloodComponent entity.
-func (_u *BloodSearchRequestUpdate) ClearBloodComponents() *BloodSearchRequestUpdate {
-	_u.mutation.ClearBloodComponents()
-	return _u
-}
-
-// RemoveBloodComponentIDs removes the "blood_components" edge to BloodComponent entities by IDs.
-func (_u *BloodSearchRequestUpdate) RemoveBloodComponentIDs(ids ...int) *BloodSearchRequestUpdate {
-	_u.mutation.RemoveBloodComponentIDs(ids...)
-	return _u
-}
-
-// RemoveBloodComponents removes "blood_components" edges to BloodComponent entities.
-func (_u *BloodSearchRequestUpdate) RemoveBloodComponents(v ...*BloodComponent) *BloodSearchRequestUpdate {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveBloodComponentIDs(ids...)
-}
-
-// ClearBloodGroup clears the "blood_group" edge to the BloodGroup entity.
-func (_u *BloodSearchRequestUpdate) ClearBloodGroup() *BloodSearchRequestUpdate {
-	_u.mutation.ClearBloodGroup()
 	return _u
 }
 
@@ -379,6 +346,28 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	if _u.mutation.PhotoUrlsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.BloodGroupIds(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedBloodGroupIds(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, bloodsearchrequest.FieldBloodGroupIds, value)
+		})
+	}
+	if _u.mutation.BloodGroupIdsCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.BloodComponentIds(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedBloodComponentIds(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, bloodsearchrequest.FieldBloodComponentIds, value)
+		})
+	}
+	if _u.mutation.BloodComponentIdsCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
 	}
@@ -410,80 +399,6 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.BloodComponentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedBloodComponentsIDs(); len(nodes) > 0 && !_u.mutation.BloodComponentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.BloodComponentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.BloodGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   bloodsearchrequest.BloodGroupTable,
-			Columns: []string{bloodsearchrequest.BloodGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.BloodGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   bloodsearchrequest.BloodGroupTable,
-			Columns: []string{bloodsearchrequest.BloodGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -645,23 +560,39 @@ func (_u *BloodSearchRequestUpdateOne) ClearPhotoUrls() *BloodSearchRequestUpdat
 	return _u
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodGroupID(v int) *BloodSearchRequestUpdateOne {
-	_u.mutation.SetBloodGroupID(v)
+// SetBloodGroupIds sets the "blood_group_ids" field.
+func (_u *BloodSearchRequestUpdateOne) SetBloodGroupIds(v []int) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetBloodGroupIds(v)
 	return _u
 }
 
-// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdateOne) SetNillableBloodGroupID(v *int) *BloodSearchRequestUpdateOne {
-	if v != nil {
-		_u.SetBloodGroupID(*v)
-	}
+// AppendBloodGroupIds appends value to the "blood_group_ids" field.
+func (_u *BloodSearchRequestUpdateOne) AppendBloodGroupIds(v []int) *BloodSearchRequestUpdateOne {
+	_u.mutation.AppendBloodGroupIds(v)
 	return _u
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupID() *BloodSearchRequestUpdateOne {
-	_u.mutation.ClearBloodGroupID()
+// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
+func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupIds() *BloodSearchRequestUpdateOne {
+	_u.mutation.ClearBloodGroupIds()
+	return _u
+}
+
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (_u *BloodSearchRequestUpdateOne) SetBloodComponentIds(v []string) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetBloodComponentIds(v)
+	return _u
+}
+
+// AppendBloodComponentIds appends value to the "blood_component_ids" field.
+func (_u *BloodSearchRequestUpdateOne) AppendBloodComponentIds(v []string) *BloodSearchRequestUpdateOne {
+	_u.mutation.AppendBloodComponentIds(v)
+	return _u
+}
+
+// ClearBloodComponentIds clears the value of the "blood_component_ids" field.
+func (_u *BloodSearchRequestUpdateOne) ClearBloodComponentIds() *BloodSearchRequestUpdateOne {
+	_u.mutation.ClearBloodComponentIds()
 	return _u
 }
 
@@ -696,26 +627,6 @@ func (_u *BloodSearchRequestUpdateOne) SetPet(v *Pet) *BloodSearchRequestUpdateO
 	return _u.SetPetID(v.ID)
 }
 
-// AddBloodComponentIDs adds the "blood_components" edge to the BloodComponent entity by IDs.
-func (_u *BloodSearchRequestUpdateOne) AddBloodComponentIDs(ids ...int) *BloodSearchRequestUpdateOne {
-	_u.mutation.AddBloodComponentIDs(ids...)
-	return _u
-}
-
-// AddBloodComponents adds the "blood_components" edges to the BloodComponent entity.
-func (_u *BloodSearchRequestUpdateOne) AddBloodComponents(v ...*BloodComponent) *BloodSearchRequestUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddBloodComponentIDs(ids...)
-}
-
-// SetBloodGroup sets the "blood_group" edge to the BloodGroup entity.
-func (_u *BloodSearchRequestUpdateOne) SetBloodGroup(v *BloodGroup) *BloodSearchRequestUpdateOne {
-	return _u.SetBloodGroupID(v.ID)
-}
-
 // Mutation returns the BloodSearchRequestMutation object of the builder.
 func (_u *BloodSearchRequestUpdateOne) Mutation() *BloodSearchRequestMutation {
 	return _u.mutation
@@ -724,33 +635,6 @@ func (_u *BloodSearchRequestUpdateOne) Mutation() *BloodSearchRequestMutation {
 // ClearPet clears the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdateOne) ClearPet() *BloodSearchRequestUpdateOne {
 	_u.mutation.ClearPet()
-	return _u
-}
-
-// ClearBloodComponents clears all "blood_components" edges to the BloodComponent entity.
-func (_u *BloodSearchRequestUpdateOne) ClearBloodComponents() *BloodSearchRequestUpdateOne {
-	_u.mutation.ClearBloodComponents()
-	return _u
-}
-
-// RemoveBloodComponentIDs removes the "blood_components" edge to BloodComponent entities by IDs.
-func (_u *BloodSearchRequestUpdateOne) RemoveBloodComponentIDs(ids ...int) *BloodSearchRequestUpdateOne {
-	_u.mutation.RemoveBloodComponentIDs(ids...)
-	return _u
-}
-
-// RemoveBloodComponents removes "blood_components" edges to BloodComponent entities.
-func (_u *BloodSearchRequestUpdateOne) RemoveBloodComponents(v ...*BloodComponent) *BloodSearchRequestUpdateOne {
-	ids := make([]int, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveBloodComponentIDs(ids...)
-}
-
-// ClearBloodGroup clears the "blood_group" edge to the BloodGroup entity.
-func (_u *BloodSearchRequestUpdateOne) ClearBloodGroup() *BloodSearchRequestUpdateOne {
-	_u.mutation.ClearBloodGroup()
 	return _u
 }
 
@@ -888,6 +772,28 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	if _u.mutation.PhotoUrlsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.BloodGroupIds(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedBloodGroupIds(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, bloodsearchrequest.FieldBloodGroupIds, value)
+		})
+	}
+	if _u.mutation.BloodGroupIdsCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.BloodComponentIds(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedBloodComponentIds(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, bloodsearchrequest.FieldBloodComponentIds, value)
+		})
+	}
+	if _u.mutation.BloodComponentIdsCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
 	}
@@ -919,80 +825,6 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.BloodComponentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedBloodComponentsIDs(); len(nodes) > 0 && !_u.mutation.BloodComponentsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.BloodComponentsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   bloodsearchrequest.BloodComponentsTable,
-			Columns: bloodsearchrequest.BloodComponentsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.BloodGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   bloodsearchrequest.BloodGroupTable,
-			Columns: []string{bloodsearchrequest.BloodGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.BloodGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   bloodsearchrequest.BloodGroupTable,
-			Columns: []string{bloodsearchrequest.BloodGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

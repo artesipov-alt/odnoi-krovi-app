@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,8 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -22,13 +19,11 @@ import (
 // BloodSearchRequestQuery is the builder for querying BloodSearchRequest entities.
 type BloodSearchRequestQuery struct {
 	config
-	ctx                 *QueryContext
-	order               []bloodsearchrequest.OrderOption
-	inters              []Interceptor
-	predicates          []predicate.BloodSearchRequest
-	withPet             *PetQuery
-	withBloodComponents *BloodComponentQuery
-	withBloodGroup      *BloodGroupQuery
+	ctx        *QueryContext
+	order      []bloodsearchrequest.OrderOption
+	inters     []Interceptor
+	predicates []predicate.BloodSearchRequest
+	withPet    *PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -80,50 +75,6 @@ func (_q *BloodSearchRequestQuery) QueryPet() *PetQuery {
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryBloodComponents chains the current query on the "blood_components" edge.
-func (_q *BloodSearchRequestQuery) QueryBloodComponents() *BloodComponentQuery {
-	query := (&BloodComponentClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
-			sqlgraph.To(bloodcomponent.Table, bloodcomponent.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, bloodsearchrequest.BloodComponentsTable, bloodsearchrequest.BloodComponentsPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryBloodGroup chains the current query on the "blood_group" edge.
-func (_q *BloodSearchRequestQuery) QueryBloodGroup() *BloodGroupQuery {
-	query := (&BloodGroupClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
-			sqlgraph.To(bloodgroup.Table, bloodgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, bloodsearchrequest.BloodGroupTable, bloodsearchrequest.BloodGroupColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -318,14 +269,12 @@ func (_q *BloodSearchRequestQuery) Clone() *BloodSearchRequestQuery {
 		return nil
 	}
 	return &BloodSearchRequestQuery{
-		config:              _q.config,
-		ctx:                 _q.ctx.Clone(),
-		order:               append([]bloodsearchrequest.OrderOption{}, _q.order...),
-		inters:              append([]Interceptor{}, _q.inters...),
-		predicates:          append([]predicate.BloodSearchRequest{}, _q.predicates...),
-		withPet:             _q.withPet.Clone(),
-		withBloodComponents: _q.withBloodComponents.Clone(),
-		withBloodGroup:      _q.withBloodGroup.Clone(),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]bloodsearchrequest.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.BloodSearchRequest{}, _q.predicates...),
+		withPet:    _q.withPet.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -340,28 +289,6 @@ func (_q *BloodSearchRequestQuery) WithPet(opts ...func(*PetQuery)) *BloodSearch
 		opt(query)
 	}
 	_q.withPet = query
-	return _q
-}
-
-// WithBloodComponents tells the query-builder to eager-load the nodes that are connected to
-// the "blood_components" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *BloodSearchRequestQuery) WithBloodComponents(opts ...func(*BloodComponentQuery)) *BloodSearchRequestQuery {
-	query := (&BloodComponentClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withBloodComponents = query
-	return _q
-}
-
-// WithBloodGroup tells the query-builder to eager-load the nodes that are connected to
-// the "blood_group" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *BloodSearchRequestQuery) WithBloodGroup(opts ...func(*BloodGroupQuery)) *BloodSearchRequestQuery {
-	query := (&BloodGroupClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withBloodGroup = query
 	return _q
 }
 
@@ -443,10 +370,8 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 	var (
 		nodes       = []*BloodSearchRequest{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [1]bool{
 			_q.withPet != nil,
-			_q.withBloodComponents != nil,
-			_q.withBloodGroup != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -470,21 +395,6 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 	if query := _q.withPet; query != nil {
 		if err := _q.loadPet(ctx, query, nodes, nil,
 			func(n *BloodSearchRequest, e *Pet) { n.Edges.Pet = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withBloodComponents; query != nil {
-		if err := _q.loadBloodComponents(ctx, query, nodes,
-			func(n *BloodSearchRequest) { n.Edges.BloodComponents = []*BloodComponent{} },
-			func(n *BloodSearchRequest, e *BloodComponent) {
-				n.Edges.BloodComponents = append(n.Edges.BloodComponents, e)
-			}); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withBloodGroup; query != nil {
-		if err := _q.loadBloodGroup(ctx, query, nodes, nil,
-			func(n *BloodSearchRequest, e *BloodGroup) { n.Edges.BloodGroup = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -520,96 +430,6 @@ func (_q *BloodSearchRequestQuery) loadPet(ctx context.Context, query *PetQuery,
 	}
 	return nil
 }
-func (_q *BloodSearchRequestQuery) loadBloodComponents(ctx context.Context, query *BloodComponentQuery, nodes []*BloodSearchRequest, init func(*BloodSearchRequest), assign func(*BloodSearchRequest, *BloodComponent)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[string]*BloodSearchRequest)
-	nids := make(map[int]map[*BloodSearchRequest]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(bloodsearchrequest.BloodComponentsTable)
-		s.Join(joinT).On(s.C(bloodcomponent.FieldID), joinT.C(bloodsearchrequest.BloodComponentsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(bloodsearchrequest.BloodComponentsPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(bloodsearchrequest.BloodComponentsPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullString)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := values[0].(*sql.NullString).String
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*BloodSearchRequest]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*BloodComponent](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "blood_components" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
-	}
-	return nil
-}
-func (_q *BloodSearchRequestQuery) loadBloodGroup(ctx context.Context, query *BloodGroupQuery, nodes []*BloodSearchRequest, init func(*BloodSearchRequest), assign func(*BloodSearchRequest, *BloodGroup)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*BloodSearchRequest)
-	for i := range nodes {
-		fk := nodes[i].BloodGroupID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(bloodgroup.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "blood_group_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 
 func (_q *BloodSearchRequestQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -638,9 +458,6 @@ func (_q *BloodSearchRequestQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withPet != nil {
 			_spec.Node.AddColumnOnce(bloodsearchrequest.FieldPetID)
-		}
-		if _q.withBloodGroup != nil {
-			_spec.Node.AddColumnOnce(bloodsearchrequest.FieldBloodGroupID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

@@ -13,9 +13,6 @@ var (
 	BloodComponentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// BloodComponentsTable holds the schema information for the "blood_components" table.
 	BloodComponentsTable = &schema.Table{
@@ -29,9 +26,6 @@ var (
 		{Name: "pet_type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
 		{Name: "blood_group", Type: field.TypeString, Size: 50},
 		{Name: "description", Type: field.TypeString, Nullable: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// BloodGroupsTable holds the schema information for the "blood_groups" table.
 	BloodGroupsTable = &schema.Table{
@@ -49,10 +43,11 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "closed", "draft"}, Default: "active"},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
+		{Name: "blood_group_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "blood_component_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "blood_group_id", Type: field.TypeInt, Nullable: true},
 		{Name: "pet_id", Type: field.TypeString, Unique: true},
 	}
 	// BloodSearchRequestsTable holds the schema information for the "blood_search_requests" table.
@@ -62,14 +57,8 @@ var (
 		PrimaryKey: []*schema.Column{BloodSearchRequestsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "blood_search_requests_blood_groups_search_requests",
-				Columns:    []*schema.Column{BloodSearchRequestsColumns[11]},
-				RefColumns: []*schema.Column{BloodGroupsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
 				Symbol:     "blood_search_requests_pets_blood_search_request",
-				Columns:    []*schema.Column{BloodSearchRequestsColumns[12]},
+				Columns:    []*schema.Column{BloodSearchRequestsColumns[13]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -80,9 +69,6 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// BreedsTable holds the schema information for the "breeds" table.
 	BreedsTable = &schema.Table{
@@ -94,9 +80,6 @@ var (
 	LocationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// LocationsTable holds the schema information for the "locations" table.
 	LocationsTable = &schema.Table{
@@ -288,31 +271,6 @@ var (
 			},
 		},
 	}
-	// BloodSearchRequestBloodComponentsColumns holds the columns for the "blood_search_request_blood_components" table.
-	BloodSearchRequestBloodComponentsColumns = []*schema.Column{
-		{Name: "blood_search_request_id", Type: field.TypeString},
-		{Name: "blood_component_id", Type: field.TypeInt},
-	}
-	// BloodSearchRequestBloodComponentsTable holds the schema information for the "blood_search_request_blood_components" table.
-	BloodSearchRequestBloodComponentsTable = &schema.Table{
-		Name:       "blood_search_request_blood_components",
-		Columns:    BloodSearchRequestBloodComponentsColumns,
-		PrimaryKey: []*schema.Column{BloodSearchRequestBloodComponentsColumns[0], BloodSearchRequestBloodComponentsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "blood_search_request_blood_components_blood_search_request_id",
-				Columns:    []*schema.Column{BloodSearchRequestBloodComponentsColumns[0]},
-				RefColumns: []*schema.Column{BloodSearchRequestsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "blood_search_request_blood_components_blood_component_id",
-				Columns:    []*schema.Column{BloodSearchRequestBloodComponentsColumns[1]},
-				RefColumns: []*schema.Column{BloodComponentsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BloodComponentsTable,
@@ -326,13 +284,11 @@ var (
 		PetHealthsTable,
 		PetTreatmentsTable,
 		UsersTable,
-		BloodSearchRequestBloodComponentsTable,
 	}
 )
 
 func init() {
-	BloodSearchRequestsTable.ForeignKeys[0].RefTable = BloodGroupsTable
-	BloodSearchRequestsTable.ForeignKeys[1].RefTable = PetsTable
+	BloodSearchRequestsTable.ForeignKeys[0].RefTable = PetsTable
 	PetsTable.ForeignKeys[0].RefTable = BreedsTable
 	PetsTable.ForeignKeys[1].RefTable = PetBonusesTable
 	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
@@ -352,6 +308,4 @@ func init() {
 		Table: "pet_treatments",
 	}
 	UsersTable.ForeignKeys[0].RefTable = LocationsTable
-	BloodSearchRequestBloodComponentsTable.ForeignKeys[0].RefTable = BloodSearchRequestsTable
-	BloodSearchRequestBloodComponentsTable.ForeignKeys[1].RefTable = BloodComponentsTable
 }

@@ -90,11 +90,6 @@ func Description(v string) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldDescription, v))
 }
 
-// BloodGroupID applies equality check predicate on the "blood_group_id" field. It's identical to BloodGroupIDEQ.
-func BloodGroupID(v int) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodGroupID, v))
-}
-
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldCreatedAt, v))
@@ -370,34 +365,24 @@ func PhotoUrlsNotNil() predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldPhotoUrls))
 }
 
-// BloodGroupIDEQ applies the EQ predicate on the "blood_group_id" field.
-func BloodGroupIDEQ(v int) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodGroupID, v))
+// BloodGroupIdsIsNil applies the IsNil predicate on the "blood_group_ids" field.
+func BloodGroupIdsIsNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldIsNull(FieldBloodGroupIds))
 }
 
-// BloodGroupIDNEQ applies the NEQ predicate on the "blood_group_id" field.
-func BloodGroupIDNEQ(v int) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldNEQ(FieldBloodGroupID, v))
+// BloodGroupIdsNotNil applies the NotNil predicate on the "blood_group_ids" field.
+func BloodGroupIdsNotNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldBloodGroupIds))
 }
 
-// BloodGroupIDIn applies the In predicate on the "blood_group_id" field.
-func BloodGroupIDIn(vs ...int) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldIn(FieldBloodGroupID, vs...))
+// BloodComponentIdsIsNil applies the IsNil predicate on the "blood_component_ids" field.
+func BloodComponentIdsIsNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldIsNull(FieldBloodComponentIds))
 }
 
-// BloodGroupIDNotIn applies the NotIn predicate on the "blood_group_id" field.
-func BloodGroupIDNotIn(vs ...int) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldNotIn(FieldBloodGroupID, vs...))
-}
-
-// BloodGroupIDIsNil applies the IsNil predicate on the "blood_group_id" field.
-func BloodGroupIDIsNil() predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldIsNull(FieldBloodGroupID))
-}
-
-// BloodGroupIDNotNil applies the NotNil predicate on the "blood_group_id" field.
-func BloodGroupIDNotNil() predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldBloodGroupID))
+// BloodComponentIdsNotNil applies the NotNil predicate on the "blood_component_ids" field.
+func BloodComponentIdsNotNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldBloodComponentIds))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -545,52 +530,6 @@ func HasPet() predicate.BloodSearchRequest {
 func HasPetWith(preds ...predicate.Pet) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(func(s *sql.Selector) {
 		step := newPetStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasBloodComponents applies the HasEdge predicate on the "blood_components" edge.
-func HasBloodComponents() predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, BloodComponentsTable, BloodComponentsPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasBloodComponentsWith applies the HasEdge predicate on the "blood_components" edge with a given conditions (other predicates).
-func HasBloodComponentsWith(preds ...predicate.BloodComponent) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(func(s *sql.Selector) {
-		step := newBloodComponentsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasBloodGroup applies the HasEdge predicate on the "blood_group" edge.
-func HasBloodGroup() predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, BloodGroupTable, BloodGroupColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasBloodGroupWith applies the HasEdge predicate on the "blood_group" edge with a given conditions (other predicates).
-func HasBloodGroupWith(preds ...predicate.BloodGroup) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(func(s *sql.Selector) {
-		step := newBloodGroupStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
