@@ -2383,6 +2383,76 @@ const docTemplate = `{
                 "ReproductiveStatusNone"
             ]
         },
+        "services.PetAnalysisDTO": {
+            "type": "object",
+            "properties": {
+                "anaplasmosisDate": {
+                    "type": "string"
+                },
+                "anaplasmosisType": {
+                    "type": "string"
+                },
+                "babesiosisDate": {
+                    "type": "string"
+                },
+                "babesiosisType": {
+                    "type": "string"
+                },
+                "bartonellosisDate": {
+                    "type": "string"
+                },
+                "bartonellosisType": {
+                    "type": "string"
+                },
+                "dirofilariaDate": {
+                    "type": "string"
+                },
+                "dirofilariaType": {
+                    "type": "string"
+                },
+                "ehrlichiosisDate": {
+                    "type": "string"
+                },
+                "ehrlichiosisType": {
+                    "type": "string"
+                },
+                "hemoplasmosisDate": {
+                    "type": "string"
+                },
+                "hemoplasmosisType": {
+                    "type": "string"
+                },
+                "immunodeficiencyDate": {
+                    "type": "string"
+                },
+                "immunodeficiencyType": {
+                    "type": "string"
+                },
+                "leukemiaDate": {
+                    "type": "string"
+                },
+                "leukemiaType": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.PetBonusDTO": {
+            "type": "object",
+            "properties": {
+                "isArtist": {
+                    "type": "boolean"
+                },
+                "isFormerDonor": {
+                    "type": "boolean"
+                },
+                "isGuideDog": {
+                    "type": "boolean"
+                },
+                "isTherapist": {
+                    "type": "boolean"
+                }
+            }
+        },
         "services.PetCreate": {
             "type": "object",
             "required": [
@@ -2403,7 +2473,7 @@ const docTemplate = `{
                 "analyses": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ent.PetAnalysis"
+                        "$ref": "#/definitions/services.PetAnalysisDTO"
                     }
                 },
                 "birthDate": {
@@ -2414,7 +2484,7 @@ const docTemplate = `{
                     "maxLength": 50
                 },
                 "bonuses": {
-                    "$ref": "#/definitions/ent.PetBonus"
+                    "$ref": "#/definitions/services.PetBonusDTO"
                 },
                 "breedId": {
                     "type": "integer",
@@ -2430,7 +2500,7 @@ const docTemplate = `{
                     "description": "Вложенные структуры (DTO)",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/ent.PetHealth"
+                            "$ref": "#/definitions/services.PetHealthDTO"
                         }
                     ]
                 },
@@ -2450,7 +2520,7 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "treatments": {
-                    "$ref": "#/definitions/ent.PetTreatment"
+                    "$ref": "#/definitions/services.PetTreatmentDTO"
                 },
                 "type": {
                     "$ref": "#/definitions/pet.Type"
@@ -2458,6 +2528,46 @@ const docTemplate = `{
                 "weightKg": {
                     "type": "number",
                     "minimum": 0
+                }
+            }
+        },
+        "services.PetHealthDTO": {
+            "type": "object",
+            "properties": {
+                "healthStatus": {
+                    "type": "string"
+                },
+                "lastDonation": {
+                    "type": "string"
+                },
+                "medications": {
+                    "type": "string"
+                },
+                "reproductiveStatus": {
+                    "type": "string"
+                },
+                "surgicalInterventions": {
+                    "type": "string"
+                },
+                "transfused": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services.PetTreatmentDTO": {
+            "type": "object",
+            "properties": {
+                "dewormingDate": {
+                    "type": "string"
+                },
+                "ectoparasiteTreatmentDate": {
+                    "type": "string"
+                },
+                "infectionVaccinationDate": {
+                    "type": "string"
+                },
+                "rabiesVaccinationDate": {
+                    "type": "string"
                 }
             }
         },
@@ -2476,7 +2586,7 @@ const docTemplate = `{
                 "analyses": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ent.PetAnalysis"
+                        "$ref": "#/definitions/services.PetAnalysisDTO"
                     }
                 },
                 "birthDate": {
@@ -2487,7 +2597,7 @@ const docTemplate = `{
                     "maxLength": 50
                 },
                 "bonuses": {
-                    "$ref": "#/definitions/ent.PetBonus"
+                    "$ref": "#/definitions/services.PetBonusDTO"
                 },
                 "breedId": {
                     "type": "integer",
@@ -2503,7 +2613,7 @@ const docTemplate = `{
                     "description": "Вложенные структуры",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/ent.PetHealth"
+                            "$ref": "#/definitions/services.PetHealthDTO"
                         }
                     ]
                 },
@@ -2528,7 +2638,7 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "treatments": {
-                    "$ref": "#/definitions/ent.PetTreatment"
+                    "$ref": "#/definitions/services.PetTreatmentDTO"
                 },
                 "type": {
                     "$ref": "#/definitions/pet.Type"

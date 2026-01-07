@@ -766,6 +766,52 @@ definitions:
     - ReproductiveStatusLactation
     - ReproductiveStatusEstrus
     - ReproductiveStatusNone
+  services.PetAnalysisDTO:
+    properties:
+      anaplasmosisDate:
+        type: string
+      anaplasmosisType:
+        type: string
+      babesiosisDate:
+        type: string
+      babesiosisType:
+        type: string
+      bartonellosisDate:
+        type: string
+      bartonellosisType:
+        type: string
+      dirofilariaDate:
+        type: string
+      dirofilariaType:
+        type: string
+      ehrlichiosisDate:
+        type: string
+      ehrlichiosisType:
+        type: string
+      hemoplasmosisDate:
+        type: string
+      hemoplasmosisType:
+        type: string
+      immunodeficiencyDate:
+        type: string
+      immunodeficiencyType:
+        type: string
+      leukemiaDate:
+        type: string
+      leukemiaType:
+        type: string
+    type: object
+  services.PetBonusDTO:
+    properties:
+      isArtist:
+        type: boolean
+      isFormerDonor:
+        type: boolean
+      isGuideDog:
+        type: boolean
+      isTherapist:
+        type: boolean
+    type: object
   services.PetCreate:
     properties:
       ageMonths:
@@ -777,7 +823,7 @@ definitions:
         type: integer
       analyses:
         items:
-          $ref: '#/definitions/ent.PetAnalysis'
+          $ref: '#/definitions/services.PetAnalysisDTO'
         type: array
       birthDate:
         type: string
@@ -785,7 +831,7 @@ definitions:
         maxLength: 50
         type: string
       bonuses:
-        $ref: '#/definitions/ent.PetBonus'
+        $ref: '#/definitions/services.PetBonusDTO'
       breedId:
         minimum: 1
         type: integer
@@ -795,7 +841,7 @@ definitions:
         $ref: '#/definitions/pet.Gender'
       health:
         allOf:
-        - $ref: '#/definitions/ent.PetHealth'
+        - $ref: '#/definitions/services.PetHealthDTO'
         description: Вложенные структуры (DTO)
       livingCondition:
         $ref: '#/definitions/pet.LivingCondition'
@@ -809,7 +855,7 @@ definitions:
         maxLength: 255
         type: string
       treatments:
-        $ref: '#/definitions/ent.PetTreatment'
+        $ref: '#/definitions/services.PetTreatmentDTO'
       type:
         $ref: '#/definitions/pet.Type'
       weightKg:
@@ -819,6 +865,32 @@ definitions:
     - name
     - petStatus
     - type
+    type: object
+  services.PetHealthDTO:
+    properties:
+      healthStatus:
+        type: string
+      lastDonation:
+        type: string
+      medications:
+        type: string
+      reproductiveStatus:
+        type: string
+      surgicalInterventions:
+        type: string
+      transfused:
+        type: boolean
+    type: object
+  services.PetTreatmentDTO:
+    properties:
+      dewormingDate:
+        type: string
+      ectoparasiteTreatmentDate:
+        type: string
+      infectionVaccinationDate:
+        type: string
+      rabiesVaccinationDate:
+        type: string
     type: object
   services.PetUpdate:
     properties:
@@ -831,7 +903,7 @@ definitions:
         type: integer
       analyses:
         items:
-          $ref: '#/definitions/ent.PetAnalysis'
+          $ref: '#/definitions/services.PetAnalysisDTO'
         type: array
       birthDate:
         type: string
@@ -839,7 +911,7 @@ definitions:
         maxLength: 50
         type: string
       bonuses:
-        $ref: '#/definitions/ent.PetBonus'
+        $ref: '#/definitions/services.PetBonusDTO'
       breedId:
         minimum: 1
         type: integer
@@ -849,7 +921,7 @@ definitions:
         $ref: '#/definitions/pet.Gender'
       health:
         allOf:
-        - $ref: '#/definitions/ent.PetHealth'
+        - $ref: '#/definitions/services.PetHealthDTO'
         description: Вложенные структуры
       livingCondition:
         $ref: '#/definitions/pet.LivingCondition'
@@ -865,7 +937,7 @@ definitions:
         maxLength: 255
         type: string
       treatments:
-        $ref: '#/definitions/ent.PetTreatment'
+        $ref: '#/definitions/services.PetTreatmentDTO'
       type:
         $ref: '#/definitions/pet.Type'
       weightKg:
