@@ -1,5 +1,11 @@
 package apperrors
 
+import (
+	"fmt"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+)
+
 // Domain-specific errors для переиспользования
 
 // User domain errors
@@ -11,20 +17,28 @@ var (
 	ErrUserEmailInvalid     = BadRequest("неверный формат email")
 	ErrUserConsentRequired  = BadRequest("требуется согласие на обработку персональных данных")
 	ErrUserLocationRequired = BadRequest("местоположение обязательно")
-	ErrUserInvalidRole      = BadRequest("неверная роль пользователя")
+	ErrUserInvalidRole      = BadRequest(fmt.Sprintf("неверная роль пользователя. Доступные роли: %v", enums.GetAllEntUserRoles()))
 )
 
 // Pet domain errors
 var (
 	ErrPetNotFound            = NotFound("питомец не найден")
 	ErrPetNameRequired        = BadRequest("имя питомца обязательно")
-	ErrInvalidPetType         = BadRequest("неверный тип питомца")
-	ErrPetInvalidRole         = BadRequest("неверная роль пользователя")
-	ErrInvalidGender          = BadRequest("неверный пол животного")
-	ErrInvalidLivingCondition = BadRequest("неверные условия проживания")
+	ErrInvalidPetType         = BadRequest(fmt.Sprintf("неверный тип питомца. Доступные типы: %v", enums.GetAllEntPetTypes()))
+	ErrPetInvalidStatus       = BadRequest(fmt.Sprintf("неверный статус питомца. Доступные статусы: %v", enums.GetAllEntPetStatuses()))
+	ErrPetInvalidRole         = BadRequest("неверная роль питомца")
+	ErrInvalidGender          = BadRequest(fmt.Sprintf("неверный пол животного. Доступные значения: %v", enums.GetAllEntGenders()))
+	ErrInvalidLivingCondition = BadRequest(fmt.Sprintf("неверные условия проживания. Доступные значения: %v", enums.GetAllEntLivingConditions()))
 	ErrInvalidWeight          = BadRequest("вес должен быть положительным числом")
 	ErrInvalidAge             = BadRequest("возраст должен быть положительным числом")
 	ErrInvalidAgeMonths       = BadRequest("месяцы должны быть от 0 до 11")
+)
+
+// Pet Health & Analysis errors
+var (
+	ErrInvalidHealthStatus       = BadRequest(fmt.Sprintf("неверный статус здоровья. Доступные статусы: %v", enums.GetAllEntHealthStatuses()))
+	ErrInvalidReproductiveStatus = BadRequest("неверный репродуктивный статус")
+	ErrInvalidAnalysisType       = BadRequest("неверный метод проведения анализа")
 )
 
 // BloodType domain errors

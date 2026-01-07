@@ -3,29 +3,29 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
-// ReferenceHandler обрабатывает HTTP запросы для справочных данных
+// DevHandler обрабатывает HTTP запросы для инструментов разработки и отладки
 type DevHandler struct {
 	userRepo repositories.UserRepository
 }
 
-// NewReferenceHandler создает новый обработчик справочных данных
+// NewDevHandler создает новый обработчик инструментов разработки
 func NewDevHandler(userRepo repositories.UserRepository) *DevHandler {
 	return &DevHandler{
 		userRepo: userRepo,
 	}
 }
 
-// ReferenceResponse представляет ответ со справочными данными
+// DevResponse представляет ответ со статусом операции
 type DevResponse struct {
-	Status  bool
-	Message string
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
 }
 
 // ResetUserHandler godoc
@@ -117,7 +117,7 @@ func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
 
 // GetDeletedUsersResponse представляет ответ со списком удаленных пользователей
 type GetDeletedUsersResponse struct {
-	Status  bool           `json:"status"`
-	Message string         `json:"message"`
-	Users   []*models.User `json:"users"`
+	Status  bool        `json:"status"`
+	Message string      `json:"message"`
+	Users   []*ent.User `json:"users"`
 }

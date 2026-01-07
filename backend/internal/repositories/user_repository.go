@@ -3,22 +3,22 @@ package repositories
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 )
 
 // UserRepository определяет интерфейс для операций с данными пользователей
 type UserRepository interface {
 	// Create создает нового пользователя в базе данных
-	Create(ctx context.Context, user *models.User) error
+	Create(ctx context.Context, user *ent.User) (*ent.User, error)
 
 	// GetByID получает пользователя по его ID
-	GetByID(ctx context.Context, id string) (*models.User, error)
+	GetByID(ctx context.Context, id string) (*ent.User, error)
 
 	// GetByTelegramID получает пользователя по его Telegram ID
-	GetByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
+	GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
 
 	// Update обновляет существующего пользователя в базе данных
-	Update(ctx context.Context, user *models.User) error
+	Update(ctx context.Context, user *ent.User) (*ent.User, error)
 
 	// Delete удаляет пользователя по его ID
 	Delete(ctx context.Context, id string) error
@@ -33,5 +33,5 @@ type UserRepository interface {
 	RestoreUser(ctx context.Context, id string) error
 
 	// GetDeletedUsers получает всех удаленных пользователей
-	GetDeletedUsers(ctx context.Context) ([]*models.User, error)
+	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
 }

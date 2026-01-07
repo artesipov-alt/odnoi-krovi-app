@@ -101,7 +101,7 @@ func (h *PetHandler) GetPetHandler(c echo.Context) error {
 
 	logger.Log.Info("получение питомца", zap.String("petId", petID), zap.Strings("preloads", preloads))
 
-	pet, err := h.petService.GetPetByID(c.Request().Context(), petID, preloads...)
+	pet, err := h.petService.GetPetByID(c.Request().Context(), petID)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (h *PetHandler) GetUserPetsHandler(c echo.Context) error {
 
 	logger.Log.Info("получение питомцев пользователя", zap.String("userId", userID), zap.Strings("preloads", preloads))
 
-	pets, err := h.petService.GetUserPets(c.Request().Context(), userID, preloads...)
+	pets, err := h.petService.GetUserPets(c.Request().Context(), userID)
 	if err != nil {
 		return err
 	}

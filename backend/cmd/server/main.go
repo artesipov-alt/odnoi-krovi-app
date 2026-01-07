@@ -47,10 +47,17 @@ func main() {
 	logger.Init(serverConfig.Env)
 	defer logger.Sync() // Гарантированное закрытие логгера при завершении
 
-	// Инициализация подключения к базе данных
-	db, err := config.ConnectDB()
+	// Инициализация подключения к базе данных через ENT
+	db, err := config.ConnectEnt()
 	if err != nil {
-		logger.Log.Fatal("Ошибка подключения к базе данных", zap.Error(err))
+		logger.Log.Fatal("Ошибка подключения к базе данных (ENT)", zap.Error(err))
+	}
+
+	// Запуск миграций ENT (если необходимо)
+	if serverConfig.ShouldMigrate() {
+		if err := config.RunMigrations(db); err != nil {
+			logger.Log.Error("Ошибка запуска миграций ENT", zap.Error(err))
+		}
 	}
 
 	// Создаем кэш, но если ошибка - используем nil
@@ -64,12 +71,12 @@ func main() {
 	// migration.AutoMigrate(db, logger.Log)
 	// migration.SeedDatabase(db, logger.Log)
 
-	// Инициализация репозиториев
-	userRepo := pgrepositories.NewPostgresUserRepository(db)
-	petRepo := pgrepositories.NewPostgresPetRepository(db)
-	breedRepo := pgrepositories.NewPostgresBreedRepository(db)
-	bloodRepo := pgrepositories.NewPostgresBloodInfoRepo(db)
-	locationRepo := pgrepositories.NewPostgresLocationRepository(db)
+	// Инициализация репозиториев через ENT
+	userRepo := pgrepositories.NewEntUserRepository(db)
+	petRepo := pgrepositories.NewEntPetRepository(db)
+	breedRepo := pgrepositories.NewEntBreedRepository(db)
+	bloodRepo := pgrepositories.NewEntBloodInfoRepository(db)
+	locationRepo := pgrepositories.NewEntLocationRepository(db)
 
 	// Создаем репозиторий в зависимости от наличия кэша
 	var bloodRepoInit repositories.BloodInfoRepository

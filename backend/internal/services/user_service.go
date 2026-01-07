@@ -2,31 +2,29 @@ package services
 
 import (
 	"context"
-	"errors"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-	"gorm.io/gorm"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
 type UserService interface {
 	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*models.User, error)
+	RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*ent.User, error)
 
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error)
+	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*ent.User, error)
 
 	// UpdateUserProfile обновляет информацию о пользователе
 	UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error
 
 	// GetUserByID получает пользователя по его внутреннему ID
-	GetUserByID(ctx context.Context, userID string) (*models.User, error)
+	GetUserByID(ctx context.Context, userID string) (*ent.User, error)
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
-	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
+	GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
 
 	// DeleteUser удаляет пользователя по ID (soft delete)
 	DeleteUser(ctx context.Context, userID string) error
@@ -34,12 +32,12 @@ type UserService interface {
 
 // UserRegistration содержит данные для регистрации пользователя
 type UserRegistration struct {
-	FullName   string          `json:"fullName" validate:"required,min=2,max=255"`
-	Phone      string          `json:"phone" validate:"required,e164"`
-	Email      string          `json:"email" validate:"omitempty,email"`
-	ConsentPD  bool            `json:"consentPd" validate:"required"`
-	LocationID int             `json:"locationId" validate:"required,min=1"`
-	Role       models.UserRole `json:"role" validate:"required,oneof=user clinic_admin"`
+	FullName   string    `json:"fullName" validate:"required,min=2,max=255"`
+	Phone      string    `json:"phone" validate:"required,e164"`
+	Email      string    `json:"email" validate:"omitempty,email"`
+	ConsentPD  bool      `json:"consentPd" validate:"required"`
+	LocationID int       `json:"locationId" validate:"required,min=1"`
+	Role       user.Role `json:"role" validate:"required,oneof=user admin"`
 }
 
 // UserUpdate содержит поля, которые можно обновить для пользователя
@@ -55,7 +53,6 @@ type UserUpdate struct {
 // UserServiceImpl реализует UserService
 type UserServiceImpl struct {
 	userRepo repositories.UserRepository
-	// petRepo и clinicRepo будут добавлены здесь для полного профиля
 }
 
 // NewUserService создает новый сервис пользователей
@@ -66,7 +63,7 @@ func NewUserService(userRepo repositories.UserRepository) *UserServiceImpl {
 }
 
 // RegisterUser регистрирует нового пользователя в системе
-func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*models.User, error) {
+func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
@@ -77,31 +74,32 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		return nil, apperrors.NewUserAlreadyExistsError(telegramID)
 	}
 
-	// Валидируем роль пользователя
-	if _, err := validation.LocalizeUserRole(string(userData.Role)); err != nil {
-		return nil, apperrors.BadRequest("неверная роль пользователя")
+	// Валидируем роль пользователя через ENT-валидатор
+	if err := user.RoleValidator(userData.Role); err != nil {
+		return nil, apperrors.ErrUserInvalidRole
 	}
 
 	// Создаем нового пользователя
-	user := &models.User{
+	u := &ent.User{
 		TelegramID: telegramID,
 		FullName:   userData.FullName,
 		Phone:      userData.Phone,
 		Email:      userData.Email,
-		ConsentPD:  userData.ConsentPD,
+		ConsentPd:  userData.ConsentPD,
 		LocationID: userData.LocationID,
 		Role:       userData.Role,
 	}
 
-	if err := s.userRepo.Create(ctx, user); err != nil {
+	newUser, err := s.userRepo.Create(ctx, u)
+	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать пользователя")
 	}
 
-	return user, nil
+	return newUser, nil
 }
 
 // RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*models.User, error) {
+func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
@@ -112,41 +110,36 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 		return nil, apperrors.NewUserAlreadyExistsError(telegramID)
 	}
 
-	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию для обязательных полей
-	user := &models.User{
+	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию
+	u := &ent.User{
 		TelegramID: telegramID,
 		FullName:   fullName,
-		Phone:      "", // Пустая строка для телефона (будет заполнена позже)
-		Email:      "", // Пустая строка для email (будет заполнена позже)
-		// OrganizationName: "",     // Пустая строка для организации (будет заполнена позже)
-		ConsentPD:  true,   // По умолчанию false, пользователь должен явно согласиться позже
-		LocationID: 1,      // По умолчанию 1, пользователь должен установить местоположение позже
-		OnBoarding: false,  // По умолчанию false, пользователь должен пройти опрос
-		AllowGeo:   false,  // По умолчанию false, пользователь должен дорегистрацию
-		Role:       "user", // Роль по умолчанию
+		Phone:      "",
+		Email:      "",
+		ConsentPd:  true,
+		LocationID: 1,
+		OnBoarding: false,
+		AllowGeo:   false,
+		Role:       user.RoleUser,
 	}
 
-	if err := s.userRepo.Create(ctx, user); err != nil {
+	newUser, err := s.userRepo.Create(ctx, u)
+	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать пользователя")
 	}
 
-	return user, nil
+	return newUser, nil
 }
 
 // DeleteUser удаляет пользователя по ID (soft delete)
 func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	// Проверяем, существует ли пользователь
-	user, err := s.userRepo.GetByID(ctx, userID)
+	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		// Если пользователь не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if ent.IsNotFound(err) {
 			return apperrors.NewUserNotFoundError(userID)
 		}
 		return apperrors.Internal(err, "не удалось получить пользователя")
-	}
-
-	if user == nil {
-		return apperrors.NewUserNotFoundError(userID)
 	}
 
 	// Удаляем пользователя
@@ -158,63 +151,51 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 }
 
 // GetUserByID получает пользователя по ID
-func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
-	user, err := s.userRepo.GetByID(ctx, userID)
+func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.User, error) {
+	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if ent.IsNotFound(err) {
 			return nil, apperrors.NewUserNotFoundError(userID)
 		}
 		return nil, apperrors.Internal(err, "не удалось получить пользователя")
 	}
 
-	if user == nil {
-		return nil, apperrors.NewUserNotFoundError(userID)
-	}
-
-	return user, nil
+	return u, nil
 }
 
 // UpdateUserProfile обновляет информацию о пользователе
 func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error {
 	// Получаем существующего пользователя
-	user, err := s.userRepo.GetByID(ctx, userID)
+	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		// Если пользователь не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if ent.IsNotFound(err) {
 			return apperrors.NewUserNotFoundError(userID)
 		}
 		return apperrors.Internal(err, "не удалось получить пользователя")
 	}
 
-	if user == nil {
-		return apperrors.NewUserNotFoundError(userID)
-	}
-
 	// Применяем обновления
 	if updates.FullName != nil {
-		user.FullName = *updates.FullName
+		u.FullName = *updates.FullName
 	}
 	if updates.Phone != nil {
-		user.Phone = *updates.Phone
+		u.Phone = *updates.Phone
 	}
 	if updates.Email != nil {
-		user.Email = *updates.Email
+		u.Email = *updates.Email
 	}
-	// if updates.OrganizationName != nil {
-	// 	user.OrganizationName = *updates.OrganizationName
-	// }
 	if updates.AllowGeo != nil {
-		user.AllowGeo = *updates.AllowGeo
+		u.AllowGeo = *updates.AllowGeo
 	}
 	if updates.OnBoarding != nil {
-		user.OnBoarding = *updates.OnBoarding
+		u.OnBoarding = *updates.OnBoarding
 	}
 	if updates.LocationID != nil {
-		user.LocationID = *updates.LocationID
+		u.LocationID = *updates.LocationID
 	}
 
 	// Сохраняем обновленного пользователя
-	if err := s.userRepo.Update(ctx, user); err != nil {
+	if _, err := s.userRepo.Update(ctx, u); err != nil {
 		return apperrors.Internal(err, "не удалось обновить пользователя")
 	}
 
@@ -222,11 +203,10 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
-func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
-	user, err := s.userRepo.GetByTelegramID(ctx, telegramID)
+func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error) {
+	u, err := s.userRepo.GetByTelegramID(ctx, telegramID)
 	if err != nil {
-		// Если пользователь не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if ent.IsNotFound(err) {
 			return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]any{
 				"telegram_id": telegramID,
 			})
@@ -234,11 +214,5 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 		return nil, apperrors.Internal(err, "не удалось получить пользователя по Telegram ID")
 	}
 
-	if user == nil {
-		return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]any{
-			"telegram_id": telegramID,
-		})
-	}
-
-	return user, nil
+	return u, nil
 }

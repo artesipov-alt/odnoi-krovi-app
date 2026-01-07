@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
@@ -180,20 +181,15 @@ func (h *ReferenceHandler) GetUserRolesHandler(c echo.Context) error {
 func (h *ReferenceHandler) GetPetRolesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника ролей питомцев")
 
-	roles := enums.GetAllPetRoles()
+	roles := enums.GetAllEntPetStatuses()
 	items := make([]ReferenceItem, len(roles))
 
 	for i, role := range roles {
-		ruValue, err := validation.LocalizePetRole(string(role))
-		if err != nil {
-			return c.JSON(500, utils.ErrorResponse{
-				Message: apperrors.ErrPetInvalidRole.Error(),
-			})
-		}
+		ruValue := enums.LocalizeEntPetStatus(role)
 
 		items[i] = ReferenceItem{
 			Value: string(role),
-			Label: string(ruValue),
+			Label: ruValue,
 		}
 	}
 
@@ -288,7 +284,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c echo.Context) error {
 		})
 	}
 
-	breeds, err := h.breedRepo.GetByPetType(c.Request().Context(), models.PetType(petTypeStr))
+	breeds, err := h.breedRepo.GetByPetType(c.Request().Context(), breed.Type(petTypeStr))
 	if err != nil {
 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err), zap.String("petType", petTypeStr))
 		return c.JSON(500, utils.ErrorResponse{
@@ -358,7 +354,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c echo.Context) error {
 
 	logger.Log.Info("получение групп крови по типу животного", zap.String("petType", petType))
 
-	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(c.Request().Context(), models.PetType(petType))
+	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(c.Request().Context(), bloodgroup.PetType(petType))
 	if err != nil {
 		logger.Log.Error("не удалось получить группы крови из БД", zap.Error(err), zap.String("petType", petType))
 		return c.JSON(500, utils.ErrorResponse{

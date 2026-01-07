@@ -7,9 +7,9 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // ServerConfig содержит настройки сервера
@@ -29,7 +29,7 @@ func NewServerConfig() *ServerConfig {
 }
 
 // GracefulShutdown выполняет graceful shutdown сервера
-func GracefulShutdown(app *echo.Echo, db *gorm.DB, cache cache.ICache, timeout time.Duration) {
+func GracefulShutdown(app *echo.Echo, db *ent.Client, cache cache.ICache, timeout time.Duration) {
 	logger := logger.Log
 
 	// Создание контекста с таймаутом для завершения
@@ -48,15 +48,10 @@ func GracefulShutdown(app *echo.Echo, db *gorm.DB, cache cache.ICache, timeout t
 
 	// Закрытие соединения с базой данных
 	if db != nil {
-		sqlDB, err := db.DB()
-		if err == nil {
-			if err := sqlDB.Close(); err != nil {
-				logger.Error("Ошибка при закрытии соединения с БД", zap.Error(err))
-			} else {
-				logger.Info("Соединение с БД успешно закрыто")
-			}
+		if err := db.Close(); err != nil {
+			logger.Error("Ошибка при закрытии соединения с БД", zap.Error(err))
 		} else {
-			logger.Warn("Соединение с БД не было инициализировано")
+			logger.Info("Соединение с БД успешно закрыто")
 		}
 	}
 
