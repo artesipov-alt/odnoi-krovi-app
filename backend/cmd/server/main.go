@@ -48,13 +48,13 @@ func main() {
 	defer logger.Sync() // Гарантированное закрытие логгера при завершении
 
 	// Инициализация подключения к базе данных через ENT
-	db, err := config.ConnectEnt()
+	db, err := config.ConnectEnt(config.NewENVConfig())
 	if err != nil {
 		logger.Log.Fatal("Ошибка подключения к базе данных (ENT)", zap.Error(err))
 	}
 
 	// Запуск миграций ENT (если необходимо)
-	if serverConfig.ShouldMigrate() {
+	if serverConfig.ShouldMigrate(true) {
 		if err := config.RunMigrations(db); err != nil {
 			logger.Log.Error("Ошибка запуска миграций ENT", zap.Error(err))
 		}
@@ -67,11 +67,7 @@ func main() {
 		rCache = nil
 	}
 
-	// Автоматическое создание/обновление таблиц в БД на проде
-	// migration.AutoMigrate(db, logger.Log)
-	// migration.SeedDatabase(db, logger.Log)
-
-	// Инициализация репозиториев через ENT
+	// Инициализация репозиториев
 	userRepo := pgrepositories.NewEntUserRepository(db)
 	petRepo := pgrepositories.NewEntPetRepository(db)
 	breedRepo := pgrepositories.NewEntBreedRepository(db)

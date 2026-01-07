@@ -78,6 +78,6 @@ func GracefulShutdown(app *echo.Echo, db *ent.Client, cache cache.ICache, timeou
 }
 
 // ShouldMigrate определяет, нужно ли выполнять миграции
-func (c *ServerConfig) ShouldMigrate() bool {
-	return c.Env != "dev"
+func (c *ServerConfig) ShouldMigrate(val bool) bool {
+	return val
 }

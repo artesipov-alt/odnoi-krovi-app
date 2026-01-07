@@ -34,6 +34,25 @@ func NewEntConfig() *EntConfig {
 	}
 }
 
+// NewEntConfig создает конфигурацию из переменных окружения
+func NewLocalConfig() *EntConfig {
+	return &EntConfig{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "admin",
+		Password: "adminpass1921",
+		DBName:   "local_odnoi_krovi",
+		SSLMode:  "disable",
+	}
+}
+
+func NewENVConfig() *EntConfig {
+	if os.Getenv("ENV") != "development" {
+		return NewEntConfig()
+	}
+	return NewLocalConfig()
+}
+
 // GetDSN возвращает строку подключения для PostgreSQL
 func (c *EntConfig) GetDSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
@@ -41,8 +60,7 @@ func (c *EntConfig) GetDSN() string {
 }
 
 // ConnectEnt подключается к PostgreSQL и возвращает экземпляр ent.Client
-func ConnectEnt() (*ent.Client, error) {
-	config := NewEntConfig()
+func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 	dsn := config.GetDSN()
 
 	client, err := ent.Open(dialect.Postgres, dsn)
