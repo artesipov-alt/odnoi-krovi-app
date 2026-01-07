@@ -21,6 +21,12 @@ type PetAnalysisCreate struct {
 	hooks    []Hook
 }
 
+// SetPetID sets the "pet_id" field.
+func (_c *PetAnalysisCreate) SetPetID(v string) *PetAnalysisCreate {
+	_c.mutation.SetPetID(v)
+	return _c
+}
+
 // SetLeukemiaDate sets the "leukemia_date" field.
 func (_c *PetAnalysisCreate) SetLeukemiaDate(v time.Time) *PetAnalysisCreate {
 	_c.mutation.SetLeukemiaDate(v)
@@ -293,19 +299,15 @@ func (_c *PetAnalysisCreate) SetID(v int) *PetAnalysisCreate {
 	return _c
 }
 
-// AddOwnerIDs adds the "owner" edge to the Pet entity by IDs.
-func (_c *PetAnalysisCreate) AddOwnerIDs(ids ...string) *PetAnalysisCreate {
-	_c.mutation.AddOwnerIDs(ids...)
+// SetOwnerID sets the "owner" edge to the Pet entity by ID.
+func (_c *PetAnalysisCreate) SetOwnerID(id string) *PetAnalysisCreate {
+	_c.mutation.SetOwnerID(id)
 	return _c
 }
 
-// AddOwner adds the "owner" edges to the Pet entity.
-func (_c *PetAnalysisCreate) AddOwner(v ...*Pet) *PetAnalysisCreate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _c.AddOwnerIDs(ids...)
+// SetOwner sets the "owner" edge to the Pet entity.
+func (_c *PetAnalysisCreate) SetOwner(v *Pet) *PetAnalysisCreate {
+	return _c.SetOwnerID(v.ID)
 }
 
 // Mutation returns the PetAnalysisMutation object of the builder.
@@ -355,6 +357,9 @@ func (_c *PetAnalysisCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetAnalysisCreate) check() error {
+	if _, ok := _c.mutation.PetID(); !ok {
+		return &ValidationError{Name: "pet_id", err: errors.New(`ent: missing required field "PetAnalysis.pet_id"`)}
+	}
 	if v, ok := _c.mutation.LeukemiaType(); ok {
 		if err := petanalysis.LeukemiaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "leukemia_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.leukemia_type": %w`, err)}
@@ -514,10 +519,10 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
 			Table:   petanalysis.OwnerTable,
-			Columns: petanalysis.OwnerPrimaryKey,
+			Columns: []string{petanalysis.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -526,6 +531,7 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.PetID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

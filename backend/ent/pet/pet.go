@@ -42,6 +42,12 @@ const (
 	FieldBreedID = "breed_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldHealthID holds the string denoting the health_id field in the database.
+	FieldHealthID = "health_id"
+	// FieldTreatmentID holds the string denoting the treatment_id field in the database.
+	FieldTreatmentID = "treatment_id"
+	// FieldBonusID holds the string denoting the bonus_id field in the database.
+	FieldBonusID = "bonus_id"
 	// FieldLivingCondition holds the string denoting the living_condition field in the database.
 	FieldLivingCondition = "living_condition"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -79,26 +85,28 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "pethealth" package.
 	HealthInverseTable = "pet_healths"
 	// HealthColumn is the table column denoting the health relation/edge.
-	HealthColumn = "pet_health_owner"
+	HealthColumn = "health_id"
 	// TreatmentsTable is the table that holds the treatments relation/edge.
 	TreatmentsTable = "pets"
 	// TreatmentsInverseTable is the table name for the PetTreatment entity.
 	// It exists in this package in order to avoid circular dependency with the "pettreatment" package.
 	TreatmentsInverseTable = "pet_treatments"
 	// TreatmentsColumn is the table column denoting the treatments relation/edge.
-	TreatmentsColumn = "pet_treatment_owner"
-	// AnalysesTable is the table that holds the analyses relation/edge. The primary key declared below.
-	AnalysesTable = "pet_analysis_owner"
+	TreatmentsColumn = "treatment_id"
+	// AnalysesTable is the table that holds the analyses relation/edge.
+	AnalysesTable = "pet_analyses"
 	// AnalysesInverseTable is the table name for the PetAnalysis entity.
 	// It exists in this package in order to avoid circular dependency with the "petanalysis" package.
 	AnalysesInverseTable = "pet_analyses"
+	// AnalysesColumn is the table column denoting the analyses relation/edge.
+	AnalysesColumn = "pet_id"
 	// BonusesTable is the table that holds the bonuses relation/edge.
 	BonusesTable = "pets"
 	// BonusesInverseTable is the table name for the PetBonus entity.
 	// It exists in this package in order to avoid circular dependency with the "petbonus" package.
 	BonusesInverseTable = "pet_bonuses"
 	// BonusesColumn is the table column denoting the bonuses relation/edge.
-	BonusesColumn = "pet_bonus_owner"
+	BonusesColumn = "bonus_id"
 	// BreedRefTable is the table that holds the breed_ref relation/edge.
 	BreedRefTable = "pets"
 	// BreedRefInverseTable is the table name for the Breed entity.
@@ -131,35 +139,19 @@ var Columns = []string{
 	FieldPhotoURL,
 	FieldBreedID,
 	FieldUserID,
+	FieldHealthID,
+	FieldTreatmentID,
+	FieldBonusID,
 	FieldLivingCondition,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "pets"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"pet_bonus_owner",
-	"pet_health_owner",
-	"pet_treatment_owner",
-}
-
-var (
-	// AnalysesPrimaryKey and AnalysesColumn2 are the table columns denoting the
-	// primary key for the analyses relation (M2M).
-	AnalysesPrimaryKey = []string{"pet_analysis_id", "pet_id"}
-)
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -355,6 +347,21 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
+// ByHealthID orders the results by the health_id field.
+func ByHealthID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHealthID, opts...).ToFunc()
+}
+
+// ByTreatmentID orders the results by the treatment_id field.
+func ByTreatmentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTreatmentID, opts...).ToFunc()
+}
+
+// ByBonusID orders the results by the bonus_id field.
+func ByBonusID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBonusID, opts...).ToFunc()
+}
+
 // ByLivingCondition orders the results by the living_condition field.
 func ByLivingCondition(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLivingCondition, opts...).ToFunc()
@@ -455,7 +462,7 @@ func newAnalysesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AnalysesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, AnalysesTable, AnalysesPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, true, AnalysesTable, AnalysesColumn),
 	)
 }
 func newBonusesStep() *sqlgraph.Step {

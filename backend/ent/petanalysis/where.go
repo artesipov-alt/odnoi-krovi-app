@@ -55,6 +55,11 @@ func IDLTE(id int) predicate.PetAnalysis {
 	return predicate.PetAnalysis(sql.FieldLTE(FieldID, id))
 }
 
+// PetID applies equality check predicate on the "pet_id" field. It's identical to PetIDEQ.
+func PetID(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEQ(FieldPetID, v))
+}
+
 // LeukemiaDate applies equality check predicate on the "leukemia_date" field. It's identical to LeukemiaDateEQ.
 func LeukemiaDate(v time.Time) predicate.PetAnalysis {
 	return predicate.PetAnalysis(sql.FieldEQ(FieldLeukemiaDate, v))
@@ -108,6 +113,71 @@ func UpdatedAt(v time.Time) predicate.PetAnalysis {
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v time.Time) predicate.PetAnalysis {
 	return predicate.PetAnalysis(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// PetIDEQ applies the EQ predicate on the "pet_id" field.
+func PetIDEQ(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEQ(FieldPetID, v))
+}
+
+// PetIDNEQ applies the NEQ predicate on the "pet_id" field.
+func PetIDNEQ(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNEQ(FieldPetID, v))
+}
+
+// PetIDIn applies the In predicate on the "pet_id" field.
+func PetIDIn(vs ...string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldIn(FieldPetID, vs...))
+}
+
+// PetIDNotIn applies the NotIn predicate on the "pet_id" field.
+func PetIDNotIn(vs ...string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNotIn(FieldPetID, vs...))
+}
+
+// PetIDGT applies the GT predicate on the "pet_id" field.
+func PetIDGT(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldGT(FieldPetID, v))
+}
+
+// PetIDGTE applies the GTE predicate on the "pet_id" field.
+func PetIDGTE(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldGTE(FieldPetID, v))
+}
+
+// PetIDLT applies the LT predicate on the "pet_id" field.
+func PetIDLT(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldLT(FieldPetID, v))
+}
+
+// PetIDLTE applies the LTE predicate on the "pet_id" field.
+func PetIDLTE(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldLTE(FieldPetID, v))
+}
+
+// PetIDContains applies the Contains predicate on the "pet_id" field.
+func PetIDContains(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldContains(FieldPetID, v))
+}
+
+// PetIDHasPrefix applies the HasPrefix predicate on the "pet_id" field.
+func PetIDHasPrefix(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldHasPrefix(FieldPetID, v))
+}
+
+// PetIDHasSuffix applies the HasSuffix predicate on the "pet_id" field.
+func PetIDHasSuffix(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldHasSuffix(FieldPetID, v))
+}
+
+// PetIDEqualFold applies the EqualFold predicate on the "pet_id" field.
+func PetIDEqualFold(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEqualFold(FieldPetID, v))
+}
+
+// PetIDContainsFold applies the ContainsFold predicate on the "pet_id" field.
+func PetIDContainsFold(v string) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldContainsFold(FieldPetID, v))
 }
 
 // LeukemiaDateEQ applies the EQ predicate on the "leukemia_date" field.
@@ -885,7 +955,7 @@ func HasOwner() predicate.PetAnalysis {
 	return predicate.PetAnalysis(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, OwnerTable, OwnerPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, false, OwnerTable, OwnerColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

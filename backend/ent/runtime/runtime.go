@@ -194,11 +194,11 @@ func init() {
 	// pet.PhotoURLValidator is a validator for the "photo_url" field. It is called by the builders before save.
 	pet.PhotoURLValidator = petDescPhotoURL.Validators[0].(func(string) error)
 	// petDescCreatedAt is the schema descriptor for created_at field.
-	petDescCreatedAt := petFields[15].Descriptor()
+	petDescCreatedAt := petFields[18].Descriptor()
 	// pet.DefaultCreatedAt holds the default value on creation for the created_at field.
 	pet.DefaultCreatedAt = petDescCreatedAt.Default.(func() time.Time)
 	// petDescUpdatedAt is the schema descriptor for updated_at field.
-	petDescUpdatedAt := petFields[16].Descriptor()
+	petDescUpdatedAt := petFields[19].Descriptor()
 	// pet.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	pet.DefaultUpdatedAt = petDescUpdatedAt.Default.(func() time.Time)
 	// pet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -212,11 +212,11 @@ func init() {
 	petanalysisFields := schema.PetAnalysis{}.Fields()
 	_ = petanalysisFields
 	// petanalysisDescCreatedAt is the schema descriptor for created_at field.
-	petanalysisDescCreatedAt := petanalysisFields[17].Descriptor()
+	petanalysisDescCreatedAt := petanalysisFields[18].Descriptor()
 	// petanalysis.DefaultCreatedAt holds the default value on creation for the created_at field.
 	petanalysis.DefaultCreatedAt = petanalysisDescCreatedAt.Default.(func() time.Time)
 	// petanalysisDescUpdatedAt is the schema descriptor for updated_at field.
-	petanalysisDescUpdatedAt := petanalysisFields[18].Descriptor()
+	petanalysisDescUpdatedAt := petanalysisFields[19].Descriptor()
 	// petanalysis.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	petanalysis.DefaultUpdatedAt = petanalysisDescUpdatedAt.Default.(func() time.Time)
 	// petanalysis.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -235,6 +235,10 @@ func init() {
 	petbonus.DefaultUpdatedAt = petbonusDescUpdatedAt.Default.(func() time.Time)
 	// petbonus.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	petbonus.UpdateDefaultUpdatedAt = petbonusDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// petbonusDescID is the schema descriptor for id field.
+	petbonusDescID := petbonusFields[0].Descriptor()
+	// petbonus.DefaultID holds the default value on creation for the id field.
+	petbonus.DefaultID = petbonusDescID.Default.(func() string)
 	pethealthInters := schema.PetHealth{}.Interceptors()
 	pethealth.Interceptors[0] = pethealthInters[0]
 	pethealthFields := schema.PetHealth{}.Fields()
@@ -249,6 +253,10 @@ func init() {
 	pethealth.DefaultUpdatedAt = pethealthDescUpdatedAt.Default.(func() time.Time)
 	// pethealth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	pethealth.UpdateDefaultUpdatedAt = pethealthDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// pethealthDescID is the schema descriptor for id field.
+	pethealthDescID := pethealthFields[0].Descriptor()
+	// pethealth.DefaultID holds the default value on creation for the id field.
+	pethealth.DefaultID = pethealthDescID.Default.(func() string)
 	pettreatmentInters := schema.PetTreatment{}.Interceptors()
 	pettreatment.Interceptors[0] = pettreatmentInters[0]
 	pettreatmentFields := schema.PetTreatment{}.Fields()
@@ -263,6 +271,10 @@ func init() {
 	pettreatment.DefaultUpdatedAt = pettreatmentDescUpdatedAt.Default.(func() time.Time)
 	// pettreatment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	pettreatment.UpdateDefaultUpdatedAt = pettreatmentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// pettreatmentDescID is the schema descriptor for id field.
+	pettreatmentDescID := pettreatmentFields[0].Descriptor()
+	// pettreatment.DefaultID holds the default value on creation for the id field.
+	pettreatment.DefaultID = pettreatmentDescID.Default.(func() string)
 	userInters := schema.User{}.Interceptors()
 	user.Interceptors[0] = userInters[0]
 	userFields := schema.User{}.Fields()

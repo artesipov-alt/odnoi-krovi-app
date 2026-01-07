@@ -30,12 +30,6 @@ definitions:
     - TypeCat
   ent.BloodComponent:
     properties:
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.BloodComponentEdges'
@@ -47,9 +41,6 @@ definitions:
         type: integer
       name:
         description: Name holds the value of the "name" field.
-        type: string
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
         type: string
     type: object
   ent.BloodComponentEdges:
@@ -64,12 +55,6 @@ definitions:
     properties:
       bloodGroup:
         description: BloodGroup holds the value of the "blood_group" field.
-        type: string
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
         type: string
       description:
         description: Description holds the value of the "description" field.
@@ -87,9 +72,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/bloodgroup.PetType'
         description: PetType holds the value of the "pet_type" field.
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.BloodGroupEdges:
     properties:
@@ -112,12 +94,6 @@ definitions:
         description: BloodVolumeReserved holds the value of the "blood_volume_reserved"
           field.
         type: integer
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       description:
         description: Description holds the value of the "description" field.
         type: string
@@ -151,9 +127,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/bloodsearchrequest.Status'
         description: Status holds the value of the "status" field.
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.BloodSearchRequestEdges:
     properties:
@@ -173,12 +146,6 @@ definitions:
     type: object
   ent.Breed:
     properties:
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.BreedEdges'
@@ -195,9 +162,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/breed.Type'
         description: Type holds the value of the "type" field.
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.BreedEdges:
     properties:
@@ -209,12 +173,6 @@ definitions:
     type: object
   ent.Location:
     properties:
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.LocationEdges'
@@ -226,9 +184,6 @@ definitions:
         type: integer
       name:
         description: Name holds the value of the "name" field.
-        type: string
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
         type: string
     type: object
   ent.LocationEdges:
@@ -253,17 +208,14 @@ definitions:
       bloodGroup:
         description: BloodGroup holds the value of the "blood_group" field.
         type: string
+      bonusId:
+        description: BonusID holds the value of the "bonus_id" field.
+        type: string
       breedId:
         description: BreedID holds the value of the "breed_id" field.
         type: integer
       chipNumber:
         description: ChipNumber holds the value of the "chip_number" field.
-        type: string
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
         type: string
       edges:
         allOf:
@@ -275,6 +227,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/pet.Gender'
         description: Gender holds the value of the "gender" field.
+      healthId:
+        description: HealthID holds the value of the "health_id" field.
+        type: string
       id:
         description: ID of the ent.
         type: string
@@ -292,13 +247,13 @@ definitions:
       photoUrl:
         description: PhotoURL holds the value of the "photo_url" field.
         type: string
+      treatmentId:
+        description: TreatmentID holds the value of the "treatment_id" field.
+        type: string
       type:
         allOf:
         - $ref: '#/definitions/pet.Type'
         description: Type holds the value of the "type" field.
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
       userId:
         description: UserID holds the value of the "user_id" field.
         type: string
@@ -331,12 +286,6 @@ definitions:
         - $ref: '#/definitions/petanalysis.BartonellosisType'
         description: BartonellosisType holds the value of the "bartonellosis_type"
           field.
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       dirofilariaDate:
         description: DirofilariaDate holds the value of the "dirofilaria_date" field.
         type: string
@@ -385,26 +334,19 @@ definitions:
         allOf:
         - $ref: '#/definitions/petanalysis.LeukemiaType'
         description: LeukemiaType holds the value of the "leukemia_type" field.
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
+      petId:
+        description: PetID holds the value of the "pet_id" field.
         type: string
     type: object
   ent.PetAnalysisEdges:
     properties:
       owner:
+        allOf:
+        - $ref: '#/definitions/ent.Pet'
         description: Owner holds the value of the owner edge.
-        items:
-          $ref: '#/definitions/ent.Pet'
-        type: array
     type: object
   ent.PetBonus:
     properties:
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.PetBonusEdges'
@@ -426,9 +368,6 @@ definitions:
       isTherapist:
         description: IsTherapist holds the value of the "is_therapist" field.
         type: boolean
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.PetBonusEdges:
     properties:
@@ -472,12 +411,6 @@ definitions:
     type: object
   ent.PetHealth:
     properties:
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.PetHealthEdges'
@@ -509,9 +442,6 @@ definitions:
       transfused:
         description: Transfused holds the value of the "transfused" field.
         type: boolean
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.PetHealthEdges:
     properties:
@@ -522,12 +452,6 @@ definitions:
     type: object
   ent.PetTreatment:
     properties:
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       dewormingDate:
         description: DewormingDate holds the value of the "deworming_date" field.
         type: string
@@ -552,9 +476,6 @@ definitions:
         description: RabiesVaccinationDate holds the value of the "rabies_vaccination_date"
           field.
         type: string
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.PetTreatmentEdges:
     properties:
@@ -571,12 +492,6 @@ definitions:
       consentPd:
         description: ConsentPd holds the value of the "consent_pd" field.
         type: boolean
-      createdAt:
-        description: CreatedAt holds the value of the "created_at" field.
-        type: string
-      deletedAt:
-        description: DeletedAt holds the value of the "deleted_at" field.
-        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.UserEdges'
@@ -611,9 +526,6 @@ definitions:
       telegramId:
         description: TelegramID holds the value of the "telegram_id" field.
         type: integer
-      updatedAt:
-        description: UpdatedAt holds the value of the "updated_at" field.
-        type: string
     type: object
   ent.UserEdges:
     properties:

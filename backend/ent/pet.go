@@ -20,7 +20,7 @@ import (
 
 // Pet is the model entity for the Pet schema.
 type Pet struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
 	// Name holds the value of the "name" field.
@@ -49,21 +49,24 @@ type Pet struct {
 	BreedID int `json:"breedId"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"userId"`
+	// HealthID holds the value of the "health_id" field.
+	HealthID string `json:"healthId"`
+	// TreatmentID holds the value of the "treatment_id" field.
+	TreatmentID string `json:"treatmentId"`
+	// BonusID holds the value of the "bonus_id" field.
+	BonusID string `json:"bonusId"`
 	// LivingCondition holds the value of the "living_condition" field.
 	LivingCondition pet.LivingCondition `json:"livingCondition"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
-	Edges               PetEdges `json:"edges"`
-	pet_bonus_owner     *string
-	pet_health_owner    *string
-	pet_treatment_owner *string
-	selectValues        sql.SelectValues
+	Edges        PetEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // PetEdges holds the relations/edges for other nodes in the graph.
@@ -171,16 +174,10 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case pet.FieldAgeYears, pet.FieldAgeMonths, pet.FieldBreedID:
 			values[i] = new(sql.NullInt64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldPhotoURL, pet.FieldUserID, pet.FieldLivingCondition:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldPhotoURL, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition:
 			values[i] = new(sql.NullString)
 		case pet.FieldBirthDate, pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case pet.ForeignKeys[0]: // pet_bonus_owner
-			values[i] = new(sql.NullString)
-		case pet.ForeignKeys[1]: // pet_health_owner
-			values[i] = new(sql.NullString)
-		case pet.ForeignKeys[2]: // pet_treatment_owner
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -281,6 +278,24 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UserID = value.String
 			}
+		case pet.FieldHealthID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field health_id", values[i])
+			} else if value.Valid {
+				_m.HealthID = value.String
+			}
+		case pet.FieldTreatmentID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field treatment_id", values[i])
+			} else if value.Valid {
+				_m.TreatmentID = value.String
+			}
+		case pet.FieldBonusID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field bonus_id", values[i])
+			} else if value.Valid {
+				_m.BonusID = value.String
+			}
 		case pet.FieldLivingCondition:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field living_condition", values[i])
@@ -305,27 +320,6 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
-			}
-		case pet.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_bonus_owner", values[i])
-			} else if value.Valid {
-				_m.pet_bonus_owner = new(string)
-				*_m.pet_bonus_owner = value.String
-			}
-		case pet.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_health_owner", values[i])
-			} else if value.Valid {
-				_m.pet_health_owner = new(string)
-				*_m.pet_health_owner = value.String
-			}
-		case pet.ForeignKeys[2]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_treatment_owner", values[i])
-			} else if value.Valid {
-				_m.pet_treatment_owner = new(string)
-				*_m.pet_treatment_owner = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -438,6 +432,15 @@ func (_m *Pet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(_m.UserID)
+	builder.WriteString(", ")
+	builder.WriteString("health_id=")
+	builder.WriteString(_m.HealthID)
+	builder.WriteString(", ")
+	builder.WriteString("treatment_id=")
+	builder.WriteString(_m.TreatmentID)
+	builder.WriteString(", ")
+	builder.WriteString("bonus_id=")
+	builder.WriteString(_m.BonusID)
 	builder.WriteString(", ")
 	builder.WriteString("living_condition=")
 	builder.WriteString(fmt.Sprintf("%v", _m.LivingCondition))

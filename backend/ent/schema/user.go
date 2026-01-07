@@ -59,15 +59,15 @@ func (User) Fields() []ent.Field {
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 

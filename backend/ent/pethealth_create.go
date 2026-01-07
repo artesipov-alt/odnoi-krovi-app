@@ -153,6 +153,14 @@ func (_c *PetHealthCreate) SetID(v string) *PetHealthCreate {
 	return _c
 }
 
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableID(v *string) *PetHealthCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
 // SetOwnerID sets the "owner" edge to the Pet entity by ID.
 func (_c *PetHealthCreate) SetOwnerID(id string) *PetHealthCreate {
 	_c.mutation.SetOwnerID(id)
@@ -206,6 +214,10 @@ func (_c *PetHealthCreate) defaults() {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := pethealth.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := pethealth.DefaultID()
+		_c.mutation.SetID(v)
 	}
 }
 

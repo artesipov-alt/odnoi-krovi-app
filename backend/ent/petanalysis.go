@@ -9,14 +9,17 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 )
 
 // PetAnalysis is the model entity for the PetAnalysis schema.
 type PetAnalysis struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID int `json:"id"`
+	// PetID holds the value of the "pet_id" field.
+	PetID string `json:"petId"`
 	// LeukemiaDate holds the value of the "leukemia_date" field.
 	LeukemiaDate *time.Time `json:"leukemiaDate"`
 	// LeukemiaType holds the value of the "leukemia_type" field.
@@ -50,11 +53,11 @@ type PetAnalysis struct {
 	// AnaplasmosisType holds the value of the "anaplasmosis_type" field.
 	AnaplasmosisType petanalysis.AnaplasmosisType `json:"anaplasmosisType"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetAnalysisQuery when eager-loading is set.
 	Edges        PetAnalysisEdges `json:"edges"`
@@ -64,17 +67,19 @@ type PetAnalysis struct {
 // PetAnalysisEdges holds the relations/edges for other nodes in the graph.
 type PetAnalysisEdges struct {
 	// Owner holds the value of the owner edge.
-	Owner []*Pet `json:"owner,omitempty"`
+	Owner *Pet `json:"owner,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
-// was not loaded in eager-loading.
-func (e PetAnalysisEdges) OwnerOrErr() ([]*Pet, error) {
-	if e.loadedTypes[0] {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PetAnalysisEdges) OwnerOrErr() (*Pet, error) {
+	if e.Owner != nil {
 		return e.Owner, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: pet.Label}
 	}
 	return nil, &NotLoadedError{edge: "owner"}
 }
@@ -86,7 +91,7 @@ func (*PetAnalysis) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case petanalysis.FieldID:
 			values[i] = new(sql.NullInt64)
-		case petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType:
+		case petanalysis.FieldPetID, petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType:
 			values[i] = new(sql.NullString)
 		case petanalysis.FieldLeukemiaDate, petanalysis.FieldImmunodeficiencyDate, petanalysis.FieldHemoplasmosisDate, petanalysis.FieldBartonellosisDate, petanalysis.FieldBabesiosisDate, petanalysis.FieldDirofilariaDate, petanalysis.FieldEhrlichiosisDate, petanalysis.FieldAnaplasmosisDate, petanalysis.FieldCreatedAt, petanalysis.FieldUpdatedAt, petanalysis.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -111,6 +116,12 @@ func (_m *PetAnalysis) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case petanalysis.FieldPetID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pet_id", values[i])
+			} else if value.Valid {
+				_m.PetID = value.String
+			}
 		case petanalysis.FieldLeukemiaDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field leukemia_date", values[i])
@@ -275,6 +286,9 @@ func (_m *PetAnalysis) String() string {
 	var builder strings.Builder
 	builder.WriteString("PetAnalysis(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("pet_id=")
+	builder.WriteString(_m.PetID)
+	builder.WriteString(", ")
 	if v := _m.LeukemiaDate; v != nil {
 		builder.WriteString("leukemia_date=")
 		builder.WriteString(v.Format(time.ANSIC))

@@ -45,22 +45,25 @@ func (BloodSearchRequest) Fields() []ent.Field {
 		field.JSON("photo_urls", []string{}).
 			Optional().
 			StructTag(`json:"photoUrls"`),
-		field.Int("blood_group_id").
+		field.JSON("blood_group_ids", []int{}).
 			Optional().
-			StructTag(`json:"bloodGroupId"`),
+			StructTag(`json:"bloodGroupIds"`),
+		field.JSON("blood_component_ids", []string{}).
+			Optional().
+			StructTag(`json:"bloodComponentIds"`),
 		// Audit fields
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -72,12 +75,6 @@ func (BloodSearchRequest) Edges() []ent.Edge {
 			Field("pet_id").
 			Unique().
 			Required(),
-		edge.To("blood_components", BloodComponent.Type).
-			StructTag(`json:"bloodComponents"`),
-		edge.From("blood_group", BloodGroup.Type).
-			Ref("search_requests").
-			Field("blood_group_id").
-			Unique(),
 	}
 }
 

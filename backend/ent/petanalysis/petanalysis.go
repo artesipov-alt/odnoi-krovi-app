@@ -16,6 +16,8 @@ const (
 	Label = "pet_analysis"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldPetID holds the string denoting the pet_id field in the database.
+	FieldPetID = "pet_id"
 	// FieldLeukemiaDate holds the string denoting the leukemia_date field in the database.
 	FieldLeukemiaDate = "leukemia_date"
 	// FieldLeukemiaType holds the string denoting the leukemia_type field in the database.
@@ -58,16 +60,19 @@ const (
 	EdgeOwner = "owner"
 	// Table holds the table name of the petanalysis in the database.
 	Table = "pet_analyses"
-	// OwnerTable is the table that holds the owner relation/edge. The primary key declared below.
-	OwnerTable = "pet_analysis_owner"
+	// OwnerTable is the table that holds the owner relation/edge.
+	OwnerTable = "pet_analyses"
 	// OwnerInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
 	OwnerInverseTable = "pets"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "pet_id"
 )
 
 // Columns holds all SQL columns for petanalysis fields.
 var Columns = []string{
 	FieldID,
+	FieldPetID,
 	FieldLeukemiaDate,
 	FieldLeukemiaType,
 	FieldImmunodeficiencyDate,
@@ -88,12 +93,6 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 }
-
-var (
-	// OwnerPrimaryKey and OwnerColumn2 are the table columns denoting the
-	// primary key for the owner relation (M2M).
-	OwnerPrimaryKey = []string{"pet_analysis_id", "pet_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -336,6 +335,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByPetID orders the results by the pet_id field.
+func ByPetID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPetID, opts...).ToFunc()
+}
+
 // ByLeukemiaDate orders the results by the leukemia_date field.
 func ByLeukemiaDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLeukemiaDate, opts...).ToFunc()
@@ -431,23 +435,16 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByOwnerCount orders the results by owner count.
-func ByOwnerCount(opts ...sql.OrderTermOption) OrderOption {
+// ByOwnerField orders the results by owner field.
+func ByOwnerField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOwnerStep(), opts...)
-	}
-}
-
-// ByOwner orders the results by owner terms.
-func ByOwner(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newOwnerStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newOwnerStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(OwnerInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, OwnerTable, OwnerPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.M2O, false, OwnerTable, OwnerColumn),
 	)
 }

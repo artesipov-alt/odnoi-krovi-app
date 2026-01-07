@@ -14,7 +14,7 @@ import (
 
 // BloodGroup is the model entity for the BloodGroup schema.
 type BloodGroup struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// PetType holds the value of the "pet_type" field.
@@ -24,11 +24,11 @@ type BloodGroup struct {
 	// Description holds the value of the "description" field.
 	Description string `json:"description"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BloodGroupQuery when eager-loading is set.
 	Edges        BloodGroupEdges `json:"edges"`

@@ -15,7 +15,7 @@ import (
 
 // PetHealth is the model entity for the PetHealth schema.
 type PetHealth struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
 	// ReproductiveStatus holds the value of the "reproductive_status" field.
@@ -31,11 +31,11 @@ type PetHealth struct {
 	// SurgicalInterventions holds the value of the "surgical_interventions" field.
 	SurgicalInterventions string `json:"surgicalInterventions"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetHealthQuery when eager-loading is set.
 	Edges        PetHealthEdges `json:"edges"`

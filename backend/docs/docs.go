@@ -1173,14 +1173,6 @@ const docTemplate = `{
         "ent.BloodComponent": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
-                },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BloodComponentQuery when eager-loading is set.",
                     "allOf": [
@@ -1195,10 +1187,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "description": "Name holds the value of the \"name\" field.",
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
                 }
             }
@@ -1220,14 +1208,6 @@ const docTemplate = `{
             "properties": {
                 "bloodGroup": {
                     "description": "BloodGroup holds the value of the \"blood_group\" field.",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
                     "type": "string"
                 },
                 "description": {
@@ -1253,10 +1233,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/bloodgroup.PetType"
                         }
                     ]
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1286,14 +1262,6 @@ const docTemplate = `{
                 "bloodVolumeReserved": {
                     "description": "BloodVolumeReserved holds the value of the \"blood_volume_reserved\" field.",
                     "type": "integer"
-                },
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
                 },
                 "description": {
                     "description": "Description holds the value of the \"description\" field.",
@@ -1340,10 +1308,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/bloodsearchrequest.Status"
                         }
                     ]
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1378,14 +1342,6 @@ const docTemplate = `{
         "ent.Breed": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
-                },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BreedQuery when eager-loading is set.",
                     "allOf": [
@@ -1409,10 +1365,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/breed.Type"
                         }
                     ]
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1431,14 +1383,6 @@ const docTemplate = `{
         "ent.Location": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
-                },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the LocationQuery when eager-loading is set.",
                     "allOf": [
@@ -1453,10 +1397,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "description": "Name holds the value of the \"name\" field.",
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
                 }
             }
@@ -1492,20 +1432,16 @@ const docTemplate = `{
                     "description": "BloodGroup holds the value of the \"blood_group\" field.",
                     "type": "string"
                 },
+                "bonusId": {
+                    "description": "BonusID holds the value of the \"bonus_id\" field.",
+                    "type": "string"
+                },
                 "breedId": {
                     "description": "BreedID holds the value of the \"breed_id\" field.",
                     "type": "integer"
                 },
                 "chipNumber": {
                     "description": "ChipNumber holds the value of the \"chip_number\" field.",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
                     "type": "string"
                 },
                 "edges": {
@@ -1523,6 +1459,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/pet.Gender"
                         }
                     ]
+                },
+                "healthId": {
+                    "description": "HealthID holds the value of the \"health_id\" field.",
+                    "type": "string"
                 },
                 "id": {
                     "description": "ID of the ent.",
@@ -1552,6 +1492,10 @@ const docTemplate = `{
                     "description": "PhotoURL holds the value of the \"photo_url\" field.",
                     "type": "string"
                 },
+                "treatmentId": {
+                    "description": "TreatmentID holds the value of the \"treatment_id\" field.",
+                    "type": "string"
+                },
                 "type": {
                     "description": "Type holds the value of the \"type\" field.",
                     "allOf": [
@@ -1559,10 +1503,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/pet.Type"
                         }
                     ]
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 },
                 "userId": {
                     "description": "UserID holds the value of the \"user_id\" field.",
@@ -1612,14 +1552,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/petanalysis.BartonellosisType"
                         }
                     ]
-                },
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
                 },
                 "dirofilariaDate": {
                     "description": "DirofilariaDate holds the value of the \"dirofilaria_date\" field.",
@@ -1693,8 +1625,8 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                "petId": {
+                    "description": "PetID holds the value of the \"pet_id\" field.",
                     "type": "string"
                 }
             }
@@ -1704,24 +1636,17 @@ const docTemplate = `{
             "properties": {
                 "owner": {
                     "description": "Owner holds the value of the owner edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.Pet"
-                    }
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ent.Pet"
+                        }
+                    ]
                 }
             }
         },
         "ent.PetBonus": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
-                },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetBonusQuery when eager-loading is set.",
                     "allOf": [
@@ -1749,10 +1674,6 @@ const docTemplate = `{
                 "isTherapist": {
                     "description": "IsTherapist holds the value of the \"is_therapist\" field.",
                     "type": "boolean"
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1832,14 +1753,6 @@ const docTemplate = `{
         "ent.PetHealth": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
-                },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the PetHealthQuery when eager-loading is set.",
                     "allOf": [
@@ -1883,10 +1796,6 @@ const docTemplate = `{
                 "transfused": {
                     "description": "Transfused holds the value of the \"transfused\" field.",
                     "type": "boolean"
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1906,14 +1815,6 @@ const docTemplate = `{
         "ent.PetTreatment": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
-                },
                 "dewormingDate": {
                     "description": "DewormingDate holds the value of the \"deworming_date\" field.",
                     "type": "string"
@@ -1941,10 +1842,6 @@ const docTemplate = `{
                 "rabiesVaccinationDate": {
                     "description": "RabiesVaccinationDate holds the value of the \"rabies_vaccination_date\" field.",
                     "type": "string"
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },
@@ -1971,14 +1868,6 @@ const docTemplate = `{
                 "consentPd": {
                     "description": "ConsentPd holds the value of the \"consent_pd\" field.",
                     "type": "boolean"
-                },
-                "createdAt": {
-                    "description": "CreatedAt holds the value of the \"created_at\" field.",
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "description": "DeletedAt holds the value of the \"deleted_at\" field.",
-                    "type": "string"
                 },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the UserQuery when eager-loading is set.",
@@ -2027,10 +1916,6 @@ const docTemplate = `{
                 "telegramId": {
                     "description": "TelegramID holds the value of the \"telegram_id\" field.",
                     "type": "integer"
-                },
-                "updatedAt": {
-                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
-                    "type": "string"
                 }
             }
         },

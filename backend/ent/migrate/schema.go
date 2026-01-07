@@ -123,9 +123,9 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "breed_id", Type: field.TypeInt, Nullable: true},
-		{Name: "pet_bonus_owner", Type: field.TypeString, Unique: true, Nullable: true},
-		{Name: "pet_health_owner", Type: field.TypeString, Unique: true, Nullable: true},
-		{Name: "pet_treatment_owner", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "bonus_id", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "treatment_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "user_id", Type: field.TypeString, Nullable: true},
 	}
 	// PetsTable holds the schema information for the "pets" table.
@@ -188,12 +188,21 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "pet_id", Type: field.TypeString},
 	}
 	// PetAnalysesTable holds the schema information for the "pet_analyses" table.
 	PetAnalysesTable = &schema.Table{
 		Name:       "pet_analyses",
 		Columns:    PetAnalysesColumns,
 		PrimaryKey: []*schema.Column{PetAnalysesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "pet_analyses_pets_owner",
+				Columns:    []*schema.Column{PetAnalysesColumns[20]},
+				RefColumns: []*schema.Column{PetsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// PetBonusesColumns holds the columns for the "pet_bonuses" table.
 	PetBonusesColumns = []*schema.Column{
@@ -304,31 +313,6 @@ var (
 			},
 		},
 	}
-	// PetAnalysisOwnerColumns holds the columns for the "pet_analysis_owner" table.
-	PetAnalysisOwnerColumns = []*schema.Column{
-		{Name: "pet_analysis_id", Type: field.TypeInt},
-		{Name: "pet_id", Type: field.TypeString},
-	}
-	// PetAnalysisOwnerTable holds the schema information for the "pet_analysis_owner" table.
-	PetAnalysisOwnerTable = &schema.Table{
-		Name:       "pet_analysis_owner",
-		Columns:    PetAnalysisOwnerColumns,
-		PrimaryKey: []*schema.Column{PetAnalysisOwnerColumns[0], PetAnalysisOwnerColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "pet_analysis_owner_pet_analysis_id",
-				Columns:    []*schema.Column{PetAnalysisOwnerColumns[0]},
-				RefColumns: []*schema.Column{PetAnalysesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "pet_analysis_owner_pet_id",
-				Columns:    []*schema.Column{PetAnalysisOwnerColumns[1]},
-				RefColumns: []*schema.Column{PetsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BloodComponentsTable,
@@ -343,7 +327,6 @@ var (
 		PetTreatmentsTable,
 		UsersTable,
 		BloodSearchRequestBloodComponentsTable,
-		PetAnalysisOwnerTable,
 	}
 )
 
@@ -355,6 +338,7 @@ func init() {
 	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
 	PetsTable.ForeignKeys[3].RefTable = PetTreatmentsTable
 	PetsTable.ForeignKeys[4].RefTable = UsersTable
+	PetAnalysesTable.ForeignKeys[0].RefTable = PetsTable
 	PetAnalysesTable.Annotation = &entsql.Annotation{
 		Table: "pet_analyses",
 	}
@@ -370,6 +354,4 @@ func init() {
 	UsersTable.ForeignKeys[0].RefTable = LocationsTable
 	BloodSearchRequestBloodComponentsTable.ForeignKeys[0].RefTable = BloodSearchRequestsTable
 	BloodSearchRequestBloodComponentsTable.ForeignKeys[1].RefTable = BloodComponentsTable
-	PetAnalysisOwnerTable.ForeignKeys[0].RefTable = PetAnalysesTable
-	PetAnalysisOwnerTable.ForeignKeys[1].RefTable = PetsTable
 }

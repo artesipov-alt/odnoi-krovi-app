@@ -17,7 +17,7 @@ import (
 
 // BloodSearchRequest is the model entity for the BloodSearchRequest schema.
 type BloodSearchRequest struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
 	// PetID holds the value of the "pet_id" field.
@@ -39,11 +39,11 @@ type BloodSearchRequest struct {
 	// BloodGroupID holds the value of the "blood_group_id" field.
 	BloodGroupID int `json:"bloodGroupId"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BloodSearchRequestQuery when eager-loading is set.
 	Edges        BloodSearchRequestEdges `json:"edges"`

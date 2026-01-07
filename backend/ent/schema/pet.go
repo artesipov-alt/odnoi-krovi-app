@@ -38,20 +38,23 @@ func (Pet) Fields() []ent.Field {
 		field.String("photo_url").Optional().MaxLen(255).StructTag(`json:"photoUrl"`),
 		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
 		field.String("user_id").Optional().StructTag(`json:"userId"`),
+		field.String("health_id").Optional().StructTag(`json:"healthId"`),
+		field.String("treatment_id").Optional().StructTag(`json:"treatmentId"`),
+		field.String("bonus_id").Optional().StructTag(`json:"bonusId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 		// Audit fields
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -62,10 +65,10 @@ func (Pet) Edges() []ent.Edge {
 			Ref("pets").
 			Unique().
 			Field("user_id"),
-		edge.From("health", PetHealth.Type).Ref("owner").Unique(),
-		edge.From("treatments", PetTreatment.Type).Ref("owner").Unique(),
+		edge.From("health", PetHealth.Type).Ref("owner").Unique().Field("health_id"),
+		edge.From("treatments", PetTreatment.Type).Ref("owner").Unique().Field("treatment_id"),
 		edge.From("analyses", PetAnalysis.Type).Ref("owner"),
-		edge.From("bonuses", PetBonus.Type).Ref("owner").Unique(),
+		edge.From("bonuses", PetBonus.Type).Ref("owner").Unique().Field("bonus_id"),
 		edge.From("breed_ref", Breed.Type).
 			Ref("pets").
 			Unique().
@@ -105,6 +108,7 @@ func (PetHealth) Fields() []ent.Field {
 		field.String("id").
 			Unique().
 			Immutable().
+			DefaultFunc(func() string { return generateID(PetHealthPrefix) }).
 			StructTag(`json:"id"`),
 		field.Enum("reproductive_status").Values("pregnancy", "lactation", "estrus", "none").Optional().StructTag(`json:"reproductiveStatus"`),
 		field.Enum("health_status").Values("healthy", "ill", "unknown").Optional().StructTag(`json:"healthStatus"`),
@@ -116,15 +120,15 @@ func (PetHealth) Fields() []ent.Field {
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -175,6 +179,7 @@ func (PetTreatment) Fields() []ent.Field {
 		field.String("id").
 			Unique().
 			Immutable().
+			DefaultFunc(func() string { return generateID(PetTreatmentPrefix) }).
 			StructTag(`json:"id"`),
 		field.Time("rabies_vaccination_date").Optional().Nillable().StructTag(`json:"rabiesVaccinationDate"`),
 		field.Time("infection_vaccination_date").Optional().Nillable().StructTag(`json:"infectionVaccinationDate"`),
@@ -184,15 +189,15 @@ func (PetTreatment) Fields() []ent.Field {
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -243,6 +248,8 @@ func (PetAnalysis) Fields() []ent.Field {
 		field.Int("id").
 			Unique().
 			StructTag(`json:"id"`),
+		field.String("pet_id").
+			StructTag(`json:"petId"`),
 		field.Time("leukemia_date").Optional().Nillable().StructTag(`json:"leukemiaDate"`),
 		field.Enum("leukemia_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"leukemiaType"`),
 		field.Time("immunodeficiency_date").Optional().Nillable().StructTag(`json:"immunodeficiencyDate"`),
@@ -263,15 +270,15 @@ func (PetAnalysis) Fields() []ent.Field {
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -279,7 +286,9 @@ func (PetAnalysis) Fields() []ent.Field {
 func (PetAnalysis) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("owner", Pet.Type).
-			Required(),
+			Unique().
+			Required().
+			Field("pet_id"),
 	}
 }
 
@@ -321,6 +330,7 @@ func (PetBonus) Fields() []ent.Field {
 		field.String("id").
 			Unique().
 			Immutable().
+			DefaultFunc(func() string { return generateID(PetBonusPrefix) }).
 			StructTag(`json:"id"`),
 		field.Bool("is_artist").StructTag(`json:"isArtist"`),
 		field.Bool("is_therapist").StructTag(`json:"isTherapist"`),
@@ -330,15 +340,15 @@ func (PetBonus) Fields() []ent.Field {
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
-			StructTag(`json:"createdAt"`),
+			StructTag(`json:"createdAt" swaggerignore:"true"`),
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt"`),
+			StructTag(`json:"updatedAt" swaggerignore:"true"`),
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
-			StructTag(`json:"deletedAt"`),
+			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 

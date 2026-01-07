@@ -1233,7 +1233,7 @@ func (c *PetClient) QueryAnalyses(_m *Pet) *PetAnalysisQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, id),
 			sqlgraph.To(petanalysis.Table, petanalysis.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, pet.AnalysesTable, pet.AnalysesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, true, pet.AnalysesTable, pet.AnalysesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1431,7 +1431,7 @@ func (c *PetAnalysisClient) QueryOwner(_m *PetAnalysis) *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(petanalysis.Table, petanalysis.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, petanalysis.OwnerTable, petanalysis.OwnerPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, false, petanalysis.OwnerTable, petanalysis.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

@@ -15,7 +15,7 @@ import (
 
 // PetTreatment is the model entity for the PetTreatment schema.
 type PetTreatment struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
 	// RabiesVaccinationDate holds the value of the "rabies_vaccination_date" field.
@@ -27,11 +27,11 @@ type PetTreatment struct {
 	// DewormingDate holds the value of the "deworming_date" field.
 	DewormingDate *time.Time `json:"dewormingDate"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetTreatmentQuery when eager-loading is set.
 	Edges        PetTreatmentEdges `json:"edges"`

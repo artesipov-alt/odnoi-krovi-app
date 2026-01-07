@@ -298,6 +298,66 @@ func (_u *PetUpdate) ClearUserID() *PetUpdate {
 	return _u
 }
 
+// SetHealthID sets the "health_id" field.
+func (_u *PetUpdate) SetHealthID(v string) *PetUpdate {
+	_u.mutation.SetHealthID(v)
+	return _u
+}
+
+// SetNillableHealthID sets the "health_id" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableHealthID(v *string) *PetUpdate {
+	if v != nil {
+		_u.SetHealthID(*v)
+	}
+	return _u
+}
+
+// ClearHealthID clears the value of the "health_id" field.
+func (_u *PetUpdate) ClearHealthID() *PetUpdate {
+	_u.mutation.ClearHealthID()
+	return _u
+}
+
+// SetTreatmentID sets the "treatment_id" field.
+func (_u *PetUpdate) SetTreatmentID(v string) *PetUpdate {
+	_u.mutation.SetTreatmentID(v)
+	return _u
+}
+
+// SetNillableTreatmentID sets the "treatment_id" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableTreatmentID(v *string) *PetUpdate {
+	if v != nil {
+		_u.SetTreatmentID(*v)
+	}
+	return _u
+}
+
+// ClearTreatmentID clears the value of the "treatment_id" field.
+func (_u *PetUpdate) ClearTreatmentID() *PetUpdate {
+	_u.mutation.ClearTreatmentID()
+	return _u
+}
+
+// SetBonusID sets the "bonus_id" field.
+func (_u *PetUpdate) SetBonusID(v string) *PetUpdate {
+	_u.mutation.SetBonusID(v)
+	return _u
+}
+
+// SetNillableBonusID sets the "bonus_id" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableBonusID(v *string) *PetUpdate {
+	if v != nil {
+		_u.SetBonusID(*v)
+	}
+	return _u
+}
+
+// ClearBonusID clears the value of the "bonus_id" field.
+func (_u *PetUpdate) ClearBonusID() *PetUpdate {
+	_u.mutation.ClearBonusID()
+	return _u
+}
+
 // SetLivingCondition sets the "living_condition" field.
 func (_u *PetUpdate) SetLivingCondition(v pet.LivingCondition) *PetUpdate {
 	_u.mutation.SetLivingCondition(v)
@@ -361,20 +421,6 @@ func (_u *PetUpdate) SetNillableOwnerID(id *string) *PetUpdate {
 // SetOwner sets the "owner" edge to the User entity.
 func (_u *PetUpdate) SetOwner(v *User) *PetUpdate {
 	return _u.SetOwnerID(v.ID)
-}
-
-// SetHealthID sets the "health" edge to the PetHealth entity by ID.
-func (_u *PetUpdate) SetHealthID(id string) *PetUpdate {
-	_u.mutation.SetHealthID(id)
-	return _u
-}
-
-// SetNillableHealthID sets the "health" edge to the PetHealth entity by ID if the given value is not nil.
-func (_u *PetUpdate) SetNillableHealthID(id *string) *PetUpdate {
-	if id != nil {
-		_u = _u.SetHealthID(*id)
-	}
-	return _u
 }
 
 // SetHealth sets the "health" edge to the PetHealth entity.
@@ -793,10 +839,10 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.AnalysesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: pet.AnalysesPrimaryKey,
+			Columns: []string{pet.AnalysesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
@@ -806,10 +852,10 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.RemovedAnalysesIDs(); len(nodes) > 0 && !_u.mutation.AnalysesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: pet.AnalysesPrimaryKey,
+			Columns: []string{pet.AnalysesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
@@ -822,10 +868,10 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.AnalysesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: pet.AnalysesPrimaryKey,
+			Columns: []string{pet.AnalysesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
@@ -1206,6 +1252,66 @@ func (_u *PetUpdateOne) ClearUserID() *PetUpdateOne {
 	return _u
 }
 
+// SetHealthID sets the "health_id" field.
+func (_u *PetUpdateOne) SetHealthID(v string) *PetUpdateOne {
+	_u.mutation.SetHealthID(v)
+	return _u
+}
+
+// SetNillableHealthID sets the "health_id" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableHealthID(v *string) *PetUpdateOne {
+	if v != nil {
+		_u.SetHealthID(*v)
+	}
+	return _u
+}
+
+// ClearHealthID clears the value of the "health_id" field.
+func (_u *PetUpdateOne) ClearHealthID() *PetUpdateOne {
+	_u.mutation.ClearHealthID()
+	return _u
+}
+
+// SetTreatmentID sets the "treatment_id" field.
+func (_u *PetUpdateOne) SetTreatmentID(v string) *PetUpdateOne {
+	_u.mutation.SetTreatmentID(v)
+	return _u
+}
+
+// SetNillableTreatmentID sets the "treatment_id" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableTreatmentID(v *string) *PetUpdateOne {
+	if v != nil {
+		_u.SetTreatmentID(*v)
+	}
+	return _u
+}
+
+// ClearTreatmentID clears the value of the "treatment_id" field.
+func (_u *PetUpdateOne) ClearTreatmentID() *PetUpdateOne {
+	_u.mutation.ClearTreatmentID()
+	return _u
+}
+
+// SetBonusID sets the "bonus_id" field.
+func (_u *PetUpdateOne) SetBonusID(v string) *PetUpdateOne {
+	_u.mutation.SetBonusID(v)
+	return _u
+}
+
+// SetNillableBonusID sets the "bonus_id" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableBonusID(v *string) *PetUpdateOne {
+	if v != nil {
+		_u.SetBonusID(*v)
+	}
+	return _u
+}
+
+// ClearBonusID clears the value of the "bonus_id" field.
+func (_u *PetUpdateOne) ClearBonusID() *PetUpdateOne {
+	_u.mutation.ClearBonusID()
+	return _u
+}
+
 // SetLivingCondition sets the "living_condition" field.
 func (_u *PetUpdateOne) SetLivingCondition(v pet.LivingCondition) *PetUpdateOne {
 	_u.mutation.SetLivingCondition(v)
@@ -1269,20 +1375,6 @@ func (_u *PetUpdateOne) SetNillableOwnerID(id *string) *PetUpdateOne {
 // SetOwner sets the "owner" edge to the User entity.
 func (_u *PetUpdateOne) SetOwner(v *User) *PetUpdateOne {
 	return _u.SetOwnerID(v.ID)
-}
-
-// SetHealthID sets the "health" edge to the PetHealth entity by ID.
-func (_u *PetUpdateOne) SetHealthID(id string) *PetUpdateOne {
-	_u.mutation.SetHealthID(id)
-	return _u
-}
-
-// SetNillableHealthID sets the "health" edge to the PetHealth entity by ID if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableHealthID(id *string) *PetUpdateOne {
-	if id != nil {
-		_u = _u.SetHealthID(*id)
-	}
-	return _u
 }
 
 // SetHealth sets the "health" edge to the PetHealth entity.
@@ -1731,10 +1823,10 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.AnalysesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: pet.AnalysesPrimaryKey,
+			Columns: []string{pet.AnalysesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
@@ -1744,10 +1836,10 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if nodes := _u.mutation.RemovedAnalysesIDs(); len(nodes) > 0 && !_u.mutation.AnalysesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: pet.AnalysesPrimaryKey,
+			Columns: []string{pet.AnalysesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
@@ -1760,10 +1852,10 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if nodes := _u.mutation.AnalysesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: true,
 			Table:   pet.AnalysesTable,
-			Columns: pet.AnalysesPrimaryKey,
+			Columns: []string{pet.AnalysesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),

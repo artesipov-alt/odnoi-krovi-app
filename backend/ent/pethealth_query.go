@@ -409,7 +409,9 @@ func (_q *PetHealthQuery) loadOwner(ctx context.Context, query *PetQuery, nodes 
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(pet.FieldHealthID)
+	}
 	query.Where(predicate.Pet(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(pethealth.OwnerColumn), fks...))
 	}))
@@ -418,13 +420,10 @@ func (_q *PetHealthQuery) loadOwner(ctx context.Context, query *PetQuery, nodes 
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.pet_health_owner
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "pet_health_owner" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.HealthID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "pet_health_owner" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "health_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

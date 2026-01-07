@@ -39,7 +39,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
 	OwnerInverseTable = "pets"
 	// OwnerColumn is the table column denoting the owner relation/edge.
-	OwnerColumn = "pet_bonus_owner"
+	OwnerColumn = "bonus_id"
 )
 
 // Columns holds all SQL columns for petbonus fields.
@@ -77,6 +77,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
 )
 
 // OrderOption defines the ordering options for the PetBonus queries.

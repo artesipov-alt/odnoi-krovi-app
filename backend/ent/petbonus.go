@@ -15,7 +15,7 @@ import (
 
 // PetBonus is the model entity for the PetBonus schema.
 type PetBonus struct {
-	config `json:"-"`
+	config `json:"-" swaggerignore:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
 	// IsArtist holds the value of the "is_artist" field.
@@ -27,11 +27,11 @@ type PetBonus struct {
 	// IsGuideDog holds the value of the "is_guide_dog" field.
 	IsGuideDog bool `json:"isGuideDog"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
+	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetBonusQuery when eager-loading is set.
 	Edges        PetBonusEdges `json:"edges"`

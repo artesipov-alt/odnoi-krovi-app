@@ -73,7 +73,6 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 	// 2. Create related entities if provided
 	if health != nil {
 		_, err = tx.PetHealth.Create().
-			SetID(newPet.ID).
 			SetOwner(newPet).
 			SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
 			SetNillableHealthStatus(nillable(health.HealthStatus)).
@@ -90,7 +89,6 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 
 	if treatments != nil {
 		_, err = tx.PetTreatment.Create().
-			SetID(newPet.ID).
 			SetOwner(newPet).
 			SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
 			SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
@@ -105,7 +103,7 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 
 	for _, a := range analyses {
 		_, err = tx.PetAnalysis.Create().
-			AddOwner(newPet).
+			SetOwnerID(newPet.ID).
 			SetNillableLeukemiaDate(a.LeukemiaDate).
 			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
 			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
@@ -131,7 +129,6 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 
 	if bonuses != nil {
 		_, err = tx.PetBonus.Create().
-			SetID(newPet.ID).
 			SetOwner(newPet).
 			SetIsArtist(bonuses.IsArtist).
 			SetIsTherapist(bonuses.IsTherapist).
@@ -259,13 +256,13 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 
 	// 2. Update related entities
 	if health != nil {
-		exists, err := tx.PetHealth.Query().Where(pethealth.ID(p.ID)).Exist(ctx)
-		if err != nil {
+		existingHealth, err := tx.PetHealth.Query().Where(pethealth.HasOwnerWith(pet.ID(p.ID))).Only(ctx)
+		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
 			return nil, err
 		}
-		if exists {
-			err = tx.PetHealth.UpdateOneID(p.ID).
+		if existingHealth != nil {
+			err = tx.PetHealth.UpdateOne(existingHealth).
 				SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
 				SetNillableHealthStatus(nillable(health.HealthStatus)).
 				SetNillableLastDonation(health.LastDonation).
@@ -275,8 +272,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 				Exec(ctx)
 		} else {
 			_, err = tx.PetHealth.Create().
-				SetID(p.ID).
-				SetOwner(p).
+				SetOwnerID(p.ID).
 				SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
 				SetNillableHealthStatus(nillable(health.HealthStatus)).
 				SetNillableLastDonation(health.LastDonation).
@@ -292,13 +288,13 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 	}
 
 	if treatments != nil {
-		exists, err := tx.PetTreatment.Query().Where(pettreatment.ID(p.ID)).Exist(ctx)
-		if err != nil {
+		existingTreatment, err := tx.PetTreatment.Query().Where(pettreatment.HasOwnerWith(pet.ID(p.ID))).Only(ctx)
+		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
 			return nil, err
 		}
-		if exists {
-			err = tx.PetTreatment.UpdateOneID(p.ID).
+		if existingTreatment != nil {
+			err = tx.PetTreatment.UpdateOne(existingTreatment).
 				SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
 				SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
 				SetNillableEctoparasiteTreatmentDate(treatments.EctoparasiteTreatmentDate).
@@ -306,8 +302,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 				Exec(ctx)
 		} else {
 			_, err = tx.PetTreatment.Create().
-				SetID(p.ID).
-				SetOwner(p).
+				SetOwnerID(p.ID).
 				SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
 				SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
 				SetNillableEctoparasiteTreatmentDate(treatments.EctoparasiteTreatmentDate).
@@ -323,7 +318,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 	// For analyses, add new ones as history (do not delete existing)
 	for _, a := range analyses {
 		_, err = tx.PetAnalysis.Create().
-			AddOwner(p).
+			SetOwnerID(p.ID).
 			SetNillableLeukemiaDate(a.LeukemiaDate).
 			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
 			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
@@ -348,13 +343,13 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 	}
 
 	if bonuses != nil {
-		exists, err := tx.PetBonus.Query().Where(petbonus.ID(p.ID)).Exist(ctx)
-		if err != nil {
+		existingBonus, err := tx.PetBonus.Query().Where(petbonus.HasOwnerWith(pet.ID(p.ID))).Only(ctx)
+		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
 			return nil, err
 		}
-		if exists {
-			err = tx.PetBonus.UpdateOneID(p.ID).
+		if existingBonus != nil {
+			err = tx.PetBonus.UpdateOne(existingBonus).
 				SetIsArtist(bonuses.IsArtist).
 				SetIsTherapist(bonuses.IsTherapist).
 				SetIsFormerDonor(bonuses.IsFormerDonor).
@@ -362,8 +357,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 				Exec(ctx)
 		} else {
 			_, err = tx.PetBonus.Create().
-				SetID(p.ID).
-				SetOwner(p).
+				SetOwnerID(p.ID).
 				SetIsArtist(bonuses.IsArtist).
 				SetIsTherapist(bonuses.IsTherapist).
 				SetIsFormerDonor(bonuses.IsFormerDonor).
