@@ -149,15 +149,7 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client, log *zap.Logge
 func SeedLocations(ctx context.Context, client *ent.Client, log *zap.Logger) error {
 	locations := []string{
 		"Москва",
-		"Санкт-Петербург",
-		"Новосибирск",
-		"Екатеринбург",
-		"Казань",
-		"Нижний Новгород",
-		"Челябинск",
-		"Самара",
-		"Омск",
-		"Ростов-на-Дону",
+		"Московская область",
 	}
 
 	for _, name := range locations {

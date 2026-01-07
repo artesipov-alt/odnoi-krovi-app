@@ -20,6 +20,11 @@ type ErrorResponse struct {
 // Использует этот обработчик в Echo при создании приложения
 func ErrorHandler() echo.HTTPErrorHandler {
 	return func(err error, c echo.Context) {
+		// Если ответ уже отправлен, ничего не делаем
+		if c.Response().Committed {
+			return
+		}
+
 		// Пытаемся привести к AppError
 		var appErr *apperrors.AppError
 		if errors.As(err, &appErr) {
@@ -55,13 +60,13 @@ func ErrorHandler() echo.HTTPErrorHandler {
 				)
 			}
 
-			// Отправляем JSON ответ
-			c.Response().Header().Set("Content-Type", "application/json; charset=utf-8")
+			// Отправляем JSON ответ и выходим
 			c.JSON(appErr.HTTPStatus, ErrorResponse{
 				Code:    appErr.Code,
 				Message: appErr.Message,
 				Details: appErr.Details,
 			})
+			return
 		}
 
 		// Если это ошибка Echo
@@ -90,11 +95,11 @@ func ErrorHandler() echo.HTTPErrorHandler {
 				)
 			}
 
-			c.Response().Header().Set("Content-Type", "application/json; charset=utf-8")
 			c.JSON(echoErr.Code, ErrorResponse{
 				Code:    apperrors.ErrCodeBadRequest,
 				Message: message,
 			})
+			return
 		}
 
 		// Непредвиденная ошибка - логируем с максимумом информации
@@ -107,7 +112,6 @@ func ErrorHandler() echo.HTTPErrorHandler {
 		)
 
 		// Не показываем детали непредвиденных ошибок клиенту
-		c.Response().Header().Set("Content-Type", "application/json; charset=utf-8")
 		c.JSON(500, ErrorResponse{
 			Code:    apperrors.ErrCodeInternal,
 			Message: "Внутренняя ошибка сервера",
