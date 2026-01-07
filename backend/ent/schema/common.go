@@ -19,6 +19,7 @@ const (
 	PetTreatmentPrefix = "PTR"
 	PetAnalysisPrefix  = "PAN"
 	PetBonusPrefix     = "PBN"
+	BloodSearchPrefix  = "BLS"
 )
 
 // generateID generates a new ID with prefix and nanoID of 10 characters

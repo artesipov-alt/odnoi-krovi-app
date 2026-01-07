@@ -31,6 +31,10 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("pets", Pet.Type),
+		edge.From("location", Location.Type).
+			Ref("users").
+			Unique().
+			Field("location_id"),
 	}
 }
 

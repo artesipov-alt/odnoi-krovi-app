@@ -25,7 +25,7 @@ func (Pet) Fields() []ent.Field {
 		field.Time("birth_date").Optional().Nillable().StructTag(`json:"birthDate"`),
 		field.String("chip_number").Optional().MaxLen(15).StructTag(`json:"chipNumber"`),
 		field.String("photo_url").Optional().MaxLen(255).StructTag(`json:"photoUrl"`),
-		field.String("breed").Optional().MaxLen(100).StructTag(`json:"breed"`),
+		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 	}
 }
@@ -38,6 +38,11 @@ func (Pet) Edges() []ent.Edge {
 		edge.To("treatments", PetTreatment.Type),
 		edge.To("analyses", PetAnalysis.Type),
 		edge.To("bonuses", PetBonus.Type),
+		edge.From("breed_ref", Breed.Type).
+			Ref("pets").
+			Unique().
+			Field("breed_id"),
+		edge.To("blood_search_request", BloodSearchRequest.Type).Unique(),
 	}
 }
 
