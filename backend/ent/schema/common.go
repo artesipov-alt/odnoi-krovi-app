@@ -1,7 +1,6 @@
 package schema
 
 import (
-	"context"
 	"time"
 
 	"entgo.io/ent"
@@ -25,13 +24,6 @@ func generateID(prefix string) string {
 	gen, _ := nanoid.Standard(10)
 	id := gen()
 	return prefix + "-" + id
-}
-
-type softDeleteKey struct{}
-
-// SkipSoftDelete returns a new context that skips the soft-delete interceptor/mutators.
-func SkipSoftDelete(parent context.Context) context.Context {
-	return context.WithValue(parent, softDeleteKey{}, true)
 }
 
 // BaseMixin provides common fields and hooks for all schemas
