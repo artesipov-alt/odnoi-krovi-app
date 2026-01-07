@@ -402,14 +402,14 @@ func (_u *PetUpdate) SetTreatments(v *PetTreatment) *PetUpdate {
 }
 
 // AddAnalysisIDs adds the "analyses" edge to the PetAnalysis entity by IDs.
-func (_u *PetUpdate) AddAnalysisIDs(ids ...string) *PetUpdate {
+func (_u *PetUpdate) AddAnalysisIDs(ids ...int) *PetUpdate {
 	_u.mutation.AddAnalysisIDs(ids...)
 	return _u
 }
 
 // AddAnalyses adds the "analyses" edges to the PetAnalysis entity.
 func (_u *PetUpdate) AddAnalyses(v ...*PetAnalysis) *PetUpdate {
-	ids := make([]string, len(v))
+	ids := make([]int, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -503,14 +503,14 @@ func (_u *PetUpdate) ClearAnalyses() *PetUpdate {
 }
 
 // RemoveAnalysisIDs removes the "analyses" edge to PetAnalysis entities by IDs.
-func (_u *PetUpdate) RemoveAnalysisIDs(ids ...string) *PetUpdate {
+func (_u *PetUpdate) RemoveAnalysisIDs(ids ...int) *PetUpdate {
 	_u.mutation.RemoveAnalysisIDs(ids...)
 	return _u
 }
 
 // RemoveAnalyses removes "analyses" edges to PetAnalysis entities.
 func (_u *PetUpdate) RemoveAnalyses(v ...*PetAnalysis) *PetUpdate {
-	ids := make([]string, len(v))
+	ids := make([]int, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -799,7 +799,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -812,7 +812,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -828,7 +828,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1310,14 +1310,14 @@ func (_u *PetUpdateOne) SetTreatments(v *PetTreatment) *PetUpdateOne {
 }
 
 // AddAnalysisIDs adds the "analyses" edge to the PetAnalysis entity by IDs.
-func (_u *PetUpdateOne) AddAnalysisIDs(ids ...string) *PetUpdateOne {
+func (_u *PetUpdateOne) AddAnalysisIDs(ids ...int) *PetUpdateOne {
 	_u.mutation.AddAnalysisIDs(ids...)
 	return _u
 }
 
 // AddAnalyses adds the "analyses" edges to the PetAnalysis entity.
 func (_u *PetUpdateOne) AddAnalyses(v ...*PetAnalysis) *PetUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]int, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1411,14 +1411,14 @@ func (_u *PetUpdateOne) ClearAnalyses() *PetUpdateOne {
 }
 
 // RemoveAnalysisIDs removes the "analyses" edge to PetAnalysis entities by IDs.
-func (_u *PetUpdateOne) RemoveAnalysisIDs(ids ...string) *PetUpdateOne {
+func (_u *PetUpdateOne) RemoveAnalysisIDs(ids ...int) *PetUpdateOne {
 	_u.mutation.RemoveAnalysisIDs(ids...)
 	return _u
 }
 
 // RemoveAnalyses removes "analyses" edges to PetAnalysis entities.
 func (_u *PetUpdateOne) RemoveAnalyses(v ...*PetAnalysis) *PetUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]int, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -1737,7 +1737,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1750,7 +1750,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1766,7 +1766,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

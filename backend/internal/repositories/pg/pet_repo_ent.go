@@ -149,24 +149,34 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return r.GetByID(ctx, newPet.ID)
+	return r.GetByID(ctx, newPet.ID, "Health", "Treatments", "Analysis", "Bonuses")
 }
 
-// GetByID retrieves a pet by their ID with all related entities
-func (r *EntPetRepository) GetByID(ctx context.Context, id string) (*ent.Pet, error) {
+// GetByID retrieves a pet by their ID with related entities based on preloads
+func (r *EntPetRepository) GetByID(ctx context.Context, id string, preloads ...string) (*ent.Pet, error) {
 	if id == "" {
 		return nil, errors.New("invalid pet ID")
 	}
 
-	p, err := r.client.Pet.Query().
+	query := r.client.Pet.Query().
 		Where(pet.ID(id)).
-		WithHealth().
-		WithTreatments().
-		WithAnalyses().
-		WithBonuses().
 		WithBreedRef().
-		WithOwner().
-		Only(ctx)
+		WithOwner()
+
+	for _, preload := range preloads {
+		switch preload {
+		case "Health":
+			query = query.WithHealth()
+		case "Treatments":
+			query = query.WithTreatments()
+		case "Analysis":
+			query = query.WithAnalyses()
+		case "Bonuses":
+			query = query.WithBonuses()
+		}
+	}
+
+	p, err := query.Only(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -178,20 +188,30 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string) (*ent.Pet, er
 	return p, nil
 }
 
-// GetByUserID retrieves all pets for a specific user
-func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string) ([]*ent.Pet, error) {
+// GetByUserID retrieves all pets for a specific user with related entities based on preloads
+func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error) {
 	if userID == "" {
 		return nil, errors.New("invalid user ID")
 	}
 
-	pets, err := r.client.Pet.Query().
+	query := r.client.Pet.Query().
 		Where(pet.UserID(userID)).
-		WithHealth().
-		WithTreatments().
-		WithAnalyses().
-		WithBonuses().
-		WithBreedRef().
-		All(ctx)
+		WithBreedRef()
+
+	for _, preload := range preloads {
+		switch preload {
+		case "Health":
+			query = query.WithHealth()
+		case "Treatments":
+			query = query.WithTreatments()
+		case "Analysis":
+			query = query.WithAnalyses()
+		case "Bonuses":
+			query = query.WithBonuses()
+		}
+	}
+
+	pets, err := query.All(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get pets for user %s: %w", userID, err)
@@ -371,7 +391,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return r.GetByID(ctx, p.ID)
+	return r.GetByID(ctx, p.ID, "Health", "Treatments", "Analysis", "Bonuses")
 }
 
 // Delete deletes a pet by their ID (soft delete)

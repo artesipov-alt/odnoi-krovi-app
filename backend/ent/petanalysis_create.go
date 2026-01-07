@@ -288,16 +288,8 @@ func (_c *PetAnalysisCreate) SetNillableDeletedAt(v *time.Time) *PetAnalysisCrea
 }
 
 // SetID sets the "id" field.
-func (_c *PetAnalysisCreate) SetID(v string) *PetAnalysisCreate {
+func (_c *PetAnalysisCreate) SetID(v int) *PetAnalysisCreate {
 	_c.mutation.SetID(v)
-	return _c
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (_c *PetAnalysisCreate) SetNillableID(v *string) *PetAnalysisCreate {
-	if v != nil {
-		_c.SetID(*v)
-	}
 	return _c
 }
 
@@ -358,10 +350,6 @@ func (_c *PetAnalysisCreate) defaults() {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := petanalysis.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
-	}
-	if _, ok := _c.mutation.ID(); !ok {
-		v := petanalysis.DefaultID()
-		_c.mutation.SetID(v)
 	}
 }
 
@@ -430,12 +418,9 @@ func (_c *PetAnalysisCreate) sqlSave(ctx context.Context) (*PetAnalysis, error) 
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected PetAnalysis.ID type: %T", _spec.ID.Value)
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
 	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
@@ -445,7 +430,7 @@ func (_c *PetAnalysisCreate) sqlSave(ctx context.Context) (*PetAnalysis, error) 
 func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 	var (
 		_node = &PetAnalysis{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(petanalysis.Table, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(petanalysis.Table, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt))
 	)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
@@ -591,6 +576,10 @@ func (_c *PetAnalysisCreateBulk) Save(ctx context.Context) ([]*PetAnalysis, erro
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

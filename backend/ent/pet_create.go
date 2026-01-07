@@ -313,14 +313,14 @@ func (_c *PetCreate) SetTreatments(v *PetTreatment) *PetCreate {
 }
 
 // AddAnalysisIDs adds the "analyses" edge to the PetAnalysis entity by IDs.
-func (_c *PetCreate) AddAnalysisIDs(ids ...string) *PetCreate {
+func (_c *PetCreate) AddAnalysisIDs(ids ...int) *PetCreate {
 	_c.mutation.AddAnalysisIDs(ids...)
 	return _c
 }
 
 // AddAnalyses adds the "analyses" edges to the PetAnalysis entity.
 func (_c *PetCreate) AddAnalyses(v ...*PetAnalysis) *PetCreate {
-	ids := make([]string, len(v))
+	ids := make([]int, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -639,7 +639,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 			Columns: pet.AnalysesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

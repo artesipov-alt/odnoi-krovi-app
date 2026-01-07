@@ -107,8 +107,8 @@ func (_q *PetAnalysisQuery) FirstX(ctx context.Context) *PetAnalysis {
 
 // FirstID returns the first PetAnalysis ID from the query.
 // Returns a *NotFoundError when no PetAnalysis ID was found.
-func (_q *PetAnalysisQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (_q *PetAnalysisQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -120,7 +120,7 @@ func (_q *PetAnalysisQuery) FirstID(ctx context.Context) (id string, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *PetAnalysisQuery) FirstIDX(ctx context.Context) string {
+func (_q *PetAnalysisQuery) FirstIDX(ctx context.Context) int {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -158,8 +158,8 @@ func (_q *PetAnalysisQuery) OnlyX(ctx context.Context) *PetAnalysis {
 // OnlyID is like Only, but returns the only PetAnalysis ID in the query.
 // Returns a *NotSingularError when more than one PetAnalysis ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *PetAnalysisQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (_q *PetAnalysisQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -175,7 +175,7 @@ func (_q *PetAnalysisQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *PetAnalysisQuery) OnlyIDX(ctx context.Context) string {
+func (_q *PetAnalysisQuery) OnlyIDX(ctx context.Context) int {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -203,7 +203,7 @@ func (_q *PetAnalysisQuery) AllX(ctx context.Context) []*PetAnalysis {
 }
 
 // IDs executes the query and returns a list of PetAnalysis IDs.
-func (_q *PetAnalysisQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (_q *PetAnalysisQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -215,7 +215,7 @@ func (_q *PetAnalysisQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *PetAnalysisQuery) IDsX(ctx context.Context) []string {
+func (_q *PetAnalysisQuery) IDsX(ctx context.Context) []int {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -405,7 +405,7 @@ func (_q *PetAnalysisQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 
 func (_q *PetAnalysisQuery) loadOwner(ctx context.Context, query *PetQuery, nodes []*PetAnalysis, init func(*PetAnalysis), assign func(*PetAnalysis, *Pet)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[string]*PetAnalysis)
+	byID := make(map[int]*PetAnalysis)
 	nids := make(map[string]map[*PetAnalysis]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
@@ -435,10 +435,10 @@ func (_q *PetAnalysisQuery) loadOwner(ctx context.Context, query *PetQuery, node
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullString)}, values...), nil
+				return append([]any{new(sql.NullInt64)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := values[0].(*sql.NullString).String
+				outValue := int(values[0].(*sql.NullInt64).Int64)
 				inValue := values[1].(*sql.NullString).String
 				if nids[inValue] == nil {
 					nids[inValue] = map[*PetAnalysis]struct{}{byID[outValue]: {}}
@@ -475,7 +475,7 @@ func (_q *PetAnalysisQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *PetAnalysisQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

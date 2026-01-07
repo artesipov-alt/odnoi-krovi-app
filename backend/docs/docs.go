@@ -1667,7 +1667,7 @@ const docTemplate = `{
                 },
                 "id": {
                     "description": "ID of the ent.",
-                    "type": "integer"
+                    "type": "string"
                 },
                 "immunodeficiencyDate": {
                     "description": "ImmunodeficiencyDate holds the value of the \"immunodeficiency_date\" field.",
@@ -1693,10 +1693,6 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "petId": {
-                    "description": "PetID holds the value of the \"pet_id\" field.",
-                    "type": "string"
-                },
                 "updatedAt": {
                     "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
@@ -1706,13 +1702,12 @@ const docTemplate = `{
         "ent.PetAnalysisEdges": {
             "type": "object",
             "properties": {
-                "pet": {
-                    "description": "Pet holds the value of the pet edge.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.Pet"
-                        }
-                    ]
+                "owner": {
+                    "description": "Owner holds the value of the owner edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Pet"
+                    }
                 }
             }
         },
@@ -1737,7 +1732,7 @@ const docTemplate = `{
                 },
                 "id": {
                     "description": "ID of the ent.",
-                    "type": "integer"
+                    "type": "string"
                 },
                 "isArtist": {
                     "description": "IsArtist holds the value of the \"is_artist\" field.",
@@ -1755,10 +1750,6 @@ const docTemplate = `{
                     "description": "IsTherapist holds the value of the \"is_therapist\" field.",
                     "type": "boolean"
                 },
-                "petId": {
-                    "description": "PetID holds the value of the \"pet_id\" field.",
-                    "type": "string"
-                },
                 "updatedAt": {
                     "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
@@ -1768,8 +1759,8 @@ const docTemplate = `{
         "ent.PetBonusEdges": {
             "type": "object",
             "properties": {
-                "pet": {
-                    "description": "Pet holds the value of the pet edge.",
+                "owner": {
+                    "description": "Owner holds the value of the owner edge.",
                     "allOf": [
                         {
                             "$ref": "#/definitions/ent.Pet"
@@ -1783,11 +1774,10 @@ const docTemplate = `{
             "properties": {
                 "analyses": {
                     "description": "Analyses holds the value of the analyses edge.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.PetAnalysis"
-                        }
-                    ]
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.PetAnalysis"
+                    }
                 },
                 "blood_search_request": {
                     "description": "BloodSearchRequest holds the value of the blood_search_request edge.",
@@ -1868,7 +1858,7 @@ const docTemplate = `{
                 },
                 "id": {
                     "description": "ID of the ent.",
-                    "type": "integer"
+                    "type": "string"
                 },
                 "lastDonation": {
                     "description": "LastDonation holds the value of the \"last_donation\" field.",
@@ -1876,10 +1866,6 @@ const docTemplate = `{
                 },
                 "medications": {
                     "description": "Medications holds the value of the \"medications\" field.",
-                    "type": "string"
-                },
-                "petId": {
-                    "description": "PetID holds the value of the \"pet_id\" field.",
                     "type": "string"
                 },
                 "reproductiveStatus": {
@@ -1907,8 +1893,8 @@ const docTemplate = `{
         "ent.PetHealthEdges": {
             "type": "object",
             "properties": {
-                "pet": {
-                    "description": "Pet holds the value of the pet edge.",
+                "owner": {
+                    "description": "Owner holds the value of the owner edge.",
                     "allOf": [
                         {
                             "$ref": "#/definitions/ent.Pet"
@@ -1946,14 +1932,10 @@ const docTemplate = `{
                 },
                 "id": {
                     "description": "ID of the ent.",
-                    "type": "integer"
+                    "type": "string"
                 },
                 "infectionVaccinationDate": {
                     "description": "InfectionVaccinationDate holds the value of the \"infection_vaccination_date\" field.",
-                    "type": "string"
-                },
-                "petId": {
-                    "description": "PetID holds the value of the \"pet_id\" field.",
                     "type": "string"
                 },
                 "rabiesVaccinationDate": {
@@ -1969,8 +1951,8 @@ const docTemplate = `{
         "ent.PetTreatmentEdges": {
             "type": "object",
             "properties": {
-                "pet": {
-                    "description": "Pet holds the value of the pet edge.",
+                "owner": {
+                    "description": "Owner holds the value of the owner edge.",
                     "allOf": [
                         {
                             "$ref": "#/definitions/ent.Pet"
@@ -2391,7 +2373,10 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "analyses": {
-                    "$ref": "#/definitions/ent.PetAnalysis"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.PetAnalysis"
+                    }
                 },
                 "birthDate": {
                     "type": "string"
@@ -2461,7 +2446,10 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "analyses": {
-                    "$ref": "#/definitions/ent.PetAnalysis"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.PetAnalysis"
+                    }
                 },
                 "birthDate": {
                     "type": "string"

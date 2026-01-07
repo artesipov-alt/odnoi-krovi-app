@@ -240,10 +240,8 @@ type PetAnalysis struct {
 // Fields of the PetAnalysis.
 func (PetAnalysis) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").
+		field.Int("id").
 			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID("analysis") }).
 			StructTag(`json:"id"`),
 		field.Time("leukemia_date").Optional().Nillable().StructTag(`json:"leukemiaDate"`),
 		field.Enum("leukemia_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"leukemiaType"`),

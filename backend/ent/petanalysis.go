@@ -16,7 +16,7 @@ import (
 type PetAnalysis struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id"`
+	ID int `json:"id"`
 	// LeukemiaDate holds the value of the "leukemia_date" field.
 	LeukemiaDate *time.Time `json:"leukemiaDate"`
 	// LeukemiaType holds the value of the "leukemia_type" field.
@@ -84,7 +84,9 @@ func (*PetAnalysis) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case petanalysis.FieldID, petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType:
+		case petanalysis.FieldID:
+			values[i] = new(sql.NullInt64)
+		case petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType:
 			values[i] = new(sql.NullString)
 		case petanalysis.FieldLeukemiaDate, petanalysis.FieldImmunodeficiencyDate, petanalysis.FieldHemoplasmosisDate, petanalysis.FieldBartonellosisDate, petanalysis.FieldBabesiosisDate, petanalysis.FieldDirofilariaDate, petanalysis.FieldEhrlichiosisDate, petanalysis.FieldAnaplasmosisDate, petanalysis.FieldCreatedAt, petanalysis.FieldUpdatedAt, petanalysis.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -104,11 +106,11 @@ func (_m *PetAnalysis) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case petanalysis.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				_m.ID = value.String
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			_m.ID = int(value.Int64)
 		case petanalysis.FieldLeukemiaDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field leukemia_date", values[i])

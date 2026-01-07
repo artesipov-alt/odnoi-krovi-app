@@ -168,7 +168,7 @@ var (
 	}
 	// PetAnalysesColumns holds the columns for the "pet_analyses" table.
 	PetAnalysesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "leukemia_date", Type: field.TypeTime, Nullable: true},
 		{Name: "leukemia_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"PCR", "ELISA", "ICA", "Microscopy", "Express"}},
 		{Name: "immunodeficiency_date", Type: field.TypeTime, Nullable: true},
@@ -306,7 +306,7 @@ var (
 	}
 	// PetAnalysisOwnerColumns holds the columns for the "pet_analysis_owner" table.
 	PetAnalysisOwnerColumns = []*schema.Column{
-		{Name: "pet_analysis_id", Type: field.TypeString},
+		{Name: "pet_analysis_id", Type: field.TypeInt},
 		{Name: "pet_id", Type: field.TypeString},
 	}
 	// PetAnalysisOwnerTable holds the schema information for the "pet_analysis_owner" table.

@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
@@ -46,11 +47,11 @@ type PetService interface {
 	// CreatePet создает нового питомца для пользователя
 	CreatePet(ctx context.Context, userID string, petData PetCreate) (*ent.Pet, error)
 
-	// GetPetByID получает питомца по ID
-	GetPetByID(ctx context.Context, petID string) (*ent.Pet, error)
+	// GetPetByID получает питомца по ID с preload связей
+	GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error)
 
-	// GetUserPets получает всех питомцев пользователя
-	GetUserPets(ctx context.Context, userID string) ([]*ent.Pet, error)
+	// GetUserPets получает всех питомцев пользователя с preload связей
+	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
 	UpdatePet(ctx context.Context, petID string, updates PetUpdate) error
@@ -264,13 +265,14 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 	return newPet, nil
 }
 
-// GetPetByID получает питомца по ID
-func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*ent.Pet, error) {
-	p, err := s.petRepo.GetByID(ctx, petID)
+// GetPetByID получает питомца по ID с preload связей
+func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error) {
+	if petID == "" {
+		return nil, errors.New("invalid pet ID")
+	}
+
+	p, err := s.petRepo.GetByID(ctx, petID, preloads...)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.NewPetNotFoundError(petID)
-		}
 		return nil, apperrors.Internal(err, "не удалось получить питомца")
 	}
 
@@ -280,8 +282,8 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string) (*ent.Pet
 	return p, nil
 }
 
-// GetUserPets получает всех питомцев пользователя
-func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*ent.Pet, error) {
+// GetUserPets получает всех питомцев пользователя с preload связей
+func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -291,16 +293,14 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string) ([]*ent
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
-	pets, err := s.petRepo.GetByUserID(ctx, userID)
+	pets, err := s.petRepo.GetByUserID(ctx, userID, preloads...)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
 	}
 
 	// Преобразуем пути к фото в полные URL
-	for _, p := range pets {
-		if p != nil {
-			p.PhotoURL = s.buildFullPhotoURL(p.PhotoURL)
-		}
+	for _, pet := range pets {
+		pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
 	}
 
 	return pets, nil

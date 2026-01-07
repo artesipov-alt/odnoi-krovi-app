@@ -11,11 +11,11 @@ type PetRepository interface {
 	// Create создает нового питомца в базе данных
 	Create(ctx context.Context, pet *ent.Pet, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) (*ent.Pet, error)
 
-	// GetByID получает питомца по его ID со всеми связями
-	GetByID(ctx context.Context, id string) (*ent.Pet, error)
+	// GetByID получает питомца по его ID со связями по запросу
+	GetByID(ctx context.Context, id string, preloads ...string) (*ent.Pet, error)
 
-	// GetByUserID получает всех питомцев конкретного пользователя со всеми связями
-	GetByUserID(ctx context.Context, userID string) ([]*ent.Pet, error)
+	// GetByUserID получает всех питомцев конкретного пользователя со связями по запросу
+	GetByUserID(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// Update обновляет существующего питомца в базе данных
 	Update(ctx context.Context, pet *ent.Pet, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) (*ent.Pet, error)

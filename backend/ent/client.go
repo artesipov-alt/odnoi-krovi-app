@@ -1376,7 +1376,7 @@ func (c *PetAnalysisClient) UpdateOne(_m *PetAnalysis) *PetAnalysisUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PetAnalysisClient) UpdateOneID(id string) *PetAnalysisUpdateOne {
+func (c *PetAnalysisClient) UpdateOneID(id int) *PetAnalysisUpdateOne {
 	mutation := newPetAnalysisMutation(c.config, OpUpdateOne, withPetAnalysisID(id))
 	return &PetAnalysisUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1393,7 +1393,7 @@ func (c *PetAnalysisClient) DeleteOne(_m *PetAnalysis) *PetAnalysisDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PetAnalysisClient) DeleteOneID(id string) *PetAnalysisDeleteOne {
+func (c *PetAnalysisClient) DeleteOneID(id int) *PetAnalysisDeleteOne {
 	builder := c.Delete().Where(petanalysis.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1410,12 +1410,12 @@ func (c *PetAnalysisClient) Query() *PetAnalysisQuery {
 }
 
 // Get returns a PetAnalysis entity by its id.
-func (c *PetAnalysisClient) Get(ctx context.Context, id string) (*PetAnalysis, error) {
+func (c *PetAnalysisClient) Get(ctx context.Context, id int) (*PetAnalysis, error) {
 	return c.Query().Where(petanalysis.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PetAnalysisClient) GetX(ctx context.Context, id string) *PetAnalysis {
+func (c *PetAnalysisClient) GetX(ctx context.Context, id int) *PetAnalysis {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

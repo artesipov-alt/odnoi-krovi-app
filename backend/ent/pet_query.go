@@ -765,7 +765,7 @@ func (_q *PetQuery) loadTreatments(ctx context.Context, query *PetTreatmentQuery
 func (_q *PetQuery) loadAnalyses(ctx context.Context, query *PetAnalysisQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *PetAnalysis)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[string]*Pet)
-	nids := make(map[string]map[*Pet]struct{})
+	nids := make(map[int]map[*Pet]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -798,7 +798,7 @@ func (_q *PetQuery) loadAnalyses(ctx context.Context, query *PetAnalysisQuery, n
 			}
 			spec.Assign = func(columns []string, values []any) error {
 				outValue := values[0].(*sql.NullString).String
-				inValue := values[1].(*sql.NullString).String
+				inValue := int(values[1].(*sql.NullInt64).Int64)
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Pet]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
