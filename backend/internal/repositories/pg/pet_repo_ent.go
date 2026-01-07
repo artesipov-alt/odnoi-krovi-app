@@ -52,8 +52,18 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		SetNillableBirthDate(p.BirthDate).
 		SetNillableChipNumber(&p.ChipNumber).
 		SetNillablePhotoURL(&p.PhotoURL).
-		SetNillableBreedID(&p.BreedID).
-		SetNillableUserID(&p.UserID).
+		SetNillableBreedID(func() *int {
+			if p.BreedID > 0 {
+				return &p.BreedID
+			}
+			return nil
+		}()).
+		SetNillableUserID(func() *string {
+			if p.UserID != "" {
+				return &p.UserID
+			}
+			return nil
+		}()).
 		SetNillableLivingCondition(&p.LivingCondition)
 
 	newPet, err := petCreate.Save(ctx)
@@ -220,8 +230,18 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet) (*ent.Pet, er
 		SetNillableBirthDate(p.BirthDate).
 		SetChipNumber(p.ChipNumber).
 		SetPhotoURL(p.PhotoURL).
-		SetBreedID(p.BreedID).
-		SetUserID(p.UserID).
+		SetNillableBreedID(func() *int {
+			if p.BreedID > 0 {
+				return &p.BreedID
+			}
+			return nil
+		}()).
+		SetNillableUserID(func() *string {
+			if p.UserID != "" {
+				return &p.UserID
+			}
+			return nil
+		}()).
 		SetLivingCondition(p.LivingCondition).
 		Exec(ctx)
 

@@ -18,6 +18,9 @@ type Breed struct {
 // Fields of the Breed.
 func (Breed) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("id").
+			Unique().
+			Immutable(),
 		field.String("name").
 			MaxLen(100).
 			NotEmpty().

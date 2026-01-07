@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -52,13 +53,15 @@ type UserUpdate struct {
 
 // UserServiceImpl реализует UserService
 type UserServiceImpl struct {
-	userRepo repositories.UserRepository
+	userRepo     repositories.UserRepository
+	locationRepo repositories.LocationRepository
 }
 
 // NewUserService создает новый сервис пользователей
-func NewUserService(userRepo repositories.UserRepository) *UserServiceImpl {
+func NewUserService(userRepo repositories.UserRepository, locationRepo repositories.LocationRepository) *UserServiceImpl {
 	return &UserServiceImpl{
-		userRepo: userRepo,
+		userRepo:     userRepo,
+		locationRepo: locationRepo,
 	}
 }
 
@@ -77,6 +80,15 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	// Валидируем роль пользователя через ENT-валидатор
 	if err := user.RoleValidator(userData.Role); err != nil {
 		return nil, apperrors.ErrUserInvalidRole
+	}
+
+	// Проверяем существование локации
+	_, err = s.locationRepo.GetByID(ctx, userData.LocationID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", userData.LocationID))
+		}
+		return nil, apperrors.Internal(err, "не удалось проверить существование локации")
 	}
 
 	// Создаем нового пользователя
@@ -117,7 +129,6 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int
 		Phone:      "",
 		Email:      "",
 		ConsentPd:  true,
-		LocationID: 1,
 		OnBoarding: false,
 		AllowGeo:   false,
 		Role:       user.RoleUser,
@@ -191,6 +202,14 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 		u.OnBoarding = *updates.OnBoarding
 	}
 	if updates.LocationID != nil {
+		// Проверяем существование локации
+		_, err := s.locationRepo.GetByID(ctx, *updates.LocationID)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", *updates.LocationID))
+			}
+			return apperrors.Internal(err, "не удалось проверить существование локации")
+		}
 		u.LocationID = *updates.LocationID
 	}
 

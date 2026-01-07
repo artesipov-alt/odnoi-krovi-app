@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,6 +22,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"                       // Бизнес-логика
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"                   // Конфигурация приложения
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"                   // Логирование
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds"                    // Сиды для БД
 
 	// Управление миграциями
 	"github.com/joho/godotenv"                              // Загрузка .env файлов
@@ -58,6 +60,13 @@ func main() {
 		if err := config.RunMigrations(db); err != nil {
 			logger.Log.Error("Ошибка запуска миграций ENT", zap.Error(err))
 		}
+
+		// Заполнение БД начальными данными (Seeds)
+		ctx := context.Background()
+		seeds.SeedBloodGroups(ctx, db, logger.Log)
+		seeds.SeedBloodComponents(ctx, db, logger.Log)
+		seeds.SeedLocations(ctx, db, logger.Log)
+		seeds.SeedBreeds(ctx, db, logger.Log)
 	}
 
 	// Создаем кэш, но если ошибка - используем nil
@@ -87,7 +96,7 @@ func main() {
 	s3VKCloud := s3.NewS3Storage(nil).WithDefaults()
 
 	// Инициализация сервисов
-	userService := services.NewUserService(userRepo)
+	userService := services.NewUserService(userRepo, locationRepo)
 	petService := services.NewPetService(petRepo, userRepo, s3VKCloud)
 
 	// Инициализация клиента blood search микросервиса

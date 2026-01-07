@@ -118,7 +118,7 @@ func init() {
 	breedFields := schema.Breed{}.Fields()
 	_ = breedFields
 	// breedDescName is the schema descriptor for name field.
-	breedDescName := breedFields[0].Descriptor()
+	breedDescName := breedFields[1].Descriptor()
 	// breed.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	breed.NameValidator = func() func(string) error {
 		validators := breedDescName.Validators
@@ -136,11 +136,11 @@ func init() {
 		}
 	}()
 	// breedDescCreatedAt is the schema descriptor for created_at field.
-	breedDescCreatedAt := breedFields[2].Descriptor()
+	breedDescCreatedAt := breedFields[3].Descriptor()
 	// breed.DefaultCreatedAt holds the default value on creation for the created_at field.
 	breed.DefaultCreatedAt = breedDescCreatedAt.Default.(func() time.Time)
 	// breedDescUpdatedAt is the schema descriptor for updated_at field.
-	breedDescUpdatedAt := breedFields[3].Descriptor()
+	breedDescUpdatedAt := breedFields[4].Descriptor()
 	// breed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	breed.DefaultUpdatedAt = breedDescUpdatedAt.Default.(func() time.Time)
 	// breed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

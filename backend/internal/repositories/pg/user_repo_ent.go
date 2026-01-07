@@ -38,7 +38,12 @@ func (r *EntUserRepository) Create(ctx context.Context, u *ent.User) (*ent.User,
 		SetConsentPd(u.ConsentPd).
 		SetOnBoarding(u.OnBoarding).
 		SetAllowGeo(u.AllowGeo).
-		SetNillableLocationID(&u.LocationID).
+		SetNillableLocationID(func() *int {
+			if u.LocationID > 0 {
+				return &u.LocationID
+			}
+			return nil
+		}()).
 		SetRole(u.Role).
 		Save(ctx)
 
@@ -104,7 +109,12 @@ func (r *EntUserRepository) Update(ctx context.Context, u *ent.User) (*ent.User,
 		SetConsentPd(u.ConsentPd).
 		SetOnBoarding(u.OnBoarding).
 		SetAllowGeo(u.AllowGeo).
-		SetLocationID(u.LocationID).
+		SetNillableLocationID(func() *int {
+			if u.LocationID > 0 {
+				return &u.LocationID
+			}
+			return nil
+		}()).
 		SetRole(u.Role).
 		Save(ctx)
 
