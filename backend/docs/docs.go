@@ -1133,17 +1133,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "bloodgroup.PetType": {
-            "type": "string",
-            "enum": [
-                "dog",
-                "cat"
-            ],
-            "x-enum-varnames": [
-                "PetTypeDog",
-                "PetTypeCat"
-            ]
-        },
         "bloodsearchrequest.Status": {
             "type": "string",
             "enum": [
@@ -1170,90 +1159,22 @@ const docTemplate = `{
                 "TypeCat"
             ]
         },
-        "ent.BloodComponent": {
-            "type": "object",
-            "properties": {
-                "edges": {
-                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BloodComponentQuery when eager-loading is set.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.BloodComponentEdges"
-                        }
-                    ]
-                },
-                "id": {
-                    "description": "ID of the ent.",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "Name holds the value of the \"name\" field.",
-                    "type": "string"
-                }
-            }
-        },
-        "ent.BloodComponentEdges": {
-            "type": "object",
-            "properties": {
-                "search_requests": {
-                    "description": "SearchRequests holds the value of the search_requests edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.BloodSearchRequest"
-                    }
-                }
-            }
-        },
-        "ent.BloodGroup": {
-            "type": "object",
-            "properties": {
-                "bloodGroup": {
-                    "description": "BloodGroup holds the value of the \"blood_group\" field.",
-                    "type": "string"
-                },
-                "description": {
-                    "description": "Description holds the value of the \"description\" field.",
-                    "type": "string"
-                },
-                "edges": {
-                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the BloodGroupQuery when eager-loading is set.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.BloodGroupEdges"
-                        }
-                    ]
-                },
-                "id": {
-                    "description": "ID of the ent.",
-                    "type": "integer"
-                },
-                "petType": {
-                    "description": "PetType holds the value of the \"pet_type\" field.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/bloodgroup.PetType"
-                        }
-                    ]
-                }
-            }
-        },
-        "ent.BloodGroupEdges": {
-            "type": "object",
-            "properties": {
-                "search_requests": {
-                    "description": "SearchRequests holds the value of the search_requests edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.BloodSearchRequest"
-                    }
-                }
-            }
-        },
         "ent.BloodSearchRequest": {
             "type": "object",
             "properties": {
-                "bloodGroupId": {
-                    "description": "BloodGroupID holds the value of the \"blood_group_id\" field.",
-                    "type": "integer"
+                "bloodComponentIds": {
+                    "description": "BloodComponentIds holds the value of the \"blood_component_ids\" field.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bloodGroupIds": {
+                    "description": "BloodGroupIds holds the value of the \"blood_group_ids\" field.",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "bloodVolumeNeeded": {
                     "description": "BloodVolumeNeeded holds the value of the \"blood_volume_needed\" field.",
@@ -1314,21 +1235,6 @@ const docTemplate = `{
         "ent.BloodSearchRequestEdges": {
             "type": "object",
             "properties": {
-                "bloodComponents": {
-                    "description": "BloodComponents holds the value of the blood_components edge.",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.BloodComponent"
-                    }
-                },
-                "blood_group": {
-                    "description": "BloodGroup holds the value of the blood_group edge.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/ent.BloodGroup"
-                        }
-                    ]
-                },
                 "pet": {
                     "description": "Pet holds the value of the pet edge.",
                     "allOf": [

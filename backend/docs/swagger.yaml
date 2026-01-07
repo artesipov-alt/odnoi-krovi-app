@@ -1,13 +1,5 @@
 basePath: /api/v1
 definitions:
-  bloodgroup.PetType:
-    enum:
-    - dog
-    - cat
-    type: string
-    x-enum-varnames:
-    - PetTypeDog
-    - PetTypeCat
   bloodsearchrequest.Status:
     enum:
     - active
@@ -28,64 +20,19 @@ definitions:
     x-enum-varnames:
     - TypeDog
     - TypeCat
-  ent.BloodComponent:
-    properties:
-      edges:
-        allOf:
-        - $ref: '#/definitions/ent.BloodComponentEdges'
-        description: |-
-          Edges holds the relations/edges for other nodes in the graph.
-          The values are being populated by the BloodComponentQuery when eager-loading is set.
-      id:
-        description: ID of the ent.
-        type: integer
-      name:
-        description: Name holds the value of the "name" field.
-        type: string
-    type: object
-  ent.BloodComponentEdges:
-    properties:
-      search_requests:
-        description: SearchRequests holds the value of the search_requests edge.
-        items:
-          $ref: '#/definitions/ent.BloodSearchRequest'
-        type: array
-    type: object
-  ent.BloodGroup:
-    properties:
-      bloodGroup:
-        description: BloodGroup holds the value of the "blood_group" field.
-        type: string
-      description:
-        description: Description holds the value of the "description" field.
-        type: string
-      edges:
-        allOf:
-        - $ref: '#/definitions/ent.BloodGroupEdges'
-        description: |-
-          Edges holds the relations/edges for other nodes in the graph.
-          The values are being populated by the BloodGroupQuery when eager-loading is set.
-      id:
-        description: ID of the ent.
-        type: integer
-      petType:
-        allOf:
-        - $ref: '#/definitions/bloodgroup.PetType'
-        description: PetType holds the value of the "pet_type" field.
-    type: object
-  ent.BloodGroupEdges:
-    properties:
-      search_requests:
-        description: SearchRequests holds the value of the search_requests edge.
-        items:
-          $ref: '#/definitions/ent.BloodSearchRequest'
-        type: array
-    type: object
   ent.BloodSearchRequest:
     properties:
-      bloodGroupId:
-        description: BloodGroupID holds the value of the "blood_group_id" field.
-        type: integer
+      bloodComponentIds:
+        description: BloodComponentIds holds the value of the "blood_component_ids"
+          field.
+        items:
+          type: string
+        type: array
+      bloodGroupIds:
+        description: BloodGroupIds holds the value of the "blood_group_ids" field.
+        items:
+          type: integer
+        type: array
       bloodVolumeNeeded:
         description: BloodVolumeNeeded holds the value of the "blood_volume_needed"
           field.
@@ -130,15 +77,6 @@ definitions:
     type: object
   ent.BloodSearchRequestEdges:
     properties:
-      blood_group:
-        allOf:
-        - $ref: '#/definitions/ent.BloodGroup'
-        description: BloodGroup holds the value of the blood_group edge.
-      bloodComponents:
-        description: BloodComponents holds the value of the blood_components edge.
-        items:
-          $ref: '#/definitions/ent.BloodComponent'
-        type: array
       pet:
         allOf:
         - $ref: '#/definitions/ent.Pet'
