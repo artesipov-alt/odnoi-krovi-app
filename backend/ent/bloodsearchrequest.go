@@ -36,9 +36,9 @@ type BloodSearchRequest struct {
 	// PhotoUrls holds the value of the "photo_urls" field.
 	PhotoUrls []string `json:"photoUrls"`
 	// BloodGroupIds holds the value of the "blood_group_ids" field.
-	BloodGroupIds []int `json:"bloodGroupIds"`
+	BloodGroupIds []string `json:"bloodGroupIds"`
 	// BloodComponentIds holds the value of the "blood_component_ids" field.
-	BloodComponentIds []string `json:"bloodComponentIds"`
+	BloodComponentIds []int `json:"bloodComponentIds"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	// UpdatedAt holds the value of the "updated_at" field.

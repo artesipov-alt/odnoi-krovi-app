@@ -28,6 +28,151 @@
                 }
             }
         },
+        "/blood-request/pool": {
+            "post": {
+                "description": "Создает новую заявку на поиск крови для питомца",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-request"
+                ],
+                "summary": "Добавить питомца в пул поиска крови",
+                "parameters": [
+                    {
+                        "description": "Данные заявки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BloodSearchPetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Созданная заявка",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BloodSearchPetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-request/pool/search": {
+            "post": {
+                "description": "Возвращает список заявок по фильтрам",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-request"
+                ],
+                "summary": "Получить список заявок на поиск крови",
+                "parameters": [
+                    {
+                        "description": "Фильтры поиска",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BloodSearchFilterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список заявок",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BloodSearchPetsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/blood-request/{id}": {
+            "get": {
+                "description": "Возвращает информацию о конкретной заявке",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "blood-request"
+                ],
+                "summary": "Получить заявку по ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные заявки",
+                        "schema": {
+                            "$ref": "#/definitions/ent.BloodSearchRequest"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет заявку на поиск крови (soft delete)",
+                "tags": [
+                    "blood-request"
+                ],
+                "summary": "Удалить заявку",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID заявки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dev/deleted-users": {
             "get": {
                 "description": "Возвращает список всех мягко удаленных пользователей",
@@ -1159,14 +1304,14 @@
                     "description": "BloodComponentIds holds the value of the \"blood_component_ids\" field.",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "bloodGroupIds": {
                     "description": "BloodGroupIds holds the value of the \"blood_group_ids\" field.",
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "bloodVolumeNeeded": {
@@ -1834,6 +1979,98 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ent.Pet"
+                    }
+                }
+            }
+        },
+        "handlers.BloodSearchFilterRequest": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.BloodSearchPetRequest": {
+            "type": "object",
+            "required": [
+                "bloodVolumeNeeded",
+                "petId",
+                "regions"
+            ],
+            "properties": {
+                "bloodComponentIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "bloodGroupIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bloodVolumeNeeded": {
+                    "type": "integer"
+                },
+                "bloodVolumeReserved": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "photoUrls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "regions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "smallPetsNotifyAllowed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handlers.BloodSearchPetResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.BloodSearchPetsResponse": {
+            "type": "object",
+            "properties": {
+                "requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.BloodSearchRequest"
                     }
                 }
             }

@@ -858,10 +858,10 @@ type BloodSearchRequestMutation struct {
 	description               *string
 	photo_urls                *[]string
 	appendphoto_urls          []string
-	blood_group_ids           *[]int
-	appendblood_group_ids     []int
-	blood_component_ids       *[]string
-	appendblood_component_ids []string
+	blood_group_ids           *[]string
+	appendblood_group_ids     []string
+	blood_component_ids       *[]int
+	appendblood_component_ids []int
 	created_at                *time.Time
 	updated_at                *time.Time
 	deleted_at                *time.Time
@@ -1363,13 +1363,13 @@ func (m *BloodSearchRequestMutation) ResetPhotoUrls() {
 }
 
 // SetBloodGroupIds sets the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) SetBloodGroupIds(i []int) {
-	m.blood_group_ids = &i
+func (m *BloodSearchRequestMutation) SetBloodGroupIds(s []string) {
+	m.blood_group_ids = &s
 	m.appendblood_group_ids = nil
 }
 
 // BloodGroupIds returns the value of the "blood_group_ids" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodGroupIds() (r []int, exists bool) {
+func (m *BloodSearchRequestMutation) BloodGroupIds() (r []string, exists bool) {
 	v := m.blood_group_ids
 	if v == nil {
 		return
@@ -1380,7 +1380,7 @@ func (m *BloodSearchRequestMutation) BloodGroupIds() (r []int, exists bool) {
 // OldBloodGroupIds returns the old "blood_group_ids" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodGroupIds(ctx context.Context) (v []int, err error) {
+func (m *BloodSearchRequestMutation) OldBloodGroupIds(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBloodGroupIds is only allowed on UpdateOne operations")
 	}
@@ -1394,13 +1394,13 @@ func (m *BloodSearchRequestMutation) OldBloodGroupIds(ctx context.Context) (v []
 	return oldValue.BloodGroupIds, nil
 }
 
-// AppendBloodGroupIds adds i to the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) AppendBloodGroupIds(i []int) {
-	m.appendblood_group_ids = append(m.appendblood_group_ids, i...)
+// AppendBloodGroupIds adds s to the "blood_group_ids" field.
+func (m *BloodSearchRequestMutation) AppendBloodGroupIds(s []string) {
+	m.appendblood_group_ids = append(m.appendblood_group_ids, s...)
 }
 
 // AppendedBloodGroupIds returns the list of values that were appended to the "blood_group_ids" field in this mutation.
-func (m *BloodSearchRequestMutation) AppendedBloodGroupIds() ([]int, bool) {
+func (m *BloodSearchRequestMutation) AppendedBloodGroupIds() ([]string, bool) {
 	if len(m.appendblood_group_ids) == 0 {
 		return nil, false
 	}
@@ -1428,13 +1428,13 @@ func (m *BloodSearchRequestMutation) ResetBloodGroupIds() {
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (m *BloodSearchRequestMutation) SetBloodComponentIds(s []string) {
-	m.blood_component_ids = &s
+func (m *BloodSearchRequestMutation) SetBloodComponentIds(i []int) {
+	m.blood_component_ids = &i
 	m.appendblood_component_ids = nil
 }
 
 // BloodComponentIds returns the value of the "blood_component_ids" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodComponentIds() (r []string, exists bool) {
+func (m *BloodSearchRequestMutation) BloodComponentIds() (r []int, exists bool) {
 	v := m.blood_component_ids
 	if v == nil {
 		return
@@ -1445,7 +1445,7 @@ func (m *BloodSearchRequestMutation) BloodComponentIds() (r []string, exists boo
 // OldBloodComponentIds returns the old "blood_component_ids" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (v []string, err error) {
+func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (v []int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBloodComponentIds is only allowed on UpdateOne operations")
 	}
@@ -1459,13 +1459,13 @@ func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (
 	return oldValue.BloodComponentIds, nil
 }
 
-// AppendBloodComponentIds adds s to the "blood_component_ids" field.
-func (m *BloodSearchRequestMutation) AppendBloodComponentIds(s []string) {
-	m.appendblood_component_ids = append(m.appendblood_component_ids, s...)
+// AppendBloodComponentIds adds i to the "blood_component_ids" field.
+func (m *BloodSearchRequestMutation) AppendBloodComponentIds(i []int) {
+	m.appendblood_component_ids = append(m.appendblood_component_ids, i...)
 }
 
 // AppendedBloodComponentIds returns the list of values that were appended to the "blood_component_ids" field in this mutation.
-func (m *BloodSearchRequestMutation) AppendedBloodComponentIds() ([]string, bool) {
+func (m *BloodSearchRequestMutation) AppendedBloodComponentIds() ([]int, bool) {
 	if len(m.appendblood_component_ids) == 0 {
 		return nil, false
 	}
@@ -1849,14 +1849,14 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		m.SetPhotoUrls(v)
 		return nil
 	case bloodsearchrequest.FieldBloodGroupIds:
-		v, ok := value.([]int)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBloodGroupIds(v)
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
-		v, ok := value.([]string)
+		v, ok := value.([]int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

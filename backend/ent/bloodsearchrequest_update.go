@@ -165,13 +165,13 @@ func (_u *BloodSearchRequestUpdate) ClearPhotoUrls() *BloodSearchRequestUpdate {
 }
 
 // SetBloodGroupIds sets the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdate) SetBloodGroupIds(v []int) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) SetBloodGroupIds(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.SetBloodGroupIds(v)
 	return _u
 }
 
 // AppendBloodGroupIds appends value to the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdate) AppendBloodGroupIds(v []int) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) AppendBloodGroupIds(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.AppendBloodGroupIds(v)
 	return _u
 }
@@ -183,13 +183,13 @@ func (_u *BloodSearchRequestUpdate) ClearBloodGroupIds() *BloodSearchRequestUpda
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdate) SetBloodComponentIds(v []string) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) SetBloodComponentIds(v []int) *BloodSearchRequestUpdate {
 	_u.mutation.SetBloodComponentIds(v)
 	return _u
 }
 
 // AppendBloodComponentIds appends value to the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdate) AppendBloodComponentIds(v []string) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) AppendBloodComponentIds(v []int) *BloodSearchRequestUpdate {
 	_u.mutation.AppendBloodComponentIds(v)
 	return _u
 }
@@ -561,13 +561,13 @@ func (_u *BloodSearchRequestUpdateOne) ClearPhotoUrls() *BloodSearchRequestUpdat
 }
 
 // SetBloodGroupIds sets the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodGroupIds(v []int) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) SetBloodGroupIds(v []string) *BloodSearchRequestUpdateOne {
 	_u.mutation.SetBloodGroupIds(v)
 	return _u
 }
 
 // AppendBloodGroupIds appends value to the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdateOne) AppendBloodGroupIds(v []int) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) AppendBloodGroupIds(v []string) *BloodSearchRequestUpdateOne {
 	_u.mutation.AppendBloodGroupIds(v)
 	return _u
 }
@@ -579,13 +579,13 @@ func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupIds() *BloodSearchRequestU
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodComponentIds(v []string) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) SetBloodComponentIds(v []int) *BloodSearchRequestUpdateOne {
 	_u.mutation.SetBloodComponentIds(v)
 	return _u
 }
 
 // AppendBloodComponentIds appends value to the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdateOne) AppendBloodComponentIds(v []string) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) AppendBloodComponentIds(v []int) *BloodSearchRequestUpdateOne {
 	_u.mutation.AppendBloodComponentIds(v)
 	return _u
 }

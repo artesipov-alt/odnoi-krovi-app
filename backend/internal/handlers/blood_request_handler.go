@@ -22,8 +22,8 @@ type (
 		SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed"`
 		Description            string   `json:"description"`
 		PhotoUrls              []string `json:"photoUrls"`
-		BloodGroupIds          []int    `json:"bloodGroupIds"`
-		BloodComponentIds      []string `json:"bloodComponentIds"`
+		BloodGroupIds          []string `json:"bloodGroupIds"`
+		BloodComponentIds      []int    `json:"bloodComponentIds"`
 	}
 
 	// BloodSearchPetResponse представляет ответ после создания заявки

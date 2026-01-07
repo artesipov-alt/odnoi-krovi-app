@@ -102,13 +102,13 @@ func (_c *BloodSearchRequestCreate) SetPhotoUrls(v []string) *BloodSearchRequest
 }
 
 // SetBloodGroupIds sets the "blood_group_ids" field.
-func (_c *BloodSearchRequestCreate) SetBloodGroupIds(v []int) *BloodSearchRequestCreate {
+func (_c *BloodSearchRequestCreate) SetBloodGroupIds(v []string) *BloodSearchRequestCreate {
 	_c.mutation.SetBloodGroupIds(v)
 	return _c
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []string) *BloodSearchRequestCreate {
+func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []int) *BloodSearchRequestCreate {
 	_c.mutation.SetBloodComponentIds(v)
 	return _c
 }

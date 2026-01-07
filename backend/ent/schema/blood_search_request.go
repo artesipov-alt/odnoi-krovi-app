@@ -45,10 +45,10 @@ func (BloodSearchRequest) Fields() []ent.Field {
 		field.JSON("photo_urls", []string{}).
 			Optional().
 			StructTag(`json:"photoUrls"`),
-		field.JSON("blood_group_ids", []int{}).
+		field.JSON("blood_group_ids", []string{}).
 			Optional().
 			StructTag(`json:"bloodGroupIds"`),
-		field.JSON("blood_component_ids", []string{}).
+		field.JSON("blood_component_ids", []int{}).
 			Optional().
 			StructTag(`json:"bloodComponentIds"`),
 		// Audit fields

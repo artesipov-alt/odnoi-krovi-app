@@ -26,12 +26,12 @@ definitions:
         description: BloodComponentIds holds the value of the "blood_component_ids"
           field.
         items:
-          type: string
+          type: integer
         type: array
       bloodGroupIds:
         description: BloodGroupIds holds the value of the "blood_group_ids" field.
         items:
-          type: integer
+          type: string
         type: array
       bloodVolumeNeeded:
         description: BloodVolumeNeeded holds the value of the "blood_volume_needed"
@@ -477,6 +477,67 @@ definitions:
           $ref: '#/definitions/ent.Pet'
         type: array
     type: object
+  handlers.BloodSearchFilterRequest:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      petId:
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.BloodSearchPetRequest:
+    properties:
+      bloodComponentIds:
+        items:
+          type: integer
+        type: array
+      bloodGroupIds:
+        items:
+          type: string
+        type: array
+      bloodVolumeNeeded:
+        type: integer
+      bloodVolumeReserved:
+        type: integer
+      description:
+        type: string
+      petId:
+        type: string
+      photoUrls:
+        items:
+          type: string
+        type: array
+      regions:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      smallPetsNotifyAllowed:
+        type: boolean
+    required:
+    - bloodVolumeNeeded
+    - petId
+    - regions
+    type: object
+  handlers.BloodSearchPetResponse:
+    properties:
+      id:
+        type: string
+      petId:
+        type: string
+      status:
+        type: string
+    type: object
+  handlers.BloodSearchPetsResponse:
+    properties:
+      requests:
+        items:
+          $ref: '#/definitions/ent.BloodSearchRequest'
+        type: array
+    type: object
   handlers.DevResponse:
     properties:
       message:
@@ -897,6 +958,101 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
+  /blood-request/{id}:
+    delete:
+      description: Удаляет заявку на поиск крови (soft delete)
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+      summary: Удалить заявку
+      tags:
+      - blood-request
+    get:
+      description: Возвращает информацию о конкретной заявке
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные заявки
+          schema:
+            $ref: '#/definitions/ent.BloodSearchRequest'
+      summary: Получить заявку по ID
+      tags:
+      - blood-request
+  /blood-request/pool:
+    post:
+      consumes:
+      - application/json
+      description: Создает новую заявку на поиск крови для питомца
+      parameters:
+      - description: Данные заявки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.BloodSearchPetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданная заявка
+          schema:
+            $ref: '#/definitions/handlers.BloodSearchPetResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Добавить питомца в пул поиска крови
+      tags:
+      - blood-request
+  /blood-request/pool/search:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список заявок по фильтрам
+      parameters:
+      - description: Фильтры поиска
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.BloodSearchFilterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список заявок
+          schema:
+            $ref: '#/definitions/handlers.BloodSearchPetsResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Получить список заявок на поиск крови
+      tags:
+      - blood-request
   /dev/deleted-users:
     get:
       description: Возвращает список всех мягко удаленных пользователей

@@ -8,7 +8,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"go.uber.org/zap"
 )
 
 // BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
@@ -39,25 +38,18 @@ type BloodSearchService interface {
 type BloodSearchServiceImpl struct {
 	repo    repositories.BloodRequestRepository
 	petRepo repositories.PetRepository
-	log     *zap.Logger
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo repositories.PetRepository, log *zap.Logger) *BloodSearchServiceImpl {
-	if log == nil {
-		log = zap.NewNop()
-	}
+func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo repositories.PetRepository) *BloodSearchServiceImpl {
 	return &BloodSearchServiceImpl{
 		repo:    repo,
 		petRepo: petRepo,
-		log:     log,
 	}
 }
 
 // CreateRequest создает новую заявку на поиск крови
 func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, req *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
-	s.log.Info("создание заявки на поиск крови", zap.String("petId", req.PetID))
-
 	// Проверяем существование питомца
 	exists, err := s.petRepo.ExistsByID(ctx, req.PetID)
 	if err != nil {
