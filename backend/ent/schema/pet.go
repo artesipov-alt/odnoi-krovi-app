@@ -14,6 +14,11 @@ type Pet struct {
 // Fields of the Pet.
 func (Pet) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			DefaultFunc(func() string { return generateID(PetPrefix) }).
+			StructTag(`json:"id"`),
 		field.String("name").MaxLen(100).StructTag(`json:"name"`),
 		field.Enum("type").Values("dog", "cat").StructTag(`json:"type"`),
 		field.Enum("pet_status").Values("donor", "recipient").StructTag(`json:"petStatus"`),
@@ -26,6 +31,7 @@ func (Pet) Fields() []ent.Field {
 		field.String("chip_number").Optional().MaxLen(15).StructTag(`json:"chipNumber"`),
 		field.String("photo_url").Optional().MaxLen(255).StructTag(`json:"photoUrl"`),
 		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
+		field.String("user_id").Optional().StructTag(`json:"userId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 	}
 }
@@ -33,11 +39,14 @@ func (Pet) Fields() []ent.Field {
 // Edges of the Pet.
 func (Pet) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("owner", User.Type).Ref("pets").Unique(),
-		edge.To("health", PetHealth.Type),
-		edge.To("treatments", PetTreatment.Type),
-		edge.To("analyses", PetAnalysis.Type),
-		edge.To("bonuses", PetBonus.Type),
+		edge.From("owner", User.Type).
+			Ref("pets").
+			Unique().
+			Field("user_id"),
+		edge.To("health", PetHealth.Type).Unique(),
+		edge.To("treatments", PetTreatment.Type).Unique(),
+		edge.To("analyses", PetAnalysis.Type).Unique(),
+		edge.To("bonuses", PetBonus.Type).Unique(),
 		edge.From("breed_ref", Breed.Type).
 			Ref("pets").
 			Unique().
@@ -49,7 +58,7 @@ func (Pet) Edges() []ent.Edge {
 // Mixins of the Pet.
 func (Pet) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(PetPrefix),
+		AuditMixin{},
 	}
 }
 
@@ -67,6 +76,7 @@ func (PetHealth) Fields() []ent.Field {
 		field.Bool("transfused").Optional().StructTag(`json:"transfused"`),
 		field.String("medications").Optional().StructTag(`json:"medications"`),
 		field.String("surgical_interventions").Optional().StructTag(`json:"surgicalInterventions"`),
+		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 	}
 }
 
@@ -80,7 +90,10 @@ func (PetHealth) Mixins() []ent.Mixin {
 // Edges of the PetHealth.
 func (PetHealth) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).Ref("health").Unique(),
+		edge.From("pet", Pet.Type).
+			Ref("health").
+			Unique().
+			Field("pet_id"),
 	}
 }
 
@@ -96,6 +109,7 @@ func (PetTreatment) Fields() []ent.Field {
 		field.Time("infection_vaccination_date").Optional().Nillable().StructTag(`json:"infectionVaccinationDate"`),
 		field.Time("ectoparasite_treatment_date").Optional().Nillable().StructTag(`json:"ectoparasiteTreatmentDate"`),
 		field.Time("deworming_date").Optional().Nillable().StructTag(`json:"dewormingDate"`),
+		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 	}
 }
 
@@ -109,7 +123,10 @@ func (PetTreatment) Mixins() []ent.Mixin {
 // Edges of the PetTreatment.
 func (PetTreatment) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).Ref("treatments").Unique(),
+		edge.From("pet", Pet.Type).
+			Ref("treatments").
+			Unique().
+			Field("pet_id"),
 	}
 }
 
@@ -137,6 +154,7 @@ func (PetAnalysis) Fields() []ent.Field {
 		field.Enum("ehrlichiosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"ehrlichiosisType"`),
 		field.Time("anaplasmosis_date").Optional().Nillable().StructTag(`json:"anaplasmosisDate"`),
 		field.Enum("anaplasmosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"anaplasmosisType"`),
+		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 	}
 }
 
@@ -150,7 +168,10 @@ func (PetAnalysis) Mixins() []ent.Mixin {
 // Edges of the PetAnalysis.
 func (PetAnalysis) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).Ref("analyses"),
+		edge.From("pet", Pet.Type).
+			Ref("analyses").
+			Unique().
+			Field("pet_id"),
 	}
 }
 
@@ -166,6 +187,7 @@ func (PetBonus) Fields() []ent.Field {
 		field.Bool("is_therapist").StructTag(`json:"isTherapist"`),
 		field.Bool("is_former_donor").StructTag(`json:"isFormerDonor"`),
 		field.Bool("is_guide_dog").StructTag(`json:"isGuideDog"`),
+		field.String("pet_id").Optional().StructTag(`json:"petId"`),
 	}
 }
 
@@ -179,6 +201,9 @@ func (PetBonus) Mixins() []ent.Mixin {
 // Edges of the PetBonus.
 func (PetBonus) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("pet", Pet.Type).Ref("bonuses").Unique(),
+		edge.From("pet", Pet.Type).
+			Ref("bonuses").
+			Unique().
+			Field("pet_id"),
 	}
 }

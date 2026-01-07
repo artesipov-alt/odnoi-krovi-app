@@ -73,26 +73,3 @@ func (AuditMixin) Interceptors() []ent.Interceptor {
 		}),
 	}
 }
-
-// BaseMixin предоставляет кастомную генерацию ID (NanoID с префиксом) вместе с полями аудита.
-// Используйте NewBaseMixin для сущностей, которым нужен строковый уникальный ID.
-type BaseMixin struct {
-	AuditMixin
-	prefix string
-}
-
-// NewBaseMixin создает новый BaseMixin с указанным префиксом для ID.
-func NewBaseMixin(prefix string) BaseMixin {
-	return BaseMixin{prefix: prefix}
-}
-
-// Fields возвращает поле ID и поля аудита.
-func (b BaseMixin) Fields() []ent.Field {
-	return append([]ent.Field{
-		field.String("id").
-			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID(b.prefix) }).
-			StructTag(`json:"id"`),
-	}, b.AuditMixin.Fields()...)
-}

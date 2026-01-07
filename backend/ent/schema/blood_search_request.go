@@ -14,17 +14,36 @@ type BloodSearchRequest struct {
 // Fields of the BloodSearchRequest.
 func (BloodSearchRequest) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("pet_id").StructTag(`json:"petId"`),
-		field.Int32("blood_volume_needed").StructTag(`json:"bloodVolumeNeeded"`),
-		field.Int32("blood_volume_reserved").Default(0).StructTag(`json:"bloodVolumeReserved"`),
-		field.JSON("regions", []int32{}).StructTag(`json:"regions"`),
-		field.Bool("small_pets_notify_allowed").Default(true).StructTag(`json:"smallPetsNotifyAllowed"`),
+		field.String("id").
+			Unique().
+			Immutable().
+			DefaultFunc(func() string { return generateID(BloodSearchPrefix) }).
+			StructTag(`json:"id"`),
+		field.String("pet_id").
+			StructTag(`json:"petId"`),
+		field.Int32("blood_volume_needed").
+			StructTag(`json:"bloodVolumeNeeded"`),
+		field.Int32("blood_volume_reserved").
+			Default(0).
+			StructTag(`json:"bloodVolumeReserved"`),
+		field.JSON("regions", []int32{}).
+			StructTag(`json:"regions"`),
+		field.Bool("small_pets_notify_allowed").
+			Default(true).
+			StructTag(`json:"smallPetsNotifyAllowed"`),
 		field.Enum("status").
 			Values("active", "closed", "draft").
 			Default("active").
 			StructTag(`json:"status"`),
-		field.String("description").Optional().StructTag(`json:"description"`),
-		field.JSON("photo_urls", []string{}).Optional().StructTag(`json:"photoUrls"`),
+		field.String("description").
+			Optional().
+			StructTag(`json:"description"`),
+		field.JSON("photo_urls", []string{}).
+			Optional().
+			StructTag(`json:"photoUrls"`),
+		field.Int("blood_group_id").
+			Optional().
+			StructTag(`json:"bloodGroupId"`),
 	}
 }
 
@@ -40,6 +59,7 @@ func (BloodSearchRequest) Edges() []ent.Edge {
 			StructTag(`json:"bloodComponents"`),
 		edge.From("blood_group", BloodGroup.Type).
 			Ref("search_requests").
+			Field("blood_group_id").
 			Unique(),
 	}
 }
@@ -47,6 +67,6 @@ func (BloodSearchRequest) Edges() []ent.Edge {
 // Mixins of the BloodSearchRequest.
 func (BloodSearchRequest) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(BloodSearchPrefix),
+		AuditMixin{},
 	}
 }

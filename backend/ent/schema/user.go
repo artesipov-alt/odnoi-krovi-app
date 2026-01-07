@@ -14,6 +14,11 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			DefaultFunc(func() string { return generateID(UserPrefix) }).
+			StructTag(`json:"id"`),
 		field.Int64("telegram_id").Unique().StructTag(`json:"telegramId"`),
 		field.String("full_name").Optional().MaxLen(255).StructTag(`json:"fullName"`),
 		field.String("phone").Optional().MaxLen(20).StructTag(`json:"phone"`),
@@ -41,6 +46,6 @@ func (User) Edges() []ent.Edge {
 // Mixins of the User.
 func (User) Mixins() []ent.Mixin {
 	return []ent.Mixin{
-		NewBaseMixin(UserPrefix),
+		AuditMixin{},
 	}
 }

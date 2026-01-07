@@ -9,16 +9,16 @@
 1.  **JSON Аннотации**: Все поля должны иметь тег `StructTag` с именованием в стиле **camelCase** для фронтенд-разработчиков.
     *   *Пример:* `field.String("full_name").StructTag("json:\"fullName\"")`
 2.  **Идентификация (ID)**:
-    *   Для сущностей, требующих уникальный строковый ID, использовать `NewBaseMixin(Prefix)`.
-    *   Префиксы должны быть определены в `common.go` (например, `USR`, `PET`).
-3.  **Аудит и Мягкое удаление**:
-    *   Всегда подключать `AuditMixin` или `BaseMixin`.
+    *   Для сущностей с NanoID использовать явное объявление `field.String("id")` с `DefaultFunc` и префиксом.
+    *   Префиксы определены в `common.go` (USR, PET, BLS и т.д.).
+3.  **Явные внешние ключи (Explicit FK)**:
+    *   Всегда объявлять поле внешнего ключа явно (например, `field.String("pet_id")` или `field.Int("location_id")`).
+    *   Связывать ребро с полем через `.Field("field_name")`. Это предотвращает ошибки несоответствия типов (string vs int).
+4.  **Аудит и Мягкое удаление**:
+    *   Всегда подключать `AuditMixin`.
     *   Это обеспечивает наличие полей `created_at`, `updated_at`, `deleted_at` и автоматическую фильтрацию удаленных записей.
-4.  **Валидация**:
-    *   Использовать `MaxLen()` для строковых полей, где это уместно.
-    *   Использовать `Optional()` и `Nillable()` для полей, которые могут быть пустыми в БД и должны быть указателями в Go.
 5.  **Диагностика**:
-    *   Перед фиксацией любых изменений в схемах **обязательно** запускать генерацию кода (`go generate ./ent`) для проверки целостности и отсутствия ошибок.
+    *   Перед фиксацией изменений **обязательно** запускать генерацию кода (`go generate ./ent/generate.go`). Успешная генерация — гарантия целостности связей.
 
 ---
 
@@ -28,63 +28,31 @@
 - [x] Определение префиксов ID
 - [x] Реализация генератора NanoID
 - [x] `AuditMixin` (Soft Delete + Timestamps)
-- [x] `BaseMixin` (ID + Audit)
 - [x] Интерцептор для фильтрации `deleted_at`
 
 ### 2. Сущности (Schemas)
-- [x] **User**
-    - [x] Поля (telegram_id, role, etc.)
-    - [x] Mixin (Base)
-    - [x] Связи (pets)
-- [x] **Pet**
-    - [x] Поля (name, type, status, etc.)
-    - [x] Mixin (Base)
-    - [x] Связи (owner, health, treatments, analyses, bonuses)
-- [x] **PetHealth**
-    - [x] Поля
-    - [x] Mixin (Audit)
-    - [x] Связи (pet)
-- [x] **PetTreatment**
-    - [x] Поля
-    - [x] Mixin (Audit)
-    - [x] Связи (pet)
-- [x] **PetAnalysis**
-    - [x] Поля
-    - [x] Mixin (Audit)
-    - [x] Связи (pet)
-- [x] **PetBonus**
-    - [x] Поля
-    - [x] Mixin (Audit)
-    - [x] Связи (pet)
-- [x] **Location**
-    - [x] Поля (name)
-    - [x] Mixin (Audit)
-    - [x] Связи (users)
-- [x] **Breed**
-    - [x] Поля (name, type)
-    - [x] Mixin (Audit)
-    - [x] Связи (pets)
-- [x] **BloodGroup**
-    - [x] Поля (pet_type, blood_group, description)
-    - [x] Mixin (Audit)
-    - [x] Связи (search_requests)
-- [x] **BloodComponent**
-    - [x] Поля (name)
-    - [x] Mixin (Audit)
-    - [x] Связи (search_requests)
-- [x] **BloodSearchRequest**
-    - [x] Поля (blood_volume, regions, photo_urls, etc.)
-    - [x] Mixin (Base)
-    - [x] Связи (pet [1:1], blood_components, blood_group)
+- [x] **User** (NanoID, Audit)
+- [x] **Location** (Int ID, Audit)
+- [x] **Breed** (Int ID, Audit)
+- [x] **Pet** (NanoID, Audit)
+    - [x] **PetHealth** (1:1 к Pet, Audit)
+    - [x] **PetTreatment** (1:1 к Pet, Audit)
+    - [x] **PetAnalysis** (1:1 к Pet, Audit)
+    - [x] **PetBonus** (1:1 к Pet, Audit)
+- [x] **BloodGroup** (Int ID, Audit)
+- [x] **BloodComponent** (Int ID, Audit)
+- [x] **BloodSearchRequest** (NanoID, Audit, 1:1 к Pet)
 
 ---
 
 ## 🚀 План действий (Next Steps)
 
-1.  [ ] **Проверка текущего состояния**: Запустить `go generate ./ent` для подтверждения валидности текущих схем.
-2.  [ ] **Расширение схем**: (Добавить новые сущности по мере необходимости, например, `Donation`, `Request`).
-3.  [ ] **Миграция**: Подготовка и запуск миграции в БД.
-4.  [ ] **Тестирование**: Написание тестов для проверки Soft Delete и генерации ID.
+1.  [x] **Проверка текущего состояния**: `go generate ./ent/generate.go` выполнено успешно.
+2.  [ ] **Рефакторинг Enums**: Перевод `internal/utils/enums/enums.go` на использование типов из пакета `ent`.
+3.  [ ] **Расширение схем**: Добавление сущностей `Donation` и `Request` (при необходимости).
+4.  [ ] **Миграция**: Подготовка и запуск миграции в реальную БД.
+5.  [ ] **Тестирование**: Проверка логики Soft Delete и корректности генерации NanoID.
 
 ---
 *Последнее обновление: 24.05.2024*
+*Статус: Базовые схемы полностью перенесены и проверены генератором.*
