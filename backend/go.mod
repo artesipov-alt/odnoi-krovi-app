@@ -16,7 +16,6 @@ replace github.com/artesipov-alt/odnoi-krovi-app/shared/go/blood-microservice =>
 
 require (
 	entgo.io/ent v0.14.5
-	github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice v0.0.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.93.2
@@ -31,7 +30,6 @@ replace github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservic
 
 require (
 	ariga.io/atlas v0.32.1-0.20250325101103-175b25e1c1b9 // indirect
-	connectrpc.com/connect v1.19.1 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
@@ -98,6 +96,5 @@ require (
 	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
-	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
