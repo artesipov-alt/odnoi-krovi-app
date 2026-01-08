@@ -29,7 +29,7 @@ func NewDevHandler(userRepo repositories.UserRepository) *DevHandler {
 // @Produce json
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} dto.DevResponse "Успешный сброс пользователя"
-// @Router /dev/reset-user/{id} [post]
+// @Router /v1/dev/reset-user/{id} [post]
 func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 	logger.Log.Info("Сброс пользователя к заводским настройкам")
 
@@ -60,7 +60,7 @@ func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 // @Produce json
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} dto.DevResponse "Успешное восстановление пользователя"
-// @Router /dev/restore-user/{id} [post]
+// @Router /v1/dev/restore-user/{id} [post]
 func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 	logger.Log.Info("Восстановление удаленного пользователя")
 
@@ -90,7 +90,7 @@ func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 // @Tags dev
 // @Produce json
 // @Success 200 {object} dto.GetDeletedUsersResponse "Список удаленных пользователей"
-// @Router /dev/deleted-users [get]
+// @Router /v1/dev/deleted-users [get]
 func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
 	logger.Log.Info("Получение списка удаленных пользователей")
 

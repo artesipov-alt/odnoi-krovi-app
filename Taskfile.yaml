@@ -13,7 +13,7 @@ tasks:
   generate-swagger:
     desc: "Сгенерировать Swagger документацию"
     cmds:
-      - swag init -g ./backend/cmd/server/main.go -o ./backend/docs
+      - swag init -g ./backend/cmd/api/main.go -o ./backend/docs
 
   # generate-proto:
   #   desc: "Сгенерировать прото-типы от микросервиса"
@@ -78,7 +78,7 @@ tasks:
     dir: backend
     cmds:
       - task: generate-swagger
-      - go run cmd/server/main.go
+      - go run cmd/api/main.go
 
   dev-micoservice:
     desc: "Запустить миеросервис в dev режиме"
@@ -110,7 +110,7 @@ tasks:
     desc: "Собрать backend"
     dir: backend
     cmds:
-      - go build -o app/server cmd/server/main.go
+      - go build -o app/api cmd/api/main.go
 
   build-frontend:
     desc: "Собрать frontend"

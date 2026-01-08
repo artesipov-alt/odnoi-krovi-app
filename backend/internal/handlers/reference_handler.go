@@ -55,7 +55,7 @@ type ReferenceItemDB struct {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список типов животных"
-// @Router /reference/pet-types [get]
+// @Router /v1/reference/pet-types [get]
 func (h *ReferenceHandler) GetPetTypesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника типов животных")
 
@@ -80,7 +80,7 @@ func (h *ReferenceHandler) GetPetTypesHandler(c echo.Context) error {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список значений пола"
-// @Router /reference/genders [get]
+// @Router /v1/reference/genders [get]
 func (h *ReferenceHandler) GetGendersHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника полов")
 
@@ -105,7 +105,7 @@ func (h *ReferenceHandler) GetGendersHandler(c echo.Context) error {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список условий проживания"
-// @Router /reference/living-conditions [get]
+// @Router /v1/reference/living-conditions [get]
 func (h *ReferenceHandler) GetLivingConditionsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника условий проживания")
 
@@ -130,7 +130,7 @@ func (h *ReferenceHandler) GetLivingConditionsHandler(c echo.Context) error {
 // @Tags reference, users
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список ролей пользователей"
-// @Router /reference/user-roles [get]
+// @Router /v1/reference/user-roles [get]
 func (h *ReferenceHandler) GetUserRolesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника ролей пользователей")
 
@@ -155,7 +155,7 @@ func (h *ReferenceHandler) GetUserRolesHandler(c echo.Context) error {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список ролей питомцев"
-// @Router /reference/pet-roles [get]
+// @Router /v1/reference/pet-roles [get]
 func (h *ReferenceHandler) GetPetRolesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника ролей питомцев")
 
@@ -181,7 +181,7 @@ func (h *ReferenceHandler) GetPetRolesHandler(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список пород животных"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /reference/breeds [get]
+// @Router /v1/reference/breeds [get]
 func (h *ReferenceHandler) GetBreedsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника пород животных")
 
@@ -211,7 +211,7 @@ func (h *ReferenceHandler) GetBreedsHandler(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponseDB "Список локаций"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /reference/locations [get]
+// @Router /v1/reference/locations [get]
 func (h *ReferenceHandler) GetLocationsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника локаций")
 
@@ -243,7 +243,7 @@ func (h *ReferenceHandler) GetLocationsHandler(c echo.Context) error {
 // @Success 200 {object} ReferenceResponse "Список пород животных"
 // @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /reference/breeds-by-type [get]
+// @Router /v1/reference/breeds-by-type [get]
 func (h *ReferenceHandler) GetBreedsByTypeHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника пород животных по типу животного")
 
@@ -295,7 +295,7 @@ func (h *ReferenceHandler) GetBreedsByTypeHandler(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список компонентов крови"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /reference/blood-components [get]
+// @Router /v1/reference/blood-components [get]
 func (h *ReferenceHandler) GetBloodComponentsHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника компоненотов крови")
 
@@ -327,7 +327,7 @@ func (h *ReferenceHandler) GetBloodComponentsHandler(c echo.Context) error {
 // @Success 200 {object} ReferenceResponseDB "Список групп крови"
 // @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /reference/blood-groups/{pet_type} [get]
+// @Router /v1/reference/blood-groups/{pet_type} [get]
 func (h *ReferenceHandler) GetBloodGroupsHandler(c echo.Context) error {
 	petType := c.Param("pet_type")
 	if petType == "" {
@@ -364,7 +364,7 @@ func (h *ReferenceHandler) GetBloodGroupsHandler(c echo.Context) error {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список статусов здоровья"
-// @Router /reference/health-statuses [get]
+// @Router /v1/reference/health-statuses [get]
 func (h *ReferenceHandler) GetHealthStatusesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника статусов здоровья")
 
@@ -389,7 +389,7 @@ func (h *ReferenceHandler) GetHealthStatusesHandler(c echo.Context) error {
 // @Tags reference
 // @Produce json
 // @Success 200 {object} ReferenceResponse "Список репродуктивных состояний"
-// @Router /reference/reproductive-statuses [get]
+// @Router /v1/reference/reproductive-statuses [get]
 func (h *ReferenceHandler) GetReproductiveStatusesHandler(c echo.Context) error {
 	logger.Log.Info("получение справочника репродуктивных состояний")
 

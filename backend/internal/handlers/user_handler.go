@@ -26,14 +26,14 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 // GetUserHandler godoc
 // @Summary Получение пользователя по ID
 // @Description Возвращает информацию о пользователе по его идентификатору
-// @Tags users
+// @Tags users-v1
 // @Produce json
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} ent.User "Данные пользователя"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /user/{id} [get]
+// @Router /v1/user/{id} [get]
 func (h *UserHandler) GetUserHandler(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -53,7 +53,7 @@ func (h *UserHandler) GetUserHandler(c echo.Context) error {
 // RegisterUserSimpleHandler godoc
 // @Summary Простая регистрация пользователя
 // @Description Создает пользователя с Telegram ID и именем (для команды Start)
-// @Tags users
+// @Tags users-v1
 // @Accept json
 // @Produce json
 // @Param request body dto.SimpleRegistrationRequest true "Данные для простой регистрации"
@@ -61,7 +61,7 @@ func (h *UserHandler) GetUserHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /user/register/simple [post]
+// @Router /v1/user/register/simple [post]
 func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 	var request dto.SimpleRegistrationRequest
 	if err := c.Bind(&request); err != nil {
@@ -87,7 +87,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 // RegisterUserHandler godoc
 // @Summary Регистрация нового пользователя
 // @Description Регистрирует нового пользователя в системе
-// @Tags users
+// @Tags users-v1
 // @Accept json
 // @Produce json
 // @Param request body dto.UserRegistration true "Данные для регистрации пользователя"
@@ -96,7 +96,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Deprecated
-// @Router /user/register [post]
+// @Router /v1/user/register [post]
 func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
 	var registrationData dto.UserRegistration
 	if err := c.Bind(&registrationData); err != nil {
@@ -122,7 +122,7 @@ func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
 // UpdateUserHandler godoc
 // @Summary Обновление данных пользователя
 // @Description Обновляет информацию о пользователе
-// @Tags users
+// @Tags users-v1
 // @Accept json
 // @Produce json
 // @Param id path string true "ID пользователя"
@@ -131,7 +131,7 @@ func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /user/{id} [put]
+// @Router /v1/user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -155,14 +155,14 @@ func (h *UserHandler) UpdateUserHandler(c echo.Context) error {
 // GetUserByTelegramHandler godoc
 // @Summary Получение пользователя по Telegram ID
 // @Description Возвращает информацию о пользователе по его Telegram ID
-// @Tags users
+// @Tags users-v1
 // @Produce json
 // @Param telegram_id query int64 true "Telegram ID пользователя"
 // @Success 200 {object} ent.User "Данные пользователя"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /user/telegram [get]
+// @Router /v1/user/telegram [get]
 func (h *UserHandler) GetUserByTelegramHandler(c echo.Context) error {
 	telegramIDStr := c.QueryParam("telegram_id")
 	if telegramIDStr == "" {
@@ -186,14 +186,14 @@ func (h *UserHandler) GetUserByTelegramHandler(c echo.Context) error {
 // DeleteUserHandler godoc
 // @Summary Удаление пользователя по ID
 // @Description Удаляет пользователя из системы (soft delete)
-// @Tags users
+// @Tags users-v1
 // @Produce json
 // @Param id path string true "ID пользователя"
 // @Success 200 {object} utils.SuccessResponse "Пользователь успешно удален"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /user/{id} [delete]
+// @Router /v1/user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {

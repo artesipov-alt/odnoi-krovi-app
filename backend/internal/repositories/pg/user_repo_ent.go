@@ -60,7 +60,10 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string) (*ent.User, 
 		return nil, errors.New("invalid user ID")
 	}
 
-	u, err := r.client.User.Get(ctx, id)
+	u, err := r.client.User.Query().
+		Where(user.ID(id)).
+		WithPets().
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, fmt.Errorf("user with id %s not found: %w", id, err)

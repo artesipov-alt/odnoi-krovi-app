@@ -35,7 +35,9 @@ import (
 // @title 1krovi.app
 // @version 1.3.5
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
-// @host
+// @openapi 3.0.0
+// @servers https://1krovi.app {description: "Production server", url: https://1krovi.app/api}
+// @servers http://localhost:3001 {description: "Local development server", url: http://localhost:3001/api}
 // @BasePath /api
 func main() {
 
@@ -123,29 +125,30 @@ func main() {
 	api := app.Group("/api")
 
 	// Документация Swagger - доступна по адресу /api/swagger/index.html
-	api.GET("/swagger", echoSwagger.EchoWrapHandler(
-		echoSwagger.URL("/api/swagger/doc.json"),
-	))
+	api.GET("/swagger/*", echoSwagger.WrapHandlerV3)
+
+	// Группа маршрутов для версии API v1
+	v1 := api.Group("/v1")
 
 	// Группа маршрутов для работы с пользователями
-	userGroupV1 := api.Group("/v1/user")
+	userGroup := v1.Group("/user")
 
-	userGroupV1.GET("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
-	userGroupV1.POST("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
-	userGroupV1.POST("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
-	userGroupV1.GET("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
-	userGroupV1.PUT("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
-	userGroupV1.DELETE("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
+	userGroup.GET("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
+	userGroup.POST("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
+	userGroup.POST("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
+	userGroup.GET("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
+	userGroup.PUT("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
+	userGroup.DELETE("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
 
 	// Группа маршрутов для разработчиков
-	devGroup := api.Group("/v1/dev")
+	devGroup := v1.Group("/dev")
 
 	devGroup.POST("/restore-user/:id", devHandler.RestoreUserHandler)
 	devGroup.POST("/reset-user/:id", devHandler.ResetUserHandler)     // Сброс пользователя к заводским настройкам
 	devGroup.GET("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
 
 	// Группа маршрутов для работы с питомцами и поиском крови
-	petGroup := api.Group("/v1/pets")
+	petGroup := v1.Group("/pet")
 
 	petGroup.GET("/user/:user_id", petHandler.GetUserPetsHandler)                    // Получение всех питомцев пользователя
 	petGroup.POST("/user/:user_id", petHandler.CreatePetHandler)                     // Создание питомца для пользователя
@@ -156,13 +159,13 @@ func main() {
 	petGroup.POST("/upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
 
 	// Группа маршрутов для пула запросов крови
-	bloodRequestGroup := api.Group("/v1/blood-request")
+	bloodRequestGroup := v1.Group("/blood-request")
 
 	bloodRequestGroup.POST("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
 	bloodRequestGroup.POST("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
 
 	// Группа маршрутов для справочных данных
-	referenceGroup := api.Group("/v1/reference")
+	referenceGroup := v1.Group("/reference")
 
 	referenceGroup.GET("/pet-types", referenceHandler.GetPetTypesHandler)
 	referenceGroup.GET("/pet-roles", referenceHandler.GetPetRolesHandler)

@@ -54,7 +54,7 @@ func (h *PetHandler) getPreloads(c echo.Context) []string {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/user/{user_id} [post]
+// @Router /v1/pet/user/{user_id} [post]
 func (h *PetHandler) CreatePetHandler(c echo.Context) error {
 	userID, err := utils.ParseStringParam(c, "user_id")
 	if err != nil {
@@ -91,7 +91,7 @@ func (h *PetHandler) CreatePetHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/{id} [get]
+// @Router /v1/pet/{id} [get]
 func (h *PetHandler) GetPetHandler(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
@@ -125,7 +125,7 @@ func (h *PetHandler) GetPetHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/user/{user_id} [get]
+// @Router /v1/pet/user/{user_id} [get]
 func (h *PetHandler) GetUserPetsHandler(c echo.Context) error {
 	userID, err := utils.ParseStringParam(c, "user_id")
 	if err != nil {
@@ -156,7 +156,7 @@ func (h *PetHandler) GetUserPetsHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/{id} [put]
+// @Router /v1/pet/{id} [put]
 func (h *PetHandler) UpdatePetHandler(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
@@ -187,7 +187,7 @@ func (h *PetHandler) UpdatePetHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/{id} [delete]
+// @Router /v1/pet/{id} [delete]
 func (h *PetHandler) DeletePetHandler(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
@@ -213,7 +213,7 @@ func (h *PetHandler) DeletePetHandler(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/upload/avatar/{id} [get]
+// @Router /v1/pet/upload/avatar/{id} [get]
 func (h *PetHandler) GetAvatarUploadURL(c echo.Context) error {
 	petID, err := utils.ParseStringParam(c, "id")
 	if err != nil {
@@ -240,7 +240,7 @@ func (h *PetHandler) GetAvatarUploadURL(c echo.Context) error {
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /pets/upload/avatar/confirm/{path} [post]
+// @Router /v1/pet/upload/avatar/confirm/{path} [post]
 func (h *PetHandler) ConfirmPetAvatarUpload(c echo.Context) error {
 	avatarPath, err := utils.ParseStringParam(c, "path")
 	if err != nil {

@@ -33,7 +33,7 @@ func NewBloodRequestHandler(service services.BloodSearchService) *BloodRequestHa
 // @Success 201 {object} dto.BloodSearchPetResponse "Созданная заявка"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /blood-request/pool [post]
+// @Router /v1/blood-request/pool [post]
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(c echo.Context) error {
 	var req dto.BloodSearchPetRequest
 	if err := utils.ParseBody(c, &req); err != nil {
@@ -60,7 +60,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(c echo.Context) error {
 // @Success 200 {object} dto.BloodSearchPetsResponse "Список заявок"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /blood-request/pool/search [post]
+// @Router /v1/blood-request/pool/search [post]
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c echo.Context) error {
 	var filterReq dto.BloodSearchFilterRequest
 	if err := utils.ParseBody(c, &filterReq); err != nil {
@@ -94,7 +94,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c echo.Context) error 
 // @Produce json
 // @Param id path string true "ID заявки"
 // @Success 200 {object} dto.BloodSearchRequestDTO "Данные заявки"
-// @Router /blood-request/{id} [get]
+// @Router /v1/blood-request/{id} [get]
 func (h *BloodRequestHandler) GetBloodRequestByID(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -115,7 +115,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(c echo.Context) error {
 // @Tags blood-request
 // @Param id path string true "ID заявки"
 // @Success 200 {object} utils.SuccessResponse
-// @Router /blood-request/{id} [delete]
+// @Router /v1/blood-request/{id} [delete]
 func (h *BloodRequestHandler) DeleteBloodRequest(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {

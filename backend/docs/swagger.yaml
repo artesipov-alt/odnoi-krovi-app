@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /api
 definitions:
   bloodsearchrequest.Status:
     enum:
@@ -117,6 +117,24 @@ definitions:
         type: string
       updatedAt:
         type: string
+    type: object
+  dto.DevResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+  dto.GetDeletedUsersResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: boolean
+      users:
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
     type: object
   dto.PetAnalysisDTO:
     properties:
@@ -804,24 +822,6 @@ definitions:
           $ref: '#/definitions/ent.Pet'
         type: array
     type: object
-  handlers.DevResponse:
-    properties:
-      message:
-        type: string
-      status:
-        type: boolean
-    type: object
-  handlers.GetDeletedUsersResponse:
-    properties:
-      message:
-        type: string
-      status:
-        type: boolean
-      users:
-        items:
-          $ref: '#/definitions/ent.User'
-        type: array
-    type: object
   handlers.ReferenceItem:
     properties:
       label:
@@ -1058,7 +1058,7 @@ paths:
       summary: Корневой эндпоинт
       tags:
       - root
-  /blood-request/{id}:
+  /v1/blood-request/{id}:
     delete:
       description: Удаляет заявку на поиск крови (soft delete)
       parameters:
@@ -1093,7 +1093,7 @@ paths:
       summary: Получить заявку по ID
       tags:
       - blood-request
-  /blood-request/pool:
+  /v1/blood-request/pool:
     post:
       consumes:
       - application/json
@@ -1123,7 +1123,7 @@ paths:
       summary: Добавить питомца в пул поиска крови
       tags:
       - blood-request
-  /blood-request/pool/search:
+  /v1/blood-request/pool/search:
     post:
       consumes:
       - application/json
@@ -1153,7 +1153,7 @@ paths:
       summary: Получить список заявок на поиск крови
       tags:
       - blood-request
-  /dev/deleted-users:
+  /v1/dev/deleted-users:
     get:
       description: Возвращает список всех мягко удаленных пользователей
       produces:
@@ -1162,11 +1162,11 @@ paths:
         "200":
           description: Список удаленных пользователей
           schema:
-            $ref: '#/definitions/handlers.GetDeletedUsersResponse'
+            $ref: '#/definitions/dto.GetDeletedUsersResponse'
       summary: Получение всех удаленных пользователей
       tags:
       - dev
-  /dev/reset-user/{id}:
+  /v1/dev/reset-user/{id}:
     post:
       description: Сбрасывает пользователя к заводским настройкам на этапе команды
         старт от бота
@@ -1182,11 +1182,11 @@ paths:
         "200":
           description: Успешный сброс пользователя
           schema:
-            $ref: '#/definitions/handlers.DevResponse'
+            $ref: '#/definitions/dto.DevResponse'
       summary: Сброс пользователя к начальным настройкам
       tags:
       - dev
-  /dev/restore-user/{id}:
+  /v1/dev/restore-user/{id}:
     post:
       description: Восстанавливает мягко удаленного пользователя, устанавливая deleted_at
         в NULL
@@ -1202,11 +1202,11 @@ paths:
         "200":
           description: Успешное восстановление пользователя
           schema:
-            $ref: '#/definitions/handlers.DevResponse'
+            $ref: '#/definitions/dto.DevResponse'
       summary: Восстановление удаленного пользователя
       tags:
       - dev
-  /pets/{id}:
+  /v1/pet/{id}:
     delete:
       description: Удаляет питомца из системы
       parameters:
@@ -1325,7 +1325,7 @@ paths:
       summary: Обновление данных питомца
       tags:
       - pets
-  /pets/upload/avatar/{id}:
+  /v1/pet/upload/avatar/{id}:
     get:
       description: Возвращает временную ссылку для загрузки фотографии питомца по
         ID
@@ -1359,7 +1359,7 @@ paths:
       summary: Получить ссылку для загрузки фотографии питомца
       tags:
       - pets
-  /pets/upload/avatar/confirm/{path}:
+  /v1/pet/upload/avatar/confirm/{path}:
     post:
       description: Подтверждает загрузку аватарки питомца, делает её публичной и возвращает
         публичную ссылку
@@ -1393,7 +1393,7 @@ paths:
       summary: Подтверждение загрузки аватарки питомца
       tags:
       - pets
-  /pets/user/{user_id}:
+  /v1/pet/user/{user_id}:
     get:
       description: Возвращает всех питомцев конкретного пользователя
       parameters:
@@ -1484,7 +1484,7 @@ paths:
       summary: Создание нового питомца
       tags:
       - pets
-  /reference/blood-components:
+  /v1/reference/blood-components:
     get:
       description: Возвращает список компонентов крови животных для выбора на фронтенде
       produces:
@@ -1501,7 +1501,7 @@ paths:
       summary: Получение компонентов крови животных
       tags:
       - reference
-  /reference/blood-groups/{pet_type}:
+  /v1/reference/blood-groups/{pet_type}:
     get:
       description: Возвращает список групп крови животных для выбора на фронтенде
       parameters:
@@ -1528,7 +1528,7 @@ paths:
       summary: Получение групп крови животных по типу животного
       tags:
       - reference
-  /reference/breeds:
+  /v1/reference/breeds:
     get:
       description: Возвращает список всех пород животных в базе для выбора на фронтенде
       produces:
@@ -1545,7 +1545,7 @@ paths:
       summary: Получение всех пород животных
       tags:
       - reference
-  /reference/breeds-by-type:
+  /v1/reference/breeds-by-type:
     get:
       description: Возвращает список пород животных для указанного типа животного
         для выбора на фронтенде
@@ -1573,7 +1573,7 @@ paths:
       summary: Получение пород животных по типу
       tags:
       - reference
-  /reference/genders:
+  /v1/reference/genders:
     get:
       description: Возвращает все доступные значения пола для выбора на фронтенде
       produces:
@@ -1586,7 +1586,7 @@ paths:
       summary: Получение всех значений пола
       tags:
       - reference
-  /reference/health-statuses:
+  /v1/reference/health-statuses:
     get:
       description: Возвращает все доступные статусы здоровья для выбора на фронтенде
       produces:
@@ -1599,7 +1599,7 @@ paths:
       summary: Получение всех статусов здоровья
       tags:
       - reference
-  /reference/living-conditions:
+  /v1/reference/living-conditions:
     get:
       description: Возвращает все доступные условия проживания для выбора на фронтенде
       produces:
@@ -1612,7 +1612,7 @@ paths:
       summary: Получение всех условий проживания
       tags:
       - reference
-  /reference/locations:
+  /v1/reference/locations:
     get:
       description: Возвращает список всех локаций в системе для выбора на фронтенде
       produces:
@@ -1629,7 +1629,7 @@ paths:
       summary: Получение всех локаций
       tags:
       - reference
-  /reference/pet-roles:
+  /v1/reference/pet-roles:
     get:
       description: Возвращает все доступные роли питомцев для выбора на фронтенде
       produces:
@@ -1642,7 +1642,7 @@ paths:
       summary: Получение всех ролей питомцев
       tags:
       - reference
-  /reference/pet-types:
+  /v1/reference/pet-types:
     get:
       description: Возвращает все доступные типы животных для выбора на фронтенде
       produces:
@@ -1655,7 +1655,7 @@ paths:
       summary: Получение всех типов животных
       tags:
       - reference
-  /reference/reproductive-statuses:
+  /v1/reference/reproductive-statuses:
     get:
       description: Возвращает все доступные репродуктивные состояния для выбора на
         фронтенде
@@ -1669,7 +1669,7 @@ paths:
       summary: Получение всех репродуктивных состояний
       tags:
       - reference
-  /reference/user-roles:
+  /v1/reference/user-roles:
     get:
       description: Возвращает все доступные роли пользователей для выбора на фронтенде
       produces:
@@ -1683,7 +1683,7 @@ paths:
       tags:
       - reference
       - users
-  /user/{id}:
+  /v1/user/{id}:
     delete:
       description: Удаляет пользователя из системы (soft delete)
       parameters:
@@ -1713,7 +1713,7 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Удаление пользователя по ID
       tags:
-      - users
+      - users-v1
     get:
       description: Возвращает информацию о пользователе по его идентификатору
       parameters:
@@ -1743,7 +1743,7 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение пользователя по ID
       tags:
-      - users
+      - users-v1
     put:
       consumes:
       - application/json
@@ -1781,8 +1781,8 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Обновление данных пользователя
       tags:
-      - users
-  /user/register:
+      - users-v1
+  /v1/user/register:
     post:
       consumes:
       - application/json
@@ -1816,8 +1816,8 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Регистрация нового пользователя
       tags:
-      - users
-  /user/register/simple:
+      - users-v1
+  /v1/user/register/simple:
     post:
       consumes:
       - application/json
@@ -1850,8 +1850,8 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Простая регистрация пользователя
       tags:
-      - users
-  /user/telegram:
+      - users-v1
+  /v1/user/telegram:
     get:
       description: Возвращает информацию о пользователе по его Telegram ID
       parameters:
@@ -1881,5 +1881,5 @@ paths:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Получение пользователя по Telegram ID
       tags:
-      - users
+      - users-v1
 swagger: "2.0"
