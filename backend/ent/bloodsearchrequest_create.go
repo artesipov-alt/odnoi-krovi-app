@@ -181,9 +181,7 @@ func (_c *BloodSearchRequestCreate) Mutation() *BloodSearchRequestMutation {
 
 // Save creates the BloodSearchRequest in the database.
 func (_c *BloodSearchRequestCreate) Save(ctx context.Context) (*BloodSearchRequest, error) {
-	if err := _c.defaults(); err != nil {
-		return nil, err
-	}
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -210,18 +208,12 @@ func (_c *BloodSearchRequestCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *BloodSearchRequestCreate) defaults() error {
+func (_c *BloodSearchRequestCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		if bloodsearchrequest.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized bloodsearchrequest.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := bloodsearchrequest.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		if bloodsearchrequest.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized bloodsearchrequest.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := bloodsearchrequest.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
@@ -238,13 +230,9 @@ func (_c *BloodSearchRequestCreate) defaults() error {
 		_c.mutation.SetStatus(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		if bloodsearchrequest.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized bloodsearchrequest.DefaultID (forgotten import ent/runtime?)")
-		}
 		v := bloodsearchrequest.DefaultID()
 		_c.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

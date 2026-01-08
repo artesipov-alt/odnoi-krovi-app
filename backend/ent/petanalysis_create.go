@@ -325,9 +325,7 @@ func (_c *PetAnalysisCreate) Mutation() *PetAnalysisMutation {
 
 // Save creates the PetAnalysis in the database.
 func (_c *PetAnalysisCreate) Save(ctx context.Context) (*PetAnalysis, error) {
-	if err := _c.defaults(); err != nil {
-		return nil, err
-	}
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -354,29 +352,19 @@ func (_c *PetAnalysisCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *PetAnalysisCreate) defaults() error {
+func (_c *PetAnalysisCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		if petanalysis.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized petanalysis.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := petanalysis.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		if petanalysis.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized petanalysis.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := petanalysis.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		if petanalysis.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized petanalysis.DefaultID (forgotten import ent/runtime?)")
-		}
 		v := petanalysis.DefaultID()
 		_c.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

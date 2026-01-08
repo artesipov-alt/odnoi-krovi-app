@@ -159,9 +159,7 @@ func (_u *PetTreatmentUpdate) ClearOwner() *PetTreatmentUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PetTreatmentUpdate) Save(ctx context.Context) (int, error) {
-	if err := _u.defaults(); err != nil {
-		return 0, err
-	}
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -188,15 +186,11 @@ func (_u *PetTreatmentUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *PetTreatmentUpdate) defaults() error {
+func (_u *PetTreatmentUpdate) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		if pettreatment.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized pettreatment.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := pettreatment.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -444,9 +438,7 @@ func (_u *PetTreatmentUpdateOne) Select(field string, fields ...string) *PetTrea
 
 // Save executes the query and returns the updated PetTreatment entity.
 func (_u *PetTreatmentUpdateOne) Save(ctx context.Context) (*PetTreatment, error) {
-	if err := _u.defaults(); err != nil {
-		return nil, err
-	}
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -473,15 +465,11 @@ func (_u *PetTreatmentUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *PetTreatmentUpdateOne) defaults() error {
+func (_u *PetTreatmentUpdateOne) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		if pettreatment.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized pettreatment.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := pettreatment.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

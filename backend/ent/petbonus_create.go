@@ -119,9 +119,7 @@ func (_c *PetBonusCreate) Mutation() *PetBonusMutation {
 
 // Save creates the PetBonus in the database.
 func (_c *PetBonusCreate) Save(ctx context.Context) (*PetBonus, error) {
-	if err := _c.defaults(); err != nil {
-		return nil, err
-	}
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -148,29 +146,19 @@ func (_c *PetBonusCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *PetBonusCreate) defaults() error {
+func (_c *PetBonusCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		if petbonus.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized petbonus.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := petbonus.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		if petbonus.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized petbonus.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := petbonus.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		if petbonus.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized petbonus.DefaultID (forgotten import ent/runtime?)")
-		}
 		v := petbonus.DefaultID()
 		_c.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

@@ -419,9 +419,7 @@ func (_c *PetCreate) Mutation() *PetMutation {
 
 // Save creates the Pet in the database.
 func (_c *PetCreate) Save(ctx context.Context) (*Pet, error) {
-	if err := _c.defaults(); err != nil {
-		return nil, err
-	}
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -448,29 +446,19 @@ func (_c *PetCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *PetCreate) defaults() error {
+func (_c *PetCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		if pet.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized pet.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := pet.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		if pet.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized pet.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := pet.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		if pet.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized pet.DefaultID (forgotten import ent/runtime?)")
-		}
 		v := pet.DefaultID()
 		_c.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

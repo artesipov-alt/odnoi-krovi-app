@@ -179,9 +179,7 @@ func (_c *PetHealthCreate) Mutation() *PetHealthMutation {
 
 // Save creates the PetHealth in the database.
 func (_c *PetHealthCreate) Save(ctx context.Context) (*PetHealth, error) {
-	if err := _c.defaults(); err != nil {
-		return nil, err
-	}
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -208,29 +206,19 @@ func (_c *PetHealthCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *PetHealthCreate) defaults() error {
+func (_c *PetHealthCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		if pethealth.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized pethealth.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := pethealth.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		if pethealth.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized pethealth.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := pethealth.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		if pethealth.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized pethealth.DefaultID (forgotten import ent/runtime?)")
-		}
 		v := pethealth.DefaultID()
 		_c.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

@@ -244,9 +244,7 @@ func (_u *BloodSearchRequestUpdate) ClearPet() *BloodSearchRequestUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *BloodSearchRequestUpdate) Save(ctx context.Context) (int, error) {
-	if err := _u.defaults(); err != nil {
-		return 0, err
-	}
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -273,15 +271,11 @@ func (_u *BloodSearchRequestUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *BloodSearchRequestUpdate) defaults() error {
+func (_u *BloodSearchRequestUpdate) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		if bloodsearchrequest.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized bloodsearchrequest.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := bloodsearchrequest.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -659,9 +653,7 @@ func (_u *BloodSearchRequestUpdateOne) Select(field string, fields ...string) *B
 
 // Save executes the query and returns the updated BloodSearchRequest entity.
 func (_u *BloodSearchRequestUpdateOne) Save(ctx context.Context) (*BloodSearchRequest, error) {
-	if err := _u.defaults(); err != nil {
-		return nil, err
-	}
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -688,15 +680,11 @@ func (_u *BloodSearchRequestUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *BloodSearchRequestUpdateOne) defaults() error {
+func (_u *BloodSearchRequestUpdateOne) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		if bloodsearchrequest.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized bloodsearchrequest.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := bloodsearchrequest.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
