@@ -29,6 +29,32 @@ func (_u *PetBonusUpdate) Where(ps ...predicate.PetBonus) *PetBonusUpdate {
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetBonusUpdate) SetUpdatedAt(v time.Time) *PetBonusUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetBonusUpdate) SetDeletedAt(v time.Time) *PetBonusUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetBonusUpdate) SetNillableDeletedAt(v *time.Time) *PetBonusUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetBonusUpdate) ClearDeletedAt() *PetBonusUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetIsArtist sets the "is_artist" field.
 func (_u *PetBonusUpdate) SetIsArtist(v bool) *PetBonusUpdate {
 	_u.mutation.SetIsArtist(v)
@@ -82,32 +108,6 @@ func (_u *PetBonusUpdate) SetNillableIsGuideDog(v *bool) *PetBonusUpdate {
 	if v != nil {
 		_u.SetIsGuideDog(*v)
 	}
-	return _u
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *PetBonusUpdate) SetUpdatedAt(v time.Time) *PetBonusUpdate {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *PetBonusUpdate) SetDeletedAt(v time.Time) *PetBonusUpdate {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *PetBonusUpdate) SetNillableDeletedAt(v *time.Time) *PetBonusUpdate {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *PetBonusUpdate) ClearDeletedAt() *PetBonusUpdate {
-	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -189,6 +189,15 @@ func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.IsArtist(); ok {
 		_spec.SetField(petbonus.FieldIsArtist, field.TypeBool, value)
 	}
@@ -200,15 +209,6 @@ func (_u *PetBonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.IsGuideDog(); ok {
 		_spec.SetField(petbonus.FieldIsGuideDog, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -257,6 +257,32 @@ type PetBonusUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PetBonusMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetBonusUpdateOne) SetUpdatedAt(v time.Time) *PetBonusUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetBonusUpdateOne) SetDeletedAt(v time.Time) *PetBonusUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetBonusUpdateOne) SetNillableDeletedAt(v *time.Time) *PetBonusUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetBonusUpdateOne) ClearDeletedAt() *PetBonusUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetIsArtist sets the "is_artist" field.
@@ -312,32 +338,6 @@ func (_u *PetBonusUpdateOne) SetNillableIsGuideDog(v *bool) *PetBonusUpdateOne {
 	if v != nil {
 		_u.SetIsGuideDog(*v)
 	}
-	return _u
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *PetBonusUpdateOne) SetUpdatedAt(v time.Time) *PetBonusUpdateOne {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *PetBonusUpdateOne) SetDeletedAt(v time.Time) *PetBonusUpdateOne {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *PetBonusUpdateOne) SetNillableDeletedAt(v *time.Time) *PetBonusUpdateOne {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *PetBonusUpdateOne) ClearDeletedAt() *PetBonusUpdateOne {
-	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -449,6 +449,15 @@ func (_u *PetBonusUpdateOne) sqlSave(ctx context.Context) (_node *PetBonus, err 
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.IsArtist(); ok {
 		_spec.SetField(petbonus.FieldIsArtist, field.TypeBool, value)
 	}
@@ -460,15 +469,6 @@ func (_u *PetBonusUpdateOne) sqlSave(ctx context.Context) (_node *PetBonus, err 
 	}
 	if value, ok := _u.mutation.IsGuideDog(); ok {
 		_spec.SetField(petbonus.FieldIsGuideDog, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(petbonus.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

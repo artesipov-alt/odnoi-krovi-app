@@ -298,12 +298,12 @@ func (_q *PetAnalysisQuery) WithOwner(opts ...func(*PetQuery)) *PetAnalysisQuery
 // Example:
 //
 //	var v []struct {
-//		PetID string `json:"petId"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.PetAnalysis.Query().
-//		GroupBy(petanalysis.FieldPetID).
+//		GroupBy(petanalysis.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PetAnalysisQuery) GroupBy(field string, fields ...string) *PetAnalysisGroupBy {
@@ -321,11 +321,11 @@ func (_q *PetAnalysisQuery) GroupBy(field string, fields ...string) *PetAnalysis
 // Example:
 //
 //	var v []struct {
-//		PetID string `json:"petId"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.PetAnalysis.Query().
-//		Select(petanalysis.FieldPetID).
+//		Select(petanalysis.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *PetAnalysisQuery) Select(fields ...string) *PetAnalysisSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

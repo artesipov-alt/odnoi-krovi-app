@@ -15,6 +15,12 @@ const (
 	Label = "pet_treatment"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldRabiesVaccinationDate holds the string denoting the rabies_vaccination_date field in the database.
 	FieldRabiesVaccinationDate = "rabies_vaccination_date"
 	// FieldInfectionVaccinationDate holds the string denoting the infection_vaccination_date field in the database.
@@ -23,12 +29,6 @@ const (
 	FieldEctoparasiteTreatmentDate = "ectoparasite_treatment_date"
 	// FieldDewormingDate holds the string denoting the deworming_date field in the database.
 	FieldDewormingDate = "deworming_date"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// Table holds the table name of the pettreatment in the database.
@@ -45,13 +45,13 @@ const (
 // Columns holds all SQL columns for pettreatment fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 	FieldRabiesVaccinationDate,
 	FieldInfectionVaccinationDate,
 	FieldEctoparasiteTreatmentDate,
 	FieldDewormingDate,
-	FieldCreatedAt,
-	FieldUpdatedAt,
-	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -89,6 +89,21 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByRabiesVaccinationDate orders the results by the rabies_vaccination_date field.
 func ByRabiesVaccinationDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRabiesVaccinationDate, opts...).ToFunc()
@@ -107,21 +122,6 @@ func ByEctoparasiteTreatmentDate(opts ...sql.OrderTermOption) OrderOption {
 // ByDewormingDate orders the results by the deworming_date field.
 func ByDewormingDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDewormingDate, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

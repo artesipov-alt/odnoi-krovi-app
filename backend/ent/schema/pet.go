@@ -1,12 +1,8 @@
 package schema
 
 import (
-	"context"
-	"time"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -15,6 +11,13 @@ import (
 // Pet holds the schema definition for the Pet entity.
 type Pet struct {
 	ent.Schema
+}
+
+// Mixin of the Pet.
+func (Pet) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		AuditMixin{},
+	}
 }
 
 // Fields of the Pet.
@@ -42,19 +45,6 @@ func (Pet) Fields() []ent.Field {
 		field.String("treatment_id").Optional().StructTag(`json:"treatmentId"`),
 		field.String("bonus_id").Optional().StructTag(`json:"bonusId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
-		// Audit fields
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable().
-			StructTag(`json:"createdAt" swaggerignore:"true"`),
-		field.Time("updated_at").
-			Default(time.Now).
-			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt" swaggerignore:"true"`),
-		field.Time("deleted_at").
-			Optional().
-			Nillable().
-			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -77,29 +67,16 @@ func (Pet) Edges() []ent.Edge {
 	}
 }
 
-// Interceptors of the Pet.
-func (Pet) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			type query interface {
-				WhereP(...func(*sql.Selector))
-			}
-			if w, ok := q.(query); ok {
-				w.WhereP(func(s *sql.Selector) {
-					s.Where(sql.IsNull(s.C("deleted_at")))
-				})
-			}
-			return nil
-		}),
-	}
-}
-
 // PetHealth holds the schema definition for the PetHealth entity.
 type PetHealth struct {
 	ent.Schema
+}
+
+// Mixin of the PetHealth.
+func (PetHealth) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		AuditMixin{},
+	}
 }
 
 // Fields of the PetHealth.
@@ -116,19 +93,6 @@ func (PetHealth) Fields() []ent.Field {
 		field.Bool("transfused").Optional().StructTag(`json:"transfused"`),
 		field.String("medications").Optional().StructTag(`json:"medications"`),
 		field.String("surgical_interventions").Optional().StructTag(`json:"surgicalInterventions"`),
-		// Audit fields
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable().
-			StructTag(`json:"createdAt" swaggerignore:"true"`),
-		field.Time("updated_at").
-			Default(time.Now).
-			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt" swaggerignore:"true"`),
-		field.Time("deleted_at").
-			Optional().
-			Nillable().
-			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -148,29 +112,16 @@ func (PetHealth) Annotations() []schema.Annotation {
 	}
 }
 
-// Interceptors of the PetHealth.
-func (PetHealth) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			type query interface {
-				WhereP(...func(*sql.Selector))
-			}
-			if w, ok := q.(query); ok {
-				w.WhereP(func(s *sql.Selector) {
-					s.Where(sql.IsNull(s.C("deleted_at")))
-				})
-			}
-			return nil
-		}),
-	}
-}
-
 // PetTreatment holds the schema definition for the PetTreatment entity.
 type PetTreatment struct {
 	ent.Schema
+}
+
+// Mixin of the PetTreatment.
+func (PetTreatment) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		AuditMixin{},
+	}
 }
 
 // Fields of the PetTreatment.
@@ -185,19 +136,6 @@ func (PetTreatment) Fields() []ent.Field {
 		field.Time("infection_vaccination_date").Optional().Nillable().StructTag(`json:"infectionVaccinationDate"`),
 		field.Time("ectoparasite_treatment_date").Optional().Nillable().StructTag(`json:"ectoparasiteTreatmentDate"`),
 		field.Time("deworming_date").Optional().Nillable().StructTag(`json:"dewormingDate"`),
-		// Audit fields
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable().
-			StructTag(`json:"createdAt" swaggerignore:"true"`),
-		field.Time("updated_at").
-			Default(time.Now).
-			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt" swaggerignore:"true"`),
-		field.Time("deleted_at").
-			Optional().
-			Nillable().
-			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -217,29 +155,16 @@ func (PetTreatment) Annotations() []schema.Annotation {
 	}
 }
 
-// Interceptors of the PetTreatment.
-func (PetTreatment) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			type query interface {
-				WhereP(...func(*sql.Selector))
-			}
-			if w, ok := q.(query); ok {
-				w.WhereP(func(s *sql.Selector) {
-					s.Where(sql.IsNull(s.C("deleted_at")))
-				})
-			}
-			return nil
-		}),
-	}
-}
-
 // PetAnalysis holds the schema definition for the PetAnalysis entity.
 type PetAnalysis struct {
 	ent.Schema
+}
+
+// Mixin of the PetAnalysis.
+func (PetAnalysis) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		AuditMixin{},
+	}
 }
 
 // Fields of the PetAnalysis.
@@ -266,19 +191,6 @@ func (PetAnalysis) Fields() []ent.Field {
 		field.Enum("ehrlichiosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"ehrlichiosisType"`),
 		field.Time("anaplasmosis_date").Optional().Nillable().StructTag(`json:"anaplasmosisDate"`),
 		field.Enum("anaplasmosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"anaplasmosisType"`),
-		// Audit fields
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable().
-			StructTag(`json:"createdAt" swaggerignore:"true"`),
-		field.Time("updated_at").
-			Default(time.Now).
-			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt" swaggerignore:"true"`),
-		field.Time("deleted_at").
-			Optional().
-			Nillable().
-			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -299,29 +211,16 @@ func (PetAnalysis) Annotations() []schema.Annotation {
 	}
 }
 
-// Interceptors of the PetAnalysis.
-func (PetAnalysis) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			type query interface {
-				WhereP(...func(*sql.Selector))
-			}
-			if w, ok := q.(query); ok {
-				w.WhereP(func(s *sql.Selector) {
-					s.Where(sql.IsNull(s.C("deleted_at")))
-				})
-			}
-			return nil
-		}),
-	}
-}
-
 // PetBonus holds the schema definition for the PetBonus entity.
 type PetBonus struct {
 	ent.Schema
+}
+
+// Mixin of the PetBonus.
+func (PetBonus) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		AuditMixin{},
+	}
 }
 
 // Fields of the PetBonus.
@@ -336,19 +235,6 @@ func (PetBonus) Fields() []ent.Field {
 		field.Bool("is_therapist").StructTag(`json:"isTherapist"`),
 		field.Bool("is_former_donor").StructTag(`json:"isFormerDonor"`),
 		field.Bool("is_guide_dog").StructTag(`json:"isGuideDog"`),
-		// Audit fields
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable().
-			StructTag(`json:"createdAt" swaggerignore:"true"`),
-		field.Time("updated_at").
-			Default(time.Now).
-			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt" swaggerignore:"true"`),
-		field.Time("deleted_at").
-			Optional().
-			Nillable().
-			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -365,25 +251,5 @@ func (PetBonus) Edges() []ent.Edge {
 func (PetBonus) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "pet_bonuses"},
-	}
-}
-
-// Interceptors of the PetBonus.
-func (PetBonus) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			type query interface {
-				WhereP(...func(*sql.Selector))
-			}
-			if w, ok := q.(query); ok {
-				w.WhereP(func(s *sql.Selector) {
-					s.Where(sql.IsNull(s.C("deleted_at")))
-				})
-			}
-			return nil
-		}),
 	}
 }

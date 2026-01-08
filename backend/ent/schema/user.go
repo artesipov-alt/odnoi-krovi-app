@@ -1,11 +1,7 @@
 package schema
 
 import (
-	"context"
-	"time"
-
 	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -55,19 +51,6 @@ func (User) Fields() []ent.Field {
 			Values("user", "admin").
 			Default("user").
 			StructTag(`json:"role"`),
-		// Audit fields
-		field.Time("created_at").
-			Default(time.Now).
-			Immutable().
-			StructTag(`json:"createdAt" swaggerignore:"true"`),
-		field.Time("updated_at").
-			Default(time.Now).
-			UpdateDefault(time.Now).
-			StructTag(`json:"updatedAt" swaggerignore:"true"`),
-		field.Time("deleted_at").
-			Optional().
-			Nillable().
-			StructTag(`json:"deletedAt" swaggerignore:"true"`),
 	}
 }
 
@@ -82,25 +65,8 @@ func (User) Edges() []ent.Edge {
 	}
 }
 
-// Interceptors of the User.
-func (User) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		ent.TraverseFunc(func(ctx context.Context, q ent.Query) error {
-			// If SkipSoftDelete is in context, show all records (including deleted).
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-
-			// Add WHERE deleted_at IS NULL filter.
-			type query interface {
-				WhereP(...func(*sql.Selector))
-			}
-			if w, ok := q.(query); ok {
-				w.WhereP(func(s *sql.Selector) {
-					s.Where(sql.IsNull(s.C("deleted_at")))
-				})
-			}
-			return nil
-		}),
+func (User) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		AuditMixin{},
 	}
 }

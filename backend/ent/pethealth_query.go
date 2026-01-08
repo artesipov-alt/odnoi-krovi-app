@@ -299,12 +299,12 @@ func (_q *PetHealthQuery) WithOwner(opts ...func(*PetQuery)) *PetHealthQuery {
 // Example:
 //
 //	var v []struct {
-//		ReproductiveStatus pethealth.ReproductiveStatus `json:"reproductiveStatus"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.PetHealth.Query().
-//		GroupBy(pethealth.FieldReproductiveStatus).
+//		GroupBy(pethealth.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PetHealthQuery) GroupBy(field string, fields ...string) *PetHealthGroupBy {
@@ -322,11 +322,11 @@ func (_q *PetHealthQuery) GroupBy(field string, fields ...string) *PetHealthGrou
 // Example:
 //
 //	var v []struct {
-//		ReproductiveStatus pethealth.ReproductiveStatus `json:"reproductiveStatus"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.PetHealth.Query().
-//		Select(pethealth.FieldReproductiveStatus).
+//		Select(pethealth.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *PetHealthQuery) Select(fields ...string) *PetHealthSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

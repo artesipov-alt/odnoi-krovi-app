@@ -15,6 +15,12 @@ const (
 	Label = "pet_bonus"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldIsArtist holds the string denoting the is_artist field in the database.
 	FieldIsArtist = "is_artist"
 	// FieldIsTherapist holds the string denoting the is_therapist field in the database.
@@ -23,12 +29,6 @@ const (
 	FieldIsFormerDonor = "is_former_donor"
 	// FieldIsGuideDog holds the string denoting the is_guide_dog field in the database.
 	FieldIsGuideDog = "is_guide_dog"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// Table holds the table name of the petbonus in the database.
@@ -45,13 +45,13 @@ const (
 // Columns holds all SQL columns for petbonus fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 	FieldIsArtist,
 	FieldIsTherapist,
 	FieldIsFormerDonor,
 	FieldIsGuideDog,
-	FieldCreatedAt,
-	FieldUpdatedAt,
-	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -89,6 +89,21 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByIsArtist orders the results by the is_artist field.
 func ByIsArtist(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsArtist, opts...).ToFunc()
@@ -107,21 +122,6 @@ func ByIsFormerDonor(opts ...sql.OrderTermOption) OrderOption {
 // ByIsGuideDog orders the results by the is_guide_dog field.
 func ByIsGuideDog(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsGuideDog, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

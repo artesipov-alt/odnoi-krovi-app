@@ -65,6 +65,21 @@ func IDContainsFold(id string) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldContainsFold(FieldID, id))
 }
 
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldDeletedAt, v))
+}
+
 // IsArtist applies equality check predicate on the "is_artist" field. It's identical to IsArtistEQ.
 func IsArtist(v bool) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldEQ(FieldIsArtist, v))
@@ -83,61 +98,6 @@ func IsFormerDonor(v bool) predicate.PetBonus {
 // IsGuideDog applies equality check predicate on the "is_guide_dog" field. It's identical to IsGuideDogEQ.
 func IsGuideDog(v bool) predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldEQ(FieldIsGuideDog, v))
-}
-
-// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
-func CreatedAt(v time.Time) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldCreatedAt, v))
-}
-
-// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
-func UpdatedAt(v time.Time) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldUpdatedAt, v))
-}
-
-// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
-func DeletedAt(v time.Time) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldDeletedAt, v))
-}
-
-// IsArtistEQ applies the EQ predicate on the "is_artist" field.
-func IsArtistEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldIsArtist, v))
-}
-
-// IsArtistNEQ applies the NEQ predicate on the "is_artist" field.
-func IsArtistNEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNEQ(FieldIsArtist, v))
-}
-
-// IsTherapistEQ applies the EQ predicate on the "is_therapist" field.
-func IsTherapistEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldIsTherapist, v))
-}
-
-// IsTherapistNEQ applies the NEQ predicate on the "is_therapist" field.
-func IsTherapistNEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNEQ(FieldIsTherapist, v))
-}
-
-// IsFormerDonorEQ applies the EQ predicate on the "is_former_donor" field.
-func IsFormerDonorEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldIsFormerDonor, v))
-}
-
-// IsFormerDonorNEQ applies the NEQ predicate on the "is_former_donor" field.
-func IsFormerDonorNEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNEQ(FieldIsFormerDonor, v))
-}
-
-// IsGuideDogEQ applies the EQ predicate on the "is_guide_dog" field.
-func IsGuideDogEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldEQ(FieldIsGuideDog, v))
-}
-
-// IsGuideDogNEQ applies the NEQ predicate on the "is_guide_dog" field.
-func IsGuideDogNEQ(v bool) predicate.PetBonus {
-	return predicate.PetBonus(sql.FieldNEQ(FieldIsGuideDog, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -268,6 +228,46 @@ func DeletedAtIsNil() predicate.PetBonus {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.PetBonus {
 	return predicate.PetBonus(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// IsArtistEQ applies the EQ predicate on the "is_artist" field.
+func IsArtistEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldIsArtist, v))
+}
+
+// IsArtistNEQ applies the NEQ predicate on the "is_artist" field.
+func IsArtistNEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldNEQ(FieldIsArtist, v))
+}
+
+// IsTherapistEQ applies the EQ predicate on the "is_therapist" field.
+func IsTherapistEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldIsTherapist, v))
+}
+
+// IsTherapistNEQ applies the NEQ predicate on the "is_therapist" field.
+func IsTherapistNEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldNEQ(FieldIsTherapist, v))
+}
+
+// IsFormerDonorEQ applies the EQ predicate on the "is_former_donor" field.
+func IsFormerDonorEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldIsFormerDonor, v))
+}
+
+// IsFormerDonorNEQ applies the NEQ predicate on the "is_former_donor" field.
+func IsFormerDonorNEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldNEQ(FieldIsFormerDonor, v))
+}
+
+// IsGuideDogEQ applies the EQ predicate on the "is_guide_dog" field.
+func IsGuideDogEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldEQ(FieldIsGuideDog, v))
+}
+
+// IsGuideDogNEQ applies the NEQ predicate on the "is_guide_dog" field.
+func IsGuideDogNEQ(v bool) predicate.PetBonus {
+	return predicate.PetBonus(sql.FieldNEQ(FieldIsGuideDog, v))
 }
 
 // HasOwner applies the HasEdge predicate on the "owner" edge.

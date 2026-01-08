@@ -16,6 +16,12 @@ const (
 	Label = "blood_search_request"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldPetID holds the string denoting the pet_id field in the database.
 	FieldPetID = "pet_id"
 	// FieldBloodVolumeNeeded holds the string denoting the blood_volume_needed field in the database.
@@ -36,12 +42,6 @@ const (
 	FieldBloodGroupIds = "blood_group_ids"
 	// FieldBloodComponentIds holds the string denoting the blood_component_ids field in the database.
 	FieldBloodComponentIds = "blood_component_ids"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// EdgePet holds the string denoting the pet edge name in mutations.
 	EdgePet = "pet"
 	// Table holds the table name of the bloodsearchrequest in the database.
@@ -58,6 +58,9 @@ const (
 // Columns holds all SQL columns for bloodsearchrequest fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 	FieldPetID,
 	FieldBloodVolumeNeeded,
 	FieldBloodVolumeReserved,
@@ -68,9 +71,6 @@ var Columns = []string{
 	FieldPhotoUrls,
 	FieldBloodGroupIds,
 	FieldBloodComponentIds,
-	FieldCreatedAt,
-	FieldUpdatedAt,
-	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -90,16 +90,16 @@ func ValidColumn(column string) bool {
 //	import _ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 var (
 	Interceptors [1]ent.Interceptor
-	// DefaultBloodVolumeReserved holds the default value on creation for the "blood_volume_reserved" field.
-	DefaultBloodVolumeReserved int32
-	// DefaultSmallPetsNotifyAllowed holds the default value on creation for the "small_pets_notify_allowed" field.
-	DefaultSmallPetsNotifyAllowed bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultBloodVolumeReserved holds the default value on creation for the "blood_volume_reserved" field.
+	DefaultBloodVolumeReserved int32
+	// DefaultSmallPetsNotifyAllowed holds the default value on creation for the "small_pets_notify_allowed" field.
+	DefaultSmallPetsNotifyAllowed bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -139,6 +139,21 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByPetID orders the results by the pet_id field.
 func ByPetID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPetID, opts...).ToFunc()
@@ -167,21 +182,6 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByPetField orders the results by pet field.

@@ -126,7 +126,7 @@ func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID пользователя"
-// @Param request body dto.UserUpdate true "Данные для обновления"
+// @Param request body ent.User true "Данные для обновления"
 // @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"

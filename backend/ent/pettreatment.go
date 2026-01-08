@@ -15,9 +15,15 @@ import (
 
 // PetTreatment is the model entity for the PetTreatment schema.
 type PetTreatment struct {
-	config `json:"-" swaggerignore:"-"`
+	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deletedAt"`
 	// RabiesVaccinationDate holds the value of the "rabies_vaccination_date" field.
 	RabiesVaccinationDate *time.Time `json:"rabiesVaccinationDate"`
 	// InfectionVaccinationDate holds the value of the "infection_vaccination_date" field.
@@ -26,12 +32,6 @@ type PetTreatment struct {
 	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate"`
 	// DewormingDate holds the value of the "deworming_date" field.
 	DewormingDate *time.Time `json:"dewormingDate"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt" swaggerignore:"true"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetTreatmentQuery when eager-loading is set.
 	Edges        PetTreatmentEdges `json:"edges"`
@@ -65,7 +65,7 @@ func (*PetTreatment) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case pettreatment.FieldID:
 			values[i] = new(sql.NullString)
-		case pettreatment.FieldRabiesVaccinationDate, pettreatment.FieldInfectionVaccinationDate, pettreatment.FieldEctoparasiteTreatmentDate, pettreatment.FieldDewormingDate, pettreatment.FieldCreatedAt, pettreatment.FieldUpdatedAt, pettreatment.FieldDeletedAt:
+		case pettreatment.FieldCreatedAt, pettreatment.FieldUpdatedAt, pettreatment.FieldDeletedAt, pettreatment.FieldRabiesVaccinationDate, pettreatment.FieldInfectionVaccinationDate, pettreatment.FieldEctoparasiteTreatmentDate, pettreatment.FieldDewormingDate:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -87,6 +87,25 @@ func (_m *PetTreatment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case pettreatment.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case pettreatment.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case pettreatment.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case pettreatment.FieldRabiesVaccinationDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -115,25 +134,6 @@ func (_m *PetTreatment) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DewormingDate = new(time.Time)
 				*_m.DewormingDate = value.Time
-			}
-		case pettreatment.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				_m.CreatedAt = value.Time
-			}
-		case pettreatment.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				_m.UpdatedAt = value.Time
-			}
-		case pettreatment.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				_m.DeletedAt = new(time.Time)
-				*_m.DeletedAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -176,6 +176,17 @@ func (_m *PetTreatment) String() string {
 	var builder strings.Builder
 	builder.WriteString("PetTreatment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
 	if v := _m.RabiesVaccinationDate; v != nil {
 		builder.WriteString("rabies_vaccination_date=")
 		builder.WriteString(v.Format(time.ANSIC))
@@ -193,17 +204,6 @@ func (_m *PetTreatment) String() string {
 	builder.WriteString(", ")
 	if v := _m.DewormingDate; v != nil {
 		builder.WriteString("deworming_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("created_at=")
-	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := _m.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteByte(')')

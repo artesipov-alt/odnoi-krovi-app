@@ -63,10 +63,23 @@ func init() {
 			return nil
 		}
 	}()
-	bloodsearchrequestInters := schema.BloodSearchRequest{}.Interceptors()
-	bloodsearchrequest.Interceptors[0] = bloodsearchrequestInters[0]
+	bloodsearchrequestMixin := schema.BloodSearchRequest{}.Mixin()
+	bloodsearchrequestMixinInters0 := bloodsearchrequestMixin[0].Interceptors()
+	bloodsearchrequest.Interceptors[0] = bloodsearchrequestMixinInters0[0]
+	bloodsearchrequestMixinFields0 := bloodsearchrequestMixin[0].Fields()
+	_ = bloodsearchrequestMixinFields0
 	bloodsearchrequestFields := schema.BloodSearchRequest{}.Fields()
 	_ = bloodsearchrequestFields
+	// bloodsearchrequestDescCreatedAt is the schema descriptor for created_at field.
+	bloodsearchrequestDescCreatedAt := bloodsearchrequestMixinFields0[0].Descriptor()
+	// bloodsearchrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
+	bloodsearchrequest.DefaultCreatedAt = bloodsearchrequestDescCreatedAt.Default.(func() time.Time)
+	// bloodsearchrequestDescUpdatedAt is the schema descriptor for updated_at field.
+	bloodsearchrequestDescUpdatedAt := bloodsearchrequestMixinFields0[1].Descriptor()
+	// bloodsearchrequest.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	bloodsearchrequest.DefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.Default.(func() time.Time)
+	// bloodsearchrequest.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	bloodsearchrequest.UpdateDefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bloodsearchrequestDescBloodVolumeReserved is the schema descriptor for blood_volume_reserved field.
 	bloodsearchrequestDescBloodVolumeReserved := bloodsearchrequestFields[3].Descriptor()
 	// bloodsearchrequest.DefaultBloodVolumeReserved holds the default value on creation for the blood_volume_reserved field.
@@ -75,16 +88,6 @@ func init() {
 	bloodsearchrequestDescSmallPetsNotifyAllowed := bloodsearchrequestFields[5].Descriptor()
 	// bloodsearchrequest.DefaultSmallPetsNotifyAllowed holds the default value on creation for the small_pets_notify_allowed field.
 	bloodsearchrequest.DefaultSmallPetsNotifyAllowed = bloodsearchrequestDescSmallPetsNotifyAllowed.Default.(bool)
-	// bloodsearchrequestDescCreatedAt is the schema descriptor for created_at field.
-	bloodsearchrequestDescCreatedAt := bloodsearchrequestFields[11].Descriptor()
-	// bloodsearchrequest.DefaultCreatedAt holds the default value on creation for the created_at field.
-	bloodsearchrequest.DefaultCreatedAt = bloodsearchrequestDescCreatedAt.Default.(func() time.Time)
-	// bloodsearchrequestDescUpdatedAt is the schema descriptor for updated_at field.
-	bloodsearchrequestDescUpdatedAt := bloodsearchrequestFields[12].Descriptor()
-	// bloodsearchrequest.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	bloodsearchrequest.DefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.Default.(func() time.Time)
-	// bloodsearchrequest.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	bloodsearchrequest.UpdateDefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bloodsearchrequestDescID is the schema descriptor for id field.
 	bloodsearchrequestDescID := bloodsearchrequestFields[0].Descriptor()
 	// bloodsearchrequest.DefaultID holds the default value on creation for the id field.
@@ -129,10 +132,23 @@ func init() {
 			return nil
 		}
 	}()
-	petInters := schema.Pet{}.Interceptors()
-	pet.Interceptors[0] = petInters[0]
+	petMixin := schema.Pet{}.Mixin()
+	petMixinInters0 := petMixin[0].Interceptors()
+	pet.Interceptors[0] = petMixinInters0[0]
+	petMixinFields0 := petMixin[0].Fields()
+	_ = petMixinFields0
 	petFields := schema.Pet{}.Fields()
 	_ = petFields
+	// petDescCreatedAt is the schema descriptor for created_at field.
+	petDescCreatedAt := petMixinFields0[0].Descriptor()
+	// pet.DefaultCreatedAt holds the default value on creation for the created_at field.
+	pet.DefaultCreatedAt = petDescCreatedAt.Default.(func() time.Time)
+	// petDescUpdatedAt is the schema descriptor for updated_at field.
+	petDescUpdatedAt := petMixinFields0[1].Descriptor()
+	// pet.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	pet.DefaultUpdatedAt = petDescUpdatedAt.Default.(func() time.Time)
+	// pet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	pet.UpdateDefaultUpdatedAt = petDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// petDescName is the schema descriptor for name field.
 	petDescName := petFields[1].Descriptor()
 	// pet.NameValidator is a validator for the "name" field. It is called by the builders before save.
@@ -145,44 +161,40 @@ func init() {
 	petDescPhotoURL := petFields[11].Descriptor()
 	// pet.PhotoURLValidator is a validator for the "photo_url" field. It is called by the builders before save.
 	pet.PhotoURLValidator = petDescPhotoURL.Validators[0].(func(string) error)
-	// petDescCreatedAt is the schema descriptor for created_at field.
-	petDescCreatedAt := petFields[18].Descriptor()
-	// pet.DefaultCreatedAt holds the default value on creation for the created_at field.
-	pet.DefaultCreatedAt = petDescCreatedAt.Default.(func() time.Time)
-	// petDescUpdatedAt is the schema descriptor for updated_at field.
-	petDescUpdatedAt := petFields[19].Descriptor()
-	// pet.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	pet.DefaultUpdatedAt = petDescUpdatedAt.Default.(func() time.Time)
-	// pet.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	pet.UpdateDefaultUpdatedAt = petDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// petDescID is the schema descriptor for id field.
 	petDescID := petFields[0].Descriptor()
 	// pet.DefaultID holds the default value on creation for the id field.
 	pet.DefaultID = petDescID.Default.(func() string)
-	petanalysisInters := schema.PetAnalysis{}.Interceptors()
-	petanalysis.Interceptors[0] = petanalysisInters[0]
+	petanalysisMixin := schema.PetAnalysis{}.Mixin()
+	petanalysisMixinInters0 := petanalysisMixin[0].Interceptors()
+	petanalysis.Interceptors[0] = petanalysisMixinInters0[0]
+	petanalysisMixinFields0 := petanalysisMixin[0].Fields()
+	_ = petanalysisMixinFields0
 	petanalysisFields := schema.PetAnalysis{}.Fields()
 	_ = petanalysisFields
 	// petanalysisDescCreatedAt is the schema descriptor for created_at field.
-	petanalysisDescCreatedAt := petanalysisFields[18].Descriptor()
+	petanalysisDescCreatedAt := petanalysisMixinFields0[0].Descriptor()
 	// petanalysis.DefaultCreatedAt holds the default value on creation for the created_at field.
 	petanalysis.DefaultCreatedAt = petanalysisDescCreatedAt.Default.(func() time.Time)
 	// petanalysisDescUpdatedAt is the schema descriptor for updated_at field.
-	petanalysisDescUpdatedAt := petanalysisFields[19].Descriptor()
+	petanalysisDescUpdatedAt := petanalysisMixinFields0[1].Descriptor()
 	// petanalysis.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	petanalysis.DefaultUpdatedAt = petanalysisDescUpdatedAt.Default.(func() time.Time)
 	// petanalysis.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	petanalysis.UpdateDefaultUpdatedAt = petanalysisDescUpdatedAt.UpdateDefault.(func() time.Time)
-	petbonusInters := schema.PetBonus{}.Interceptors()
-	petbonus.Interceptors[0] = petbonusInters[0]
+	petbonusMixin := schema.PetBonus{}.Mixin()
+	petbonusMixinInters0 := petbonusMixin[0].Interceptors()
+	petbonus.Interceptors[0] = petbonusMixinInters0[0]
+	petbonusMixinFields0 := petbonusMixin[0].Fields()
+	_ = petbonusMixinFields0
 	petbonusFields := schema.PetBonus{}.Fields()
 	_ = petbonusFields
 	// petbonusDescCreatedAt is the schema descriptor for created_at field.
-	petbonusDescCreatedAt := petbonusFields[5].Descriptor()
+	petbonusDescCreatedAt := petbonusMixinFields0[0].Descriptor()
 	// petbonus.DefaultCreatedAt holds the default value on creation for the created_at field.
 	petbonus.DefaultCreatedAt = petbonusDescCreatedAt.Default.(func() time.Time)
 	// petbonusDescUpdatedAt is the schema descriptor for updated_at field.
-	petbonusDescUpdatedAt := petbonusFields[6].Descriptor()
+	petbonusDescUpdatedAt := petbonusMixinFields0[1].Descriptor()
 	// petbonus.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	petbonus.DefaultUpdatedAt = petbonusDescUpdatedAt.Default.(func() time.Time)
 	// petbonus.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -191,16 +203,19 @@ func init() {
 	petbonusDescID := petbonusFields[0].Descriptor()
 	// petbonus.DefaultID holds the default value on creation for the id field.
 	petbonus.DefaultID = petbonusDescID.Default.(func() string)
-	pethealthInters := schema.PetHealth{}.Interceptors()
-	pethealth.Interceptors[0] = pethealthInters[0]
+	pethealthMixin := schema.PetHealth{}.Mixin()
+	pethealthMixinInters0 := pethealthMixin[0].Interceptors()
+	pethealth.Interceptors[0] = pethealthMixinInters0[0]
+	pethealthMixinFields0 := pethealthMixin[0].Fields()
+	_ = pethealthMixinFields0
 	pethealthFields := schema.PetHealth{}.Fields()
 	_ = pethealthFields
 	// pethealthDescCreatedAt is the schema descriptor for created_at field.
-	pethealthDescCreatedAt := pethealthFields[7].Descriptor()
+	pethealthDescCreatedAt := pethealthMixinFields0[0].Descriptor()
 	// pethealth.DefaultCreatedAt holds the default value on creation for the created_at field.
 	pethealth.DefaultCreatedAt = pethealthDescCreatedAt.Default.(func() time.Time)
 	// pethealthDescUpdatedAt is the schema descriptor for updated_at field.
-	pethealthDescUpdatedAt := pethealthFields[8].Descriptor()
+	pethealthDescUpdatedAt := pethealthMixinFields0[1].Descriptor()
 	// pethealth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	pethealth.DefaultUpdatedAt = pethealthDescUpdatedAt.Default.(func() time.Time)
 	// pethealth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -209,16 +224,19 @@ func init() {
 	pethealthDescID := pethealthFields[0].Descriptor()
 	// pethealth.DefaultID holds the default value on creation for the id field.
 	pethealth.DefaultID = pethealthDescID.Default.(func() string)
-	pettreatmentInters := schema.PetTreatment{}.Interceptors()
-	pettreatment.Interceptors[0] = pettreatmentInters[0]
+	pettreatmentMixin := schema.PetTreatment{}.Mixin()
+	pettreatmentMixinInters0 := pettreatmentMixin[0].Interceptors()
+	pettreatment.Interceptors[0] = pettreatmentMixinInters0[0]
+	pettreatmentMixinFields0 := pettreatmentMixin[0].Fields()
+	_ = pettreatmentMixinFields0
 	pettreatmentFields := schema.PetTreatment{}.Fields()
 	_ = pettreatmentFields
 	// pettreatmentDescCreatedAt is the schema descriptor for created_at field.
-	pettreatmentDescCreatedAt := pettreatmentFields[5].Descriptor()
+	pettreatmentDescCreatedAt := pettreatmentMixinFields0[0].Descriptor()
 	// pettreatment.DefaultCreatedAt holds the default value on creation for the created_at field.
 	pettreatment.DefaultCreatedAt = pettreatmentDescCreatedAt.Default.(func() time.Time)
 	// pettreatmentDescUpdatedAt is the schema descriptor for updated_at field.
-	pettreatmentDescUpdatedAt := pettreatmentFields[6].Descriptor()
+	pettreatmentDescUpdatedAt := pettreatmentMixinFields0[1].Descriptor()
 	// pettreatment.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	pettreatment.DefaultUpdatedAt = pettreatmentDescUpdatedAt.Default.(func() time.Time)
 	// pettreatment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -227,10 +245,23 @@ func init() {
 	pettreatmentDescID := pettreatmentFields[0].Descriptor()
 	// pettreatment.DefaultID holds the default value on creation for the id field.
 	pettreatment.DefaultID = pettreatmentDescID.Default.(func() string)
-	userInters := schema.User{}.Interceptors()
-	user.Interceptors[0] = userInters[0]
+	userMixin := schema.User{}.Mixin()
+	userMixinInters0 := userMixin[0].Interceptors()
+	user.Interceptors[0] = userMixinInters0[0]
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
 	userFields := schema.User{}.Fields()
 	_ = userFields
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userMixinFields0[0].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
+	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// userDescFullName is the schema descriptor for full_name field.
 	userDescFullName := userFields[2].Descriptor()
 	// user.FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
@@ -247,16 +278,6 @@ func init() {
 	userDescOrganizationName := userFields[5].Descriptor()
 	// user.OrganizationNameValidator is a validator for the "organization_name" field. It is called by the builders before save.
 	user.OrganizationNameValidator = userDescOrganizationName.Validators[0].(func(string) error)
-	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[11].Descriptor()
-	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
-	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
-	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userFields[12].Descriptor()
-	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
-	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

@@ -30,6 +30,32 @@ func (_u *BloodSearchRequestUpdate) Where(ps ...predicate.BloodSearchRequest) *B
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodSearchRequestUpdate) SetUpdatedAt(v time.Time) *BloodSearchRequestUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodSearchRequestUpdate) SetDeletedAt(v time.Time) *BloodSearchRequestUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdate) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodSearchRequestUpdate) ClearDeletedAt() *BloodSearchRequestUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetPetID sets the "pet_id" field.
 func (_u *BloodSearchRequestUpdate) SetPetID(v string) *BloodSearchRequestUpdate {
 	_u.mutation.SetPetID(v)
@@ -200,32 +226,6 @@ func (_u *BloodSearchRequestUpdate) ClearBloodComponentIds() *BloodSearchRequest
 	return _u
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *BloodSearchRequestUpdate) SetUpdatedAt(v time.Time) *BloodSearchRequestUpdate {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *BloodSearchRequestUpdate) SetDeletedAt(v time.Time) *BloodSearchRequestUpdate {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdate) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestUpdate {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *BloodSearchRequestUpdate) ClearDeletedAt() *BloodSearchRequestUpdate {
-	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdate) SetPet(v *Pet) *BloodSearchRequestUpdate {
 	return _u.SetPetID(v.ID)
@@ -303,6 +303,15 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
 	}
@@ -368,15 +377,6 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	if _u.mutation.BloodComponentIdsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON)
 	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
-	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -424,6 +424,32 @@ type BloodSearchRequestUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *BloodSearchRequestMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodSearchRequestUpdateOne) SetUpdatedAt(v time.Time) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodSearchRequestUpdateOne) SetDeletedAt(v time.Time) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodSearchRequestUpdateOne) ClearDeletedAt() *BloodSearchRequestUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetPetID sets the "pet_id" field.
@@ -596,32 +622,6 @@ func (_u *BloodSearchRequestUpdateOne) ClearBloodComponentIds() *BloodSearchRequ
 	return _u
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *BloodSearchRequestUpdateOne) SetUpdatedAt(v time.Time) *BloodSearchRequestUpdateOne {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *BloodSearchRequestUpdateOne) SetDeletedAt(v time.Time) *BloodSearchRequestUpdateOne {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestUpdateOne {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *BloodSearchRequestUpdateOne) ClearDeletedAt() *BloodSearchRequestUpdateOne {
-	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdateOne) SetPet(v *Pet) *BloodSearchRequestUpdateOne {
 	return _u.SetPetID(v.ID)
@@ -729,6 +729,15 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
 	}
@@ -793,15 +802,6 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.BloodComponentIdsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{

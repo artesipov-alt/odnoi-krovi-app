@@ -21,6 +21,48 @@ type BloodSearchRequestCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *BloodSearchRequestCreate) SetCreatedAt(v time.Time) *BloodSearchRequestCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *BloodSearchRequestCreate) SetNillableCreatedAt(v *time.Time) *BloodSearchRequestCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *BloodSearchRequestCreate) SetUpdatedAt(v time.Time) *BloodSearchRequestCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *BloodSearchRequestCreate) SetNillableUpdatedAt(v *time.Time) *BloodSearchRequestCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *BloodSearchRequestCreate) SetDeletedAt(v time.Time) *BloodSearchRequestCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *BloodSearchRequestCreate) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetPetID sets the "pet_id" field.
 func (_c *BloodSearchRequestCreate) SetPetID(v string) *BloodSearchRequestCreate {
 	_c.mutation.SetPetID(v)
@@ -113,48 +155,6 @@ func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []int) *BloodSearchRe
 	return _c
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (_c *BloodSearchRequestCreate) SetCreatedAt(v time.Time) *BloodSearchRequestCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *BloodSearchRequestCreate) SetNillableCreatedAt(v *time.Time) *BloodSearchRequestCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *BloodSearchRequestCreate) SetUpdatedAt(v time.Time) *BloodSearchRequestCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *BloodSearchRequestCreate) SetNillableUpdatedAt(v *time.Time) *BloodSearchRequestCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *BloodSearchRequestCreate) SetDeletedAt(v time.Time) *BloodSearchRequestCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *BloodSearchRequestCreate) SetNillableDeletedAt(v *time.Time) *BloodSearchRequestCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *BloodSearchRequestCreate) SetID(v string) *BloodSearchRequestCreate {
 	_c.mutation.SetID(v)
@@ -209,6 +209,14 @@ func (_c *BloodSearchRequestCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *BloodSearchRequestCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := bloodsearchrequest.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := bloodsearchrequest.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := _c.mutation.BloodVolumeReserved(); !ok {
 		v := bloodsearchrequest.DefaultBloodVolumeReserved
 		_c.mutation.SetBloodVolumeReserved(v)
@@ -221,14 +229,6 @@ func (_c *BloodSearchRequestCreate) defaults() {
 		v := bloodsearchrequest.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		v := bloodsearchrequest.DefaultCreatedAt()
-		_c.mutation.SetCreatedAt(v)
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		v := bloodsearchrequest.DefaultUpdatedAt()
-		_c.mutation.SetUpdatedAt(v)
-	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := bloodsearchrequest.DefaultID()
 		_c.mutation.SetID(v)
@@ -237,6 +237,12 @@ func (_c *BloodSearchRequestCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *BloodSearchRequestCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "BloodSearchRequest.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "BloodSearchRequest.updated_at"`)}
+	}
 	if _, ok := _c.mutation.PetID(); !ok {
 		return &ValidationError{Name: "pet_id", err: errors.New(`ent: missing required field "BloodSearchRequest.pet_id"`)}
 	}
@@ -259,12 +265,6 @@ func (_c *BloodSearchRequestCreate) check() error {
 		if err := bloodsearchrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "BloodSearchRequest.status": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "BloodSearchRequest.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "BloodSearchRequest.updated_at"`)}
 	}
 	if len(_c.mutation.PetIDs()) == 0 {
 		return &ValidationError{Name: "pet", err: errors.New(`ent: missing required edge "BloodSearchRequest.pet"`)}
@@ -304,6 +304,18 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if value, ok := _c.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
 		_node.BloodVolumeNeeded = value
@@ -339,18 +351,6 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	if value, ok := _c.mutation.BloodComponentIds(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)
 		_node.BloodComponentIds = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

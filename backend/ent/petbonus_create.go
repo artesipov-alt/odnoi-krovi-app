@@ -21,30 +21,6 @@ type PetBonusCreate struct {
 	hooks    []Hook
 }
 
-// SetIsArtist sets the "is_artist" field.
-func (_c *PetBonusCreate) SetIsArtist(v bool) *PetBonusCreate {
-	_c.mutation.SetIsArtist(v)
-	return _c
-}
-
-// SetIsTherapist sets the "is_therapist" field.
-func (_c *PetBonusCreate) SetIsTherapist(v bool) *PetBonusCreate {
-	_c.mutation.SetIsTherapist(v)
-	return _c
-}
-
-// SetIsFormerDonor sets the "is_former_donor" field.
-func (_c *PetBonusCreate) SetIsFormerDonor(v bool) *PetBonusCreate {
-	_c.mutation.SetIsFormerDonor(v)
-	return _c
-}
-
-// SetIsGuideDog sets the "is_guide_dog" field.
-func (_c *PetBonusCreate) SetIsGuideDog(v bool) *PetBonusCreate {
-	_c.mutation.SetIsGuideDog(v)
-	return _c
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (_c *PetBonusCreate) SetCreatedAt(v time.Time) *PetBonusCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -84,6 +60,30 @@ func (_c *PetBonusCreate) SetNillableDeletedAt(v *time.Time) *PetBonusCreate {
 	if v != nil {
 		_c.SetDeletedAt(*v)
 	}
+	return _c
+}
+
+// SetIsArtist sets the "is_artist" field.
+func (_c *PetBonusCreate) SetIsArtist(v bool) *PetBonusCreate {
+	_c.mutation.SetIsArtist(v)
+	return _c
+}
+
+// SetIsTherapist sets the "is_therapist" field.
+func (_c *PetBonusCreate) SetIsTherapist(v bool) *PetBonusCreate {
+	_c.mutation.SetIsTherapist(v)
+	return _c
+}
+
+// SetIsFormerDonor sets the "is_former_donor" field.
+func (_c *PetBonusCreate) SetIsFormerDonor(v bool) *PetBonusCreate {
+	_c.mutation.SetIsFormerDonor(v)
+	return _c
+}
+
+// SetIsGuideDog sets the "is_guide_dog" field.
+func (_c *PetBonusCreate) SetIsGuideDog(v bool) *PetBonusCreate {
+	_c.mutation.SetIsGuideDog(v)
 	return _c
 }
 
@@ -163,6 +163,12 @@ func (_c *PetBonusCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetBonusCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetBonus.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetBonus.updated_at"`)}
+	}
 	if _, ok := _c.mutation.IsArtist(); !ok {
 		return &ValidationError{Name: "is_artist", err: errors.New(`ent: missing required field "PetBonus.is_artist"`)}
 	}
@@ -174,12 +180,6 @@ func (_c *PetBonusCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsGuideDog(); !ok {
 		return &ValidationError{Name: "is_guide_dog", err: errors.New(`ent: missing required field "PetBonus.is_guide_dog"`)}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetBonus.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetBonus.updated_at"`)}
 	}
 	if len(_c.mutation.OwnerIDs()) == 0 {
 		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "PetBonus.owner"`)}
@@ -219,6 +219,18 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(petbonus.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if value, ok := _c.mutation.IsArtist(); ok {
 		_spec.SetField(petbonus.FieldIsArtist, field.TypeBool, value)
 		_node.IsArtist = value
@@ -234,18 +246,6 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IsGuideDog(); ok {
 		_spec.SetField(petbonus.FieldIsGuideDog, field.TypeBool, value)
 		_node.IsGuideDog = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(petbonus.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(petbonus.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(petbonus.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

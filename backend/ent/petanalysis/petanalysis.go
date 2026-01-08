@@ -16,6 +16,12 @@ const (
 	Label = "pet_analysis"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldPetID holds the string denoting the pet_id field in the database.
 	FieldPetID = "pet_id"
 	// FieldLeukemiaDate holds the string denoting the leukemia_date field in the database.
@@ -50,12 +56,6 @@ const (
 	FieldAnaplasmosisDate = "anaplasmosis_date"
 	// FieldAnaplasmosisType holds the string denoting the anaplasmosis_type field in the database.
 	FieldAnaplasmosisType = "anaplasmosis_type"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// Table holds the table name of the petanalysis in the database.
@@ -72,6 +72,9 @@ const (
 // Columns holds all SQL columns for petanalysis fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 	FieldPetID,
 	FieldLeukemiaDate,
 	FieldLeukemiaType,
@@ -89,9 +92,6 @@ var Columns = []string{
 	FieldEhrlichiosisType,
 	FieldAnaplasmosisDate,
 	FieldAnaplasmosisType,
-	FieldCreatedAt,
-	FieldUpdatedAt,
-	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -335,6 +335,21 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByPetID orders the results by the pet_id field.
 func ByPetID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPetID, opts...).ToFunc()
@@ -418,21 +433,6 @@ func ByAnaplasmosisDate(opts ...sql.OrderTermOption) OrderOption {
 // ByAnaplasmosisType orders the results by the anaplasmosis_type field.
 func ByAnaplasmosisType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAnaplasmosisType, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the created_at field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByDeletedAt orders the results by the deleted_at field.
-func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

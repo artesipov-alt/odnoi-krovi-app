@@ -335,12 +335,12 @@ func (_q *UserQuery) WithLocation(opts ...func(*LocationQuery)) *UserQuery {
 // Example:
 //
 //	var v []struct {
-//		TelegramID int64 `json:"telegramId"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.User.Query().
-//		GroupBy(user.FieldTelegramID).
+//		GroupBy(user.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *UserQuery) GroupBy(field string, fields ...string) *UserGroupBy {
@@ -358,11 +358,11 @@ func (_q *UserQuery) GroupBy(field string, fields ...string) *UserGroupBy {
 // Example:
 //
 //	var v []struct {
-//		TelegramID int64 `json:"telegramId"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.User.Query().
-//		Select(user.FieldTelegramID).
+//		Select(user.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *UserQuery) Select(fields ...string) *UserSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

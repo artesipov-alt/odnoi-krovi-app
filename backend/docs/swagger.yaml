@@ -347,24 +347,6 @@ definitions:
     - phone
     - role
     type: object
-  dto.UserUpdate:
-    properties:
-      allowGeo:
-        type: boolean
-      email:
-        type: string
-      fullName:
-        maxLength: 255
-        minLength: 2
-        type: string
-      locationId:
-        minimum: 1
-        type: integer
-      onBoarding:
-        type: boolean
-      phone:
-        type: string
-    type: object
   ent.BloodSearchRequest:
     properties:
       bloodComponentIds:
@@ -386,6 +368,12 @@ definitions:
         description: BloodVolumeReserved holds the value of the "blood_volume_reserved"
           field.
         type: integer
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       description:
         description: Description holds the value of the "description" field.
         type: string
@@ -419,6 +407,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/bloodsearchrequest.Status'
         description: Status holds the value of the "status" field.
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
     type: object
   ent.BloodSearchRequestEdges:
     properties:
@@ -500,6 +491,12 @@ definitions:
       chipNumber:
         description: ChipNumber holds the value of the "chip_number" field.
         type: string
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.PetEdges'
@@ -537,6 +534,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/pet.Type'
         description: Type holds the value of the "type" field.
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
       userId:
         description: UserID holds the value of the "user_id" field.
         type: string
@@ -569,6 +569,12 @@ definitions:
         - $ref: '#/definitions/petanalysis.BartonellosisType'
         description: BartonellosisType holds the value of the "bartonellosis_type"
           field.
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       dirofilariaDate:
         description: DirofilariaDate holds the value of the "dirofilaria_date" field.
         type: string
@@ -620,6 +626,9 @@ definitions:
       petId:
         description: PetID holds the value of the "pet_id" field.
         type: string
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
     type: object
   ent.PetAnalysisEdges:
     properties:
@@ -630,6 +639,12 @@ definitions:
     type: object
   ent.PetBonus:
     properties:
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.PetBonusEdges'
@@ -651,6 +666,9 @@ definitions:
       isTherapist:
         description: IsTherapist holds the value of the "is_therapist" field.
         type: boolean
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
     type: object
   ent.PetBonusEdges:
     properties:
@@ -694,6 +712,12 @@ definitions:
     type: object
   ent.PetHealth:
     properties:
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.PetHealthEdges'
@@ -725,6 +749,9 @@ definitions:
       transfused:
         description: Transfused holds the value of the "transfused" field.
         type: boolean
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
     type: object
   ent.PetHealthEdges:
     properties:
@@ -735,6 +762,12 @@ definitions:
     type: object
   ent.PetTreatment:
     properties:
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       dewormingDate:
         description: DewormingDate holds the value of the "deworming_date" field.
         type: string
@@ -759,6 +792,9 @@ definitions:
         description: RabiesVaccinationDate holds the value of the "rabies_vaccination_date"
           field.
         type: string
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
     type: object
   ent.PetTreatmentEdges:
     properties:
@@ -775,6 +811,12 @@ definitions:
       consentPd:
         description: ConsentPd holds the value of the "consent_pd" field.
         type: boolean
+      createdAt:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      deletedAt:
+        description: DeletedAt holds the value of the "deleted_at" field.
+        type: string
       edges:
         allOf:
         - $ref: '#/definitions/ent.UserEdges'
@@ -809,6 +851,9 @@ definitions:
       telegramId:
         description: TelegramID holds the value of the "telegram_id" field.
         type: integer
+      updatedAt:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
     type: object
   ent.UserEdges:
     properties:
@@ -1759,7 +1804,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.UserUpdate'
+          $ref: '#/definitions/ent.User'
       produces:
       - application/json
       responses:

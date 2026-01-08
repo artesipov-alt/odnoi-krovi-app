@@ -21,6 +21,48 @@ type PetAnalysisCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetAnalysisCreate) SetCreatedAt(v time.Time) *PetAnalysisCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetAnalysisCreate) SetNillableCreatedAt(v *time.Time) *PetAnalysisCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetAnalysisCreate) SetUpdatedAt(v time.Time) *PetAnalysisCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetAnalysisCreate) SetNillableUpdatedAt(v *time.Time) *PetAnalysisCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetAnalysisCreate) SetDeletedAt(v time.Time) *PetAnalysisCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetAnalysisCreate) SetNillableDeletedAt(v *time.Time) *PetAnalysisCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetPetID sets the "pet_id" field.
 func (_c *PetAnalysisCreate) SetPetID(v string) *PetAnalysisCreate {
 	_c.mutation.SetPetID(v)
@@ -251,48 +293,6 @@ func (_c *PetAnalysisCreate) SetNillableAnaplasmosisType(v *petanalysis.Anaplasm
 	return _c
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (_c *PetAnalysisCreate) SetCreatedAt(v time.Time) *PetAnalysisCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *PetAnalysisCreate) SetNillableCreatedAt(v *time.Time) *PetAnalysisCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *PetAnalysisCreate) SetUpdatedAt(v time.Time) *PetAnalysisCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *PetAnalysisCreate) SetNillableUpdatedAt(v *time.Time) *PetAnalysisCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *PetAnalysisCreate) SetDeletedAt(v time.Time) *PetAnalysisCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *PetAnalysisCreate) SetNillableDeletedAt(v *time.Time) *PetAnalysisCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *PetAnalysisCreate) SetID(v int) *PetAnalysisCreate {
 	_c.mutation.SetID(v)
@@ -357,6 +357,12 @@ func (_c *PetAnalysisCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetAnalysisCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetAnalysis.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetAnalysis.updated_at"`)}
+	}
 	if _, ok := _c.mutation.PetID(); !ok {
 		return &ValidationError{Name: "pet_id", err: errors.New(`ent: missing required field "PetAnalysis.pet_id"`)}
 	}
@@ -400,12 +406,6 @@ func (_c *PetAnalysisCreate) check() error {
 			return &ValidationError{Name: "anaplasmosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.anaplasmosis_type": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetAnalysis.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetAnalysis.updated_at"`)}
-	}
 	if len(_c.mutation.OwnerIDs()) == 0 {
 		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "PetAnalysis.owner"`)}
 	}
@@ -440,6 +440,18 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(petanalysis.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(petanalysis.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(petanalysis.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.LeukemiaDate(); ok {
 		_spec.SetField(petanalysis.FieldLeukemiaDate, field.TypeTime, value)
@@ -504,18 +516,6 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.AnaplasmosisType(); ok {
 		_spec.SetField(petanalysis.FieldAnaplasmosisType, field.TypeEnum, value)
 		_node.AnaplasmosisType = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(petanalysis.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(petanalysis.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(petanalysis.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

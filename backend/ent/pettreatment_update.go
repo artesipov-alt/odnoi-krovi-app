@@ -29,6 +29,32 @@ func (_u *PetTreatmentUpdate) Where(ps ...predicate.PetTreatment) *PetTreatmentU
 	return _u
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetTreatmentUpdate) SetUpdatedAt(v time.Time) *PetTreatmentUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetTreatmentUpdate) SetDeletedAt(v time.Time) *PetTreatmentUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetTreatmentUpdate) SetNillableDeletedAt(v *time.Time) *PetTreatmentUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetTreatmentUpdate) ClearDeletedAt() *PetTreatmentUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetRabiesVaccinationDate sets the "rabies_vaccination_date" field.
 func (_u *PetTreatmentUpdate) SetRabiesVaccinationDate(v time.Time) *PetTreatmentUpdate {
 	_u.mutation.SetRabiesVaccinationDate(v)
@@ -106,32 +132,6 @@ func (_u *PetTreatmentUpdate) SetNillableDewormingDate(v *time.Time) *PetTreatme
 // ClearDewormingDate clears the value of the "deworming_date" field.
 func (_u *PetTreatmentUpdate) ClearDewormingDate() *PetTreatmentUpdate {
 	_u.mutation.ClearDewormingDate()
-	return _u
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *PetTreatmentUpdate) SetUpdatedAt(v time.Time) *PetTreatmentUpdate {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *PetTreatmentUpdate) SetDeletedAt(v time.Time) *PetTreatmentUpdate {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *PetTreatmentUpdate) SetNillableDeletedAt(v *time.Time) *PetTreatmentUpdate {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *PetTreatmentUpdate) ClearDeletedAt() *PetTreatmentUpdate {
-	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -213,6 +213,15 @@ func (_u *PetTreatmentUpdate) sqlSave(ctx context.Context) (_node int, err error
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.RabiesVaccinationDate(); ok {
 		_spec.SetField(pettreatment.FieldRabiesVaccinationDate, field.TypeTime, value)
 	}
@@ -236,15 +245,6 @@ func (_u *PetTreatmentUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.DewormingDateCleared() {
 		_spec.ClearField(pettreatment.FieldDewormingDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -293,6 +293,32 @@ type PetTreatmentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PetTreatmentMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *PetTreatmentUpdateOne) SetUpdatedAt(v time.Time) *PetTreatmentUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *PetTreatmentUpdateOne) SetDeletedAt(v time.Time) *PetTreatmentUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *PetTreatmentUpdateOne) SetNillableDeletedAt(v *time.Time) *PetTreatmentUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *PetTreatmentUpdateOne) ClearDeletedAt() *PetTreatmentUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetRabiesVaccinationDate sets the "rabies_vaccination_date" field.
@@ -372,32 +398,6 @@ func (_u *PetTreatmentUpdateOne) SetNillableDewormingDate(v *time.Time) *PetTrea
 // ClearDewormingDate clears the value of the "deworming_date" field.
 func (_u *PetTreatmentUpdateOne) ClearDewormingDate() *PetTreatmentUpdateOne {
 	_u.mutation.ClearDewormingDate()
-	return _u
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *PetTreatmentUpdateOne) SetUpdatedAt(v time.Time) *PetTreatmentUpdateOne {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *PetTreatmentUpdateOne) SetDeletedAt(v time.Time) *PetTreatmentUpdateOne {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *PetTreatmentUpdateOne) SetNillableDeletedAt(v *time.Time) *PetTreatmentUpdateOne {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *PetTreatmentUpdateOne) ClearDeletedAt() *PetTreatmentUpdateOne {
-	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -509,6 +509,15 @@ func (_u *PetTreatmentUpdateOne) sqlSave(ctx context.Context) (_node *PetTreatme
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.RabiesVaccinationDate(); ok {
 		_spec.SetField(pettreatment.FieldRabiesVaccinationDate, field.TypeTime, value)
 	}
@@ -532,15 +541,6 @@ func (_u *PetTreatmentUpdateOne) sqlSave(ctx context.Context) (_node *PetTreatme
 	}
 	if _u.mutation.DewormingDateCleared() {
 		_spec.ClearField(pettreatment.FieldDewormingDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(pettreatment.FieldDeletedAt, field.TypeTime)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

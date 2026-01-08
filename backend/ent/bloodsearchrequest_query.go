@@ -298,12 +298,12 @@ func (_q *BloodSearchRequestQuery) WithPet(opts ...func(*PetQuery)) *BloodSearch
 // Example:
 //
 //	var v []struct {
-//		PetID string `json:"petId"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.BloodSearchRequest.Query().
-//		GroupBy(bloodsearchrequest.FieldPetID).
+//		GroupBy(bloodsearchrequest.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *BloodSearchRequestQuery) GroupBy(field string, fields ...string) *BloodSearchRequestGroupBy {
@@ -321,11 +321,11 @@ func (_q *BloodSearchRequestQuery) GroupBy(field string, fields ...string) *Bloo
 // Example:
 //
 //	var v []struct {
-//		PetID string `json:"petId"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.BloodSearchRequest.Query().
-//		Select(bloodsearchrequest.FieldPetID).
+//		Select(bloodsearchrequest.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *BloodSearchRequestQuery) Select(fields ...string) *BloodSearchRequestSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

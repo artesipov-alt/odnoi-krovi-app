@@ -21,6 +21,48 @@ type PetHealthCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetHealthCreate) SetCreatedAt(v time.Time) *PetHealthCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableCreatedAt(v *time.Time) *PetHealthCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetHealthCreate) SetUpdatedAt(v time.Time) *PetHealthCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableUpdatedAt(v *time.Time) *PetHealthCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetHealthCreate) SetDeletedAt(v time.Time) *PetHealthCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetHealthCreate) SetNillableDeletedAt(v *time.Time) *PetHealthCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetReproductiveStatus sets the "reproductive_status" field.
 func (_c *PetHealthCreate) SetReproductiveStatus(v pethealth.ReproductiveStatus) *PetHealthCreate {
 	_c.mutation.SetReproductiveStatus(v)
@@ -105,48 +147,6 @@ func (_c *PetHealthCreate) SetNillableSurgicalInterventions(v *string) *PetHealt
 	return _c
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (_c *PetHealthCreate) SetCreatedAt(v time.Time) *PetHealthCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *PetHealthCreate) SetNillableCreatedAt(v *time.Time) *PetHealthCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *PetHealthCreate) SetUpdatedAt(v time.Time) *PetHealthCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *PetHealthCreate) SetNillableUpdatedAt(v *time.Time) *PetHealthCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *PetHealthCreate) SetDeletedAt(v time.Time) *PetHealthCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *PetHealthCreate) SetNillableDeletedAt(v *time.Time) *PetHealthCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *PetHealthCreate) SetID(v string) *PetHealthCreate {
 	_c.mutation.SetID(v)
@@ -223,6 +223,12 @@ func (_c *PetHealthCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PetHealthCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetHealth.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetHealth.updated_at"`)}
+	}
 	if v, ok := _c.mutation.ReproductiveStatus(); ok {
 		if err := pethealth.ReproductiveStatusValidator(v); err != nil {
 			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.reproductive_status": %w`, err)}
@@ -232,12 +238,6 @@ func (_c *PetHealthCreate) check() error {
 		if err := pethealth.HealthStatusValidator(v); err != nil {
 			return &ValidationError{Name: "health_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.health_status": %w`, err)}
 		}
-	}
-	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PetHealth.created_at"`)}
-	}
-	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetHealth.updated_at"`)}
 	}
 	if len(_c.mutation.OwnerIDs()) == 0 {
 		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required edge "PetHealth.owner"`)}
@@ -277,6 +277,18 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(pethealth.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(pethealth.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(pethealth.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if value, ok := _c.mutation.ReproductiveStatus(); ok {
 		_spec.SetField(pethealth.FieldReproductiveStatus, field.TypeEnum, value)
 		_node.ReproductiveStatus = value
@@ -300,18 +312,6 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.SurgicalInterventions(); ok {
 		_spec.SetField(pethealth.FieldSurgicalInterventions, field.TypeString, value)
 		_node.SurgicalInterventions = value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(pethealth.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(pethealth.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(pethealth.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

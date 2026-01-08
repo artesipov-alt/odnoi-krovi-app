@@ -36,6 +36,9 @@ var (
 	// BloodSearchRequestsColumns holds the columns for the "blood_search_requests" table.
 	BloodSearchRequestsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "blood_volume_needed", Type: field.TypeInt32},
 		{Name: "blood_volume_reserved", Type: field.TypeInt32, Default: 0},
 		{Name: "regions", Type: field.TypeJSON},
@@ -45,9 +48,6 @@ var (
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_group_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_component_ids", Type: field.TypeJSON, Nullable: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "pet_id", Type: field.TypeString, Unique: true},
 	}
 	// BloodSearchRequestsTable holds the schema information for the "blood_search_requests" table.
@@ -90,6 +90,9 @@ var (
 	// PetsColumns holds the columns for the "pets" table.
 	PetsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
 		{Name: "pet_status", Type: field.TypeEnum, Enums: []string{"donor", "recipient"}},
@@ -102,9 +105,6 @@ var (
 		{Name: "chip_number", Type: field.TypeString, Nullable: true, Size: 15},
 		{Name: "photo_url", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "living_condition", Type: field.TypeEnum, Nullable: true, Enums: []string{"indoor", "leash_walking", "self_outdoor"}},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "breed_id", Type: field.TypeInt, Nullable: true},
 		{Name: "bonus_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
@@ -152,6 +152,9 @@ var (
 	// PetAnalysesColumns holds the columns for the "pet_analyses" table.
 	PetAnalysesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "leukemia_date", Type: field.TypeTime, Nullable: true},
 		{Name: "leukemia_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"PCR", "ELISA", "ICA", "Microscopy", "Express"}},
 		{Name: "immunodeficiency_date", Type: field.TypeTime, Nullable: true},
@@ -168,9 +171,6 @@ var (
 		{Name: "ehrlichiosis_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"PCR", "ELISA", "ICA", "Microscopy", "Express"}},
 		{Name: "anaplasmosis_date", Type: field.TypeTime, Nullable: true},
 		{Name: "anaplasmosis_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"PCR", "ELISA", "ICA", "Microscopy", "Express"}},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "pet_id", Type: field.TypeString},
 	}
 	// PetAnalysesTable holds the schema information for the "pet_analyses" table.
@@ -190,13 +190,13 @@ var (
 	// PetBonusesColumns holds the columns for the "pet_bonuses" table.
 	PetBonusesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "is_artist", Type: field.TypeBool},
 		{Name: "is_therapist", Type: field.TypeBool},
 		{Name: "is_former_donor", Type: field.TypeBool},
 		{Name: "is_guide_dog", Type: field.TypeBool},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// PetBonusesTable holds the schema information for the "pet_bonuses" table.
 	PetBonusesTable = &schema.Table{
@@ -207,15 +207,15 @@ var (
 	// PetHealthsColumns holds the columns for the "pet_healths" table.
 	PetHealthsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "reproductive_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"pregnancy", "lactation", "estrus", "none"}},
 		{Name: "health_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"healthy", "ill", "unknown"}},
 		{Name: "last_donation", Type: field.TypeTime, Nullable: true},
 		{Name: "transfused", Type: field.TypeBool, Nullable: true},
 		{Name: "medications", Type: field.TypeString, Nullable: true},
 		{Name: "surgical_interventions", Type: field.TypeString, Nullable: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// PetHealthsTable holds the schema information for the "pet_healths" table.
 	PetHealthsTable = &schema.Table{
@@ -226,13 +226,13 @@ var (
 	// PetTreatmentsColumns holds the columns for the "pet_treatments" table.
 	PetTreatmentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "rabies_vaccination_date", Type: field.TypeTime, Nullable: true},
 		{Name: "infection_vaccination_date", Type: field.TypeTime, Nullable: true},
 		{Name: "ectoparasite_treatment_date", Type: field.TypeTime, Nullable: true},
 		{Name: "deworming_date", Type: field.TypeTime, Nullable: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// PetTreatmentsTable holds the schema information for the "pet_treatments" table.
 	PetTreatmentsTable = &schema.Table{
@@ -243,6 +243,9 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "telegram_id", Type: field.TypeInt64, Unique: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "phone", Type: field.TypeString, Nullable: true, Size: 20},
@@ -252,9 +255,6 @@ var (
 		{Name: "on_boarding", Type: field.TypeBool},
 		{Name: "allow_geo", Type: field.TypeBool},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.

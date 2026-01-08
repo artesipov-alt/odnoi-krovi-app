@@ -21,6 +21,48 @@ type PetTreatmentCreate struct {
 	hooks    []Hook
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *PetTreatmentCreate) SetCreatedAt(v time.Time) *PetTreatmentCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *PetTreatmentCreate) SetNillableCreatedAt(v *time.Time) *PetTreatmentCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *PetTreatmentCreate) SetUpdatedAt(v time.Time) *PetTreatmentCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *PetTreatmentCreate) SetNillableUpdatedAt(v *time.Time) *PetTreatmentCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *PetTreatmentCreate) SetDeletedAt(v time.Time) *PetTreatmentCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *PetTreatmentCreate) SetNillableDeletedAt(v *time.Time) *PetTreatmentCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetRabiesVaccinationDate sets the "rabies_vaccination_date" field.
 func (_c *PetTreatmentCreate) SetRabiesVaccinationDate(v time.Time) *PetTreatmentCreate {
 	_c.mutation.SetRabiesVaccinationDate(v)
@@ -73,48 +115,6 @@ func (_c *PetTreatmentCreate) SetDewormingDate(v time.Time) *PetTreatmentCreate 
 func (_c *PetTreatmentCreate) SetNillableDewormingDate(v *time.Time) *PetTreatmentCreate {
 	if v != nil {
 		_c.SetDewormingDate(*v)
-	}
-	return _c
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (_c *PetTreatmentCreate) SetCreatedAt(v time.Time) *PetTreatmentCreate {
-	_c.mutation.SetCreatedAt(v)
-	return _c
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *PetTreatmentCreate) SetNillableCreatedAt(v *time.Time) *PetTreatmentCreate {
-	if v != nil {
-		_c.SetCreatedAt(*v)
-	}
-	return _c
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_c *PetTreatmentCreate) SetUpdatedAt(v time.Time) *PetTreatmentCreate {
-	_c.mutation.SetUpdatedAt(v)
-	return _c
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *PetTreatmentCreate) SetNillableUpdatedAt(v *time.Time) *PetTreatmentCreate {
-	if v != nil {
-		_c.SetUpdatedAt(*v)
-	}
-	return _c
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_c *PetTreatmentCreate) SetDeletedAt(v time.Time) *PetTreatmentCreate {
-	_c.mutation.SetDeletedAt(v)
-	return _c
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_c *PetTreatmentCreate) SetNillableDeletedAt(v *time.Time) *PetTreatmentCreate {
-	if v != nil {
-		_c.SetDeletedAt(*v)
 	}
 	return _c
 }
@@ -239,6 +239,18 @@ func (_c *PetTreatmentCreate) createSpec() (*PetTreatment, *sqlgraph.CreateSpec)
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(pettreatment.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	if value, ok := _c.mutation.RabiesVaccinationDate(); ok {
 		_spec.SetField(pettreatment.FieldRabiesVaccinationDate, field.TypeTime, value)
 		_node.RabiesVaccinationDate = &value
@@ -254,18 +266,6 @@ func (_c *PetTreatmentCreate) createSpec() (*PetTreatment, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.DewormingDate(); ok {
 		_spec.SetField(pettreatment.FieldDewormingDate, field.TypeTime, value)
 		_node.DewormingDate = &value
-	}
-	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(pettreatment.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(pettreatment.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
-	}
-	if value, ok := _c.mutation.DeletedAt(); ok {
-		_spec.SetField(pettreatment.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
