@@ -3044,8 +3044,8 @@ type PetMutation struct {
 	clearedhealth               bool
 	treatments                  *string
 	clearedtreatments           bool
-	analyses                    map[int]struct{}
-	removedanalyses             map[int]struct{}
+	analyses                    map[string]struct{}
+	removedanalyses             map[string]struct{}
 	clearedanalyses             bool
 	bonuses                     *string
 	clearedbonuses              bool
@@ -4248,9 +4248,9 @@ func (m *PetMutation) ResetTreatments() {
 }
 
 // AddAnalysisIDs adds the "analyses" edge to the PetAnalysis entity by ids.
-func (m *PetMutation) AddAnalysisIDs(ids ...int) {
+func (m *PetMutation) AddAnalysisIDs(ids ...string) {
 	if m.analyses == nil {
-		m.analyses = make(map[int]struct{})
+		m.analyses = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.analyses[ids[i]] = struct{}{}
@@ -4268,9 +4268,9 @@ func (m *PetMutation) AnalysesCleared() bool {
 }
 
 // RemoveAnalysisIDs removes the "analyses" edge to the PetAnalysis entity by IDs.
-func (m *PetMutation) RemoveAnalysisIDs(ids ...int) {
+func (m *PetMutation) RemoveAnalysisIDs(ids ...string) {
 	if m.removedanalyses == nil {
-		m.removedanalyses = make(map[int]struct{})
+		m.removedanalyses = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.analyses, ids[i])
@@ -4279,7 +4279,7 @@ func (m *PetMutation) RemoveAnalysisIDs(ids ...int) {
 }
 
 // RemovedAnalyses returns the removed IDs of the "analyses" edge to the PetAnalysis entity.
-func (m *PetMutation) RemovedAnalysesIDs() (ids []int) {
+func (m *PetMutation) RemovedAnalysesIDs() (ids []string) {
 	for id := range m.removedanalyses {
 		ids = append(ids, id)
 	}
@@ -4287,7 +4287,7 @@ func (m *PetMutation) RemovedAnalysesIDs() (ids []int) {
 }
 
 // AnalysesIDs returns the "analyses" edge IDs in the mutation.
-func (m *PetMutation) AnalysesIDs() (ids []int) {
+func (m *PetMutation) AnalysesIDs() (ids []string) {
 	for id := range m.analyses {
 		ids = append(ids, id)
 	}
@@ -5203,7 +5203,7 @@ type PetAnalysisMutation struct {
 	config
 	op                    Op
 	typ                   string
-	id                    *int
+	id                    *string
 	created_at            *time.Time
 	updated_at            *time.Time
 	deleted_at            *time.Time
@@ -5251,7 +5251,7 @@ func newPetAnalysisMutation(c config, op Op, opts ...petanalysisOption) *PetAnal
 }
 
 // withPetAnalysisID sets the ID field of the mutation.
-func withPetAnalysisID(id int) petanalysisOption {
+func withPetAnalysisID(id string) petanalysisOption {
 	return func(m *PetAnalysisMutation) {
 		var (
 			err   error
@@ -5303,13 +5303,13 @@ func (m PetAnalysisMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of PetAnalysis entities.
-func (m *PetAnalysisMutation) SetID(id int) {
+func (m *PetAnalysisMutation) SetID(id string) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *PetAnalysisMutation) ID() (id int, exists bool) {
+func (m *PetAnalysisMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -5320,12 +5320,12 @@ func (m *PetAnalysisMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *PetAnalysisMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *PetAnalysisMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):

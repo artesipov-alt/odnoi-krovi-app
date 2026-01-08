@@ -151,7 +151,7 @@ var (
 	}
 	// PetAnalysesColumns holds the columns for the "pet_analyses" table.
 	PetAnalysesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},

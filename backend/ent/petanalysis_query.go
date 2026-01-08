@@ -106,8 +106,8 @@ func (_q *PetAnalysisQuery) FirstX(ctx context.Context) *PetAnalysis {
 
 // FirstID returns the first PetAnalysis ID from the query.
 // Returns a *NotFoundError when no PetAnalysis ID was found.
-func (_q *PetAnalysisQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *PetAnalysisQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (_q *PetAnalysisQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *PetAnalysisQuery) FirstIDX(ctx context.Context) int {
+func (_q *PetAnalysisQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +157,8 @@ func (_q *PetAnalysisQuery) OnlyX(ctx context.Context) *PetAnalysis {
 // OnlyID is like Only, but returns the only PetAnalysis ID in the query.
 // Returns a *NotSingularError when more than one PetAnalysis ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *PetAnalysisQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *PetAnalysisQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (_q *PetAnalysisQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *PetAnalysisQuery) OnlyIDX(ctx context.Context) int {
+func (_q *PetAnalysisQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func (_q *PetAnalysisQuery) AllX(ctx context.Context) []*PetAnalysis {
 }
 
 // IDs executes the query and returns a list of PetAnalysis IDs.
-func (_q *PetAnalysisQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *PetAnalysisQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -214,7 +214,7 @@ func (_q *PetAnalysisQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *PetAnalysisQuery) IDsX(ctx context.Context) []int {
+func (_q *PetAnalysisQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -441,7 +441,7 @@ func (_q *PetAnalysisQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *PetAnalysisQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(petanalysis.Table, petanalysis.Columns, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

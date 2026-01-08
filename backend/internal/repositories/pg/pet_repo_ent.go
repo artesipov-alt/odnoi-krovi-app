@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -383,9 +382,8 @@ func (r *EntPetRepository) Delete(ctx context.Context, id string) error {
 		return errors.New("invalid pet ID")
 	}
 
-	err := r.client.Pet.UpdateOneID(id).
-		SetDeletedAt(time.Now()).
-		Exec(ctx)
+	// Soft delete via SoftDeleteMixin hook
+	err := r.client.Pet.DeleteOneID(id).Exec(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {

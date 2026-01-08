@@ -14,11 +14,6 @@ type BloodSearchRequest struct {
 // Fields of the BloodSearchRequest.
 func (BloodSearchRequest) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").
-			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID(BloodSearchPrefix) }).
-			StructTag(`json:"id"`),
 		field.String("pet_id").
 			StructTag(`json:"petId"`),
 		field.Int32("blood_volume_needed").
@@ -63,7 +58,6 @@ func (BloodSearchRequest) Edges() []ent.Edge {
 
 func (BloodSearchRequest) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		TimeMixin{},
-		SoftDeleteMixin{},
+		StandardMixin{Prefix: BloodSearchPrefix},
 	}
 }

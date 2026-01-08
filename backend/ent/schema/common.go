@@ -3,6 +3,7 @@ package schema
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 
 	"entgo.io/ent"
@@ -37,14 +38,21 @@ func SkipSoftDelete(parent context.Context) context.Context {
 	return context.WithValue(parent, softDeleteKey{}, true)
 }
 
-// TimeMixin implements the created_at and updated_at fields.
-type TimeMixin struct {
+// StandardMixin implements the ID generation with prefix,
+// time auditing, and soft delete pattern.
+type StandardMixin struct {
 	mixin.Schema
+	Prefix string
 }
 
-// Fields of the TimeMixin.
-func (TimeMixin) Fields() []ent.Field {
+// Fields of the StandardMixin.
+func (m StandardMixin) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			DefaultFunc(func() string { return generateID(m.Prefix) }).
+			StructTag(`json:"id"`),
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
@@ -53,17 +61,6 @@ func (TimeMixin) Fields() []ent.Field {
 			Default(time.Now).
 			UpdateDefault(time.Now).
 			StructTag(`json:"updatedAt"`),
-	}
-}
-
-// SoftDeleteMixin implements the soft delete pattern for schemas.
-type SoftDeleteMixin struct {
-	mixin.Schema
-}
-
-// Fields of the SoftDeleteMixin.
-func (SoftDeleteMixin) Fields() []ent.Field {
-	return []ent.Field{
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
@@ -71,64 +68,83 @@ func (SoftDeleteMixin) Fields() []ent.Field {
 	}
 }
 
-// Interceptors of the SoftDeleteMixin.
-func (d SoftDeleteMixin) Interceptors() []ent.Interceptor {
-	return []ent.Interceptor{
-		interceptFunc(func(ctx context.Context, q ent.Query) error {
-			// Skip soft-delete, means include soft-deleted entities.
-			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-				return nil
-			}
-			d.P(q)
-			return nil
-		}),
-	}
-}
-
-// Hooks of the SoftDeleteMixin.
-func (d SoftDeleteMixin) Hooks() []ent.Hook {
+// Hooks of the StandardMixin.
+func (StandardMixin) Hooks() []ent.Hook {
 	return []ent.Hook{
-		func(next ent.Mutator) ent.Mutator {
-			return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-				// Skip soft-delete, means delete the entity permanently.
-				if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-					return next.Mutate(ctx, m)
-				}
-				// Only intercept delete operations.
-				if !m.Op().Is(ent.OpDelete | ent.OpDeleteOne) {
-					return next.Mutate(ctx, m)
-				}
-				// We use an interface to avoid circular dependency with the 'gen' package.
-				type SoftDeleteMutation interface {
-					ent.Mutation
-					SetOp(ent.Op)
-					SetDeletedAt(time.Time)
-					WhereP(...func(*sql.Selector))
-					Client() interface {
-						Mutate(context.Context, ent.Mutation) (ent.Value, error)
-					}
-				}
-				mx, ok := m.(SoftDeleteMutation)
-				if !ok {
-					return nil, fmt.Errorf("unexpected mutation type %T", m)
-				}
-				d.P(mx)
-				mx.SetOp(ent.OpUpdate)
-				mx.SetDeletedAt(time.Now())
-				return mx.Client().Mutate(ctx, m)
-			})
-		},
+		softDeleteHook(),
 	}
 }
 
-// P adds a storage-level predicate to the queries and mutations.
-func (d SoftDeleteMixin) P(w any) {
+// Interceptors of the StandardMixin.
+func (StandardMixin) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		softDeleteInterceptor(),
+	}
+}
+
+// --- Shared Soft Delete Logic ---
+
+func softDeleteInterceptor() ent.Interceptor {
+	return interceptFunc(func(ctx context.Context, q ent.Query) error {
+		if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+			return nil
+		}
+		addSoftDeletePredicate(q)
+		return nil
+	})
+}
+
+func softDeleteHook() ent.Hook {
+	return func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+				return next.Mutate(ctx, m)
+			}
+			if !m.Op().Is(ent.OpDelete | ent.OpDeleteOne) {
+				return next.Mutate(ctx, m)
+			}
+			type SoftDeleteMutation interface {
+				ent.Mutation
+				SetOp(ent.Op)
+				SetDeletedAt(time.Time)
+				WhereP(...func(*sql.Selector))
+			}
+			mx, ok := m.(SoftDeleteMutation)
+			if !ok {
+				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+
+			// Use reflection to call Client() to avoid circular dependency and return type mismatch.
+			rv := reflect.ValueOf(m)
+			method := rv.MethodByName("Client")
+			if !method.IsValid() {
+				return nil, fmt.Errorf("mutation type %T does not implement Client()", m)
+			}
+			client := method.Call(nil)[0].Interface()
+
+			addSoftDeletePredicate(mx)
+			mx.SetOp(ent.OpUpdate)
+			mx.SetDeletedAt(time.Now())
+
+			type Mutator interface {
+				Mutate(context.Context, ent.Mutation) (ent.Value, error)
+			}
+			mClient, ok := client.(Mutator)
+			if !ok {
+				return nil, fmt.Errorf("unexpected client type %T", client)
+			}
+			return mClient.Mutate(ctx, m)
+		})
+	}
+}
+
+func addSoftDeletePredicate(w any) {
 	type whereP interface {
 		WhereP(...func(*sql.Selector))
 	}
 	if wp, ok := w.(whereP); ok {
 		wp.WhereP(
-			sql.FieldIsNull(d.Fields()[0].Descriptor().Name),
+			sql.FieldIsNull("deleted_at"),
 		)
 	}
 }

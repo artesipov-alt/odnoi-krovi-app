@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
@@ -134,10 +133,8 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 		return errors.New("invalid user ID")
 	}
 
-	// Soft delete by setting deleted_at
-	err := r.client.User.UpdateOneID(id).
-		SetDeletedAt(time.Now()).
-		Exec(ctx)
+	// Soft delete via SoftDeleteMixin hook
+	err := r.client.User.DeleteOneID(id).Exec(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {

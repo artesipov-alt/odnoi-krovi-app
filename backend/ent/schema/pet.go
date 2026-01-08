@@ -16,19 +16,13 @@ type Pet struct {
 // Mixin of the Pet.
 func (Pet) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		TimeMixin{},
-		SoftDeleteMixin{},
+		StandardMixin{Prefix: PetPrefix},
 	}
 }
 
 // Fields of the Pet.
 func (Pet) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").
-			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID(PetPrefix) }).
-			StructTag(`json:"id"`),
 		field.String("name").MaxLen(100).StructTag(`json:"name"`),
 		field.Enum("type").Values("dog", "cat").StructTag(`json:"type"`),
 		field.Enum("pet_status").Values("donor", "recipient").StructTag(`json:"petStatus"`),
@@ -76,19 +70,13 @@ type PetHealth struct {
 // Mixin of the PetHealth.
 func (PetHealth) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		TimeMixin{},
-		SoftDeleteMixin{},
+		StandardMixin{Prefix: PetHealthPrefix},
 	}
 }
 
 // Fields of the PetHealth.
 func (PetHealth) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").
-			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID(PetHealthPrefix) }).
-			StructTag(`json:"id"`),
 		field.Enum("reproductive_status").Values("pregnancy", "lactation", "estrus", "none").Optional().StructTag(`json:"reproductiveStatus"`),
 		field.Enum("health_status").Values("healthy", "ill", "unknown").Optional().StructTag(`json:"healthStatus"`),
 		field.Time("last_donation").Optional().Nillable().StructTag(`json:"lastDonation"`),
@@ -122,19 +110,13 @@ type PetTreatment struct {
 // Mixin of the PetTreatment.
 func (PetTreatment) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		TimeMixin{},
-		SoftDeleteMixin{},
+		StandardMixin{Prefix: PetTreatmentPrefix},
 	}
 }
 
 // Fields of the PetTreatment.
 func (PetTreatment) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").
-			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID(PetTreatmentPrefix) }).
-			StructTag(`json:"id"`),
 		field.Time("rabies_vaccination_date").Optional().Nillable().StructTag(`json:"rabiesVaccinationDate"`),
 		field.Time("infection_vaccination_date").Optional().Nillable().StructTag(`json:"infectionVaccinationDate"`),
 		field.Time("ectoparasite_treatment_date").Optional().Nillable().StructTag(`json:"ectoparasiteTreatmentDate"`),
@@ -166,17 +148,13 @@ type PetAnalysis struct {
 // Mixin of the PetAnalysis.
 func (PetAnalysis) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		TimeMixin{},
-		SoftDeleteMixin{},
+		StandardMixin{Prefix: PetAnalysisPrefix},
 	}
 }
 
 // Fields of the PetAnalysis.
 func (PetAnalysis) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").
-			Unique().
-			StructTag(`json:"id"`),
 		field.String("pet_id").
 			StructTag(`json:"petId"`),
 		field.Time("leukemia_date").Optional().Nillable().StructTag(`json:"leukemiaDate"`),
@@ -223,19 +201,13 @@ type PetBonus struct {
 // Mixin of the PetBonus.
 func (PetBonus) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		TimeMixin{},
-		SoftDeleteMixin{},
+		StandardMixin{Prefix: PetBonusPrefix},
 	}
 }
 
 // Fields of the PetBonus.
 func (PetBonus) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").
-			Unique().
-			Immutable().
-			DefaultFunc(func() string { return generateID(PetBonusPrefix) }).
-			StructTag(`json:"id"`),
 		field.Bool("is_artist").StructTag(`json:"isArtist"`),
 		field.Bool("is_therapist").StructTag(`json:"isTherapist"`),
 		field.Bool("is_former_donor").StructTag(`json:"isFormerDonor"`),

@@ -606,7 +606,7 @@ definitions:
           field.
       id:
         description: ID of the ent.
-        type: integer
+        type: string
       immunodeficiencyDate:
         description: ImmunodeficiencyDate holds the value of the "immunodeficiency_date"
           field.

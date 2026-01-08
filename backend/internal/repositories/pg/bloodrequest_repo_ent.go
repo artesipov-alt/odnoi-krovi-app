@@ -2,7 +2,6 @@ package pg
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
@@ -72,9 +71,7 @@ func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string,
 
 // Delete удаляет заявку из хранилища (soft delete)
 func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error {
-	return r.client.BloodSearchRequest.UpdateOneID(id).
-		SetDeletedAt(time.Now()).
-		Exec(ctx)
+	return r.client.BloodSearchRequest.DeleteOneID(id).Exec(ctx)
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией
