@@ -8,6 +8,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 
 	"entgo.io/ent/dialect"
 	_ "github.com/lib/pq"
@@ -68,6 +69,9 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed opening connection to postgres: %w", err)
 	}
+
+	// Register global hooks
+	client.Use(pg.SoftDeleteHook())
 
 	return client, nil
 }

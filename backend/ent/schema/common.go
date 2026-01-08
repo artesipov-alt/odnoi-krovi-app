@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/entutil"
 	"github.com/jaevor/go-nanoid"
 )
 
@@ -29,25 +29,18 @@ func generateID(prefix string) string {
 	return prefix + "-" + id
 }
 
-// SkipSoftDelete returns a new context that skips the soft-delete interceptor/mutators.
-// It proxies the call to the internal entutil package.
+type softDeleteKey struct{}
+
+// SkipSoftDelete returns a new context that skips the soft-delete interceptor.
 func SkipSoftDelete(parent context.Context) context.Context {
-	return entutil.SkipSoftDelete(parent)
+	return context.WithValue(parent, softDeleteKey{}, true)
 }
 
 // StandardMixin implements the ID generation with prefix,
-// time auditing, and soft delete pattern.
+// time auditing, and soft delete fields/interceptors.
 type StandardMixin struct {
 	mixin.Schema
 	Prefix string
-}
-
-// Mixin returns the list of mixins for the StandardMixin.
-// We include the SoftDeleteMixin from entutil to get the hooks and interceptors.
-func (StandardMixin) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		entutil.SoftDeleteMixin{},
-	}
 }
 
 // Fields of the StandardMixin.
@@ -66,11 +59,33 @@ func (m StandardMixin) Fields() []ent.Field {
 			Default(time.Now).
 			UpdateDefault(time.Now).
 			StructTag(`json:"updatedAt"`),
-		// We define the field here so Ent generates the necessary methods
-		// (ClearDeletedAt, DeletedAtNotNil, etc.) for each entity.
 		field.Time("deleted_at").
 			Optional().
 			Nillable().
 			StructTag(`json:"deletedAt"`),
+	}
+}
+
+// Interceptors of the StandardMixin.
+func (StandardMixin) Interceptors() []ent.Interceptor {
+	return []ent.Interceptor{
+		ent.InterceptFunc(func(next ent.Querier) ent.Querier {
+			return ent.QuerierFunc(func(ctx context.Context, q ent.Query) (ent.Value, error) {
+				// Skip soft-delete filter if the key is present in context.
+				if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+					return next.Query(ctx, q)
+				}
+
+				// Add "deleted_at IS NULL" predicate.
+				type whereP interface {
+					WhereP(...func(*sql.Selector))
+				}
+				if w, ok := q.(whereP); ok {
+					w.WhereP(sql.FieldIsNull("deleted_at"))
+				}
+
+				return next.Query(ctx, q)
+			})
+		}),
 	}
 }
