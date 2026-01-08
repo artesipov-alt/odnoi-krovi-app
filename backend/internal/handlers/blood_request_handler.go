@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
@@ -28,13 +29,13 @@ func NewBloodRequestHandler(service services.BloodSearchService) *BloodRequestHa
 // @Tags blood-request
 // @Accept json
 // @Produce json
-// @Param request body services.BloodSearchPetRequest true "Данные заявки"
-// @Success 201 {object} services.BloodSearchPetResponse "Созданная заявка"
+// @Param request body dto.BloodSearchPetRequest true "Данные заявки"
+// @Success 201 {object} dto.BloodSearchPetResponse "Созданная заявка"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-request/pool [post]
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(c echo.Context) error {
-	var req services.BloodSearchPetRequest
+	var req dto.BloodSearchPetRequest
 	if err := utils.ParseBody(c, &req); err != nil {
 		return err
 	}
@@ -55,13 +56,13 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(c echo.Context) error {
 // @Tags blood-request
 // @Accept json
 // @Produce json
-// @Param request body services.BloodSearchFilterRequest true "Фильтры поиска"
-// @Success 200 {object} services.BloodSearchPetsResponse "Список заявок"
+// @Param request body dto.BloodSearchFilterRequest true "Фильтры поиска"
+// @Success 200 {object} dto.BloodSearchPetsResponse "Список заявок"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /blood-request/pool/search [post]
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c echo.Context) error {
-	var filterReq services.BloodSearchFilterRequest
+	var filterReq dto.BloodSearchFilterRequest
 	if err := utils.ParseBody(c, &filterReq); err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c echo.Context) error 
 		return err
 	}
 
-	return utils.SendJSON(c, services.BloodSearchPetsResponse{
+	return utils.SendJSON(c, dto.BloodSearchPetsResponse{
 		Requests: requests,
 	})
 }
@@ -92,7 +93,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c echo.Context) error 
 // @Tags blood-request
 // @Produce json
 // @Param id path string true "ID заявки"
-// @Success 200 {object} services.BloodSearchRequestDTO "Данные заявки"
+// @Success 200 {object} dto.BloodSearchRequestDTO "Данные заявки"
 // @Router /blood-request/{id} [get]
 func (h *BloodRequestHandler) GetBloodRequestByID(c echo.Context) error {
 	id := c.Param("id")

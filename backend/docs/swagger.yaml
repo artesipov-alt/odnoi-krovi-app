@@ -20,6 +20,333 @@ definitions:
     x-enum-varnames:
     - TypeDog
     - TypeCat
+  dto.BloodSearchFilterRequest:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      petId:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.BloodSearchPetRequest:
+    properties:
+      bloodComponentIds:
+        items:
+          type: integer
+        type: array
+      bloodGroupIds:
+        items:
+          type: string
+        type: array
+      bloodVolumeNeeded:
+        type: integer
+      bloodVolumeReserved:
+        type: integer
+      description:
+        type: string
+      petId:
+        type: string
+      photoUrls:
+        items:
+          type: string
+        type: array
+      regions:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      smallPetsNotifyAllowed:
+        type: boolean
+    required:
+    - bloodVolumeNeeded
+    - petId
+    - regions
+    type: object
+  dto.BloodSearchPetResponse:
+    properties:
+      id:
+        type: string
+      petId:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.BloodSearchPetsResponse:
+    properties:
+      requests:
+        items:
+          $ref: '#/definitions/dto.BloodSearchRequestDTO'
+        type: array
+    type: object
+  dto.BloodSearchRequestDTO:
+    properties:
+      bloodComponentIds:
+        items:
+          type: integer
+        type: array
+      bloodGroupIds:
+        items:
+          type: string
+        type: array
+      bloodVolumeNeeded:
+        type: integer
+      bloodVolumeReserved:
+        type: integer
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      petId:
+        type: string
+      photoUrls:
+        items:
+          type: string
+        type: array
+      regions:
+        items:
+          type: integer
+        type: array
+      smallPetsNotifyAllowed:
+        type: boolean
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  dto.PetAnalysisDTO:
+    properties:
+      anaplasmosisDate:
+        type: string
+      anaplasmosisType:
+        type: string
+      babesiosisDate:
+        type: string
+      babesiosisType:
+        type: string
+      bartonellosisDate:
+        type: string
+      bartonellosisType:
+        type: string
+      dirofilariaDate:
+        type: string
+      dirofilariaType:
+        type: string
+      ehrlichiosisDate:
+        type: string
+      ehrlichiosisType:
+        type: string
+      hemoplasmosisDate:
+        type: string
+      hemoplasmosisType:
+        type: string
+      immunodeficiencyDate:
+        type: string
+      immunodeficiencyType:
+        type: string
+      leukemiaDate:
+        type: string
+      leukemiaType:
+        type: string
+    type: object
+  dto.PetBonusDTO:
+    properties:
+      isArtist:
+        type: boolean
+      isFormerDonor:
+        type: boolean
+      isGuideDog:
+        type: boolean
+      isTherapist:
+        type: boolean
+    type: object
+  dto.PetCreate:
+    properties:
+      ageMonths:
+        maximum: 11
+        minimum: 0
+        type: integer
+      ageYears:
+        minimum: 0
+        type: integer
+      analyses:
+        items:
+          $ref: '#/definitions/dto.PetAnalysisDTO'
+        type: array
+      birthDate:
+        type: string
+      bloodGroup:
+        type: string
+      bonuses:
+        $ref: '#/definitions/dto.PetBonusDTO'
+      breedId:
+        minimum: 1
+        type: integer
+      chipNumber:
+        type: string
+      gender:
+        type: string
+      health:
+        $ref: '#/definitions/dto.PetHealthDTO'
+      livingCondition:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      petStatus:
+        type: string
+      photoUrl:
+        maxLength: 255
+        type: string
+      treatments:
+        $ref: '#/definitions/dto.PetTreatmentDTO'
+      type:
+        type: string
+      weightKg:
+        minimum: 0
+        type: number
+    required:
+    - name
+    - petStatus
+    - type
+    type: object
+  dto.PetHealthDTO:
+    properties:
+      healthStatus:
+        type: string
+      lastDonation:
+        type: string
+      medications:
+        type: string
+      reproductiveStatus:
+        type: string
+      surgicalInterventions:
+        type: string
+      transfused:
+        type: boolean
+    type: object
+  dto.PetTreatmentDTO:
+    properties:
+      dewormingDate:
+        type: string
+      ectoparasiteTreatmentDate:
+        type: string
+      infectionVaccinationDate:
+        type: string
+      rabiesVaccinationDate:
+        type: string
+    type: object
+  dto.PetUpdate:
+    properties:
+      ageMonths:
+        maximum: 11
+        minimum: 0
+        type: integer
+      ageYears:
+        minimum: 0
+        type: integer
+      analyses:
+        items:
+          $ref: '#/definitions/dto.PetAnalysisDTO'
+        type: array
+      birthDate:
+        type: string
+      bloodGroup:
+        type: string
+      bonuses:
+        $ref: '#/definitions/dto.PetBonusDTO'
+      breedId:
+        minimum: 1
+        type: integer
+      chipNumber:
+        type: string
+      gender:
+        type: string
+      health:
+        $ref: '#/definitions/dto.PetHealthDTO'
+      livingCondition:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      petStatus:
+        type: string
+      photoUrl:
+        maxLength: 255
+        type: string
+      treatments:
+        $ref: '#/definitions/dto.PetTreatmentDTO'
+      type:
+        type: string
+      weightKg:
+        minimum: 0
+        type: number
+    type: object
+  dto.SimpleRegistrationRequest:
+    properties:
+      fullName:
+        example: Иван Иванов
+        maxLength: 255
+        minLength: 1
+        type: string
+      telegramId:
+        example: 123456789
+        minimum: 1
+        type: integer
+    required:
+    - telegramId
+    type: object
+  dto.UserRegistration:
+    properties:
+      consentPd:
+        type: boolean
+      email:
+        type: string
+      fullName:
+        maxLength: 255
+        minLength: 2
+        type: string
+      locationId:
+        minimum: 1
+        type: integer
+      phone:
+        type: string
+      role:
+        enum:
+        - user
+        - admin
+        type: string
+    required:
+    - consentPd
+    - fullName
+    - locationId
+    - phone
+    - role
+    type: object
+  dto.UserUpdate:
+    properties:
+      allowGeo:
+        type: boolean
+      email:
+        type: string
+      fullName:
+        maxLength: 255
+        minLength: 2
+        type: string
+      locationId:
+        minimum: 1
+        type: integer
+      onBoarding:
+        type: boolean
+      phone:
+        type: string
+    type: object
   ent.BloodSearchRequest:
     properties:
       bloodComponentIds:
@@ -477,67 +804,6 @@ definitions:
           $ref: '#/definitions/ent.Pet'
         type: array
     type: object
-  handlers.BloodSearchFilterRequest:
-    properties:
-      limit:
-        type: integer
-      offset:
-        type: integer
-      petId:
-        type: string
-      status:
-        type: string
-    type: object
-  handlers.BloodSearchPetRequest:
-    properties:
-      bloodComponentIds:
-        items:
-          type: integer
-        type: array
-      bloodGroupIds:
-        items:
-          type: string
-        type: array
-      bloodVolumeNeeded:
-        type: integer
-      bloodVolumeReserved:
-        type: integer
-      description:
-        type: string
-      petId:
-        type: string
-      photoUrls:
-        items:
-          type: string
-        type: array
-      regions:
-        items:
-          type: integer
-        minItems: 1
-        type: array
-      smallPetsNotifyAllowed:
-        type: boolean
-    required:
-    - bloodVolumeNeeded
-    - petId
-    - regions
-    type: object
-  handlers.BloodSearchPetResponse:
-    properties:
-      id:
-        type: string
-      petId:
-        type: string
-      status:
-        type: string
-    type: object
-  handlers.BloodSearchPetsResponse:
-    properties:
-      requests:
-        items:
-          $ref: '#/definitions/ent.BloodSearchRequest'
-        type: array
-    type: object
   handlers.DevResponse:
     properties:
       message:
@@ -583,20 +849,6 @@ definitions:
         items:
           $ref: '#/definitions/handlers.ReferenceItemDB'
         type: array
-    type: object
-  handlers.SimpleRegistrationRequest:
-    properties:
-      fullName:
-        example: Иван Иванов
-        maxLength: 255
-        minLength: 1
-        type: string
-      telegramId:
-        example: 123456789
-        minimum: 1
-        type: integer
-    required:
-    - telegramId
     type: object
   pet.Gender:
     enum:
@@ -766,230 +1018,6 @@ definitions:
     - ReproductiveStatusLactation
     - ReproductiveStatusEstrus
     - ReproductiveStatusNone
-  services.PetAnalysisDTO:
-    properties:
-      anaplasmosisDate:
-        type: string
-      anaplasmosisType:
-        type: string
-      babesiosisDate:
-        type: string
-      babesiosisType:
-        type: string
-      bartonellosisDate:
-        type: string
-      bartonellosisType:
-        type: string
-      dirofilariaDate:
-        type: string
-      dirofilariaType:
-        type: string
-      ehrlichiosisDate:
-        type: string
-      ehrlichiosisType:
-        type: string
-      hemoplasmosisDate:
-        type: string
-      hemoplasmosisType:
-        type: string
-      immunodeficiencyDate:
-        type: string
-      immunodeficiencyType:
-        type: string
-      leukemiaDate:
-        type: string
-      leukemiaType:
-        type: string
-    type: object
-  services.PetBonusDTO:
-    properties:
-      isArtist:
-        type: boolean
-      isFormerDonor:
-        type: boolean
-      isGuideDog:
-        type: boolean
-      isTherapist:
-        type: boolean
-    type: object
-  services.PetCreate:
-    properties:
-      ageMonths:
-        maximum: 11
-        minimum: 0
-        type: integer
-      ageYears:
-        minimum: 0
-        type: integer
-      analyses:
-        items:
-          $ref: '#/definitions/services.PetAnalysisDTO'
-        type: array
-      birthDate:
-        type: string
-      bloodGroup:
-        maxLength: 50
-        type: string
-      bonuses:
-        $ref: '#/definitions/services.PetBonusDTO'
-      breedId:
-        minimum: 1
-        type: integer
-      chipNumber:
-        type: string
-      gender:
-        $ref: '#/definitions/pet.Gender'
-      health:
-        allOf:
-        - $ref: '#/definitions/services.PetHealthDTO'
-        description: Вложенные структуры (DTO)
-      livingCondition:
-        $ref: '#/definitions/pet.LivingCondition'
-      name:
-        maxLength: 100
-        minLength: 1
-        type: string
-      petStatus:
-        $ref: '#/definitions/pet.PetStatus'
-      photoUrl:
-        maxLength: 255
-        type: string
-      treatments:
-        $ref: '#/definitions/services.PetTreatmentDTO'
-      type:
-        $ref: '#/definitions/pet.Type'
-      weightKg:
-        minimum: 0
-        type: number
-    required:
-    - name
-    - petStatus
-    - type
-    type: object
-  services.PetHealthDTO:
-    properties:
-      healthStatus:
-        type: string
-      lastDonation:
-        type: string
-      medications:
-        type: string
-      reproductiveStatus:
-        type: string
-      surgicalInterventions:
-        type: string
-      transfused:
-        type: boolean
-    type: object
-  services.PetTreatmentDTO:
-    properties:
-      dewormingDate:
-        type: string
-      ectoparasiteTreatmentDate:
-        type: string
-      infectionVaccinationDate:
-        type: string
-      rabiesVaccinationDate:
-        type: string
-    type: object
-  services.PetUpdate:
-    properties:
-      ageMonths:
-        maximum: 11
-        minimum: 0
-        type: integer
-      ageYears:
-        minimum: 0
-        type: integer
-      analyses:
-        items:
-          $ref: '#/definitions/services.PetAnalysisDTO'
-        type: array
-      birthDate:
-        type: string
-      bloodGroup:
-        maxLength: 50
-        type: string
-      bonuses:
-        $ref: '#/definitions/services.PetBonusDTO'
-      breedId:
-        minimum: 1
-        type: integer
-      chipNumber:
-        type: string
-      gender:
-        $ref: '#/definitions/pet.Gender'
-      health:
-        allOf:
-        - $ref: '#/definitions/services.PetHealthDTO'
-        description: Вложенные структуры
-      livingCondition:
-        $ref: '#/definitions/pet.LivingCondition'
-      name:
-        maxLength: 100
-        minLength: 1
-        type: string
-      petStatus:
-        allOf:
-        - $ref: '#/definitions/pet.PetStatus'
-        maxLength: 50
-      photoUrl:
-        maxLength: 255
-        type: string
-      treatments:
-        $ref: '#/definitions/services.PetTreatmentDTO'
-      type:
-        $ref: '#/definitions/pet.Type'
-      weightKg:
-        minimum: 0
-        type: number
-    type: object
-  services.UserRegistration:
-    properties:
-      consentPd:
-        type: boolean
-      email:
-        type: string
-      fullName:
-        maxLength: 255
-        minLength: 2
-        type: string
-      locationId:
-        minimum: 1
-        type: integer
-      phone:
-        type: string
-      role:
-        allOf:
-        - $ref: '#/definitions/user.Role'
-        enum:
-        - user
-        - admin
-    required:
-    - consentPd
-    - fullName
-    - locationId
-    - phone
-    - role
-    type: object
-  services.UserUpdate:
-    properties:
-      allowGeo:
-        type: boolean
-      email:
-        type: string
-      fullName:
-        maxLength: 255
-        minLength: 2
-        type: string
-      locationId:
-        minimum: 1
-        type: integer
-      onBoarding:
-        type: boolean
-      phone:
-        type: string
-    type: object
   user.Role:
     enum:
     - user
@@ -1061,7 +1089,7 @@ paths:
         "200":
           description: Данные заявки
           schema:
-            $ref: '#/definitions/ent.BloodSearchRequest'
+            $ref: '#/definitions/dto.BloodSearchRequestDTO'
       summary: Получить заявку по ID
       tags:
       - blood-request
@@ -1076,14 +1104,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.BloodSearchPetRequest'
+          $ref: '#/definitions/dto.BloodSearchPetRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Созданная заявка
           schema:
-            $ref: '#/definitions/handlers.BloodSearchPetResponse'
+            $ref: '#/definitions/dto.BloodSearchPetResponse'
         "400":
           description: Неверный запрос
           schema:
@@ -1106,14 +1134,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.BloodSearchFilterRequest'
+          $ref: '#/definitions/dto.BloodSearchFilterRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Список заявок
           schema:
-            $ref: '#/definitions/handlers.BloodSearchPetsResponse'
+            $ref: '#/definitions/dto.BloodSearchPetsResponse'
         "400":
           description: Неверный запрос
           schema:
@@ -1274,7 +1302,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/services.PetUpdate'
+          $ref: '#/definitions/dto.PetUpdate'
       produces:
       - application/json
       responses:
@@ -1433,7 +1461,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/services.PetCreate'
+          $ref: '#/definitions/dto.PetCreate'
       produces:
       - application/json
       responses:
@@ -1731,7 +1759,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/services.UserUpdate'
+          $ref: '#/definitions/dto.UserUpdate'
       produces:
       - application/json
       responses:
@@ -1766,7 +1794,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/services.UserRegistration'
+          $ref: '#/definitions/dto.UserRegistration'
       produces:
       - application/json
       responses:
@@ -1800,7 +1828,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.SimpleRegistrationRequest'
+          $ref: '#/definitions/dto.SimpleRegistrationRequest'
       produces:
       - application/json
       responses:

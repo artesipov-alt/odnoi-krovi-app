@@ -7,19 +7,20 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
 type UserService interface {
 	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*ent.User, error)
+	RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistration) (*ent.User, error)
 
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
 	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*ent.User, error)
 
 	// UpdateUserProfile обновляет информацию о пользователе
-	UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error
+	UpdateUserProfile(ctx context.Context, userID string, updates dto.UserUpdate) error
 
 	// GetUserByID получает пользователя по его внутреннему ID
 	GetUserByID(ctx context.Context, userID string) (*ent.User, error)
@@ -29,26 +30,6 @@ type UserService interface {
 
 	// DeleteUser удаляет пользователя по ID (soft delete)
 	DeleteUser(ctx context.Context, userID string) error
-}
-
-// UserRegistration содержит данные для регистрации пользователя
-type UserRegistration struct {
-	FullName   string    `json:"fullName" validate:"required,min=2,max=255"`
-	Phone      string    `json:"phone" validate:"required,e164"`
-	Email      string    `json:"email" validate:"omitempty,email"`
-	ConsentPD  bool      `json:"consentPd" validate:"required"`
-	LocationID int       `json:"locationId" validate:"required,min=1"`
-	Role       user.Role `json:"role" validate:"required,oneof=user admin"`
-}
-
-// UserUpdate содержит поля, которые можно обновить для пользователя
-type UserUpdate struct {
-	FullName   *string `json:"fullName,omitempty" validate:"omitempty,min=2,max=255"`
-	Phone      *string `json:"phone,omitempty" validate:"omitempty,e164"`
-	Email      *string `json:"email,omitempty" validate:"omitempty,email"`
-	AllowGeo   *bool   `json:"allowGeo,omitempty" validate:"omitempty"`
-	OnBoarding *bool   `json:"onBoarding,omitempty" validate:"omitempty"`
-	LocationID *int    `json:"locationId,omitempty" validate:"omitempty,min=1"`
 }
 
 // UserServiceImpl реализует UserService
@@ -66,7 +47,7 @@ func NewUserService(userRepo repositories.UserRepository, locationRepo repositor
 }
 
 // RegisterUser регистрирует нового пользователя в системе
-func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData UserRegistration) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistration) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
@@ -78,7 +59,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 	}
 
 	// Валидируем роль пользователя через ENT-валидатор
-	if err := user.RoleValidator(userData.Role); err != nil {
+	if err := user.RoleValidator(user.Role(userData.Role)); err != nil {
 		return nil, apperrors.ErrUserInvalidRole
 	}
 
@@ -99,7 +80,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 		Email:      userData.Email,
 		ConsentPd:  userData.ConsentPD,
 		LocationID: userData.LocationID,
-		Role:       userData.Role,
+		Role:       user.Role(userData.Role),
 	}
 
 	newUser, err := s.userRepo.Create(ctx, u)
@@ -175,7 +156,7 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.
 }
 
 // UpdateUserProfile обновляет информацию о пользователе
-func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates UserUpdate) error {
+func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates dto.UserUpdate) error {
 	// Получаем существующего пользователя
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {

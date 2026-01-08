@@ -11,6 +11,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
@@ -45,7 +46,7 @@ func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
 // PetService определяет интерфейс для бизнес-логики питомцев
 type PetService interface {
 	// CreatePet создает нового питомца для пользователя
-	CreatePet(ctx context.Context, userID string, petData PetCreate) (*ent.Pet, error)
+	CreatePet(ctx context.Context, userID string, petData dto.PetCreate) (*ent.Pet, error)
 
 	// GetPetByID получает питомца по ID с preload связей
 	GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error)
@@ -54,7 +55,7 @@ type PetService interface {
 	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
-	UpdatePet(ctx context.Context, petID string, updates PetUpdate) error
+	UpdatePet(ctx context.Context, petID string, updates dto.PetUpdate) error
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
@@ -64,94 +65,6 @@ type PetService interface {
 
 	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
 	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
-}
-
-// PetCreate содержит данные для создания питомца
-type PetCreate struct {
-	Name            string              `json:"name" validate:"required,min=1,max=100"`
-	ChipNumber      string              `json:"chipNumber,omitempty" validate:"omitempty,len=15"`
-	PhotoURL        string              `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
-	BreedID         int                 `json:"breedId,omitempty" validate:"omitempty,min=1"`
-	WeightKg        float64             `json:"weightKg,omitempty" validate:"omitempty,min=0"`
-	AgeYears        int                 `json:"ageYears,omitempty" validate:"omitempty,min=0"`
-	AgeMonths       int                 `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
-	BirthDate       *time.Time          `json:"birthDate,omitempty"`
-	LivingCondition pet.LivingCondition `json:"livingCondition,omitempty"`
-	Gender          pet.Gender          `json:"gender,omitempty"`
-	Type            pet.Type            `json:"type" validate:"required"`
-	BloodGroup      string              `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
-	PetStatus       pet.PetStatus       `json:"petStatus" validate:"required"`
-
-	// Вложенные структуры (DTO)
-	Health     *PetHealthDTO     `json:"health"`
-	Treatments *PetTreatmentDTO  `json:"treatments"`
-	Analyses   []*PetAnalysisDTO `json:"analyses"`
-	Bonuses    *PetBonusDTO      `json:"bonuses"`
-}
-
-// PetUpdate содержит поля, которые можно обновить для питомца
-type PetUpdate struct {
-	Name            *string              `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
-	ChipNumber      *string              `json:"chipNumber,omitempty" validate:"omitempty,len=15"`
-	PhotoURL        *string              `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
-	BreedID         *int                 `json:"breedId,omitempty" validate:"omitempty,min=1"`
-	WeightKg        *float64             `json:"weightKg,omitempty" validate:"omitempty,min=0"`
-	AgeYears        *int                 `json:"ageYears,omitempty" validate:"omitempty,min=0"`
-	AgeMonths       *int                 `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
-	BirthDate       *time.Time           `json:"birthDate,omitempty"`
-	LivingCondition *pet.LivingCondition `json:"livingCondition,omitempty"`
-	Gender          *pet.Gender          `json:"gender,omitempty"`
-	Type            *pet.Type            `json:"type,omitempty"`
-	BloodGroup      *string              `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
-	PetStatus       *pet.PetStatus       `json:"petStatus,omitempty" validate:"omitempty,max=50"`
-
-	// Вложенные структуры
-	Health     *PetHealthDTO     `json:"health"`
-	Treatments *PetTreatmentDTO  `json:"treatments"`
-	Analyses   []*PetAnalysisDTO `json:"analyses"`
-	Bonuses    *PetBonusDTO      `json:"bonuses"`
-}
-
-type PetHealthDTO struct {
-	ReproductiveStatus    *string    `json:"reproductiveStatus"`
-	HealthStatus          *string    `json:"healthStatus"`
-	LastDonation          *time.Time `json:"lastDonation"`
-	Transfused            *bool      `json:"transfused"`
-	Medications           *string    `json:"medications"`
-	SurgicalInterventions *string    `json:"surgicalInterventions"`
-}
-
-type PetTreatmentDTO struct {
-	RabiesVaccinationDate     *time.Time `json:"rabiesVaccinationDate"`
-	InfectionVaccinationDate  *time.Time `json:"infectionVaccinationDate"`
-	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate"`
-	DewormingDate             *time.Time `json:"dewormingDate"`
-}
-
-type PetAnalysisDTO struct {
-	LeukemiaDate         *time.Time `json:"leukemiaDate"`
-	LeukemiaType         *string    `json:"leukemiaType"`
-	ImmunodeficiencyDate *time.Time `json:"immunodeficiencyDate"`
-	ImmunodeficiencyType *string    `json:"immunodeficiencyType"`
-	HemoplasmosisDate    *time.Time `json:"hemoplasmosisDate"`
-	HemoplasmosisType    *string    `json:"hemoplasmosisType"`
-	BartonellosisDate    *time.Time `json:"bartonellosisDate"`
-	BartonellosisType    *string    `json:"bartonellosisType"`
-	BabesiosisDate       *time.Time `json:"babesiosisDate"`
-	BabesiosisType       *string    `json:"babesiosisType"`
-	DirofilariaDate      *time.Time `json:"dirofilariaDate"`
-	DirofilariaType      *string    `json:"dirofilariaType"`
-	EhrlichiosisDate     *time.Time `json:"ehrlichiosisDate"`
-	EhrlichiosisType     *string    `json:"ehrlichiosisType"`
-	AnaplasmosisDate     *time.Time `json:"anaplasmosisDate"`
-	AnaplasmosisType     *string    `json:"anaplasmosisType"`
-}
-
-type PetBonusDTO struct {
-	IsArtist      bool `json:"isArtist"`
-	IsTherapist   bool `json:"isTherapist"`
-	IsFormerDonor bool `json:"isFormerDonor"`
-	IsGuideDog    bool `json:"isGuideDog"`
 }
 
 // PetServiceImpl реализует PetService
@@ -179,7 +92,7 @@ func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
 }
 
 // CreatePet создает нового питомца для пользователя
-func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData PetCreate) (*ent.Pet, error) {
+func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData dto.PetCreate) (*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -190,25 +103,25 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 	}
 
 	// Валидируем тип животного
-	if err := pet.TypeValidator(petData.Type); err != nil {
+	if err := pet.TypeValidator(pet.Type(petData.Type)); err != nil {
 		return nil, apperrors.ErrInvalidPetType
 	}
 
 	// Валидируем статус питомца
-	if err := pet.PetStatusValidator(petData.PetStatus); err != nil {
+	if err := pet.PetStatusValidator(pet.PetStatus(petData.PetStatus)); err != nil {
 		return nil, apperrors.ErrPetInvalidStatus
 	}
 
 	// Валидируем пол животного
 	if petData.Gender != "" {
-		if err := pet.GenderValidator(petData.Gender); err != nil {
+		if err := pet.GenderValidator(pet.Gender(petData.Gender)); err != nil {
 			return nil, apperrors.ErrInvalidGender
 		}
 	}
 
 	// Валидируем условия проживания
 	if petData.LivingCondition != "" {
-		if err := pet.LivingConditionValidator(petData.LivingCondition); err != nil {
+		if err := pet.LivingConditionValidator(pet.LivingCondition(petData.LivingCondition)); err != nil {
 			return nil, apperrors.ErrInvalidLivingCondition
 		}
 	}
@@ -371,11 +284,11 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData P
 		AgeYears:        ageYears,
 		AgeMonths:       ageMonths,
 		BirthDate:       birthDate,
-		LivingCondition: petData.LivingCondition,
-		Gender:          petData.Gender,
-		Type:            petData.Type,
+		LivingCondition: pet.LivingCondition(petData.LivingCondition),
+		Gender:          pet.Gender(petData.Gender),
+		Type:            pet.Type(petData.Type),
 		BloodGroup:      petData.BloodGroup,
-		PetStatus:       petData.PetStatus,
+		PetStatus:       pet.PetStatus(petData.PetStatus),
 	}
 
 	newPet, err := s.petRepo.Create(ctx, p, health, treatments, analyses, bonuses)
@@ -431,7 +344,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 }
 
 // UpdatePet обновляет информацию о питомце
-func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates PetUpdate) error {
+func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates dto.PetUpdate) error {
 	// Получаем существующего питомца
 	p, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
@@ -467,31 +380,31 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates Pe
 		p.BirthDate = updates.BirthDate
 	}
 	if updates.LivingCondition != nil {
-		if err := pet.LivingConditionValidator(*updates.LivingCondition); err != nil {
+		if err := pet.LivingConditionValidator(pet.LivingCondition(*updates.LivingCondition)); err != nil {
 			return apperrors.ErrInvalidLivingCondition
 		}
-		p.LivingCondition = *updates.LivingCondition
+		p.LivingCondition = pet.LivingCondition(*updates.LivingCondition)
 	}
 	if updates.Gender != nil {
-		if err := pet.GenderValidator(*updates.Gender); err != nil {
+		if err := pet.GenderValidator(pet.Gender(*updates.Gender)); err != nil {
 			return apperrors.ErrInvalidGender
 		}
-		p.Gender = *updates.Gender
+		p.Gender = pet.Gender(*updates.Gender)
 	}
 	if updates.Type != nil {
-		if err := pet.TypeValidator(*updates.Type); err != nil {
+		if err := pet.TypeValidator(pet.Type(*updates.Type)); err != nil {
 			return apperrors.ErrInvalidPetType
 		}
-		p.Type = *updates.Type
+		p.Type = pet.Type(*updates.Type)
 	}
 	if updates.BloodGroup != nil {
 		p.BloodGroup = *updates.BloodGroup
 	}
 	if updates.PetStatus != nil {
-		if err := pet.PetStatusValidator(*updates.PetStatus); err != nil {
+		if err := pet.PetStatusValidator(pet.PetStatus(*updates.PetStatus)); err != nil {
 			return apperrors.ErrPetInvalidStatus
 		}
-		p.PetStatus = *updates.PetStatus
+		p.PetStatus = pet.PetStatus(*updates.PetStatus)
 	}
 
 	// Вычисляем возраст или дату рождения при обновлении

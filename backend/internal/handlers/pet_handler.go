@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
@@ -48,7 +49,7 @@ func (h *PetHandler) getPreloads(c echo.Context) []string {
 // @Accept json
 // @Produce json
 // @Param user_id path string true "ID пользователя"
-// @Param request body services.PetCreate true "Данные питомца"
+// @Param request body dto.PetCreate true "Данные питомца"
 // @Success 201 {object} ent.Pet "Созданный питомец"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
@@ -60,7 +61,7 @@ func (h *PetHandler) CreatePetHandler(c echo.Context) error {
 		return err
 	}
 
-	var petData services.PetCreate
+	var petData dto.PetCreate
 	if err := utils.ParseBody(c, &petData); err != nil {
 		return err
 	}
@@ -150,7 +151,7 @@ func (h *PetHandler) GetUserPetsHandler(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID питомца"
-// @Param request body services.PetUpdate true "Данные для обновления"
+// @Param request body dto.PetUpdate true "Данные для обновления"
 // @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Питомец не найден"
@@ -162,7 +163,7 @@ func (h *PetHandler) UpdatePetHandler(c echo.Context) error {
 		return err
 	}
 
-	var updateData services.PetUpdate
+	var updateData dto.PetUpdate
 	if err := utils.ParseBody(c, &updateData); err != nil {
 		return err
 	}

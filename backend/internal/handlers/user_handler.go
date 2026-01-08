@@ -3,6 +3,7 @@ package handlers
 import (
 	"strconv"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
@@ -13,12 +14,6 @@ import (
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
 	userService services.UserService
-}
-
-// SimpleRegistrationRequest представляет запрос на простую регистрацию пользователя
-type SimpleRegistrationRequest struct {
-	TelegramID int64  `json:"telegramId" validate:"required,min=1" example:"123456789"`
-	FullName   string `json:"fullName,omitempty" validate:"omitempty,min=1,max=255" example:"Иван Иванов"`
 }
 
 // NewUserHandler создает новый обработчик пользователей
@@ -61,14 +56,14 @@ func (h *UserHandler) GetUserHandler(c echo.Context) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body SimpleRegistrationRequest true "Данные для простой регистрации"
+// @Param request body dto.SimpleRegistrationRequest true "Данные для простой регистрации"
 // @Success 201 {object} ent.User "Зарегистрированный пользователь"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /user/register/simple [post]
 func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
-	var request SimpleRegistrationRequest
+	var request dto.SimpleRegistrationRequest
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
 	}
@@ -95,7 +90,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body services.UserRegistration true "Данные для регистрации пользователя"
+// @Param request body dto.UserRegistration true "Данные для регистрации пользователя"
 // @Success 201 {object} ent.User "Зарегистрированный пользователь"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
@@ -103,7 +98,7 @@ func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
 // @Deprecated
 // @Router /user/register [post]
 func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
-	var registrationData services.UserRegistration
+	var registrationData dto.UserRegistration
 	if err := c.Bind(&registrationData); err != nil {
 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
 	}
@@ -131,7 +126,7 @@ func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "ID пользователя"
-// @Param request body services.UserUpdate true "Данные для обновления"
+// @Param request body dto.UserUpdate true "Данные для обновления"
 // @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
 // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
 // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
@@ -143,7 +138,7 @@ func (h *UserHandler) UpdateUserHandler(c echo.Context) error {
 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
 	}
 
-	var updateData services.UserUpdate
+	var updateData dto.UserUpdate
 	if err := c.Bind(&updateData); err != nil {
 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
 	}

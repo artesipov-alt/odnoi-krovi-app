@@ -55,7 +55,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchPetRequest"
+                            "$ref": "#/definitions/dto.BloodSearchPetRequest"
                         }
                     }
                 ],
@@ -63,7 +63,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Созданная заявка",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchPetResponse"
+                            "$ref": "#/definitions/dto.BloodSearchPetResponse"
                         }
                     },
                     "400": {
@@ -101,7 +101,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchFilterRequest"
+                            "$ref": "#/definitions/dto.BloodSearchFilterRequest"
                         }
                     }
                 ],
@@ -109,7 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Список заявок",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BloodSearchPetsResponse"
+                            "$ref": "#/definitions/dto.BloodSearchPetsResponse"
                         }
                     },
                     "400": {
@@ -150,7 +150,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Данные заявки",
                         "schema": {
-                            "$ref": "#/definitions/ent.BloodSearchRequest"
+                            "$ref": "#/definitions/dto.BloodSearchRequestDTO"
                         }
                     }
                 }
@@ -463,7 +463,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.PetCreate"
+                            "$ref": "#/definitions/dto.PetCreate"
                         }
                     }
                 ],
@@ -597,7 +597,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.PetUpdate"
+                            "$ref": "#/definitions/dto.PetUpdate"
                         }
                     }
                 ],
@@ -996,7 +996,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.UserRegistration"
+                            "$ref": "#/definitions/dto.UserRegistration"
                         }
                     }
                 ],
@@ -1048,7 +1048,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.SimpleRegistrationRequest"
+                            "$ref": "#/definitions/dto.SimpleRegistrationRequest"
                         }
                     }
                 ],
@@ -1199,7 +1199,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.UserUpdate"
+                            "$ref": "#/definitions/dto.UserUpdate"
                         }
                     }
                 ],
@@ -1303,6 +1303,485 @@ const docTemplate = `{
                 "TypeDog",
                 "TypeCat"
             ]
+        },
+        "dto.BloodSearchFilterRequest": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BloodSearchPetRequest": {
+            "type": "object",
+            "required": [
+                "bloodVolumeNeeded",
+                "petId",
+                "regions"
+            ],
+            "properties": {
+                "bloodComponentIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "bloodGroupIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bloodVolumeNeeded": {
+                    "type": "integer"
+                },
+                "bloodVolumeReserved": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "photoUrls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "regions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "smallPetsNotifyAllowed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.BloodSearchPetResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BloodSearchPetsResponse": {
+            "type": "object",
+            "properties": {
+                "requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.BloodSearchRequestDTO"
+                    }
+                }
+            }
+        },
+        "dto.BloodSearchRequestDTO": {
+            "type": "object",
+            "properties": {
+                "bloodComponentIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "bloodGroupIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bloodVolumeNeeded": {
+                    "type": "integer"
+                },
+                "bloodVolumeReserved": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "petId": {
+                    "type": "string"
+                },
+                "photoUrls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "regions": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "smallPetsNotifyAllowed": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PetAnalysisDTO": {
+            "type": "object",
+            "properties": {
+                "anaplasmosisDate": {
+                    "type": "string"
+                },
+                "anaplasmosisType": {
+                    "type": "string"
+                },
+                "babesiosisDate": {
+                    "type": "string"
+                },
+                "babesiosisType": {
+                    "type": "string"
+                },
+                "bartonellosisDate": {
+                    "type": "string"
+                },
+                "bartonellosisType": {
+                    "type": "string"
+                },
+                "dirofilariaDate": {
+                    "type": "string"
+                },
+                "dirofilariaType": {
+                    "type": "string"
+                },
+                "ehrlichiosisDate": {
+                    "type": "string"
+                },
+                "ehrlichiosisType": {
+                    "type": "string"
+                },
+                "hemoplasmosisDate": {
+                    "type": "string"
+                },
+                "hemoplasmosisType": {
+                    "type": "string"
+                },
+                "immunodeficiencyDate": {
+                    "type": "string"
+                },
+                "immunodeficiencyType": {
+                    "type": "string"
+                },
+                "leukemiaDate": {
+                    "type": "string"
+                },
+                "leukemiaType": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PetBonusDTO": {
+            "type": "object",
+            "properties": {
+                "isArtist": {
+                    "type": "boolean"
+                },
+                "isFormerDonor": {
+                    "type": "boolean"
+                },
+                "isGuideDog": {
+                    "type": "boolean"
+                },
+                "isTherapist": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.PetCreate": {
+            "type": "object",
+            "required": [
+                "name",
+                "petStatus",
+                "type"
+            ],
+            "properties": {
+                "ageMonths": {
+                    "type": "integer",
+                    "maximum": 11,
+                    "minimum": 0
+                },
+                "ageYears": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "analyses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PetAnalysisDTO"
+                    }
+                },
+                "birthDate": {
+                    "type": "string"
+                },
+                "bloodGroup": {
+                    "type": "string"
+                },
+                "bonuses": {
+                    "$ref": "#/definitions/dto.PetBonusDTO"
+                },
+                "breedId": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "chipNumber": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "health": {
+                    "$ref": "#/definitions/dto.PetHealthDTO"
+                },
+                "livingCondition": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "petStatus": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "treatments": {
+                    "$ref": "#/definitions/dto.PetTreatmentDTO"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "weightKg": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "dto.PetHealthDTO": {
+            "type": "object",
+            "properties": {
+                "healthStatus": {
+                    "type": "string"
+                },
+                "lastDonation": {
+                    "type": "string"
+                },
+                "medications": {
+                    "type": "string"
+                },
+                "reproductiveStatus": {
+                    "type": "string"
+                },
+                "surgicalInterventions": {
+                    "type": "string"
+                },
+                "transfused": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.PetTreatmentDTO": {
+            "type": "object",
+            "properties": {
+                "dewormingDate": {
+                    "type": "string"
+                },
+                "ectoparasiteTreatmentDate": {
+                    "type": "string"
+                },
+                "infectionVaccinationDate": {
+                    "type": "string"
+                },
+                "rabiesVaccinationDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PetUpdate": {
+            "type": "object",
+            "properties": {
+                "ageMonths": {
+                    "type": "integer",
+                    "maximum": 11,
+                    "minimum": 0
+                },
+                "ageYears": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "analyses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PetAnalysisDTO"
+                    }
+                },
+                "birthDate": {
+                    "type": "string"
+                },
+                "bloodGroup": {
+                    "type": "string"
+                },
+                "bonuses": {
+                    "$ref": "#/definitions/dto.PetBonusDTO"
+                },
+                "breedId": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "chipNumber": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "health": {
+                    "$ref": "#/definitions/dto.PetHealthDTO"
+                },
+                "livingCondition": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "petStatus": {
+                    "type": "string"
+                },
+                "photoUrl": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "treatments": {
+                    "$ref": "#/definitions/dto.PetTreatmentDTO"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "weightKg": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "dto.SimpleRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "telegramId"
+            ],
+            "properties": {
+                "fullName": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 1,
+                    "example": "Иван Иванов"
+                },
+                "telegramId": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 123456789
+                }
+            }
+        },
+        "dto.UserRegistration": {
+            "type": "object",
+            "required": [
+                "consentPd",
+                "fullName",
+                "locationId",
+                "phone",
+                "role"
+            ],
+            "properties": {
+                "consentPd": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                },
+                "locationId": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "admin"
+                    ]
+                }
+            }
+        },
+        "dto.UserUpdate": {
+            "type": "object",
+            "properties": {
+                "allowGeo": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 2
+                },
+                "locationId": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "onBoarding": {
+                    "type": "boolean"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
         },
         "ent.BloodSearchRequest": {
             "type": "object",
@@ -1990,98 +2469,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.BloodSearchFilterRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer"
-                },
-                "offset": {
-                    "type": "integer"
-                },
-                "petId": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.BloodSearchPetRequest": {
-            "type": "object",
-            "required": [
-                "bloodVolumeNeeded",
-                "petId",
-                "regions"
-            ],
-            "properties": {
-                "bloodComponentIds": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "bloodGroupIds": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "bloodVolumeNeeded": {
-                    "type": "integer"
-                },
-                "bloodVolumeReserved": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "petId": {
-                    "type": "string"
-                },
-                "photoUrls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "regions": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "smallPetsNotifyAllowed": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handlers.BloodSearchPetResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "petId": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.BloodSearchPetsResponse": {
-            "type": "object",
-            "properties": {
-                "requests": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/ent.BloodSearchRequest"
-                    }
-                }
-            }
-        },
         "handlers.DevResponse": {
             "type": "object",
             "properties": {
@@ -2151,25 +2538,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/handlers.ReferenceItemDB"
                     }
-                }
-            }
-        },
-        "handlers.SimpleRegistrationRequest": {
-            "type": "object",
-            "required": [
-                "telegramId"
-            ],
-            "properties": {
-                "fullName": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 1,
-                    "example": "Иван Иванов"
-                },
-                "telegramId": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "example": 123456789
                 }
             }
         },
@@ -2382,339 +2750,6 @@ const docTemplate = `{
                 "ReproductiveStatusEstrus",
                 "ReproductiveStatusNone"
             ]
-        },
-        "services.PetAnalysisDTO": {
-            "type": "object",
-            "properties": {
-                "anaplasmosisDate": {
-                    "type": "string"
-                },
-                "anaplasmosisType": {
-                    "type": "string"
-                },
-                "babesiosisDate": {
-                    "type": "string"
-                },
-                "babesiosisType": {
-                    "type": "string"
-                },
-                "bartonellosisDate": {
-                    "type": "string"
-                },
-                "bartonellosisType": {
-                    "type": "string"
-                },
-                "dirofilariaDate": {
-                    "type": "string"
-                },
-                "dirofilariaType": {
-                    "type": "string"
-                },
-                "ehrlichiosisDate": {
-                    "type": "string"
-                },
-                "ehrlichiosisType": {
-                    "type": "string"
-                },
-                "hemoplasmosisDate": {
-                    "type": "string"
-                },
-                "hemoplasmosisType": {
-                    "type": "string"
-                },
-                "immunodeficiencyDate": {
-                    "type": "string"
-                },
-                "immunodeficiencyType": {
-                    "type": "string"
-                },
-                "leukemiaDate": {
-                    "type": "string"
-                },
-                "leukemiaType": {
-                    "type": "string"
-                }
-            }
-        },
-        "services.PetBonusDTO": {
-            "type": "object",
-            "properties": {
-                "isArtist": {
-                    "type": "boolean"
-                },
-                "isFormerDonor": {
-                    "type": "boolean"
-                },
-                "isGuideDog": {
-                    "type": "boolean"
-                },
-                "isTherapist": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services.PetCreate": {
-            "type": "object",
-            "required": [
-                "name",
-                "petStatus",
-                "type"
-            ],
-            "properties": {
-                "ageMonths": {
-                    "type": "integer",
-                    "maximum": 11,
-                    "minimum": 0
-                },
-                "ageYears": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "analyses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/services.PetAnalysisDTO"
-                    }
-                },
-                "birthDate": {
-                    "type": "string"
-                },
-                "bloodGroup": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "bonuses": {
-                    "$ref": "#/definitions/services.PetBonusDTO"
-                },
-                "breedId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "chipNumber": {
-                    "type": "string"
-                },
-                "gender": {
-                    "$ref": "#/definitions/pet.Gender"
-                },
-                "health": {
-                    "description": "Вложенные структуры (DTO)",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/services.PetHealthDTO"
-                        }
-                    ]
-                },
-                "livingCondition": {
-                    "$ref": "#/definitions/pet.LivingCondition"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
-                },
-                "petStatus": {
-                    "$ref": "#/definitions/pet.PetStatus"
-                },
-                "photoUrl": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "treatments": {
-                    "$ref": "#/definitions/services.PetTreatmentDTO"
-                },
-                "type": {
-                    "$ref": "#/definitions/pet.Type"
-                },
-                "weightKg": {
-                    "type": "number",
-                    "minimum": 0
-                }
-            }
-        },
-        "services.PetHealthDTO": {
-            "type": "object",
-            "properties": {
-                "healthStatus": {
-                    "type": "string"
-                },
-                "lastDonation": {
-                    "type": "string"
-                },
-                "medications": {
-                    "type": "string"
-                },
-                "reproductiveStatus": {
-                    "type": "string"
-                },
-                "surgicalInterventions": {
-                    "type": "string"
-                },
-                "transfused": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services.PetTreatmentDTO": {
-            "type": "object",
-            "properties": {
-                "dewormingDate": {
-                    "type": "string"
-                },
-                "ectoparasiteTreatmentDate": {
-                    "type": "string"
-                },
-                "infectionVaccinationDate": {
-                    "type": "string"
-                },
-                "rabiesVaccinationDate": {
-                    "type": "string"
-                }
-            }
-        },
-        "services.PetUpdate": {
-            "type": "object",
-            "properties": {
-                "ageMonths": {
-                    "type": "integer",
-                    "maximum": 11,
-                    "minimum": 0
-                },
-                "ageYears": {
-                    "type": "integer",
-                    "minimum": 0
-                },
-                "analyses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/services.PetAnalysisDTO"
-                    }
-                },
-                "birthDate": {
-                    "type": "string"
-                },
-                "bloodGroup": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "bonuses": {
-                    "$ref": "#/definitions/services.PetBonusDTO"
-                },
-                "breedId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "chipNumber": {
-                    "type": "string"
-                },
-                "gender": {
-                    "$ref": "#/definitions/pet.Gender"
-                },
-                "health": {
-                    "description": "Вложенные структуры",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/services.PetHealthDTO"
-                        }
-                    ]
-                },
-                "livingCondition": {
-                    "$ref": "#/definitions/pet.LivingCondition"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 1
-                },
-                "petStatus": {
-                    "maxLength": 50,
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/pet.PetStatus"
-                        }
-                    ]
-                },
-                "photoUrl": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "treatments": {
-                    "$ref": "#/definitions/services.PetTreatmentDTO"
-                },
-                "type": {
-                    "$ref": "#/definitions/pet.Type"
-                },
-                "weightKg": {
-                    "type": "number",
-                    "minimum": 0
-                }
-            }
-        },
-        "services.UserRegistration": {
-            "type": "object",
-            "required": [
-                "consentPd",
-                "fullName",
-                "locationId",
-                "phone",
-                "role"
-            ],
-            "properties": {
-                "consentPd": {
-                    "type": "boolean"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "fullName": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 2
-                },
-                "locationId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "role": {
-                    "enum": [
-                        "user",
-                        "admin"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/user.Role"
-                        }
-                    ]
-                }
-            }
-        },
-        "services.UserUpdate": {
-            "type": "object",
-            "properties": {
-                "allowGeo": {
-                    "type": "boolean"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "fullName": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 2
-                },
-                "locationId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "onBoarding": {
-                    "type": "boolean"
-                },
-                "phone": {
-                    "type": "string"
-                }
-            }
         },
         "user.Role": {
             "type": "string",
