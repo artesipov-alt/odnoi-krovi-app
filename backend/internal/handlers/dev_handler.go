@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/labstack/echo/v4"
@@ -22,19 +22,13 @@ func NewDevHandler(userRepo repositories.UserRepository) *DevHandler {
 	}
 }
 
-// DevResponse представляет ответ со статусом операции
-type DevResponse struct {
-	Status  bool   `json:"status"`
-	Message string `json:"message"`
-}
-
 // ResetUserHandler godoc
 // @Summary Сброс пользователя к начальным настройкам
 // @Description Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота
 // @Tags dev
 // @Produce json
 // @Param id path string true "ID пользователя"
-// @Success 200 {object} DevResponse "Успешный сброс пользователя"
+// @Success 200 {object} dto.DevResponse "Успешный сброс пользователя"
 // @Router /dev/reset-user/{id} [post]
 func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 	logger.Log.Info("Сброс пользователя к заводским настройкам")
@@ -53,7 +47,7 @@ func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 
 	logger.Log.Info("Пользователь успешно сброшен", zap.String("userId", id))
 
-	return c.JSON(http.StatusOK, DevResponse{
+	return c.JSON(http.StatusOK, dto.DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно сброшен к заводским настройкам",
 	})
@@ -65,7 +59,7 @@ func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 // @Tags dev
 // @Produce json
 // @Param id path string true "ID пользователя"
-// @Success 200 {object} DevResponse "Успешное восстановление пользователя"
+// @Success 200 {object} dto.DevResponse "Успешное восстановление пользователя"
 // @Router /dev/restore-user/{id} [post]
 func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 	logger.Log.Info("Восстановление удаленного пользователя")
@@ -84,7 +78,7 @@ func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 
 	logger.Log.Info("Пользователь успешно восстановлен", zap.String("userId", id))
 
-	return c.JSON(http.StatusOK, DevResponse{
+	return c.JSON(http.StatusOK, dto.DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно восстановлен",
 	})
@@ -95,7 +89,7 @@ func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 // @Description Возвращает список всех мягко удаленных пользователей
 // @Tags dev
 // @Produce json
-// @Success 200 {object} GetDeletedUsersResponse "Список удаленных пользователей"
+// @Success 200 {object} dto.GetDeletedUsersResponse "Список удаленных пользователей"
 // @Router /dev/deleted-users [get]
 func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
 	logger.Log.Info("Получение списка удаленных пользователей")
@@ -108,16 +102,9 @@ func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
 
 	logger.Log.Info("Удаленные пользователи успешно получены", zap.Int("count", len(users)))
 
-	return c.JSON(http.StatusOK, GetDeletedUsersResponse{
+	return c.JSON(http.StatusOK, dto.GetDeletedUsersResponse{
 		Status:  true,
 		Message: "Удаленные пользователи успешно получены",
 		Users:   users,
 	})
-}
-
-// GetDeletedUsersResponse представляет ответ со списком удаленных пользователей
-type GetDeletedUsersResponse struct {
-	Status  bool        `json:"status"`
-	Message string      `json:"message"`
-	Users   []*ent.User `json:"users"`
 }

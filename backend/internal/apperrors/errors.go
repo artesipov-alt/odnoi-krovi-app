@@ -62,7 +62,7 @@ func AlreadyExists(message string) *AppError {
 }
 
 // Validation создает ошибку валидации с деталями
-func Validation(message string, details map[string]interface{}) *AppError {
+func Validation(message string, details map[string]any) *AppError {
 	return &AppError{
 		Code:       ErrCodeValidation,
 		Message:    message,
@@ -134,7 +134,7 @@ func Wrap(err error, message string) *AppError {
 }
 
 // WithDetails добавляет детали к ошибке
-func (e *AppError) WithDetails(details map[string]interface{}) *AppError {
+func (e *AppError) WithDetails(details map[string]any) *AppError {
 	e.Details = details
 	return e
 }

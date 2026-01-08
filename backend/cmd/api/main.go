@@ -36,7 +36,7 @@ import (
 // @version 1.3.5
 // @description API сервиса однойкрови.рф для донороcства крови и помощи животным
 // @host
-// @BasePath /api/v1
+// @BasePath /api
 func main() {
 
 	// Загрузка переменных окружения из .env файла
@@ -49,7 +49,7 @@ func main() {
 	logger.Init(serverConfig.Env)
 	defer logger.Sync() // Гарантированное закрытие логгера при завершении
 
-	// Инициализация подключения к базе данных через ENT
+	// Инициализация подключения к базе данных через ENT в зависимости от окружения
 	db, err := config.ConnectEnt(config.NewENVConfig())
 	if err != nil {
 		logger.Log.Fatal("Ошибка подключения к базе данных (ENT)", zap.Error(err))
@@ -118,42 +118,34 @@ func main() {
 	// Подключение middleware
 	app.Use(echomiddleware.Recover())   // Восстановление после паники
 	app.Use(middleware.RequestLogger()) // Логирование запросов с кастомным логгером
-	// app.Use(middleware.TelegramAuthMiddleware(middleware.DefaultTelegramAuthConfig())) // Реальная аутентификация Telegram (закомментирована)
-	// app.Use(middleware.MockTelegramAuthMiddleware(middleware.DefaultMockTelegramConfig())) // Тестовая аутентификация Telegram
 
 	// Группировка API маршрутов с префиксом /api
 	api := app.Group("/api")
 
 	// Документация Swagger - доступна по адресу /api/swagger/index.html
-	api.GET("/swagger/*", echoSwagger.EchoWrapHandler(
+	api.GET("/swagger", echoSwagger.EchoWrapHandler(
 		echoSwagger.URL("/api/swagger/doc.json"),
 	))
 
-	// Группировка API маршрутов с префиксом /api/v1
-	v1 := api.Group("/v1")
-
-	// Корневой маршрут API
-	v1.GET("/", handlers.RootHandler)
-
 	// Группа маршрутов для работы с пользователями
-	userGroup := v1.Group("/user")
+	userGroupV1 := api.Group("/v1/user")
 
-	userGroup.GET("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
-	userGroup.POST("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
-	userGroup.POST("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
-	userGroup.GET("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
-	userGroup.PUT("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
-	userGroup.DELETE("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
+	userGroupV1.GET("/telegram", userHandler.GetUserByTelegramHandler)          // Получение пользователя по Telegram ID
+	userGroupV1.POST("/register", userHandler.RegisterUserHandler)              // Регистрация нового пользователя
+	userGroupV1.POST("/register/simple", userHandler.RegisterUserSimpleHandler) // Простая регистрация (для команды Start)
+	userGroupV1.GET("/:id", userHandler.GetUserHandler)                         // Получение пользователя по ID
+	userGroupV1.PUT("/:id", userHandler.UpdateUserHandler)                      // Обновление данных пользователя
+	userGroupV1.DELETE("/:id", userHandler.DeleteUserHandler)                   // Удаление пользователя по ID
 
 	// Группа маршрутов для разработчиков
-	devGroup := v1.Group("/dev")
+	devGroup := api.Group("/v1/dev")
 
 	devGroup.POST("/restore-user/:id", devHandler.RestoreUserHandler)
 	devGroup.POST("/reset-user/:id", devHandler.ResetUserHandler)     // Сброс пользователя к заводским настройкам
 	devGroup.GET("/deleted-users", devHandler.GetDeletedUsersHandler) // Получение всех удаленных пользователей
 
 	// Группа маршрутов для работы с питомцами и поиском крови
-	petGroup := v1.Group("/pets")
+	petGroup := api.Group("/v1/pets")
 
 	petGroup.GET("/user/:user_id", petHandler.GetUserPetsHandler)                    // Получение всех питомцев пользователя
 	petGroup.POST("/user/:user_id", petHandler.CreatePetHandler)                     // Создание питомца для пользователя
@@ -164,13 +156,13 @@ func main() {
 	petGroup.POST("/upload/avatar/confirm/:path", petHandler.ConfirmPetAvatarUpload) // Подтверждение загрузки
 
 	// Группа маршрутов для пула запросов крови
-	bloodRequestGroup := v1.Group("/blood-request")
+	bloodRequestGroup := api.Group("/v1/blood-request")
 
 	bloodRequestGroup.POST("/pool", bloodRequestHandler.AddPetToBloodRequestPool)           // Добавить питомца в пул поиска крови
 	bloodRequestGroup.POST("/pool/search", bloodRequestHandler.GetPetsFromBloodRequestPool) // Получить питомцев из пула поиска крови
 
 	// Группа маршрутов для справочных данных
-	referenceGroup := v1.Group("/reference")
+	referenceGroup := api.Group("/v1/reference")
 
 	referenceGroup.GET("/pet-types", referenceHandler.GetPetTypesHandler)
 	referenceGroup.GET("/pet-roles", referenceHandler.GetPetRolesHandler)

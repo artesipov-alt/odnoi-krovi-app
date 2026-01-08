@@ -11,9 +11,9 @@ import (
 
 // ErrorResponse представляет стандартный ответ с ошибкой
 type ErrorResponse struct {
-	Code    apperrors.ErrorCode    `json:"code"`
-	Message string                 `json:"message"`
-	Details map[string]interface{} `json:"details,omitempty"`
+	Code    apperrors.ErrorCode `json:"code"`
+	Message string              `json:"message"`
+	Details map[string]any      `json:"details,omitempty"`
 }
 
 // ErrorHandler middleware для централизованной обработки ошибок
