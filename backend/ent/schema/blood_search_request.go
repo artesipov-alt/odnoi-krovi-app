@@ -63,6 +63,7 @@ func (BloodSearchRequest) Edges() []ent.Edge {
 
 func (BloodSearchRequest) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		AuditMixin{},
+		TimeMixin{},
+		SoftDeleteMixin{},
 	}
 }

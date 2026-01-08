@@ -413,7 +413,9 @@ func (_u *PetAnalysisUpdate) ClearOwner() *PetAnalysisUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PetAnalysisUpdate) Save(ctx context.Context) (int, error) {
-	_u.defaults()
+	if err := _u.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -440,11 +442,15 @@ func (_u *PetAnalysisUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *PetAnalysisUpdate) defaults() {
+func (_u *PetAnalysisUpdate) defaults() error {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		if petanalysis.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized petanalysis.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := petanalysis.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -1058,7 +1064,9 @@ func (_u *PetAnalysisUpdateOne) Select(field string, fields ...string) *PetAnaly
 
 // Save executes the query and returns the updated PetAnalysis entity.
 func (_u *PetAnalysisUpdateOne) Save(ctx context.Context) (*PetAnalysis, error) {
-	_u.defaults()
+	if err := _u.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -1085,11 +1093,15 @@ func (_u *PetAnalysisUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *PetAnalysisUpdateOne) defaults() {
+func (_u *PetAnalysisUpdateOne) defaults() error {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		if petanalysis.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized petanalysis.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := petanalysis.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

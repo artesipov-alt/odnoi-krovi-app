@@ -679,7 +679,8 @@ func (c *BloodSearchRequestClient) QueryPet(_m *BloodSearchRequest) *PetQuery {
 
 // Hooks returns the client hooks.
 func (c *BloodSearchRequestClient) Hooks() []Hook {
-	return c.hooks.BloodSearchRequest
+	hooks := c.hooks.BloodSearchRequest
+	return append(hooks[:len(hooks):len(hooks)], bloodsearchrequest.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1223,7 +1224,8 @@ func (c *PetClient) QueryBloodSearchRequest(_m *Pet) *BloodSearchRequestQuery {
 
 // Hooks returns the client hooks.
 func (c *PetClient) Hooks() []Hook {
-	return c.hooks.Pet
+	hooks := c.hooks.Pet
+	return append(hooks[:len(hooks):len(hooks)], pet.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1373,7 +1375,8 @@ func (c *PetAnalysisClient) QueryOwner(_m *PetAnalysis) *PetQuery {
 
 // Hooks returns the client hooks.
 func (c *PetAnalysisClient) Hooks() []Hook {
-	return c.hooks.PetAnalysis
+	hooks := c.hooks.PetAnalysis
+	return append(hooks[:len(hooks):len(hooks)], petanalysis.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1523,7 +1526,8 @@ func (c *PetBonusClient) QueryOwner(_m *PetBonus) *PetQuery {
 
 // Hooks returns the client hooks.
 func (c *PetBonusClient) Hooks() []Hook {
-	return c.hooks.PetBonus
+	hooks := c.hooks.PetBonus
+	return append(hooks[:len(hooks):len(hooks)], petbonus.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1673,7 +1677,8 @@ func (c *PetHealthClient) QueryOwner(_m *PetHealth) *PetQuery {
 
 // Hooks returns the client hooks.
 func (c *PetHealthClient) Hooks() []Hook {
-	return c.hooks.PetHealth
+	hooks := c.hooks.PetHealth
+	return append(hooks[:len(hooks):len(hooks)], pethealth.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1823,7 +1828,8 @@ func (c *PetTreatmentClient) QueryOwner(_m *PetTreatment) *PetQuery {
 
 // Hooks returns the client hooks.
 func (c *PetTreatmentClient) Hooks() []Hook {
-	return c.hooks.PetTreatment
+	hooks := c.hooks.PetTreatment
+	return append(hooks[:len(hooks):len(hooks)], pettreatment.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1989,7 +1995,8 @@ func (c *UserClient) QueryLocation(_m *User) *LocationQuery {
 
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
+	hooks := c.hooks.User
+	return append(hooks[:len(hooks):len(hooks)], user.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.

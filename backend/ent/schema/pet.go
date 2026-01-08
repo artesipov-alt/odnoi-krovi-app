@@ -16,7 +16,8 @@ type Pet struct {
 // Mixin of the Pet.
 func (Pet) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		AuditMixin{},
+		TimeMixin{},
+		SoftDeleteMixin{},
 	}
 }
 
@@ -75,7 +76,8 @@ type PetHealth struct {
 // Mixin of the PetHealth.
 func (PetHealth) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		AuditMixin{},
+		TimeMixin{},
+		SoftDeleteMixin{},
 	}
 }
 
@@ -120,7 +122,8 @@ type PetTreatment struct {
 // Mixin of the PetTreatment.
 func (PetTreatment) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		AuditMixin{},
+		TimeMixin{},
+		SoftDeleteMixin{},
 	}
 }
 
@@ -163,7 +166,8 @@ type PetAnalysis struct {
 // Mixin of the PetAnalysis.
 func (PetAnalysis) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		AuditMixin{},
+		TimeMixin{},
+		SoftDeleteMixin{},
 	}
 }
 
@@ -219,7 +223,8 @@ type PetBonus struct {
 // Mixin of the PetBonus.
 func (PetBonus) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		AuditMixin{},
+		TimeMixin{},
+		SoftDeleteMixin{},
 	}
 }
 

@@ -64,8 +64,10 @@ func init() {
 		}
 	}()
 	bloodsearchrequestMixin := schema.BloodSearchRequest{}.Mixin()
-	bloodsearchrequestMixinInters0 := bloodsearchrequestMixin[0].Interceptors()
-	bloodsearchrequest.Interceptors[0] = bloodsearchrequestMixinInters0[0]
+	bloodsearchrequestMixinHooks1 := bloodsearchrequestMixin[1].Hooks()
+	bloodsearchrequest.Hooks[0] = bloodsearchrequestMixinHooks1[0]
+	bloodsearchrequestMixinInters1 := bloodsearchrequestMixin[1].Interceptors()
+	bloodsearchrequest.Interceptors[0] = bloodsearchrequestMixinInters1[0]
 	bloodsearchrequestMixinFields0 := bloodsearchrequestMixin[0].Fields()
 	_ = bloodsearchrequestMixinFields0
 	bloodsearchrequestFields := schema.BloodSearchRequest{}.Fields()
@@ -133,8 +135,10 @@ func init() {
 		}
 	}()
 	petMixin := schema.Pet{}.Mixin()
-	petMixinInters0 := petMixin[0].Interceptors()
-	pet.Interceptors[0] = petMixinInters0[0]
+	petMixinHooks1 := petMixin[1].Hooks()
+	pet.Hooks[0] = petMixinHooks1[0]
+	petMixinInters1 := petMixin[1].Interceptors()
+	pet.Interceptors[0] = petMixinInters1[0]
 	petMixinFields0 := petMixin[0].Fields()
 	_ = petMixinFields0
 	petFields := schema.Pet{}.Fields()
@@ -166,8 +170,10 @@ func init() {
 	// pet.DefaultID holds the default value on creation for the id field.
 	pet.DefaultID = petDescID.Default.(func() string)
 	petanalysisMixin := schema.PetAnalysis{}.Mixin()
-	petanalysisMixinInters0 := petanalysisMixin[0].Interceptors()
-	petanalysis.Interceptors[0] = petanalysisMixinInters0[0]
+	petanalysisMixinHooks1 := petanalysisMixin[1].Hooks()
+	petanalysis.Hooks[0] = petanalysisMixinHooks1[0]
+	petanalysisMixinInters1 := petanalysisMixin[1].Interceptors()
+	petanalysis.Interceptors[0] = petanalysisMixinInters1[0]
 	petanalysisMixinFields0 := petanalysisMixin[0].Fields()
 	_ = petanalysisMixinFields0
 	petanalysisFields := schema.PetAnalysis{}.Fields()
@@ -183,8 +189,10 @@ func init() {
 	// petanalysis.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	petanalysis.UpdateDefaultUpdatedAt = petanalysisDescUpdatedAt.UpdateDefault.(func() time.Time)
 	petbonusMixin := schema.PetBonus{}.Mixin()
-	petbonusMixinInters0 := petbonusMixin[0].Interceptors()
-	petbonus.Interceptors[0] = petbonusMixinInters0[0]
+	petbonusMixinHooks1 := petbonusMixin[1].Hooks()
+	petbonus.Hooks[0] = petbonusMixinHooks1[0]
+	petbonusMixinInters1 := petbonusMixin[1].Interceptors()
+	petbonus.Interceptors[0] = petbonusMixinInters1[0]
 	petbonusMixinFields0 := petbonusMixin[0].Fields()
 	_ = petbonusMixinFields0
 	petbonusFields := schema.PetBonus{}.Fields()
@@ -204,8 +212,10 @@ func init() {
 	// petbonus.DefaultID holds the default value on creation for the id field.
 	petbonus.DefaultID = petbonusDescID.Default.(func() string)
 	pethealthMixin := schema.PetHealth{}.Mixin()
-	pethealthMixinInters0 := pethealthMixin[0].Interceptors()
-	pethealth.Interceptors[0] = pethealthMixinInters0[0]
+	pethealthMixinHooks1 := pethealthMixin[1].Hooks()
+	pethealth.Hooks[0] = pethealthMixinHooks1[0]
+	pethealthMixinInters1 := pethealthMixin[1].Interceptors()
+	pethealth.Interceptors[0] = pethealthMixinInters1[0]
 	pethealthMixinFields0 := pethealthMixin[0].Fields()
 	_ = pethealthMixinFields0
 	pethealthFields := schema.PetHealth{}.Fields()
@@ -225,8 +235,10 @@ func init() {
 	// pethealth.DefaultID holds the default value on creation for the id field.
 	pethealth.DefaultID = pethealthDescID.Default.(func() string)
 	pettreatmentMixin := schema.PetTreatment{}.Mixin()
-	pettreatmentMixinInters0 := pettreatmentMixin[0].Interceptors()
-	pettreatment.Interceptors[0] = pettreatmentMixinInters0[0]
+	pettreatmentMixinHooks1 := pettreatmentMixin[1].Hooks()
+	pettreatment.Hooks[0] = pettreatmentMixinHooks1[0]
+	pettreatmentMixinInters1 := pettreatmentMixin[1].Interceptors()
+	pettreatment.Interceptors[0] = pettreatmentMixinInters1[0]
 	pettreatmentMixinFields0 := pettreatmentMixin[0].Fields()
 	_ = pettreatmentMixinFields0
 	pettreatmentFields := schema.PetTreatment{}.Fields()
@@ -246,8 +258,10 @@ func init() {
 	// pettreatment.DefaultID holds the default value on creation for the id field.
 	pettreatment.DefaultID = pettreatmentDescID.Default.(func() string)
 	userMixin := schema.User{}.Mixin()
-	userMixinInters0 := userMixin[0].Interceptors()
-	user.Interceptors[0] = userMixinInters0[0]
+	userMixinHooks1 := userMixin[1].Hooks()
+	user.Hooks[0] = userMixinHooks1[0]
+	userMixinInters1 := userMixin[1].Interceptors()
+	user.Interceptors[0] = userMixinInters1[0]
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0
 	userFields := schema.User{}.Fields()

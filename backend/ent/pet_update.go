@@ -583,7 +583,9 @@ func (_u *PetUpdate) ClearBloodSearchRequest() *PetUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *PetUpdate) Save(ctx context.Context) (int, error) {
-	_u.defaults()
+	if err := _u.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -610,11 +612,15 @@ func (_u *PetUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *PetUpdate) defaults() {
+func (_u *PetUpdate) defaults() error {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		if pet.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized pet.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := pet.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -1550,7 +1556,9 @@ func (_u *PetUpdateOne) Select(field string, fields ...string) *PetUpdateOne {
 
 // Save executes the query and returns the updated Pet entity.
 func (_u *PetUpdateOne) Save(ctx context.Context) (*Pet, error) {
-	_u.defaults()
+	if err := _u.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -1577,11 +1585,15 @@ func (_u *PetUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *PetUpdateOne) defaults() {
+func (_u *PetUpdateOne) defaults() error {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		if pet.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized pet.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := pet.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

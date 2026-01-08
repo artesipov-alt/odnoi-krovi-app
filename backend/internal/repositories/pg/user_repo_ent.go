@@ -128,7 +128,7 @@ func (r *EntUserRepository) Update(ctx context.Context, u *ent.User) (*ent.User,
 	return updatedUser, nil
 }
 
-// Delete deletes a user by their ID (soft delete via AuditMixin)
+// Delete deletes a user by their ID (soft delete via SoftDeleteMixin)
 func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("invalid user ID")
