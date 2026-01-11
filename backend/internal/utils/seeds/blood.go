@@ -13,7 +13,7 @@ import (
 )
 
 // SeedBloodGroups заполняет таблицу групп крови начальными данными через ENT
-func SeedBloodGroups(ctx context.Context, client *ent.Client, log *slog.Logger) error {
+func SeedBloodGroups(ctx context.Context, client *ent.Client) error {
 	groups := []struct {
 		PetType     bloodgroup.PetType
 		BloodGroup  string
@@ -58,7 +58,7 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client, log *slog.Logger) 
 			Exist(ctx)
 
 		if err != nil {
-			log.ErrorContext(ctx, "Ошибка при проверке существования группы крови", "error", err)
+			slog.ErrorContext(ctx, "Ошибка при проверке существования группы крови", "error", err)
 			return err
 		}
 
@@ -71,31 +71,31 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client, log *slog.Logger) 
 				Exec(ctx)
 
 			if err != nil {
-				log.ErrorContext(ctx, "Ошибка при создании группы крови",
+				slog.ErrorContext(ctx, "Ошибка при создании группы крови",
 					"pet_type", string(g.PetType),
 					"blood_group", g.BloodGroup,
 					"error", err,
 				)
 				return err
 			}
-			log.InfoContext(ctx, "Группа крови добавлена",
+			slog.InfoContext(ctx, "Группа крови добавлена",
 				"pet_type", string(g.PetType),
 				"blood_group", g.BloodGroup,
 			)
 		} else {
-			log.DebugContext(ctx, "Группа крови уже существует",
+			slog.DebugContext(ctx, "Группа крови уже существует",
 				"pet_type", string(g.PetType),
 				"blood_group", g.BloodGroup,
 			)
 		}
 	}
 
-	log.InfoContext(ctx, "Заполнение таблицы групп крови завершено")
+	slog.InfoContext(ctx, "Заполнение таблицы групп крови завершено")
 	return nil
 }
 
 // SeedBloodComponents заполняет таблицу компонентов крови начальными данными через ENT
-func SeedBloodComponents(ctx context.Context, client *ent.Client, log *slog.Logger) error {
+func SeedBloodComponents(ctx context.Context, client *ent.Client) error {
 	components := []string{
 		"Цельная кровь",
 		"Эритроцитарная масса",
@@ -114,7 +114,7 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client, log *slog.Logg
 			Exist(ctx)
 
 		if err != nil {
-			log.ErrorContext(ctx, "Ошибка при проверке существования компонента крови", "error", err)
+			slog.ErrorContext(ctx, "Ошибка при проверке существования компонента крови", "error", err)
 			return err
 		}
 
@@ -125,28 +125,28 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client, log *slog.Logg
 				Exec(ctx)
 
 			if err != nil {
-				log.ErrorContext(ctx, "Ошибка при создании компонента крови",
+				slog.ErrorContext(ctx, "Ошибка при создании компонента крови",
 					"name", name,
 					"error", err,
 				)
 				return err
 			}
-			log.InfoContext(ctx, "Компонент крови добавлен",
+			slog.InfoContext(ctx, "Компонент крови добавлен",
 				"name", name,
 			)
 		} else {
-			log.DebugContext(ctx, "Компонент крови уже существует",
+			slog.DebugContext(ctx, "Компонент крови уже существует",
 				"name", name,
 			)
 		}
 	}
 
-	log.InfoContext(ctx, "Заполнение таблицы компонентов крови завершено")
+	slog.InfoContext(ctx, "Заполнение таблицы компонентов крови завершено")
 	return nil
 }
 
 // SeedLocations заполняет таблицу локаций начальными данными через ENT
-func SeedLocations(ctx context.Context, client *ent.Client, log *slog.Logger) error {
+func SeedLocations(ctx context.Context, client *ent.Client) error {
 	locations := []string{
 		"Москва",
 		"Московская область",
@@ -158,7 +158,7 @@ func SeedLocations(ctx context.Context, client *ent.Client, log *slog.Logger) er
 			Exist(ctx)
 
 		if err != nil {
-			log.ErrorContext(ctx, "Ошибка при проверке существования локации", "error", err)
+			slog.ErrorContext(ctx, "Ошибка при проверке существования локации", "error", err)
 			return err
 		}
 
@@ -168,29 +168,29 @@ func SeedLocations(ctx context.Context, client *ent.Client, log *slog.Logger) er
 				Exec(ctx)
 
 			if err != nil {
-				log.ErrorContext(ctx, "Ошибка при создании локации",
+				slog.ErrorContext(ctx, "Ошибка при создании локации",
 					"name", name,
 					"error", err,
 				)
 				return err
 			}
-			log.InfoContext(ctx, "Локация добавлена", "name", name)
+			slog.InfoContext(ctx, "Локация добавлена", "name", name)
 		}
 	}
 
-	log.InfoContext(ctx, "Заполнение таблицы локаций завершено")
+	slog.InfoContext(ctx, "Заполнение таблицы локаций завершено")
 	return nil
 }
 
 // SeedBreeds заполняет таблицу пород начальными данными через ENT
-func SeedBreeds(ctx context.Context, client *ent.Client, log *slog.Logger) error {
+func SeedBreeds(ctx context.Context, client *ent.Client) error {
 	for _, b := range data.Breeds {
 		exists, err := client.Breed.Query().
 			Where(breed.IDEQ(b.ID)).
 			Exist(ctx)
 
 		if err != nil {
-			log.ErrorContext(ctx, "Ошибка при проверке существования породы", "error", err)
+			slog.ErrorContext(ctx, "Ошибка при проверке существования породы", "error", err)
 			return err
 		}
 
@@ -202,17 +202,17 @@ func SeedBreeds(ctx context.Context, client *ent.Client, log *slog.Logger) error
 				Exec(ctx)
 
 			if err != nil {
-				log.ErrorContext(ctx, "Ошибка при создании породы",
+				slog.ErrorContext(ctx, "Ошибка при создании породы",
 					"id", b.ID,
 					"name", b.Name,
 					"error", err,
 				)
 				return err
 			}
-			log.InfoContext(ctx, "Порода добавлена", "name", b.Name)
+			slog.InfoContext(ctx, "Порода добавлена", "name", b.Name)
 		}
 	}
 
-	log.InfoContext(ctx, "Заполнение таблицы пород завершено")
+	slog.InfoContext(ctx, "Заполнение таблицы пород завершено")
 	return nil
 }

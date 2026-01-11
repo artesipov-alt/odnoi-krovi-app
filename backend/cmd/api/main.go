@@ -17,6 +17,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 
@@ -45,11 +46,11 @@ func main() {
 			slog.Error("Ошибка запуска миграций ENT", "error", err)
 		}
 
-		// ctx := context.Background()
-		// // seeds.SeedBloodGroups(ctx, db, slog.Default())
-		// // seeds.SeedBloodComponents(ctx, db, slog.Default())
-		// // seeds.SeedLocations(ctx, db, slog.Default())
-		// // seeds.SeedBreeds(ctx, db, slog.Default())
+		ctx := context.Background()
+		seeds.SeedBloodGroups(ctx, db)
+		seeds.SeedBloodComponents(ctx, db)
+		seeds.SeedLocations(ctx, db)
+		seeds.SeedBreeds(ctx, db)
 	}
 
 	// Инициализация репозиториев
