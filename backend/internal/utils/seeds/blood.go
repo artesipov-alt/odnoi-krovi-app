@@ -2,6 +2,7 @@ package seeds
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodcomponent"
@@ -9,11 +10,10 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds/data"
-	"go.uber.org/zap"
 )
 
 // SeedBloodGroups заполняет таблицу групп крови начальными данными через ENT
-func SeedBloodGroups(ctx context.Context, client *ent.Client, log *zap.Logger) error {
+func SeedBloodGroups(ctx context.Context, client *ent.Client, log *slog.Logger) error {
 	groups := []struct {
 		PetType     bloodgroup.PetType
 		BloodGroup  string
@@ -58,7 +58,7 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client, log *zap.Logger) e
 			Exist(ctx)
 
 		if err != nil {
-			log.Error("Ошибка при проверке существования группы крови", zap.Error(err))
+			log.ErrorContext(ctx, "Ошибка при проверке существования группы крови", "error", err)
 			return err
 		}
 
@@ -71,31 +71,31 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client, log *zap.Logger) e
 				Exec(ctx)
 
 			if err != nil {
-				log.Error("Ошибка при создании группы крови",
-					zap.String("pet_type", string(g.PetType)),
-					zap.String("blood_group", g.BloodGroup),
-					zap.Error(err),
+				log.ErrorContext(ctx, "Ошибка при создании группы крови",
+					"pet_type", string(g.PetType),
+					"blood_group", g.BloodGroup,
+					"error", err,
 				)
 				return err
 			}
-			log.Info("Группа крови добавлена",
-				zap.String("pet_type", string(g.PetType)),
-				zap.String("blood_group", g.BloodGroup),
+			log.InfoContext(ctx, "Группа крови добавлена",
+				"pet_type", string(g.PetType),
+				"blood_group", g.BloodGroup,
 			)
 		} else {
-			log.Debug("Группа крови уже существует",
-				zap.String("pet_type", string(g.PetType)),
-				zap.String("blood_group", g.BloodGroup),
+			log.DebugContext(ctx, "Группа крови уже существует",
+				"pet_type", string(g.PetType),
+				"blood_group", g.BloodGroup,
 			)
 		}
 	}
 
-	log.Info("Заполнение таблицы групп крови завершено")
+	log.InfoContext(ctx, "Заполнение таблицы групп крови завершено")
 	return nil
 }
 
 // SeedBloodComponents заполняет таблицу компонентов крови начальными данными через ENT
-func SeedBloodComponents(ctx context.Context, client *ent.Client, log *zap.Logger) error {
+func SeedBloodComponents(ctx context.Context, client *ent.Client, log *slog.Logger) error {
 	components := []string{
 		"Цельная кровь",
 		"Эритроцитарная масса",
@@ -114,7 +114,7 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client, log *zap.Logge
 			Exist(ctx)
 
 		if err != nil {
-			log.Error("Ошибка при проверке существования компонента крови", zap.Error(err))
+			log.ErrorContext(ctx, "Ошибка при проверке существования компонента крови", "error", err)
 			return err
 		}
 
@@ -125,28 +125,28 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client, log *zap.Logge
 				Exec(ctx)
 
 			if err != nil {
-				log.Error("Ошибка при создании компонента крови",
-					zap.String("name", name),
-					zap.Error(err),
+				log.ErrorContext(ctx, "Ошибка при создании компонента крови",
+					"name", name,
+					"error", err,
 				)
 				return err
 			}
-			log.Info("Компонент крови добавлен",
-				zap.String("name", name),
+			log.InfoContext(ctx, "Компонент крови добавлен",
+				"name", name,
 			)
 		} else {
-			log.Debug("Компонент крови уже существует",
-				zap.String("name", name),
+			log.DebugContext(ctx, "Компонент крови уже существует",
+				"name", name,
 			)
 		}
 	}
 
-	log.Info("Заполнение таблицы компонентов крови завершено")
+	log.InfoContext(ctx, "Заполнение таблицы компонентов крови завершено")
 	return nil
 }
 
 // SeedLocations заполняет таблицу локаций начальными данными через ENT
-func SeedLocations(ctx context.Context, client *ent.Client, log *zap.Logger) error {
+func SeedLocations(ctx context.Context, client *ent.Client, log *slog.Logger) error {
 	locations := []string{
 		"Москва",
 		"Московская область",
@@ -158,7 +158,7 @@ func SeedLocations(ctx context.Context, client *ent.Client, log *zap.Logger) err
 			Exist(ctx)
 
 		if err != nil {
-			log.Error("Ошибка при проверке существования локации", zap.Error(err))
+			log.ErrorContext(ctx, "Ошибка при проверке существования локации", "error", err)
 			return err
 		}
 
@@ -168,29 +168,29 @@ func SeedLocations(ctx context.Context, client *ent.Client, log *zap.Logger) err
 				Exec(ctx)
 
 			if err != nil {
-				log.Error("Ошибка при создании локации",
-					zap.String("name", name),
-					zap.Error(err),
+				log.ErrorContext(ctx, "Ошибка при создании локации",
+					"name", name,
+					"error", err,
 				)
 				return err
 			}
-			log.Info("Локация добавлена", zap.String("name", name))
+			log.InfoContext(ctx, "Локация добавлена", "name", name)
 		}
 	}
 
-	log.Info("Заполнение таблицы локаций завершено")
+	log.InfoContext(ctx, "Заполнение таблицы локаций завершено")
 	return nil
 }
 
 // SeedBreeds заполняет таблицу пород начальными данными через ENT
-func SeedBreeds(ctx context.Context, client *ent.Client, log *zap.Logger) error {
+func SeedBreeds(ctx context.Context, client *ent.Client, log *slog.Logger) error {
 	for _, b := range data.Breeds {
 		exists, err := client.Breed.Query().
 			Where(breed.IDEQ(b.ID)).
 			Exist(ctx)
 
 		if err != nil {
-			log.Error("Ошибка при проверке существования породы", zap.Error(err))
+			log.ErrorContext(ctx, "Ошибка при проверке существования породы", "error", err)
 			return err
 		}
 
@@ -202,17 +202,17 @@ func SeedBreeds(ctx context.Context, client *ent.Client, log *zap.Logger) error 
 				Exec(ctx)
 
 			if err != nil {
-				log.Error("Ошибка при создании породы",
-					zap.Int("id", b.ID),
-					zap.String("name", b.Name),
-					zap.Error(err),
+				log.ErrorContext(ctx, "Ошибка при создании породы",
+					"id", b.ID,
+					"name", b.Name,
+					"error", err,
 				)
 				return err
 			}
-			log.Info("Порода добавлена", zap.String("name", b.Name))
+			log.InfoContext(ctx, "Порода добавлена", "name", b.Name)
 		}
 	}
 
-	log.Info("Заполнение таблицы пород завершено")
+	log.InfoContext(ctx, "Заполнение таблицы пород завершено")
 	return nil
 }
