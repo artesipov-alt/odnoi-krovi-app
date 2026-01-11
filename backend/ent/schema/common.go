@@ -3,7 +3,6 @@ package schema
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"time"
 
 	entgo "entgo.io/ent"
@@ -76,7 +75,6 @@ func (StandardMixin) Interceptors() []entgo.Interceptor {
 			return entgo.QuerierFunc(func(ctx context.Context, q entgo.Query) (entgo.Value, error) {
 				// Skip soft-delete filter if the key is present in context.
 				if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-					slog.Error("sas")
 					return next.Query(ctx, q)
 				}
 
@@ -85,10 +83,8 @@ func (StandardMixin) Interceptors() []entgo.Interceptor {
 					WhereP(...func(*sql.Selector))
 				}
 				if w, ok := q.(whereP); ok {
-					slog.Warn("adding deleted_at IS NULL predicate")
 					w.WhereP(sql.FieldIsNull("deleted_at"))
 				}
-				slog.Debug("wo")
 
 				return next.Query(ctx, q)
 			})
@@ -134,4 +130,10 @@ func SoftDeleteHook() entgo.Hook {
 			return mx.Client().Mutate(ctx, m)
 		})
 	}
+}
+
+// IsSkipSoftDelete checks if the soft-delete interceptor should be skipped.
+func IsSkipSoftDelete(ctx context.Context) bool {
+	skip, _ := ctx.Value(softDeleteKey{}).(bool)
+	return skip
 }

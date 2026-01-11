@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/intercept"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
 
@@ -81,6 +82,17 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 
 	// Register global hooks
 	client.Use(schema.SoftDeleteHook())
+
+	// Register global interceptors
+	client.Intercept(
+		intercept.TraverseFunc(func(ctx context.Context, q intercept.Query) error {
+			if schema.IsSkipSoftDelete(ctx) {
+				return nil
+			}
+			q.WhereP(entsql.FieldIsNull("deleted_at"))
+			return nil
+		}),
+	)
 
 	return client, nil
 }
