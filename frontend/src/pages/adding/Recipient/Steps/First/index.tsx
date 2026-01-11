@@ -139,6 +139,7 @@ const First: FC<Props> = ({
             <FormItem title='Вес' subtitle={!petType ? undefined : petType === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}>
                 <TextField
                     name='weight'
+                    isDigitInput
                     value={weight}
                     disabled={!petType}
                     onChange={onChangePetWeightHandler}
