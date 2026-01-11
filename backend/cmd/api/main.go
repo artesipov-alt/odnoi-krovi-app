@@ -97,7 +97,7 @@ func main() {
 
 		// Создаем сервер
 		server := config.NewServer(options.Port, mux)
-		server.Use(middleware.RequestHandler)
+		server.Use(middleware.RecoveryMiddleware, middleware.RequestHandler)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {

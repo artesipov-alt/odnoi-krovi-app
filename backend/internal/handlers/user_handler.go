@@ -132,7 +132,6 @@ func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
 
 func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResponse, error) {
 	slog.InfoContext(ctx, "Начало получения пользователя по ID", "user_id", input.ID)
-
 	user, err := h.userService.GetUserByID(ctx, input.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "Ошибка получения пользователя по ID", "user_id", input.ID, "error", err)
