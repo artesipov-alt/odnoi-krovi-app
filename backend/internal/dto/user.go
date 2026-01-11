@@ -1,13 +1,13 @@
 package dto
 
-// SimpleRegistrationRequest представляет запрос на простую регистрацию через Telegram
-type SimpleRegistrationRequest struct {
+// UserRegistrationSimple представляет запрос на простую регистрацию через Telegram
+type UserRegistrationSimple struct {
 	TelegramID int64  `json:"telegramId" doc:"Telegram ID пользователя" format:"int64" example:"123456789" minimum:"1"`
 	FullName   string `json:"fullName,omitempty" doc:"Полное имя пользователя" maxLength:"255" example:"Иван Иванов"`
 }
 
 // UserRegistration представляет полную структуру регистрации пользователя
-type UserRegistration struct {
+type UserRegistrationFull struct {
 	FullName   string `json:"fullName" doc:"Полное имя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
 	Phone      string `json:"phone" doc:"Номер телефона в формате E.164" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
 	Email      string `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`

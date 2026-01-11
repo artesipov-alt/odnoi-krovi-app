@@ -143,7 +143,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResp
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
-	Body dto.SimpleRegistrationRequest
+	Body dto.UserRegistrationSimple
 }) (*UserResponse, error) {
 	slog.InfoContext(ctx, "Начало простой регистрации пользователя", "telegram_id", input.Body.TelegramID, "full_name", input.Body.FullName)
 
@@ -152,7 +152,12 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		fullName = "Пользователь Telegram"
 	}
 
-	user, err := h.userService.RegisterUserSimple(ctx, input.Body.TelegramID, fullName)
+	userData := dto.UserRegistrationSimple{
+		TelegramID: input.Body.TelegramID,
+		FullName:   fullName,
+	}
+
+	user, err := h.userService.RegisterUserSimple(ctx, userData)
 	if err != nil {
 		slog.ErrorContext(ctx, "Ошибка простой регистрации пользователя", "telegram_id", input.Body.TelegramID, "error", err)
 		return nil, err
@@ -163,7 +168,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 }
 
 func (h *UserHandler) RegisterUser(ctx context.Context, input *struct {
-	Body dto.UserRegistration
+	Body dto.UserRegistrationFull
 }) (*UserResponse, error) {
 	// Извлекаем telegram_id из контекста (устанавливается middleware)
 	telegramID, _ := ctx.Value("telegram_id").(int64)

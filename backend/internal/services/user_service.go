@@ -14,10 +14,10 @@ import (
 // UserService определяет интерфейс для бизнес-логики пользователей
 type UserService interface {
 	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistration) (*ent.User, error)
+	RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistrationFull) (*ent.User, error)
 
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-	RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*ent.User, error)
+	RegisterUserSimple(ctx context.Context, userData dto.UserRegistrationSimple) (*ent.User, error)
 
 	// UpdateUserProfile обновляет информацию о пользователе
 	UpdateUserProfile(ctx context.Context, userID string, updates dto.UserUpdate) error
@@ -47,7 +47,7 @@ func NewUserService(userRepo repositories.UserRepository, locationRepo repositor
 }
 
 // RegisterUser регистрирует нового пользователя в системе
-func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistration) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistrationFull) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
 	if err != nil {
@@ -92,21 +92,21 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 }
 
 // RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, telegramID int64, fullName string) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, userdata dto.UserRegistrationSimple) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
-	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
+	exists, err := s.userRepo.ExistsByTelegramID(ctx, userdata.TelegramID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if exists {
-		return nil, apperrors.NewUserAlreadyExistsError(telegramID)
+		return nil, apperrors.NewUserAlreadyExistsError(userdata.TelegramID)
 	}
 
 	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию
 	u := &ent.User{
-		TelegramID: telegramID,
-		FullName:   fullName,
+		TelegramID: userdata.TelegramID,
+		FullName:   userdata.FullName,
 		Phone:      "",
 		Email:      "",
 		ConsentPd:  true,
