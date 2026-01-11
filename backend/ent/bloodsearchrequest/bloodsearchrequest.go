@@ -45,9 +45,9 @@ const (
 	// EdgePet holds the string denoting the pet edge name in mutations.
 	EdgePet = "pet"
 	// Table holds the table name of the bloodsearchrequest in the database.
-	Table = "blood_search_requests"
+	Table = "blood_requests"
 	// PetTable is the table that holds the pet relation/edge.
-	PetTable = "blood_search_requests"
+	PetTable = "blood_requests"
 	// PetInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
 	PetInverseTable = "pets"

@@ -129,7 +129,6 @@ func (_c *BloodGroupCreate) createSpec() (*BloodGroup, *sqlgraph.CreateSpec) {
 		_node = &BloodGroup{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bloodgroup.Table, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt))
 	)
-	_spec.Schema = _c.schemaConfig.BloodGroup
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id

@@ -74,12 +74,6 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 		return nil, fmt.Errorf("failed opening connection to postgres: %w", err)
 	}
 
-	// Создаем схему reference вручную, так как Ent этого не делает автоматически
-	if _, err := db.Exec("CREATE SCHEMA IF NOT EXISTS reference"); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed creating reference schema: %w", err)
-	}
-
 	// Создаем драйвер Ent на основе существующего соединения
 	drv := entsql.OpenDB(dialect.Postgres, db)
 

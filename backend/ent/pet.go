@@ -58,7 +58,7 @@ type Pet struct {
 	// HealthID holds the value of the "health_id" field.
 	HealthID string `json:"healthId"`
 	// TreatmentID holds the value of the "treatment_id" field.
-	TreatmentID string `json:"treatmentId"`
+	TreatmentID string `json:"treatment_id,omitempty" json:\"treatmentId\"`
 	// BonusID holds the value of the "bonus_id" field.
 	BonusID string `json:"bonusId"`
 	// LivingCondition holds the value of the "living_condition" field.

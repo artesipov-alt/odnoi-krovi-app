@@ -115,10 +115,10 @@ const (
 	// BreedRefColumn is the table column denoting the breed_ref relation/edge.
 	BreedRefColumn = "breed_id"
 	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge.
-	BloodSearchRequestTable = "blood_search_requests"
+	BloodSearchRequestTable = "blood_requests"
 	// BloodSearchRequestInverseTable is the table name for the BloodSearchRequest entity.
 	// It exists in this package in order to avoid circular dependency with the "bloodsearchrequest" package.
-	BloodSearchRequestInverseTable = "blood_search_requests"
+	BloodSearchRequestInverseTable = "blood_requests"
 	// BloodSearchRequestColumn is the table column denoting the blood_search_request relation/edge.
 	BloodSearchRequestColumn = "pet_id"
 )

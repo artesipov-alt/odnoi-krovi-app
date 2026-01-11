@@ -71,7 +71,8 @@ func (User) Mixin() []ent.Mixin {
 // Annotations of the User.
 func (User) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
-		entsql.Table("users"),
+		entsql.Annotation{
+			Table: "users",
+		},
 	}
 }

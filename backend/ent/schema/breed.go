@@ -39,7 +39,8 @@ func (Breed) Edges() []ent.Edge {
 // Annotations of the Breed.
 func (Breed) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("reference"),
-		entsql.Table("breeds"),
+		entsql.Annotation{
+			Table: "breeds",
+		},
 	}
 }

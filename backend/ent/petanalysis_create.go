@@ -452,7 +452,6 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 		_node = &PetAnalysis{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(petanalysis.Table, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
 	)
-	_spec.Schema = _c.schemaConfig.PetAnalysis
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -544,7 +543,6 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
 			},
 		}
-		edge.Schema = _c.schemaConfig.PetAnalysis
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

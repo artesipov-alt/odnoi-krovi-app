@@ -37,7 +37,7 @@ func (Pet) Fields() []ent.Field {
 		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
 		field.String("user_id").Optional().StructTag(`json:"userId"`),
 		field.String("health_id").Optional().StructTag(`json:"healthId"`),
-		field.String("treatment_id").Optional().StructTag(`json:"treatmentId"`),
+		field.String("treatment_id").Optional().StructTag(`json:\"treatmentId\"`),
 		field.String("bonus_id").Optional().StructTag(`json:"bonusId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 	}
@@ -65,8 +65,9 @@ func (Pet) Edges() []ent.Edge {
 // Annotations of the Pet.
 func (Pet) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
-		entsql.Table("pets"),
+		entsql.Annotation{
+			Table: "pets",
+		},
 	}
 }
 
@@ -106,8 +107,9 @@ func (PetHealth) Edges() []ent.Edge {
 // Annotations of the PetHealth.
 func (PetHealth) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
-		entsql.Table("pet_healths"),
+		entsql.Annotation{
+			Table: "pet_healths",
+		},
 	}
 }
 
@@ -145,8 +147,9 @@ func (PetTreatment) Edges() []ent.Edge {
 // Annotations of the PetTreatment.
 func (PetTreatment) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
-		entsql.Table("pet_treatments"),
+		entsql.Annotation{
+			Table: "pet_treatments",
+		},
 	}
 }
 
@@ -199,8 +202,9 @@ func (PetAnalysis) Edges() []ent.Edge {
 // Annotations of the PetAnalysis.
 func (PetAnalysis) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
-		entsql.Table("pet_analyses"),
+		entsql.Annotation{
+			Table: "pet_analyses",
+		},
 	}
 }
 
@@ -238,7 +242,8 @@ func (PetBonus) Edges() []ent.Edge {
 // Annotations of the PetBonus.
 func (PetBonus) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
-		entsql.Table("pet_bonuses"),
+		entsql.Annotation{
+			Table: "pet_bonuses",
+		},
 	}
 }

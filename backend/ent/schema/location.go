@@ -34,7 +34,8 @@ func (Location) Edges() []ent.Edge {
 // Annotations of the Location.
 func (Location) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("reference"),
-		entsql.Table("locations"),
+		entsql.Annotation{
+			Table: "locations",
+		},
 	}
 }

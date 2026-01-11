@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/internal"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
@@ -90,9 +89,6 @@ func (_q *PetQuery) QueryOwner() *UserQuery {
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, pet.OwnerTable, pet.OwnerColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.User
-		step.Edge.Schema = schemaConfig.Pet
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -115,9 +111,6 @@ func (_q *PetQuery) QueryHealth() *PetHealthQuery {
 			sqlgraph.To(pethealth.Table, pethealth.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, pet.HealthTable, pet.HealthColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.PetHealth
-		step.Edge.Schema = schemaConfig.Pet
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -140,9 +133,6 @@ func (_q *PetQuery) QueryTreatments() *PetTreatmentQuery {
 			sqlgraph.To(pettreatment.Table, pettreatment.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, pet.TreatmentsTable, pet.TreatmentsColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.PetTreatment
-		step.Edge.Schema = schemaConfig.Pet
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -165,9 +155,6 @@ func (_q *PetQuery) QueryAnalyses() *PetAnalysisQuery {
 			sqlgraph.To(petanalysis.Table, petanalysis.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, pet.AnalysesTable, pet.AnalysesColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.PetAnalysis
-		step.Edge.Schema = schemaConfig.PetAnalysis
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -190,9 +177,6 @@ func (_q *PetQuery) QueryBonuses() *PetBonusQuery {
 			sqlgraph.To(petbonus.Table, petbonus.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, pet.BonusesTable, pet.BonusesColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.PetBonus
-		step.Edge.Schema = schemaConfig.Pet
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -215,9 +199,6 @@ func (_q *PetQuery) QueryBreedRef() *BreedQuery {
 			sqlgraph.To(breed.Table, breed.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, pet.BreedRefTable, pet.BreedRefColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.Breed
-		step.Edge.Schema = schemaConfig.Pet
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -240,9 +221,6 @@ func (_q *PetQuery) QueryBloodSearchRequest() *BloodSearchRequestQuery {
 			sqlgraph.To(bloodsearchrequest.Table, bloodsearchrequest.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, pet.BloodSearchRequestTable, pet.BloodSearchRequestColumn),
 		)
-		schemaConfig := _q.schemaConfig
-		step.To.Schema = schemaConfig.BloodSearchRequest
-		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -628,8 +606,6 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	_spec.Node.Schema = _q.schemaConfig.Pet
-	ctx = internal.NewSchemaConfigContext(ctx, _q.schemaConfig)
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -890,8 +866,6 @@ func (_q *PetQuery) loadBloodSearchRequest(ctx context.Context, query *BloodSear
 
 func (_q *PetQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	_spec.Node.Schema = _q.schemaConfig.Pet
-	ctx = internal.NewSchemaConfigContext(ctx, _q.schemaConfig)
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -969,9 +943,6 @@ func (_q *PetQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	t1.Schema(_q.schemaConfig.Pet)
-	ctx = internal.NewSchemaConfigContext(ctx, _q.schemaConfig)
-	selector.WithContext(ctx)
 	for _, p := range _q.predicates {
 		p(selector)
 	}

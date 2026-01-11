@@ -67,6 +67,9 @@ func (BloodSearchRequest) Mixin() []ent.Mixin {
 // Annotations of the BloodSearchRequest.
 func (BloodSearchRequest) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("public"),
+		entsql.Annotation{
+			Table: "blood_requests",
+		},
 	}
+
 }

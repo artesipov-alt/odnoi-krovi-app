@@ -7,7 +7,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/internal"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
 
@@ -278,9 +277,6 @@ func HasOwner() predicate.PetBonus {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, OwnerTable, OwnerColumn),
 		)
-		schemaConfig := internal.SchemaConfigFromContext(s.Context())
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -289,9 +285,6 @@ func HasOwner() predicate.PetBonus {
 func HasOwnerWith(preds ...predicate.Pet) predicate.PetBonus {
 	return predicate.PetBonus(func(s *sql.Selector) {
 		step := newOwnerStep()
-		schemaConfig := internal.SchemaConfigFromContext(s.Context())
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -33,8 +33,8 @@ var (
 		Columns:    BloodGroupsColumns,
 		PrimaryKey: []*schema.Column{BloodGroupsColumns[0]},
 	}
-	// BloodSearchRequestsColumns holds the columns for the "blood_search_requests" table.
-	BloodSearchRequestsColumns = []*schema.Column{
+	// BloodRequestsColumns holds the columns for the "blood_requests" table.
+	BloodRequestsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -50,15 +50,15 @@ var (
 		{Name: "blood_component_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "pet_id", Type: field.TypeString, Unique: true},
 	}
-	// BloodSearchRequestsTable holds the schema information for the "blood_search_requests" table.
-	BloodSearchRequestsTable = &schema.Table{
-		Name:       "blood_search_requests",
-		Columns:    BloodSearchRequestsColumns,
-		PrimaryKey: []*schema.Column{BloodSearchRequestsColumns[0]},
+	// BloodRequestsTable holds the schema information for the "blood_requests" table.
+	BloodRequestsTable = &schema.Table{
+		Name:       "blood_requests",
+		Columns:    BloodRequestsColumns,
+		PrimaryKey: []*schema.Column{BloodRequestsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "blood_search_requests_pets_blood_search_request",
-				Columns:    []*schema.Column{BloodSearchRequestsColumns[13]},
+				Symbol:     "blood_requests_pets_blood_search_request",
+				Columns:    []*schema.Column{BloodRequestsColumns[13]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -275,7 +275,7 @@ var (
 	Tables = []*schema.Table{
 		BloodComponentsTable,
 		BloodGroupsTable,
-		BloodSearchRequestsTable,
+		BloodRequestsTable,
 		BreedsTable,
 		LocationsTable,
 		PetsTable,
@@ -294,7 +294,10 @@ func init() {
 	BloodGroupsTable.Annotation = &entsql.Annotation{
 		Table: "blood_groups",
 	}
-	BloodSearchRequestsTable.ForeignKeys[0].RefTable = PetsTable
+	BloodRequestsTable.ForeignKeys[0].RefTable = PetsTable
+	BloodRequestsTable.Annotation = &entsql.Annotation{
+		Table: "blood_requests",
+	}
 	BreedsTable.Annotation = &entsql.Annotation{
 		Table: "breeds",
 	}

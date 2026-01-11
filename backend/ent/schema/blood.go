@@ -38,8 +38,7 @@ func (BloodGroup) Edges() []ent.Edge {
 func (BloodGroup) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{
-			Table:  "blood_groups",
-			Schema: "reference",
+			Table: "blood_groups",
 		},
 	}
 }
@@ -70,7 +69,8 @@ func (BloodComponent) Edges() []ent.Edge {
 // Annotations of the BloodComponent.
 func (BloodComponent) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Schema("reference"),
-		entsql.Table("blood_components"),
+		entsql.Annotation{
+			Table: "blood_components",
+		},
 	}
 }

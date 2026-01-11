@@ -131,7 +131,6 @@ func (_c *BreedCreate) createSpec() (*Breed, *sqlgraph.CreateSpec) {
 		_node = &Breed{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(breed.Table, sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt))
 	)
-	_spec.Schema = _c.schemaConfig.Breed
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -155,7 +154,6 @@ func (_c *BreedCreate) createSpec() (*Breed, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
 			},
 		}
-		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

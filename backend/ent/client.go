@@ -26,8 +26,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/internal"
 )
 
 // Client is the client that holds all ent builders.
@@ -94,8 +92,6 @@ type (
 		hooks *hooks
 		// interceptors to execute on queries.
 		inters *inters
-		// schemaConfig contains alternative names for all tables.
-		schemaConfig SchemaConfig
 	}
 	// Option function to configure the client.
 	Option func(*config)
@@ -104,7 +100,6 @@ type (
 // newConfig creates a new config for the client.
 func newConfig(opts ...Option) config {
 	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
-	cfg.schemaConfig = DefaultSchemaConfig
 	cfg.options(opts...)
 	return cfg
 }
@@ -676,9 +671,6 @@ func (c *BloodSearchRequestClient) QueryPet(_m *BloodSearchRequest) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -829,9 +821,6 @@ func (c *BreedClient) QueryPets(_m *Breed) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, breed.PetsTable, breed.PetsColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -981,9 +970,6 @@ func (c *LocationClient) QueryUsers(_m *Location) *UserQuery {
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, location.UsersTable, location.UsersColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.User
-		step.Edge.Schema = schemaConfig.User
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1133,9 +1119,6 @@ func (c *PetClient) QueryOwner(_m *Pet) *UserQuery {
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, pet.OwnerTable, pet.OwnerColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.User
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1152,9 +1135,6 @@ func (c *PetClient) QueryHealth(_m *Pet) *PetHealthQuery {
 			sqlgraph.To(pethealth.Table, pethealth.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, pet.HealthTable, pet.HealthColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.PetHealth
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1171,9 +1151,6 @@ func (c *PetClient) QueryTreatments(_m *Pet) *PetTreatmentQuery {
 			sqlgraph.To(pettreatment.Table, pettreatment.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, pet.TreatmentsTable, pet.TreatmentsColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.PetTreatment
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1190,9 +1167,6 @@ func (c *PetClient) QueryAnalyses(_m *Pet) *PetAnalysisQuery {
 			sqlgraph.To(petanalysis.Table, petanalysis.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, pet.AnalysesTable, pet.AnalysesColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.PetAnalysis
-		step.Edge.Schema = schemaConfig.PetAnalysis
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1209,9 +1183,6 @@ func (c *PetClient) QueryBonuses(_m *Pet) *PetBonusQuery {
 			sqlgraph.To(petbonus.Table, petbonus.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, pet.BonusesTable, pet.BonusesColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.PetBonus
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1228,9 +1199,6 @@ func (c *PetClient) QueryBreedRef(_m *Pet) *BreedQuery {
 			sqlgraph.To(breed.Table, breed.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, pet.BreedRefTable, pet.BreedRefColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Breed
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1247,9 +1215,6 @@ func (c *PetClient) QueryBloodSearchRequest(_m *Pet) *BloodSearchRequestQuery {
 			sqlgraph.To(bloodsearchrequest.Table, bloodsearchrequest.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, pet.BloodSearchRequestTable, pet.BloodSearchRequestColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.BloodSearchRequest
-		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1400,9 +1365,6 @@ func (c *PetAnalysisClient) QueryOwner(_m *PetAnalysis) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, petanalysis.OwnerTable, petanalysis.OwnerColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.PetAnalysis
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1553,9 +1515,6 @@ func (c *PetBonusClient) QueryOwner(_m *PetBonus) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, petbonus.OwnerTable, petbonus.OwnerColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1706,9 +1665,6 @@ func (c *PetHealthClient) QueryOwner(_m *PetHealth) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, pethealth.OwnerTable, pethealth.OwnerColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -1859,9 +1815,6 @@ func (c *PetTreatmentClient) QueryOwner(_m *PetTreatment) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, pettreatment.OwnerTable, pettreatment.OwnerColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -2012,9 +1965,6 @@ func (c *UserClient) QueryPets(_m *User) *PetQuery {
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.PetsTable, user.PetsColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Pet
-		step.Edge.Schema = schemaConfig.Pet
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -2031,9 +1981,6 @@ func (c *UserClient) QueryLocation(_m *User) *LocationQuery {
 			sqlgraph.To(location.Table, location.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, user.LocationTable, user.LocationColumn),
 		)
-		schemaConfig := _m.schemaConfig
-		step.To.Schema = schemaConfig.Location
-		step.Edge.Schema = schemaConfig.User
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
@@ -2077,33 +2024,3 @@ type (
 		PetAnalysis, PetBonus, PetHealth, PetTreatment, User []ent.Interceptor
 	}
 )
-
-var (
-	// DefaultSchemaConfig represents the default schema names for all tables as defined in ent/schema.
-	DefaultSchemaConfig = SchemaConfig{
-		BloodComponent:     tableSchemas[1],
-		BloodGroup:         tableSchemas[1],
-		BloodSearchRequest: tableSchemas[0],
-		Breed:              tableSchemas[1],
-		Location:           tableSchemas[1],
-		Pet:                tableSchemas[0],
-		PetAnalysis:        tableSchemas[0],
-		PetBonus:           tableSchemas[0],
-		PetHealth:          tableSchemas[0],
-		PetTreatment:       tableSchemas[0],
-		User:               tableSchemas[0],
-	}
-	tableSchemas = [...]string{"public", "reference"}
-)
-
-// SchemaConfig represents alternative schema names for all tables
-// that can be passed at runtime.
-type SchemaConfig = internal.SchemaConfig
-
-// AlternateSchemas allows alternate schema names to be
-// passed into ent operations.
-func AlternateSchema(schemaConfig SchemaConfig) Option {
-	return func(c *config) {
-		c.schemaConfig = schemaConfig
-	}
-}
