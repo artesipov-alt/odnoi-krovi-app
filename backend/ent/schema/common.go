@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/intercept"
 	"github.com/jaevor/go-nanoid"
 )
 
@@ -71,23 +72,12 @@ func (m StandardMixin) Fields() []entgo.Field {
 // Interceptors of the StandardMixin.
 func (StandardMixin) Interceptors() []entgo.Interceptor {
 	return []entgo.Interceptor{
-		entgo.InterceptFunc(func(next entgo.Querier) entgo.Querier {
-			return entgo.QuerierFunc(func(ctx context.Context, q entgo.Query) (entgo.Value, error) {
-				// Skip soft-delete filter if the key is present in context.
-				if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
-					return next.Query(ctx, q)
-				}
-
-				// Add "deleted_at IS NULL" predicate.
-				type whereP interface {
-					WhereP(...func(*sql.Selector))
-				}
-				if w, ok := q.(whereP); ok {
-					w.WhereP(sql.FieldIsNull("deleted_at"))
-				}
-
-				return next.Query(ctx, q)
-			})
+		intercept.TraverseFunc(func(ctx context.Context, q intercept.Query) error {
+			if IsSkipSoftDelete(ctx) {
+				return nil
+			}
+			q.WhereP(sql.FieldIsNull("deleted_at"))
+			return nil
 		}),
 	}
 }
