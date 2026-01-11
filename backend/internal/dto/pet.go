@@ -6,48 +6,48 @@ import (
 
 // PetHealthDTO represents the health information for a pet
 type PetHealthDTO struct {
-	ReproductiveStatus    *string    `json:"reproductiveStatus"`
-	HealthStatus          *string    `json:"healthStatus"`
-	LastDonation          *time.Time `json:"lastDonation"`
-	Transfused            *bool      `json:"transfused"`
-	Medications           *string    `json:"medications"`
-	SurgicalInterventions *string    `json:"surgicalInterventions"`
+	ReproductiveStatus    *string    `json:"reproductiveStatus,omitempty"`
+	HealthStatus          *string    `json:"healthStatus,omitempty"`
+	LastDonation          *time.Time `json:"lastDonation,omitempty"`
+	Transfused            *bool      `json:"transfused,omitempty"`
+	Medications           *string    `json:"medications,omitempty"`
+	SurgicalInterventions *string    `json:"surgicalInterventions,omitempty"`
 }
 
 // PetTreatmentDTO represents the treatment information for a pet
 type PetTreatmentDTO struct {
-	RabiesVaccinationDate     *time.Time `json:"rabiesVaccinationDate"`
-	InfectionVaccinationDate  *time.Time `json:"infectionVaccinationDate"`
-	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate"`
-	DewormingDate             *time.Time `json:"dewormingDate"`
+	RabiesVaccinationDate     *time.Time `json:"rabiesVaccinationDate,omitempty"`
+	InfectionVaccinationDate  *time.Time `json:"infectionVaccinationDate,omitempty"`
+	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate,omitempty"`
+	DewormingDate             *time.Time `json:"dewormingDate,omitempty"`
 }
 
 // PetAnalysisDTO represents the analysis information for a pet
 type PetAnalysisDTO struct {
-	LeukemiaDate         *time.Time `json:"leukemiaDate"`
-	LeukemiaType         *string    `json:"leukemiaType"`
-	ImmunodeficiencyDate *time.Time `json:"immunodeficiencyDate"`
-	ImmunodeficiencyType *string    `json:"immunodeficiencyType"`
-	HemoplasmosisDate    *time.Time `json:"hemoplasmosisDate"`
-	HemoplasmosisType    *string    `json:"hemoplasmosisType"`
-	BartonellosisDate    *time.Time `json:"bartonellosisDate"`
-	BartonellosisType    *string    `json:"bartonellosisType"`
-	BabesiosisDate       *time.Time `json:"babesiosisDate"`
-	BabesiosisType       *string    `json:"babesiosisType"`
-	DirofilariaDate      *time.Time `json:"dirofilariaDate"`
-	DirofilariaType      *string    `json:"dirofilariaType"`
-	EhrlichiosisDate     *time.Time `json:"ehrlichiosisDate"`
-	EhrlichiosisType     *string    `json:"ehrlichiosisType"`
-	AnaplasmosisDate     *time.Time `json:"anaplasmosisDate"`
-	AnaplasmosisType     *string    `json:"anaplasmosisType"`
+	LeukemiaDate         *time.Time `json:"leukemiaDate,omitempty"`
+	LeukemiaType         *string    `json:"leukemiaType,omitempty"`
+	ImmunodeficiencyDate *time.Time `json:"immunodeficiencyDate,omitempty"`
+	ImmunodeficiencyType *string    `json:"immunodeficiencyType,omitempty"`
+	HemoplasmosisDate    *time.Time `json:"hemoplasmosisDate,omitempty"`
+	HemoplasmosisType    *string    `json:"hemoplasmosisType,omitempty"`
+	BartonellosisDate    *time.Time `json:"bartonellosisDate,omitempty"`
+	BartonellosisType    *string    `json:"bartonellosisType,omitempty"`
+	BabesiosisDate       *time.Time `json:"babesiosisDate,omitempty"`
+	BabesiosisType       *string    `json:"babesiosisType,omitempty"`
+	DirofilariaDate      *time.Time `json:"dirofilariaDate,omitempty"`
+	DirofilariaType      *string    `json:"dirofilariaType,omitempty"`
+	EhrlichiosisDate     *time.Time `json:"ehrlichiosisDate,omitempty"`
+	EhrlichiosisType     *string    `json:"ehrlichiosisType,omitempty"`
+	AnaplasmosisDate     *time.Time `json:"anaplasmosisDate,omitempty"`
+	AnaplasmosisType     *string    `json:"anaplasmosisType,omitempty"`
 }
 
 // PetBonusDTO represents the bonus information for a pet
 type PetBonusDTO struct {
-	IsArtist      bool `json:"isArtist"`
-	IsTherapist   bool `json:"isTherapist"`
-	IsFormerDonor bool `json:"isFormerDonor"`
-	IsGuideDog    bool `json:"isGuideDog"`
+	IsArtist      bool `json:"isArtist,omitempty"`
+	IsTherapist   bool `json:"isTherapist,omitempty"`
+	IsFormerDonor bool `json:"isFormerDonor,omitempty"`
+	IsGuideDog    bool `json:"isGuideDog,omitempty"`
 }
 
 // PetCreate represents the structure for creating a new pet
@@ -65,10 +65,10 @@ type PetCreate struct {
 	Type            string            `json:"type" validate:"required"`
 	BloodGroup      string            `json:"bloodGroup,omitempty"`
 	PetStatus       string            `json:"petStatus" validate:"required"`
-	Health          *PetHealthDTO     `json:"health"`
-	Treatments      *PetTreatmentDTO  `json:"treatments"`
-	Analyses        []*PetAnalysisDTO `json:"analyses"`
-	Bonuses         *PetBonusDTO      `json:"bonuses"`
+	Health          *PetHealthDTO     `json:"health,omitempty"`
+	Treatments      *PetTreatmentDTO  `json:"treatments,omitempty"`
+	Analyses        []*PetAnalysisDTO `json:"analyses,omitempty"`
+	Bonuses         *PetBonusDTO      `json:"bonuses,omitempty"`
 }
 
 // PetUpdate represents the structure for updating an existing pet
@@ -86,10 +86,10 @@ type PetUpdate struct {
 	Type            *string           `json:"type,omitempty"`
 	BloodGroup      *string           `json:"bloodGroup,omitempty"`
 	PetStatus       *string           `json:"petStatus,omitempty"`
-	Health          *PetHealthDTO     `json:"health"`
-	Treatments      *PetTreatmentDTO  `json:"treatments"`
-	Analyses        []*PetAnalysisDTO `json:"analyses"`
-	Bonuses         *PetBonusDTO      `json:"bonuses"`
+	Health          *PetHealthDTO     `json:"health,omitempty"`
+	Treatments      *PetTreatmentDTO  `json:"treatments,omitempty"`
+	Analyses        []*PetAnalysisDTO `json:"analyses,omitempty"`
+	Bonuses         *PetBonusDTO      `json:"bonuses,omitempty"`
 }
 
 type PetResponseDTO struct {
