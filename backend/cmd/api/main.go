@@ -36,10 +36,6 @@ func main() {
 
 		logger.SetupLogger(config.GetEnv("ENV", "development"))
 
-		// Инициализация кастомных ошибок для Huma
-		// Это переопределяет huma.NewError, чтобы использовать ваш AppError
-		// apperrors.InitHuma()
-
 		// Инициализация подключения к базе данных через ENT
 		db, err := config.ConnectEnt(config.NewENVConfig())
 		if err != nil {
@@ -82,9 +78,6 @@ func main() {
 
 		// Настройка Huma
 		humaConfig := huma.DefaultConfig("1krovi.app API", "1.3.5")
-		// Мы больше не переопределяем humaConfig.ErrorHandler, так как
-		// переопределили huma.NewError в apperrors.InitHuma().
-		// Huma сама будет создавать AppError и записывать его в Response.
 
 		api := humago.New(mux, humaConfig)
 
@@ -108,6 +101,7 @@ func main() {
 		hooks.OnStop(func() {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
+			db.Close()
 			server.Shutdown(ctx)
 		})
 	})
