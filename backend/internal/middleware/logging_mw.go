@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// statusWriter — обертка над http.ResponseWriter для перехвата HTTP-статуса
+// statusWriter — обертка над http.ResponseWriter для перехвата HTTP-статуса ответа.
 type statusWriter struct {
 	http.ResponseWriter
 	status int
@@ -18,12 +18,12 @@ func (w *statusWriter) WriteHeader(status int) {
 }
 
 // LoggingMiddleware фиксирует каждый входящий запрос, его длительность и итоговый статус.
-// Он не логирует детали ошибок, так как это задача ErrorHandler.
+// Он безопасно извлекает RequestID из контекста и логирует информацию о запросе.
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		// Обертка для получения статуса ответа
+		// Обертка для получения статуса ответа (по умолчанию 200 OK)
 		ww := &statusWriter{ResponseWriter: w, status: http.StatusOK}
 
 		// Передача управления следующему обработчику
@@ -31,15 +31,24 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
+		// Безопасно получаем request_id из контекста.
+		// Используем типизированный ключ RequestIDKey из req_id_mw.go.
+		// Если ID не найден или тип не совпадает, используем "unknown".
+		id, ok := r.Context().Value(RequestIDKey).(string)
+		if !ok {
+			id = "unknown"
+		}
+
 		// Логируем факт завершения запроса.
-		// Используем Info уровень для всех запросов, так как детали ошибок
-		// будут залогированы отдельно в ErrorHandler с уровнем Error/Warn.
+		// Используем Info уровень для всех запросов. Детальные логи ошибок
+		// записываются отдельно в ErrorHandler.
 		slog.InfoContext(r.Context(), "http request",
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", ww.status,
 			"duration", duration,
 			"ip", r.RemoteAddr,
+			"request_id", id,
 		)
 	})
 }

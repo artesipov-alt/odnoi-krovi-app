@@ -75,7 +75,6 @@ func main() {
 
 		// Создание стандартного mux
 		mux := http.NewServeMux()
-
 		// Настройка Huma
 		humaConfig := huma.DefaultConfig("1krovi.app API", "1.3.5")
 
@@ -89,7 +88,7 @@ func main() {
 
 		// Создаем сервер
 		server := config.NewServer(options.Port, mux)
-		server.Use(middleware.RecoveryMiddleware, middleware.LoggingMiddleware)
+		server.Use(middleware.RecoveryMiddleware, middleware.RequestIDMiddleware, middleware.LoggingMiddleware)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {

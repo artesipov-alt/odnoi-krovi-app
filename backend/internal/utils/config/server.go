@@ -21,9 +21,10 @@ func NewServer(port int, mux http.Handler) *MyServer {
 
 // Use добавляет middleware в цепочку обработки.
 // Принимает стандартные функции-обертки func(http.Handler) http.Handler.
-// Middleware применяются в порядке их добавления (первый добавленный будет внешним).
+// Middleware применяются так, что первое переданное в списке становится самым внешним слоем.
+// Это позволяет соблюдать логический порядок: Recovery -> RequestID -> Logging -> Mux.
 func (s *MyServer) Use(middlewares ...func(http.Handler) http.Handler) {
-	for _, mw := range middlewares {
-		s.Handler = mw(s.Handler)
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		s.Handler = middlewares[i](s.Handler)
 	}
 }
