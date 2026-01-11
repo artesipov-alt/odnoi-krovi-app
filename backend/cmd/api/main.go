@@ -13,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
@@ -54,12 +55,20 @@ func main() {
 	// Инициализация репозиториев
 	userRepo := pg.NewEntUserRepository(db)
 	locationRepo := pg.NewEntLocationRepository(db)
+	petRepo := pg.NewEntPetRepository(db)
+	bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
+	fileStorage := s3.NewS3Storage(nil).WithDefaults()
 
 	// Инициализация сервисов
 	userService := services.NewUserService(userRepo, locationRepo)
+	petService := services.NewPetService(petRepo, userRepo, fileStorage)
+	bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo)
 
 	// Инициализация обработчиков
 	userHandler := handlers.NewUserHandler(userService)
+	petHandler := handlers.NewPetHandler(petService)
+	devHandler := handlers.NewDevHandler(userRepo)
+	bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 
 	// Создание стандартного mux
 	mux := http.NewServeMux()
@@ -74,6 +83,9 @@ func main() {
 
 	// Регистрация маршрутов
 	userHandler.Register(api)
+	petHandler.Register(api)
+	devHandler.Register(api)
+	bloodRequestHandler.Register(api)
 
 	// Создаем сервер и вешаем middleware на сырой HTTP (mux)
 	server := config.NewServer(mux)

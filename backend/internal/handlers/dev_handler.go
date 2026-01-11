@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"github.com/labstack/echo/v4"
+	"github.com/danielgtaylor/huma/v2"
 )
 
 // DevHandler обрабатывает HTTP запросы для инструментов разработки и отладки
@@ -21,89 +22,94 @@ func NewDevHandler(userRepo repositories.UserRepository) *DevHandler {
 	}
 }
 
-// ResetUserHandler godoc
-// @Summary Сброс пользователя к начальным настройкам
-// @Description Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота
-// @Tags dev
-// @Produce json
-// @Param id path string true "ID пользователя"
-// @Success 200 {object} dto.DevResponse "Успешный сброс пользователя"
-// @Router /v1/dev/reset-user/{id} [post]
-func (h *DevHandler) ResetUserHandler(c echo.Context) error {
-	slog.InfoContext(c.Request().Context(), "Сброс пользователя к заводским настройкам")
+// Register регистрирует маршруты разработки в Huma API
+func (h *DevHandler) Register(api huma.API) {
+	// Сброс пользователя к начальным настройкам
+	huma.Register(api, huma.Operation{
+		OperationID: "reset-user",
+		Method:      http.MethodPost,
+		Path:        "/v1/dev/reset-user/{id}",
+		Summary:     "Сброс пользователя к начальным настройкам",
+		Description: "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
+		Tags:        []string{"dev"},
+	}, h.ResetUser)
 
-	id := c.Param("id")
-	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+	// Восстановление удаленного пользователя
+	huma.Register(api, huma.Operation{
+		OperationID: "restore-user",
+		Method:      http.MethodPost,
+		Path:        "/v1/dev/restore-user/{id}",
+		Summary:     "Восстановление удаленного пользователя",
+		Description: "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
+		Tags:        []string{"dev"},
+	}, h.RestoreUser)
+
+	// Получение всех удаленных пользователей
+	huma.Register(api, huma.Operation{
+		OperationID: "get-deleted-users",
+		Method:      http.MethodGet,
+		Path:        "/v1/dev/deleted-users",
+		Summary:     "Получение всех удаленных пользователей",
+		Description: "Возвращает список всех мягко удаленных пользователей",
+		Tags:        []string{"dev"},
+	}, h.GetDeletedUsers)
+}
+
+// Вспомогательные структуры для Huma
+
+type DevResponseWrapper struct {
+	Body dto.DevResponse
+}
+
+type GetDeletedUsersResponseWrapper struct {
+	Body dto.GetDeletedUsersResponse
+}
+
+// Handlers
+
+func (h *DevHandler) ResetUser(ctx context.Context, input *UserIDPath) (*DevResponseWrapper, error) {
+	slog.InfoContext(ctx, "Сброс пользователя к заводским настройкам", "user_id", input.ID)
+
+	if err := h.userRepo.ResetUser(ctx, input.ID); err != nil {
+		slog.ErrorContext(ctx, "Ошибка при сбросе пользователя", "error", err, "user_id", input.ID)
+		return nil, err
 	}
 
-	slog.InfoContext(c.Request().Context(), "Сброс пользователя", "userId", id)
-
-	if err := h.userRepo.ResetUser(c.Request().Context(), id); err != nil {
-		slog.ErrorContext(c.Request().Context(), "Ошибка при сбросе пользователя", "error", err, "userId", id)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	slog.InfoContext(c.Request().Context(), "Пользователь успешно сброшен", "userId", id)
-
-	return c.JSON(http.StatusOK, dto.DevResponse{
+	slog.InfoContext(ctx, "Пользователь успешно сброшен", "user_id", input.ID)
+	return &DevResponseWrapper{Body: dto.DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно сброшен к заводским настройкам",
-	})
+	}}, nil
 }
 
-// RestoreUserHandler godoc
-// @Summary Восстановление удаленного пользователя
-// @Description Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL
-// @Tags dev
-// @Produce json
-// @Param id path string true "ID пользователя"
-// @Success 200 {object} dto.DevResponse "Успешное восстановление пользователя"
-// @Router /v1/dev/restore-user/{id} [post]
-func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
-	slog.InfoContext(c.Request().Context(), "Восстановление удаленного пользователя")
+func (h *DevHandler) RestoreUser(ctx context.Context, input *UserIDPath) (*DevResponseWrapper, error) {
+	slog.InfoContext(ctx, "Восстановление удаленного пользователя", "user_id", input.ID)
 
-	id := c.Param("id")
-	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+	if err := h.userRepo.RestoreUser(ctx, input.ID); err != nil {
+		slog.ErrorContext(ctx, "Ошибка при восстановлении пользователя", "error", err, "user_id", input.ID)
+		return nil, err
 	}
 
-	slog.InfoContext(c.Request().Context(), "Восстановление пользователя", "userId", id)
-
-	if err := h.userRepo.RestoreUser(c.Request().Context(), id); err != nil {
-		slog.ErrorContext(c.Request().Context(), "Ошибка при восстановлении пользователя", "error", err, "userId", id)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	slog.InfoContext(c.Request().Context(), "Пользователь успешно восстановлен", "userId", id)
-
-	return c.JSON(http.StatusOK, dto.DevResponse{
+	slog.InfoContext(ctx, "Пользователь успешно восстановлен", "user_id", input.ID)
+	return &DevResponseWrapper{Body: dto.DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно восстановлен",
-	})
+	}}, nil
 }
 
-// GetDeletedUsersHandler godoc
-// @Summary Получение всех удаленных пользователей
-// @Description Возвращает список всех мягко удаленных пользователей
-// @Tags dev
-// @Produce json
-// @Success 200 {object} dto.GetDeletedUsersResponse "Список удаленных пользователей"
-// @Router /v1/dev/deleted-users [get]
-func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
-	slog.InfoContext(c.Request().Context(), "Получение списка удаленных пользователей")
+func (h *DevHandler) GetDeletedUsers(ctx context.Context, input *struct{}) (*GetDeletedUsersResponseWrapper, error) {
+	slog.InfoContext(ctx, "Получение списка удаленных пользователей")
 
-	users, err := h.userRepo.GetDeletedUsers(c.Request().Context())
+	users, err := h.userRepo.GetDeletedUsers(ctx)
 	if err != nil {
-		slog.ErrorContext(c.Request().Context(), "Ошибка при получении удаленных пользователей", "error", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		slog.ErrorContext(ctx, "Ошибка при получении удаленных пользователей", "error", err)
+		return nil, err
 	}
 
-	slog.InfoContext(c.Request().Context(), "Удаленные пользователи успешно получены", "count", len(users))
-
-	return c.JSON(http.StatusOK, dto.GetDeletedUsersResponse{
+	slog.InfoContext(ctx, "Удаленные пользователи успешно получены", "count", len(users))
+	return &GetDeletedUsersResponseWrapper{Body: dto.GetDeletedUsersResponse{
 		Status:  true,
 		Message: "Удаленные пользователи успешно получены",
 		Users:   users,
-	})
+	}}, nil
 }

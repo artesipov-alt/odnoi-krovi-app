@@ -91,3 +91,26 @@ type PetUpdate struct {
 	Analyses        []*PetAnalysisDTO `json:"analyses"`
 	Bonuses         *PetBonusDTO      `json:"bonuses"`
 }
+
+type PetResponseDTO struct {
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	ChipNumber      string            `json:"chipNumber,omitempty"`
+	PhotoURL        string            `json:"photoUrl,omitempty"`
+	BreedID         int               `json:"breedId,omitempty"`
+	WeightKg        float64           `json:"weightKg,omitempty"`
+	AgeYears        int               `json:"ageYears,omitempty"`
+	AgeMonths       int               `json:"ageMonths,omitempty"`
+	BirthDate       *time.Time        `json:"birthDate,omitempty"`
+	LivingCondition string            `json:"livingCondition,omitempty"`
+	Gender          string            `json:"gender,omitempty"`
+	Type            string            `json:"type"`
+	BloodGroup      string            `json:"bloodGroup,omitempty"`
+	PetStatus       string            `json:"petStatus"`
+	Health          *PetHealthDTO     `json:"health"`
+	Treatments      *PetTreatmentDTO  `json:"treatments"`
+	Analyses        []*PetAnalysisDTO `json:"analyses"`
+	Bonuses         *PetBonusDTO      `json:"bonuses"`
+	CreatedAt       string            `json:"createdAt"`
+	UpdatedAt       string            `json:"updatedAt"`
+}

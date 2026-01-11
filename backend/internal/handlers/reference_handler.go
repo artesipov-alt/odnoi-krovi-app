@@ -1,409 +1,423 @@
 package handlers
 
-// import (
-// 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-// 	"github.com/labstack/echo/v4"
-// 	"go.uber.org/zap"
-// )
-
-// // ReferenceHandler обрабатывает HTTP запросы для справочных данных
-// type ReferenceHandler struct {
-// 	breedRepo    repositories.BreedRepository
-// 	bloodRepo    repositories.BloodInfoRepository
-// 	locationRepo repositories.LocationRepository
-// }
-
-// // NewReferenceHandler создает новый обработчик справочных данных
-// func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodInfoRepository, locationRepo repositories.LocationRepository) *ReferenceHandler {
-// 	return &ReferenceHandler{
-// 		breedRepo:    breedRepo,
-// 		bloodRepo:    bloodTypeRepo,
-// 		locationRepo: locationRepo,
-// 	}
-// }
-
-// // ReferenceResponse представляет ответ со справочными данными
-// type ReferenceResponse struct {
-// 	Data []ReferenceItem `json:"data"`
-// }
-
-// // ReferenceItem представляет элемент справочника
-// type ReferenceItem struct {
-// 	Value string `json:"value"`
-// 	Label string `json:"label"`
-// }
-
-// // ReferenceResponseDB представляет ответ со справочными данными из базы данных
-// type ReferenceResponseDB struct {
-// 	Data []ReferenceItemDB `json:"data"`
-// }
-
-// // ReferenceItemDB представляет элемент справочника из базы данных с ID
-// type ReferenceItemDB struct {
-// 	Value int    `json:"value"`
-// 	Label string `json:"label"`
-// }
-
-// // GetPetTypesHandler godoc
-// // @Summary Получение всех типов животных
-// // @Description Возвращает все доступные типы животных для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список типов животных"
-// // @Router /v1/reference/pet-types [get]
-// func (h *ReferenceHandler) GetPetTypesHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника типов животных")
-
-// 	petTypes := enums.GetAllEntPetTypes()
-// 	items := make([]ReferenceItem, len(petTypes))
-
-// 	for i, petType := range petTypes {
-// 		ruValue := enums.LocalizeEntPetType(petType)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(petType),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
-
-// // GetGendersHandler godoc
-// // @Summary Получение всех значений пола
-// // @Description Возвращает все доступные значения пола для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список значений пола"
-// // @Router /v1/reference/genders [get]
-// func (h *ReferenceHandler) GetGendersHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника полов")
-
-// 	genders := enums.GetAllEntGenders()
-// 	items := make([]ReferenceItem, len(genders))
-
-// 	for i, gender := range genders {
-// 		ruValue := enums.LocalizeEntGender(gender)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(gender),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
-
-// // GetLivingConditionsHandler godoc
-// // @Summary Получение всех условий проживания
-// // @Description Возвращает все доступные условия проживания для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список условий проживания"
-// // @Router /v1/reference/living-conditions [get]
-// func (h *ReferenceHandler) GetLivingConditionsHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника условий проживания")
-
-// 	conditions := enums.GetAllEntLivingConditions()
-// 	items := make([]ReferenceItem, len(conditions))
-
-// 	for i, condition := range conditions {
-// 		ruValue := enums.LocalizeEntLivingCondition(condition)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(condition),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
-
-// // GetUserRolesHandler godoc
-// // @Summary Получение всех ролей пользователей
-// // @Description Возвращает все доступные роли пользователей для выбора на фронтенде
-// // @Tags reference, users
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список ролей пользователей"
-// // @Router /v1/reference/user-roles [get]
-// func (h *ReferenceHandler) GetUserRolesHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника ролей пользователей")
-
-// 	roles := enums.GetAllEntUserRoles()
-// 	items := make([]ReferenceItem, len(roles))
-
-// 	for i, role := range roles {
-// 		ruValue := enums.LocalizeEntUserRole(role)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(role),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
-
-// // GetPetRolesHandler godoc
-// // @Summary Получение всех ролей питомцев
-// // @Description Возвращает все доступные роли питомцев для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список ролей питомцев"
-// // @Router /v1/reference/pet-roles [get]
-// func (h *ReferenceHandler) GetPetRolesHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника ролей питомцев")
-
-// 	roles := enums.GetAllEntPetStatuses()
-// 	items := make([]ReferenceItem, len(roles))
-
-// 	for i, role := range roles {
-// 		ruValue := enums.LocalizeEntPetStatus(role)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(role),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
-
-// // GetBreedsHandler godoc
-// // @Summary Получение всех пород животных
-// // @Description Возвращает список всех пород животных в базе для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список пород животных"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/reference/breeds [get]
-// func (h *ReferenceHandler) GetBreedsHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника пород животных")
-
-// 	breeds, err := h.breedRepo.GetAll(c.Request().Context())
-// 	if err != nil {
-// 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err))
-// 		return c.JSON(500, utils.ErrorResponse{
-// 			Message: "Не удалось получить список пород",
-// 		})
-// 	}
-
-// 	items := make([]ReferenceItemDB, len(breeds))
-// 	for i, breed := range breeds {
-// 		items[i] = ReferenceItemDB{
-// 			Value: breed.ID,
-// 			Label: breed.Name,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponseDB{Data: items})
-// }
-
-// // GetLocationsHandler godoc
-// // @Summary Получение всех локаций
-// // @Description Возвращает список всех локаций в системе для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponseDB "Список локаций"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/reference/locations [get]
-// func (h *ReferenceHandler) GetLocationsHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника локаций")
-
-// 	locations, err := h.locationRepo.GetAll(c.Request().Context())
-// 	if err != nil {
-// 		logger.Log.Error("не удалось получить локации из БД", zap.Error(err))
-// 		return c.JSON(500, utils.ErrorResponse{
-// 			Message: "Не удалось получить список локаций",
-// 		})
-// 	}
-
-// 	items := make([]ReferenceItemDB, len(locations))
-// 	for i, location := range locations {
-// 		items[i] = ReferenceItemDB{
-// 			Value: location.ID,
-// 			Label: location.Name,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponseDB{Data: items})
-// }
-
-// // GetBreedsByTypeHandler godoc
-// // @Summary Получение пород животных по типу
-// // @Description Возвращает список пород животных для указанного типа животного для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Param petType query string true "Тип животного (dog, cat, etc.)"
-// // @Success 200 {object} ReferenceResponse "Список пород животных"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/reference/breeds-by-type [get]
-// func (h *ReferenceHandler) GetBreedsByTypeHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника пород животных по типу животного")
-
-// 	petTypeStr := c.QueryParam("petType")
-// 	if petTypeStr == "" {
-// 		logger.Log.Error("не указан тип животного")
-// 		return c.JSON(400, utils.ErrorResponse{
-// 			Message: "Необходимо указать тип животного",
-// 		})
-// 	}
-
-// 	isValid := false
-// 	for _, pt := range enums.GetAllEntPetTypes() {
-// 		if string(pt) == petTypeStr {
-// 			isValid = true
-// 			break
-// 		}
-// 	}
-// 	if !isValid {
-// 		logger.Log.Error("неверный тип животного", zap.String("petType", petTypeStr))
-// 		return c.JSON(400, utils.ErrorResponse{
-// 			Message: "Неверный тип животного",
-// 		})
-// 	}
-
-// 	breeds, err := h.breedRepo.GetByPetType(c.Request().Context(), breed.Type(petTypeStr))
-// 	if err != nil {
-// 		logger.Log.Error("не удалось получить породы из БД", zap.Error(err), zap.String("petType", petTypeStr))
-// 		return c.JSON(500, utils.ErrorResponse{
-// 			Message: "Не удалось получить список пород",
-// 		})
-// 	}
-
-// 	items := make([]ReferenceItemDB, len(breeds))
-// 	for i, breed := range breeds {
-// 		items[i] = ReferenceItemDB{
-// 			Value: breed.ID,
-// 			Label: breed.Name,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponseDB{Data: items})
-// }
-
-// // GetBloodComponentsHandler godoc
-// // @Summary Получение компонентов крови животных
-// // @Description Возвращает список компонентов крови животных для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список компонентов крови"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/reference/blood-components [get]
-// func (h *ReferenceHandler) GetBloodComponentsHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника компоненотов крови")
-
-// 	bloodComponents, err := h.bloodRepo.AllComponents(c.Request().Context())
-// 	if err != nil {
-// 		logger.Log.Error("не удалось получить компоненотов крови из БД", zap.Error(err))
-// 		return c.JSON(500, utils.ErrorResponse{
-// 			Message: "Не удалось получить список компоненотов крови",
-// 		})
-// 	}
-
-// 	items := make([]ReferenceItemDB, len(bloodComponents))
-// 	for i, bloodType := range bloodComponents {
-// 		items[i] = ReferenceItemDB{
-// 			Value: bloodType.ID,
-// 			Label: bloodType.Name,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponseDB{Data: items})
-// }
-
-// // GetBloodGroupsHandler godoc
-// // @Summary Получение групп крови животных по типу животного
-// // @Description Возвращает список групп крови животных для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Param pet_type path string true "Тип животного"
-// // @Success 200 {object} ReferenceResponseDB "Список групп крови"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный тип животного"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/reference/blood-groups/{pet_type} [get]
-// func (h *ReferenceHandler) GetBloodGroupsHandler(c echo.Context) error {
-// 	petType := c.Param("pet_type")
-// 	if petType == "" {
-// 		logger.Log.Error("не указан тип животного")
-// 		return c.JSON(400, utils.ErrorResponse{
-// 			Message: "Необходимо указать тип животного",
-// 		})
-// 	}
-
-// 	logger.Log.Info("получение групп крови по типу животного", zap.String("petType", petType))
-
-// 	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(c.Request().Context(), bloodgroup.PetType(petType))
-// 	if err != nil {
-// 		logger.Log.Error("не удалось получить группы крови из БД", zap.Error(err), zap.String("petType", petType))
-// 		return c.JSON(500, utils.ErrorResponse{
-// 			Message: "Не удалось получить список групп крови",
-// 		})
-// 	}
-
-// 	items := make([]ReferenceItemDB, len(bloodGroups))
-// 	for i, bloodGroup := range bloodGroups {
-// 		items[i] = ReferenceItemDB{
-// 			Value: bloodGroup.ID,
-// 			Label: bloodGroup.BloodGroup,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponseDB{Data: items})
-// }
-
-// // GetHealthStatusesHandler godoc
-// // @Summary Получение всех статусов здоровья
-// // @Description Возвращает все доступные статусы здоровья для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список статусов здоровья"
-// // @Router /v1/reference/health-statuses [get]
-// func (h *ReferenceHandler) GetHealthStatusesHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника статусов здоровья")
-
-// 	statuses := enums.GetAllEntHealthStatuses()
-// 	items := make([]ReferenceItem, len(statuses))
-
-// 	for i, status := range statuses {
-// 		ruValue := enums.LocalizeEntHealthStatus(status)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(status),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
-
-// // GetReproductiveStatusesHandler godoc
-// // @Summary Получение всех репродуктивных состояний
-// // @Description Возвращает все доступные репродуктивные состояния для выбора на фронтенде
-// // @Tags reference
-// // @Produce json
-// // @Success 200 {object} ReferenceResponse "Список репродуктивных состояний"
-// // @Router /v1/reference/reproductive-statuses [get]
-// func (h *ReferenceHandler) GetReproductiveStatusesHandler(c echo.Context) error {
-// 	logger.Log.Info("получение справочника репродуктивных состояний")
-
-// 	statuses := enums.GetAllEntReproductiveStatuses()
-// 	items := make([]ReferenceItem, len(statuses))
-
-// 	for i, status := range statuses {
-// 		ruValue := enums.LocalizeEntReproductiveStatus(status)
-
-// 		items[i] = ReferenceItem{
-// 			Value: string(status),
-// 			Label: ruValue,
-// 		}
-// 	}
-
-// 	return c.JSON(200, ReferenceResponse{Data: items})
-// }
+import (
+	"context"
+	"log/slog"
+	"net/http"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"github.com/danielgtaylor/huma/v2"
+)
+
+// ReferenceHandler обрабатывает HTTP запросы для справочных данных
+type ReferenceHandler struct {
+	breedRepo    repositories.BreedRepository
+	bloodRepo    repositories.BloodInfoRepository
+	locationRepo repositories.LocationRepository
+}
+
+// NewReferenceHandler создает новый обработчик справочных данных
+func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodInfoRepository, locationRepo repositories.LocationRepository) *ReferenceHandler {
+	return &ReferenceHandler{
+		breedRepo:    breedRepo,
+		bloodRepo:    bloodTypeRepo,
+		locationRepo: locationRepo,
+	}
+}
+
+// Register регистрирует маршруты справочников в Huma API
+func (h *ReferenceHandler) Register(api huma.API) {
+	// Получение всех типов животных
+	huma.Register(api, huma.Operation{
+		OperationID: "get-pet-types",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/pet-types",
+		Summary:     "Получение всех типов животных",
+		Description: "Возвращает все доступные типы животных для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetPetTypes)
+
+	// Получение всех значений пола
+	huma.Register(api, huma.Operation{
+		OperationID: "get-genders",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/genders",
+		Summary:     "Получение всех значений пола",
+		Description: "Возвращает все доступные значения пола для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetGenders)
+
+	// Получение всех условий проживания
+	huma.Register(api, huma.Operation{
+		OperationID: "get-living-conditions",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/living-conditions",
+		Summary:     "Получение всех условий проживания",
+		Description: "Возвращает все доступные условия проживания для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetLivingConditions)
+
+	// Получение всех ролей пользователей
+	huma.Register(api, huma.Operation{
+		OperationID: "get-user-roles",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/user-roles",
+		Summary:     "Получение всех ролей пользователей",
+		Description: "Возвращает все доступные роли пользователей для выбора на фронтенде",
+		Tags:        []string{"reference-v1", "users-v1"},
+	}, h.GetUserRoles)
+
+	// Получение всех ролей питомцев
+	huma.Register(api, huma.Operation{
+		OperationID: "get-pet-roles",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/pet-roles",
+		Summary:     "Получение всех ролей питомцев",
+		Description: "Возвращает все доступные роли питомцев для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetPetRoles)
+
+	// Получение всех пород животных
+	huma.Register(api, huma.Operation{
+		OperationID: "get-breeds",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/breeds",
+		Summary:     "Получение всех пород животных",
+		Description: "Возвращает список всех пород животных в базе для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetBreeds)
+
+	// Получение всех локаций
+	huma.Register(api, huma.Operation{
+		OperationID: "get-locations",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/locations",
+		Summary:     "Получение всех локаций",
+		Description: "Возвращает список всех локаций в системе для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetLocations)
+
+	// Получение пород животных по типу
+	huma.Register(api, huma.Operation{
+		OperationID: "get-breeds-by-type",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/breeds-by-type",
+		Summary:     "Получение пород животных по типу",
+		Description: "Возвращает список пород животных для указанного типа животного для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetBreedsByType)
+
+	// Получение компонентов крови животных
+	huma.Register(api, huma.Operation{
+		OperationID: "get-blood-components",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/blood-components",
+		Summary:     "Получение компонентов крови животных",
+		Description: "Возвращает список компонентов крови животных для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetBloodComponents)
+
+	// Получение групп крови животных по типу животного
+	huma.Register(api, huma.Operation{
+		OperationID: "get-blood-groups",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/blood-groups/{pet_type}",
+		Summary:     "Получение групп крови животных по типу животного",
+		Description: "Возвращает список групп крови животных для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetBloodGroups)
+
+	// Получение всех статусов здоровья
+	huma.Register(api, huma.Operation{
+		OperationID: "get-health-statuses",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/health-statuses",
+		Summary:     "Получение всех статусов здоровья",
+		Description: "Возвращает все доступные статусы здоровья для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetHealthStatuses)
+
+	// Получение всех репродуктивных состояний
+	huma.Register(api, huma.Operation{
+		OperationID: "get-reproductive-statuses",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/reproductive-statuses",
+		Summary:     "Получение всех репродуктивных состояний",
+		Description: "Возвращает все доступные репродуктивные состояния для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetReproductiveStatuses)
+}
+
+// Вспомогательные структуры для Huma
+
+type ReferenceResponse struct {
+	Body dto.ReferenceResponse
+}
+
+type ReferenceResponseDB struct {
+	Body dto.ReferenceResponseDB
+}
+
+type PetTypePath struct {
+	PetType string `path:"pet_type" doc:"Тип животного" example:"dog"`
+}
+
+type PetTypeQuery struct {
+	PetType string `query:"petType" doc:"Тип животного (dog, cat, etc.)" example:"dog"`
+}
+
+// Handlers
+
+func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника типов животных")
+
+	petTypes := enums.GetAllEntPetTypes()
+	items := make([]dto.ReferenceItem, len(petTypes))
+
+	for i, petType := range petTypes {
+		ruValue := enums.LocalizeEntPetType(petType)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(petType),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника полов")
+
+	genders := enums.GetAllEntGenders()
+	items := make([]dto.ReferenceItem, len(genders))
+
+	for i, gender := range genders {
+		ruValue := enums.LocalizeEntGender(gender)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(gender),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника условий проживания")
+
+	conditions := enums.GetAllEntLivingConditions()
+	items := make([]dto.ReferenceItem, len(conditions))
+
+	for i, condition := range conditions {
+		ruValue := enums.LocalizeEntLivingCondition(condition)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(condition),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника ролей пользователей")
+
+	roles := enums.GetAllEntUserRoles()
+	items := make([]dto.ReferenceItem, len(roles))
+
+	for i, role := range roles {
+		ruValue := enums.LocalizeEntUserRole(role)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(role),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника ролей питомцев")
+
+	roles := enums.GetAllEntPetStatuses()
+	items := make([]dto.ReferenceItem, len(roles))
+
+	for i, role := range roles {
+		ruValue := enums.LocalizeEntPetStatus(role)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(role),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*ReferenceResponseDB, error) {
+	slog.InfoContext(ctx, "получение справочника пород животных")
+
+	breeds, err := h.breedRepo.GetAll(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "не удалось получить породы из БД", "error", err)
+		return nil, err
+	}
+
+	items := make([]dto.ReferenceItemDB, len(breeds))
+	for i, breed := range breeds {
+		items[i] = dto.ReferenceItemDB{
+			Value: breed.ID,
+			Label: breed.Name,
+		}
+	}
+
+	return &ReferenceResponseDB{Body: dto.ReferenceResponseDB{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*ReferenceResponseDB, error) {
+	slog.InfoContext(ctx, "получение справочника локаций")
+
+	locations, err := h.locationRepo.GetAll(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "не удалось получить локации из БД", "error", err)
+		return nil, err
+	}
+
+	items := make([]dto.ReferenceItemDB, len(locations))
+	for i, location := range locations {
+		items[i] = dto.ReferenceItemDB{
+			Value: location.ID,
+			Label: location.Name,
+		}
+	}
+
+	return &ReferenceResponseDB{Body: dto.ReferenceResponseDB{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *PetTypeQuery) (*ReferenceResponseDB, error) {
+	slog.InfoContext(ctx, "получение справочника пород животных по типу животного")
+
+	petTypeStr := input.PetType
+	if petTypeStr == "" {
+		slog.ErrorContext(ctx, "не указан тип животного")
+		return nil, huma.Error400BadRequest("Необходимо указать тип животного")
+	}
+
+	isValid := false
+	for _, pt := range enums.GetAllEntPetTypes() {
+		if string(pt) == petTypeStr {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		slog.ErrorContext(ctx, "неверный тип животного", "petType", petTypeStr)
+		return nil, huma.Error400BadRequest("Неверный тип животного")
+	}
+
+	breeds, err := h.breedRepo.GetByPetType(ctx, breed.Type(petTypeStr))
+	if err != nil {
+		slog.ErrorContext(ctx, "не удалось получить породы из БД", "error", err, "petType", petTypeStr)
+		return nil, err
+	}
+
+	items := make([]dto.ReferenceItemDB, len(breeds))
+	for i, breed := range breeds {
+		items[i] = dto.ReferenceItemDB{
+			Value: breed.ID,
+			Label: breed.Name,
+		}
+	}
+
+	return &ReferenceResponseDB{Body: dto.ReferenceResponseDB{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*ReferenceResponseDB, error) {
+	slog.InfoContext(ctx, "получение справочника компонентов крови")
+
+	bloodComponents, err := h.bloodRepo.AllComponents(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "не удалось получить компоненты крови из БД", "error", err)
+		return nil, err
+	}
+
+	items := make([]dto.ReferenceItemDB, len(bloodComponents))
+	for i, bloodType := range bloodComponents {
+		items[i] = dto.ReferenceItemDB{
+			Value: bloodType.ID,
+			Label: bloodType.Name,
+		}
+	}
+
+	return &ReferenceResponseDB{Body: dto.ReferenceResponseDB{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *PetTypePath) (*ReferenceResponseDB, error) {
+	petType := input.PetType
+	if petType == "" {
+		slog.ErrorContext(ctx, "не указан тип животного")
+		return nil, huma.Error400BadRequest("Необходимо указать тип животного")
+	}
+
+	slog.InfoContext(ctx, "получение групп крови по типу животного", "petType", petType)
+
+	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(ctx, bloodgroup.PetType(petType))
+	if err != nil {
+		slog.ErrorContext(ctx, "не удалось получить группы крови из БД", "error", err, "petType", petType)
+		return nil, err
+	}
+
+	items := make([]dto.ReferenceItemDB, len(bloodGroups))
+	for i, bloodGroup := range bloodGroups {
+		items[i] = dto.ReferenceItemDB{
+			Value: bloodGroup.ID,
+			Label: bloodGroup.BloodGroup,
+		}
+	}
+
+	return &ReferenceResponseDB{Body: dto.ReferenceResponseDB{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника статусов здоровья")
+
+	statuses := enums.GetAllEntHealthStatuses()
+	items := make([]dto.ReferenceItem, len(statuses))
+
+	for i, status := range statuses {
+		ruValue := enums.LocalizeEntHealthStatus(status)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(status),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
+	slog.InfoContext(ctx, "получение справочника репродуктивных состояний")
+
+	statuses := enums.GetAllEntReproductiveStatuses()
+	items := make([]dto.ReferenceItem, len(statuses))
+
+	for i, status := range statuses {
+		ruValue := enums.LocalizeEntReproductiveStatus(status)
+
+		items[i] = dto.ReferenceItem{
+			Value: string(status),
+			Label: ruValue,
+		}
+	}
+
+	return &ReferenceResponse{Body: dto.ReferenceResponse{Data: items}}, nil
+}

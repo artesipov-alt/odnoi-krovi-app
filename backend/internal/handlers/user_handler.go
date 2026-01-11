@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -130,18 +131,23 @@ func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResponse, error) {
+	slog.InfoContext(ctx, "Начало получения пользователя по ID", "user_id", input.ID)
 
 	user, err := h.userService.GetUserByID(ctx, input.ID)
 	if err != nil {
+		slog.ErrorContext(ctx, "Ошибка получения пользователя по ID", "user_id", input.ID, "error", err)
 		return nil, err
 	}
 
+	slog.InfoContext(ctx, "Пользователь успешно получен по ID", "user_id", input.ID)
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 	Body dto.SimpleRegistrationRequest
 }) (*UserResponse, error) {
+	slog.InfoContext(ctx, "Начало простой регистрации пользователя", "telegram_id", input.Body.TelegramID, "full_name", input.Body.FullName)
+
 	fullName := input.Body.FullName
 	if fullName == "" {
 		fullName = "Пользователь Telegram"
@@ -149,9 +155,11 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 
 	user, err := h.userService.RegisterUserSimple(ctx, input.Body.TelegramID, fullName)
 	if err != nil {
+		slog.ErrorContext(ctx, "Ошибка простой регистрации пользователя", "telegram_id", input.Body.TelegramID, "error", err)
 		return nil, err
 	}
 
+	slog.InfoContext(ctx, "Пользователь успешно зарегистрирован просто", "telegram_id", input.Body.TelegramID, "user_id", user.ID)
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
 }
 
@@ -160,12 +168,15 @@ func (h *UserHandler) RegisterUser(ctx context.Context, input *struct {
 }) (*UserResponse, error) {
 	// Извлекаем telegram_id из контекста (устанавливается middleware)
 	telegramID, _ := ctx.Value("telegram_id").(int64)
+	slog.InfoContext(ctx, "Начало регистрации пользователя", "telegram_id", telegramID)
 
 	user, err := h.userService.RegisterUser(ctx, telegramID, input.Body)
 	if err != nil {
+		slog.ErrorContext(ctx, "Ошибка регистрации пользователя", "telegram_id", telegramID, "error", err)
 		return nil, err
 	}
 
+	slog.InfoContext(ctx, "Пользователь успешно зарегистрирован", "telegram_id", telegramID, "user_id", user.ID)
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
 }
 
@@ -173,32 +184,41 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	UserIDPath
 	Body dto.UserUpdate
 }) (*MessageResponse, error) {
+	slog.InfoContext(ctx, "Начало обновления данных пользователя", "user_id", input.ID)
 
 	if err := h.userService.UpdateUserProfile(ctx, input.ID, input.Body); err != nil {
+		slog.ErrorContext(ctx, "Ошибка обновления данных пользователя", "user_id", input.ID, "error", err)
 		return nil, err
 	}
 
+	slog.InfoContext(ctx, "Данные пользователя успешно обновлены", "user_id", input.ID)
 	resp := &MessageResponse{}
 	resp.Body.Message = "Пользователь успешно обновлен"
 	return resp, nil
 }
 
 func (h *UserHandler) GetUserByTelegram(ctx context.Context, input *TelegramIDQuery) (*UserResponse, error) {
+	slog.InfoContext(ctx, "Начало получения пользователя по Telegram ID", "telegram_id", input.TelegramID)
 
 	user, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
 	if err != nil {
+		slog.ErrorContext(ctx, "Ошибка получения пользователя по Telegram ID", "telegram_id", input.TelegramID, "error", err)
 		return nil, err
 	}
 
+	slog.InfoContext(ctx, "Пользователь успешно получен по Telegram ID", "telegram_id", input.TelegramID)
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *UserIDPath) (*MessageResponse, error) {
+	slog.InfoContext(ctx, "Начало удаления пользователя по ID", "user_id", input.ID)
 
 	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
+		slog.ErrorContext(ctx, "Ошибка удаления пользователя по ID", "user_id", input.ID, "error", err)
 		return nil, err
 	}
 
+	slog.InfoContext(ctx, "Пользователь успешно удален по ID", "user_id", input.ID)
 	resp := &MessageResponse{}
 	resp.Body.Message = "Пользователь успешно удален"
 	return resp, nil
