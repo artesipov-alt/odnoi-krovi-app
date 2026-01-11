@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 
@@ -25,12 +26,7 @@ func main() {
 	// Загрузка переменных окружения из .env файла
 	godotenv.Load("../.env")
 
-	// Инициализация логгера в режиме разработки
-	if os.Getenv("ENV") == "dev" {
-		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})))
-	} else {
-		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
-	}
+	logger.SetupLogger(config.GetEnv("ENV", "development"))
 
 	// Инициализация кастомных ошибок для Huma
 	// Это переопределяет huma.NewError, чтобы использовать ваш AppError
