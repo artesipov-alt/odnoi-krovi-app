@@ -1,13 +1,12 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 // DevHandler обрабатывает HTTP запросы для инструментов разработки и отладки
@@ -31,21 +30,21 @@ func NewDevHandler(userRepo repositories.UserRepository) *DevHandler {
 // @Success 200 {object} dto.DevResponse "Успешный сброс пользователя"
 // @Router /v1/dev/reset-user/{id} [post]
 func (h *DevHandler) ResetUserHandler(c echo.Context) error {
-	logger.Log.Info("Сброс пользователя к заводским настройкам")
+	slog.InfoContext(c.Request().Context(), "Сброс пользователя к заводским настройкам")
 
 	id := c.Param("id")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
-	logger.Log.Info("Сброс пользователя", zap.String("userId", id))
+	slog.InfoContext(c.Request().Context(), "Сброс пользователя", "userId", id)
 
 	if err := h.userRepo.ResetUser(c.Request().Context(), id); err != nil {
-		logger.Log.Error("Ошибка при сбросе пользователя", zap.Error(err), zap.String("userId", id))
+		slog.ErrorContext(c.Request().Context(), "Ошибка при сбросе пользователя", "error", err, "userId", id)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	logger.Log.Info("Пользователь успешно сброшен", zap.String("userId", id))
+	slog.InfoContext(c.Request().Context(), "Пользователь успешно сброшен", "userId", id)
 
 	return c.JSON(http.StatusOK, dto.DevResponse{
 		Status:  true,
@@ -62,21 +61,21 @@ func (h *DevHandler) ResetUserHandler(c echo.Context) error {
 // @Success 200 {object} dto.DevResponse "Успешное восстановление пользователя"
 // @Router /v1/dev/restore-user/{id} [post]
 func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
-	logger.Log.Info("Восстановление удаленного пользователя")
+	slog.InfoContext(c.Request().Context(), "Восстановление удаленного пользователя")
 
 	id := c.Param("id")
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
-	logger.Log.Info("Восстановление пользователя", zap.String("userId", id))
+	slog.InfoContext(c.Request().Context(), "Восстановление пользователя", "userId", id)
 
 	if err := h.userRepo.RestoreUser(c.Request().Context(), id); err != nil {
-		logger.Log.Error("Ошибка при восстановлении пользователя", zap.Error(err), zap.String("userId", id))
+		slog.ErrorContext(c.Request().Context(), "Ошибка при восстановлении пользователя", "error", err, "userId", id)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	logger.Log.Info("Пользователь успешно восстановлен", zap.String("userId", id))
+	slog.InfoContext(c.Request().Context(), "Пользователь успешно восстановлен", "userId", id)
 
 	return c.JSON(http.StatusOK, dto.DevResponse{
 		Status:  true,
@@ -92,15 +91,15 @@ func (h *DevHandler) RestoreUserHandler(c echo.Context) error {
 // @Success 200 {object} dto.GetDeletedUsersResponse "Список удаленных пользователей"
 // @Router /v1/dev/deleted-users [get]
 func (h *DevHandler) GetDeletedUsersHandler(c echo.Context) error {
-	logger.Log.Info("Получение списка удаленных пользователей")
+	slog.InfoContext(c.Request().Context(), "Получение списка удаленных пользователей")
 
 	users, err := h.userRepo.GetDeletedUsers(c.Request().Context())
 	if err != nil {
-		logger.Log.Error("Ошибка при получении удаленных пользователей", zap.Error(err))
+		slog.ErrorContext(c.Request().Context(), "Ошибка при получении удаленных пользователей", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	logger.Log.Info("Удаленные пользователи успешно получены", zap.Int("count", len(users)))
+	slog.InfoContext(c.Request().Context(), "Удаленные пользователи успешно получены", "count", len(users))
 
 	return c.JSON(http.StatusOK, dto.GetDeletedUsersResponse{
 		Status:  true,

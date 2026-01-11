@@ -3,6 +3,9 @@ package apperrors
 import (
 	"errors"
 	"fmt"
+	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
 )
 
 // ErrorCode представляет код ошибки для API
@@ -19,13 +22,14 @@ const (
 	ErrCodeConflict      ErrorCode = "CONFLICT"
 )
 
-// AppError представляет ошибку приложения с метаданными
+// AppError представляет ошибку приложения с метаданными.
+// Реализует huma.StatusError для интеграции с Huma.
 type AppError struct {
-	Code       ErrorCode      // Код ошибки для API
-	Message    string         // Сообщение для пользователя
-	Internal   error          // Внутренняя ошибка (для логов)
-	Details    map[string]any // Дополнительные детали
-	HTTPStatus int            // HTTP статус код
+	Code       ErrorCode      `json:"code"`
+	Message    string         `json:"message"`
+	Internal   error          `json:"-"` // Не сериализуем внутреннюю ошибку
+	Details    map[string]any `json:"details,omitempty"`
+	HTTPStatus int            `json:"-"` // Используется методом GetStatus
 }
 
 // Error реализует интерфейс error
@@ -36,9 +40,51 @@ func (e *AppError) Error() string {
 	return e.Message
 }
 
+// GetStatus возвращает HTTP статус код для Huma
+func (e *AppError) GetStatus() int {
+	if e.HTTPStatus == 0 {
+		return http.StatusInternalServerError
+	}
+	return e.HTTPStatus
+}
+
 // Unwrap позволяет использовать errors.Is и errors.As
 func (e *AppError) Unwrap() error {
 	return e.Internal
+}
+
+// InitHuma связывает AppError с механизмом создания ошибок в Huma.
+// Это позволяет Huma автоматически использовать ваш формат ошибок.
+func InitHuma() {
+	huma.NewError = func(status int, message string, errs ...error) huma.StatusError {
+		code := ErrCodeInternal
+		switch status {
+		case http.StatusNotFound:
+			code = ErrCodeNotFound
+		case http.StatusBadRequest, http.StatusUnprocessableEntity:
+			code = ErrCodeValidation
+		case http.StatusUnauthorized:
+			code = ErrCodeUnauthorized
+		case http.StatusForbidden:
+			code = ErrCodeForbidden
+		case http.StatusConflict:
+			code = ErrCodeConflict
+		}
+
+		details := make(map[string]any)
+		if len(errs) > 0 {
+			for i, err := range errs {
+				details[fmt.Sprintf("error_%d", i)] = err.Error()
+			}
+		}
+
+		return &AppError{
+			Code:       code,
+			Message:    message,
+			HTTPStatus: status,
+			Details:    details,
+		}
+	}
 }
 
 // Конструкторы для частых типов ошибок
@@ -48,7 +94,7 @@ func NotFound(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeNotFound,
 		Message:    message,
-		HTTPStatus: 404,
+		HTTPStatus: http.StatusNotFound,
 	}
 }
 
@@ -57,7 +103,7 @@ func AlreadyExists(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeAlreadyExists,
 		Message:    message,
-		HTTPStatus: 409,
+		HTTPStatus: http.StatusConflict,
 	}
 }
 
@@ -67,7 +113,7 @@ func Validation(message string, details map[string]any) *AppError {
 		Code:       ErrCodeValidation,
 		Message:    message,
 		Details:    details,
-		HTTPStatus: 400,
+		HTTPStatus: http.StatusBadRequest,
 	}
 }
 
@@ -77,7 +123,7 @@ func Internal(err error, message string) *AppError {
 		Code:       ErrCodeInternal,
 		Message:    message,
 		Internal:   err,
-		HTTPStatus: 500,
+		HTTPStatus: http.StatusInternalServerError,
 	}
 }
 
@@ -86,7 +132,7 @@ func BadRequest(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeBadRequest,
 		Message:    message,
-		HTTPStatus: 400,
+		HTTPStatus: http.StatusBadRequest,
 	}
 }
 
@@ -95,7 +141,7 @@ func Unauthorized(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeUnauthorized,
 		Message:    message,
-		HTTPStatus: 401,
+		HTTPStatus: http.StatusUnauthorized,
 	}
 }
 
@@ -104,7 +150,7 @@ func Forbidden(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeForbidden,
 		Message:    message,
-		HTTPStatus: 403,
+		HTTPStatus: http.StatusForbidden,
 	}
 }
 
@@ -113,7 +159,7 @@ func Conflict(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeConflict,
 		Message:    message,
-		HTTPStatus: 409,
+		HTTPStatus: http.StatusConflict,
 	}
 }
 
@@ -123,13 +169,11 @@ func Wrap(err error, message string) *AppError {
 		return nil
 	}
 
-	// Если уже AppError - возвращаем как есть
 	var appErr *AppError
 	if errors.As(err, &appErr) {
 		return appErr
 	}
 
-	// Иначе оборачиваем как Internal
 	return Internal(err, message)
 }
 

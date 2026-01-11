@@ -6,7 +6,7 @@ type MyServer struct {
 	*http.Server
 }
 
-// NewServerConfig создает конфигурацию сервера из переменных окружения
+// NewServer создает новый экземпляр сервера с заданным mux
 func NewServer(mux http.Handler) *MyServer {
 	return &MyServer{
 		&http.Server{
@@ -16,12 +16,11 @@ func NewServer(mux http.Handler) *MyServer {
 	}
 }
 
-func (s *MyServer) Use(middleware ...http.Handler) error {
-	for _, m := range middleware {
-		s.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			m.ServeHTTP(w, r)
-			s.Handler.ServeHTTP(w, r)
-		})
+// Use добавляет middleware в цепочку обработки.
+// Принимает стандартные функции-обертки func(http.Handler) http.Handler.
+// Middleware применяются в порядке их добавления (первый добавленный будет внешним).
+func (s *MyServer) Use(middlewares ...func(http.Handler) http.Handler) {
+	for _, mw := range middlewares {
+		s.Handler = mw(s.Handler)
 	}
-	return nil
 }

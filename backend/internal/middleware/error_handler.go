@@ -83,25 +83,29 @@ func ErrorHandler(err error, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// RecoveryMiddleware ловит панику и конвертирует в ошибку
-var RecoveryMiddleware http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if rec := recover(); rec != nil {
-			slog.ErrorContext(r.Context(), "panic recovered",
-				"panic", rec,
-				"path", r.URL.Path,
-				"method", r.Method,
-				"stack", string(debug.Stack()),
-			)
+// RecoveryMiddleware ловит панику и конвертирует в ошибку.
+// Это стандартный middleware-обертка.
+func RecoveryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				slog.ErrorContext(r.Context(), "panic recovered",
+					"panic", rec,
+					"path", r.URL.Path,
+					"method", r.Method,
+					"stack", string(debug.Stack()),
+				)
 
-			// Конвертируем панику в AppError
-			err := apperrors.Internal(
-				errors.New("panic recovered"),
-				"Произошла критическая ошибка",
-			)
+				// Конвертируем панику в AppError
+				err := apperrors.Internal(
+					errors.New("panic recovered"),
+					"Произошла критическая ошибка",
+				)
 
-			// Обрабатываем через ErrorHandler
-			ErrorHandler(err, w, r)
-		}
-	}()
-})
+				// Обрабатываем через ErrorHandler
+				ErrorHandler(err, w, r)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}

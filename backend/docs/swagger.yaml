@@ -1,4 +1,3 @@
-basePath: /api
 definitions:
   bloodsearchrequest.Status:
     enum:
@@ -738,9 +737,6 @@ definitions:
     - RoleAdmin
 info:
   contact: {}
-  description: API сервиса однойкрови.рф для донороcства крови и помощи животным
-  title: 1krovi.app
-  version: 1.3.5
 paths:
   /:
     get:

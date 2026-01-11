@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,7 +12,6 @@ import (
 // @Success 200 {string} string "Информационное сообщение с HTML-ссылкой"
 // @Router / [get]
 func RootHandler(c echo.Context) error {
-	logger.Log.Info("root accessed")
 	htmlResponse := `<html>
 <head>
 				<title>Одной Крови</title>

@@ -1,210 +1,205 @@
 package handlers
 
-// import (
-// 	"strconv"
+import (
+	"context"
+	"net/http"
 
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
-// 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-// 	"github.com/labstack/echo/v4"
-// 	"go.uber.org/zap"
-// )
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/danielgtaylor/huma/v2"
+)
 
-// // UserHandler обрабатывает HTTP запросы для операций с пользователями
-// type UserHandler struct {
-// 	userService services.UserService
-// }
+// UserHandler обрабатывает HTTP запросы для операций с пользователями
+type UserHandler struct {
+	userService services.UserService
+}
 
-// // NewUserHandler создает новый обработчик пользователей
-// func NewUserHandler(userService services.UserService) *UserHandler {
-// 	return &UserHandler{
-// 		userService: userService,
-// 	}
-// }
+// NewUserHandler создает новый обработчик пользователей
+func NewUserHandler(userService services.UserService) *UserHandler {
+	return &UserHandler{
+		userService: userService,
+	}
+}
 
-// // GetUserHandler godoc
-// // @Summary Получение пользователя по ID
-// // @Description Возвращает информацию о пользователе по его идентификатору
-// // @Tags users-v1
-// // @Produce json
-// // @Param id path string true "ID пользователя"
-// // @Success 200 {object} ent.User "Данные пользователя"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/user/{id} [get]
-// func (h *UserHandler) GetUserHandler(c echo.Context) error {
-// 	id := c.Param("id")
-// 	if id == "" {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
-// 	}
+// Register регистрирует маршруты пользователя в Huma API
+func (h *UserHandler) Register(api huma.API) {
+	// Получение пользователя по ID
+	huma.Register(api, huma.Operation{
+		OperationID: "get-user-by-id",
+		Method:      http.MethodGet,
+		Path:        "/v1/user/{id}",
+		Summary:     "Получение пользователя по ID",
+		Description: "Возвращает информацию о пользователе по его идентификатору",
+		Tags:        []string{"users-v1"},
+	}, h.GetUser)
 
-// 	logger.Log.Info("получение пользователя", zap.String("userId", id))
+	// Простая регистрация пользователя
+	huma.Register(api, huma.Operation{
+		OperationID:   "register-user-simple",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/register/simple",
+		Summary:       "Простая регистрация пользователя",
+		Description:   "Создает пользователя с Telegram ID и именем (для команды Start)",
+		Tags:          []string{"users-v1"},
+		DefaultStatus: http.StatusCreated,
+	}, h.RegisterUserSimple)
 
-// 	user, err := h.userService.GetUserByID(c.Request().Context(), id)
-// 	if err != nil {
-// 		return err
-// 	}
+	// Регистрация нового пользователя
+	huma.Register(api, huma.Operation{
+		OperationID:   "register-user",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/register",
+		Summary:       "Регистрация нового пользователя",
+		Description:   "Регистрирует нового пользователя в системе",
+		Tags:          []string{"users-v1"},
+		DefaultStatus: http.StatusCreated,
+		Deprecated:    true,
+	}, h.RegisterUser)
 
-// 	return c.JSON(200, user)
-// }
+	// Обновление данных пользователя
+	huma.Register(api, huma.Operation{
+		OperationID: "update-user",
+		Method:      http.MethodPut,
+		Path:        "/v1/user/{id}",
+		Summary:     "Обновление данных пользователя",
+		Description: "Обновляет информацию о пользователе",
+		Tags:        []string{"users-v1"},
+	}, h.UpdateUser)
 
-// // RegisterUserSimpleHandler godoc
-// // @Summary Простая регистрация пользователя
-// // @Description Создает пользователя с Telegram ID и именем (для команды Start)
-// // @Tags users-v1
-// // @Accept json
-// // @Produce json
-// // @Param request body dto.SimpleRegistrationRequest true "Данные для простой регистрации"
-// // @Success 201 {object} ent.User "Зарегистрированный пользователь"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/user/register/simple [post]
-// func (h *UserHandler) RegisterUserSimpleHandler(c echo.Context) error {
-// 	var request dto.SimpleRegistrationRequest
-// 	if err := c.Bind(&request); err != nil {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
-// 	}
+	// Получение пользователя по Telegram ID
+	huma.Register(api, huma.Operation{
+		OperationID: "get-user-by-telegram",
+		Method:      http.MethodGet,
+		Path:        "/v1/user/telegram",
+		Summary:     "Получение пользователя по Telegram ID",
+		Description: "Возвращает информацию о пользователе по его Telegram ID",
+		Tags:        []string{"users-v1"},
+	}, h.GetUserByTelegram)
 
-// 	// Использовать предоставленное полное имя или установить значение по умолчанию "Пользователь Telegram"
-// 	fullName := request.FullName
-// 	if fullName == "" {
-// 		fullName = "Пользователь Telegram"
-// 	}
+	// Удаление пользователя по ID
+	huma.Register(api, huma.Operation{
+		OperationID: "delete-user",
+		Method:      http.MethodDelete,
+		Path:        "/v1/user/{id}",
+		Summary:     "Удаление пользователя по ID",
+		Description: "Удаляет пользователя из системы (soft delete)",
+		Tags:        []string{"users-v1"},
+	}, h.DeleteUser)
+}
 
-// 	logger.Log.Info("регистрация пользователя", zap.Int64("telegramId", request.TelegramID))
+// Вспомогательные структуры для Huma
 
-// 	user, err := h.userService.RegisterUserSimple(c.Request().Context(), request.TelegramID, fullName)
-// 	if err != nil {
-// 		return err
-// 	}
+type UserIDPath struct {
+	ID string `path:"id" doc:"ID пользователя" minLength:"1" example:"1"`
+}
 
-// 	return c.JSON(201, user)
-// }
+type TelegramIDQuery struct {
+	TelegramID int64 `query:"telegram_id" doc:"Telegram ID пользователя" minimum:"1" example:"123456789"`
+}
 
-// // RegisterUserHandler godoc
-// // @Summary Регистрация нового пользователя
-// // @Description Регистрирует нового пользователя в системе
-// // @Tags users-v1
-// // @Accept json
-// // @Produce json
-// // @Param request body dto.UserRegistration true "Данные для регистрации пользователя"
-// // @Success 201 {object} ent.User "Зарегистрированный пользователь"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// // @Failure 409 {object} utils.ErrorResponse "Пользователь уже существует"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Deprecated
-// // @Router /v1/user/register [post]
-// func (h *UserHandler) RegisterUserHandler(c echo.Context) error {
-// 	var registrationData dto.UserRegistration
-// 	if err := c.Bind(&registrationData); err != nil {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
-// 	}
+type UserResponse struct {
+	Body dto.UserResponseDTO
+}
 
-// 	// Получить Telegram ID из контекста (должен быть установлен промежуточным ПО)
-// 	telegramID, ok := c.Get("telegram_id").(int64)
-// 	if !ok {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Telegram ID обязателен"})
-// 	}
+type MessageResponse struct {
+	Body struct {
+		Message string `json:"message" example:"Успешно"`
+	}
+}
 
-// 	logger.Log.Info("регистрация пользователя", zap.Int64("telegramId", telegramID))
+// mapUserToDTO преобразует ENT модель пользователя в DTO для ответа
+func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
+	return dto.UserResponseDTO{
+		ID:               u.ID,
+		TelegramID:       u.TelegramID,
+		FullName:         u.FullName,
+		Phone:            u.Phone,
+		Email:            u.Email,
+		OrganizationName: u.OrganizationName,
+		ConsentPd:        u.ConsentPd,
+		OnBoarding:       u.OnBoarding,
+		AllowGeo:         u.AllowGeo,
+		LocationID:       u.LocationID,
+		Role:             string(u.Role),
+		CreatedAt:        u.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt:        u.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+	}
+}
 
-// 	user, err := h.userService.RegisterUser(c.Request().Context(), telegramID, registrationData)
-// 	if err != nil {
-// 		return err
-// 	}
+// Handlers
 
-// 	return c.JSON(201, user)
-// }
+func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResponse, error) {
 
-// // UpdateUserHandler godoc
-// // @Summary Обновление данных пользователя
-// // @Description Обновляет информацию о пользователе
-// // @Tags users-v1
-// // @Accept json
-// // @Produce json
-// // @Param id path string true "ID пользователя"
-// // @Param request body ent.User true "Данные для обновления"
-// // @Success 200 {object} utils.SuccessResponse "Данные успешно обновлены"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/user/{id} [put]
-// func (h *UserHandler) UpdateUserHandler(c echo.Context) error {
-// 	id := c.Param("id")
-// 	if id == "" {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
-// 	}
+	user, err := h.userService.GetUserByID(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	var updateData dto.UserUpdate
-// 	if err := c.Bind(&updateData); err != nil {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid request"})
-// 	}
+	return &UserResponse{Body: mapUserToDTO(user)}, nil
+}
 
-// 	logger.Log.Info("обновление пользователя", zap.String("userId", id))
+func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
+	Body dto.SimpleRegistrationRequest
+}) (*UserResponse, error) {
+	fullName := input.Body.FullName
+	if fullName == "" {
+		fullName = "Пользователь Telegram"
+	}
 
-// 	if err := h.userService.UpdateUserProfile(c.Request().Context(), id, updateData); err != nil {
-// 		return err
-// 	}
+	user, err := h.userService.RegisterUserSimple(ctx, input.Body.TelegramID, fullName)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return c.JSON(200, map[string]string{"message": "Пользователь успешно обновлен"})
-// }
+	return &UserResponse{Body: mapUserToDTO(user)}, nil
+}
 
-// // GetUserByTelegramHandler godoc
-// // @Summary Получение пользователя по Telegram ID
-// // @Description Возвращает информацию о пользователе по его Telegram ID
-// // @Tags users-v1
-// // @Produce json
-// // @Param telegram_id query int64 true "Telegram ID пользователя"
-// // @Success 200 {object} ent.User "Данные пользователя"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/user/telegram [get]
-// func (h *UserHandler) GetUserByTelegramHandler(c echo.Context) error {
-// 	telegramIDStr := c.QueryParam("telegram_id")
-// 	if telegramIDStr == "" {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid telegram_id"})
-// 	}
-// 	telegramID, err := strconv.ParseInt(telegramIDStr, 10, 64)
-// 	if err != nil {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid telegram_id"})
-// 	}
+func (h *UserHandler) RegisterUser(ctx context.Context, input *struct {
+	Body dto.UserRegistration
+}) (*UserResponse, error) {
+	// Извлекаем telegram_id из контекста (устанавливается middleware)
+	telegramID, _ := ctx.Value("telegram_id").(int64)
 
-// 	logger.Log.Info("получение пользователя по Telegram ID", zap.Int64("telegramId", telegramID))
+	user, err := h.userService.RegisterUser(ctx, telegramID, input.Body)
+	if err != nil {
+		return nil, err
+	}
 
-// 	user, err := h.userService.GetUserByTelegramID(c.Request().Context(), telegramID)
-// 	if err != nil {
-// 		return err
-// 	}
+	return &UserResponse{Body: mapUserToDTO(user)}, nil
+}
 
-// 	return c.JSON(200, user)
-// }
+func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
+	UserIDPath
+	Body dto.UserUpdate
+}) (*MessageResponse, error) {
 
-// // DeleteUserHandler godoc
-// // @Summary Удаление пользователя по ID
-// // @Description Удаляет пользователя из системы (soft delete)
-// // @Tags users-v1
-// // @Produce json
-// // @Param id path string true "ID пользователя"
-// // @Success 200 {object} utils.SuccessResponse "Пользователь успешно удален"
-// // @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// // @Failure 404 {object} utils.ErrorResponse "Пользователь не найден"
-// // @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// // @Router /v1/user/{id} [delete]
-// func (h *UserHandler) DeleteUserHandler(c echo.Context) error {
-// 	id := c.Param("id")
-// 	if id == "" {
-// 		return c.JSON(400, utils.ErrorResponse{Message: "Invalid ID"})
-// 	}
+	if err := h.userService.UpdateUserProfile(ctx, input.ID, input.Body); err != nil {
+		return nil, err
+	}
 
-// 	logger.Log.Info("удаление пользователя", zap.String("userId", id))
+	resp := &MessageResponse{}
+	resp.Body.Message = "Пользователь успешно обновлен"
+	return resp, nil
+}
 
-// 	if err := h.userService.DeleteUser(c.Request().Context(), id); err != nil {
-// 		return err
-// 	}
+func (h *UserHandler) GetUserByTelegram(ctx context.Context, input *TelegramIDQuery) (*UserResponse, error) {
 
-// 	return c.JSON(200, map[string]string{"message": "Пользователь успешно удален"})
-// }
+	user, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserResponse{Body: mapUserToDTO(user)}, nil
+}
+
+func (h *UserHandler) DeleteUser(ctx context.Context, input *UserIDPath) (*MessageResponse, error) {
+
+	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
+		return nil, err
+	}
+
+	resp := &MessageResponse{}
+	resp.Body.Message = "Пользователь успешно удален"
+	return resp, nil
+}
