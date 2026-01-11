@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
@@ -96,7 +96,8 @@ func main() {
 		bloodRequestHandler.Register(api)
 
 		// Создаем сервер
-		server := &http.Server{Addr: fmt.Sprintf(":%d", options.Port), Handler: mux}
+		server := config.NewServer(options.Port, mux)
+		server.Use(middleware.RequestHandler)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {

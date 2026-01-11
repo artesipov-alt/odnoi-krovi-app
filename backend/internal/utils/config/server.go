@@ -1,16 +1,19 @@
 package config
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type MyServer struct {
 	*http.Server
 }
 
 // NewServer создает новый экземпляр сервера с заданным mux
-func NewServer(mux http.Handler) *MyServer {
+func NewServer(port int, mux http.Handler) *MyServer {
 	return &MyServer{
 		&http.Server{
-			Addr:    GetEnv("SERVER_PORT", ":8080"),
+			Addr:    fmt.Sprintf(":%d", port),
 			Handler: mux,
 		},
 	}
