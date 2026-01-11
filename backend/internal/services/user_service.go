@@ -2,12 +2,19 @@ package services
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+)
+
+var (
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrLocationNotFound  = errors.New("location not found")
+	ErrInvalidRole       = errors.New("invalid role")
+	ErrInternal          = errors.New("internal error")
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
@@ -50,30 +57,30 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
+		return nil, ErrInternal
 	}
 
 	if exists {
-		return nil, apperrors.NewUserAlreadyExistsError(user.TelegramID)
+		return nil, ErrUserAlreadyExists
 	}
 
 	// Валидируем роль пользователя через ENT-валидатор
 	if err := userval.RoleValidator(user.Role); err != nil {
-		return nil, apperrors.ErrUserInvalidRole
+		return nil, ErrInvalidRole
 	}
 
 	// Проверяем существование локации
 	_, err = s.locationRepo.GetByID(ctx, user.LocationID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", user.LocationID))
+			return nil, ErrLocationNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось проверить существование локации")
+		return nil, ErrInternal
 	}
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось создать пользователя")
+		return nil, ErrInternal
 	}
 
 	return newUser, nil
@@ -84,16 +91,16 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
+		return nil, ErrInternal
 	}
 
 	if exists {
-		return nil, apperrors.NewUserAlreadyExistsError(user.TelegramID)
+		return nil, ErrUserAlreadyExists
 	}
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось создать пользователя")
+		return nil, ErrInternal
 	}
 
 	return newUser, nil
@@ -105,14 +112,14 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return apperrors.NewUserNotFoundError(userID)
+			return ErrUserNotFound
 		}
-		return apperrors.Internal(err, "не удалось получить пользователя")
+		return ErrInternal
 	}
 
 	// Удаляем пользователя
 	if err := s.userRepo.Delete(ctx, userID); err != nil {
-		return apperrors.Internal(err, "не удалось удалить пользователя")
+		return ErrInternal
 	}
 
 	return nil
@@ -123,9 +130,9 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NewUserNotFoundError(userID)
+			return nil, ErrUserNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось получить пользователя")
+		return nil, ErrInternal
 	}
 
 	return u, nil
@@ -137,9 +144,9 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return apperrors.NewUserNotFoundError(userID)
+			return ErrUserNotFound
 		}
-		return apperrors.Internal(err, "не удалось получить пользователя")
+		return ErrInternal
 	}
 
 	// Применяем обновления
@@ -164,16 +171,16 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 		_, err := s.locationRepo.GetByID(ctx, locationID)
 		if err != nil {
 			if ent.IsNotFound(err) {
-				return apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", locationID))
+				return ErrLocationNotFound
 			}
-			return apperrors.Internal(err, "не удалось проверить существование локации")
+			return ErrInternal
 		}
 		u.LocationID = locationID
 	}
 
 	// Сохраняем обновленного пользователя
 	if _, err := s.userRepo.Update(ctx, u); err != nil {
-		return apperrors.Internal(err, "не удалось обновить пользователя")
+		return ErrInternal
 	}
 
 	return nil
@@ -184,11 +191,9 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 	u, err := s.userRepo.GetByTelegramID(ctx, telegramID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NotFound("пользователь с таким Telegram ID не найден").WithDetails(map[string]any{
-				"telegram_id": telegramID,
-			})
+			return nil, ErrUserNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось получить пользователя по Telegram ID")
+		return nil, ErrInternal
 	}
 
 	return u, nil

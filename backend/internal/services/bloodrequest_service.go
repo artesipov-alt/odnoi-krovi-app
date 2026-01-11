@@ -2,12 +2,17 @@ package services
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+)
+
+var (
+	ErrBloodRequestNotFound = errors.New("blood search request not found")
+	ErrBloodRequestExists   = errors.New("blood search request already exists for this pet")
+	ErrInvalidStatus        = errors.New("invalid status")
 )
 
 // BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
@@ -31,7 +36,7 @@ type BloodSearchService interface {
 	DeleteRequest(ctx context.Context, id string) error
 
 	// ListRequests возвращает список заявок с фильтрацией
-	ListRequests(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error)
+	ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
 }
 
 // BloodSearchServiceImpl реализует BloodSearchService
@@ -53,19 +58,19 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	// Проверяем существование питомца
 	exists, err := s.petRepo.ExistsByID(ctx, bloodReq.PetID)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось проверить существование питомца")
+		return nil, ErrInternal
 	}
 	if !exists {
-		return nil, apperrors.BadRequest(fmt.Sprintf("питомец с ID %s не найден", bloodReq.PetID))
+		return nil, ErrPetNotFound
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
 	activeExists, err := s.repo.ExistsByPetID(ctx, bloodReq.PetID)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось проверить наличие активных заявок")
+		return nil, ErrInternal
 	}
 	if activeExists {
-		return nil, apperrors.BadRequest("для этого питомца уже есть активная заявка")
+		return nil, ErrBloodRequestExists
 	}
 
 	// Устанавливаем статус по умолчанию
@@ -74,7 +79,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	// Создаем заявку
 	newReq, err := s.repo.Create(ctx, bloodReq)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось создать заявку")
+		return nil, ErrInternal
 	}
 
 	return newReq, nil
@@ -85,9 +90,9 @@ func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) 
 	req, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
+			return nil, ErrBloodRequestNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось получить заявку")
+		return nil, ErrInternal
 	}
 
 	return req, nil
@@ -98,9 +103,9 @@ func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID st
 	req, err := s.repo.GetByPetID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NotFound(fmt.Sprintf("активная заявка для питомца %s не найдена", petID))
+			return nil, ErrBloodRequestNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось получить заявку")
+		return nil, ErrInternal
 	}
 
 	return req, nil
@@ -112,9 +117,9 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
+			return nil, ErrBloodRequestNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось получить заявку для обновления")
+		return nil, ErrInternal
 	}
 
 	// Убеждаемся, что ID совпадает
@@ -126,7 +131,7 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 
 	updated, err := s.repo.Update(ctx, bloodReq)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось обновить заявку")
+		return nil, ErrInternal
 	}
 
 	return updated, nil
@@ -135,15 +140,15 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 // UpdateStatus обновляет статус заявки
 func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, status string) error {
 	if err := bloodsearchrequest.StatusValidator(bloodsearchrequest.Status(status)); err != nil {
-		return apperrors.BadRequest("недопустимый статус заявки")
+		return ErrInvalidStatus
 	}
 
 	err := s.repo.UpdateStatus(ctx, id, status)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
+			return ErrBloodRequestNotFound
 		}
-		return apperrors.Internal(err, "не удалось обновить статус заявки")
+		return ErrInternal
 	}
 
 	return nil
@@ -154,18 +159,18 @@ func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) e
 	err := s.repo.Delete(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
+			return ErrBloodRequestNotFound
 		}
-		return apperrors.Internal(err, "не удалось удалить заявку")
+		return ErrInternal
 	}
 	return nil
 }
 
 // ListRequests возвращает список заявок с фильтрацией
-func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error) {
+func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
 	requests, err := s.repo.List(ctx, limit, offset, filters)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось получить список заявок")
+		return nil, ErrInternal
 	}
 
 	return requests, nil

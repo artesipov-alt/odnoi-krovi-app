@@ -13,7 +13,6 @@ import (
 	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/joho/godotenv"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
@@ -39,7 +38,7 @@ func main() {
 
 		// Инициализация кастомных ошибок для Huma
 		// Это переопределяет huma.NewError, чтобы использовать ваш AppError
-		apperrors.InitHuma()
+		// apperrors.InitHuma()
 
 		// Инициализация подключения к базе данных через ENT
 		db, err := config.ConnectEnt(config.NewENVConfig())

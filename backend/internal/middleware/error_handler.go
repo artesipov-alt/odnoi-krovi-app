@@ -7,60 +7,54 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-// ErrorResponse представляет стандартный ответ с ошибкой
+// ErrorResponse представляет стандартный ответ с ошибкой, совместимый с форматом Huma.
+// Это гарантирует, что ошибки из middleware и ошибки из Huma-обработчиков выглядят одинаково.
 type ErrorResponse struct {
-	Code    apperrors.ErrorCode `json:"code"`
-	Message string              `json:"message"`
-	Details map[string]any      `json:"details,omitempty"`
+	Status int    `json:"status"`
+	Title  string `json:"title"`
+	Detail string `json:"detail,omitempty"`
 }
 
-// ErrorHandler функция для централизованной обработки ошибок.
-// Она используется в тех местах, где нужно вручную отправить ошибку в формате AppError.
+// ErrorHandler — централизованная функция для отправки ошибок в формате JSON.
+// Она умеет распознавать ошибки Huma (StatusError) и правильно их форматировать.
 func ErrorHandler(err error, w http.ResponseWriter, r *http.Request) {
 	var status int
 	var body ErrorResponse
 
-	var appErr *apperrors.AppError
-	if errors.As(err, &appErr) {
-		status = appErr.GetStatus()
+	// Пытаемся привести ошибку к интерфейсу Huma StatusError
+	var humaErr huma.StatusError
+	if errors.As(err, &humaErr) {
+		status = humaErr.GetStatus()
 		body = ErrorResponse{
-			Code:    appErr.Code,
-			Message: appErr.Message,
-			Details: appErr.Details,
-		}
-
-		// Логируем в зависимости от статуса
-		if status >= 500 {
-			slog.ErrorContext(r.Context(), "internal server error",
-				"code", appErr.Code,
-				"message", appErr.Message,
-				"internal_err", appErr.Internal,
-				"details", appErr.Details,
-				"path", r.URL.Path,
-			)
-		} else {
-			slog.WarnContext(r.Context(), "application warning",
-				"code", appErr.Code,
-				"message", appErr.Message,
-				"status", status,
-				"path", r.URL.Path,
-			)
+			Status: status,
+			Title:  http.StatusText(status),
+			Detail: humaErr.Error(),
 		}
 	} else {
-		// Непредвиденная ошибка
+		// Для всех остальных (непредвиденных) ошибок возвращаем 500
 		status = http.StatusInternalServerError
 		body = ErrorResponse{
-			Code:    apperrors.ErrCodeInternal,
-			Message: "Внутренняя ошибка сервера",
+			Status: status,
+			Title:  "Internal Server Error",
+			Detail: "Внутренняя ошибка сервера",
 		}
+	}
 
-		slog.ErrorContext(r.Context(), "unexpected error occurred",
+	// Логируем ошибку в зависимости от её критичности
+	if status >= 500 {
+		slog.ErrorContext(r.Context(), "internal server error",
 			"error", err.Error(),
 			"path", r.URL.Path,
 			"stack", string(debug.Stack()),
+		)
+	} else {
+		slog.WarnContext(r.Context(), "application warning",
+			"status", status,
+			"error", err.Error(),
+			"path", r.URL.Path,
 		)
 	}
 
@@ -69,7 +63,7 @@ func ErrorHandler(err error, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(body)
 }
 
-// RecoveryMiddleware ловит панику и предотвращает падение приложения.
+// RecoveryMiddleware перехватывает паники и возвращает клиенту 500 ошибку вместо падения процесса.
 func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -79,8 +73,8 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 					"stack", string(debug.Stack()),
 				)
 
-				// Используем наш ErrorHandler для отправки ответа
-				err := apperrors.Internal(errors.New("panic"), "Критическая ошибка сервера")
+				// Создаем ошибку через Huma, чтобы ErrorHandler её правильно обработал
+				err := huma.Error500InternalServerError("Критическая ошибка сервера")
 				ErrorHandler(err, w, r)
 			}
 		}()

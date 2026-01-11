@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
@@ -68,14 +67,10 @@ type GetDeletedUsersResponseWrapper struct {
 // Handlers
 
 func (h *DevHandler) ResetUser(ctx context.Context, input *UserIDPath) (*DevResponseWrapper, error) {
-	slog.InfoContext(ctx, "Сброс пользователя к заводским настройкам", "user_id", input.ID)
-
 	if err := h.userRepo.ResetUser(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "Ошибка при сбросе пользователя", "error", err, "user_id", input.ID)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Пользователь успешно сброшен", "user_id", input.ID)
 	return &DevResponseWrapper{Body: dto.DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно сброшен к заводским настройкам",
@@ -83,14 +78,10 @@ func (h *DevHandler) ResetUser(ctx context.Context, input *UserIDPath) (*DevResp
 }
 
 func (h *DevHandler) RestoreUser(ctx context.Context, input *UserIDPath) (*DevResponseWrapper, error) {
-	slog.InfoContext(ctx, "Восстановление удаленного пользователя", "user_id", input.ID)
-
 	if err := h.userRepo.RestoreUser(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "Ошибка при восстановлении пользователя", "error", err, "user_id", input.ID)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Пользователь успешно восстановлен", "user_id", input.ID)
 	return &DevResponseWrapper{Body: dto.DevResponse{
 		Status:  true,
 		Message: "Пользователь успешно восстановлен",
@@ -98,15 +89,11 @@ func (h *DevHandler) RestoreUser(ctx context.Context, input *UserIDPath) (*DevRe
 }
 
 func (h *DevHandler) GetDeletedUsers(ctx context.Context, input *struct{}) (*GetDeletedUsersResponseWrapper, error) {
-	slog.InfoContext(ctx, "Получение списка удаленных пользователей")
-
 	users, err := h.userRepo.GetDeletedUsers(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка при получении удаленных пользователей", "error", err)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Удаленные пользователи успешно получены", "count", len(users))
 	return &GetDeletedUsersResponseWrapper{Body: dto.GetDeletedUsersResponse{
 		Status:  true,
 		Message: "Удаленные пользователи успешно получены",

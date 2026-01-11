@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -103,12 +104,6 @@ type UserResponse struct {
 	Body dto.UserResponseDTO
 }
 
-type MessageResponse struct {
-	Body struct {
-		Message string `json:"message" example:"Успешно"`
-	}
-}
-
 // mapUserToDTO преобразует ENT модель пользователя в DTO для ответа
 func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
 	return dto.UserResponseDTO{
@@ -184,9 +179,11 @@ func mapDTOToUpdates(dto dto.UserUpdate) map[string]any {
 func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResponse, error) {
 	user, err := h.userService.GetUserByID(ctx, input.ID)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
-
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
 }
 
@@ -207,7 +204,10 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 
 	user, err := h.userService.RegisterUserSimple(ctx, user)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, services.ErrUserAlreadyExists) {
+			return nil, huma.Error409Conflict("Пользователь уже существует")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
@@ -223,7 +223,16 @@ func (h *UserHandler) RegisterUser(ctx context.Context, input *struct {
 
 	user, err := h.userService.RegisterUser(ctx, user)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, services.ErrUserAlreadyExists) {
+			return nil, huma.Error409Conflict("Пользователь уже существует")
+		}
+		if errors.Is(err, services.ErrInvalidRole) {
+			return nil, huma.Error400BadRequest("Неверная роль")
+		}
+		if errors.Is(err, services.ErrLocationNotFound) {
+			return nil, huma.Error400BadRequest("Неверная локация")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
@@ -236,7 +245,13 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	updates := mapDTOToUpdates(input.Body)
 
 	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
-		return nil, err
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		if errors.Is(err, services.ErrLocationNotFound) {
+			return nil, huma.Error400BadRequest("Неверная локация")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	resp := &MessageResponse{}
@@ -247,7 +262,10 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 func (h *UserHandler) GetUserByTelegram(ctx context.Context, input *TelegramIDQuery) (*UserResponse, error) {
 	user, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	return &UserResponse{Body: mapUserToDTO(user)}, nil
@@ -255,7 +273,10 @@ func (h *UserHandler) GetUserByTelegram(ctx context.Context, input *TelegramIDQu
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *UserIDPath) (*MessageResponse, error) {
 	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
-		return nil, err
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	resp := &MessageResponse{}

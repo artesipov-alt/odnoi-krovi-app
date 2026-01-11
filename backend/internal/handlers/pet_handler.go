@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"log/slog"
+	"errors"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -140,6 +140,12 @@ type UploadURLResponse struct {
 type ConfirmUploadResponse struct {
 	Body struct {
 		PublicURL string `json:"publicUrl"`
+	}
+}
+
+type MessageResponse struct {
+	Body struct {
+		Message string `json:"message" example:"Успешно"`
 	}
 }
 
@@ -483,17 +489,16 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	PetUserIDPath
 	Body dto.PetCreate
 }) (*PetResponse, error) {
-	slog.InfoContext(ctx, "Начало создания питомца", "user_id", input.ID, "pet_name", input.Body.Name)
-
 	petData := mapDTOToPet(input.Body)
 
 	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка создания питомца", "user_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Питомец успешно создан", "user_id", input.ID, "pet_id", pet.ID)
 	return &PetResponse{Body: mapPetToDTO(pet)}, nil
 }
 
@@ -502,15 +507,15 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	PetPreloadQuery
 }) (*PetResponse, error) {
 	preloads := h.getPreloads(input.PetPreloadQuery)
-	slog.InfoContext(ctx, "Начало получения питомца по ID", "pet_id", input.ID, "preloads", preloads)
 
 	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка получения питомца по ID", "pet_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrPetNotFound) {
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Питомец успешно получен по ID", "pet_id", input.ID)
 	return &PetResponse{Body: mapPetToDTO(pet)}, nil
 }
 
@@ -519,12 +524,13 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	PetPreloadQuery
 }) (*PetsResponse, error) {
 	preloads := h.getPreloads(input.PetPreloadQuery)
-	slog.InfoContext(ctx, "Начало получения питомцев пользователя", "user_id", input.ID, "preloads", preloads)
 
 	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка получения питомцев пользователя", "user_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
 	var petDTOs []dto.PetResponseDTO
@@ -532,7 +538,6 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 		petDTOs = append(petDTOs, mapPetToDTO(p))
 	}
 
-	slog.InfoContext(ctx, "Питомцы пользователя успешно получены", "user_id", input.ID, "count", len(petDTOs))
 	return &PetsResponse{Body: petDTOs}, nil
 }
 
@@ -540,45 +545,42 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	PetIDPath
 	Body dto.PetUpdate
 }) (*MessageResponse, error) {
-	slog.InfoContext(ctx, "Начало обновления данных питомца", "pet_id", input.ID)
-
 	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
 
 	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
-		slog.ErrorContext(ctx, "Ошибка обновления данных питомца", "pet_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrPetNotFound) {
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Данные питомца успешно обновлены", "pet_id", input.ID)
 	resp := &MessageResponse{}
 	resp.Body.Message = "Питомец успешно обновлен"
 	return resp, nil
 }
 
 func (h *PetHandler) DeletePet(ctx context.Context, input *PetIDPath) (*MessageResponse, error) {
-	slog.InfoContext(ctx, "Начало удаления питомца по ID", "pet_id", input.ID)
-
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "Ошибка удаления питомца по ID", "pet_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrPetNotFound) {
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Питомец успешно удален по ID", "pet_id", input.ID)
 	resp := &MessageResponse{}
 	resp.Body.Message = "Питомец успешно удален"
 	return resp, nil
 }
 
 func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *PetIDPath) (*UploadURLResponse, error) {
-	slog.InfoContext(ctx, "Начало получения ссылки для загрузки фотографии питомца", "pet_id", input.ID)
-
 	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка получения ссылки для загрузки фотографии питомца", "pet_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrPetNotFound) {
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Ссылка для загрузки фотографии питомца успешно получена", "pet_id", input.ID)
 	return &UploadURLResponse{Body: struct {
 		URL  string `json:"url"`
 		Path string `json:"path"`
@@ -586,15 +588,11 @@ func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *PetIDPath) (
 }
 
 func (h *PetHandler) ConfirmPetAvatarUpload(ctx context.Context, input *AvatarPathParam) (*ConfirmUploadResponse, error) {
-	slog.InfoContext(ctx, "Начало подтверждения загрузки аватарки питомца", "avatar_path", input.Path)
-
 	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка подтверждения загрузки аватарки питомца", "avatar_path", input.Path, "error", err)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Аватарка питомца успешно подтверждена", "avatar_path", input.Path)
 	return &ConfirmUploadResponse{Body: struct {
 		PublicURL string `json:"publicUrl"`
 	}{PublicURL: publicURL}}, nil

@@ -10,8 +10,15 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+)
+
+var (
+	ErrPetNotFound          = errors.New("pet not found")
+	ErrInvalidPetID         = errors.New("invalid pet ID")
+	ErrInvalidAvatarPath    = errors.New("invalid avatar path format")
+	ErrFileNotFound         = errors.New("file not found")
+	ErrFailedToGetPublicURL = errors.New("failed to get public URL for avatar")
 )
 
 // calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
@@ -96,9 +103,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NewUserNotFoundError(userID)
+			return nil, ErrUserNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
+		return nil, ErrInternal
 	}
 
 	// Устанавливаем UserID
@@ -106,25 +113,25 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 
 	// Валидируем тип животного
 	if err := pet.TypeValidator(petData.Type); err != nil {
-		return nil, apperrors.ErrInvalidPetType
+		return nil, err
 	}
 
 	// Валидируем статус питомца
 	if err := pet.PetStatusValidator(petData.PetStatus); err != nil {
-		return nil, apperrors.ErrPetInvalidStatus
+		return nil, err
 	}
 
 	// Валидируем пол животного
 	if string(petData.Gender) != "" {
 		if err := pet.GenderValidator(petData.Gender); err != nil {
-			return nil, apperrors.ErrInvalidGender
+			return nil, err
 		}
 	}
 
 	// Валидируем условия проживания
 	if string(petData.LivingCondition) != "" {
 		if err := pet.LivingConditionValidator(petData.LivingCondition); err != nil {
-			return nil, apperrors.ErrInvalidLivingCondition
+			return nil, err
 		}
 	}
 
@@ -132,12 +139,12 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 	if petData.Edges.Health != nil {
 		if string(petData.Edges.Health.HealthStatus) != "" {
 			if err := pethealth.HealthStatusValidator(petData.Edges.Health.HealthStatus); err != nil {
-				return nil, apperrors.ErrInvalidHealthStatus
+				return nil, err
 			}
 		}
 		if string(petData.Edges.Health.ReproductiveStatus) != "" {
 			if err := pethealth.ReproductiveStatusValidator(petData.Edges.Health.ReproductiveStatus); err != nil {
-				return nil, apperrors.ErrInvalidReproductiveStatus
+				return nil, err
 			}
 		}
 	}
@@ -146,42 +153,42 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 		for _, a := range petData.Edges.Analyses {
 			if string(a.LeukemiaType) != "" {
 				if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.ImmunodeficiencyType) != "" {
 				if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.HemoplasmosisType) != "" {
 				if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.BartonellosisType) != "" {
 				if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.BabesiosisType) != "" {
 				if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.DirofilariaType) != "" {
 				if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.EhrlichiosisType) != "" {
 				if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 			if string(a.AnaplasmosisType) != "" {
 				if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
-					return nil, apperrors.ErrInvalidAnalysisType
+					return nil, err
 				}
 			}
 		}
@@ -189,7 +196,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 
 	newPet, err := s.petRepo.Create(ctx, petData, petData.Edges.Health, petData.Edges.Treatments, petData.Edges.Analyses, petData.Edges.Bonuses)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось создать питомца")
+		return nil, ErrInternal
 	}
 
 	// Преобразуем путь к фото в полный URL
@@ -201,12 +208,15 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 // GetPetByID получает питомца по ID с preload связей
 func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error) {
 	if petID == "" {
-		return nil, errors.New("invalid pet ID")
+		return nil, ErrInvalidPetID
 	}
 
 	p, err := s.petRepo.GetByID(ctx, petID, preloads...)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось получить питомца")
+		if ent.IsNotFound(err) {
+			return nil, ErrPetNotFound
+		}
+		return nil, ErrInternal
 	}
 
 	// Преобразуем путь к фото в полный URL
@@ -221,14 +231,14 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.NewUserNotFoundError(userID)
+			return nil, ErrUserNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
+		return nil, ErrInternal
 	}
 
 	pets, err := s.petRepo.GetByUserID(ctx, userID, preloads...)
 	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
+		return nil, ErrInternal
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -245,9 +255,9 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	p, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return apperrors.NewPetNotFoundError(petID)
+			return ErrPetNotFound
 		}
-		return apperrors.Internal(err, "не удалось получить питомца")
+		return ErrInternal
 	}
 
 	// Применяем обновления и валидируем
@@ -278,21 +288,21 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	if val, ok := updates["LivingCondition"]; ok {
 		lc := val.(string)
 		if err := pet.LivingConditionValidator(pet.LivingCondition(lc)); err != nil {
-			return apperrors.ErrInvalidLivingCondition
+			return err
 		}
 		p.LivingCondition = pet.LivingCondition(lc)
 	}
 	if val, ok := updates["Gender"]; ok {
 		g := val.(string)
 		if err := pet.GenderValidator(pet.Gender(g)); err != nil {
-			return apperrors.ErrInvalidGender
+			return err
 		}
 		p.Gender = pet.Gender(g)
 	}
 	if val, ok := updates["Type"]; ok {
 		t := val.(string)
 		if err := pet.TypeValidator(pet.Type(t)); err != nil {
-			return apperrors.ErrInvalidPetType
+			return err
 		}
 		p.Type = pet.Type(t)
 	}
@@ -302,7 +312,7 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	if val, ok := updates["PetStatus"]; ok {
 		ps := val.(string)
 		if err := pet.PetStatusValidator(pet.PetStatus(ps)); err != nil {
-			return apperrors.ErrPetInvalidStatus
+			return err
 		}
 		p.PetStatus = pet.PetStatus(ps)
 	}
@@ -314,61 +324,61 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	if health != nil {
 		if health.HealthStatus != "" {
 			if err := pethealth.HealthStatusValidator(health.HealthStatus); err != nil {
-				return apperrors.ErrInvalidHealthStatus
+				return err
 			}
 		}
 		if health.ReproductiveStatus != "" {
 			if err := pethealth.ReproductiveStatusValidator(health.ReproductiveStatus); err != nil {
-				return apperrors.ErrInvalidReproductiveStatus
+				return err
 			}
 		}
 	}
 	for _, a := range analyses {
 		if a.LeukemiaType != "" {
 			if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.ImmunodeficiencyType != "" {
 			if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.HemoplasmosisType != "" {
 			if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.BartonellosisType != "" {
 			if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.BabesiosisType != "" {
 			if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.DirofilariaType != "" {
 			if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.EhrlichiosisType != "" {
 			if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 		if a.AnaplasmosisType != "" {
 			if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
-				return apperrors.ErrInvalidAnalysisType
+				return err
 			}
 		}
 	}
 
 	// Сохраняем обновленного питомца
 	if _, err := s.petRepo.Update(ctx, p, health, treatments, analyses, bonuses); err != nil {
-		return apperrors.Internal(err, "не удалось обновить питомца")
+		return ErrInternal
 	}
 
 	return nil
@@ -378,14 +388,14 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	exists, err := s.petRepo.ExistsByID(ctx, petID)
 	if err != nil {
-		return apperrors.Internal(err, "не удалось проверить существование питомца")
+		return ErrInternal
 	}
 	if !exists {
-		return apperrors.NewPetNotFoundError(petID)
+		return ErrPetNotFound
 	}
 
 	if err := s.petRepo.Delete(ctx, petID); err != nil {
-		return apperrors.Internal(err, "не удалось удалить питомца")
+		return ErrInternal
 	}
 
 	return nil
@@ -395,15 +405,15 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error) {
 	exists, err := s.petRepo.ExistsByID(ctx, petID)
 	if err != nil {
-		return "", "", apperrors.Internal(err, "не удалось проверить существование питомца")
+		return "", "", ErrInternal
 	}
 	if !exists {
-		return "", "", apperrors.NewPetNotFoundError(petID)
+		return "", "", ErrPetNotFound
 	}
 
 	url, path, err := s.storage.GetAvatarUploadInfo(ctx, petID)
 	if err != nil {
-		return "", "", apperrors.Internal(err, "не удалось сгенерировать URL для загрузки аватара")
+		return "", "", ErrInternal
 	}
 
 	return url, path, nil
@@ -414,39 +424,39 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 	decodedPath := strings.ReplaceAll(avatarPath, "%2F", "/")
 	parts := strings.Split(decodedPath, "/")
 	if len(parts) < 2 {
-		return "", apperrors.Internal(nil, "некорректный формат пути аватара")
+		return "", ErrInvalidAvatarPath
 	}
 	petID := parts[1]
 
 	p, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return "", apperrors.NewPetNotFoundError(petID)
+			return "", ErrPetNotFound
 		}
-		return "", apperrors.Internal(err, "не удалось получить питомца")
+		return "", ErrInternal
 	}
 
 	exists, err := s.storage.CheckObjectExists(ctx, decodedPath)
 	if err != nil {
-		return "", apperrors.Internal(err, "не удалось проверить существование файла")
+		return "", ErrInternal
 	}
 	if !exists {
-		return "", apperrors.Internal(nil, "файл не найден")
+		return "", ErrFileNotFound
 	}
 
 	err = s.storage.SetObjectPublicACL(ctx, decodedPath)
 	if err != nil {
-		return "", apperrors.Internal(err, "не удалось установить публичный ACL")
+		return "", ErrInternal
 	}
 
 	publicURL := s.storage.GetAvatarPublicURL(petID)
 	if publicURL == "" {
-		return "", apperrors.Internal(nil, "не удалось получить публичный URL для аватарки")
+		return "", ErrFailedToGetPublicURL
 	}
 
 	p.PhotoURL = decodedPath
 	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
-		return "", apperrors.Internal(err, "не удалось обновить photoURL питомца")
+		return "", ErrInternal
 	}
 
 	return publicURL, nil

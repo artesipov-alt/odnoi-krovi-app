@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"log/slog"
+	"errors"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -126,17 +126,16 @@ func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
 	Body dto.BloodSearchPetRequest
 }) (*BloodSearchPetResponseWrapper, error) {
-	slog.InfoContext(ctx, "Создание заявки на поиск крови", "pet_id", input.Body.PetID)
-
 	bloodReq := mapDTOToBloodRequest(input.Body)
 
 	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка создания заявки на поиск крови", "pet_id", input.Body.PetID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrBloodRequestExists) {
+			return nil, huma.Error409Conflict("Заявка на поиск крови для этого питомца уже существует")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Заявка на поиск крови успешно создана", "pet_id", input.Body.PetID, "request_id", result.ID)
 	return &BloodSearchPetResponseWrapper{Body: dto.BloodSearchPetResponse{
 		ID:     result.ID,
 		PetID:  result.PetID,
@@ -147,7 +146,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
 	Body dto.BloodSearchFilterRequest
 }) (*BloodSearchPetsResponseWrapper, error) {
-	filters := make(map[string]interface{})
+	filters := make(map[string]any)
 	if input.Body.PetID != "" {
 		filters["pet_id"] = input.Body.PetID
 	}
@@ -155,12 +154,9 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 		filters["status"] = input.Body.Status
 	}
 
-	slog.InfoContext(ctx, "Получение списка заявок на поиск крови", "filters", filters)
-
 	requests, err := h.service.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка получения списка заявок на поиск крови", "error", err)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	dtos := make([]dto.BloodSearchRequestDTO, len(requests))
@@ -168,34 +164,31 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 		dtos[i] = mapBloodRequestToDTO(req)
 	}
 
-	slog.InfoContext(ctx, "Список заявок на поиск крови успешно получен", "count", len(requests))
 	return &BloodSearchPetsResponseWrapper{Body: dto.BloodSearchPetsResponse{
 		Requests: dtos,
 	}}, nil
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *BloodRequestIDPath) (*BloodSearchRequestDTOWrapper, error) {
-	slog.InfoContext(ctx, "Получение заявки по ID", "request_id", input.ID)
-
 	result, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка получения заявки по ID", "request_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrBloodRequestNotFound) {
+			return nil, huma.Error404NotFound("Заявка не найдена")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Заявка по ID успешно получена", "request_id", input.ID)
 	return &BloodSearchRequestDTOWrapper{Body: mapBloodRequestToDTO(result)}, nil
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*MessageResponse, error) {
-	slog.InfoContext(ctx, "Удаление заявки", "request_id", input.ID)
-
 	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "Ошибка удаления заявки", "request_id", input.ID, "error", err)
-		return nil, err
+		if errors.Is(err, services.ErrBloodRequestNotFound) {
+			return nil, huma.Error404NotFound("Заявка не найдена")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	slog.InfoContext(ctx, "Заявка успешно удалена", "request_id", input.ID)
 	resp := &MessageResponse{}
 	resp.Body.Message = "Заявка успешно удалена"
 	return resp, nil

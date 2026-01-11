@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
@@ -173,8 +172,6 @@ type PetTypeQuery struct {
 // Handlers
 
 func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника типов животных")
-
 	petTypes := enums.GetAllEntPetTypes()
 	items := make([]dto.ReferenceItem, len(petTypes))
 
@@ -191,8 +188,6 @@ func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*R
 }
 
 func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника полов")
-
 	genders := enums.GetAllEntGenders()
 	items := make([]dto.ReferenceItem, len(genders))
 
@@ -209,8 +204,6 @@ func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*Re
 }
 
 func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника условий проживания")
-
 	conditions := enums.GetAllEntLivingConditions()
 	items := make([]dto.ReferenceItem, len(conditions))
 
@@ -227,8 +220,6 @@ func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struc
 }
 
 func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника ролей пользователей")
-
 	roles := enums.GetAllEntUserRoles()
 	items := make([]dto.ReferenceItem, len(roles))
 
@@ -245,8 +236,6 @@ func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*
 }
 
 func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника ролей питомцев")
-
 	roles := enums.GetAllEntPetStatuses()
 	items := make([]dto.ReferenceItem, len(roles))
 
@@ -263,12 +252,9 @@ func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*R
 }
 
 func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*ReferenceResponseDB, error) {
-	slog.InfoContext(ctx, "получение справочника пород животных")
-
 	breeds, err := h.breedRepo.GetAll(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "не удалось получить породы из БД", "error", err)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	items := make([]dto.ReferenceItemDB, len(breeds))
@@ -283,12 +269,9 @@ func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*Ref
 }
 
 func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*ReferenceResponseDB, error) {
-	slog.InfoContext(ctx, "получение справочника локаций")
-
 	locations, err := h.locationRepo.GetAll(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "не удалось получить локации из БД", "error", err)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	items := make([]dto.ReferenceItemDB, len(locations))
@@ -303,11 +286,8 @@ func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*
 }
 
 func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *PetTypeQuery) (*ReferenceResponseDB, error) {
-	slog.InfoContext(ctx, "получение справочника пород животных по типу животного")
-
 	petTypeStr := input.PetType
 	if petTypeStr == "" {
-		slog.ErrorContext(ctx, "не указан тип животного")
 		return nil, huma.Error400BadRequest("Необходимо указать тип животного")
 	}
 
@@ -319,14 +299,12 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *PetTypeQu
 		}
 	}
 	if !isValid {
-		slog.ErrorContext(ctx, "неверный тип животного", "petType", petTypeStr)
 		return nil, huma.Error400BadRequest("Неверный тип животного")
 	}
 
 	breeds, err := h.breedRepo.GetByPetType(ctx, breed.Type(petTypeStr))
 	if err != nil {
-		slog.ErrorContext(ctx, "не удалось получить породы из БД", "error", err, "petType", petTypeStr)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	items := make([]dto.ReferenceItemDB, len(breeds))
@@ -341,12 +319,9 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *PetTypeQu
 }
 
 func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*ReferenceResponseDB, error) {
-	slog.InfoContext(ctx, "получение справочника компонентов крови")
-
 	bloodComponents, err := h.bloodRepo.AllComponents(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "не удалось получить компоненты крови из БД", "error", err)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	items := make([]dto.ReferenceItemDB, len(bloodComponents))
@@ -363,16 +338,12 @@ func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct
 func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *PetTypePath) (*ReferenceResponseDB, error) {
 	petType := input.PetType
 	if petType == "" {
-		slog.ErrorContext(ctx, "не указан тип животного")
 		return nil, huma.Error400BadRequest("Необходимо указать тип животного")
 	}
 
-	slog.InfoContext(ctx, "получение групп крови по типу животного", "petType", petType)
-
 	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(ctx, bloodgroup.PetType(petType))
 	if err != nil {
-		slog.ErrorContext(ctx, "не удалось получить группы крови из БД", "error", err, "petType", petType)
-		return nil, err
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	items := make([]dto.ReferenceItemDB, len(bloodGroups))
@@ -387,8 +358,6 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *PetTypePat
 }
 
 func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника статусов здоровья")
-
 	statuses := enums.GetAllEntHealthStatuses()
 	items := make([]dto.ReferenceItem, len(statuses))
 
@@ -405,8 +374,6 @@ func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{
 }
 
 func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *struct{}) (*ReferenceResponse, error) {
-	slog.InfoContext(ctx, "получение справочника репродуктивных состояний")
-
 	statuses := enums.GetAllEntReproductiveStatuses()
 	items := make([]dto.ReferenceItem, len(statuses))
 
