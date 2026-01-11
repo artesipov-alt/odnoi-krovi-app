@@ -1,0 +1,182 @@
+@import 'styles/colors';
+
+.header {
+    height: 430px;
+    background: url('imgs/mainFinalBg.png') no-repeat top;
+    background-size: cover;
+
+    &.isOpen {
+        background-position-y: -170px;
+    }
+}
+
+.title {
+    padding-top: 178px;
+    color: @red1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+
+    &.isOpen {
+        padding-top: 22px;
+    }
+}
+
+.content {
+    margin-top: -210px;
+
+    &.isOpen {
+        margin-top: -365px;
+    }
+}
+
+.photo {
+    margin: 0 auto;
+}
+
+.accordions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 20px 0;
+    padding: 0 13px;
+
+    &.isOpen {
+        gap: 8px;
+        margin: 8px 0;
+    }
+}
+
+.accordionContent {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.params {
+    display: flex;
+    justify-content: space-between;
+    font-family: Proxima Nova, sans-serif;
+
+    &.analiz {
+        align-items: flex-start;
+    }
+}
+
+.paramName {
+    color: @textColor4;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+
+    &.withIcon {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.paramValue {
+    width: 50%;
+    color: @textColor2;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    text-align: right;
+
+    &.vaccination {
+        width: 40%;
+        color: @textColor4;
+        font-size: 10px;
+    }
+
+    &.analiz {
+        display: flex;
+        justify-content: end;
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 70%;
+    }
+}
+
+.analizItem {
+    padding: 0 5px;
+    display: inline-block;
+    border-radius: 5px;
+    background: @grayBg3;
+}
+
+.icon {
+    width: 14px;
+    height: 14px;
+    margin-top: -4px;
+    transition: .3s;
+
+    &.accordionIcon {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+        margin-left: auto;
+    }
+
+    &.isOpen {
+        transition: .3s;
+        transform: rotate(90deg);
+    }
+
+    &.backArrow {
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: @textColor3;
+        }
+    }
+
+    &.miniPaw {
+        width: 14px;
+        height: 18px;
+    }
+
+    &.accStringIcon {
+        margin-right: 10px;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            margin-top: unset;
+        }
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @red4;
+    }
+}
+
+.buttons {
+    display: flex;
+    gap: 8px;
+    padding: 0 13px 40px;
+}
+
+.button {
+    width: 50%;
+    height: 60px;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    text-transform: none !important;
+}
+
+.back {
+    background: @white !important;
+    color: @textColor2 !important;
+}
+
+.ok {
+    background: @common-red !important;
+    color: @textColor3 !important;
+}

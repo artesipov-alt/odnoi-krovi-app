@@ -1,9 +1,9 @@
 import { Button } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
 import Big from 'big.js';
 import cn from 'classnames';
 import Lock from 'imgs/svg/lock';
+import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useState } from 'react';
 import { regexReal } from 'utils/regexps';
 
@@ -12,6 +12,7 @@ import { PetType } from 'api/types';
 import Alert from 'components/Alert';
 import Multiselect from 'components/Multiselect';
 import Switch from 'components/Switch';
+import TextField from 'components/TextField';
 
 import styles from './Second.module.less';
 
@@ -122,6 +123,12 @@ const Second: FC<Props> = ({
         onChangeBloodVolume(newValue);
     };
 
+    const onBlurBloodVolumeHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (Number(value) < 10) {
+            onChangeBloodVolume('10');
+        }
+    };
+
     const onChangeLocationsHandler = ({ target: { value } }: SelectChangeEvent<typeof locations>) => {
         const newLocations = typeof value === 'string' ? value.split(',') : value;
 
@@ -140,8 +147,7 @@ const Second: FC<Props> = ({
 
     return (
         <>
-            <div className={styles.formItem}>
-                <p className={styles.label}>Какую группу ищете?</p>
+            <FormItem title='Какую группу ищете?'>
                 <div className={styles.bloodGroups}>
                     {bloodGroupDict[petType].map(({ label, value }) => {
                         const isGroupChecked = desiredBloodGroups.includes(value);
@@ -175,65 +181,36 @@ const Second: FC<Props> = ({
                         text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу(DEA 1 +), чтобы не создавать дефицит для других собак.'
                     />
                 )}
-            </div>
-            <div className={styles.formItem}>
-                <div className={styles.labelWrapper}>
-                    <p className={styles.label}>Какие компоненты нужны?</p>
-                    <span className={styles.subLabel}>до 3 компонентов</span>
-                </div>
+            </FormItem>
+            <FormItem title='Какие компоненты нужны?' subtitle='до 3 компонентов'>
                 <Multiselect
                     selectValue={bloodComponents}
                     dict={bloodComponentsDict}
                     onChange={onChangeBloodComponentsHandler}
                 />
-            </div>
-            <div className={styles.formItem}>
-                <div className={styles.labelWrapper}>
-                    <p className={styles.label}>Какой объем требуется?</p>
-                    <span className={styles.subLabel}>
-                        {`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
-                    </span>
-                </div>
+            </FormItem>
+            <FormItem
+                title='Какой объем требуется?'
+                subtitle={`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
+            >
                 <TextField
-                    fullWidth
                     name='volume'
+                    isDigitInput
                     value={bloodVolume}
+                    onBlur={onBlurBloodVolumeHandler}
                     placeholder='Укажите нужный объем'
                     onChange={onChangeBloodVolumeHandler}
-                    slotProps={{
-                        input: {
-                            endAdornment: <div className={styles.endAdornment}>мл</div>,
-                            className: styles.inputWrapper,
-                        },
-                        htmlInput: {
-                            className: styles.input,
-                        },
-                    }}
-                    sx={{
-                        '& .MuiOutlinedInput-root': {
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                            },
-                            '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                                borderWidth: '1px',
-                            },
-                        },
-                    }}
+                    endAdornment={<div className={styles.endAdornment}>мл</div>}
                 />
                 <Alert
                     className={cn(styles.alert, { [styles.firstOfFew]: true })}
                     text='Чем меньше объем - тем выше шансы найти кровь'
                 />
                 <Alert className={styles.alert} text='Могут быть показаны предложения меньшего объема' />
-            </div>
-            <div className={styles.formItem}>
-                <p className={styles.label}>В каком регионе искать?</p>
+            </FormItem>
+            <FormItem title='В каком регионе искать?'>
                 <Multiselect dict={locationsDict} selectValue={locations} onChange={onChangeLocationsHandler} />
-            </div>
+            </FormItem>
             <div className={styles.formItem}>
                 <div className={cn(styles.labelWrapper, { [styles.noMargin]: true })}>
                     <p className={cn(styles.label, { [styles.noMargin]: true })}>Уведомлять о небольших донорах</p>

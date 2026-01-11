@@ -1,0 +1,86 @@
+@import 'styles/colors';
+
+.photo {
+    margin: 0 auto 20px;
+}
+
+.buttonsRow {
+    display: flex;
+    gap: 6px;
+
+    &.chip {
+        gap: 10px;
+    }
+}
+
+.buttonsRowItem {
+    height: 50px;
+    width: 50%;
+    border-radius: 50px !important;
+    background: @white !important;
+    color: @textColor4 !important;
+    text-transform: none !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 15px !important;
+
+    &.checked {
+        background: @common-red !important;
+        color: @textColor3 !important;
+    }
+}
+
+.chipField {
+    width: 50%;
+}
+
+.buttonIcon {
+    width: 16px;
+    height: 16px;
+    margin-left: -30px;
+    fill: @border3;
+
+    &.female {
+        width: 13px;
+        height: 18px;
+    }
+
+    &.isChecked {
+        fill: @textColor2;
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.picker {
+    margin-top: 8px;
+}
+
+.ageItem {
+    width: 50%;
+    margin-top: 20px;
+    margin-bottom: 4px;
+}
+
+.confirm {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+    pointer-events: none;
+    opacity: .4;
+
+    &.enabled {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
