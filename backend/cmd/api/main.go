@@ -9,6 +9,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	"github.com/danielgtaylor/huma/v2/humacli"
+	"github.com/joho/godotenv"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
@@ -17,11 +22,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds"
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
-	"github.com/danielgtaylor/huma/v2/humacli"
-
-	"github.com/joho/godotenv"
 )
 
 // Options for the CLI.
