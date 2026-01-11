@@ -9,11 +9,11 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/schema"
+	schemaent "entgo.io/ent/dialect/sql/schema"
 	_ "github.com/lib/pq"
 )
 
@@ -80,7 +80,7 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 	client := ent.NewClient(ent.Driver(drv))
 
 	// Register global hooks
-	client.Use(pg.SoftDeleteHook())
+	client.Use(schema.SoftDeleteHook())
 
 	return client, nil
 }
@@ -92,7 +92,7 @@ func RunMigrations(client *ent.Client) error {
 	// При миграции Ent будет использовать SchemaConfig, заданный при инициализации клиента.
 	// Опция WithDiffSchema(true) заставляет Ent учитывать схемы при сравнении текущего состояния БД и схемы Ent.
 	if err := client.Schema.Create(ctx,
-		schema.WithForeignKeys(true),
+		schemaent.WithForeignKeys(true),
 	); err != nil {
 		return fmt.Errorf("failed creating schema resources: %w", err)
 	}

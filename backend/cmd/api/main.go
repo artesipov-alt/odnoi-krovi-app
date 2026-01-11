@@ -21,6 +21,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds"
+	 _ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 )
 
 // Options for the CLI.
