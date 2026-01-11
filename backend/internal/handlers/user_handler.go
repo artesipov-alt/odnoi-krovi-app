@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -128,6 +129,57 @@ func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
 	}
 }
 
+// mapDTOToUser преобразует DTO регистрации в ENT пользователя
+func mapDTOToUser(dto dto.UserRegistrationFull, telegramID int64) *ent.User {
+	return &ent.User{
+		TelegramID: telegramID,
+		FullName:   dto.FullName,
+		Phone:      dto.Phone,
+		Email:      dto.Email,
+		ConsentPd:  dto.ConsentPD,
+		LocationID: dto.LocationID,
+		Role:       user.Role(dto.Role),
+	}
+}
+
+// mapDTOToUserSimple преобразует DTO простой регистрации в ENT пользователя
+func mapDTOToUserSimple(dto dto.UserRegistrationSimple) *ent.User {
+	return &ent.User{
+		TelegramID: dto.TelegramID,
+		FullName:   dto.FullName,
+		Phone:      "",
+		Email:      "",
+		ConsentPd:  true,
+		OnBoarding: false,
+		AllowGeo:   false,
+		Role:       user.RoleUser,
+	}
+}
+
+// mapDTOToUpdates преобразует DTO обновления в map для сервиса
+func mapDTOToUpdates(dto dto.UserUpdate) map[string]any {
+	updates := make(map[string]any)
+	if dto.FullName != nil {
+		updates["FullName"] = *dto.FullName
+	}
+	if dto.Phone != nil {
+		updates["Phone"] = *dto.Phone
+	}
+	if dto.Email != nil {
+		updates["Email"] = *dto.Email
+	}
+	if dto.AllowGeo != nil {
+		updates["AllowGeo"] = *dto.AllowGeo
+	}
+	if dto.OnBoarding != nil {
+		updates["OnBoarding"] = *dto.OnBoarding
+	}
+	if dto.LocationID != nil {
+		updates["LocationID"] = *dto.LocationID
+	}
+	return updates
+}
+
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResponse, error) {
@@ -157,7 +209,9 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		FullName:   fullName,
 	}
 
-	user, err := h.userService.RegisterUserSimple(ctx, userData)
+	user := mapDTOToUserSimple(userData)
+
+	user, err := h.userService.RegisterUserSimple(ctx, user)
 	if err != nil {
 		slog.ErrorContext(ctx, "Ошибка простой регистрации пользователя", "telegram_id", input.Body.TelegramID, "error", err)
 		return nil, err
@@ -174,7 +228,9 @@ func (h *UserHandler) RegisterUser(ctx context.Context, input *struct {
 	telegramID, _ := ctx.Value("telegram_id").(int64)
 	slog.InfoContext(ctx, "Начало регистрации пользователя", "telegram_id", telegramID)
 
-	user, err := h.userService.RegisterUser(ctx, telegramID, input.Body)
+	user := mapDTOToUser(input.Body, telegramID)
+
+	user, err := h.userService.RegisterUser(ctx, user)
 	if err != nil {
 		slog.ErrorContext(ctx, "Ошибка регистрации пользователя", "telegram_id", telegramID, "error", err)
 		return nil, err
@@ -190,7 +246,9 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 }) (*MessageResponse, error) {
 	slog.InfoContext(ctx, "Начало обновления данных пользователя", "user_id", input.ID)
 
-	if err := h.userService.UpdateUserProfile(ctx, input.ID, input.Body); err != nil {
+	updates := mapDTOToUpdates(input.Body)
+
+	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
 		slog.ErrorContext(ctx, "Ошибка обновления данных пользователя", "user_id", input.ID, "error", err)
 		return nil, err
 	}

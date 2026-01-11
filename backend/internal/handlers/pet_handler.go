@@ -6,6 +6,9 @@ import (
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -245,6 +248,235 @@ func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
 	return petDTO
 }
 
+// mapDTOToPet преобразует DTO создания питомца в ENT модель
+func mapDTOToPet(d dto.PetCreate) *ent.Pet {
+	p := &ent.Pet{
+		Name:            d.Name,
+		ChipNumber:      d.ChipNumber,
+		PhotoURL:        d.PhotoURL,
+		BreedID:         d.BreedID,
+		WeightKg:        d.WeightKg,
+		AgeYears:        d.AgeYears,
+		AgeMonths:       d.AgeMonths,
+		BirthDate:       d.BirthDate,
+		LivingCondition: pet.LivingCondition(d.LivingCondition),
+		Gender:          pet.Gender(d.Gender),
+		Type:            pet.Type(d.Type),
+		BloodGroup:      d.BloodGroup,
+		PetStatus:       pet.PetStatus(d.PetStatus),
+	}
+
+	if d.Health != nil {
+		p.Edges.Health = &ent.PetHealth{
+			LastDonation: d.Health.LastDonation,
+		}
+		if d.Health.ReproductiveStatus != nil {
+			p.Edges.Health.ReproductiveStatus = pethealth.ReproductiveStatus(*d.Health.ReproductiveStatus)
+		}
+		if d.Health.HealthStatus != nil {
+			p.Edges.Health.HealthStatus = pethealth.HealthStatus(*d.Health.HealthStatus)
+		}
+		if d.Health.Transfused != nil {
+			p.Edges.Health.Transfused = *d.Health.Transfused
+		}
+		if d.Health.Medications != nil {
+			p.Edges.Health.Medications = *d.Health.Medications
+		}
+		if d.Health.SurgicalInterventions != nil {
+			p.Edges.Health.SurgicalInterventions = *d.Health.SurgicalInterventions
+		}
+	}
+
+	if d.Treatments != nil {
+		p.Edges.Treatments = &ent.PetTreatment{
+			RabiesVaccinationDate:     d.Treatments.RabiesVaccinationDate,
+			InfectionVaccinationDate:  d.Treatments.InfectionVaccinationDate,
+			EctoparasiteTreatmentDate: d.Treatments.EctoparasiteTreatmentDate,
+			DewormingDate:             d.Treatments.DewormingDate,
+		}
+	}
+
+	if d.Analyses != nil {
+		p.Edges.Analyses = make([]*ent.PetAnalysis, len(d.Analyses))
+		for i, a := range d.Analyses {
+			p.Edges.Analyses[i] = &ent.PetAnalysis{
+				LeukemiaDate:         a.LeukemiaDate,
+				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
+				HemoplasmosisDate:    a.HemoplasmosisDate,
+				BartonellosisDate:    a.BartonellosisDate,
+				BabesiosisDate:       a.BabesiosisDate,
+				DirofilariaDate:      a.DirofilariaDate,
+				EhrlichiosisDate:     a.EhrlichiosisDate,
+				AnaplasmosisDate:     a.AnaplasmosisDate,
+			}
+			if a.LeukemiaType != nil {
+				p.Edges.Analyses[i].LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
+			}
+			if a.ImmunodeficiencyType != nil {
+				p.Edges.Analyses[i].ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
+			}
+			if a.HemoplasmosisType != nil {
+				p.Edges.Analyses[i].HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
+			}
+			if a.BartonellosisType != nil {
+				p.Edges.Analyses[i].BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
+			}
+			if a.BabesiosisType != nil {
+				p.Edges.Analyses[i].BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
+			}
+			if a.DirofilariaType != nil {
+				p.Edges.Analyses[i].DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
+			}
+			if a.EhrlichiosisType != nil {
+				p.Edges.Analyses[i].EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
+			}
+			if a.AnaplasmosisType != nil {
+				p.Edges.Analyses[i].AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
+			}
+		}
+	}
+
+	if d.Bonuses != nil {
+		p.Edges.Bonuses = &ent.PetBonus{
+			IsArtist:      d.Bonuses.IsArtist,
+			IsTherapist:   d.Bonuses.IsTherapist,
+			IsFormerDonor: d.Bonuses.IsFormerDonor,
+			IsGuideDog:    d.Bonuses.IsGuideDog,
+		}
+	}
+
+	return p
+}
+
+// mapDTOToPetUpdates преобразует DTO обновления питомца в аргументы для сервиса
+func mapDTOToPetUpdates(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.PetTreatment, []*ent.PetAnalysis, *ent.PetBonus) {
+	updates := make(map[string]any)
+	if d.Name != nil {
+		updates["Name"] = *d.Name
+	}
+	if d.ChipNumber != nil {
+		updates["ChipNumber"] = *d.ChipNumber
+	}
+	if d.PhotoURL != nil {
+		updates["PhotoURL"] = *d.PhotoURL
+	}
+	if d.BreedID != nil {
+		updates["BreedID"] = *d.BreedID
+	}
+	if d.WeightKg != nil {
+		updates["WeightKg"] = *d.WeightKg
+	}
+	if d.AgeYears != nil {
+		updates["AgeYears"] = *d.AgeYears
+	}
+	if d.AgeMonths != nil {
+		updates["AgeMonths"] = *d.AgeMonths
+	}
+	if d.BirthDate != nil {
+		updates["BirthDate"] = d.BirthDate
+	}
+	if d.LivingCondition != nil {
+		updates["LivingCondition"] = *d.LivingCondition
+	}
+	if d.Gender != nil {
+		updates["Gender"] = *d.Gender
+	}
+	if d.Type != nil {
+		updates["Type"] = *d.Type
+	}
+	if d.BloodGroup != nil {
+		updates["BloodGroup"] = *d.BloodGroup
+	}
+	if d.PetStatus != nil {
+		updates["PetStatus"] = *d.PetStatus
+	}
+
+	var health *ent.PetHealth
+	if d.Health != nil {
+		health = &ent.PetHealth{
+			LastDonation: d.Health.LastDonation,
+		}
+		if d.Health.ReproductiveStatus != nil {
+			health.ReproductiveStatus = pethealth.ReproductiveStatus(*d.Health.ReproductiveStatus)
+		}
+		if d.Health.HealthStatus != nil {
+			health.HealthStatus = pethealth.HealthStatus(*d.Health.HealthStatus)
+		}
+		if d.Health.Transfused != nil {
+			health.Transfused = *d.Health.Transfused
+		}
+		if d.Health.Medications != nil {
+			health.Medications = *d.Health.Medications
+		}
+		if d.Health.SurgicalInterventions != nil {
+			health.SurgicalInterventions = *d.Health.SurgicalInterventions
+		}
+	}
+
+	var treatments *ent.PetTreatment
+	if d.Treatments != nil {
+		treatments = &ent.PetTreatment{
+			RabiesVaccinationDate:     d.Treatments.RabiesVaccinationDate,
+			InfectionVaccinationDate:  d.Treatments.InfectionVaccinationDate,
+			EctoparasiteTreatmentDate: d.Treatments.EctoparasiteTreatmentDate,
+			DewormingDate:             d.Treatments.DewormingDate,
+		}
+	}
+
+	var analyses []*ent.PetAnalysis
+	if d.Analyses != nil {
+		analyses = make([]*ent.PetAnalysis, len(d.Analyses))
+		for i, a := range d.Analyses {
+			analyses[i] = &ent.PetAnalysis{
+				LeukemiaDate:         a.LeukemiaDate,
+				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
+				HemoplasmosisDate:    a.HemoplasmosisDate,
+				BartonellosisDate:    a.BartonellosisDate,
+				BabesiosisDate:       a.BabesiosisDate,
+				DirofilariaDate:      a.DirofilariaDate,
+				EhrlichiosisDate:     a.EhrlichiosisDate,
+				AnaplasmosisDate:     a.AnaplasmosisDate,
+			}
+			if a.LeukemiaType != nil {
+				analyses[i].LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
+			}
+			if a.ImmunodeficiencyType != nil {
+				analyses[i].ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
+			}
+			if a.HemoplasmosisType != nil {
+				analyses[i].HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
+			}
+			if a.BartonellosisType != nil {
+				analyses[i].BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
+			}
+			if a.BabesiosisType != nil {
+				analyses[i].BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
+			}
+			if a.DirofilariaType != nil {
+				analyses[i].DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
+			}
+			if a.EhrlichiosisType != nil {
+				analyses[i].EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
+			}
+			if a.AnaplasmosisType != nil {
+				analyses[i].AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
+			}
+		}
+	}
+
+	var bonuses *ent.PetBonus
+	if d.Bonuses != nil {
+		bonuses = &ent.PetBonus{
+			IsArtist:      d.Bonuses.IsArtist,
+			IsTherapist:   d.Bonuses.IsTherapist,
+			IsFormerDonor: d.Bonuses.IsFormerDonor,
+			IsGuideDog:    d.Bonuses.IsGuideDog,
+		}
+	}
+
+	return updates, health, treatments, analyses, bonuses
+}
+
 // Handlers
 
 func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
@@ -253,7 +485,9 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 }) (*PetResponse, error) {
 	slog.InfoContext(ctx, "Начало создания питомца", "user_id", input.ID, "pet_name", input.Body.Name)
 
-	pet, err := h.petService.CreatePet(ctx, input.ID, input.Body)
+	petData := mapDTOToPet(input.Body)
+
+	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
 	if err != nil {
 		slog.ErrorContext(ctx, "Ошибка создания питомца", "user_id", input.ID, "error", err)
 		return nil, err
@@ -308,7 +542,9 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 }) (*MessageResponse, error) {
 	slog.InfoContext(ctx, "Начало обновления данных питомца", "pet_id", input.ID)
 
-	if err := h.petService.UpdatePet(ctx, input.ID, input.Body); err != nil {
+	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
+
+	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
 		slog.ErrorContext(ctx, "Ошибка обновления данных питомца", "pet_id", input.ID, "error", err)
 		return nil, err
 	}

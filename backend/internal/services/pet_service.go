@@ -11,7 +11,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
@@ -46,7 +45,7 @@ func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
 // PetService определяет интерфейс для бизнес-логики питомцев
 type PetService interface {
 	// CreatePet создает нового питомца для пользователя
-	CreatePet(ctx context.Context, userID string, petData dto.PetCreate) (*ent.Pet, error)
+	CreatePet(ctx context.Context, userID string, pet *ent.Pet) (*ent.Pet, error)
 
 	// GetPetByID получает питомца по ID с preload связей
 	GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error)
@@ -55,7 +54,7 @@ type PetService interface {
 	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
-	UpdatePet(ctx context.Context, petID string, updates dto.PetUpdate) error
+	UpdatePet(ctx context.Context, petID string, updates map[string]interface{}, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
@@ -92,7 +91,7 @@ func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
 }
 
 // CreatePet создает нового питомца для пользователя
-func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData dto.PetCreate) (*ent.Pet, error) {
+func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *ent.Pet) (*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -102,196 +101,93 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData d
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
+	// Устанавливаем UserID
+	petData.UserID = userID
+
 	// Валидируем тип животного
-	if err := pet.TypeValidator(pet.Type(petData.Type)); err != nil {
+	if err := pet.TypeValidator(petData.Type); err != nil {
 		return nil, apperrors.ErrInvalidPetType
 	}
 
 	// Валидируем статус питомца
-	if err := pet.PetStatusValidator(pet.PetStatus(petData.PetStatus)); err != nil {
+	if err := pet.PetStatusValidator(petData.PetStatus); err != nil {
 		return nil, apperrors.ErrPetInvalidStatus
 	}
 
 	// Валидируем пол животного
-	if petData.Gender != "" {
-		if err := pet.GenderValidator(pet.Gender(petData.Gender)); err != nil {
+	if string(petData.Gender) != "" {
+		if err := pet.GenderValidator(petData.Gender); err != nil {
 			return nil, apperrors.ErrInvalidGender
 		}
 	}
 
 	// Валидируем условия проживания
-	if petData.LivingCondition != "" {
-		if err := pet.LivingConditionValidator(pet.LivingCondition(petData.LivingCondition)); err != nil {
+	if string(petData.LivingCondition) != "" {
+		if err := pet.LivingConditionValidator(petData.LivingCondition); err != nil {
 			return nil, apperrors.ErrInvalidLivingCondition
 		}
 	}
 
 	// Валидируем вложенные структуры, если они есть
-	if petData.Health != nil {
-		if petData.Health.HealthStatus != nil && *petData.Health.HealthStatus != "" {
-			if err := pethealth.HealthStatusValidator(pethealth.HealthStatus(*petData.Health.HealthStatus)); err != nil {
+	if petData.Edges.Health != nil {
+		if string(petData.Edges.Health.HealthStatus) != "" {
+			if err := pethealth.HealthStatusValidator(petData.Edges.Health.HealthStatus); err != nil {
 				return nil, apperrors.ErrInvalidHealthStatus
 			}
 		}
-		if petData.Health.ReproductiveStatus != nil && *petData.Health.ReproductiveStatus != "" {
-			if err := pethealth.ReproductiveStatusValidator(pethealth.ReproductiveStatus(*petData.Health.ReproductiveStatus)); err != nil {
+		if string(petData.Edges.Health.ReproductiveStatus) != "" {
+			if err := pethealth.ReproductiveStatusValidator(petData.Edges.Health.ReproductiveStatus); err != nil {
 				return nil, apperrors.ErrInvalidReproductiveStatus
 			}
 		}
 	}
 
-	if petData.Analyses != nil {
-		for _, a := range petData.Analyses {
-			if a.LeukemiaType != nil && *a.LeukemiaType != "" {
-				if err := petanalysis.LeukemiaTypeValidator(petanalysis.LeukemiaType(*a.LeukemiaType)); err != nil {
+	if petData.Edges.Analyses != nil {
+		for _, a := range petData.Edges.Analyses {
+			if string(a.LeukemiaType) != "" {
+				if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.ImmunodeficiencyType != nil && *a.ImmunodeficiencyType != "" {
-				if err := petanalysis.ImmunodeficiencyTypeValidator(petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)); err != nil {
+			if string(a.ImmunodeficiencyType) != "" {
+				if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.HemoplasmosisType != nil && *a.HemoplasmosisType != "" {
-				if err := petanalysis.HemoplasmosisTypeValidator(petanalysis.HemoplasmosisType(*a.HemoplasmosisType)); err != nil {
+			if string(a.HemoplasmosisType) != "" {
+				if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.BartonellosisType != nil && *a.BartonellosisType != "" {
-				if err := petanalysis.BartonellosisTypeValidator(petanalysis.BartonellosisType(*a.BartonellosisType)); err != nil {
+			if string(a.BartonellosisType) != "" {
+				if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.BabesiosisType != nil && *a.BabesiosisType != "" {
-				if err := petanalysis.BabesiosisTypeValidator(petanalysis.BabesiosisType(*a.BabesiosisType)); err != nil {
+			if string(a.BabesiosisType) != "" {
+				if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.DirofilariaType != nil && *a.DirofilariaType != "" {
-				if err := petanalysis.DirofilariaTypeValidator(petanalysis.DirofilariaType(*a.DirofilariaType)); err != nil {
+			if string(a.DirofilariaType) != "" {
+				if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.EhrlichiosisType != nil && *a.EhrlichiosisType != "" {
-				if err := petanalysis.EhrlichiosisTypeValidator(petanalysis.EhrlichiosisType(*a.EhrlichiosisType)); err != nil {
+			if string(a.EhrlichiosisType) != "" {
+				if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
-			if a.AnaplasmosisType != nil && *a.AnaplasmosisType != "" {
-				if err := petanalysis.AnaplasmosisTypeValidator(petanalysis.AnaplasmosisType(*a.AnaplasmosisType)); err != nil {
+			if string(a.AnaplasmosisType) != "" {
+				if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
 					return nil, apperrors.ErrInvalidAnalysisType
 				}
 			}
 		}
 	}
 
-	// Вычисляем возраст или дату рождения
-	ageYears := petData.AgeYears
-	ageMonths := petData.AgeMonths
-	birthDate := petData.BirthDate
-	calculateAgeFields(&ageYears, &ageMonths, &birthDate)
-
-	// Конвертируем DTO в ent структуры
-	var health *ent.PetHealth
-	if petData.Health != nil {
-		health = &ent.PetHealth{}
-		if petData.Health.ReproductiveStatus != nil {
-			health.ReproductiveStatus = pethealth.ReproductiveStatus(*petData.Health.ReproductiveStatus)
-		}
-		if petData.Health.HealthStatus != nil {
-			health.HealthStatus = pethealth.HealthStatus(*petData.Health.HealthStatus)
-		}
-		health.LastDonation = petData.Health.LastDonation
-		if petData.Health.Transfused != nil {
-			health.Transfused = *petData.Health.Transfused
-		}
-		if petData.Health.Medications != nil {
-			health.Medications = *petData.Health.Medications
-		}
-		if petData.Health.SurgicalInterventions != nil {
-			health.SurgicalInterventions = *petData.Health.SurgicalInterventions
-		}
-	}
-
-	var treatments *ent.PetTreatment
-	if petData.Treatments != nil {
-		treatments = &ent.PetTreatment{
-			RabiesVaccinationDate:     petData.Treatments.RabiesVaccinationDate,
-			InfectionVaccinationDate:  petData.Treatments.InfectionVaccinationDate,
-			EctoparasiteTreatmentDate: petData.Treatments.EctoparasiteTreatmentDate,
-			DewormingDate:             petData.Treatments.DewormingDate,
-		}
-	}
-
-	var analyses []*ent.PetAnalysis
-	if petData.Analyses != nil {
-		for _, a := range petData.Analyses {
-			analysis := &ent.PetAnalysis{}
-			analysis.LeukemiaDate = a.LeukemiaDate
-			if a.LeukemiaType != nil {
-				analysis.LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
-			}
-			analysis.ImmunodeficiencyDate = a.ImmunodeficiencyDate
-			if a.ImmunodeficiencyType != nil {
-				analysis.ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
-			}
-			analysis.HemoplasmosisDate = a.HemoplasmosisDate
-			if a.HemoplasmosisType != nil {
-				analysis.HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
-			}
-			analysis.BartonellosisDate = a.BartonellosisDate
-			if a.BartonellosisType != nil {
-				analysis.BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
-			}
-			analysis.BabesiosisDate = a.BabesiosisDate
-			if a.BabesiosisType != nil {
-				analysis.BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
-			}
-			analysis.DirofilariaDate = a.DirofilariaDate
-			if a.DirofilariaType != nil {
-				analysis.DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
-			}
-			analysis.EhrlichiosisDate = a.EhrlichiosisDate
-			if a.EhrlichiosisType != nil {
-				analysis.EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
-			}
-			analysis.AnaplasmosisDate = a.AnaplasmosisDate
-			if a.AnaplasmosisType != nil {
-				analysis.AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
-			}
-			analyses = append(analyses, analysis)
-		}
-	}
-
-	var bonuses *ent.PetBonus
-	if petData.Bonuses != nil {
-		bonuses = &ent.PetBonus{
-			IsArtist:      petData.Bonuses.IsArtist,
-			IsTherapist:   petData.Bonuses.IsTherapist,
-			IsFormerDonor: petData.Bonuses.IsFormerDonor,
-			IsGuideDog:    petData.Bonuses.IsGuideDog,
-		}
-	}
-
-	// Создаем нового питомца (ENT entity)
-	p := &ent.Pet{
-		UserID:          userID,
-		Name:            petData.Name,
-		ChipNumber:      petData.ChipNumber,
-		PhotoURL:        petData.PhotoURL,
-		BreedID:         petData.BreedID,
-		WeightKg:        petData.WeightKg,
-		AgeYears:        ageYears,
-		AgeMonths:       ageMonths,
-		BirthDate:       birthDate,
-		LivingCondition: pet.LivingCondition(petData.LivingCondition),
-		Gender:          pet.Gender(petData.Gender),
-		Type:            pet.Type(petData.Type),
-		BloodGroup:      petData.BloodGroup,
-		PetStatus:       pet.PetStatus(petData.PetStatus),
-	}
-
-	newPet, err := s.petRepo.Create(ctx, p, health, treatments, analyses, bonuses)
+	newPet, err := s.petRepo.Create(ctx, petData, petData.Edges.Health, petData.Edges.Treatments, petData.Edges.Analyses, petData.Edges.Bonuses)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать питомца")
 	}
@@ -344,7 +240,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 }
 
 // UpdatePet обновляет информацию о питомце
-func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates dto.PetUpdate) error {
+func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates map[string]interface{}, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error {
 	// Получаем существующего питомца
 	p, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
@@ -355,204 +251,118 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates dt
 	}
 
 	// Применяем обновления и валидируем
-	if updates.Name != nil {
-		p.Name = *updates.Name
+	if val, ok := updates["Name"]; ok {
+		p.Name = val.(string)
 	}
-	if updates.ChipNumber != nil {
-		p.ChipNumber = *updates.ChipNumber
+	if val, ok := updates["ChipNumber"]; ok {
+		p.ChipNumber = val.(string)
 	}
-	if updates.PhotoURL != nil {
-		p.PhotoURL = *updates.PhotoURL
+	if val, ok := updates["PhotoURL"]; ok {
+		p.PhotoURL = val.(string)
 	}
-	if updates.BreedID != nil {
-		p.BreedID = *updates.BreedID
+	if val, ok := updates["BreedID"]; ok {
+		p.BreedID = val.(int)
 	}
-	if updates.WeightKg != nil {
-		p.WeightKg = *updates.WeightKg
+	if val, ok := updates["WeightKg"]; ok {
+		p.WeightKg = val.(float64)
 	}
-	if updates.AgeYears != nil {
-		p.AgeYears = *updates.AgeYears
+	if val, ok := updates["AgeYears"]; ok {
+		p.AgeYears = val.(int)
 	}
-	if updates.AgeMonths != nil {
-		p.AgeMonths = *updates.AgeMonths
+	if val, ok := updates["AgeMonths"]; ok {
+		p.AgeMonths = val.(int)
 	}
-	if updates.BirthDate != nil {
-		p.BirthDate = updates.BirthDate
+	if val, ok := updates["BirthDate"]; ok {
+		p.BirthDate = val.(*time.Time)
 	}
-	if updates.LivingCondition != nil {
-		if err := pet.LivingConditionValidator(pet.LivingCondition(*updates.LivingCondition)); err != nil {
+	if val, ok := updates["LivingCondition"]; ok {
+		lc := val.(string)
+		if err := pet.LivingConditionValidator(pet.LivingCondition(lc)); err != nil {
 			return apperrors.ErrInvalidLivingCondition
 		}
-		p.LivingCondition = pet.LivingCondition(*updates.LivingCondition)
+		p.LivingCondition = pet.LivingCondition(lc)
 	}
-	if updates.Gender != nil {
-		if err := pet.GenderValidator(pet.Gender(*updates.Gender)); err != nil {
+	if val, ok := updates["Gender"]; ok {
+		g := val.(string)
+		if err := pet.GenderValidator(pet.Gender(g)); err != nil {
 			return apperrors.ErrInvalidGender
 		}
-		p.Gender = pet.Gender(*updates.Gender)
+		p.Gender = pet.Gender(g)
 	}
-	if updates.Type != nil {
-		if err := pet.TypeValidator(pet.Type(*updates.Type)); err != nil {
+	if val, ok := updates["Type"]; ok {
+		t := val.(string)
+		if err := pet.TypeValidator(pet.Type(t)); err != nil {
 			return apperrors.ErrInvalidPetType
 		}
-		p.Type = pet.Type(*updates.Type)
+		p.Type = pet.Type(t)
 	}
-	if updates.BloodGroup != nil {
-		p.BloodGroup = *updates.BloodGroup
+	if val, ok := updates["BloodGroup"]; ok {
+		p.BloodGroup = val.(string)
 	}
-	if updates.PetStatus != nil {
-		if err := pet.PetStatusValidator(pet.PetStatus(*updates.PetStatus)); err != nil {
+	if val, ok := updates["PetStatus"]; ok {
+		ps := val.(string)
+		if err := pet.PetStatusValidator(pet.PetStatus(ps)); err != nil {
 			return apperrors.ErrPetInvalidStatus
 		}
-		p.PetStatus = pet.PetStatus(*updates.PetStatus)
+		p.PetStatus = pet.PetStatus(ps)
 	}
 
 	// Вычисляем возраст или дату рождения при обновлении
-	if updates.BirthDate != nil || (updates.AgeYears != nil && updates.AgeMonths != nil) {
-		calculateAgeFields(updates.AgeYears, updates.AgeMonths, &updates.BirthDate)
-		if updates.BirthDate != nil {
-			p.BirthDate = updates.BirthDate
-		}
-	}
+	calculateAgeFields(&p.AgeYears, &p.AgeMonths, &p.BirthDate)
 
 	// Валидируем вложенные структуры
-	if updates.Health != nil {
-		h := updates.Health
-		if h.HealthStatus != nil && *h.HealthStatus != "" {
-			if err := pethealth.HealthStatusValidator(pethealth.HealthStatus(*h.HealthStatus)); err != nil {
+	if health != nil {
+		if health.HealthStatus != "" {
+			if err := pethealth.HealthStatusValidator(health.HealthStatus); err != nil {
 				return apperrors.ErrInvalidHealthStatus
 			}
 		}
-		if h.ReproductiveStatus != nil && *h.ReproductiveStatus != "" {
-			if err := pethealth.ReproductiveStatusValidator(pethealth.ReproductiveStatus(*h.ReproductiveStatus)); err != nil {
+		if health.ReproductiveStatus != "" {
+			if err := pethealth.ReproductiveStatusValidator(health.ReproductiveStatus); err != nil {
 				return apperrors.ErrInvalidReproductiveStatus
 			}
 		}
 	}
-	if updates.Analyses != nil {
-		for _, a := range updates.Analyses {
-			if a.LeukemiaType != nil && *a.LeukemiaType != "" {
-				if err := petanalysis.LeukemiaTypeValidator(petanalysis.LeukemiaType(*a.LeukemiaType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.ImmunodeficiencyType != nil && *a.ImmunodeficiencyType != "" {
-				if err := petanalysis.ImmunodeficiencyTypeValidator(petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.HemoplasmosisType != nil && *a.HemoplasmosisType != "" {
-				if err := petanalysis.HemoplasmosisTypeValidator(petanalysis.HemoplasmosisType(*a.HemoplasmosisType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.BartonellosisType != nil && *a.BartonellosisType != "" {
-				if err := petanalysis.BartonellosisTypeValidator(petanalysis.BartonellosisType(*a.BartonellosisType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.BabesiosisType != nil && *a.BabesiosisType != "" {
-				if err := petanalysis.BabesiosisTypeValidator(petanalysis.BabesiosisType(*a.BabesiosisType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.DirofilariaType != nil && *a.DirofilariaType != "" {
-				if err := petanalysis.DirofilariaTypeValidator(petanalysis.DirofilariaType(*a.DirofilariaType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.EhrlichiosisType != nil && *a.EhrlichiosisType != "" {
-				if err := petanalysis.EhrlichiosisTypeValidator(petanalysis.EhrlichiosisType(*a.EhrlichiosisType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
-			}
-			if a.AnaplasmosisType != nil && *a.AnaplasmosisType != "" {
-				if err := petanalysis.AnaplasmosisTypeValidator(petanalysis.AnaplasmosisType(*a.AnaplasmosisType)); err != nil {
-					return apperrors.ErrInvalidAnalysisType
-				}
+	for _, a := range analyses {
+		if a.LeukemiaType != "" {
+			if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
 			}
 		}
-	}
-
-	// Конвертируем DTO в ent структуры для обновления
-	var health *ent.PetHealth
-	if updates.Health != nil {
-		health = &ent.PetHealth{}
-		if updates.Health.ReproductiveStatus != nil {
-			health.ReproductiveStatus = pethealth.ReproductiveStatus(*updates.Health.ReproductiveStatus)
+		if a.ImmunodeficiencyType != "" {
+			if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
+			}
 		}
-		if updates.Health.HealthStatus != nil {
-			health.HealthStatus = pethealth.HealthStatus(*updates.Health.HealthStatus)
+		if a.HemoplasmosisType != "" {
+			if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
+			}
 		}
-		health.LastDonation = updates.Health.LastDonation
-		if updates.Health.Transfused != nil {
-			health.Transfused = *updates.Health.Transfused
+		if a.BartonellosisType != "" {
+			if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
+			}
 		}
-		if updates.Health.Medications != nil {
-			health.Medications = *updates.Health.Medications
+		if a.BabesiosisType != "" {
+			if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
+			}
 		}
-		if updates.Health.SurgicalInterventions != nil {
-			health.SurgicalInterventions = *updates.Health.SurgicalInterventions
+		if a.DirofilariaType != "" {
+			if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
+			}
 		}
-	}
-
-	var treatments *ent.PetTreatment
-	if updates.Treatments != nil {
-		treatments = &ent.PetTreatment{
-			RabiesVaccinationDate:     updates.Treatments.RabiesVaccinationDate,
-			InfectionVaccinationDate:  updates.Treatments.InfectionVaccinationDate,
-			EctoparasiteTreatmentDate: updates.Treatments.EctoparasiteTreatmentDate,
-			DewormingDate:             updates.Treatments.DewormingDate,
+		if a.EhrlichiosisType != "" {
+			if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
+			}
 		}
-	}
-
-	var analyses []*ent.PetAnalysis
-	if updates.Analyses != nil {
-		for _, a := range updates.Analyses {
-			analysis := &ent.PetAnalysis{}
-			analysis.LeukemiaDate = a.LeukemiaDate
-			if a.LeukemiaType != nil {
-				analysis.LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
+		if a.AnaplasmosisType != "" {
+			if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
+				return apperrors.ErrInvalidAnalysisType
 			}
-			analysis.ImmunodeficiencyDate = a.ImmunodeficiencyDate
-			if a.ImmunodeficiencyType != nil {
-				analysis.ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
-			}
-			analysis.HemoplasmosisDate = a.HemoplasmosisDate
-			if a.HemoplasmosisType != nil {
-				analysis.HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
-			}
-			analysis.BartonellosisDate = a.BartonellosisDate
-			if a.BartonellosisType != nil {
-				analysis.BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
-			}
-			analysis.BabesiosisDate = a.BabesiosisDate
-			if a.BabesiosisType != nil {
-				analysis.BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
-			}
-			analysis.DirofilariaDate = a.DirofilariaDate
-			if a.DirofilariaType != nil {
-				analysis.DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
-			}
-			analysis.EhrlichiosisDate = a.EhrlichiosisDate
-			if a.EhrlichiosisType != nil {
-				analysis.EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
-			}
-			analysis.AnaplasmosisDate = a.AnaplasmosisDate
-			if a.AnaplasmosisType != nil {
-				analysis.AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
-			}
-			analyses = append(analyses, analysis)
-		}
-	}
-
-	var bonuses *ent.PetBonus
-	if updates.Bonuses != nil {
-		bonuses = &ent.PetBonus{
-			IsArtist:      updates.Bonuses.IsArtist,
-			IsTherapist:   updates.Bonuses.IsTherapist,
-			IsFormerDonor: updates.Bonuses.IsFormerDonor,
-			IsGuideDog:    updates.Bonuses.IsGuideDog,
 		}
 	}
 

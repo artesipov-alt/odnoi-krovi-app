@@ -5,22 +5,21 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
+	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
 type UserService interface {
 	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistrationFull) (*ent.User, error)
+	RegisterUser(ctx context.Context, user *ent.User) (*ent.User, error)
 
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-	RegisterUserSimple(ctx context.Context, userData dto.UserRegistrationSimple) (*ent.User, error)
+	RegisterUserSimple(ctx context.Context, user *ent.User) (*ent.User, error)
 
 	// UpdateUserProfile обновляет информацию о пользователе
-	UpdateUserProfile(ctx context.Context, userID string, updates dto.UserUpdate) error
+	UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error
 
 	// GetUserByID получает пользователя по его внутреннему ID
 	GetUserByID(ctx context.Context, userID string) (*ent.User, error)
@@ -47,43 +46,32 @@ func NewUserService(userRepo repositories.UserRepository, locationRepo repositor
 }
 
 // RegisterUser регистрирует нового пользователя в системе
-func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, userData dto.UserRegistrationFull) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
-	exists, err := s.userRepo.ExistsByTelegramID(ctx, telegramID)
+	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if exists {
-		return nil, apperrors.NewUserAlreadyExistsError(telegramID)
+		return nil, apperrors.NewUserAlreadyExistsError(user.TelegramID)
 	}
 
 	// Валидируем роль пользователя через ENT-валидатор
-	if err := user.RoleValidator(user.Role(userData.Role)); err != nil {
+	if err := userval.RoleValidator(user.Role); err != nil {
 		return nil, apperrors.ErrUserInvalidRole
 	}
 
 	// Проверяем существование локации
-	_, err = s.locationRepo.GetByID(ctx, userData.LocationID)
+	_, err = s.locationRepo.GetByID(ctx, user.LocationID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", userData.LocationID))
+			return nil, apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", user.LocationID))
 		}
 		return nil, apperrors.Internal(err, "не удалось проверить существование локации")
 	}
 
-	// Создаем нового пользователя
-	u := &ent.User{
-		TelegramID: telegramID,
-		FullName:   userData.FullName,
-		Phone:      userData.Phone,
-		Email:      userData.Email,
-		ConsentPd:  userData.ConsentPD,
-		LocationID: userData.LocationID,
-		Role:       user.Role(userData.Role),
-	}
-
-	newUser, err := s.userRepo.Create(ctx, u)
+	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать пользователя")
 	}
@@ -92,30 +80,18 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, telegramID int64, us
 }
 
 // RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, userdata dto.UserRegistrationSimple) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
-	exists, err := s.userRepo.ExistsByTelegramID(ctx, userdata.TelegramID)
+	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
 	}
 
 	if exists {
-		return nil, apperrors.NewUserAlreadyExistsError(userdata.TelegramID)
+		return nil, apperrors.NewUserAlreadyExistsError(user.TelegramID)
 	}
 
-	// Создаем нового пользователя с Telegram ID, базовой информацией и значениями по умолчанию
-	u := &ent.User{
-		TelegramID: userdata.TelegramID,
-		FullName:   userdata.FullName,
-		Phone:      "",
-		Email:      "",
-		ConsentPd:  true,
-		OnBoarding: false,
-		AllowGeo:   false,
-		Role:       user.RoleUser,
-	}
-
-	newUser, err := s.userRepo.Create(ctx, u)
+	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось создать пользователя")
 	}
@@ -156,7 +132,7 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.
 }
 
 // UpdateUserProfile обновляет информацию о пользователе
-func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates dto.UserUpdate) error {
+func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates map[string]interface{}) error {
 	// Получаем существующего пользователя
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
@@ -167,31 +143,32 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 	}
 
 	// Применяем обновления
-	if updates.FullName != nil {
-		u.FullName = *updates.FullName
+	if val, ok := updates["FullName"]; ok {
+		u.FullName = val.(string)
 	}
-	if updates.Phone != nil {
-		u.Phone = *updates.Phone
+	if val, ok := updates["Phone"]; ok {
+		u.Phone = val.(string)
 	}
-	if updates.Email != nil {
-		u.Email = *updates.Email
+	if val, ok := updates["Email"]; ok {
+		u.Email = val.(string)
 	}
-	if updates.AllowGeo != nil {
-		u.AllowGeo = *updates.AllowGeo
+	if val, ok := updates["AllowGeo"]; ok {
+		u.AllowGeo = val.(bool)
 	}
-	if updates.OnBoarding != nil {
-		u.OnBoarding = *updates.OnBoarding
+	if val, ok := updates["OnBoarding"]; ok {
+		u.OnBoarding = val.(bool)
 	}
-	if updates.LocationID != nil {
+	if val, ok := updates["LocationID"]; ok {
+		locationID := val.(int)
 		// Проверяем существование локации
-		_, err := s.locationRepo.GetByID(ctx, *updates.LocationID)
+		_, err := s.locationRepo.GetByID(ctx, locationID)
 		if err != nil {
 			if ent.IsNotFound(err) {
-				return apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", *updates.LocationID))
+				return apperrors.BadRequest(fmt.Sprintf("локация с ID %d не существует", locationID))
 			}
 			return apperrors.Internal(err, "не удалось проверить существование локации")
 		}
-		u.LocationID = *updates.LocationID
+		u.LocationID = locationID
 	}
 
 	// Сохраняем обновленного пользователя
