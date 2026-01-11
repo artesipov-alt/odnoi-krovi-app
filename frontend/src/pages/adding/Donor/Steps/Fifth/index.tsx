@@ -1,5 +1,6 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
+import Success from 'imgs/svg/success';
 import { FC } from 'react';
 
 import { PetType } from 'api/types';
@@ -7,7 +8,6 @@ import DatePicker from 'components/DatePicker';
 
 import { Analiz } from '../../types';
 import styles from './Fifth.module.less';
-import Success from '../../../../../imgs/svg/success';
 
 type Props = {
     leicoz: Analiz;

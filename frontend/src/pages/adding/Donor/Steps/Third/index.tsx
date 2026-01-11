@@ -4,11 +4,11 @@ import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 
 import { StringDict } from 'api/reference';
+import Alert from 'components/Alert';
 import DatePicker from 'components/DatePicker';
 import TextField from 'components/TextField';
 
 import styles from './Third.module.less';
-import Alert from '../../../../../components/Alert';
 
 type Props = {
     healthStatus: string;
