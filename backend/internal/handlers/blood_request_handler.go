@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -84,6 +86,41 @@ type BloodSearchRequestDTOWrapper struct {
 	Body dto.BloodSearchRequestDTO
 }
 
+// mapBloodRequestToDTO преобразует ENT модель заявки в DTO
+func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchRequestDTO {
+	return dto.BloodSearchRequestDTO{
+		ID:                     req.ID,
+		PetID:                  req.PetID,
+		BloodVolumeNeeded:      req.BloodVolumeNeeded,
+		BloodVolumeReserved:    req.BloodVolumeReserved,
+		Regions:                req.Regions,
+		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
+		Description:            req.Description,
+		PhotoUrls:              req.PhotoUrls,
+		BloodGroupIds:          req.BloodGroupIds,
+		BloodComponentIds:      req.BloodComponentIds,
+		Status:                 string(req.Status),
+		CreatedAt:              req.CreatedAt,
+		UpdatedAt:              req.UpdatedAt,
+	}
+}
+
+// mapDTOToBloodRequest преобразует DTO создания заявки в ENT модель
+func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
+	return &ent.BloodSearchRequest{
+		PetID:                  d.PetID,
+		BloodVolumeNeeded:      d.BloodVolumeNeeded,
+		BloodVolumeReserved:    d.BloodVolumeReserved,
+		Regions:                d.Regions,
+		SmallPetsNotifyAllowed: d.SmallPetsNotifyAllowed,
+		Description:            d.Description,
+		PhotoUrls:              d.PhotoUrls,
+		BloodGroupIds:          d.BloodGroupIds,
+		BloodComponentIds:      d.BloodComponentIds,
+		Status:                 bloodsearchrequest.StatusActive,
+	}
+}
+
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
@@ -91,14 +128,20 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 }) (*BloodSearchPetResponseWrapper, error) {
 	slog.InfoContext(ctx, "Создание заявки на поиск крови", "pet_id", input.Body.PetID)
 
-	result, err := h.service.CreateRequest(ctx, input.Body)
+	bloodReq := mapDTOToBloodRequest(input.Body)
+
+	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {
 		slog.ErrorContext(ctx, "Ошибка создания заявки на поиск крови", "pet_id", input.Body.PetID, "error", err)
 		return nil, err
 	}
 
 	slog.InfoContext(ctx, "Заявка на поиск крови успешно создана", "pet_id", input.Body.PetID, "request_id", result.ID)
-	return &BloodSearchPetResponseWrapper{Body: result}, nil
+	return &BloodSearchPetResponseWrapper{Body: dto.BloodSearchPetResponse{
+		ID:     result.ID,
+		PetID:  result.PetID,
+		Status: string(result.Status),
+	}}, nil
 }
 
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
@@ -120,9 +163,14 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 		return nil, err
 	}
 
+	dtos := make([]dto.BloodSearchRequestDTO, len(requests))
+	for i, req := range requests {
+		dtos[i] = mapBloodRequestToDTO(req)
+	}
+
 	slog.InfoContext(ctx, "Список заявок на поиск крови успешно получен", "count", len(requests))
 	return &BloodSearchPetsResponseWrapper{Body: dto.BloodSearchPetsResponse{
-		Requests: requests,
+		Requests: dtos,
 	}}, nil
 }
 
@@ -136,7 +184,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *Bl
 	}
 
 	slog.InfoContext(ctx, "Заявка по ID успешно получена", "request_id", input.ID)
-	return &BloodSearchRequestDTOWrapper{Body: result}, nil
+	return &BloodSearchRequestDTOWrapper{Body: mapBloodRequestToDTO(result)}, nil
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*MessageResponse, error) {

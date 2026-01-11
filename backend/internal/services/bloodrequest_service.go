@@ -7,23 +7,22 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
 // BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
 type BloodSearchService interface {
 	// CreateRequest создает новую заявку на поиск крови
-	CreateRequest(ctx context.Context, req dto.BloodSearchPetRequest) (dto.BloodSearchPetResponse, error)
+	CreateRequest(ctx context.Context, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
 
 	// GetRequestByID получает заявку по её ID
-	GetRequestByID(ctx context.Context, id string) (dto.BloodSearchRequestDTO, error)
+	GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
 
 	// GetRequestByPetID получает активную заявку для конкретного питомца
-	GetRequestByPetID(ctx context.Context, petID string) (dto.BloodSearchRequestDTO, error)
+	GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
 
 	// UpdateRequest обновляет информацию о заявке
-	UpdateRequest(ctx context.Context, id string, req dto.BloodSearchPetRequest) (dto.BloodSearchRequestDTO, error)
+	UpdateRequest(ctx context.Context, id string, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
@@ -32,7 +31,7 @@ type BloodSearchService interface {
 	DeleteRequest(ctx context.Context, id string) error
 
 	// ListRequests возвращает список заявок с фильтрацией
-	ListRequests(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]dto.BloodSearchRequestDTO, error)
+	ListRequests(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error)
 }
 
 // BloodSearchServiceImpl реализует BloodSearchService
@@ -50,164 +49,87 @@ func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo rep
 }
 
 // CreateRequest создает новую заявку на поиск крови
-func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, req dto.BloodSearchPetRequest) (dto.BloodSearchPetResponse, error) {
+func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование питомца
-	exists, err := s.petRepo.ExistsByID(ctx, req.PetID)
+	exists, err := s.petRepo.ExistsByID(ctx, bloodReq.PetID)
 	if err != nil {
-		return dto.BloodSearchPetResponse{}, apperrors.Internal(err, "не удалось проверить существование питомца")
+		return nil, apperrors.Internal(err, "не удалось проверить существование питомца")
 	}
 	if !exists {
-		return dto.BloodSearchPetResponse{}, apperrors.BadRequest(fmt.Sprintf("питомец с ID %s не найден", req.PetID))
+		return nil, apperrors.BadRequest(fmt.Sprintf("питомец с ID %s не найден", bloodReq.PetID))
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
-	activeExists, err := s.repo.ExistsByPetID(ctx, req.PetID)
+	activeExists, err := s.repo.ExistsByPetID(ctx, bloodReq.PetID)
 	if err != nil {
-		return dto.BloodSearchPetResponse{}, apperrors.Internal(err, "не удалось проверить наличие активных заявок")
+		return nil, apperrors.Internal(err, "не удалось проверить наличие активных заявок")
 	}
 	if activeExists {
-		return dto.BloodSearchPetResponse{}, apperrors.BadRequest("для этого питомца уже есть активная заявка")
+		return nil, apperrors.BadRequest("для этого питомца уже есть активная заявка")
 	}
 
-	// Маппинг DTO в Ent модель
-	bloodReq := &ent.BloodSearchRequest{
-		PetID:                  req.PetID,
-		BloodVolumeNeeded:      req.BloodVolumeNeeded,
-		BloodVolumeReserved:    req.BloodVolumeReserved,
-		Regions:                req.Regions,
-		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-		Description:            req.Description,
-		PhotoUrls:              req.PhotoUrls,
-		BloodGroupIds:          req.BloodGroupIds,
-		BloodComponentIds:      req.BloodComponentIds,
-		Status:                 bloodsearchrequest.StatusActive,
-	}
+	// Устанавливаем статус по умолчанию
+	bloodReq.Status = bloodsearchrequest.StatusActive
 
 	// Создаем заявку
 	newReq, err := s.repo.Create(ctx, bloodReq)
 	if err != nil {
-		return dto.BloodSearchPetResponse{}, apperrors.Internal(err, "не удалось создать заявку")
+		return nil, apperrors.Internal(err, "не удалось создать заявку")
 	}
 
-	// Маппинг в DTO ответа
-	resp := dto.BloodSearchPetResponse{
-		ID:     newReq.ID,
-		PetID:  newReq.PetID,
-		Status: string(newReq.Status),
-	}
-
-	return resp, nil
+	return newReq, nil
 }
 
 // GetRequestByID получает заявку по её ID
-func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) (dto.BloodSearchRequestDTO, error) {
+func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
 	req, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return dto.BloodSearchRequestDTO{}, apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
+			return nil, apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
 		}
-		return dto.BloodSearchRequestDTO{}, apperrors.Internal(err, "не удалось получить заявку")
+		return nil, apperrors.Internal(err, "не удалось получить заявку")
 	}
 
-	// Маппинг в DTO
-	resp := dto.BloodSearchRequestDTO{
-		ID:                     req.ID,
-		PetID:                  req.PetID,
-		BloodVolumeNeeded:      req.BloodVolumeNeeded,
-		BloodVolumeReserved:    req.BloodVolumeReserved,
-		Regions:                req.Regions,
-		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-		Description:            req.Description,
-		PhotoUrls:              req.PhotoUrls,
-		BloodGroupIds:          req.BloodGroupIds,
-		BloodComponentIds:      req.BloodComponentIds,
-		Status:                 string(req.Status),
-		CreatedAt:              req.CreatedAt,
-		UpdatedAt:              req.UpdatedAt,
-	}
-
-	return resp, nil
+	return req, nil
 }
 
 // GetRequestByPetID получает активную заявку для конкретного питомца
-func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID string) (dto.BloodSearchRequestDTO, error) {
+func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
 	req, err := s.repo.GetByPetID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return dto.BloodSearchRequestDTO{}, apperrors.NotFound(fmt.Sprintf("активная заявка для питомца %s не найдена", petID))
+			return nil, apperrors.NotFound(fmt.Sprintf("активная заявка для питомца %s не найдена", petID))
 		}
-		return dto.BloodSearchRequestDTO{}, apperrors.Internal(err, "не удалось получить заявку")
+		return nil, apperrors.Internal(err, "не удалось получить заявку")
 	}
 
-	// Маппинг в DTO
-	resp := dto.BloodSearchRequestDTO{
-		ID:                     req.ID,
-		PetID:                  req.PetID,
-		BloodVolumeNeeded:      req.BloodVolumeNeeded,
-		BloodVolumeReserved:    req.BloodVolumeReserved,
-		Regions:                req.Regions,
-		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-		Description:            req.Description,
-		PhotoUrls:              req.PhotoUrls,
-		BloodGroupIds:          req.BloodGroupIds,
-		BloodComponentIds:      req.BloodComponentIds,
-		Status:                 string(req.Status),
-		CreatedAt:              req.CreatedAt,
-		UpdatedAt:              req.UpdatedAt,
-	}
-
-	return resp, nil
+	return req, nil
 }
 
 // UpdateRequest обновляет информацию о заявке
-func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, req dto.BloodSearchPetRequest) (dto.BloodSearchRequestDTO, error) {
+func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return dto.BloodSearchRequestDTO{}, apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
+			return nil, apperrors.NotFound(fmt.Sprintf("заявка с ID %s не найдена", id))
 		}
-		return dto.BloodSearchRequestDTO{}, apperrors.Internal(err, "не удалось получить заявку для обновления")
+		return nil, apperrors.Internal(err, "не удалось получить заявку для обновления")
 	}
 
-	// Маппинг DTO в Ent модель
-	updateReq := &ent.BloodSearchRequest{
-		ID:                     id,
-		PetID:                  req.PetID,
-		BloodVolumeNeeded:      req.BloodVolumeNeeded,
-		BloodVolumeReserved:    req.BloodVolumeReserved,
-		Regions:                req.Regions,
-		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-		Description:            req.Description,
-		PhotoUrls:              req.PhotoUrls,
-		BloodGroupIds:          req.BloodGroupIds,
-		BloodComponentIds:      req.BloodComponentIds,
-		Status:                 existing.Status, // Сохраняем текущий статус
+	// Убеждаемся, что ID совпадает
+	bloodReq.ID = id
+	// Сохраняем текущий статус, если он не передан
+	if bloodReq.Status == "" {
+		bloodReq.Status = existing.Status
 	}
 
-	updated, err := s.repo.Update(ctx, updateReq)
+	updated, err := s.repo.Update(ctx, bloodReq)
 	if err != nil {
-		return dto.BloodSearchRequestDTO{}, apperrors.Internal(err, "не удалось обновить заявку")
+		return nil, apperrors.Internal(err, "не удалось обновить заявку")
 	}
 
-	// Маппинг в DTO
-	resp := dto.BloodSearchRequestDTO{
-		ID:                     updated.ID,
-		PetID:                  updated.PetID,
-		BloodVolumeNeeded:      updated.BloodVolumeNeeded,
-		BloodVolumeReserved:    updated.BloodVolumeReserved,
-		Regions:                updated.Regions,
-		SmallPetsNotifyAllowed: updated.SmallPetsNotifyAllowed,
-		Description:            updated.Description,
-		PhotoUrls:              updated.PhotoUrls,
-		BloodGroupIds:          updated.BloodGroupIds,
-		BloodComponentIds:      updated.BloodComponentIds,
-		Status:                 string(updated.Status),
-		CreatedAt:              updated.CreatedAt,
-		UpdatedAt:              updated.UpdatedAt,
-	}
-
-	return resp, nil
+	return updated, nil
 }
 
 // UpdateStatus обновляет статус заявки
@@ -240,31 +162,11 @@ func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) e
 }
 
 // ListRequests возвращает список заявок с фильтрацией
-func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]dto.BloodSearchRequestDTO, error) {
+func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error) {
 	requests, err := s.repo.List(ctx, limit, offset, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "не удалось получить список заявок")
 	}
 
-	// Маппинг в DTO
-	dtos := make([]dto.BloodSearchRequestDTO, len(requests))
-	for i, req := range requests {
-		dtos[i] = dto.BloodSearchRequestDTO{
-			ID:                     req.ID,
-			PetID:                  req.PetID,
-			BloodVolumeNeeded:      req.BloodVolumeNeeded,
-			BloodVolumeReserved:    req.BloodVolumeReserved,
-			Regions:                req.Regions,
-			SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-			Description:            req.Description,
-			PhotoUrls:              req.PhotoUrls,
-			BloodGroupIds:          req.BloodGroupIds,
-			BloodComponentIds:      req.BloodComponentIds,
-			Status:                 string(req.Status),
-			CreatedAt:              req.CreatedAt,
-			UpdatedAt:              req.UpdatedAt,
-		}
-	}
-
-	return dtos, nil
+	return requests, nil
 }
