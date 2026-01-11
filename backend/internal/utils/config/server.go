@@ -1,83 +1,27 @@
 package config
 
-import (
-	"context"
-	"time"
+import "net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
-)
-
-// ServerConfig содержит настройки сервера
-type ServerConfig struct {
-	Port                 string
-	Env                  string
-	BloodMicroserviceURL string
+type MyServer struct {
+	*http.Server
 }
 
 // NewServerConfig создает конфигурацию сервера из переменных окружения
-func NewServerConfig() *ServerConfig {
-	return &ServerConfig{
-		Port:                 GetEnv("SERVER_PORT", "8080"),
-		Env:                  GetEnv("ENV", "development"),
-		BloodMicroserviceURL: GetEnv("BLOOD_MICROSERVICE_URL", "http://localhost:8081"),
+func NewServer(mux http.Handler) *MyServer {
+	return &MyServer{
+		&http.Server{
+			Addr:    GetEnv("SERVER_PORT", ":8080"),
+			Handler: mux,
+		},
 	}
 }
 
-// GracefulShutdown выполняет graceful shutdown сервера
-func GracefulShutdown(app *echo.Echo, db *ent.Client, cache cache.ICache, timeout time.Duration) {
-	logger := logger.Log
-
-	// Создание контекста с таймаутом для завершения
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	logger.Info("Начинается graceful shutdown...", zap.Duration("timeout", timeout))
-	startTime := time.Now()
-
-	// Graceful shutdown сервера
-	if err := app.Shutdown(ctx); err != nil {
-		logger.Error("Ошибка при graceful shutdown сервера", zap.Error(err))
-	} else {
-		logger.Info("Сервер успешно остановлен")
+func (s *MyServer) Use(middleware ...http.Handler) error {
+	for _, m := range middleware {
+		s.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			m.ServeHTTP(w, r)
+			s.Handler.ServeHTTP(w, r)
+		})
 	}
-
-	// Закрытие соединения с базой данных
-	if db != nil {
-		if err := db.Close(); err != nil {
-			logger.Error("Ошибка при закрытии соединения с БД", zap.Error(err))
-		} else {
-			logger.Info("Соединение с БД успешно закрыто")
-		}
-	}
-
-	// Очистка и закрытие соединения с Redis
-	if cache != nil {
-		// Очистка ключей Redis
-		if err := cache.Flush(ctx); err != nil {
-			logger.Error("Ошибка при очистке ключей Redis", zap.Error(err))
-		} else {
-			logger.Info("Ключи Redis успешно очищены")
-		}
-
-		// Закрытие соединения с Redis
-		if err := cache.Close(); err != nil {
-			logger.Error("Ошибка при закрытии соединения с Redis", zap.Error(err))
-		} else {
-			logger.Info("Соединение с Redis успешно закрыто")
-		}
-	} else {
-		logger.Warn("Соединение с Redis не было инициализировано")
-	}
-
-	logger.Info("Graceful shutdown завершен", zap.Duration("total_time", time.Since(startTime)))
-}
-
-// ShouldMigrate определяет, нужно ли выполнять миграции
-func (c *ServerConfig) ShouldMigrate(val bool) bool {
-	return val
+	return nil
 }

@@ -27,12 +27,12 @@ type EntConfig struct {
 // NewEntConfig создает конфигурацию из переменных окружения
 func NewEntConfig() *EntConfig {
 	return &EntConfig{
-		Host:     getEnv("DB_HOST", "localhost"),
-		Port:     getEnv("DB_PORT", "5432"),
-		User:     getEnv("DB_USER", "postgres"),
-		Password: getEnv("DB_PASSWORD", "postgres"),
-		DBName:   getEnv("DB_NAME", "odnoi_krovi"),
-		SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		Host:     GetEnv("DB_HOST", "localhost"),
+		Port:     GetEnv("DB_PORT", "5432"),
+		User:     GetEnv("DB_USER", "postgres"),
+		Password: GetEnv("DB_PASSWORD", "postgres"),
+		DBName:   GetEnv("DB_NAME", "odnoi_krovi"),
+		SSLMode:  GetEnv("DB_SSLMODE", "disable"),
 	}
 }
 
@@ -83,12 +83,4 @@ func RunMigrations(client *ent.Client) error {
 	}
 	log.Println("ENT migrations completed successfully")
 	return nil
-}
-
-// getEnv получает значение переменной окружения или возвращает значение по умолчанию
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
 }
