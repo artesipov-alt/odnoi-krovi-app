@@ -273,6 +273,7 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 		_node = &PetHealth{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(pethealth.Table, sqlgraph.NewFieldSpec(pethealth.FieldID, field.TypeString))
 	)
+	_spec.Schema = _c.schemaConfig.PetHealth
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -324,6 +325,7 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

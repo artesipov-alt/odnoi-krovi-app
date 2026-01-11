@@ -544,6 +544,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_node = &Pet{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(pet.Table, sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString))
 	)
+	_spec.Schema = _c.schemaConfig.Pet
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -619,6 +620,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -636,6 +638,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(pethealth.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -653,6 +656,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -670,6 +674,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.PetAnalysis
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -686,6 +691,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -703,6 +709,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -720,6 +727,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.BloodSearchRequest
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

@@ -215,6 +215,7 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 		_node = &PetBonus{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(petbonus.Table, sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString))
 	)
+	_spec.Schema = _c.schemaConfig.PetBonus
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -258,6 +259,7 @@ func (_c *PetBonusCreate) createSpec() (*PetBonus, *sqlgraph.CreateSpec) {
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.Pet
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

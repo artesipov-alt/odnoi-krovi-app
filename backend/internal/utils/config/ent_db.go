@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +12,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 
 	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/schema"
 	_ "github.com/lib/pq"
 )
 
@@ -36,7 +39,7 @@ func NewEntConfig() *EntConfig {
 	}
 }
 
-// NewEntConfig создает конфигурацию из переменных окружения
+// NewLocalConfig создает конфигурацию для локальной разработки
 func NewLocalConfig() *EntConfig {
 	return &EntConfig{
 		Host:     "localhost",
@@ -65,10 +68,22 @@ func (c *EntConfig) GetDSN() string {
 func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 	dsn := config.GetDSN()
 
-	client, err := ent.Open(dialect.Postgres, dsn)
+	// Открываем соединение через стандартный sql.DB
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed opening connection to postgres: %w", err)
 	}
+
+	// Создаем схему reference вручную, так как Ent этого не делает автоматически
+	if _, err := db.Exec("CREATE SCHEMA IF NOT EXISTS reference"); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed creating reference schema: %w", err)
+	}
+
+	// Создаем драйвер Ent на основе существующего соединения
+	drv := entsql.OpenDB(dialect.Postgres, db)
+
+	client := ent.NewClient(ent.Driver(drv))
 
 	// Register global hooks
 	client.Use(pg.SoftDeleteHook())
@@ -78,7 +93,13 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 
 // RunMigrations запускает автоматическую миграцию схем
 func RunMigrations(client *ent.Client) error {
-	if err := client.Schema.Create(context.Background()); err != nil {
+	ctx := context.Background()
+
+	// При миграции Ent будет использовать SchemaConfig, заданный при инициализации клиента.
+	// Опция WithDiffSchema(true) заставляет Ent учитывать схемы при сравнении текущего состояния БД и схемы Ent.
+	if err := client.Schema.Create(ctx,
+		schema.WithForeignKeys(true),
+	); err != nil {
 		return fmt.Errorf("failed creating schema resources: %w", err)
 	}
 	log.Println("ENT migrations completed successfully")

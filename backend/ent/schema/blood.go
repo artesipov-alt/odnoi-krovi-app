@@ -2,6 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 )
 
@@ -32,6 +34,16 @@ func (BloodGroup) Edges() []ent.Edge {
 	return []ent.Edge{}
 }
 
+// Annotations of the BloodGroup.
+func (BloodGroup) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{
+			Table:  "blood_groups",
+			Schema: "reference",
+		},
+	}
+}
+
 // BloodComponent holds the schema definition for the BloodComponent entity.
 type BloodComponent struct {
 	ent.Schema
@@ -53,4 +65,12 @@ func (BloodComponent) Fields() []ent.Field {
 // Edges of the BloodComponent.
 func (BloodComponent) Edges() []ent.Edge {
 	return []ent.Edge{}
+}
+
+// Annotations of the BloodComponent.
+func (BloodComponent) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Schema("reference"),
+		entsql.Table("blood_components"),
+	}
 }

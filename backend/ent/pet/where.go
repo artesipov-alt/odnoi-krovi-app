@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/internal"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
 
@@ -1202,6 +1203,9 @@ func HasOwner() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, OwnerTable, OwnerColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.User
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1210,6 +1214,9 @@ func HasOwner() predicate.Pet {
 func HasOwnerWith(preds ...predicate.User) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newOwnerStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.User
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1225,6 +1232,9 @@ func HasHealth() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, HealthTable, HealthColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetHealth
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1233,6 +1243,9 @@ func HasHealth() predicate.Pet {
 func HasHealthWith(preds ...predicate.PetHealth) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newHealthStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetHealth
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1248,6 +1261,9 @@ func HasTreatments() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, TreatmentsTable, TreatmentsColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetTreatment
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1256,6 +1272,9 @@ func HasTreatments() predicate.Pet {
 func HasTreatmentsWith(preds ...predicate.PetTreatment) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newTreatmentsStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetTreatment
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1271,6 +1290,9 @@ func HasAnalyses() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, AnalysesTable, AnalysesColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetAnalysis
+		step.Edge.Schema = schemaConfig.PetAnalysis
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1279,6 +1301,9 @@ func HasAnalyses() predicate.Pet {
 func HasAnalysesWith(preds ...predicate.PetAnalysis) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newAnalysesStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetAnalysis
+		step.Edge.Schema = schemaConfig.PetAnalysis
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1294,6 +1319,9 @@ func HasBonuses() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, BonusesTable, BonusesColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetBonus
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1302,6 +1330,9 @@ func HasBonuses() predicate.Pet {
 func HasBonusesWith(preds ...predicate.PetBonus) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newBonusesStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PetBonus
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1317,6 +1348,9 @@ func HasBreedRef() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, BreedRefTable, BreedRefColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.Breed
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1325,6 +1359,9 @@ func HasBreedRef() predicate.Pet {
 func HasBreedRefWith(preds ...predicate.Breed) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newBreedRefStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.Breed
+		step.Edge.Schema = schemaConfig.Pet
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -1340,6 +1377,9 @@ func HasBloodSearchRequest() predicate.Pet {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, BloodSearchRequestTable, BloodSearchRequestColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.BloodSearchRequest
+		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -1348,6 +1388,9 @@ func HasBloodSearchRequest() predicate.Pet {
 func HasBloodSearchRequestWith(preds ...predicate.BloodSearchRequest) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newBloodSearchRequestStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.BloodSearchRequest
+		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

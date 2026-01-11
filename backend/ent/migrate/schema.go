@@ -288,12 +288,27 @@ var (
 )
 
 func init() {
+	BloodComponentsTable.Annotation = &entsql.Annotation{
+		Table: "blood_components",
+	}
+	BloodGroupsTable.Annotation = &entsql.Annotation{
+		Table: "blood_groups",
+	}
 	BloodSearchRequestsTable.ForeignKeys[0].RefTable = PetsTable
+	BreedsTable.Annotation = &entsql.Annotation{
+		Table: "breeds",
+	}
+	LocationsTable.Annotation = &entsql.Annotation{
+		Table: "locations",
+	}
 	PetsTable.ForeignKeys[0].RefTable = BreedsTable
 	PetsTable.ForeignKeys[1].RefTable = PetBonusesTable
 	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
 	PetsTable.ForeignKeys[3].RefTable = PetTreatmentsTable
 	PetsTable.ForeignKeys[4].RefTable = UsersTable
+	PetsTable.Annotation = &entsql.Annotation{
+		Table: "pets",
+	}
 	PetAnalysesTable.ForeignKeys[0].RefTable = PetsTable
 	PetAnalysesTable.Annotation = &entsql.Annotation{
 		Table: "pet_analyses",
@@ -308,4 +323,7 @@ func init() {
 		Table: "pet_treatments",
 	}
 	UsersTable.ForeignKeys[0].RefTable = LocationsTable
+	UsersTable.Annotation = &entsql.Annotation{
+		Table: "users",
+	}
 }

@@ -300,6 +300,7 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_node = &BloodSearchRequest{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bloodsearchrequest.Table, sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString))
 	)
+	_spec.Schema = _c.schemaConfig.BloodSearchRequest
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -363,6 +364,7 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
 			},
 		}
+		edge.Schema = _c.schemaConfig.BloodSearchRequest
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

@@ -101,6 +101,7 @@ func (_c *BloodComponentCreate) createSpec() (*BloodComponent, *sqlgraph.CreateS
 		_node = &BloodComponent{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bloodcomponent.Table, sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt))
 	)
+	_spec.Schema = _c.schemaConfig.BloodComponent
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id

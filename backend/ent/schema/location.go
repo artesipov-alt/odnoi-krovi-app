@@ -2,6 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -26,5 +28,13 @@ func (Location) Fields() []ent.Field {
 func (Location) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("users", User.Type),
+	}
+}
+
+// Annotations of the Location.
+func (Location) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Schema("reference"),
+		entsql.Table("locations"),
 	}
 }

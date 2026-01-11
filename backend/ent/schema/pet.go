@@ -62,6 +62,14 @@ func (Pet) Edges() []ent.Edge {
 	}
 }
 
+// Annotations of the Pet.
+func (Pet) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Schema("public"),
+		entsql.Table("pets"),
+	}
+}
+
 // PetHealth holds the schema definition for the PetHealth entity.
 type PetHealth struct {
 	ent.Schema
@@ -98,7 +106,8 @@ func (PetHealth) Edges() []ent.Edge {
 // Annotations of the PetHealth.
 func (PetHealth) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "pet_healths"},
+		entsql.Schema("public"),
+		entsql.Table("pet_healths"),
 	}
 }
 
@@ -136,7 +145,8 @@ func (PetTreatment) Edges() []ent.Edge {
 // Annotations of the PetTreatment.
 func (PetTreatment) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "pet_treatments"},
+		entsql.Schema("public"),
+		entsql.Table("pet_treatments"),
 	}
 }
 
@@ -189,7 +199,8 @@ func (PetAnalysis) Edges() []ent.Edge {
 // Annotations of the PetAnalysis.
 func (PetAnalysis) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "pet_analyses"},
+		entsql.Schema("public"),
+		entsql.Table("pet_analyses"),
 	}
 }
 
@@ -227,6 +238,7 @@ func (PetBonus) Edges() []ent.Edge {
 // Annotations of the PetBonus.
 func (PetBonus) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "pet_bonuses"},
+		entsql.Schema("public"),
+		entsql.Table("pet_bonuses"),
 	}
 }

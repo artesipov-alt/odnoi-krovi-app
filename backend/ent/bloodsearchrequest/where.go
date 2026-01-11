@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/internal"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
 
@@ -522,6 +523,9 @@ func HasPet() predicate.BloodSearchRequest {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
 		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.Pet
+		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
@@ -530,6 +534,9 @@ func HasPet() predicate.BloodSearchRequest {
 func HasPetWith(preds ...predicate.Pet) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(func(s *sql.Selector) {
 		step := newPetStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.Pet
+		step.Edge.Schema = schemaConfig.BloodSearchRequest
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

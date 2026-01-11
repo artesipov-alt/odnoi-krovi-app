@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/internal"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
 
@@ -146,6 +147,8 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(bloodgroup.FieldDescription, field.TypeString)
 	}
+	_spec.Node.Schema = _u.schemaConfig.BloodGroup
+	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{bloodgroup.Label}
@@ -315,6 +318,8 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(bloodgroup.FieldDescription, field.TypeString)
 	}
+	_spec.Node.Schema = _u.schemaConfig.BloodGroup
+	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
 	_node = &BloodGroup{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

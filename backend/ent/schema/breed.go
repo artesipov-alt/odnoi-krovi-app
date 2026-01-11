@@ -2,6 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -31,5 +33,13 @@ func (Breed) Fields() []ent.Field {
 func (Breed) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("pets", Pet.Type),
+	}
+}
+
+// Annotations of the Breed.
+func (Breed) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Schema("reference"),
+		entsql.Table("breeds"),
 	}
 }
