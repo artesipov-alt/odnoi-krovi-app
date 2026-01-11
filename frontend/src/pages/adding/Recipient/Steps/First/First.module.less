@@ -8,59 +8,6 @@
     margin-bottom: 20px;
 }
 
-.formItem {
-    margin-bottom: 20px;
-}
-
-.labelWrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
-
-.label {
-    margin: 0 0 8px;
-    font-size: 15px;
-    line-height: 20px;
-    color: @textColor2;
-}
-
-.subLabel {
-    font-family: Proxima Nova, sans-serif;
-    font-size: 10px;
-    line-height: 15px;
-    color: @textColor4;
-}
-
-.inputWrapper {
-    color: @textColor4;
-    border-radius: 16px !important;
-    background: @white !important;
-
-    &.lock {
-        background: @grayBg2 !important;
-    }
-
-    .endAdornment {
-        color: @textColor1;
-        height: 50px;
-        line-height: 50px;
-        width: 33px;
-        text-align: right;
-        border-left: 1px solid @border3;
-    }
-}
-
-.input {
-    color: @inputRed !important;
-    height: 30px !important;
-    padding: 10px 12px !important;
-    font-family: Proxima Nova, sans-serif !important;
-    font-size: 14px !important;
-    line-height: 15px !important;
-    border-radius: 16px !important;
-}
-
 .petType {
     display: flex;
     gap: 6px;
@@ -102,6 +49,10 @@
     }
 }
 
+.lock {
+    background: @grayBg2 !important;
+}
+
 .lockIcon {
     width: 12px;
     height: 14px;
@@ -114,7 +65,12 @@
 }
 
 .endAdornment {
-    background: @white;
+    color: @textColor1;
+    height: 50px;
+    line-height: 50px;
+    width: 33px;
+    text-align: right;
+    border-left: 1px solid @border3;
 }
 
 .bloodGroups {

@@ -1,0 +1,49 @@
+@import 'styles/colors';
+
+.accordion {
+    padding: 15px 18px;
+    border-radius: 6px;
+    background: @white;
+}
+
+.infoItemTitle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.title {
+    color: @textColor2;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+    margin-top: -4px;
+
+    &.accordionIcon {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+        margin-left: auto;
+        transition: .3s;
+
+        &.isOpen {
+            transition: .3s;
+            transform: rotate(90deg);
+        }
+
+        & svg {
+            width: inherit;
+            height: inherit;
+            fill: unset;
+        }
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}

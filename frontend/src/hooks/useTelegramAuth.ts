@@ -15,13 +15,13 @@ export const useTelegramAuth = (): TelegramAuth => {
     const [user, setUser] = useState<TelegramUser | null>(null);
 
     const initialize = useCallback(async () => {
-        if (!window.Telegram?.WebApp?.initDataUnsafe?.user) {
-            throw new Error('Telegram WebApp SDK не найден');
-        }
+//         if (!window.Telegram?.WebApp?.initDataUnsafe?.user) {
+//             throw new Error('Telegram WebApp SDK не найден');
+//         }
 
-        // const id = 995757392;
-        // const id = 248185030;
-        const { id } = window.Telegram.WebApp.initDataUnsafe.user;
+//         const id = 995757392;
+        const id = 248185030;
+//         const { id } = window.Telegram.WebApp.initDataUnsafe.user;
 
         const { data, error } = await getUserByTelegramId(id);
 

@@ -42,6 +42,8 @@ const Onboarding: FC<Props> = ({ onFinish, onBackToStart }) => {
         if (step === 1) {
             setStep(2);
 
+            window.scrollTo(0, 0);
+
             return;
         }
 

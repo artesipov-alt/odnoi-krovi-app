@@ -1,0 +1,42 @@
+@import 'styles/colors';
+
+.buttonsRow {
+    display: flex;
+    gap: 6px;
+}
+
+.buttonsRowItem {
+    height: 50px;
+    width: 50%;
+    border-radius: 50px !important;
+    background: @white !important;
+    color: @textColor4 !important;
+    text-transform: none !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 15px !important;
+
+    &.checked {
+        background: @common-red !important;
+        color: @textColor3 !important;
+    }
+}
+
+.confirm {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+    pointer-events: none;
+    opacity: .4;
+
+    &.enabled {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

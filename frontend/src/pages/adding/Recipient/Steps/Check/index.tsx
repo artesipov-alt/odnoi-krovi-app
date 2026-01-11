@@ -1,6 +1,5 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
-import AccordionArrow from 'imgs/svg/accordionArrow';
 import BackArrow from 'imgs/svg/backArrow';
 import Blood from 'imgs/svg/blood';
 import BloodComponents from 'imgs/svg/bloodComponents';
@@ -8,7 +7,8 @@ import BloodVolume from 'imgs/svg/bloodVolume';
 import Location from 'imgs/svg/location';
 import MiniPaw from 'imgs/svg/miniPaw';
 import Pin from 'imgs/svg/pin';
-import { FC, useState } from 'react';
+import Accordion from 'pages/adding/common/Accordion';
+import { FC } from 'react';
 
 import { Dict } from 'api/reference';
 import { PetType } from 'api/types';
@@ -26,7 +26,6 @@ type Props = {
     bloodVolume: string;
     description: string;
     locationsDict: Dict[];
-    onBackClick: () => void;
     bloodComponents: string[];
     bloodComponentsDict: Dict[];
     desiredBloodGroups: string[];
@@ -42,7 +41,6 @@ const Check: FC<Props> = ({
     petType,
     locations,
     bloodGroup,
-    onBackClick,
     description,
     bloodVolume,
     locationsDict,
@@ -53,18 +51,17 @@ const Check: FC<Props> = ({
     notifyOfSmallDonors,
     onConfirmButtonClick,
 }) => {
-    const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-
-    const onAccordionClickHandler = () => {
-        setIsAccordionOpen((prevState) => !prevState);
-    };
-
     const onConfirmButtonClickHandler = () => {
         onConfirmButtonClick(4);
     };
 
+    const onBackClickHandler = () => {
+        onConfirmButtonClick(0);
+    };
+
     return (
-        <div className={styles.wrapper}>
+        <>
+            <div className={styles.header} />
             <div className={styles.container}>
                 <ImgEditor
                     showStub
@@ -141,32 +138,15 @@ const Check: FC<Props> = ({
                     </div>
                 </div>
                 {!!description.length && (
-                    <div className={styles.accordion}>
-                        <div
-                            onClick={onAccordionClickHandler}
-                            className={cn(styles.infoItemTitle, { [styles.noMargin]: true })}
-                        >
-                            <div className={styles.icon}>
-                                <Pin />
-                            </div>
-                            <div className={styles.text}>Дополнительная информация</div>
-                            <div
-                                className={cn(styles.icon, {
-                                    [styles.accordionIcon]: true,
-                                    [styles.isOpen]: isAccordionOpen,
-                                })}
-                            >
-                                <AccordionArrow />
-                            </div>
-                        </div>
-                        {isAccordionOpen && (
+                    <>
+                        <Accordion icon={<Pin />} title='Дополнительная информация'>
                             <div className={cn(styles.itemText, { [styles.accordionText]: true })}>{description}</div>
-                        )}
-                    </div>
+                        </Accordion>
+                    </>
                 )}
                 <div className={styles.buttons}>
                     <Button
-                        onClick={onBackClick}
+                        onClick={onBackClickHandler}
                         className={cn(styles.button, styles.back)}
                         startIcon={
                             <div className={cn(styles.icon, { [styles.backArrow]: true })}>
@@ -181,7 +161,7 @@ const Check: FC<Props> = ({
                     </Button>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

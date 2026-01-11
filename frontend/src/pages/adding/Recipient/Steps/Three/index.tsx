@@ -1,9 +1,11 @@
 import { Button } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import cn from 'classnames';
+import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useState } from 'react';
 
 import Alert from 'components/Alert';
 import ImgEditor from 'components/ImgEditor';
+import TextField from 'components/TextField';
 
 import styles from './Three.module.less';
 
@@ -40,48 +42,27 @@ const Three: FC<Props> = ({ onConfirmButtonClick, description, onDescriptionChan
                     text='Подробности могут вызвать эмоциональный отклик у хозяев доноров и увеличить шансы найти помощь'
                 />
             </div>
-            <div className={styles.formItem}>
-                <div className={styles.labelWrapper}>
-                    <p className={styles.label}>Добавьте фото</p>
-                    <span className={styles.subLabel}>Необязательно</span>
-                </div>
+            <FormItem title='Добавьте фото' subtitle='Необязательно'>
                 <ImgEditor src={photo} onLoad={onLoadPhoto} className={styles.photo} />
-            </div>
-            <div className={styles.formItem}>
-                <div className={styles.labelWrapper}>
-                    <p className={styles.label}>Опишите ситуацию</p>
-                    <span className={styles.subLabel}>Необязательно</span>
-                </div>
+            </FormItem>
+            <FormItem title='Опишите ситуацию' subtitle='Необязательно'>
                 <div className={styles.textFieldWrapper}>
                     <TextField
-                        fullWidth
                         multiline
                         name='description'
                         value={descrValue}
+                        maxLength={MAX_LETTERS}
+                        htmlInputClass={styles.input}
+                        inputClass={styles.inputWrapper}
                         onBlur={onDescriptionBlurHandler}
                         placeholder='Почему вы ищете помощь?'
                         onChange={onDescriptionChangeHandler}
-                        slotProps={{
-                            htmlInput: { className: styles.input, maxLength: MAX_LETTERS },
-                            input: { className: styles.inputWrapper },
-                        }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#dee2e9',
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#dee2e9',
-                                    borderWidth: '1px',
-                                },
-                            },
-                        }}
                     />
-                    <div className={styles.counter}>
+                    <div className={cn(styles.counter, { [styles.bigText]: descrValue.length === MAX_LETTERS })}>
                         {descrValue.length}/{MAX_LETTERS}
                     </div>
                 </div>
-            </div>
+            </FormItem>
             <Button fullWidth className={styles.confirm} onClick={onConfirmButtonClickHandler}>
                 Далее
             </Button>

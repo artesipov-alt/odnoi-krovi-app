@@ -1,16 +1,15 @@
 @import 'styles/colors';
 
-.wrapper {
-    background: url('imgs/finalBg.png') no-repeat top;
+.header {
+    height: 430px;
+    background: url('imgs/mainFinalBg.png') no-repeat top;
     background-size: cover;
-
-    @media (orientation: landscape) {
-        background-position-y: 10%;
-    }
+    background-position-y: -200px;
 }
 
 .container {
     padding: 34px 12px 24px;
+    margin-top: -430px;
 }
 
 .photo {
@@ -74,19 +73,6 @@
     width: 14px;
     height: 14px;
     margin-top: -4px;
-    transition: .3s;
-
-    &.accordionIcon {
-        width: 20px;
-        height: 20px;
-        margin-top: 0;
-        margin-left: auto;
-    }
-
-    &.isOpen {
-        transition: .3s;
-        transform: rotate(90deg);
-    }
 
     &.backArrow {
         svg {
@@ -124,7 +110,7 @@
 }
 
 .infoItem {
-    padding: 18px;
+    padding: 17px;
     margin-bottom: 8px;
     border-radius: 6px;
     background: @white;
@@ -156,12 +142,6 @@
     &.accordionText {
         margin-top: 14px;
     }
-}
-
-.accordion {
-    padding: 16px 18px;
-    border-radius: 6px;
-    background: @white;
 }
 
 .buttons {
