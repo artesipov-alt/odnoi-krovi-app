@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -116,10 +117,12 @@ func (h *UserHandler) Register(api huma.API) {
 func (h *UserHandler) User(ctx context.Context, input *dto.UserIDPath) (*dto.UserResponse, error) {
 	u, err := h.userService.GetUserByID(ctx, input.ID)
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to get user by ID", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
 	if u == nil {
+		slog.DebugContext(ctx, "user not found", "user_id", input.ID)
 		return nil, apperrors.ErrUserNotFound
 	}
 
@@ -142,10 +145,12 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 
 	u, err := h.userService.RegisterUserSimple(ctx, userData)
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to register user simple", "telegram_id", input.Body.TelegramID, "error", err.Error())
 		return nil, err
 	}
 
 	if u == nil {
+		slog.ErrorContext(ctx, "registration returned nil user", "telegram_id", input.Body.TelegramID)
 		return nil, apperrors.Internal(errors.New("registration returned nil user"), "ошибка при создании пользователя")
 	}
 
@@ -159,6 +164,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	updates := h.toUpdatesMap(input.Body)
 
 	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
+		slog.ErrorContext(ctx, "failed to update user profile", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
@@ -172,10 +178,12 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQuery) (*dto.UserResponse, error) {
 	u, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to get user by Telegram ID", "telegram_id", input.TelegramID, "error", err.Error())
 		return nil, err
 	}
 
 	if u == nil {
+		slog.DebugContext(ctx, "user not found", "telegram_id", input.TelegramID)
 		return nil, apperrors.ErrUserNotFound
 	}
 
@@ -184,6 +192,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQ
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
 	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
+		slog.ErrorContext(ctx, "failed to delete user", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
@@ -196,6 +205,7 @@ func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.UserIDPath) (*d
 
 func (h *UserHandler) ResetUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
 	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
+		slog.ErrorContext(ctx, "failed to reset user", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
@@ -208,6 +218,7 @@ func (h *UserHandler) ResetUser(ctx context.Context, input *dto.UserIDPath) (*dt
 
 func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
 	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
+		slog.ErrorContext(ctx, "failed to restore user", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
@@ -221,6 +232,7 @@ func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.UserIDPath) (*
 func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
 	users, err := h.userService.GetDeletedUsers(ctx)
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to get deleted users", "error", err.Error())
 		return nil, err
 	}
 

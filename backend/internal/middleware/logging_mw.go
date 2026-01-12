@@ -39,10 +39,21 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			id = "unknown"
 		}
 
-		// Логируем факт завершения запроса.
-		// Используем Info уровень для всех запросов. Детальные логи ошибок
-		// записываются отдельно в ErrorHandler.
-		slog.InfoContext(r.Context(), "http request",
+		// Логируем запрос с уровнем в зависимости от статуса
+		var message string
+		var level slog.Level
+		if ww.status >= 500 {
+			level = slog.LevelError
+			message = "Internal server error"
+		} else if ww.status >= 400 {
+			level = slog.LevelWarn
+			message = "Client error"
+		} else {
+			level = slog.LevelInfo
+			message = "http request"
+		}
+
+		slog.Log(r.Context(), level, message,
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", ww.status,
@@ -50,17 +61,5 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			"ip", r.RemoteAddr,
 			"request_id", id,
 		)
-
-		// Логируем ошибки для статусов >= 500 (внутренние ошибки)
-		if ww.status >= 500 {
-			slog.ErrorContext(r.Context(), "Internal server error",
-				"method", r.Method,
-				"path", r.URL.Path,
-				"status", ww.status,
-				"duration", duration,
-				"ip", r.RemoteAddr,
-				"request_id", id,
-			)
-		}
 	})
 }
