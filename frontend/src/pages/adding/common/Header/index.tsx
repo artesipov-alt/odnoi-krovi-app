@@ -7,11 +7,12 @@ import styles from './Header.module.less';
 
 type Props = {
     step: number;
+    caption: string;
     stepsCount: number;
     onBackClickHandler: () => void;
 };
 
-const Header: FC<Props> = ({ step, stepsCount, onBackClickHandler }) => (
+const Header: FC<Props> = ({ step, stepsCount, onBackClickHandler, caption }) => (
     <>
         <div className={styles.header}>
             <div className={styles.title}>
@@ -22,7 +23,7 @@ const Header: FC<Props> = ({ step, stepsCount, onBackClickHandler }) => (
                     <h4 className={styles.step}>
                         Шаг {step} из {stepsCount}
                     </h4>
-                    <span className={styles.caption}>О питомце</span>
+                    <span className={styles.caption}>{caption}</span>
                 </div>
             </div>
             <div className={styles.back} onClick={onBackClickHandler}>
