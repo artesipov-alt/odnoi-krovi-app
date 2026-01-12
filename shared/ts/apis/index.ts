@@ -1,8 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './BloodRequestApi';
+export * from './BloodRequestV1Api';
 export * from './DevApi';
-export * from './PetsApi';
-export * from './ReferenceApi';
-export * from './RootApi';
-export * from './UsersApi';
+export * from './PetsV1Api';
+export * from './ReferenceV1Api';
+export * from './UsersV1Api';

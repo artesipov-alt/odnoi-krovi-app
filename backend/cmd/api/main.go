@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -26,7 +27,8 @@ import (
 
 // Options for the CLI.
 type Options struct {
-	Port int `help:"Port to listen on" short:"p" default:"3001"`
+	Port int  `help:"Port to listen on" short:"p" default:"3001"`
+	Doc  bool `help:"Generate OpenAPI documentation and exit" short:"d"`
 }
 
 func main() {
@@ -92,6 +94,14 @@ func main() {
 		bloodRequestHandler.Register(api)
 		referenceHandler.Register(api)
 
+		// Если опция Doc включена, генерируем документацию и выходим
+		if options.Doc {
+			hooks.OnStart(func() {
+				generateAndSaveOpenAPI(api)
+			})
+			return
+		}
+
 		// Создаем сервер
 		server := config.NewServer(options.Port, mux)
 		server.Use(middleware.RecoveryMiddleware, middleware.RequestIDMiddleware, middleware.LoggingMiddleware)
@@ -106,11 +116,38 @@ func main() {
 		hooks.OnStop(func() {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			db.Close()
+			if db != nil {
+				db.Close()
+			}
 			server.Shutdown(ctx)
 		})
 	})
 
 	// Run the CLI. When passed no commands, it starts the server.
 	cli.Run()
+}
+
+func generateAndSaveOpenAPI(api huma.API) {
+	spec := api.OpenAPI()
+	jsonBytes, err := spec.MarshalJSON()
+	if err != nil {
+		slog.Error("Failed to marshal OpenAPI spec to JSON", "error", err)
+		os.Exit(1)
+	}
+
+	docsDir := "docs"
+	if err := os.MkdirAll(docsDir, 0755); err != nil {
+		slog.Error("Failed to create docs directory", "error", err)
+		os.Exit(1)
+	}
+
+	filePath := filepath.Join(docsDir, "openapi.json")
+	err = os.WriteFile(filePath, jsonBytes, 0644)
+	if err != nil {
+		slog.Error("Failed to write OpenAPI spec to file", "error", err, "path", filePath)
+		os.Exit(1)
+	}
+
+	slog.Info("OpenAPI documentation successfully generated", "path", filePath)
+	os.Exit(0)
 }
