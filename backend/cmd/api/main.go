@@ -37,7 +37,9 @@ func main() {
 		// Загрузка переменных окружения из .env файла
 		godotenv.Load("../.env")
 
-		logger.SetupLogger(config.GetEnv("ENV", "development"))
+		env := config.GetEnv("ENV", "development")
+
+		logger.SetupLogger(env)
 
 		// Инициализация подключения к базе данных через ENT
 		db, err := config.ConnectEnt(config.NewENVConfig())
@@ -82,8 +84,8 @@ func main() {
 		mux := http.NewServeMux()
 
 		// Настройка Huma
-		humaConfig := huma.DefaultConfig("1krovi.app API", "1.3.5")
-		api := humago.New(mux, humaConfig)
+
+		api := humago.New(mux, config.NewHumaConfig(env))
 
 		// Инициализируем интеграцию AppError с Huma
 		apperrors.InitHuma(api)

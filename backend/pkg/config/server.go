@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
 )
 
 type MyServer struct {
@@ -27,4 +29,43 @@ func (s *MyServer) Use(middlewares ...func(http.Handler) http.Handler) {
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		s.Handler = middlewares[i](s.Handler)
 	}
+}
+
+// NewHumaConfig создает и возвращает конфигурацию Huma API на основе README.md
+func NewHumaConfig(miniappDomain string) huma.Config {
+	config := huma.DefaultConfig("Одной Крови API", "2.0.0")
+
+	config.Info = &huma.Info{
+		Title:       "Одной Крови API",
+		Version:     "2.0.0", // Или динамически брать из переменной окружения/сборки
+		Description: "### Описание платформы\n**Одной Крови** — это Telegram Mini App, который помогает находить донорскую кровь для животных и позволяет владельцам питомцев становиться донорами вместе со своими любимцами.\n\n* **Поиск доноров**: Быстрый поиск доноров крови для животных в экстренных ситуациях.\n* **Регистрация доноров**: Возможность регистрации питомцев как потенциальных доноров.\n* **Геолокация**: Определение ближайших доноров через Telegram Web App.\n* **Уведомления**: Система оповещений через Telegram Bot API.\n* **Интеграция с Telegram**: Удобное общение между пользователями через Telegram.",
+		Contact: &huma.Contact{
+			Name:  "Команда Одной Крови",
+			Email: "support@odnoi-krovi.app", // Пример
+			URL:   "https://1krovi.app",      // Пример
+		},
+		License: &huma.License{
+			Name: "Apache 2.0 License",
+			URL:  "https://www.apache.org/licenses/LICENSE-2.0",
+		},
+	}
+
+	config.ExternalDocs = &huma.ExternalDocs{
+		Description: "Дорожная карта проекта",
+		URL:         "https://github.com/artesipov-alt/odnoi-krovi-app/blob/main/ROADMAP.md",
+	}
+
+	// Добавляем серверы, включая локальный и MiniApp домен
+	config.Servers = []*huma.Server{
+		{URL: "http://localhost:3000/api", Description: "Локальная разработка API"},
+	}
+
+	if miniappDomain != "" {
+		config.Servers = append(config.Servers, &huma.Server{
+			URL:         "https://1krovi.app/api",
+			Description: "Production API для Telegram Mini App",
+		})
+	}
+
+	return config
 }
