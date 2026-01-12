@@ -70,7 +70,6 @@ func main() {
 		// Инициализация обработчиков
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(petService)
-		devHandler := handlers.NewDevHandler(userRepo)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 
 		// Создание стандартного mux
@@ -83,7 +82,6 @@ func main() {
 		// Регистрация маршрутов
 		userHandler.Register(api)
 		petHandler.Register(api)
-		devHandler.Register(api)
 		bloodRequestHandler.Register(api)
 
 		// Создаем сервер

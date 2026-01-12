@@ -36,6 +36,15 @@ type UserService interface {
 
 	// DeleteUser удаляет пользователя по ID (soft delete)
 	DeleteUser(ctx context.Context, userID string) error
+
+	// ResetUser сбрасывает пользователя к начальным настройкам
+	ResetUser(ctx context.Context, userID string) error
+
+	// RestoreUser восстанавливает удаленного пользователя
+	RestoreUser(ctx context.Context, userID string) error
+
+	// GetDeletedUsers получает всех удаленных пользователей
+	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
 }
 
 // UserServiceImpl реализует UserService
@@ -197,4 +206,29 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 	}
 
 	return u, nil
+}
+
+// ResetUser сбрасывает пользователя к начальным настройкам
+func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
+	if err := s.userRepo.ResetUser(ctx, userID); err != nil {
+		return ErrInternal
+	}
+	return nil
+}
+
+// RestoreUser восстанавливает удаленного пользователя
+func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error {
+	if err := s.userRepo.RestoreUser(ctx, userID); err != nil {
+		return ErrInternal
+	}
+	return nil
+}
+
+// GetDeletedUsers получает всех удаленных пользователей
+func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) {
+	users, err := s.userRepo.GetDeletedUsers(ctx)
+	if err != nil {
+		return nil, ErrInternal
+	}
+	return users, nil
 }

@@ -88,6 +88,39 @@ func (h *UserHandler) Register(api huma.API) {
 		Description: "Удаляет пользователя из системы (soft delete)",
 		Tags:        []string{"users-v1"},
 	}, h.DeleteUser)
+
+	// Сброс пользователя к начальным настройкам
+	huma.Register(api, huma.Operation{
+		OperationID:   "reset-user",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/reset-user/{id}",
+		Summary:       "Сброс пользователя к начальным настройкам",
+		Description:   "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
+		Tags:          []string{"users-v1", "dev"},
+		DefaultStatus: http.StatusOK,
+	}, h.ResetUser)
+
+	// Восстановление удаленного пользователя
+	huma.Register(api, huma.Operation{
+		OperationID:   "restore-user",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/restore-user/{id}",
+		Summary:       "Восстановление удаленного пользователя",
+		Description:   "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
+		Tags:          []string{"users-v1", "dev"},
+		DefaultStatus: http.StatusOK,
+	}, h.RestoreUser)
+
+	// Получение всех удаленных пользователей
+	huma.Register(api, huma.Operation{
+		OperationID:   "get-deleted-users",
+		Method:        http.MethodGet,
+		Path:          "/v1/user/deleted-users",
+		Summary:       "Получение всех удаленных пользователей",
+		Description:   "Возвращает список всех мягко удаленных пользователей",
+		Tags:          []string{"users-v1", "dev"},
+		DefaultStatus: http.StatusOK,
+	}, h.GetDeletedUsers)
 }
 
 // Вспомогательные структуры для Huma
@@ -102,6 +135,11 @@ type TelegramIDQuery struct {
 
 type UserResponse struct {
 	Body dto.UserResponseDTO
+}
+
+type GetDeletedUsersResponse struct {
+	Message string                `json:"message"`
+	Users   []dto.UserResponseDTO `json:"users"`
 }
 
 // mapUserToDTO преобразует ENT модель пользователя в DTO для ответа
@@ -282,4 +320,41 @@ func (h *UserHandler) DeleteUser(ctx context.Context, input *UserIDPath) (*Messa
 	resp := &MessageResponse{}
 	resp.Body.Message = "Пользователь успешно удален"
 	return resp, nil
+}
+
+func (h *UserHandler) ResetUser(ctx context.Context, input *UserIDPath) (*dto.DevResponse, error) {
+	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &dto.DevResponse{
+		Message: "Пользователь успешно сброшен к заводским настройкам",
+	}, nil
+}
+
+func (h *UserHandler) RestoreUser(ctx context.Context, input *UserIDPath) (*dto.DevResponse, error) {
+	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &dto.DevResponse{
+		Message: "Пользователь успешно восстановлен",
+	}, nil
+}
+
+func (h *UserHandler) GetDeletedUsers(ctx context.Context, input *struct{}) (*GetDeletedUsersResponse, error) {
+	users, err := h.userService.GetDeletedUsers(ctx)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	userDTOs := make([]dto.UserResponseDTO, len(users))
+	for i, user := range users {
+		userDTOs[i] = mapUserToDTO(user)
+	}
+
+	return &GetDeletedUsersResponse{
+		Message: "Удаленные пользователи успешно получены",
+		Users:   userDTOs,
+	}, nil
 }
