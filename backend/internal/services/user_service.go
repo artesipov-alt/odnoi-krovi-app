@@ -101,7 +101,9 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to create user")
+		return nil, apperrors.Internal(err, "failed to create user").WithDetails(map[string]interface{}{
+			"err": err.Error(),
+		})
 	}
 
 	return newUser, nil

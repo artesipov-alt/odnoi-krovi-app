@@ -50,5 +50,17 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			"ip", r.RemoteAddr,
 			"request_id", id,
 		)
+
+		// Логируем ошибки для статусов >= 500 (внутренние ошибки)
+		if ww.status >= 500 {
+			slog.ErrorContext(r.Context(), "Internal server error",
+				"method", r.Method,
+				"path", r.URL.Path,
+				"status", ww.status,
+				"duration", duration,
+				"ip", r.RemoteAddr,
+				"request_id", id,
+			)
+		}
 	})
 }

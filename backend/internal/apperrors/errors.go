@@ -1,8 +1,11 @@
 package apperrors
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+
+	"github.com/danielgtaylor/huma/v2"
 )
 
 // ErrorCode представляет код ошибки для API
@@ -34,6 +37,34 @@ func (e *AppError) Error() string {
 		return fmt.Sprintf("%s: %v", e.Message, e.Internal)
 	}
 	return e.Message
+}
+
+// MarshalJSON кастомизирует JSON вывод
+func (e *AppError) MarshalJSON() ([]byte, error) {
+	type alias AppError // Избегаем рекурсии
+	details := e.Details
+	if e.Internal != nil {
+		if details == nil {
+			details = make(map[string]any)
+		}
+		details["error"] = e.Internal.Error()
+	}
+	return json.Marshal(&struct {
+		Code       ErrorCode      `json:"Code"`
+		Message    string         `json:"Message"`
+		Details    map[string]any `json:"Details,omitempty"`
+		HTTPStatus int            `json:"HTTPStatus"`
+	}{
+		Code:       e.Code,
+		Message:    e.Message,
+		Details:    details,
+		HTTPStatus: e.HTTPStatus,
+	})
+}
+
+// GetStatus возвращает HTTP статус код для Huma (реализует huma.StatusError)
+func (e *AppError) GetStatus() int {
+	return e.HTTPStatus
 }
 
 // Unwrap позволяет использовать errors.Is и errors.As
@@ -73,10 +104,15 @@ func Validation(message string, details map[string]interface{}) *AppError {
 
 // Internal создает внутреннюю ошибку сервера
 func Internal(err error, message string) *AppError {
+	details := map[string]any(nil)
+	if err != nil {
+		details = map[string]any{"error": err.Error()}
+	}
 	return &AppError{
 		Code:       ErrCodeInternal,
 		Message:    message,
 		Internal:   err,
+		Details:    details,
 		HTTPStatus: 500,
 	}
 }
@@ -142,5 +178,53 @@ func (e *AppError) WithDetails(details map[string]interface{}) *AppError {
 // WithInternal добавляет внутреннюю ошибку
 func (e *AppError) WithInternal(err error) *AppError {
 	e.Internal = err
+	if err != nil {
+		if e.Details == nil {
+			e.Details = make(map[string]any)
+		}
+		e.Details["error"] = err.Error()
+	}
 	return e
+}
+
+// NewHumaError соответствует сигнатуре huma.NewError и используется для интеграции с Huma
+func NewHumaError(status int, message string, errs ...error) huma.StatusError {
+	var internalErr error
+	if len(errs) > 0 {
+		internalErr = errs[0]
+	}
+
+	code := ErrCodeInternal
+	switch status {
+	case 400:
+		code = ErrCodeBadRequest
+	case 401:
+		code = ErrCodeUnauthorized
+	case 403:
+		code = ErrCodeForbidden
+	case 404:
+		code = ErrCodeNotFound
+	case 409:
+		code = ErrCodeConflict
+	case 422:
+		code = ErrCodeValidation
+	}
+
+	details := map[string]any(nil)
+	if internalErr != nil {
+		details = map[string]any{"error": internalErr.Error()}
+	}
+
+	return &AppError{
+		Code:       code,
+		Message:    message,
+		Internal:   internalErr,
+		Details:    details,
+		HTTPStatus: status,
+	}
+}
+
+// InitHuma настраивает глобальную интеграцию AppError с Huma
+func InitHuma(api huma.API) {
+	huma.NewError = NewHumaError
 }

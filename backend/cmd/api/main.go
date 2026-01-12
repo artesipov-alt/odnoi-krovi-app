@@ -13,6 +13,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/joho/godotenv"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
@@ -77,10 +78,13 @@ func main() {
 
 		// Создание стандартного mux
 		mux := http.NewServeMux()
+
 		// Настройка Huma
 		humaConfig := huma.DefaultConfig("1krovi.app API", "1.3.5")
-
 		api := humago.New(mux, humaConfig)
+
+		// Инициализируем интеграцию AppError с Huma
+		apperrors.InitHuma(api)
 
 		// Регистрация маршрутов
 		userHandler.Register(api)
