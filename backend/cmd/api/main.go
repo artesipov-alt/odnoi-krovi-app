@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -125,6 +126,14 @@ func main() {
 				os.Exit(0)
 			})
 			return
+		}
+
+		if portStr := os.Getenv("SERVER_PORT"); portStr != "" {
+			if port, err := strconv.Atoi(portStr); err == nil {
+				options.Port = port
+			} else {
+				slog.Warn("Invalid SERVER_PORT environment variable, using default port", "error", err, "value", portStr)
+			}
 		}
 
 		// Создаем сервер
