@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -34,8 +35,9 @@ func (h *UserHandler) Register(api huma.API) {
 		Summary:     "Получение пользователя по ID",
 		Description: "Возвращает информацию о пользователе по его идентификатору",
 		Tags:        []string{"users-v1"},
-	}, h.GetUser)
+	}, h.User)
 
+	// Простая регистрация пользователя
 	// Простая регистрация пользователя
 	huma.Register(api, huma.Operation{
 		OperationID:   "register-user-simple",
@@ -46,18 +48,6 @@ func (h *UserHandler) Register(api huma.API) {
 		Tags:          []string{"users-v1"},
 		DefaultStatus: http.StatusCreated,
 	}, h.RegisterUserSimple)
-
-	// Регистрация нового пользователя
-	huma.Register(api, huma.Operation{
-		OperationID:   "register-user",
-		Method:        http.MethodPost,
-		Path:          "/v1/user/register",
-		Summary:       "Регистрация нового пользователя",
-		Description:   "Регистрирует нового пользователя в системе",
-		Tags:          []string{"users-v1"},
-		DefaultStatus: http.StatusCreated,
-		Deprecated:    true,
-	}, h.RegisterUser)
 
 	// Обновление данных пользователя
 	huma.Register(api, huma.Operation{
@@ -77,7 +67,7 @@ func (h *UserHandler) Register(api huma.API) {
 		Summary:     "Получение пользователя по Telegram ID",
 		Description: "Возвращает информацию о пользователе по его Telegram ID",
 		Tags:        []string{"users-v1"},
-	}, h.GetUserByTelegram)
+	}, h.UserByTelegram)
 
 	// Удаление пользователя по ID
 	huma.Register(api, huma.Operation{
@@ -91,60 +81,211 @@ func (h *UserHandler) Register(api huma.API) {
 
 	// Сброс пользователя к начальным настройкам
 	huma.Register(api, huma.Operation{
-		OperationID:   "reset-user",
-		Method:        http.MethodPost,
-		Path:          "/v1/user/reset-user/{id}",
-		Summary:       "Сброс пользователя к начальным настройкам",
-		Description:   "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
-		Tags:          []string{"users-v1", "dev"},
-		DefaultStatus: http.StatusOK,
+		OperationID: "reset-user",
+		Method:      http.MethodPost,
+		Path:        "/v1/user/reset-user/{id}",
+		Summary:     "Сброс пользователя к начальным настройкам",
+		Description: "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
+		Tags:        []string{"users-v1", "dev"},
 	}, h.ResetUser)
 
 	// Восстановление удаленного пользователя
 	huma.Register(api, huma.Operation{
-		OperationID:   "restore-user",
-		Method:        http.MethodPost,
-		Path:          "/v1/user/restore-user/{id}",
-		Summary:       "Восстановление удаленного пользователя",
-		Description:   "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
-		Tags:          []string{"users-v1", "dev"},
-		DefaultStatus: http.StatusOK,
+		OperationID: "restore-user",
+		Method:      http.MethodPost,
+		Path:        "/v1/user/restore-user/{id}",
+		Summary:     "Восстановление удаленного пользователя",
+		Description: "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
+		Tags:        []string{"users-v1", "dev"},
 	}, h.RestoreUser)
 
 	// Получение всех удаленных пользователей
 	huma.Register(api, huma.Operation{
-		OperationID:   "get-deleted-users",
-		Method:        http.MethodGet,
-		Path:          "/v1/user/deleted-users",
-		Summary:       "Получение всех удаленных пользователей",
-		Description:   "Возвращает список всех мягко удаленных пользователей",
-		Tags:          []string{"users-v1", "dev"},
-		DefaultStatus: http.StatusOK,
-	}, h.GetDeletedUsers)
+		OperationID: "get-deleted-users",
+		Method:      http.MethodGet,
+		Path:        "/v1/user/deleted-users",
+		Summary:     "Получение всех удаленных пользователей",
+		Description: "Возвращает список всех мягко удаленных пользователей",
+		Tags:        []string{"users-v1", "dev"},
+	}, h.DeletedUsers)
 }
 
-// Вспомогательные структуры для Huma
+// Handlers
 
-type UserIDPath struct {
-	ID string `path:"id" doc:"ID пользователя" minLength:"1" example:"1"`
+func (h *UserHandler) User(ctx context.Context, input *dto.UserIDPath) (*dto.UserResponse, error) {
+	if h == nil || h.userService == nil {
+		return nil, huma.Error500InternalServerError("Обработчик не инициализирован")
+	}
+
+	u, err := h.userService.GetUserByID(ctx, input.ID)
+	if err != nil {
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	if u == nil {
+		return nil, huma.Error404NotFound("Пользователь не найден")
+	}
+
+	return &dto.UserResponse{Body: h.toDTO(u)}, nil
 }
 
-type TelegramIDQuery struct {
-	TelegramID int64 `query:"telegram_id" doc:"Telegram ID пользователя" minimum:"1" example:"123456789"`
+func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
+	Body dto.UserRegistrationSimple
+}) (*dto.UserResponse, error) {
+	fullName := input.Body.FullName
+	if fullName == "" {
+		fullName = "Пользователь Telegram"
+	}
+
+	userData := &ent.User{
+		TelegramID: input.Body.TelegramID,
+		FullName:   fullName,
+	}
+
+	u, err := h.userService.RegisterUserSimple(ctx, userData)
+	if err != nil {
+		if errors.Is(err, services.ErrUserAlreadyExists) {
+			return nil, huma.Error409Conflict("Пользователь уже существует")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	if u == nil {
+		return nil, huma.Error500InternalServerError("Ошибка при создании пользователя")
+	}
+
+	return &dto.UserResponse{Body: h.toDTO(u)}, nil
 }
 
-type UserResponse struct {
-	Body dto.UserResponseDTO
+func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
+	dto.UserIDPath
+	Body dto.UserUpdate
+}) (*dto.MessageResponse, error) {
+	updates := h.toUpdatesMap(input.Body)
+
+	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		if errors.Is(err, services.ErrLocationNotFound) {
+			return nil, huma.Error400BadRequest("Неверная локация")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
+			Message: "Пользователь успешно обновлен",
+		},
+	}, nil
 }
 
-type GetDeletedUsersResponse struct {
-	Message string                `json:"message"`
-	Users   []dto.UserResponseDTO `json:"users"`
+func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQuery) (*dto.UserResponse, error) {
+	u, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
+	if err != nil {
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	if u == nil {
+		return nil, huma.Error404NotFound("Пользователь не найден")
+	}
+
+	return &dto.UserResponse{Body: h.toDTO(u)}, nil
 }
 
-// mapUserToDTO преобразует ENT модель пользователя в DTO для ответа
-func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
-	return dto.UserResponseDTO{
+func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
+	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
+		if errors.Is(err, services.ErrUserNotFound) {
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
+			Message: "Пользователь успешно удален",
+		},
+	}, nil
+}
+
+func (h *UserHandler) ResetUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
+	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
+			Message: "Пользователь успешно сброшен к заводским настройкам",
+		},
+	}, nil
+}
+
+func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
+	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
+			Message: "Пользователь успешно восстановлен",
+		},
+	}, nil
+}
+
+func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
+	users, err := h.userService.GetDeletedUsers(ctx)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	userDTOs := make([]dto.User, len(users))
+	for i, u := range users {
+		userDTOs[i] = h.toDTO(u)
+	}
+
+	return &dto.UsersDeletedResponse{
+		Body: dto.UsersDeletedBody{
+			Message: "Удаленные пользователи успешно получены",
+			Users:   userDTOs,
+		},
+	}, nil
+}
+
+// Helpers
+
+// toDTO преобразует ENT модель пользователя в DTO для ответа
+func (h *UserHandler) toDTO(u *ent.User) dto.User {
+	if u == nil {
+		return dto.User{}
+	}
+
+	formatDate := func(t any) string {
+		if t == nil {
+			return ""
+		}
+		switch v := t.(type) {
+		case *time.Time:
+			if v == nil || v.IsZero() || v.Unix() <= 0 {
+				return ""
+			}
+			return v.Format(time.RFC3339)
+		case time.Time:
+			if v.IsZero() || v.Unix() <= 0 {
+				return ""
+			}
+			return v.Format(time.RFC3339)
+		default:
+			return ""
+		}
+	}
+
+	return dto.User{
 		ID:               u.ID,
 		TelegramID:       u.TelegramID,
 		FullName:         u.FullName,
@@ -158,203 +299,50 @@ func mapUserToDTO(u *ent.User) dto.UserResponseDTO {
 		Role:             string(u.Role),
 		CreatedAt:        u.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt:        u.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		DeletedAt:        formatDate(u.DeletedAt),
 	}
 }
 
-// mapDTOToUser преобразует DTO регистрации в ENT пользователя
-func mapDTOToUser(dto dto.UserRegistrationFull, telegramID int64) *ent.User {
-	return &ent.User{
-		TelegramID: telegramID,
-		FullName:   dto.FullName,
-		Phone:      dto.Phone,
-		Email:      dto.Email,
-		ConsentPd:  dto.ConsentPD,
-		LocationID: dto.LocationID,
-		Role:       user.Role(dto.Role),
+// toENT преобразует DTO пользователя в ENT модель
+func (h *UserHandler) toENT(u *dto.User) ent.User {
+	if u == nil {
+		return ent.User{}
+	}
+	return ent.User{
+		ID:               u.ID,
+		TelegramID:       u.TelegramID,
+		FullName:         u.FullName,
+		Phone:            u.Phone,
+		Email:            u.Email,
+		OrganizationName: u.OrganizationName,
+		ConsentPd:        u.ConsentPd,
+		OnBoarding:       u.OnBoarding,
+		AllowGeo:         u.AllowGeo,
+		LocationID:       u.LocationID,
+		Role:             user.Role(u.Role),
 	}
 }
 
-// mapDTOToUserSimple преобразует DTO простой регистрации в ENT пользователя
-func mapDTOToUserSimple(dto dto.UserRegistrationSimple) *ent.User {
-	return &ent.User{
-		TelegramID: dto.TelegramID,
-		FullName:   dto.FullName,
-		Phone:      "",
-		Email:      "",
-		ConsentPd:  true,
-		OnBoarding: false,
-		AllowGeo:   false,
-		Role:       user.RoleUser,
-	}
-}
-
-// mapDTOToUpdates преобразует DTO обновления в map для сервиса
-func mapDTOToUpdates(dto dto.UserUpdate) map[string]any {
+// toUpdatesMap преобразует DTO обновления в карту для сервиса
+func (h *UserHandler) toUpdatesMap(d dto.UserUpdate) map[string]any {
 	updates := make(map[string]any)
-	if dto.FullName != nil {
-		updates["FullName"] = *dto.FullName
+	if d.FullName != nil {
+		updates["FullName"] = *d.FullName
 	}
-	if dto.Phone != nil {
-		updates["Phone"] = *dto.Phone
+	if d.Phone != nil {
+		updates["Phone"] = *d.Phone
 	}
-	if dto.Email != nil {
-		updates["Email"] = *dto.Email
+	if d.Email != nil {
+		updates["Email"] = *d.Email
 	}
-	if dto.AllowGeo != nil {
-		updates["AllowGeo"] = *dto.AllowGeo
+	if d.AllowGeo != nil {
+		updates["AllowGeo"] = *d.AllowGeo
 	}
-	if dto.OnBoarding != nil {
-		updates["OnBoarding"] = *dto.OnBoarding
+	if d.OnBoarding != nil {
+		updates["OnBoarding"] = *d.OnBoarding
 	}
-	if dto.LocationID != nil {
-		updates["LocationID"] = *dto.LocationID
+	if d.LocationID != nil {
+		updates["LocationID"] = *d.LocationID
 	}
 	return updates
-}
-
-// Handlers
-
-func (h *UserHandler) GetUser(ctx context.Context, input *UserIDPath) (*UserResponse, error) {
-	user, err := h.userService.GetUserByID(ctx, input.ID)
-	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-	return &UserResponse{Body: mapUserToDTO(user)}, nil
-}
-
-func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
-	Body dto.UserRegistrationSimple
-}) (*UserResponse, error) {
-	fullName := input.Body.FullName
-	if fullName == "" {
-		fullName = "Пользователь Telegram"
-	}
-
-	userData := dto.UserRegistrationSimple{
-		TelegramID: input.Body.TelegramID,
-		FullName:   fullName,
-	}
-
-	user := mapDTOToUserSimple(userData)
-
-	user, err := h.userService.RegisterUserSimple(ctx, user)
-	if err != nil {
-		if errors.Is(err, services.ErrUserAlreadyExists) {
-			return nil, huma.Error409Conflict("Пользователь уже существует")
-		}
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	return &UserResponse{Body: mapUserToDTO(user)}, nil
-}
-
-func (h *UserHandler) RegisterUser(ctx context.Context, input *struct {
-	Body dto.UserRegistrationFull
-}) (*UserResponse, error) {
-	// Извлекаем telegram_id из контекста (устанавливается middleware)
-	telegramID, _ := ctx.Value("telegram_id").(int64)
-
-	user := mapDTOToUser(input.Body, telegramID)
-
-	user, err := h.userService.RegisterUser(ctx, user)
-	if err != nil {
-		if errors.Is(err, services.ErrUserAlreadyExists) {
-			return nil, huma.Error409Conflict("Пользователь уже существует")
-		}
-		if errors.Is(err, services.ErrInvalidRole) {
-			return nil, huma.Error400BadRequest("Неверная роль")
-		}
-		if errors.Is(err, services.ErrLocationNotFound) {
-			return nil, huma.Error400BadRequest("Неверная локация")
-		}
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	return &UserResponse{Body: mapUserToDTO(user)}, nil
-}
-
-func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
-	UserIDPath
-	Body dto.UserUpdate
-}) (*MessageResponse, error) {
-	updates := mapDTOToUpdates(input.Body)
-
-	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		if errors.Is(err, services.ErrLocationNotFound) {
-			return nil, huma.Error400BadRequest("Неверная локация")
-		}
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	resp := &MessageResponse{}
-	resp.Body.Message = "Пользователь успешно обновлен"
-	return resp, nil
-}
-
-func (h *UserHandler) GetUserByTelegram(ctx context.Context, input *TelegramIDQuery) (*UserResponse, error) {
-	user, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
-	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	return &UserResponse{Body: mapUserToDTO(user)}, nil
-}
-
-func (h *UserHandler) DeleteUser(ctx context.Context, input *UserIDPath) (*MessageResponse, error) {
-	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	resp := &MessageResponse{}
-	resp.Body.Message = "Пользователь успешно удален"
-	return resp, nil
-}
-
-func (h *UserHandler) ResetUser(ctx context.Context, input *UserIDPath) (*dto.DevResponse, error) {
-	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	return &dto.DevResponse{
-		Message: "Пользователь успешно сброшен к заводским настройкам",
-	}, nil
-}
-
-func (h *UserHandler) RestoreUser(ctx context.Context, input *UserIDPath) (*dto.DevResponse, error) {
-	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	return &dto.DevResponse{
-		Message: "Пользователь успешно восстановлен",
-	}, nil
-}
-
-func (h *UserHandler) GetDeletedUsers(ctx context.Context, input *struct{}) (*GetDeletedUsersResponse, error) {
-	users, err := h.userService.GetDeletedUsers(ctx)
-	if err != nil {
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
-	}
-
-	userDTOs := make([]dto.UserResponseDTO, len(users))
-	for i, user := range users {
-		userDTOs[i] = mapUserToDTO(user)
-	}
-
-	return &GetDeletedUsersResponse{
-		Message: "Удаленные пользователи успешно получены",
-		Users:   userDTOs,
-	}, nil
 }

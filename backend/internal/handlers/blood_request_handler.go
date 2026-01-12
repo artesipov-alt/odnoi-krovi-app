@@ -33,7 +33,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Path:          "/v1/blood-request/pool",
 		Summary:       "Добавить питомца в пул поиска крови",
 		Description:   "Создает новую заявку на поиск крови для питомца",
-		Tags:          []string{"blood-request"},
+		Tags:          []string{"blood-request-v1"},
 		DefaultStatus: http.StatusCreated,
 	}, h.AddPetToBloodRequestPool)
 
@@ -44,7 +44,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Path:        "/v1/blood-request/pool/search",
 		Summary:     "Получить список заявок на поиск крови",
 		Description: "Возвращает список заявок по фильтрам",
-		Tags:        []string{"blood-request"},
+		Tags:        []string{"blood-request-v1"},
 	}, h.GetPetsFromBloodRequestPool)
 
 	// Получить заявку по ID
@@ -54,7 +54,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Path:        "/v1/blood-request/{id}",
 		Summary:     "Получить заявку по ID",
 		Description: "Возвращает информацию о конкретной заявке",
-		Tags:        []string{"blood-request"},
+		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByID)
 
 	// Удалить заявку
@@ -64,7 +64,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Path:        "/v1/blood-request/{id}",
 		Summary:     "Удалить заявку",
 		Description: "Удаляет заявку на поиск крови (soft delete)",
-		Tags:        []string{"blood-request"},
+		Tags:        []string{"blood-request-v1"},
 	}, h.DeleteBloodRequest)
 }
 

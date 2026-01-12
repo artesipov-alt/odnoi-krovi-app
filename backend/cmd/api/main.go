@@ -58,6 +58,8 @@ func main() {
 		// Инициализация репозиториев
 		userRepo := pg.NewEntUserRepository(db)
 		locationRepo := pg.NewEntLocationRepository(db)
+		breedRepo := pg.NewEntBreedRepository(db)
+		bloodInfoRepo := pg.NewEntBloodInfoRepository(db)
 		petRepo := pg.NewEntPetRepository(db)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
@@ -71,6 +73,7 @@ func main() {
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(petService)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
+		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 
 		// Создание стандартного mux
 		mux := http.NewServeMux()
@@ -83,6 +86,7 @@ func main() {
 		userHandler.Register(api)
 		petHandler.Register(api)
 		bloodRequestHandler.Register(api)
+		referenceHandler.Register(api)
 
 		// Создаем сервер
 		server := config.NewServer(options.Port, mux)
