@@ -1,6 +1,3 @@
-import cn from 'classnames';
-import BackArrow from 'imgs/svg/backArrow';
-import MainLogo from 'imgs/svg/mainLogo';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -9,9 +6,10 @@ import { getBloodComponents } from 'api/apiServices/getBloodComponents';
 import { getBloodGroups } from 'api/apiServices/getBloodGroups';
 import { getLocations } from 'api/apiServices/getLocations';
 import { getPetsTypes } from 'api/apiServices/getPetsTypes';
-import { Dict, PetDict } from 'api/reference';
+import { Dict, PetTypeDict } from 'api/reference';
 import { PetType } from 'api/types';
 
+import Header from '../common/Header';
 import styles from './Recipient.module.less';
 import Check from './Steps/Check';
 import Final from './Steps/Final';
@@ -42,7 +40,7 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
     const [desiredBloodGroups, setDesiredBloodGroups] = useState<string[]>([]);
 
     const [locationsDict, setLocationsDict] = useState<Dict[]>([]);
-    const [petTypesDict, setPetTypesDict] = useState<PetDict[]>([]);
+    const [petTypesDict, setPetTypesDict] = useState<PetTypeDict[]>([]);
     const [bloodComponentsDict, setBloodComponentsDict] = useState<Dict[]>([]);
     const [bloodGroupDict, setBloodGroupDict] = useState<BloodGroupsDicts>({} as BloodGroupsDicts);
 
@@ -58,7 +56,7 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
     );
 
     const fetchBloodTypes = useCallback(
-        async (pets: PetDict[]) => {
+        async (pets: PetTypeDict[]) => {
             const dict: BloodGroupsDicts = {} as BloodGroupsDicts;
 
             await Promise.allSettled(
@@ -196,31 +194,7 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
         <>
             {step < 4 && (
                 <>
-                    <div>
-                        <div className={styles.header}>
-                            <div className={styles.title}>
-                                <div className={styles.logo}>
-                                    <MainLogo />
-                                </div>
-                                <div className={styles.descr}>
-                                    <h4 className={styles.step}>Шаг {step} из 3</h4>
-                                    <span className={styles.caption}>О питомце</span>
-                                </div>
-                            </div>
-                            <div className={styles.back} onClick={onBackClickHandler}>
-                                <BackArrow />
-                            </div>
-                        </div>
-                        <div className={styles.progressWrapper}>
-                            <div
-                                className={cn(styles.progress, {
-                                    [styles.one]: step === 1,
-                                    [styles.two]: step === 2,
-                                    [styles.three]: step === 3,
-                                })}
-                            />
-                        </div>
-                    </div>
+                    <Header step={step} stepsCount={3} onBackClickHandler={onBackClickHandler} />
                     <div className={styles.form}>
                         {step === 1 && (
                             <First
@@ -284,7 +258,6 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
                     description={description}
                     locationsDict={locationsDict}
                     bloodGroupDict={bloodGroupDict}
-                    onBackClick={onBackClickHandler}
                     bloodComponents={bloodComponents}
                     desiredBloodGroups={desiredBloodGroups}
                     bloodComponentsDict={bloodComponentsDict}

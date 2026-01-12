@@ -15,12 +15,24 @@ type Props = {
     showStub?: boolean;
     serverSrc?: string;
     bloodGroup?: string;
+    isMiniView?: boolean;
     onLoad?: (photo: File | null) => void;
 };
 
 const acceptableFormats = ['png', 'jpg', 'jpeg', 'jpe'];
 
-const ImgEditor: FC<Props> = ({ src, className, onLoad, serverSrc, petType, showStub, bloodGroup, weight, name }) => {
+const ImgEditor: FC<Props> = ({
+    src,
+    name,
+    weight,
+    onLoad,
+    petType,
+    showStub,
+    className,
+    serverSrc,
+    bloodGroup,
+    isMiniView,
+}) => {
     const [imgSrc, setImgSrc] = useState('');
     const [file, setFile] = useState<File | null>(src);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -89,11 +101,13 @@ const ImgEditor: FC<Props> = ({ src, className, onLoad, serverSrc, petType, show
 
     const renderLabels = () => (
         <>
-            <span className={styles.bloodGroup}>{bloodGroup}</span>
-            <div className={styles.weight}>
-                <span>{weight}</span>
-                <span className={styles.weightCaption}> кг</span>
-            </div>
+            {bloodGroup && <span className={styles.bloodGroup}>{bloodGroup}</span>}
+            {weight && (
+                <div className={styles.weight}>
+                    <span>{weight}</span>
+                    <span className={styles.weightCaption}> кг</span>
+                </div>
+            )}
             <div className={styles.name}>{name?.toUpperCase()}</div>
         </>
     );
@@ -152,6 +166,7 @@ const ImgEditor: FC<Props> = ({ src, className, onLoad, serverSrc, petType, show
             className={cn(styles.container, className, {
                 [styles.showStub]: showStub,
                 [styles.withPhoto]: src || file,
+                [styles.mini]: isMiniView,
             })}
         >
             {renderContent()}

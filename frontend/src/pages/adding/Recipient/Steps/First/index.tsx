@@ -1,14 +1,15 @@
 import { Button } from '@mui/material';
-import TextField from '@mui/material/TextField';
 import cn from 'classnames';
 import Lock from 'imgs/svg/lock';
+import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useState } from 'react';
 import { regexReal } from 'utils/regexps';
 
-import { Dict, PetDict } from 'api/reference';
+import { Dict, PetTypeDict } from 'api/reference';
 import { PetType } from 'api/types';
 import Alert from 'components/Alert';
 import ImgEditor from 'components/ImgEditor';
+import TextField from 'components/TextField';
 
 import styles from './First.module.less';
 
@@ -18,7 +19,7 @@ type Props = {
     petType: string;
     bloodGroup: string;
     photo: File | null;
-    petTypes: PetDict[];
+    petTypes: PetTypeDict[];
     onChangeName: (name: string) => void;
     onChangePetType: (type: string) => void;
     bloodGroupDict: Record<PetType, Dict[]>;
@@ -34,8 +35,8 @@ const First: FC<Props> = ({
     weight,
     petType,
     petTypes,
-    onLoadPhoto,
     bloodGroup,
+    onLoadPhoto,
     onChangeName,
     bloodGroupDict,
     onChangeWeight,
@@ -116,34 +117,11 @@ const First: FC<Props> = ({
                 className={styles.alert}
                 text='Фото может вызвать эмоциональный отклик у хозяев доноров и увеличить шансы найти помощь'
             />
-            <div className={styles.formItem}>
-                <p className={styles.label}>Кличка</p>
-                <TextField
-                    fullWidth
-                    name='name'
-                    value={name}
-                    onChange={onChangeNameHandler}
-                    placeholder='Как зовут питомца?'
-                    slotProps={{
-                        htmlInput: { className: styles.input },
-                        input: { className: styles.inputWrapper },
-                    }}
-                    sx={{
-                        '& .MuiOutlinedInput-root': {
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                                borderWidth: '1px',
-                            },
-                        },
-                    }}
-                />
-            </div>
+            <FormItem title='Кличка'>
+                <TextField name='name' value={name} placeholder='Как зовут питомца?' onChange={onChangeNameHandler} />
+            </FormItem>
             {!!petTypes.length && (
-                <div className={styles.formItem}>
-                    <p className={styles.label}>Вид</p>
+                <FormItem title='Вид'>
                     <div className={styles.petType}>
                         {petTypes.map(({ label, value }) => (
                             <Button
@@ -155,56 +133,31 @@ const First: FC<Props> = ({
                             </Button>
                         ))}
                     </div>
-                </div>
+                </FormItem>
             )}
-            <div className={styles.formItem}>
-                <div className={styles.labelWrapper}>
-                    <p className={styles.label}>Вес</p>
-                    <span className={styles.subLabel}>
-                        {/* eslint-disable-next-line no-nested-ternary */}
-                        {!petType ? null : petType === PetType.CAT ? 'до 20 кг' : 'до 150 кг'}
-                    </span>
-                </div>
+            {/* eslint-disable-next-line no-nested-ternary */}
+            <FormItem title='Вес' subtitle={!petType ? undefined : petType === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}>
                 <TextField
-                    fullWidth
                     name='weight'
+                    isDigitInput
                     value={weight}
                     disabled={!petType}
                     onChange={onChangePetWeightHandler}
+                    inputClass={cn({ [styles.lock]: !petType })}
+                    htmlInputClass={cn({ [styles.lock]: !petType })}
                     placeholder={petType ? 'Сколько весит питомец?' : 'Сначала выберите вид'}
-                    slotProps={{
-                        input: {
-                            endAdornment: !petType ? (
-                                <div className={styles.lockIcon}>
-                                    <Lock />
-                                </div>
-                            ) : (
-                                <div className={styles.endAdornment}>кг</div>
-                            ),
-                            className: cn(styles.inputWrapper, { [styles.lock]: !petType }),
-                        },
-                        htmlInput: {
-                            className: cn(styles.input, { [styles.lock]: !petType }),
-                        },
-                    }}
-                    sx={{
-                        '& .MuiOutlinedInput-root': {
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                            },
-                            '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                                borderWidth: '1px',
-                            },
-                        },
-                    }}
+                    endAdornment={
+                        !petType ? (
+                            <div className={styles.lockIcon}>
+                                <Lock />
+                            </div>
+                        ) : (
+                            <div className={styles.endAdornment}>кг</div>
+                        )
+                    }
                 />
-            </div>
-            <div className={styles.formItem}>
-                <p className={styles.label}>Группа крови питомца</p>
+            </FormItem>
+            <FormItem title='Группа крови питомца'>
                 {petType ? (
                     <>
                         <div className={cn(styles.bloodGroups, { [styles.dogGroup]: petType === PetType.DOG })}>
@@ -228,38 +181,23 @@ const First: FC<Props> = ({
                 ) : (
                     <TextField
                         disabled
-                        fullWidth
                         name='bloodGroup'
                         value={bloodGroup}
                         placeholder='Сначала выберите вид'
-                        slotProps={{
-                            input: {
-                                endAdornment: !petType ? (
-                                    <div className={styles.lockIcon}>
-                                        <Lock />
-                                    </div>
-                                ) : (
-                                    <div className={styles.endAdornment}>кг</div>
-                                ),
-                                className: cn(styles.inputWrapper, { [styles.lock]: !petType }),
-                            },
-                            htmlInput: {
-                                className: cn(styles.input, { [styles.lock]: !petType }),
-                            },
-                        }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#dee2e9',
-                                },
-                                '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#dee2e9',
-                                },
-                            },
-                        }}
+                        inputClass={cn({ [styles.lock]: !petType })}
+                        htmlInputClass={cn({ [styles.lock]: !petType })}
+                        endAdornment={
+                            !petType ? (
+                                <div className={styles.lockIcon}>
+                                    <Lock />
+                                </div>
+                            ) : (
+                                <div className={styles.endAdornment}>кг</div>
+                            )
+                        }
                     />
                 )}
-            </div>
+            </FormItem>
             <Button
                 fullWidth
                 onClick={onConfirmButtonClickHandler}

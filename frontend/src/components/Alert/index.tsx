@@ -1,11 +1,11 @@
 import cn from 'classnames';
 import Caution from 'imgs/svg/caution';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 import styles from './Alert.module.less';
 
 type Props = {
-    text: string;
+    text: ReactNode;
     className?: string;
 };
 
