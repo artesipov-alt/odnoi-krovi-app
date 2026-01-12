@@ -1,5 +1,5 @@
 import { Bot } from "grammy";
-import { Configuration, UsersApi } from "../../shared/ts/index";
+import { Configuration, UsersV1Api } from "../../shared/ts/index";
 
 import type { Context } from "grammy";
 import pino from "pino";
@@ -43,4 +43,4 @@ const apiConfig = new Configuration({
 });
 
 // API Client Instances
-export const usersApi = new UsersApi(apiConfig);
+export const usersApi = new UsersV1Api(apiConfig);

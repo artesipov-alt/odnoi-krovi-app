@@ -32,7 +32,7 @@ export const startHandler = async (ctx: Context) => {
       let isUserExist = false;
 
       try {
-        await usersApi.userTelegramGet({ telegramId });
+        await usersApi.getUserByTelegram({ telegramId });
         isUserExist = true;
         pinologger.info({ telegramId }, "User exists");
       } catch (error: any) {
@@ -48,8 +48,8 @@ export const startHandler = async (ctx: Context) => {
         try {
           const fullName = getFullName(ctx.from);
 
-          await usersApi.userRegisterSimplePost({
-            request: {
+          await usersApi.registerUserSimple({
+            userRegistrationSimple: {
               telegramId,
               fullName,
             },
@@ -135,7 +135,7 @@ export const profileHandler = async (ctx: Context) => {
 };
 
 export const apiTestHandler = async (ctx: Context) => {
-  const data = await usersApi.userIdGet({
+  const data = await usersApi.getUserById({
     id: "",
   });
   await ctx.reply(data.fullName!);
