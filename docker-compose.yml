@@ -17,6 +17,7 @@ services:
       S3_ENDPOINT: hb.ru-msk.vkcloud-storage.ru
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
+      MINIAPP_DOMAIN: https://1krovi.app
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       S3_REGION: ${S3_REGION:-ru-central1}
     ports:
