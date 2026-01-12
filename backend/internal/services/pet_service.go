@@ -14,34 +14,6 @@ import (
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
-// calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
-func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
-	now := time.Now()
-	if *birthDate != nil && **birthDate != (time.Time{}) {
-		// Вычисляем возраст из даты рождения
-		birth := **birthDate
-		years := now.Year() - birth.Year()
-		months := int(now.Month()) - int(birth.Month())
-		if now.Day() < birth.Day() {
-			months--
-		}
-		if months < 0 {
-			years--
-			months += 12
-		}
-		if ageYears != nil {
-			*ageYears = years
-		}
-		if ageMonths != nil {
-			*ageMonths = months
-		}
-	} else if ageYears != nil && ageMonths != nil && (*ageYears > 0 || *ageMonths > 0) {
-		// Вычисляем дату рождения из возраста
-		*birthDate = new(time.Time)
-		**birthDate = now.AddDate(-*ageYears, -*ageMonths, 0)
-	}
-}
-
 // PetService определяет интерфейс для бизнес-логики питомцев
 type PetService interface {
 	// CreatePet создает нового питомца для пользователя
@@ -54,7 +26,7 @@ type PetService interface {
 	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// UpdatePet обновляет информацию о питомце
-	UpdatePet(ctx context.Context, petID string, updates map[string]interface{}, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
+	UpdatePet(ctx context.Context, petID string, updates map[string]any, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
@@ -80,14 +52,6 @@ func NewPetService(petRepo repositories.PetRepository, userRepo repositories.Use
 		userRepo: userRepo,
 		storage:  storage,
 	}
-}
-
-// buildFullPhotoURL преобразует путь к фото в полный публичный URL
-func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
-	if path == "" {
-		return ""
-	}
-	return s.storage.GetPublicURLFromPath(path)
 }
 
 // CreatePet создает нового питомца для пользователя
@@ -453,4 +417,42 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 	}
 
 	return publicURL, nil
+}
+
+//===================HELPERS===============================================
+
+// calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
+func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
+	now := time.Now()
+	if *birthDate != nil && **birthDate != (time.Time{}) {
+		// Вычисляем возраст из даты рождения
+		birth := **birthDate
+		years := now.Year() - birth.Year()
+		months := int(now.Month()) - int(birth.Month())
+		if now.Day() < birth.Day() {
+			months--
+		}
+		if months < 0 {
+			years--
+			months += 12
+		}
+		if ageYears != nil {
+			*ageYears = years
+		}
+		if ageMonths != nil {
+			*ageMonths = months
+		}
+	} else if ageYears != nil && ageMonths != nil && (*ageYears > 0 || *ageMonths > 0) {
+		// Вычисляем дату рождения из возраста
+		*birthDate = new(time.Time)
+		**birthDate = now.AddDate(-*ageYears, -*ageMonths, 0)
+	}
+}
+
+// buildFullPhotoURL преобразует путь к фото в полный публичный URL
+func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
+	if path == "" {
+		return ""
+	}
+	return s.storage.GetPublicURLFromPath(path)
 }

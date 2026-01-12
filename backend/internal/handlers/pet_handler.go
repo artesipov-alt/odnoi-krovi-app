@@ -102,57 +102,137 @@ func (h *PetHandler) Register(api huma.API) {
 	}, h.ConfirmPetAvatarUpload)
 }
 
-// Вспомогательные структуры для Huma
+//==========Handlers==============================
 
-type PetIDPath struct {
-	ID string `path:"id" doc:"ID питомца" minLength:"1" example:"PET-25-000001"`
+func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
+	dto.PetUserIDPath
+	Body dto.PetCreate
+}) (*dto.PetResponseWrapper, error) {
+	petData := mapDTOToPet(input.Body)
+
+	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
+			slog.DebugContext(ctx, "user not found for pet creation", "user_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		slog.ErrorContext(ctx, "failed to create pet", "user_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	return &dto.PetResponseWrapper{Body: mapPetToDTO(pet)}, nil
 }
 
-type PetUserIDPath struct {
-	ID string `path:"user_id" doc:"ID пользователя" minLength:"1" example:"1"`
+func (h *PetHandler) GetPet(ctx context.Context, input *struct {
+	dto.PetIDPath
+	dto.PetPreloadQuery
+}) (*dto.PetResponseWrapper, error) {
+	preloads := h.getPreloads(input.PetPreloadQuery)
+
+	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found", "pet_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		slog.ErrorContext(ctx, "failed to get pet by ID", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	return &dto.PetResponseWrapper{Body: mapPetToDTO(pet)}, nil
 }
 
-type PetPreloadQuery struct {
-	WithHealth     bool `query:"with_health" doc:"Включить данные о здоровье"`
-	WithTreatments bool `query:"with_treatments" doc:"Включить данные о ветеринарных обработках"`
-	WithAnalysis   bool `query:"with_analysis" doc:"Включить данные об анализах"`
-	WithBonuses    bool `query:"with_bonuses" doc:"Включить данные о бонусах"`
-	WithAll        bool `query:"with_all" doc:"Включить все связанные данные"`
+func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
+	dto.PetUserIDPath
+	dto.PetPreloadQuery
+}) (*dto.PetsResponseWrapper, error) {
+	preloads := h.getPreloads(input.PetPreloadQuery)
+
+	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
+			slog.DebugContext(ctx, "user not found for getting pets", "user_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Пользователь не найден")
+		}
+		slog.ErrorContext(ctx, "failed to get user pets", "user_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	var petDTOs []dto.PetResponse
+	for _, p := range pets {
+		petDTOs = append(petDTOs, mapPetToDTO(p))
+	}
+
+	return &dto.PetsResponseWrapper{Body: petDTOs}, nil
 }
 
-type AvatarPathParam struct {
-	Path string `path:"path" doc:"Путь к аватарке питомца" example:"pets/PET-25-000001/avatar.jpg"`
+func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
+	dto.PetIDPath
+	Body dto.PetUpdate
+}) (*dto.MessageResponse, error) {
+	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
+
+	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for update", "pet_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		slog.ErrorContext(ctx, "failed to update pet", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	resp := &dto.MessageResponse{}
+	resp.Body.Message = "Питомец успешно обновлен"
+	return resp, nil
 }
 
-type PetResponse struct {
-	Body dto.PetResponseDTO
+func (h *PetHandler) DeletePet(ctx context.Context, input *dto.PetIDPath) (*dto.MessageResponse, error) {
+	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for deletion", "pet_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		slog.ErrorContext(ctx, "failed to delete pet", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	resp := &dto.MessageResponse{}
+	resp.Body.Message = "Питомец успешно удален"
+	return resp, nil
 }
 
-type PetsResponse struct {
-	Body []dto.PetResponseDTO
-}
+func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *dto.PetIDPath) (*dto.UploadURLResponse, error) {
+	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for avatar upload URL", "pet_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		slog.ErrorContext(ctx, "failed to get avatar upload URL", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
 
-type UploadURLResponse struct {
-	Body struct {
+	return &dto.UploadURLResponse{Body: struct {
 		URL  string `json:"url"`
 		Path string `json:"path"`
-	}
+	}{URL: url, Path: path}}, nil
 }
 
-type ConfirmUploadResponse struct {
-	Body struct {
+func (h *PetHandler) ConfirmPetAvatarUpload(ctx context.Context, input *dto.AvatarPathParam) (*dto.ConfirmUploadResponse, error) {
+	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
+	if err != nil {
+		// This error is likely a server-side issue if the path was valid but the update failed.
+		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	return &dto.ConfirmUploadResponse{Body: struct {
 		PublicURL string `json:"publicUrl"`
-	}
-}
-
-type MessageResponse struct {
-	Body struct {
-		Message string `json:"message" example:"Успешно"`
-	}
+	}{PublicURL: publicURL}}, nil
 }
 
 // getPreloads извлекает список связей для предзагрузки из query-параметров
-func (h *PetHandler) getPreloads(pq PetPreloadQuery) []string {
+func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
 	var preloads []string
 	if pq.WithHealth {
 		preloads = append(preloads, "Health")
@@ -173,8 +253,8 @@ func (h *PetHandler) getPreloads(pq PetPreloadQuery) []string {
 }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
-func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
-	petDTO := dto.PetResponseDTO{
+func mapPetToDTO(p *ent.Pet) dto.PetResponse {
+	petDTO := dto.PetResponse{
 		ID:              p.ID,
 		Name:            p.Name,
 		ChipNumber:      p.ChipNumber,
@@ -197,7 +277,7 @@ func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
 		healthStatus := string(p.Edges.Health.HealthStatus)
 		medications := p.Edges.Health.Medications
 		surgical := p.Edges.Health.SurgicalInterventions
-		petDTO.Health = &dto.PetHealthDTO{
+		petDTO.Health = &dto.PetHealth{
 			ReproductiveStatus:    &reproStatus,
 			HealthStatus:          &healthStatus,
 			LastDonation:          p.Edges.Health.LastDonation,
@@ -207,7 +287,7 @@ func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
 		}
 	}
 	if p.Edges.Treatments != nil {
-		petDTO.Treatments = &dto.PetTreatmentDTO{
+		petDTO.Treatments = &dto.PetTreatment{
 			RabiesVaccinationDate:     p.Edges.Treatments.RabiesVaccinationDate,
 			InfectionVaccinationDate:  p.Edges.Treatments.InfectionVaccinationDate,
 			EctoparasiteTreatmentDate: p.Edges.Treatments.EctoparasiteTreatmentDate,
@@ -215,7 +295,7 @@ func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
 		}
 	}
 	if p.Edges.Analyses != nil {
-		petDTO.Analyses = make([]*dto.PetAnalysisDTO, len(p.Edges.Analyses))
+		petDTO.Analyses = make([]*dto.PetAnalysis, len(p.Edges.Analyses))
 		for i, a := range p.Edges.Analyses {
 			leukemiaType := string(a.LeukemiaType)
 			immunoType := string(a.ImmunodeficiencyType)
@@ -225,7 +305,7 @@ func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
 			diroType := string(a.DirofilariaType)
 			ehriType := string(a.EhrlichiosisType)
 			anaType := string(a.AnaplasmosisType)
-			petDTO.Analyses[i] = &dto.PetAnalysisDTO{
+			petDTO.Analyses[i] = &dto.PetAnalysis{
 				LeukemiaDate:         a.LeukemiaDate,
 				LeukemiaType:         &leukemiaType,
 				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
@@ -246,7 +326,7 @@ func mapPetToDTO(p *ent.Pet) dto.PetResponseDTO {
 		}
 	}
 	if p.Edges.Bonuses != nil {
-		petDTO.Bonuses = &dto.PetBonusDTO{
+		petDTO.Bonuses = &dto.PetBonus{
 			IsArtist:      p.Edges.Bonuses.IsArtist,
 			IsTherapist:   p.Edges.Bonuses.IsTherapist,
 			IsFormerDonor: p.Edges.Bonuses.IsFormerDonor,
@@ -483,133 +563,4 @@ func mapDTOToPetUpdates(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.P
 	}
 
 	return updates, health, treatments, analyses, bonuses
-}
-
-// Handlers
-
-func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
-	PetUserIDPath
-	Body dto.PetCreate
-}) (*PetResponse, error) {
-	petData := mapDTOToPet(input.Body)
-
-	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrUserNotFound) {
-			slog.DebugContext(ctx, "user not found for pet creation", "user_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		slog.ErrorContext(ctx, "failed to create pet", "user_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	return &PetResponse{Body: mapPetToDTO(pet)}, nil
-}
-
-func (h *PetHandler) GetPet(ctx context.Context, input *struct {
-	PetIDPath
-	PetPreloadQuery
-}) (*PetResponse, error) {
-	preloads := h.getPreloads(input.PetPreloadQuery)
-
-	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to get pet by ID", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	return &PetResponse{Body: mapPetToDTO(pet)}, nil
-}
-
-func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
-	PetUserIDPath
-	PetPreloadQuery
-}) (*PetsResponse, error) {
-	preloads := h.getPreloads(input.PetPreloadQuery)
-
-	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrUserNotFound) {
-			slog.DebugContext(ctx, "user not found for getting pets", "user_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		slog.ErrorContext(ctx, "failed to get user pets", "user_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	var petDTOs []dto.PetResponseDTO
-	for _, p := range pets {
-		petDTOs = append(petDTOs, mapPetToDTO(p))
-	}
-
-	return &PetsResponse{Body: petDTOs}, nil
-}
-
-func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
-	PetIDPath
-	Body dto.PetUpdate
-}) (*MessageResponse, error) {
-	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
-
-	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for update", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to update pet", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	resp := &MessageResponse{}
-	resp.Body.Message = "Питомец успешно обновлен"
-	return resp, nil
-}
-
-func (h *PetHandler) DeletePet(ctx context.Context, input *PetIDPath) (*MessageResponse, error) {
-	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for deletion", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to delete pet", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	resp := &MessageResponse{}
-	resp.Body.Message = "Питомец успешно удален"
-	return resp, nil
-}
-
-func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *PetIDPath) (*UploadURLResponse, error) {
-	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for avatar upload URL", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to get avatar upload URL", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	return &UploadURLResponse{Body: struct {
-		URL  string `json:"url"`
-		Path string `json:"path"`
-	}{URL: url, Path: path}}, nil
-}
-
-func (h *PetHandler) ConfirmPetAvatarUpload(ctx context.Context, input *AvatarPathParam) (*ConfirmUploadResponse, error) {
-	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
-	if err != nil {
-		// This error is likely a server-side issue if the path was valid but the update failed.
-		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	return &ConfirmUploadResponse{Body: struct {
-		PublicURL string `json:"publicUrl"`
-	}{PublicURL: publicURL}}, nil
 }
