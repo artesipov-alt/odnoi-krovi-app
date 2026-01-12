@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -495,8 +496,10 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrUserNotFound) {
+			slog.DebugContext(ctx, "user not found for pet creation", "user_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
+		slog.ErrorContext(ctx, "failed to create pet", "user_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
@@ -512,8 +515,10 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found", "pet_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
+		slog.ErrorContext(ctx, "failed to get pet by ID", "pet_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
@@ -529,8 +534,10 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrUserNotFound) {
+			slog.DebugContext(ctx, "user not found for getting pets", "user_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
+		slog.ErrorContext(ctx, "failed to get user pets", "user_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
@@ -550,8 +557,10 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 
 	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for update", "pet_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
+		slog.ErrorContext(ctx, "failed to update pet", "pet_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
@@ -563,8 +572,10 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 func (h *PetHandler) DeletePet(ctx context.Context, input *PetIDPath) (*MessageResponse, error) {
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for deletion", "pet_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
+		slog.ErrorContext(ctx, "failed to delete pet", "pet_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
@@ -577,8 +588,10 @@ func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *PetIDPath) (
 	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for avatar upload URL", "pet_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
+		slog.ErrorContext(ctx, "failed to get avatar upload URL", "pet_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
@@ -591,6 +604,8 @@ func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *PetIDPath) (
 func (h *PetHandler) ConfirmPetAvatarUpload(ctx context.Context, input *AvatarPathParam) (*ConfirmUploadResponse, error) {
 	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
 	if err != nil {
+		// This error is likely a server-side issue if the path was valid but the update failed.
+		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 

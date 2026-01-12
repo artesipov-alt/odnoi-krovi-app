@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"log/slog" // Import slog
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -132,8 +133,10 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestAlreadyExists) {
+			slog.DebugContext(ctx, "blood request already exists for pet", "pet_id", input.Body.PetID, "error", err.Error())
 			return nil, huma.Error409Conflict("Заявка на поиск крови для этого питомца уже существует")
 		}
+		slog.ErrorContext(ctx, "failed to create blood request", "pet_id", input.Body.PetID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -157,6 +160,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 
 	requests, err := h.service.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to list blood requests", "filters", filters, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -174,8 +178,10 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *Bl
 	result, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+			slog.DebugContext(ctx, "blood request not found", "request_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Заявка не найдена")
 		}
+		slog.ErrorContext(ctx, "failed to get blood request by ID", "request_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -185,8 +191,10 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *Bl
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*MessageResponse, error) {
 	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+			slog.DebugContext(ctx, "blood request not found for deletion", "request_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Заявка не найдена")
 		}
+		slog.ErrorContext(ctx, "failed to delete blood request", "request_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
