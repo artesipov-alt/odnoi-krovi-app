@@ -4,11 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"go.uber.org/zap"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -44,12 +43,12 @@ func (r *RedisCache) Get(ctx context.Context, key string) ([]byte, error) {
 	result, err := r.client.Get(ctx, key).Bytes()
 	if err != nil {
 		if err == redis.Nil {
-			logger.Log.Debug("Кеш-промах", zap.String("cache_key", key))
+			slog.DebugContext(ctx, "Кеш-промах", "cache_key", key)
 			return nil, cache.ErrCacheMiss
 		}
 		return nil, fmt.Errorf("failed to get key %s: %w", key, err)
 	}
-	logger.Log.Info("Данные взяты из кеша", zap.String("cache_key", key))
+	slog.InfoContext(ctx, "Данные взяты из кеша", "cache_key", key)
 	return result, nil
 }
 
@@ -58,7 +57,7 @@ func (r *RedisCache) Set(ctx context.Context, key string, value []byte, ttl time
 	if err := r.client.Set(ctx, key, value, ttl).Err(); err != nil {
 		return fmt.Errorf("failed to set key %s: %w", key, err)
 	}
-	logger.Log.Info("Данные сохранены в кеш", zap.String("cache_key", key), zap.Duration("ttl", ttl))
+	slog.InfoContext(ctx, "Данные сохранены в кеш", "cache_key", key, "ttl", ttl)
 	return nil
 }
 

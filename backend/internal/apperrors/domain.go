@@ -40,6 +40,13 @@ var (
 	ErrInvalidCoordinates   = BadRequest("неверные координаты")
 )
 
+// BloodRequest domain errors
+var (
+	ErrBloodRequestNotFound      = NotFound("заявка на поиск крови не найдена")
+	ErrBloodRequestAlreadyExists = AlreadyExists("заявка на поиск крови уже существует для этого питомца")
+	ErrInvalidBloodRequestStatus = BadRequest("неверный статус заявки")
+)
+
 // ==========Helper functions для создания ошибок с контекстом=============
 
 // NewUserNotFoundError создает ошибку с ID пользователя

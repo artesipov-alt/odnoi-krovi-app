@@ -6,14 +6,420 @@ import (
 	"strings"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	validation "github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
+	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
+
+// PetService определяет интерфейс для бизнес-логики питомцев
+type PetService interface {
+	// CreatePet создает нового питомца для пользователя
+	CreatePet(ctx context.Context, userID string, pet *ent.Pet) (*ent.Pet, error)
+
+	// GetPetByID получает питомца по ID с preload связей
+	GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error)
+
+	// GetUserPets получает всех питомцев пользователя с preload связей
+	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
+
+	// UpdatePet обновляет информацию о питомце
+	UpdatePet(ctx context.Context, petID string, updates map[string]any, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
+
+	// DeletePet удаляет питомца по ID
+	DeletePet(ctx context.Context, petID string) error
+
+	// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
+	GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error)
+
+	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
+	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
+}
+
+// PetServiceImpl реализует PetService
+type PetServiceImpl struct {
+	petRepo  repositories.PetRepository
+	userRepo repositories.UserRepository
+	storage  repositories.FileStorage
+}
+
+// NewPetService создает новый сервис питомцев
+func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, storage repositories.FileStorage) *PetServiceImpl {
+	return &PetServiceImpl{
+		petRepo:  petRepo,
+		userRepo: userRepo,
+		storage:  storage,
+	}
+}
+
+// CreatePet создает нового питомца для пользователя
+func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *ent.Pet) (*ent.Pet, error) {
+	// Проверяем, существует ли пользователь
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrUserNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to get user")
+	}
+
+	// Устанавливаем UserID
+	petData.UserID = userID
+
+	// Валидируем тип животного
+	if err := pet.TypeValidator(petData.Type); err != nil {
+		return nil, apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
+	}
+
+	// Валидируем статус питомца
+	if err := pet.PetStatusValidator(petData.PetStatus); err != nil {
+		return nil, apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
+	}
+
+	// Валидируем пол животного
+	if string(petData.Gender) != "" {
+		if err := pet.GenderValidator(petData.Gender); err != nil {
+			return nil, apperrors.Validation("неверный пол животного", nil).WithInternal(err)
+		}
+	}
+
+	// Валидируем условия проживания
+	if string(petData.LivingCondition) != "" {
+		if err := pet.LivingConditionValidator(petData.LivingCondition); err != nil {
+			return nil, apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
+		}
+	}
+
+	// Валидируем вложенные структуры, если они есть
+	if petData.Edges.Health != nil {
+		if string(petData.Edges.Health.HealthStatus) != "" {
+			if err := pethealth.HealthStatusValidator(petData.Edges.Health.HealthStatus); err != nil {
+				return nil, apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
+			}
+		}
+		if string(petData.Edges.Health.ReproductiveStatus) != "" {
+			if err := pethealth.ReproductiveStatusValidator(petData.Edges.Health.ReproductiveStatus); err != nil {
+				return nil, apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
+			}
+		}
+	}
+
+	if petData.Edges.Analyses != nil {
+		for _, a := range petData.Edges.Analyses {
+			if string(a.LeukemiaType) != "" {
+				if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+					return nil, apperrors.Validation("неверный тип лейкемии", nil).WithInternal(err)
+				}
+			}
+			if string(a.ImmunodeficiencyType) != "" {
+				if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
+					return nil, apperrors.Validation("неверный тип иммунодефицита", nil).WithInternal(err)
+				}
+			}
+			if string(a.HemoplasmosisType) != "" {
+				if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
+					return nil, apperrors.Validation("неверный тип гемоплазмоза", nil).WithInternal(err)
+				}
+			}
+			if string(a.BartonellosisType) != "" {
+				if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
+					return nil, apperrors.Validation("неверный тип бартонеллеза", nil).WithInternal(err)
+				}
+			}
+			if string(a.BabesiosisType) != "" {
+				if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
+					return nil, apperrors.Validation("неверный тип бабезиоза", nil).WithInternal(err)
+				}
+			}
+			if string(a.DirofilariaType) != "" {
+				if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
+					return nil, apperrors.Validation("неверный тип дирофиляриоза", nil).WithInternal(err)
+				}
+			}
+			if string(a.EhrlichiosisType) != "" {
+				if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
+					return nil, apperrors.Validation("неверный тип эрлихиоза", nil).WithInternal(err)
+				}
+			}
+			if string(a.AnaplasmosisType) != "" {
+				if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
+					return nil, apperrors.Validation("неверный тип анаплазмоза", nil).WithInternal(err)
+				}
+			}
+		}
+	}
+
+	newPet, err := s.petRepo.Create(ctx, petData, petData.Edges.Health, petData.Edges.Treatments, petData.Edges.Analyses, petData.Edges.Bonuses)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to create pet")
+	}
+
+	// Преобразуем путь к фото в полный URL
+	newPet.PhotoURL = s.buildFullPhotoURL(newPet.PhotoURL)
+
+	return newPet, nil
+}
+
+// GetPetByID получает питомца по ID с preload связей
+func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error) {
+	if petID == "" {
+		return nil, apperrors.BadRequest("неверный ID питомца")
+	}
+
+	p, err := s.petRepo.GetByID(ctx, petID, preloads...)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrPetNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to get pet")
+	}
+
+	// Преобразуем путь к фото в полный URL
+	p.PhotoURL = s.buildFullPhotoURL(p.PhotoURL)
+
+	return p, nil
+}
+
+// GetUserPets получает всех питомцев пользователя с preload связей
+func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error) {
+	// Проверяем, существует ли пользователь
+	_, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrUserNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to get user")
+	}
+
+	pets, err := s.petRepo.GetByUserID(ctx, userID, preloads...)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get user pets")
+	}
+
+	// Преобразуем пути к фото в полные URL
+	for _, pet := range pets {
+		pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
+	}
+
+	return pets, nil
+}
+
+// UpdatePet обновляет информацию о питомце
+func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates map[string]interface{}, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error {
+	// Получаем существующего питомца
+	p, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperrors.ErrPetNotFound
+		}
+		return apperrors.Internal(err, "failed to get pet")
+	}
+
+	// Применяем обновления и валидируем
+	if val, ok := updates["Name"]; ok {
+		p.Name = val.(string)
+	}
+	if val, ok := updates["ChipNumber"]; ok {
+		p.ChipNumber = val.(string)
+	}
+	if val, ok := updates["PhotoURL"]; ok {
+		p.PhotoURL = val.(string)
+	}
+	if val, ok := updates["BreedID"]; ok {
+		p.BreedID = val.(int)
+	}
+	if val, ok := updates["WeightKg"]; ok {
+		p.WeightKg = val.(float64)
+	}
+	if val, ok := updates["AgeYears"]; ok {
+		p.AgeYears = val.(int)
+	}
+	if val, ok := updates["AgeMonths"]; ok {
+		p.AgeMonths = val.(int)
+	}
+	if val, ok := updates["BirthDate"]; ok {
+		p.BirthDate = val.(*time.Time)
+	}
+	if val, ok := updates["LivingCondition"]; ok {
+		lc := val.(string)
+		if err := pet.LivingConditionValidator(pet.LivingCondition(lc)); err != nil {
+			return apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
+		}
+		p.LivingCondition = pet.LivingCondition(lc)
+	}
+	if val, ok := updates["Gender"]; ok {
+		g := val.(string)
+		if err := pet.GenderValidator(pet.Gender(g)); err != nil {
+			return apperrors.Validation("неверный пол животного", nil).WithInternal(err)
+		}
+		p.Gender = pet.Gender(g)
+	}
+	if val, ok := updates["Type"]; ok {
+		t := val.(string)
+		if err := pet.TypeValidator(pet.Type(t)); err != nil {
+			return apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
+		}
+		p.Type = pet.Type(t)
+	}
+	if val, ok := updates["BloodGroup"]; ok {
+		p.BloodGroup = val.(string)
+	}
+	if val, ok := updates["PetStatus"]; ok {
+		ps := val.(string)
+		if err := pet.PetStatusValidator(pet.PetStatus(ps)); err != nil {
+			return apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
+		}
+		p.PetStatus = pet.PetStatus(ps)
+	}
+
+	// Вычисляем возраст или дату рождения при обновлении
+	calculateAgeFields(&p.AgeYears, &p.AgeMonths, &p.BirthDate)
+
+	// Валидируем вложенные структуры
+	if health != nil {
+		if health.HealthStatus != "" {
+			if err := pethealth.HealthStatusValidator(health.HealthStatus); err != nil {
+				return apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
+			}
+		}
+		if health.ReproductiveStatus != "" {
+			if err := pethealth.ReproductiveStatusValidator(health.ReproductiveStatus); err != nil {
+				return apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
+			}
+		}
+	}
+	for _, a := range analyses {
+		if a.LeukemiaType != "" {
+			if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+				return apperrors.Validation("неверный тип лейкемии", nil).WithInternal(err)
+			}
+		}
+		if a.ImmunodeficiencyType != "" {
+			if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
+				return apperrors.Validation("неверный тип иммунодефицита", nil).WithInternal(err)
+			}
+		}
+		if a.HemoplasmosisType != "" {
+			if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
+				return apperrors.Validation("неверный тип гемоплазмоза", nil).WithInternal(err)
+			}
+		}
+		if a.BartonellosisType != "" {
+			if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
+				return apperrors.Validation("неверный тип бартонеллеза", nil).WithInternal(err)
+			}
+		}
+		if a.BabesiosisType != "" {
+			if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
+				return apperrors.Validation("неверный тип бабезиоза", nil).WithInternal(err)
+			}
+		}
+		if a.DirofilariaType != "" {
+			if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
+				return apperrors.Validation("неверный тип дирофиляриоза", nil).WithInternal(err)
+			}
+		}
+		if a.EhrlichiosisType != "" {
+			if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
+				return apperrors.Validation("неверный тип эрлихиоза", nil).WithInternal(err)
+			}
+		}
+		if a.AnaplasmosisType != "" {
+			if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
+				return apperrors.Validation("неверный тип анаплазмоза", nil).WithInternal(err)
+			}
+		}
+	}
+
+	// Сохраняем обновленного питомца
+	if _, err := s.petRepo.Update(ctx, p, health, treatments, analyses, bonuses); err != nil {
+		return apperrors.Internal(err, "failed to update pet")
+	}
+
+	return nil
+}
+
+// DeletePet удаляет питомца по ID
+func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
+	exists, err := s.petRepo.ExistsByID(ctx, petID)
+	if err != nil {
+		return apperrors.Internal(err, "failed to check pet existence")
+	}
+	if !exists {
+		return apperrors.ErrPetNotFound
+	}
+
+	if err := s.petRepo.Delete(ctx, petID); err != nil {
+		return apperrors.Internal(err, "failed to delete pet")
+	}
+
+	return nil
+}
+
+// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
+func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error) {
+	exists, err := s.petRepo.ExistsByID(ctx, petID)
+	if err != nil {
+		return "", "", apperrors.Internal(err, "failed to check pet existence")
+	}
+	if !exists {
+		return "", "", apperrors.ErrPetNotFound
+	}
+
+	url, path, err := s.storage.GetAvatarUploadInfo(ctx, petID)
+	if err != nil {
+		return "", "", apperrors.Internal(err, "failed to get upload URL")
+	}
+
+	return url, path, nil
+}
+
+// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
+func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error) {
+	decodedPath := strings.ReplaceAll(avatarPath, "%2F", "/")
+	parts := strings.Split(decodedPath, "/")
+	if len(parts) < 2 {
+		return "", apperrors.BadRequest("неверный формат пути аватара")
+	}
+	petID := parts[1]
+
+	p, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return "", apperrors.ErrPetNotFound
+		}
+		return "", apperrors.Internal(err, "failed to get pet")
+	}
+
+	exists, err := s.storage.CheckObjectExists(ctx, decodedPath)
+	if err != nil {
+		return "", apperrors.Internal(err, "failed to check file existence")
+	}
+	if !exists {
+		return "", apperrors.NotFound("файл не найден")
+	}
+
+	err = s.storage.SetObjectPublicACL(ctx, decodedPath)
+	if err != nil {
+		return "", apperrors.Internal(err, "failed to set public ACL")
+	}
+
+	publicURL := s.storage.GetAvatarPublicURL(petID)
+	if publicURL == "" {
+		return "", apperrors.Internal(errors.New("failed to generate public URL"), "failed to get public URL")
+	}
+
+	p.PhotoURL = decodedPath
+	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
+		return "", apperrors.Internal(err, "failed to update pet avatar")
+	}
+
+	return publicURL, nil
+}
+
+//===================HELPERS===============================================
 
 // calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
 func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
@@ -43,432 +449,10 @@ func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
 	}
 }
 
-// PetService определяет интерфейс для бизнес-логики питомцев
-type PetService interface {
-	// CreatePet создает нового питомца для пользователя
-	CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error)
-
-	// GetPetByID получает питомца по ID с возможностью предзагрузки связей
-	GetPetByID(ctx context.Context, petID string, preloads ...string) (*models.Pet, error)
-
-	// GetUserPets получает всех питомцев пользователя с возможностью предзагрузки связей
-	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*models.Pet, error)
-
-	// UpdatePet обновляет информацию о питомце
-	UpdatePet(ctx context.Context, petID string, updates PetUpdate) error
-
-	// DeletePet удаляет питомца по ID
-	DeletePet(ctx context.Context, petID string) error
-
-	// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
-	GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error)
-
-	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
-	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
-}
-
-// PetCreate содержит данные для создания питомца
-type PetCreate struct {
-	Name            string                 `json:"name" validate:"required,min=1,max=100"`
-	ChipNumber      string                 `json:"chipNumber,omitempty" validate:"omitempty,len=15"`
-	PhotoURL        string                 `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
-	Breed           string                 `json:"breed,omitempty" validate:"omitempty,max=100"`
-	WeightKg        float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
-	AgeYears        int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
-	AgeMonths       int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
-	BirthDate       *time.Time             `json:"birthDate,omitempty"`
-	LivingCondition models.LivingCondition `json:"livingCondition,omitempty"`
-	Gender          models.Gender          `json:"gender,omitempty"`
-	Type            models.PetType         `json:"type,omitempty"`
-	BloodGroup      string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
-	PetStatus       models.PetRole         `json:"petStatus,omitempty" validate:"omitempty,max=50"`
-
-	// Вложенные структуры
-	Health     *models.PetHealth    `json:"health,omitempty"`
-	Treatments *models.PetTreatment `json:"treatments,omitempty"`
-	Analysis   *models.PetAnalysis  `json:"analysis,omitempty"`
-	Bonuses    *models.PetBonus     `json:"bonuses,omitempty"`
-}
-
-// PetUpdate содержит поля, которые можно обновить для питомца
-type PetUpdate struct {
-	Name            *string                 `json:"name,omitempty" validate:"omitempty,min=1,max=100"`
-	ChipNumber      *string                 `json:"chipNumber,omitempty" validate:"omitempty,len=15"`
-	PhotoURL        *string                 `json:"photoUrl,omitempty" validate:"omitempty,url,max=255"`
-	Breed           *string                 `json:"breed,omitempty" validate:"omitempty,max=100"`
-	WeightKg        *float64                `json:"weightKg,omitempty" validate:"omitempty,min=0"`
-	AgeYears        *int                    `json:"ageYears,omitempty" validate:"omitempty,min=0"`
-	AgeMonths       *int                    `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11"`
-	BirthDate       *time.Time              `json:"birthDate,omitempty"`
-	LivingCondition *models.LivingCondition `json:"livingCondition,omitempty"`
-	Gender          *models.Gender          `json:"gender,omitempty"`
-	Type            *models.PetType         `json:"type,omitempty"`
-	BloodGroup      *string                 `json:"bloodGroup,omitempty" validate:"omitempty,max=50"`
-	PetStatus       *models.PetRole         `json:"petStatus,omitempty" validate:"omitempty,max=50"`
-
-	// Вложенные структуры
-	Health     *models.PetHealth    `json:"health,omitempty"`
-	Treatments *models.PetTreatment `json:"treatments,omitempty"`
-	Analysis   *models.PetAnalysis  `json:"analysis,omitempty"`
-	Bonuses    *models.PetBonus     `json:"bonuses,omitempty"`
-}
-
-// PetServiceImpl реализует PetService
-type PetServiceImpl struct {
-	petRepo  repositories.PetRepository
-	userRepo repositories.UserRepository
-	storage  repositories.FileStorage
-}
-
-// NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, storage repositories.FileStorage) *PetServiceImpl {
-	return &PetServiceImpl{
-		petRepo:  petRepo,
-		userRepo: userRepo,
-		storage:  storage,
-	}
-}
-
 // buildFullPhotoURL преобразует путь к фото в полный публичный URL
 func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
 	if path == "" {
 		return ""
 	}
 	return s.storage.GetPublicURLFromPath(path)
-}
-
-// CreatePet создает нового питомца для пользователя
-func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData PetCreate) (*models.Pet, error) {
-	// Проверяем, существует ли пользователь
-	user, err := s.userRepo.GetByID(ctx, userID)
-	if err != nil {
-		// Если пользователь не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NewUserNotFoundError(userID)
-		}
-		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
-	}
-
-	if user == nil {
-		return nil, apperrors.NewUserNotFoundError(userID)
-	}
-
-	// Валидируем тип животного
-	_, err = validation.LocalizePetType(string(petData.Type))
-	if err != nil {
-		return nil, apperrors.ErrInvalidPetType
-	}
-
-	// Валидируем пол животного
-	_, err = validation.LocalizeGender(string(petData.Gender))
-	if err != nil {
-		return nil, apperrors.ErrInvalidGender
-	}
-
-	// Валидируем условия проживания
-	_, err = validation.LocalizeLivingCondition(string(petData.LivingCondition))
-	if err != nil {
-		return nil, apperrors.ErrInvalidLivingCondition
-	}
-
-	// Вычисляем возраст или дату рождения
-	ageYears := petData.AgeYears
-	ageMonths := petData.AgeMonths
-	birthDate := petData.BirthDate
-	calculateAgeFields(&ageYears, &ageMonths, &birthDate)
-
-	// Создаем нового питомца
-	pet := &models.Pet{
-		OwnerID:         userID,
-		Name:            petData.Name,
-		ChipNumber:      petData.ChipNumber,
-		PhotoURL:        petData.PhotoURL,
-		Breed:           petData.Breed,
-		WeightKg:        petData.WeightKg,
-		AgeYears:        ageYears,
-		AgeMonths:       ageMonths,
-		BirthDate:       birthDate,
-		LivingCondition: petData.LivingCondition,
-		Gender:          petData.Gender,
-		Type:            petData.Type,
-		BloodGroup:      petData.BloodGroup,
-		PetStatus:       petData.PetStatus,
-	}
-
-	// Копируем вложенные структуры, если они есть
-	if petData.Health != nil {
-		pet.Health = petData.Health
-	}
-	if petData.Treatments != nil {
-		pet.Treatments = petData.Treatments
-	}
-	if petData.Analysis != nil {
-		pet.Analysis = petData.Analysis
-	}
-	if petData.Bonuses != nil {
-		pet.Bonuses = petData.Bonuses
-	}
-
-	if err := s.petRepo.Create(ctx, pet); err != nil {
-		return nil, apperrors.Internal(err, "не удалось создать питомца")
-	}
-
-	// Преобразуем путь к фото в полный URL
-	pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
-
-	return pet, nil
-}
-
-// GetPetByID получает питомца по ID
-func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads ...string) (*models.Pet, error) {
-	pet, err := s.petRepo.GetByID(ctx, petID, preloads...)
-	if err != nil {
-		// Если питомец не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NewPetNotFoundError(petID)
-		}
-		return nil, apperrors.Internal(err, "не удалось получить питомца")
-	}
-
-	if pet == nil {
-		return nil, apperrors.NewPetNotFoundError(petID)
-	}
-
-	// Преобразуем путь к фото в полный URL
-	pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
-
-	return pet, nil
-}
-
-// GetUserPets получает всех питомцев пользователя
-func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*models.Pet, error) {
-	// Проверяем, существует ли пользователь
-	user, err := s.userRepo.GetByID(ctx, userID)
-	if err != nil {
-		// Если пользователь не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperrors.NewUserNotFoundError(userID)
-		}
-		return nil, apperrors.Internal(err, "не удалось проверить существование пользователя")
-	}
-
-	if user == nil {
-		return nil, apperrors.NewUserNotFoundError(userID)
-	}
-
-	pets, err := s.petRepo.GetByUserID(ctx, userID, preloads...)
-	if err != nil {
-		return nil, apperrors.Internal(err, "не удалось получить питомцев пользователя")
-	}
-
-	// Преобразуем пути к фото в полные URL для каждого питомца
-	for i := range pets {
-		if pets[i] != nil {
-			pets[i].PhotoURL = s.buildFullPhotoURL(pets[i].PhotoURL)
-		}
-	}
-
-	return pets, nil
-}
-
-// UpdatePet обновляет информацию о питомце
-func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates PetUpdate) error {
-	// Получаем существующего питомца со всеми связями для корректного обновления
-	pet, err := s.petRepo.GetByID(ctx, petID, "Health", "Treatments", "Analysis", "Bonuses")
-	if err != nil {
-		// Если питомец не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return apperrors.NewPetNotFoundError(petID)
-		}
-		return apperrors.Internal(err, "не удалось получить питомца")
-	}
-
-	if pet == nil {
-		return apperrors.NewPetNotFoundError(petID)
-	}
-
-	// Применяем обновления
-	if updates.Name != nil {
-		pet.Name = *updates.Name
-	}
-	if updates.ChipNumber != nil {
-		pet.ChipNumber = *updates.ChipNumber
-	}
-	if updates.PhotoURL != nil {
-		pet.PhotoURL = *updates.PhotoURL
-	}
-	if updates.Breed != nil {
-		pet.Breed = *updates.Breed
-	}
-	if updates.WeightKg != nil {
-		pet.WeightKg = *updates.WeightKg
-	}
-	if updates.AgeYears != nil {
-		pet.AgeYears = *updates.AgeYears
-	}
-	if updates.AgeMonths != nil {
-		pet.AgeMonths = *updates.AgeMonths
-	}
-	if updates.BirthDate != nil {
-		pet.BirthDate = updates.BirthDate
-	}
-	if updates.LivingCondition != nil {
-		_, err := validation.LocalizeLivingCondition(string(*updates.LivingCondition))
-		if err != nil {
-			return apperrors.ErrInvalidLivingCondition
-		}
-		pet.LivingCondition = *updates.LivingCondition
-	}
-	if updates.Gender != nil {
-		_, err := validation.LocalizeGender(string(*updates.Gender))
-		if err != nil {
-			return apperrors.ErrInvalidGender
-		}
-		pet.Gender = *updates.Gender
-	}
-	if updates.Type != nil {
-		_, err := validation.LocalizePetType(string(*updates.Type))
-		if err != nil {
-			return apperrors.ErrInvalidPetType
-		}
-		pet.Type = *updates.Type
-	}
-	if updates.BloodGroup != nil {
-		pet.BloodGroup = *updates.BloodGroup
-	}
-	if updates.PetStatus != nil {
-		pet.PetStatus = *updates.PetStatus
-	}
-
-	// Вычисляем возраст или дату рождения при обновлении
-	if updates.BirthDate != nil {
-		calculateAgeFields(updates.AgeYears, updates.AgeMonths, &updates.BirthDate)
-	} else if updates.AgeYears != nil && updates.AgeMonths != nil {
-		calculateAgeFields(updates.AgeYears, updates.AgeMonths, &updates.BirthDate)
-	}
-
-	if updates.BirthDate != nil {
-		pet.BirthDate = updates.BirthDate
-	}
-
-	// Обновляем вложенные структуры
-	if updates.Health != nil {
-		pet.Health = updates.Health
-		pet.Health.ID = pet.ID // Гарантируем правильный ID
-	}
-	if updates.Treatments != nil {
-		pet.Treatments = updates.Treatments
-		pet.Treatments.ID = pet.ID
-	}
-	if updates.Analysis != nil {
-		pet.Analysis = updates.Analysis
-		pet.Analysis.ID = pet.ID
-	}
-	if updates.Bonuses != nil {
-		pet.Bonuses = updates.Bonuses
-		pet.Bonuses.ID = pet.ID
-	}
-
-	// Сохраняем обновленного питомца
-	if err := s.petRepo.Update(ctx, pet); err != nil {
-		return apperrors.Internal(err, "не удалось обновить питомца")
-	}
-
-	return nil
-}
-
-// DeletePet удаляет питомца по ID
-func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
-	// Проверяем, существует ли питомец
-	exists, err := s.petRepo.ExistsByID(ctx, petID)
-	if err != nil {
-		return apperrors.Internal(err, "не удалось проверить существование питомца")
-	}
-	if !exists {
-		return apperrors.NewPetNotFoundError(petID)
-	}
-
-	// Удаляем питомца
-	if err := s.petRepo.Delete(ctx, petID); err != nil {
-		return apperrors.Internal(err, "не удалось удалить питомца")
-	}
-
-	return nil
-}
-
-// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
-func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error) {
-	// Проверяем, существует ли питомец
-	exists, err := s.petRepo.ExistsByID(ctx, petID)
-	if err != nil {
-		return "", "", apperrors.Internal(err, "не удалось проверить существование питомца")
-	}
-	if !exists {
-		return "", "", apperrors.NewPetNotFoundError(petID)
-	}
-
-	// Генерируем ссылку питомца
-	url, path, err := s.storage.GetAvatarUploadInfo(ctx, petID)
-	if err != nil {
-		return "", "", apperrors.Internal(err, "не удалось сгенерировать URL для загрузки аватара")
-	}
-
-	return url, path, nil
-}
-
-// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
-func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error) {
-	// Извлекаем petID из пути. Пример: "pets%2FPET-25-000006%2Favatar.jpg"
-	// Сначала декодируем URL, затем разбиваем по "/"
-	decodedPath := strings.ReplaceAll(avatarPath, "%2F", "/")
-
-	parts := strings.Split(decodedPath, "/")
-	logger.Log.Debug("Parts:", zap.Strings("p", parts))
-	if len(parts) < 2 {
-		return "", apperrors.Internal(nil, "некорректный формат пути аватара")
-	}
-	petID := parts[1]
-
-	// Проверяем, существует ли питомец
-	pet, err := s.petRepo.GetByID(ctx, petID)
-	if err != nil {
-		// Если питомец не найден - возвращаем 404, а не 500
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", apperrors.NewPetNotFoundError(petID)
-		}
-		return "", apperrors.Internal(err, "не удалось получить питомца")
-	}
-
-	if pet == nil {
-		return "", apperrors.NewPetNotFoundError(petID)
-	}
-
-	// Проверяем, что файл действительно загружен
-	exists, err := s.storage.CheckObjectExists(ctx, decodedPath)
-	if err != nil {
-		return "", apperrors.Internal(err, "не удалось проверить существование файла")
-	}
-	if !exists {
-		return "", apperrors.Internal(nil, "файл не найден")
-	}
-
-	// Устанавливаем публичный ACL для объекта
-	err = s.storage.SetObjectPublicACL(ctx, decodedPath)
-	if err != nil {
-		return "", apperrors.Internal(err, "не удалось установить публичный ACL")
-	}
-
-	// Получаем публичный URL для аватарки
-	publicURL := s.storage.GetAvatarPublicURL(petID)
-	if publicURL == "" {
-		return "", apperrors.Internal(nil, "не удалось получить публичный URL для аватарки")
-	}
-
-	// Обновляем photoURL в базе данных
-	pet.PhotoURL = decodedPath
-	if err := s.petRepo.Update(ctx, pet); err != nil {
-		return "", apperrors.Internal(err, "не удалось обновить photoURL питомца")
-	}
-
-	return publicURL, nil
 }

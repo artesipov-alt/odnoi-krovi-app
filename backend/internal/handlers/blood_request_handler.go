@@ -1,120 +1,204 @@
 package handlers
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/models"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/mitchellh/mapstructure"
-	"go.uber.org/zap"
+	"context"
+	"errors"
+	"log/slog" // Import slog
+	"net/http"
 
-	bloodrequestv1 "github.com/artesipov-alt/odnoi-krovi-app/microservices/blood-microservice/gen/api/bloodrequest/v1"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-// BloodRequestHandler обрабатывает HTTP запросы для операций с пулом запросов крови
+// BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	bloodRequestClient services.BloodRequestClient
+	service services.BloodSearchService
 }
 
-// NewBloodRequestHandler создает новый обработчик для пула запросов крови
-func NewBloodRequestHandler(bloodRequestClient services.BloodRequestClient) *BloodRequestHandler {
+// NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
+func NewBloodRequestHandler(service services.BloodSearchService) *BloodRequestHandler {
 	return &BloodRequestHandler{
-		bloodRequestClient: bloodRequestClient,
+		service: service,
 	}
 }
 
-// AddPetToBloodRequestPool godoc
-// @Summary Добавить питомца в пул поиска крови
-// @Description Добавляет питомца-реципиента в пул поиска крови
-// @Tags  blood-request
-// @Accept json
-// @Produce json
-// @Param request body models.BloodSearchPetRequest true "Данные питомца для пула поиска крови"
-// @Success 201 {object} models.BloodSearchPetResponse "Статус добавления питомца"
-// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /blood-request/pool [post]
-func (h *BloodRequestHandler) AddPetToBloodRequestPool(c *fiber.Ctx) error {
-	var petReq models.BloodSearchPetRequest
-	if err := utils.ParseBody(c, &petReq); err != nil {
-		return err
-	}
+// Register регистрирует маршруты заявок на поиск крови в Huma API
+func (h *BloodRequestHandler) Register(api huma.API) {
+	// Добавить питомца в пул поиска крови
+	huma.Register(api, huma.Operation{
+		OperationID:   "add-pet-to-blood-request-pool",
+		Method:        http.MethodPost,
+		Path:          "/v1/blood-request/pool",
+		Summary:       "Добавить питомца в пул поиска крови",
+		Description:   "Создает новую заявку на поиск крови для питомца",
+		Tags:          []string{"blood-request-v1"},
+		DefaultStatus: http.StatusCreated,
+	}, h.AddPetToBloodRequestPool)
 
-	// Конвертируем DTO в protobuf структуру
-	pet := &bloodrequestv1.BloodRequest{}
-	if err := mapstructure.Decode(petReq, pet); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации данных")
-	}
+	// Получить список заявок на поиск крови
+	huma.Register(api, huma.Operation{
+		OperationID: "get-pets-from-blood-request-pool",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/pool/search",
+		Summary:     "Получить список заявок на поиск крови",
+		Description: "Возвращает список заявок по фильтрам",
+		Tags:        []string{"blood-request-v1"},
+	}, h.GetPetsFromBloodRequestPool)
 
-	logger.Log.Info(
-		"добавление питомца в пул поиска крови",
-		zap.String("petId", pet.PetId),
-		zap.String("petType", pet.PetType),
-		zap.Strings("bloodGroup", pet.BloodGroup),
-	)
+	// Получить заявку по ID
+	huma.Register(api, huma.Operation{
+		OperationID: "get-blood-request-by-id",
+		Method:      http.MethodGet,
+		Path:        "/v1/blood-request/{id}",
+		Summary:     "Получить заявку по ID",
+		Description: "Возвращает информацию о конкретной заявке",
+		Tags:        []string{"blood-request-v1"},
+	}, h.GetBloodRequestByID)
 
-	status, err := h.bloodRequestClient.AddPet(c.Context(), pet)
-	if err != nil {
-		logger.Log.Error("failed to add pet to blood Request pool", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось добавить питомца в пул поиска крови")
-	}
-
-	// Конвертируем protobuf ответ в DTO
-	var statusResp models.BloodSearchPetResponse
-	if err := mapstructure.Decode(status, &statusResp); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации ответа")
-	}
-
-	return utils.SendCreated(c, statusResp)
+	// Удалить заявку
+	huma.Register(api, huma.Operation{
+		OperationID: "delete-blood-request",
+		Method:      http.MethodDelete,
+		Path:        "/v1/blood-request/{id}",
+		Summary:     "Удалить заявку",
+		Description: "Удаляет заявку на поиск крови (soft delete)",
+		Tags:        []string{"blood-request-v1"},
+	}, h.DeleteBloodRequest)
 }
 
-// GetPetsFromBloodRequestPool godoc
-// @Summary Получить питомцев из пула поиска крови
-// @Description Возвращает список питомцев-реципиентов по фильтрам
-// @Tags blood-request
-// @Accept json
-// @Produce json
-// @Param request body models.BloodSearchFilterRequest true "Фильтры поиска: тип, группа крови, регионы"
-// @Success 200 {object} models.BloodSearchPetsResponse "Список питомцев"
-// @Failure 400 {object} utils.ErrorResponse "Неверный запрос"
-// @Failure 500 {object} utils.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /blood-request/pool/search [post]
-func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(c *fiber.Ctx) error {
-	var filterReq models.BloodSearchFilterRequest
-	if err := utils.ParseBody(c, &filterReq); err != nil {
-		return err
+// Вспомогательные структуры для Huma
+
+type BloodRequestIDPath struct {
+	ID string `path:"id" doc:"ID заявки" minLength:"1" example:"BR-25-000001"`
+}
+
+type BloodSearchPetResponseWrapper struct {
+	Body dto.BloodSearchPetResponse
+}
+
+type BloodSearchPetsResponseWrapper struct {
+	Body dto.BloodSearchPetsResponse
+}
+
+type BloodSearchRequestDTOWrapper struct {
+	Body dto.BloodSearchRequestDTO
+}
+
+// mapBloodRequestToDTO преобразует ENT модель заявки в DTO
+func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchRequestDTO {
+	return dto.BloodSearchRequestDTO{
+		ID:                     req.ID,
+		PetID:                  req.PetID,
+		BloodVolumeNeeded:      req.BloodVolumeNeeded,
+		BloodVolumeReserved:    req.BloodVolumeReserved,
+		Regions:                req.Regions,
+		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
+		Description:            req.Description,
+		PhotoUrls:              req.PhotoUrls,
+		BloodGroupIds:          req.BloodGroupIds,
+		BloodComponentIds:      req.BloodComponentIds,
+		Status:                 dto.BloodSearchRequestStatus(req.Status), // Fixed: Cast to dto.BloodSearchRequestStatus
+		CreatedAt:              req.CreatedAt,
+		UpdatedAt:              req.UpdatedAt,
 	}
+}
 
-	// Конвертируем DTO в protobuf структуру
-	filter := &bloodrequestv1.GetBloodRequests{}
-	if err := mapstructure.Decode(filterReq, filter); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации фильтров")
+// mapDTOToBloodRequest преобразует DTO создания заявки в ENT модель
+func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
+	return &ent.BloodSearchRequest{
+		PetID:                  d.PetID,
+		BloodVolumeNeeded:      d.BloodVolumeNeeded,
+		BloodVolumeReserved:    d.BloodVolumeReserved,
+		Regions:                d.Regions,
+		SmallPetsNotifyAllowed: d.SmallPetsNotifyAllowed,
+		Description:            d.Description,
+		PhotoUrls:              d.PhotoUrls,
+		BloodGroupIds:          d.BloodGroupIds,
+		BloodComponentIds:      d.BloodComponentIds,
+		Status:                 bloodsearchrequest.StatusActive,
 	}
+}
 
-	logger.Log.Info(
-		"получение питомцев из пула поиска крови",
-		zap.String("petId", filterReq.PetID),
-		zap.String("petType", filterReq.PetType),
-		zap.String("bloodGroup", filterReq.BloodGroup),
-		zap.Int("regionsCount", len(filterReq.Regions)),
-	)
+// Handlers
 
-	pets, err := h.bloodRequestClient.GetPets(c.Context(), filter)
+func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
+	Body dto.BloodSearchPetRequest
+}) (*BloodSearchPetResponseWrapper, error) {
+	bloodReq := mapDTOToBloodRequest(input.Body)
+
+	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {
-		logger.Log.Error("failed to get pets from blood Request pool", zap.Error(err))
-		return fiber.NewError(fiber.StatusInternalServerError, "Не удалось получить питомцев из пула поиска крови")
-	}
-
-	// Конвертируем protobuf ответ в DTO
-	var petsResp models.BloodSearchPetsResponse
-	for _, pet := range pets.Pets {
-		var dtoPet models.BloodSearchPetRequest
-		if err := mapstructure.Decode(pet, &dtoPet); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, "Ошибка конвертации данных питомца")
+		if errors.Is(err, apperrors.ErrBloodRequestAlreadyExists) {
+			slog.DebugContext(ctx, "blood request already exists for pet", "pet_id", input.Body.PetID, "error", err.Error())
+			return nil, huma.Error409Conflict("Заявка на поиск крови для этого питомца уже существует")
 		}
-		petsResp.Pets = append(petsResp.Pets, dtoPet)
+		slog.ErrorContext(ctx, "failed to create blood request", "pet_id", input.Body.PetID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	return utils.SendJSON(c, petsResp)
+	return &BloodSearchPetResponseWrapper{Body: dto.BloodSearchPetResponse{
+		ID:     result.ID,
+		PetID:  result.PetID,
+		Status: dto.BloodSearchRequestStatus(result.Status), // Fixed: Cast to dto.BloodSearchRequestStatus
+	}}, nil
+}
+
+func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
+	Body dto.BloodSearchFilterRequest
+}) (*BloodSearchPetsResponseWrapper, error) {
+	filters := make(map[string]any)
+	if input.Body.PetID != "" {
+		filters["pet_id"] = input.Body.PetID
+	}
+	if input.Body.Status != "" {
+		filters["status"] = input.Body.Status
+	}
+
+	requests, err := h.service.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to list blood requests", "filters", filters, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	dtos := make([]dto.BloodSearchRequestDTO, len(requests))
+	for i, req := range requests {
+		dtos[i] = mapBloodRequestToDTO(req)
+	}
+
+	return &BloodSearchPetsResponseWrapper{Body: dto.BloodSearchPetsResponse{
+		Requests: dtos,
+	}}, nil
+}
+
+func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *BloodRequestIDPath) (*BloodSearchRequestDTOWrapper, error) {
+	result, err := h.service.GetRequestByID(ctx, input.ID)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+			slog.DebugContext(ctx, "blood request not found", "request_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Заявка не найдена")
+		}
+		slog.ErrorContext(ctx, "failed to get blood request by ID", "request_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	return &BloodSearchRequestDTOWrapper{Body: mapBloodRequestToDTO(result)}, nil
+}
+
+func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*dto.MessageResponse, error) {
+	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
+		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+			slog.DebugContext(ctx, "blood request not found for deletion", "request_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Заявка не найдена")
+		}
+		slog.ErrorContext(ctx, "failed to delete blood request", "request_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Ошибка сервера")
+	}
+
+	resp := &dto.MessageResponse{}
+	resp.Body.Message = "Заявка успешно удалена"
+	return resp, nil
 }

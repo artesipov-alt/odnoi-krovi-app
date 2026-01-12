@@ -8,12 +8,13 @@ tasks:
     desc: "Сгенерировать типы API Backend для TypeScript"
     cmds:
       - task: generate-swagger
-      - openapi-generator generate -i ./backend/docs/swagger.json -g typescript-fetch -o shared/ts
+      - openapi-generator generate -i ./backend/docs/openapi.json -g typescript-fetch -o shared/ts
 
   generate-swagger:
-    desc: "Сгенерировать Swagger документацию"
+    desc: "Сгенерировать OpenAPI документацию"
+    dir: backend # Added dir: backend to run the command in the correct directory
     cmds:
-      - swag init -g ./backend/cmd/server/main.go -o ./backend/docs
+      - go run ./cmd/api/main.go -d
 
   # generate-proto:
   #   desc: "Сгенерировать прото-типы от микросервиса"
@@ -77,8 +78,7 @@ tasks:
     desc: "Запустить backend в dev режиме"
     dir: backend
     cmds:
-      - task: generate-swagger
-      - go run cmd/server/main.go
+      - go run cmd/api/main.go
 
   dev-micoservice:
     desc: "Запустить миеросервис в dev режиме"
@@ -110,7 +110,7 @@ tasks:
     desc: "Собрать backend"
     dir: backend
     cmds:
-      - go build -o app/server cmd/server/main.go
+      - go build -o app/api cmd/api/main.go
 
   build-frontend:
     desc: "Собрать frontend"
