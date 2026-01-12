@@ -26,9 +26,6 @@ COPY backend/docsui/ ./docsui/
 COPY backend/ent/ ./ent/
 COPY backend/pkg/ ./pkg/
 
-# Регенерация Swagger (обновляем существующие docs)
-RUN swag init -g cmd/api/main.go -o docs || echo "Swagger generation skipped"
-
 # Сборка бинарника
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api
 
