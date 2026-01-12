@@ -24,7 +24,8 @@ func ScalarDocsHandler(w http.ResponseWriter, r *http.Request) {
             "layout": "modern",
             "hideClientButton": true,
             "showSidebar": true,
-            "defaultServerUrl": "/api"
+            "defaultServerUrl": "/api",
+            "showDeveloperTools": true
           }'>
         </script>
         <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
