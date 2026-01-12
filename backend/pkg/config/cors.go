@@ -2,6 +2,7 @@ package config
 
 import (
 	"log/slog"
+	"net/url"
 
 	"github.com/rs/cors"
 )
@@ -37,6 +38,7 @@ func SetupCORS(env, miniappDomain string) *cors.Cors {
 }
 
 // hasScheme проверяет, содержит ли URL схему (http/https).
-func hasScheme(url string) bool {
-	return len(url) >= 7 && (url[:7] == "http://" || url[:8] == "https://")
+func hasScheme(rawURL string) bool {
+	u, err := url.Parse(rawURL)
+	return err == nil && u.Scheme != ""
 }
