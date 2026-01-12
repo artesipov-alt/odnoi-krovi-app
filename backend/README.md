@@ -2,36 +2,38 @@
 
 <div align="center">
 
-![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go) ![Fiber](https://img.shields.io/badge/Fiber-2.52+-000000?style=for-the-badge&logo=go&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Swagger](https://img.shields.io/badge/Swagger-API-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-7+-DC382D?style=for-the-badge&logo=redis&logoColor=white) ![Huma](https://img.shields.io/badge/Huma-v2-85EA2D?style=for-the-badge&logo=openapi-initiative&logoColor=black)
 
 </div>
 
-**Backend API для платформы "Одной Крови"** — Go сервер для Telegram Mini App.
+**Backend API для платформы "Одной Крови"** — Go сервер, построенный на стандартной библиотеке `net/http`, для Telegram Mini App.
 
 ## 📁 Структура проекта
 
 ```
 backend/
-├── cmd/
-│   └── server/
-│       └── main.go              # Точка входа
-├── internal/
-│   ├── handlers/                # HTTP обработчики
-│   ├── models/                  # Модели данных
-│   ├── repositories/            # Доступ к данным
-│   ├── services/                # Бизнес-логика
-│   ├── middleware/              # Промежуточное ПО
-│   └── utils/                   # Вспомогательные функции
-├── pkg/
-│   ├── config/                  # Конфигурация
-│   └── logger/                  # Логирование
-├── migrations/                  # Миграции БД
-└── go.mod
+├── cmd/                     # Точка входа и CLI-приложения
+│   └── api/
+│       └── main.go          # Основная точка входа API
+├── internal/                # Внутренняя логика приложения
+│   ├── apperrors/           # Обработка специфичных ошибок приложения
+│   ├── cache/               # Логика кэширования (например, с использованием Redis)
+│   ├── dto/                 # Объекты передачи данных (Data Transfer Objects)
+│   ├── handlers/            # HTTP обработчики запросов
+│   ├── middleware/          # Промежуточное ПО для обработки HTTP-запросов
+│   ├── repositories/        # Уровень доступа к данным (PostgreSQL, S3 и т.д.)
+│   └── services/            # Бизнес-логика приложения
+├── pkg/                     # Переиспользуемые пакеты и утилиты
+│   ├── config/              # Управление конфигурацией приложения
+│   └── logger/              # Настройка и инициализация логирования
+├── docs/                    # Сгенерированная документация OpenAPI
+├── ent/                     # Сгенерированный ORM код (Ent Framework)
+├── migrations/              # Скрипты миграции базы данных
+└── go.mod                   # Файл модуля Go
 ```
 
-Примечание: в корне монорепозитория есть папки `shared/` и `microservices/`.  
-- `shared/` — автосгенерированные TypeScript типы и клиенты, сгенерированные из Swagger/OpenAPI (используются frontend и bot).  
-- `microservices/` — дополнительная логика и отдельные сервисы для backend (в перспективе — отдельные деплои/контейнеры).
+Примечание: в корне монорепозитория есть папка `shared/`.  
+- `shared/` — автосгенерированные TypeScript типы и клиенты, сгенерированные из OpenAPI 3.1 (используются frontend и bot).  
 
 ## 🚀 Быстрый старт
 
@@ -39,6 +41,7 @@ backend/
 
 - **Go 1.25+**
 - **PostgreSQL 16+**
+- **Redis 7+**
 
 ### Установка и запуск
 
@@ -118,7 +121,7 @@ go mod download
 
 Вариант A — локально (Go):
 ```bash
-go run cmd/server/main.go
+go run cmd/api/main.go
 ```
 Вариант B — через Taskfile (рекомендуется для монорепозитория; оркестрация зависит от Taskfile.yaml в корне):
 ```bash
@@ -142,7 +145,7 @@ docker-compose logs -f backend
 #### 7. Сборка для production
 
 ```bash
-go build -o bin/server cmd/server/main.go
+go build -o bin/server cmd/api/main.go
 ```
 
 Или собрать и запустить контейнер через docker-compose:
@@ -158,26 +161,29 @@ docker-compose up -d backend
 
 ## 📚 Документация API
 
-После запуска сервера, документация Swagger будет доступна по адресу:
+После запуска сервера, документация OpenAPI 3.1 (Huma) будет доступна по адресу:
 
-**http://localhost:3000/api/swagger**
+**http://localhost:3000/docs**
 
 ## 🛠️ Технологический стек
 
-- **Go 1.25+** - Основной язык
-- **Fiber** - Веб-фреймворк
-- **PostgreSQL** - База данных
-- **Swagger** - Документация API
+- **Go 1.25+** - Основной язык программирования
+- **Standard `net/http`** - Стандартная библиотека Go для построения веб-серверов
+- **PostgreSQL** - Реляционная база данных
+- **Redis** - Хранилище данных в памяти, используемое для кэширования
+- **Ent Framework** - ORM для Go
+- **Huma (OpenAPI 3.1)** - Фреймворк для создания API и генерации документации OpenAPI
+- **`charmbracelet/log`** - Красивый и функциональный логгер для Go, обертка над `slog`
 
 ## 🔧 Разработка
 
 ### Основные команды
 ```bash
-go run cmd/server/main.go    # Запуск сервера
-go test ./...                # Запуск тестов
-go build                     # Сборка проекта
-go fmt ./...                 # Форматирование кода
-go vet ./...                 # Статический анализ
+go run cmd/api/main.go    # Запуск сервера
+go test ./...             # Запуск тестов
+go build ./cmd/api        # Сборка проекта
+go fmt ./...              # Форматирование кода
+go vet ./...              # Статический анализ
 ```
 
 **Сделано с ❤️ для наших четвероногих друзей** 🐾

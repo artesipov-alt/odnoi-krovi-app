@@ -4,7 +4,7 @@
 
 ![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go) ![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Bun](https://img.shields.io/badge/Bun-1.3+-000000?style=for-the-badge&logo=bun&logoColor=white) ![Telegram](https://img.shields.io/badge/Telegram-MiniApp-26A5E4?style=for-the-badge&logo=telegram&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=black)
+![Redis](https://img.shields.io/badge/Redis-7+-DC382D?style=for-the-badge&logo=redis&logoColor=white) ![Huma](https://img.shields.io/badge/Huma-v2-85EA2D?style=for-the-badge&logo=openapi-initiative&logoColor=black)
 
 </div>
 
@@ -31,12 +31,10 @@
 ```
 odnoi-krovi-app/
 ├── .github/         # Настрокий авторазвертывания (CD/CI)
-├── backend/         # Go API сервер (Fiber + GORM + Swagger)
+├── backend/         # Go API сервер (net/http + Ent + Huma)
 ├── frontend/        # Telegram Mini App (React + TypeScript)
 ├── bot/             # Telegram Bot (Bun + Grammy)
-├── microservices/   # Микросервисы
-│   └── blood-microservice/  # Микросервис управления пулом поиска крови
-├── shared/          # Автосгенерированные TypeScript типы c бэкенда (Swagger -> types)
+├── shared/          # Автосгенерированные TypeScript типы c бэкенда (OpenAPI 3.1 -> types)
 ├── docs/            # Документация
 └── README.md
 ```
@@ -45,10 +43,11 @@ odnoi-krovi-app/
 
 ### Предварительные требования
 
-- **Go 1.25+** для backend и микросервисов
+- **Go 1.25+** для backend
 - **Node.js 18+** и **npm** для Telegram Mini App
 - **Bun 1.3+** для бота (используется в `bot/`)
-- **PostgreSQL 16+** для баз данных (основная + bloodsearch)
+- **PostgreSQL 16+** для баз данных
+- **Redis 6+** для кэширования
 - **Telegram Bot Token** от @BotFather
 - **Docker** (опционально, для разработки)
 
@@ -66,22 +65,16 @@ cd odnoi-krovi-app
 
 ```env
 # Database Configuration (Main Backend)
-DB_HOST=localhost
+DB_HOST=10.0.0.129
 DB_PORT=5432
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 DB_NAME=odnoi_krovi
 DB_SSLMODE=disable
 
-# Database Configuration (Blood Search Microservice)
-DB_NAME_BLOOD_SEARCH=bloodsearch
-
-# Server Configuration (Backend)
-SERVER_PORT=3000
-ENVIRONMENT=development
-
-# Microservices URLs
-BLOOD_MICROSERVICE_URL=http://localhost:8081
+# Redis Cache Configuration
+REDIS_HOST=10.0.0.73
+REDIS_PORT=6379
 
 # S3 Storage Configuration
 S3_ENDPOINT=your_s3_endpoint
@@ -96,11 +89,11 @@ PROD_BOT_API_KEY=your_prod_bot_token
 MINIAPP_DOMAIN=https://your-miniapp-domain.com
 
 # API Configuration
-API_BASE_URL=http://localhost:3000/api/v1
+API_BASE_URL=http://localhost:3000/api
 
-# Logging
-LOG_LEVEL=info
-APP_ENV=development
+# Server Configuration (Backend)
+SERVER_PORT=3000
+ENV=development
 ```
 
 **Получение Telegram Bot Token:**
@@ -119,7 +112,6 @@ APP_ENV=development
 
 Следуйте инструкциям по установке для каждого компонента:
 - [Backend Setup](backend/README.md) - Go API сервер
-- [Blood Microservice Setup](microservices/blood-microservice/README.md) - Микросервис поиска крови
 - [Bot Setup](bot/README.md) - Telegram Bot
 - [Frontend Setup](frontend/README.md) - Telegram Mini App
 
@@ -144,16 +136,13 @@ task dev
 docker-compose up -d
 
 # Или только нужных сервисов
-docker-compose up backend blood-microservice -d
+docker-compose up backend -d
 ```
 
 ## 📁 Структура проекта
 
-### 🚀 Backend (Go + Fiber + GORM + Swagger)
+### 🚀 Backend (Go + `net/http` + Ent + Huma)
 Мощный API сервер с современным стеком технологий. Подробное описание архитектуры и возможностей доступно в [документации backend-сервера](backend/README.md).
-
-### 🩸 Blood Microservice (Go + Connect + GORM)
-Микросервис для управления пулом поиска крови. Обрабатывает запросы на поиск доноров, управляет заявками и статусами. Использует Connect протокол для межсервисного взаимодействия. Подробнее в [документации микросервиса](microservices/blood-microservice/README.md).
 
 ### 💻 Telegram Mini App (React + TypeScript + Telegram Web App SDK)
 Интуитивный интерфейс для пользователей с полной интеграцией в Telegram. Узнайте больше о фронтенд-архитектуре в [документации по фронтенду](frontend/README.md).
@@ -162,27 +151,18 @@ docker-compose up backend blood-microservice -d
 Быстрый бот для уведомлений и коммуникации между пользователями. Полное описание функциональности и настройки смотрите в [документации бота](bot/README.md).
 
 ### 📦 Shared
-- `shared/` — содержит автосгенерированные TypeScript типы и утилиты, сгенерированные из Swagger (используется фронтом и ботом для согласованных типов).
+- `shared/` — содержит автосгенерированные TypeScript типы и утилиты, сгенерированные из OpenAPI 3.1 (используется фронтом и ботом для согласованных типов).
 
 ## 🛠️ Технологический стек
 
 ### Backend
 - **Go 1.25+** - Основной язык программирования
-- **Fiber** - Быстрый веб-фреймворк
-- **GORM** - ORM для работы с базой данных
-- **PostgreSQL** - Основная база данных
-- **Redis** - Кэширование и сессии (планируется)
-- **Validator** - Валидация данных
-- **Swagger** - Документация API (swaggo/swag)
-
-### Microservices
-- **Go 1.25+** - Основной язык программирования
-- **Connect** - RPC фреймворк (вместо gRPC)
-- **Chi** - HTTP роутер
-- **GORM** - ORM для работы с базой данных
-- **PostgreSQL** - База данных микросервиса
-- **Zap** - Структурированное логирование
-- **Buf** - Генерация кода из protobuf
+- **Standard `net/http`** - Стандартная библиотека Go для построения веб-серверов
+- **PostgreSQL** - Реляционная база данных
+- **Redis** - Хранилище данных в памяти, используемое для кэширования
+- **Ent Framework** - ORM для Go
+- **Huma (OpenAPI 3.1)** - Фреймворк для создания API и генерации документации OpenAPI
+- **`charmbracelet/log`** - Красивый и функциональный логгер для Go, обертка над `slog`
 
 ### Telegram Mini App
 - **React 18+** - UI библиотека
@@ -237,7 +217,7 @@ docker-compose up backend blood-microservice -d
 
 ## 📈 Производительность
 
-- Кэширование частых запросов в Redis (планируется)
+- Кэширование частых запросов в Redis
 - Оптимизированные SQL запросы
 - CDN для статических ресурсов Telegram Mini App
 - Мониторинг производительности (планируется)
