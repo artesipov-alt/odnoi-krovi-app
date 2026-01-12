@@ -101,7 +101,7 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchRequestDTO
 		PhotoUrls:              req.PhotoUrls,
 		BloodGroupIds:          req.BloodGroupIds,
 		BloodComponentIds:      req.BloodComponentIds,
-		Status:                 string(req.Status),
+		Status:                 dto.BloodSearchRequestStatus(req.Status), // Fixed: Cast to dto.BloodSearchRequestStatus
 		CreatedAt:              req.CreatedAt,
 		UpdatedAt:              req.UpdatedAt,
 	}
@@ -143,7 +143,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	return &BloodSearchPetResponseWrapper{Body: dto.BloodSearchPetResponse{
 		ID:     result.ID,
 		PetID:  result.PetID,
-		Status: string(result.Status),
+		Status: dto.BloodSearchRequestStatus(result.Status), // Fixed: Cast to dto.BloodSearchRequestStatus
 	}}, nil
 }
 

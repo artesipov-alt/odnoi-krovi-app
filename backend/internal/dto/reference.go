@@ -1,59 +1,59 @@
 package dto
 
-// ReferenceCodeItem represents an item of reference data defined in code (string value)
-type ReferenceCodeItem struct {
-	Value string `json:"value"`
-	Label string `json:"label"`
+// ReferenceItemCode представляет элемент справочных данных, определенных в коде (строковое значение)
+type ReferenceItemCode struct {
+	Value string `json:"value" doc:"Значение элемента справочника" example:"male"`
+	Label string `json:"label" doc:"Отображаемое название элемента справочника" example:"Мужской"`
 }
 
-// ReferenceCodeData represents a response for reference data defined in code
-type ReferenceCodeData struct {
-	Data []ReferenceCodeItem `json:"data"`
+// ReferenceDataCode представляет ответ со справочными данными, определенными в коде
+type ReferenceDataCode struct {
+	Data []ReferenceItemCode `json:"data" doc:"Список элементов справочника"`
 }
 
-// ReferenceLocalItem represents an item of reference data (string value)
-type ReferenceLocalItem struct {
-	Value string `json:"value"`
-	Label string `json:"label"`
+// ReferenceItemLocal представляет элемент справочных данных (строковое значение)
+type ReferenceItemLocal struct {
+	Value string `json:"value" doc:"Значение элемента справочника" example:"indoor"`
+	Label string `json:"label" doc:"Отображаемое название элемента справочника" example:"Домашнее содержание"`
 }
 
-// ReferenceLocalData represents a response for reference data
-type ReferenceLocalData struct {
-	Data []ReferenceLocalItem `json:"data"`
+// ReferenceDataLocal представляет ответ со справочными данными
+type ReferenceDataLocal struct {
+	Data []ReferenceItemLocal `json:"data" doc:"Список элементов справочника"`
 }
 
-// ReferenceDBItem represents an item of reference data from the database (int value)
-type ReferenceDBItem struct {
-	Value int    `json:"value"`
-	Label string `json:"label"`
+// ReferenceItemDB представляет элемент справочных данных из базы данных (целочисленное значение)
+type ReferenceItemDB struct {
+	Value int    `json:"value" doc:"ID элемента справочника" example:"1"`
+	Label string `json:"label" doc:"Название элемента справочника" example:"Лабрадор ретривер"`
 }
 
-// ReferenceDBData represents a response for reference data from the database
-type ReferenceDBData struct {
-	Data []ReferenceDBItem `json:"data"`
+// ReferenceDataDB представляет ответ со справочными данными из базы данных
+type ReferenceDataDB struct {
+	Data []ReferenceItemDB `json:"data" doc:"Список элементов справочника"`
 }
 
-// ReferenceCodeResponse is a wrapper for Huma OpenAPI documentation for a list of string-valued reference items defined in code.
+// ReferenceCodeResponse представляет обертку для Huma OpenAPI документации для списка строковых справочных элементов, определенных в коде.
 type ReferenceCodeResponse struct {
-	Body ReferenceCodeData
+	Body ReferenceDataCode
 }
 
-// ReferenceLocalResponse is a wrapper for Huma OpenAPI documentation for a list of string-valued reference items.
+// ReferenceLocalResponse представляет обертку для Huma OpenAPI документации для списка строковых справочных элементов.
 type ReferenceLocalResponse struct {
-	Body ReferenceLocalData
+	Body ReferenceDataLocal
 }
 
-// ReferenceDBResponse is a wrapper for Huma OpenAPI documentation for a list of int-valued reference items from the database.
+// ReferenceDBResponse представляет обертку для Huma OpenAPI документации для списка целочисленных справочных элементов из базы данных.
 type ReferenceDBResponse struct {
-	Body ReferenceDBData
+	Body ReferenceDataDB
 }
 
-// PetTypePath defines the path parameter for pet type
+// PetTypePath представляет параметр пути для типа питомца
 type PetTypePath struct {
-	PetType string `path:"pet_type" doc:"Тип животного" example:"dog"`
+	PetType string `path:"pet_type" doc:"Тип животного (например, dog, cat)" example:"dog"`
 }
 
-// PetTypeQuery defines the query parameter for pet type
+// PetTypeQuery представляет параметр запроса для типа питомца
 type PetTypeQuery struct {
 	PetType string `query:"petType" doc:"Тип животного (dog, cat, etc.)" example:"dog"`
 }
