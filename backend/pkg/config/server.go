@@ -57,12 +57,12 @@ func NewHumaConfig(miniappDomain string) huma.Config {
 
 	// Добавляем серверы, включая локальный и MiniApp домен
 	config.Servers = []*huma.Server{
-		{URL: "http://localhost:3001", Description: "Локальная разработка API"},
+		{URL: "http://localhost:3001/api", Description: "Локальная разработка API"},
 	}
 
 	if miniappDomain != "" {
 		config.Servers = append(config.Servers, &huma.Server{
-			URL:         "https://1krovi.app",
+			URL:         "https://1krovi.app/api",
 			Description: "Production API для Telegram Mini App",
 		})
 	}

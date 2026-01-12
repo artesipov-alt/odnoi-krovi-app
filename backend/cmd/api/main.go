@@ -40,22 +40,32 @@ func main() {
 		godotenv.Load("../.env")
 
 		env := config.GetEnv("ENV", "development")
+		miniappDomain := os.Getenv("MINIAPP_DOMAIN") // Получаем домен мини-приложения
 
 		logger.SetupLogger(env)
 
-		// Создание стандартного mux
-		mux := http.NewServeMux()
+		// Настройка CORS
+		corsHandler := config.SetupCORS(env, miniappDomain)
+
+		// Корневой mux
+		rootMux := http.NewServeMux()
+
+		// API mux с префиксом /api
+		apiMux := http.NewServeMux()
+
+		// Подключаем API mux к /api
+		rootMux.Handle("/api/", http.StripPrefix("/api", apiMux))
 
 		//Указываем директорию документации
 		openapiPath := filepath.Join("docs", "openapi.json")
 
 		// Обслуживание файла openapi.json
-		mux.Handle("/openapi.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		apiMux.Handle("/openapi.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			http.ServeFile(w, r, openapiPath)
 		}))
 
 		// Обслуживание UI документации Swagger
-		mux.HandleFunc("/docs", docsui.ScalarDocsHandler)
+		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
 		db, err := config.ConnectEnt(config.NewENVConfig())
@@ -97,7 +107,7 @@ func main() {
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 
 		// Настройка Huma
-		api := humago.New(mux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
+		api := humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
 
 		// Инициализируем интеграцию AppError с Huma
 		apperrors.InitHuma(api)
@@ -118,8 +128,14 @@ func main() {
 		}
 
 		// Создаем сервер
-		server := config.NewServer(options.Port, mux)
-		server.Use(middleware.RecoveryMiddleware, middleware.RequestIDMiddleware, middleware.LoggingMiddleware)
+		server := config.NewServer(options.Port, rootMux)
+		// Применяем CORS middleware первым
+		server.Use(
+			corsHandler.Handler,
+			middleware.RecoveryMiddleware,
+			middleware.RequestIDMiddleware,
+			middleware.LoggingMiddleware,
+		)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {

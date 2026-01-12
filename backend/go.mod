@@ -17,6 +17,7 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.34.1
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/lib/pq v1.10.9
+	github.com/rs/cors v1.11.1
 )
 
 require (
