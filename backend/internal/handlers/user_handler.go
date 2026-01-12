@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -122,6 +123,7 @@ func (h *UserHandler) User(ctx context.Context, input *dto.UserIDPath) (*dto.Use
 		if errors.Is(err, services.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
+		slog.Error("Failed to get user by ID", "userID", input.ID, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -143,7 +145,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 	userData := &ent.User{
 		TelegramID: input.Body.TelegramID,
 		FullName:   fullName,
-		Role:       "user",
+		// Role:       "user",
 	}
 
 	u, err := h.userService.RegisterUserSimple(ctx, userData)
@@ -151,10 +153,12 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		if errors.Is(err, services.ErrUserAlreadyExists) {
 			return nil, huma.Error409Conflict("Пользователь уже существует")
 		}
+		slog.Error("Failed to register user simple", "telegramID", input.Body.TelegramID, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
 	if u == nil {
+		slog.Error("User registration returned nil user", "telegramID", input.Body.TelegramID)
 		return nil, huma.Error500InternalServerError("Ошибка при создании пользователя")
 	}
 
@@ -174,6 +178,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 		if errors.Is(err, services.ErrLocationNotFound) {
 			return nil, huma.Error400BadRequest("Неверная локация")
 		}
+		slog.Error("Failed to update user profile", "userID", input.ID, "updates", updates, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -190,6 +195,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQ
 		if errors.Is(err, services.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
+		slog.Error("Failed to get user by Telegram ID", "telegramID", input.TelegramID, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -205,6 +211,7 @@ func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.UserIDPath) (*d
 		if errors.Is(err, services.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
+		slog.Error("Failed to delete user", "userID", input.ID, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -217,6 +224,7 @@ func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.UserIDPath) (*d
 
 func (h *UserHandler) ResetUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
 	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
+		slog.Error("Failed to reset user", "userID", input.ID, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -229,6 +237,7 @@ func (h *UserHandler) ResetUser(ctx context.Context, input *dto.UserIDPath) (*dt
 
 func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
 	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
+		slog.Error("Failed to restore user", "userID", input.ID, "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
@@ -242,6 +251,7 @@ func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.UserIDPath) (*
 func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
 	users, err := h.userService.GetDeletedUsers(ctx)
 	if err != nil {
+		slog.Error("Failed to get deleted users", "error", err)
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -66,7 +67,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	if exists {
@@ -75,7 +76,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 
 	// Валидируем роль пользователя через ENT-валидатор
 	if err := userval.RoleValidator(user.Role); err != nil {
-		return nil, ErrInvalidRole
+		return nil, fmt.Errorf("%w: %v", ErrInvalidRole, err)
 	}
 
 	// Проверяем существование локации
@@ -84,12 +85,12 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 		if ent.IsNotFound(err) {
 			return nil, ErrLocationNotFound
 		}
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	return newUser, nil
@@ -100,7 +101,7 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	if exists {
@@ -109,7 +110,7 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	return newUser, nil
@@ -123,12 +124,12 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 		if ent.IsNotFound(err) {
 			return ErrUserNotFound
 		}
-		return ErrInternal
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	// Удаляем пользователя
 	if err := s.userRepo.Delete(ctx, userID); err != nil {
-		return ErrInternal
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	return nil
@@ -141,7 +142,7 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.
 		if ent.IsNotFound(err) {
 			return nil, ErrUserNotFound
 		}
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	return u, nil
@@ -155,7 +156,7 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 		if ent.IsNotFound(err) {
 			return ErrUserNotFound
 		}
-		return ErrInternal
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	// Применяем обновления
@@ -182,14 +183,14 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 			if ent.IsNotFound(err) {
 				return ErrLocationNotFound
 			}
-			return ErrInternal
+			return fmt.Errorf("%w: %v", ErrInternal, err)
 		}
 		u.LocationID = locationID
 	}
 
 	// Сохраняем обновленного пользователя
 	if _, err := s.userRepo.Update(ctx, u); err != nil {
-		return ErrInternal
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	return nil
@@ -202,7 +203,7 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 		if ent.IsNotFound(err) {
 			return nil, ErrUserNotFound
 		}
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 
 	return u, nil
@@ -211,7 +212,7 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 // ResetUser сбрасывает пользователя к начальным настройкам
 func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
 	if err := s.userRepo.ResetUser(ctx, userID); err != nil {
-		return ErrInternal
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 	return nil
 }
@@ -219,7 +220,7 @@ func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
 // RestoreUser восстанавливает удаленного пользователя
 func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error {
 	if err := s.userRepo.RestoreUser(ctx, userID); err != nil {
-		return ErrInternal
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 	return nil
 }
@@ -228,7 +229,7 @@ func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error 
 func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) {
 	users, err := s.userRepo.GetDeletedUsers(ctx)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 	return users, nil
 }
