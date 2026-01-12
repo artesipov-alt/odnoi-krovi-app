@@ -18,10 +18,9 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/config"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/logger"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds"
-	 _ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
 )
 
 // Options for the CLI.

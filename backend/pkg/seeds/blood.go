@@ -9,7 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/seeds/data"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds/data"
 )
 
 // SeedBloodGroups заполняет таблицу групп крови начальными данными через ENT

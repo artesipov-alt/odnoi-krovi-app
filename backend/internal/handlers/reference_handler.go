@@ -8,7 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/utils/enums"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/enums"
 	"github.com/danielgtaylor/huma/v2"
 )
 
