@@ -11,8 +11,7 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest
 COPY backend/go.mod backend/go.sum ./backend/
 
 # Копируем локальные зависимости (для replace директив в go.mod)
-COPY microservices/blood-microservice/go.mod microservices/blood-microservice/go.sum ./microservices/blood-microservice/
-COPY microservices/blood-microservice/ ./microservices/blood-microservice/
+
 
 # Скачиваем зависимости из директории backend
 WORKDIR /build/backend
