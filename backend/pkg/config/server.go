@@ -57,15 +57,19 @@ func NewHumaConfig(miniappDomain string) huma.Config {
 
 	// Добавляем серверы, включая локальный и MiniApp домен
 	config.Servers = []*huma.Server{
-		{URL: "http://localhost:3000/api", Description: "Локальная разработка API"},
+		{URL: "http://localhost:3001", Description: "Локальная разработка API"},
 	}
 
 	if miniappDomain != "" {
 		config.Servers = append(config.Servers, &huma.Server{
-			URL:         "https://1krovi.app/api",
+			URL:         "https://1krovi.app",
 			Description: "Production API для Telegram Mini App",
 		})
 	}
+
+	// Явно указываем пути для OpenAPI спецификации и UI документации
+	config.OpenAPIPath = "/openapi.json"
+	config.DocsPath = "" // Отключаем встроенный UI Huma, чтобы использовать свой SwaggerUIHandler
 
 	return config
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/joho/godotenv"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
@@ -34,12 +35,27 @@ type Options struct {
 func main() {
 	// Create a CLI app which takes a port option.
 	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
+
 		// Загрузка переменных окружения из .env файла
 		godotenv.Load("../.env")
 
 		env := config.GetEnv("ENV", "development")
 
 		logger.SetupLogger(env)
+
+		// Создание стандартного mux
+		mux := http.NewServeMux()
+
+		//Указываем директорию документации
+		openapiPath := filepath.Join("docs", "openapi.json")
+
+		// Обслуживание файла openapi.json
+		mux.Handle("/openapi.json", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, openapiPath)
+		}))
+
+		// Обслуживание UI документации Swagger
+		mux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
 		db, err := config.ConnectEnt(config.NewENVConfig())
@@ -80,12 +96,8 @@ func main() {
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 
-		// Создание стандартного mux
-		mux := http.NewServeMux()
-
 		// Настройка Huma
-
-		api := humago.New(mux, config.NewHumaConfig(env))
+		api := humago.New(mux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
 
 		// Инициализируем интеграцию AppError с Huma
 		apperrors.InitHuma(api)
@@ -99,7 +111,8 @@ func main() {
 		// Если опция Doc включена, генерируем документацию и выходим
 		if options.Doc {
 			hooks.OnStart(func() {
-				generateAndSaveOpenAPI(api)
+				generateAndSaveOpenAPI(api, openapiPath)
+				os.Exit(0)
 			})
 			return
 		}
@@ -129,27 +142,26 @@ func main() {
 	cli.Run()
 }
 
-func generateAndSaveOpenAPI(api huma.API) {
+func generateAndSaveOpenAPI(api huma.API, filePath string) {
+	// Создаем директорию, если она не существует
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		slog.Error("Failed to create directory for OpenAPI spec", "error", err, "path", dir)
+		return
+	}
+
 	spec := api.OpenAPI()
 	jsonBytes, err := spec.MarshalJSON()
 	if err != nil {
 		slog.Error("Failed to marshal OpenAPI spec to JSON", "error", err)
-		os.Exit(1)
+		return
 	}
 
-	docsDir := "docs"
-	if err := os.MkdirAll(docsDir, 0755); err != nil {
-		slog.Error("Failed to create docs directory", "error", err)
-		os.Exit(1)
-	}
-
-	filePath := filepath.Join(docsDir, "openapi.json")
 	err = os.WriteFile(filePath, jsonBytes, 0644)
 	if err != nil {
 		slog.Error("Failed to write OpenAPI spec to file", "error", err, "path", filePath)
-		os.Exit(1)
+		return
 	}
 
 	slog.Info("OpenAPI documentation successfully generated", "path", filePath)
-	os.Exit(0)
 }
