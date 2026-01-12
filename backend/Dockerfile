@@ -22,6 +22,9 @@ COPY backend/cmd/ ./cmd/
 COPY backend/internal/ ./internal/
 COPY backend/app/ ./app/
 COPY backend/docs/ ./docs/
+COPY backend/docsui/ ./docsui/
+COPY backend/ent/ ./ent/
+COPY backend/pkg/ ./pkg/
 
 # Регенерация Swagger (обновляем существующие docs)
 RUN swag init -g cmd/api/main.go -o docs || echo "Swagger generation skipped"
