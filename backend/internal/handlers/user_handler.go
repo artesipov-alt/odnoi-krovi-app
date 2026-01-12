@@ -143,6 +143,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 	userData := &ent.User{
 		TelegramID: input.Body.TelegramID,
 		FullName:   fullName,
+		Role:       "user",
 	}
 
 	u, err := h.userService.RegisterUserSimple(ctx, userData)
