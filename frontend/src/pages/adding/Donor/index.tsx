@@ -30,6 +30,8 @@ type Props = {
     onBackToStart: () => void;
 };
 
+const captions = ['О питомце', 'Параметры', 'Здоровье', 'Обработки', 'Анализы'];
+
 const Donor: FC<Props> = ({ onBackToStart }) => {
     const navigate = useNavigate();
 
@@ -593,7 +595,12 @@ const Donor: FC<Props> = ({ onBackToStart }) => {
         <>
             {step < 6 && (
                 <>
-                    <Header step={step} stepsCount={5} onBackClickHandler={onBackClickHandler} />
+                    <Header
+                        step={step}
+                        stepsCount={5}
+                        caption={captions[step - 1]}
+                        onBackClickHandler={onBackClickHandler}
+                    />
                     <div className={styles.form}>
                         {step === 1 && (
                             <First

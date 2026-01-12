@@ -23,6 +23,8 @@ type Props = {
 
 type BloodGroupsDicts = Record<PetType, Dict[]>;
 
+const captions = ['О питомце', 'Критерии поиска', 'Дополнительно'];
+
 const Recipient: FC<Props> = ({ onBackToStart }) => {
     const navigate = useNavigate();
 
@@ -194,7 +196,12 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
         <>
             {step < 4 && (
                 <>
-                    <Header step={step} stepsCount={3} onBackClickHandler={onBackClickHandler} />
+                    <Header
+                        step={step}
+                        stepsCount={3}
+                        caption={captions[step - 1]}
+                        onBackClickHandler={onBackClickHandler}
+                    />
                     <div className={styles.form}>
                         {step === 1 && (
                             <First

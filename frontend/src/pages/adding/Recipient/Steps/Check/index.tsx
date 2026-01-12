@@ -123,7 +123,7 @@ const Check: FC<Props> = ({
                         <div className={styles.text}>
                             {locations
                                 .map((lock) => locationsDict.filter(({ value }) => value === Number(lock))[0].label)
-                                .join(' ')}
+                                .join(', ')}
                         </div>
                     </div>
                 </div>
