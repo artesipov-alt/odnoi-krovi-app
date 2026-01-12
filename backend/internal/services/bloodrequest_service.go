@@ -2,17 +2,11 @@ package services
 
 import (
 	"context"
-	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-)
-
-var (
-	ErrBloodRequestNotFound = errors.New("blood search request not found")
-	ErrBloodRequestExists   = errors.New("blood search request already exists for this pet")
-	ErrInvalidStatus        = errors.New("invalid status")
 )
 
 // BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
@@ -58,19 +52,19 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	// Проверяем существование питомца
 	exists, err := s.petRepo.ExistsByID(ctx, bloodReq.PetID)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to check pet existence")
 	}
 	if !exists {
-		return nil, ErrPetNotFound
+		return nil, apperrors.ErrPetNotFound
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
 	activeExists, err := s.repo.ExistsByPetID(ctx, bloodReq.PetID)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to check request existence")
 	}
 	if activeExists {
-		return nil, ErrBloodRequestExists
+		return nil, apperrors.ErrBloodRequestAlreadyExists
 	}
 
 	// Устанавливаем статус по умолчанию
@@ -79,7 +73,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	// Создаем заявку
 	newReq, err := s.repo.Create(ctx, bloodReq)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to create blood request")
 	}
 
 	return newReq, nil
@@ -90,9 +84,9 @@ func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) 
 	req, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrBloodRequestNotFound
+			return nil, apperrors.ErrBloodRequestNotFound
 		}
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to get blood request")
 	}
 
 	return req, nil
@@ -103,9 +97,9 @@ func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID st
 	req, err := s.repo.GetByPetID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrBloodRequestNotFound
+			return nil, apperrors.ErrBloodRequestNotFound
 		}
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to get blood request by pet ID")
 	}
 
 	return req, nil
@@ -117,9 +111,9 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrBloodRequestNotFound
+			return nil, apperrors.ErrBloodRequestNotFound
 		}
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to get blood request")
 	}
 
 	// Убеждаемся, что ID совпадает
@@ -131,7 +125,7 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 
 	updated, err := s.repo.Update(ctx, bloodReq)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
 
 	return updated, nil
@@ -140,15 +134,15 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 // UpdateStatus обновляет статус заявки
 func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, status string) error {
 	if err := bloodsearchrequest.StatusValidator(bloodsearchrequest.Status(status)); err != nil {
-		return ErrInvalidStatus
+		return apperrors.ErrInvalidBloodRequestStatus.WithInternal(err)
 	}
 
 	err := s.repo.UpdateStatus(ctx, id, status)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return ErrBloodRequestNotFound
+			return apperrors.ErrBloodRequestNotFound
 		}
-		return ErrInternal
+		return apperrors.Internal(err, "failed to update status")
 	}
 
 	return nil
@@ -159,9 +153,9 @@ func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) e
 	err := s.repo.Delete(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return ErrBloodRequestNotFound
+			return apperrors.ErrBloodRequestNotFound
 		}
-		return ErrInternal
+		return apperrors.Internal(err, "failed to delete blood request")
 	}
 	return nil
 }
@@ -170,7 +164,7 @@ func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) e
 func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
 	requests, err := s.repo.List(ctx, limit, offset, filters)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, apperrors.Internal(err, "failed to list blood requests")
 	}
 
 	return requests, nil

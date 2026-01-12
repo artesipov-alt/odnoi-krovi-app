@@ -9,6 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -493,7 +494,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 
 	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
@@ -510,7 +511,7 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 
 	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
 	if err != nil {
-		if errors.Is(err, services.ErrPetNotFound) {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
@@ -527,7 +528,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 
 	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
@@ -548,7 +549,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
 
 	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
-		if errors.Is(err, services.ErrPetNotFound) {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
@@ -561,7 +562,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 
 func (h *PetHandler) DeletePet(ctx context.Context, input *PetIDPath) (*MessageResponse, error) {
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
-		if errors.Is(err, services.ErrPetNotFound) {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
@@ -575,7 +576,7 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *PetIDPath) (*MessageR
 func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *PetIDPath) (*UploadURLResponse, error) {
 	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, services.ErrPetNotFound) {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")

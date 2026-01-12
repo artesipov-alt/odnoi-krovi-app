@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -130,7 +131,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 
 	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {
-		if errors.Is(err, services.ErrBloodRequestExists) {
+		if errors.Is(err, apperrors.ErrBloodRequestAlreadyExists) {
 			return nil, huma.Error409Conflict("Заявка на поиск крови для этого питомца уже существует")
 		}
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
@@ -172,7 +173,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *BloodRequestIDPath) (*BloodSearchRequestDTOWrapper, error) {
 	result, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, services.ErrBloodRequestNotFound) {
+		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			return nil, huma.Error404NotFound("Заявка не найдена")
 		}
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
@@ -183,7 +184,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *Bl
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*MessageResponse, error) {
 	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
-		if errors.Is(err, services.ErrBloodRequestNotFound) {
+		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			return nil, huma.Error404NotFound("Заявка не найдена")
 		}
 		return nil, huma.Error500InternalServerError("Ошибка сервера")

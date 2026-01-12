@@ -9,6 +9,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -120,7 +121,7 @@ func (h *UserHandler) User(ctx context.Context, input *dto.UserIDPath) (*dto.Use
 
 	u, err := h.userService.GetUserByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
 		slog.Error("Failed to get user by ID", "userID", input.ID, "error", err)
@@ -150,7 +151,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 
 	u, err := h.userService.RegisterUserSimple(ctx, userData)
 	if err != nil {
-		if errors.Is(err, services.ErrUserAlreadyExists) {
+		if errors.Is(err, apperrors.ErrUserAlreadyExists) {
 			return nil, huma.Error409Conflict("Пользователь уже существует")
 		}
 		slog.Error("Failed to register user simple", "telegramID", input.Body.TelegramID, "error", err)
@@ -172,10 +173,10 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	updates := h.toUpdatesMap(input.Body)
 
 	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
-		if errors.Is(err, services.ErrLocationNotFound) {
+		if errors.Is(err, apperrors.ErrLocationNotFound) {
 			return nil, huma.Error400BadRequest("Неверная локация")
 		}
 		slog.Error("Failed to update user profile", "userID", input.ID, "updates", updates, "error", err)
@@ -192,7 +193,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQuery) (*dto.UserResponse, error) {
 	u, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
 	if err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
 		slog.Error("Failed to get user by Telegram ID", "telegramID", input.TelegramID, "error", err)
@@ -208,7 +209,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQ
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.UserIDPath) (*dto.MessageResponse, error) {
 	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
-		if errors.Is(err, services.ErrUserNotFound) {
+		if errors.Is(err, apperrors.ErrUserNotFound) {
 			return nil, huma.Error404NotFound("Пользователь не найден")
 		}
 		slog.Error("Failed to delete user", "userID", input.ID, "error", err)
@@ -356,4 +357,37 @@ func (h *UserHandler) toUpdatesMap(d dto.UserUpdate) map[string]any {
 		updates["LocationID"] = *d.LocationID
 	}
 	return updates
+}
+
+// handleError маппит доменные ошибки на HTTP ошибки Huma
+func (h *UserHandler) handleError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var appErr *apperrors.AppError
+	if errors.As(err, &appErr) {
+		switch appErr.HTTPStatus {
+		case 400:
+			return huma.Error400BadRequest(appErr.Message)
+		case 401:
+			return huma.Error401Unauthorized(appErr.Message)
+		case 403:
+			return huma.Error403Forbidden(appErr.Message)
+		case 404:
+			return huma.Error404NotFound(appErr.Message)
+		case 409:
+			return huma.Error409Conflict(appErr.Message)
+		case 500:
+			slog.Error("Internal server error", "error", err)
+			return huma.Error500InternalServerError("Внутренняя ошибка сервера")
+		default:
+			slog.Error("Unknown error status", "status", appErr.HTTPStatus, "error", err)
+			return huma.Error500InternalServerError("Неизвестная ошибка")
+		}
+	}
+
+	// Если не AppError, логируем и возвращаем 500
+	slog.Error("Unexpected error type", "error", err)
+	return huma.Error500InternalServerError("Неожиданная ошибка")
 }

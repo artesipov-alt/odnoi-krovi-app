@@ -2,20 +2,11 @@ package services
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-)
-
-var (
-	ErrUserNotFound      = errors.New("user not found")
-	ErrUserAlreadyExists = errors.New("user already exists")
-	ErrLocationNotFound  = errors.New("location not found")
-	ErrInvalidRole       = errors.New("invalid role")
-	ErrInternal          = errors.New("internal error")
 )
 
 // UserService определяет интерфейс для бизнес-логики пользователей
@@ -67,30 +58,30 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to check user existence")
 	}
 
 	if exists {
-		return nil, ErrUserAlreadyExists
+		return nil, apperrors.ErrUserAlreadyExists
 	}
 
 	// Валидируем роль пользователя через ENT-валидатор
 	if err := userval.RoleValidator(user.Role); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInvalidRole, err)
+		return nil, apperrors.ErrUserInvalidRole.WithInternal(err)
 	}
 
 	// Проверяем существование локации
 	_, err = s.locationRepo.GetByID(ctx, user.LocationID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrLocationNotFound
+			return nil, apperrors.ErrLocationNotFound
 		}
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to get location")
 	}
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to create user")
 	}
 
 	return newUser, nil
@@ -101,16 +92,16 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to check user existence")
 	}
 
 	if exists {
-		return nil, ErrUserAlreadyExists
+		return nil, apperrors.ErrUserAlreadyExists
 	}
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to create user")
 	}
 
 	return newUser, nil
@@ -122,14 +113,14 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	_, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return ErrUserNotFound
+			return apperrors.ErrUserNotFound
 		}
-		return fmt.Errorf("%w: %v", ErrInternal, err)
+		return apperrors.Internal(err, "failed to get user")
 	}
 
 	// Удаляем пользователя
 	if err := s.userRepo.Delete(ctx, userID); err != nil {
-		return fmt.Errorf("%w: %v", ErrInternal, err)
+		return apperrors.Internal(err, "failed to delete user")
 	}
 
 	return nil
@@ -140,9 +131,9 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrUserNotFound
+			return nil, apperrors.ErrUserNotFound
 		}
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
 	return u, nil
@@ -154,9 +145,9 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return ErrUserNotFound
+			return apperrors.ErrUserNotFound
 		}
-		return fmt.Errorf("%w: %v", ErrInternal, err)
+		return apperrors.Internal(err, "failed to get user")
 	}
 
 	// Применяем обновления
@@ -181,16 +172,16 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 		_, err := s.locationRepo.GetByID(ctx, locationID)
 		if err != nil {
 			if ent.IsNotFound(err) {
-				return ErrLocationNotFound
+				return apperrors.ErrLocationNotFound
 			}
-			return fmt.Errorf("%w: %v", ErrInternal, err)
+			return apperrors.Internal(err, "failed to get location")
 		}
 		u.LocationID = locationID
 	}
 
 	// Сохраняем обновленного пользователя
 	if _, err := s.userRepo.Update(ctx, u); err != nil {
-		return fmt.Errorf("%w: %v", ErrInternal, err)
+		return apperrors.Internal(err, "failed to update user")
 	}
 
 	return nil
@@ -201,9 +192,9 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 	u, err := s.userRepo.GetByTelegramID(ctx, telegramID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, ErrUserNotFound
+			return nil, apperrors.ErrUserNotFound
 		}
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
 	return u, nil
@@ -212,7 +203,7 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 // ResetUser сбрасывает пользователя к начальным настройкам
 func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
 	if err := s.userRepo.ResetUser(ctx, userID); err != nil {
-		return fmt.Errorf("%w: %v", ErrInternal, err)
+		return apperrors.Internal(err, "failed to reset user")
 	}
 	return nil
 }
@@ -220,7 +211,7 @@ func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
 // RestoreUser восстанавливает удаленного пользователя
 func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error {
 	if err := s.userRepo.RestoreUser(ctx, userID); err != nil {
-		return fmt.Errorf("%w: %v", ErrInternal, err)
+		return apperrors.Internal(err, "failed to restore user")
 	}
 	return nil
 }
@@ -229,7 +220,7 @@ func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error 
 func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) {
 	users, err := s.userRepo.GetDeletedUsers(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInternal, err)
+		return nil, apperrors.Internal(err, "failed to get deleted users")
 	}
 	return users, nil
 }
