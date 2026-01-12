@@ -57,6 +57,6 @@ export const userApi = (): IUserApi => ({
     return instance.get(`${USER_URL}/telegram?telegram_id=${id}`);
   },
   updateUser({ id, ...params }) {
-    return instance.put(`${USER_URL}${id}`, params);
+    return instance.put(`${USER_URL}/${id}`, params);
   },
 });
