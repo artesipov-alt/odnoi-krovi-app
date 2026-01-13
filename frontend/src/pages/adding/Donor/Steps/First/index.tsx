@@ -98,12 +98,22 @@ const First: FC<Props> = ({
         ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
             const newValue = value.trim();
 
+            if (newValue === '0') {
+                return;
+            }
+
             if (value && !newValue.match(regexInt)) {
                 return;
             }
 
             if (type === 'months' && Number(newValue) > 11) {
                 onChangeApproximateDateMonth('11');
+
+                return;
+            }
+
+            if (type === 'year' && Number(newValue) > 40) {
+                onChangeApproximateDateYear('40');
 
                 return;
             }
@@ -197,6 +207,7 @@ const First: FC<Props> = ({
                             placeholder='Укажите № чипа'
                             onChange={onChangeChipNumberHandler}
                             value={chipNumber === 'none' ? '' : chipNumber}
+                            inputClass={chipNumber === 'none' ? styles.input : undefined}
                         />
                     </div>
                     <Button

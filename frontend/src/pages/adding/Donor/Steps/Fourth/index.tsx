@@ -107,7 +107,11 @@ const Fourth: FC<Props> = ({
             <FormItem title='Последняя вакцинация от бешенства'>
                 <div className={styles.buttonsRow}>
                     <div className={styles.buttonsRowItem}>
-                        <DatePicker value={rabiesVaccinationDate} onChange={onChangeRabiesVaccinationDate} />
+                        <DatePicker
+                            value={rabiesVaccinationDate}
+                            onChange={onChangeRabiesVaccinationDate}
+                            backgroundColor={isNoRabiesVaccination ? '#EFF1F6' : undefined}
+                        />
                     </div>
                     <Button
                         onClick={onIsNoRabiesVaccinationClickHandler}
@@ -120,7 +124,11 @@ const Fourth: FC<Props> = ({
             <FormItem title='Последняя вакцинация от инфекций'>
                 <div className={styles.buttonsRow}>
                     <div className={styles.buttonsRowItem}>
-                        <DatePicker value={infectionsVaccinationDate} onChange={onChangeInfectionsVaccinationDate} />
+                        <DatePicker
+                            value={infectionsVaccinationDate}
+                            onChange={onChangeInfectionsVaccinationDate}
+                            backgroundColor={isNoInfectionsVaccination ? '#EFF1F6' : undefined}
+                        />
                     </div>
                     <Button
                         onClick={onIsNoInfectionsVaccinationClickHandler}
@@ -133,7 +141,11 @@ const Fourth: FC<Props> = ({
             <FormItem title='Последняя обработка от эктопаразитов'>
                 <div className={styles.buttonsRow}>
                     <div className={styles.buttonsRowItem}>
-                        <DatePicker value={ectoparasitesTreatmentDate} onChange={onChangeEctoparasitesTreatmentDate} />
+                        <DatePicker
+                            value={ectoparasitesTreatmentDate}
+                            onChange={onChangeEctoparasitesTreatmentDate}
+                            backgroundColor={isNoEctoparasitesTreatment ? '#EFF1F6' : undefined}
+                        />
                     </div>
                     <Button
                         onClick={onIsNoEctoparasitesTreatmentClickHandler}
@@ -146,7 +158,11 @@ const Fourth: FC<Props> = ({
             <FormItem title='Последняя дегельминтизация'>
                 <div className={styles.buttonsRow}>
                     <div className={styles.buttonsRowItem}>
-                        <DatePicker value={dewormingDate} onChange={onChangeDewormingDate} />
+                        <DatePicker
+                            value={dewormingDate}
+                            onChange={onChangeDewormingDate}
+                            backgroundColor={isNoDeworming ? '#EFF1F6' : undefined}
+                        />
                     </div>
                     <Button
                         onClick={onIsNoDewormingClickHandler}

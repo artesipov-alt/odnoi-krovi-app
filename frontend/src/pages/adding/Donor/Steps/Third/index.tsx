@@ -4,7 +4,7 @@ import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 
 import { StringDict } from 'api/reference';
-import Alert from 'components/Alert';
+import Alert, { View } from 'components/Alert';
 import DatePicker from 'components/DatePicker';
 import TextField from 'components/TextField';
 
@@ -173,6 +173,11 @@ const Third: FC<Props> = ({
     return (
         <>
             <FormItem title='Состояние здоровья'>
+                <Alert
+                    view={View.INFO}
+                    className={styles.alert}
+                    text='Есть ли у питомца хронические, инфекционные, аутоиммунные, онкологические заболевания?'
+                />
                 <div className={styles.buttonsRow}>
                     {healthStatusesDict.map(({ label, value }) => (
                         <Button
@@ -186,15 +191,15 @@ const Third: FC<Props> = ({
                         </Button>
                     ))}
                 </div>
-                <Alert
-                    className={styles.alert}
-                    text='Есть ли у питомца хронические, инфекционные, аутоиммунные, онкологические заболевания?'
-                />
             </FormItem>
             <FormItem title='Последняя донация'>
                 <div className={styles.buttonsRow}>
                     <div className={styles.datePicker}>
-                        <DatePicker value={lastDonation} onChange={onChangeLastDonationDate} />
+                        <DatePicker
+                            value={lastDonation}
+                            onChange={onChangeLastDonationDate}
+                            backgroundColor={isNoLastDonation ? '#EFF1F6' : undefined}
+                        />
                     </div>
                     <Button
                         onClick={onIsNoLastDonationClickHandler}

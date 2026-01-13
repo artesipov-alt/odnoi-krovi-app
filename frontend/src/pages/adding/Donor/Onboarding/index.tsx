@@ -1,7 +1,6 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
 import onboarding from 'imgs/onboarding.png';
-import Caution from 'imgs/svg/caution';
 import ExclamationSquare from 'imgs/svg/exclamationSquare';
 import MainLogo from 'imgs/svg/mainLogo';
 import { FC, useState } from 'react';
@@ -73,7 +72,7 @@ const Onboarding: FC<Props> = ({ onFinish, onBackToStart }) => {
                     // eslint-disable-next-line react/no-array-index-key
                     <div key={i} className={styles.item}>
                         <div className={cn(styles.logo, { [styles.item]: true })}>
-                            {isFirstStep ? <ExclamationSquare /> : <Caution />}
+                            <ExclamationSquare />
                         </div>
                         <p className={styles.itemText}>{item}</p>
                     </div>
