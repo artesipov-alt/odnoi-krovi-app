@@ -11,14 +11,28 @@
     border-radius: 8px;
     background: @orangeBg;
     color: @common-red;
+
+    &.info {
+        background: rgba(@red6, .4);
+        color: @white;
+    }
 }
 
 .logo {
     width: 17px;
     height: 17px;
 
+    &.info {
+        transform: rotate(180deg);
+
+        svg {
+            fill: rgba(@red6, .7);
+        }
+    }
+
     svg {
         width: inherit;
         height: inherit;
+        fill: @red6;
     }
 }

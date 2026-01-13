@@ -1,21 +1,23 @@
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ru } from 'date-fns/locale/ru';
-import { FC, useRef, useState } from 'react';
+import { FC, useState } from 'react';
 
 type Props = {
     value: Date | null;
+    backgroundColor?: string;
     onChange: (date: Date | null) => void;
 };
 
-const DatePicker: FC<Props> = ({ value, onChange }) => {
+const DatePicker: FC<Props> = ({ value, onChange, backgroundColor }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    const minDate = new Date();
+    minDate.setFullYear(minDate.getFullYear() - 40);
 
     const onChangeHandler = (newValue: Date | null) => {
         onChange(newValue);
-
-        setIsOpen(false);
     };
 
     return (
@@ -23,6 +25,7 @@ const DatePicker: FC<Props> = ({ value, onChange }) => {
             <MuiDatePicker
                 value={value}
                 open={isOpen}
+                minDate={minDate}
                 maxDate={new Date()}
                 onChange={onChangeHandler}
                 onOpen={() => setIsOpen(true)}
@@ -36,7 +39,7 @@ const DatePicker: FC<Props> = ({ value, onChange }) => {
                         readOnly: true, // Предотвращает появление экранной клавиатуры на мобильных
                         sx: {
                             // Настройка основного фона поля
-                            backgroundColor: 'white',
+                            backgroundColor: backgroundColor || 'white',
                             borderRadius: '16px',
                             border: '1px solid #dee2e9',
                             userSelect: 'none', // Отключаем выделение текста

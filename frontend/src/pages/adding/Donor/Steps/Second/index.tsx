@@ -147,7 +147,7 @@ const Second: FC<Props> = ({
                 </>
             </FormItem>
             {/* eslint-disable-next-line no-nested-ternary */}
-            <FormItem title='Вес' subtitle={!petType ? undefined : petType === PetType.CAT ? 'до 20 кг' : 'до 150 кг'}>
+            <FormItem title='Вес' subtitle={!petType ? undefined : petType === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}>
                 <TextField
                     name='weight'
                     value={weight}

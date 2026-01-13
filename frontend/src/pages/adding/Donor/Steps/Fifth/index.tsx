@@ -61,7 +61,7 @@ const Fifth: FC<Props> = ({
                     <p className={styles.analiz}>{analiz.name}</p>
                     {analiz.items.map((item) => (
                         <div key={analiz.type} className={styles.item}>
-                            <p className={styles.name}>{item.name}</p>
+                            <p className={cn(styles.name, { [styles.isFilled]: !!item.value })}>{item.name}</p>
                             <div className={styles.picker}>
                                 <DatePicker value={item.value} onChange={onDateChangeHandler(analiz.type, item.name)} />
                             </div>
