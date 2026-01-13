@@ -91,11 +91,11 @@ const Second: FC<Props> = ({
             return;
         }
 
-        if (petType === PetType.CAT && Number(newValue) > 20) {
+        if (petType === PetType.CAT && Number(newValue) > 15) {
             return;
         }
 
-        if (petType === PetType.DOG && Number(newValue) > 150) {
+        if (petType === PetType.DOG && Number(newValue) > 170) {
             return;
         }
 
