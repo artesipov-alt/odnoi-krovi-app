@@ -74,8 +74,7 @@ export type PetHealthHealthStatusEnum = typeof PetHealthHealthStatusEnum[keyof t
 export const PetHealthReproductiveStatusEnum = {
     Pregnancy: 'pregnancy',
     Lactation: 'lactation',
-    Estrus: 'estrus',
-    None: 'none'
+    Estrus: 'estrus'
 } as const;
 export type PetHealthReproductiveStatusEnum = typeof PetHealthReproductiveStatusEnum[keyof typeof PetHealthReproductiveStatusEnum];
 

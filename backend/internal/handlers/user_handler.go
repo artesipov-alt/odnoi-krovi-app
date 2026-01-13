@@ -114,8 +114,16 @@ func (h *UserHandler) Register(api huma.API) {
 
 // Handlers
 
-func (h *UserHandler) User(ctx context.Context, input *dto.UserIDPath) (*dto.UserResponse, error) {
-	u, err := h.userService.GetUserByID(ctx, input.ID)
+func (h *UserHandler) User(ctx context.Context, input *struct {
+	dto.UserIDPath
+	dto.UserPreloadQuery
+}) (*dto.UserResponse, error) {
+	var preloads []string
+	if input.WithPets {
+		preloads = append(preloads, "pets")
+	}
+
+	u, err := h.userService.GetUserByID(ctx, input.ID, preloads...)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get user by ID", "user_id", input.ID, "error", err.Error())
 		return nil, err

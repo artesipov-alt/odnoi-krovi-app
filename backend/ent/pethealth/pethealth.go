@@ -96,7 +96,6 @@ const (
 	ReproductiveStatusPregnancy ReproductiveStatus = "pregnancy"
 	ReproductiveStatusLactation ReproductiveStatus = "lactation"
 	ReproductiveStatusEstrus    ReproductiveStatus = "estrus"
-	ReproductiveStatusNone      ReproductiveStatus = "none"
 )
 
 func (rs ReproductiveStatus) String() string {
@@ -106,7 +105,7 @@ func (rs ReproductiveStatus) String() string {
 // ReproductiveStatusValidator is a validator for the "reproductive_status" field enum values. It is called by the builders before save.
 func ReproductiveStatusValidator(rs ReproductiveStatus) error {
 	switch rs {
-	case ReproductiveStatusPregnancy, ReproductiveStatusLactation, ReproductiveStatusEstrus, ReproductiveStatusNone:
+	case ReproductiveStatusPregnancy, ReproductiveStatusLactation, ReproductiveStatusEstrus:
 		return nil
 	default:
 		return fmt.Errorf("pethealth: invalid enum value for reproductive_status field: %q", rs)

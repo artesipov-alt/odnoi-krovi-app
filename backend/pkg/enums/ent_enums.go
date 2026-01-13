@@ -13,7 +13,7 @@ func GetAllEntPetTypes() []pet.Type {
 
 // GetAllEntPetStatuses возвращает все доступные статусы питомцев из ENT
 func GetAllEntPetStatuses() []pet.PetStatus {
-	return []pet.PetStatus{pet.PetStatusDonor, pet.PetStatusRecipient}
+	return []pet.PetStatus{pet.PetStatusDonor, pet.PetStatusRecipient, pet.PetStatusNone}
 }
 
 // GetAllEntGenders возвращает все доступные значения пола из ENT
@@ -45,7 +45,6 @@ func GetAllEntReproductiveStatuses() []pethealth.ReproductiveStatus {
 		pethealth.ReproductiveStatusPregnancy,
 		pethealth.ReproductiveStatusLactation,
 		pethealth.ReproductiveStatusEstrus,
-		pethealth.ReproductiveStatusNone,
 	}
 }
 
@@ -142,8 +141,6 @@ func LocalizeEntReproductiveStatus(rs pethealth.ReproductiveStatus) string {
 		return "Лактация"
 	case pethealth.ReproductiveStatusEstrus:
 		return "Течка"
-	case pethealth.ReproductiveStatusNone:
-		return "Нет"
 	default:
 		return string(rs)
 	}

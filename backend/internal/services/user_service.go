@@ -21,7 +21,7 @@ type UserService interface {
 	UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error
 
 	// GetUserByID получает пользователя по его внутреннему ID
-	GetUserByID(ctx context.Context, userID string) (*ent.User, error)
+	GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error)
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
@@ -101,7 +101,7 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 
 	newUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to create user").WithDetails(map[string]interface{}{
+		return nil, apperrors.Internal(err, "failed to create user").WithDetails(map[string]any{
 			"err": err.Error(),
 		})
 	}
@@ -129,8 +129,8 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 }
 
 // GetUserByID получает пользователя по ID
-func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.User, error) {
-	u, err := s.userRepo.GetByID(ctx, userID)
+func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error) {
+	u, err := s.userRepo.GetByID(ctx, userID, preloads...)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound
@@ -142,7 +142,7 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string) (*ent.
 }
 
 // UpdateUserProfile обновляет информацию о пользователе
-func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates map[string]interface{}) error {
+func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error {
 	// Получаем существующего пользователя
 	u, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {

@@ -211,6 +211,7 @@ type PetStatus string
 const (
 	PetStatusDonor     PetStatus = "donor"
 	PetStatusRecipient PetStatus = "recipient"
+	PetStatusNone      PetStatus = "none"
 )
 
 func (ps PetStatus) String() string {
@@ -220,7 +221,7 @@ func (ps PetStatus) String() string {
 // PetStatusValidator is a validator for the "pet_status" field enum values. It is called by the builders before save.
 func PetStatusValidator(ps PetStatus) error {
 	switch ps {
-	case PetStatusDonor, PetStatusRecipient:
+	case PetStatusDonor, PetStatusRecipient, PetStatusNone:
 		return nil
 	default:
 		return fmt.Errorf("pet: invalid enum value for pet_status field: %q", ps)

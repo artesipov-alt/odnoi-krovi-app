@@ -183,7 +183,8 @@ export type PetCreateLivingConditionEnum = typeof PetCreateLivingConditionEnum[k
  */
 export const PetCreatePetStatusEnum = {
     Donor: 'donor',
-    Recipient: 'recipient'
+    Recipient: 'recipient',
+    None: 'none'
 } as const;
 export type PetCreatePetStatusEnum = typeof PetCreatePetStatusEnum[keyof typeof PetCreatePetStatusEnum];
 

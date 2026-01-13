@@ -46,6 +46,7 @@ export interface DeleteUserRequest {
 
 export interface GetUserByIdRequest {
     id: string;
+    withPets?: boolean;
 }
 
 export interface GetUserByTelegramRequest {
@@ -157,6 +158,10 @@ export class UsersV1Api extends runtime.BaseAPI {
         }
 
         const queryParameters: any = {};
+
+        if (requestParameters['withPets'] != null) {
+            queryParameters['with_pets'] = requestParameters['withPets'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 

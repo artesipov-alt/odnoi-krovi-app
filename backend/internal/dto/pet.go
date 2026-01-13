@@ -6,7 +6,7 @@ import (
 
 // PetHealth представляет информацию о здоровье питомца
 type PetHealth struct {
-	ReproductiveStatus    *string    `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус питомца" enum:"pregnancy,lactation,estrus,none"`
+	ReproductiveStatus    *string    `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус питомца" enum:"pregnancy,lactation,estrus"`
 	HealthStatus          *string    `json:"healthStatus,omitempty" doc:"Общее состояние здоровья питомца" enum:"healthy,ill,unknown"`
 	LastDonation          *time.Time `json:"lastDonation,omitempty" doc:"Дата последней сдачи крови" example:"2023-10-01T12:00:00Z"`
 	Transfused            *bool      `json:"transfused,omitempty" doc:"Были ли переливания крови" example:"false"`
@@ -64,7 +64,7 @@ type PetCreate struct {
 	Gender          string         `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
 	Type            string         `json:"type" validate:"required" doc:"Тип животного" enum:"dog,cat" example:"dog"`
 	BloodGroup      string         `json:"bloodGroup,omitempty" doc:"Группа крови" example:"DEA 1.1"`
-	PetStatus       string         `json:"petStatus" validate:"required,oneof=donor recipient" doc:"Статус питомца" enum:"donor,recipient" example:"donor"`
+	PetStatus       string         `json:"petStatus" validate:"required,oneof=donor recipient none" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
 	Health          *PetHealth     `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments      *PetTreatment  `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses        []*PetAnalysis `json:"analyses,omitempty" doc:"Список анализов"`
@@ -107,7 +107,7 @@ type PetResponse struct {
 	Gender          string         `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
 	Type            string         `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
 	BloodGroup      string         `json:"bloodGroup,omitempty" doc:"Группа крови" example:"DEA 1.1"`
-	PetStatus       string         `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient" example:"donor"`
+	PetStatus       string         `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
 	Health          *PetHealth     `json:"health" doc:"Информация о здоровье"`
 	Treatments      *PetTreatment  `json:"treatments" doc:"Информация о лечении"`
 	Analyses        []*PetAnalysis `json:"analyses" doc:"Список анализов"`

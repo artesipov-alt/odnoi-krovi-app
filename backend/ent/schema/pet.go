@@ -25,7 +25,7 @@ func (Pet) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").MaxLen(100).StructTag(`json:"name"`),
 		field.Enum("type").Values("dog", "cat").StructTag(`json:"type"`),
-		field.Enum("pet_status").Values("donor", "recipient").StructTag(`json:"petStatus"`),
+		field.Enum("pet_status").Values("donor", "recipient", "none").StructTag(`json:"petStatus"`),
 		field.Float("weight_kg").Optional().StructTag(`json:"weightKg"`),
 		field.String("blood_group").Optional().StructTag(`json:"bloodGroup"`),
 		field.Enum("gender").Values("male", "female").Optional().StructTag(`json:"gender"`),
@@ -37,7 +37,7 @@ func (Pet) Fields() []ent.Field {
 		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
 		field.String("user_id").Optional().StructTag(`json:"userId"`),
 		field.String("health_id").Optional().StructTag(`json:"healthId"`),
-		field.String("treatment_id").Optional().StructTag(`json:\"treatmentId\"`),
+		field.String("treatment_id").Optional().StructTag(`json:"treatmentId"`),
 		field.String("bonus_id").Optional().StructTag(`json:"bonusId"`),
 		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 	}
@@ -86,7 +86,7 @@ func (PetHealth) Mixin() []ent.Mixin {
 // Fields of the PetHealth.
 func (PetHealth) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("reproductive_status").Values("pregnancy", "lactation", "estrus", "none").Optional().StructTag(`json:"reproductiveStatus"`),
+		field.Enum("reproductive_status").Values("pregnancy", "lactation", "estrus").Optional().StructTag(`json:"reproductiveStatus"`),
 		field.Enum("health_status").Values("healthy", "ill", "unknown").Optional().StructTag(`json:"healthStatus"`),
 		field.Time("last_donation").Optional().Nillable().StructTag(`json:"lastDonation"`),
 		field.Bool("transfused").Optional().StructTag(`json:"transfused"`),

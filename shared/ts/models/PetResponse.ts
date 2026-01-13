@@ -201,7 +201,8 @@ export type PetResponseLivingConditionEnum = typeof PetResponseLivingConditionEn
  */
 export const PetResponsePetStatusEnum = {
     Donor: 'donor',
-    Recipient: 'recipient'
+    Recipient: 'recipient',
+    None: 'none'
 } as const;
 export type PetResponsePetStatusEnum = typeof PetResponsePetStatusEnum[keyof typeof PetResponsePetStatusEnum];
 

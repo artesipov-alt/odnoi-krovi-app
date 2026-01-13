@@ -54,15 +54,23 @@ func (r *EntUserRepository) Create(ctx context.Context, u *ent.User) (*ent.User,
 }
 
 // GetByID retrieves a user by their ID
-func (r *EntUserRepository) GetByID(ctx context.Context, id string) (*ent.User, error) {
+func (r *EntUserRepository) GetByID(ctx context.Context, id string, preloads ...string) (*ent.User, error) {
 	if id == "" {
 		return nil, errors.New("invalid user ID")
 	}
 
-	u, err := r.client.User.Query().
-		Where(user.ID(id)).
-		WithPets().
-		Only(ctx)
+	query := r.client.User.Query().Where(user.ID(id))
+
+	for _, preload := range preloads {
+		switch preload {
+		case "pets":
+			query = query.WithPets()
+		case "location":
+			query = query.WithLocation()
+		}
+	}
+
+	u, err := query.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, fmt.Errorf("user with id %s not found: %w", id, err)

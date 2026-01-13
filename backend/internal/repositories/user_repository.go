@@ -12,7 +12,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *ent.User) (*ent.User, error)
 
 	// GetByID получает пользователя по его ID
-	GetByID(ctx context.Context, id string) (*ent.User, error)
+	GetByID(ctx context.Context, id string, preloads ...string) (*ent.User, error)
 
 	// GetByTelegramID получает пользователя по его Telegram ID
 	GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
