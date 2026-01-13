@@ -18,7 +18,6 @@ models/PetAnalysis.ts
 models/PetBonus.ts
 models/PetCreate.ts
 models/PetHealth.ts
-models/PetResponse.ts
 models/PetTreatment.ts
 models/PetUpdate.ts
 models/ReferenceDataCode.ts

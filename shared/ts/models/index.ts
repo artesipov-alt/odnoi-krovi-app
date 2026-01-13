@@ -13,7 +13,6 @@ export * from './PetAnalysis';
 export * from './PetBonus';
 export * from './PetCreate';
 export * from './PetHealth';
-export * from './PetResponse';
 export * from './PetTreatment';
 export * from './PetUpdate';
 export * from './ReferenceDataCode';

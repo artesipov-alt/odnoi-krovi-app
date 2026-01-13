@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { PetResponse } from './PetResponse';
+import type { Pet } from './Pet';
 import {
-    PetResponseFromJSON,
-    PetResponseFromJSONTyped,
-    PetResponseToJSON,
-    PetResponseToJSONTyped,
-} from './PetResponse';
+    PetFromJSON,
+    PetFromJSONTyped,
+    PetToJSON,
+    PetToJSONTyped,
+} from './Pet';
 
 /**
  * 
@@ -95,10 +95,10 @@ export interface User {
     organizationName?: string;
     /**
      * Список питомцев
-     * @type {Array<PetResponse>}
+     * @type {Array<Pet>}
      * @memberof User
      */
-    pets?: Array<PetResponse> | null;
+    pets?: Array<Pet> | null;
     /**
      * Телефон
      * @type {string}
@@ -162,7 +162,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'locationId': json['locationId'] == null ? undefined : json['locationId'],
         'onBoarding': json['onBoarding'],
         'organizationName': json['organizationName'] == null ? undefined : json['organizationName'],
-        'pets': json['pets'] == null ? undefined : ((json['pets'] as Array<any>).map(PetResponseFromJSON)),
+        'pets': json['pets'] == null ? undefined : ((json['pets'] as Array<any>).map(PetFromJSON)),
         'phone': json['phone'] == null ? undefined : json['phone'],
         'role': json['role'],
         'telegramId': json['telegramId'],
@@ -191,7 +191,7 @@ export function UserToJSONTyped(value?: Omit<User, '$schema'> | null, ignoreDisc
         'locationId': value['locationId'],
         'onBoarding': value['onBoarding'],
         'organizationName': value['organizationName'],
-        'pets': value['pets'] == null ? undefined : ((value['pets'] as Array<any>).map(PetResponseToJSON)),
+        'pets': value['pets'] == null ? undefined : ((value['pets'] as Array<any>).map(PetToJSON)),
         'phone': value['phone'],
         'role': value['role'],
         'telegramId': value['telegramId'],
