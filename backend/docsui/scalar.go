@@ -20,12 +20,10 @@ func ScalarDocsHandler(w http.ResponseWriter, r *http.Request) {
           id="api-reference"
           data-url="/api/openapi.json"
           data-configuration='{
-            "theme": "elysiajs",
-            "layout": "modern",
+            "theme": "fastify",
+            "layout": "classic",
             "hideClientButton": true,
-            "showSidebar": true,
             "defaultServerUrl": "/api",
-            "showDeveloperTools": true
           }'>
         </script>
         <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
