@@ -45,115 +45,133 @@ import {
 /**
  * 
  * @export
- * @interface PetUpdate
+ * @interface Pet
  */
-export interface PetUpdate {
+export interface Pet {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     readonly $schema?: string;
     /**
      * Возраст в месяцах
      * @type {number}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     ageMonths?: number;
     /**
      * Возраст в годах
      * @type {number}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     ageYears?: number;
     /**
      * Список анализов
      * @type {Array<PetAnalysis>}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    analyses?: Array<PetAnalysis> | null;
+    analyses: Array<PetAnalysis> | null;
     /**
      * Дата рождения
      * @type {Date}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     birthDate?: Date;
     /**
      * Группа крови
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     bloodGroup?: string;
     /**
      * Дополнительная информация
      * @type {PetBonus}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    bonuses?: PetBonus;
+    bonuses: PetBonus;
     /**
      * ID породы
      * @type {number}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     breedId?: number;
     /**
      * Номер чипа
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     chipNumber?: string;
     /**
+     * Дата создания записи
+     * @type {string}
+     * @memberof Pet
+     */
+    createdAt: string;
+    /**
      * Пол питомца
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    gender?: PetUpdateGenderEnum;
+    gender?: PetGenderEnum;
     /**
      * Информация о здоровье
      * @type {PetHealth}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    health?: PetHealth;
+    health: PetHealth;
+    /**
+     * Уникальный идентификатор питомца
+     * @type {string}
+     * @memberof Pet
+     */
+    id: string;
     /**
      * Условия проживания
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    livingCondition?: PetUpdateLivingConditionEnum;
+    livingCondition?: PetLivingConditionEnum;
     /**
      * Имя питомца
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    name?: string;
+    name: string;
     /**
      * Статус питомца
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    petStatus?: PetUpdatePetStatusEnum;
+    petStatus: PetPetStatusEnum;
     /**
      * URL фотографии питомца
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     photoUrl?: string;
     /**
      * Информация о лечении
      * @type {PetTreatment}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    treatments?: PetTreatment;
+    treatments: PetTreatment;
     /**
      * Тип животного
      * @type {string}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
-    type?: PetUpdateTypeEnum;
+    type: PetTypeEnum;
+    /**
+     * Дата последнего обновления
+     * @type {string}
+     * @memberof Pet
+     */
+    updatedAt: string;
     /**
      * Вес в килограммах
      * @type {number}
-     * @memberof PetUpdate
+     * @memberof Pet
      */
     weightKg?: number;
 }
@@ -162,53 +180,64 @@ export interface PetUpdate {
 /**
  * @export
  */
-export const PetUpdateGenderEnum = {
+export const PetGenderEnum = {
     Male: 'male',
     Female: 'female'
 } as const;
-export type PetUpdateGenderEnum = typeof PetUpdateGenderEnum[keyof typeof PetUpdateGenderEnum];
+export type PetGenderEnum = typeof PetGenderEnum[keyof typeof PetGenderEnum];
 
 /**
  * @export
  */
-export const PetUpdateLivingConditionEnum = {
+export const PetLivingConditionEnum = {
     Indoor: 'indoor',
     LeashWalking: 'leashWalking',
     SelfOutdoor: 'selfOutdoor'
 } as const;
-export type PetUpdateLivingConditionEnum = typeof PetUpdateLivingConditionEnum[keyof typeof PetUpdateLivingConditionEnum];
+export type PetLivingConditionEnum = typeof PetLivingConditionEnum[keyof typeof PetLivingConditionEnum];
 
 /**
  * @export
  */
-export const PetUpdatePetStatusEnum = {
+export const PetPetStatusEnum = {
     Donor: 'donor',
-    Recipient: 'recipient'
+    Recipient: 'recipient',
+    None: 'none'
 } as const;
-export type PetUpdatePetStatusEnum = typeof PetUpdatePetStatusEnum[keyof typeof PetUpdatePetStatusEnum];
+export type PetPetStatusEnum = typeof PetPetStatusEnum[keyof typeof PetPetStatusEnum];
 
 /**
  * @export
  */
-export const PetUpdateTypeEnum = {
+export const PetTypeEnum = {
     Dog: 'dog',
     Cat: 'cat'
 } as const;
-export type PetUpdateTypeEnum = typeof PetUpdateTypeEnum[keyof typeof PetUpdateTypeEnum];
+export type PetTypeEnum = typeof PetTypeEnum[keyof typeof PetTypeEnum];
 
 
 /**
- * Check if a given object implements the PetUpdate interface.
+ * Check if a given object implements the Pet interface.
  */
-export function instanceOfPetUpdate(value: object): value is PetUpdate {
+export function instanceOfPet(value: object): value is Pet {
+    if (!('analyses' in value) || value['analyses'] === undefined) return false;
+    if (!('bonuses' in value) || value['bonuses'] === undefined) return false;
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('health' in value) || value['health'] === undefined) return false;
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('petStatus' in value) || value['petStatus'] === undefined) return false;
+    if (!('treatments' in value) || value['treatments'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
     return true;
 }
 
-export function PetUpdateFromJSON(json: any): PetUpdate {
-    return PetUpdateFromJSONTyped(json, false);
+export function PetFromJSON(json: any): Pet {
+    return PetFromJSONTyped(json, false);
 }
 
-export function PetUpdateFromJSONTyped(json: any, ignoreDiscriminator: boolean): PetUpdate {
+export function PetFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pet {
     if (json == null) {
         return json;
     }
@@ -217,29 +246,32 @@ export function PetUpdateFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'ageMonths': json['ageMonths'] == null ? undefined : json['ageMonths'],
         'ageYears': json['ageYears'] == null ? undefined : json['ageYears'],
-        'analyses': json['analyses'] == null ? undefined : ((json['analyses'] as Array<any>).map(PetAnalysisFromJSON)),
+        'analyses': (json['analyses'] == null ? null : (json['analyses'] as Array<any>).map(PetAnalysisFromJSON)),
         'birthDate': json['birthDate'] == null ? undefined : (new Date(json['birthDate'])),
         'bloodGroup': json['bloodGroup'] == null ? undefined : json['bloodGroup'],
-        'bonuses': json['bonuses'] == null ? undefined : PetBonusFromJSON(json['bonuses']),
+        'bonuses': PetBonusFromJSON(json['bonuses']),
         'breedId': json['breedId'] == null ? undefined : json['breedId'],
         'chipNumber': json['chipNumber'] == null ? undefined : json['chipNumber'],
+        'createdAt': json['createdAt'],
         'gender': json['gender'] == null ? undefined : json['gender'],
-        'health': json['health'] == null ? undefined : PetHealthFromJSON(json['health']),
+        'health': PetHealthFromJSON(json['health']),
+        'id': json['id'],
         'livingCondition': json['livingCondition'] == null ? undefined : json['livingCondition'],
-        'name': json['name'] == null ? undefined : json['name'],
-        'petStatus': json['petStatus'] == null ? undefined : json['petStatus'],
+        'name': json['name'],
+        'petStatus': json['petStatus'],
         'photoUrl': json['photoUrl'] == null ? undefined : json['photoUrl'],
-        'treatments': json['treatments'] == null ? undefined : PetTreatmentFromJSON(json['treatments']),
-        'type': json['type'] == null ? undefined : json['type'],
+        'treatments': PetTreatmentFromJSON(json['treatments']),
+        'type': json['type'],
+        'updatedAt': json['updatedAt'],
         'weightKg': json['weightKg'] == null ? undefined : json['weightKg'],
     };
 }
 
-export function PetUpdateToJSON(json: any): PetUpdate {
-    return PetUpdateToJSONTyped(json, false);
+export function PetToJSON(json: any): Pet {
+    return PetToJSONTyped(json, false);
 }
 
-export function PetUpdateToJSONTyped(value?: Omit<PetUpdate, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function PetToJSONTyped(value?: Omit<Pet, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -248,20 +280,23 @@ export function PetUpdateToJSONTyped(value?: Omit<PetUpdate, '$schema'> | null, 
         
         'ageMonths': value['ageMonths'],
         'ageYears': value['ageYears'],
-        'analyses': value['analyses'] == null ? undefined : ((value['analyses'] as Array<any>).map(PetAnalysisToJSON)),
+        'analyses': (value['analyses'] == null ? null : (value['analyses'] as Array<any>).map(PetAnalysisToJSON)),
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),
         'bloodGroup': value['bloodGroup'],
         'bonuses': PetBonusToJSON(value['bonuses']),
         'breedId': value['breedId'],
         'chipNumber': value['chipNumber'],
+        'createdAt': value['createdAt'],
         'gender': value['gender'],
         'health': PetHealthToJSON(value['health']),
+        'id': value['id'],
         'livingCondition': value['livingCondition'],
         'name': value['name'],
         'petStatus': value['petStatus'],
         'photoUrl': value['photoUrl'],
         'treatments': PetTreatmentToJSON(value['treatments']),
         'type': value['type'],
+        'updatedAt': value['updatedAt'],
         'weightKg': value['weightKg'],
     };
 }

@@ -107,7 +107,7 @@ func (h *PetHandler) Register(api huma.API) {
 func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	Body dto.PetCreate
-}) (*dto.PetResponseWrapper, error) {
+}) (*dto.PetResponse, error) {
 	petData := mapDTOToPet(input.Body)
 
 	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
@@ -120,13 +120,13 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	return &dto.PetResponseWrapper{Body: mapPetToDTO(pet)}, nil
+	return &dto.PetResponse{Body: mapPetToDTO(pet)}, nil
 }
 
 func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	dto.PetIDPath
 	dto.PetPreloadQuery
-}) (*dto.PetResponseWrapper, error) {
+}) (*dto.PetResponse, error) {
 	preloads := h.getPreloads(input.PetPreloadQuery)
 
 	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
@@ -139,13 +139,13 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	return &dto.PetResponseWrapper{Body: mapPetToDTO(pet)}, nil
+	return &dto.PetResponse{Body: mapPetToDTO(pet)}, nil
 }
 
 func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	dto.PetPreloadQuery
-}) (*dto.PetsResponseWrapper, error) {
+}) (*dto.PetsResponse, error) {
 	preloads := h.getPreloads(input.PetPreloadQuery)
 
 	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
@@ -158,12 +158,12 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	var petDTOs []dto.PetResponse
+	var petDTOs []dto.Pet
 	for _, p := range pets {
 		petDTOs = append(petDTOs, mapPetToDTO(p))
 	}
 
-	return &dto.PetsResponseWrapper{Body: petDTOs}, nil
+	return &dto.PetsResponse{Body: petDTOs}, nil
 }
 
 func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
@@ -241,20 +241,20 @@ func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
 		preloads = append(preloads, "Treatments")
 	}
 	if pq.WithAnalysis {
-		preloads = append(preloads, "Analysis")
+		preloads = append(preloads, "Analyses") // Changed from "Analysis" to "Analyses" to match the DTO struct
 	}
 	if pq.WithBonuses {
 		preloads = append(preloads, "Bonuses")
 	}
 	if pq.WithAll {
-		return []string{"Health", "Treatments", "Analysis", "Bonuses"}
+		return []string{"Health", "Treatments", "Analyses", "Bonuses"} // Changed from "Analysis" to "Analyses"
 	}
 	return preloads
 }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
-func mapPetToDTO(p *ent.Pet) dto.PetResponse {
-	petDTO := dto.PetResponse{
+func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
+	petDTO := dto.Pet{
 		ID:              p.ID,
 		Name:            p.Name,
 		ChipNumber:      p.ChipNumber,

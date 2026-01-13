@@ -306,22 +306,24 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 		userDTO.Pets = make([]dto.PetResponse, len(u.Edges.Pets))
 		for i, pet := range u.Edges.Pets {
 			userDTO.Pets[i] = dto.PetResponse{
-				ID:              pet.ID,
-				Name:            pet.Name,
-				ChipNumber:      pet.ChipNumber,
-				PhotoURL:        pet.PhotoURL,
-				BreedID:         pet.BreedID,
-				WeightKg:        pet.WeightKg,
-				AgeYears:        pet.AgeYears,
-				AgeMonths:       pet.AgeMonths,
-				BirthDate:       pet.BirthDate, // BirthDate is already *time.Time in dto.PetResponse
-				LivingCondition: pet.LivingCondition.String(),
-				Gender:          pet.Gender.String(),
-				Type:            pet.Type.String(),
-				BloodGroup:      pet.BloodGroup,
-				PetStatus:       pet.PetStatus.String(),
-				CreatedAt:       pet.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-				UpdatedAt:       pet.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+				Body: dto.Pet{
+					ID:              pet.ID,
+					Name:            pet.Name,
+					ChipNumber:      pet.ChipNumber,
+					PhotoURL:        pet.PhotoURL,
+					BreedID:         pet.BreedID,
+					WeightKg:        pet.WeightKg,
+					AgeYears:        pet.AgeYears,
+					AgeMonths:       pet.AgeMonths,
+					BirthDate:       pet.BirthDate,
+					LivingCondition: pet.LivingCondition.String(),
+					Gender:          pet.Gender.String(),
+					Type:            pet.Type.String(),
+					BloodGroup:      pet.BloodGroup,
+					PetStatus:       pet.PetStatus.String(),
+					CreatedAt:       pet.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+					UpdatedAt:       pet.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+				},
 			}
 		}
 	}

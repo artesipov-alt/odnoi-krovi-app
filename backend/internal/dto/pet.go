@@ -92,8 +92,8 @@ type PetUpdate struct {
 	Bonuses         *PetBonus      `json:"bonuses,omitempty" doc:"Дополнительная информация"`
 }
 
-// PetResponse представляет ответ с информацией о питомце
-type PetResponse struct {
+// Pet представляет ответ с информацией о питомце
+type Pet struct {
 	ID              string         `json:"id" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234"`
 	Name            string         `json:"name" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber      string         `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
@@ -138,12 +138,12 @@ type AvatarPathParam struct {
 	Path string `path:"path" doc:"Путь к аватарке питомца" example:"pets/PET-aBcDeF1234/avatar.jpg"`
 }
 
-type PetResponseWrapper struct {
-	Body PetResponse
+type PetResponse struct {
+	Body Pet
 }
 
-type PetsResponseWrapper struct {
-	Body []PetResponse
+type PetsResponse struct {
+	Body []Pet
 }
 
 type UploadURLResponse struct {

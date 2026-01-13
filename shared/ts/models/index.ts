@@ -8,6 +8,7 @@ export * from './BloodSearchPetsResponse';
 export * from './BloodSearchRequestDTO';
 export * from './ConfirmUploadResponseBody';
 export * from './MessageBody';
+export * from './Pet';
 export * from './PetAnalysis';
 export * from './PetBonus';
 export * from './PetCreate';
