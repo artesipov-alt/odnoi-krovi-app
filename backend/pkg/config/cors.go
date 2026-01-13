@@ -20,11 +20,13 @@ func SetupCORS(env, miniappDomain string) *cors.Cors {
 			if !hasScheme(miniappDomain) {
 				miniappDomain = "https://" + miniappDomain
 			}
-			allowedOrigins = []string{miniappDomain}
+			allowedOrigins = []string{miniappDomain, "http://localhost:5173"}
 			slog.Info("CORS production mode", "origin", miniappDomain)
+			slog.Warn("CORS temporarily allowing http://localhost:5173 for debugging! REMOVE THIS BEFORE PRODUCTION DEPLOYMENT.")
 		} else {
-			allowedOrigins = []string{}
-			slog.Error("MINIAPP_DOMAIN is empty! API might be inaccessible.")
+			allowedOrigins = []string{"http://localhost:5173"} // Temporarily allow localhost
+			slog.Error("MINIAPP_DOMAIN is empty! API might be inaccessible. Temporarily allowing http://localhost:5173.")
+			slog.Warn("CORS temporarily allowing http://localhost:5173 for debugging due to empty MINIAPP_DOMAIN! REMOVE THIS BEFORE PRODUCTION DEPLOYMENT.")
 		}
 	}
 
