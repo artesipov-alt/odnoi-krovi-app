@@ -5,6 +5,19 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [2.0.3] - 2026-01-14
+
+### Изменено
+- Обновлена схема Pet: поле `analyses` теперь ссылается на `PetAnalysis` без `Unique()` ограничения.
+- Скорректирована схема `PetAnalysis`: поле `pet_id` теперь является обязательным (`Required()`).
+- В схеме `PetAnalysis` поле `analysis_date` теперь может быть `Nillable()`.
+
+### Технические детали
+- В `schema/pet.go` для `edge.From("analyses", PetAnalysis.Type).Ref("owner")` удален метод `Unique()`.
+- В `schema/petanalysis.go` для `field.String("pet_id")` добавлен метод `Required()`.
+- В `schema/petanalysis.go` для `field.Time("analysis_date")` добавлен метод `Nillable()`.
+- Эти изменения позволяют одному питомцу иметь несколько записей об анализах
+
 
 ## [2.0.2] - 2026-01-13
 
