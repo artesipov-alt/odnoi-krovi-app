@@ -24,22 +24,10 @@ type PetTreatment struct {
 
 // PetAnalysis представляет информацию об анализах питомца
 type PetAnalysis struct {
-	LeukemiaDate         *time.Time `json:"leukemiaDate,omitempty" doc:"Дата анализа на лейкемию" example:"2023-10-01T12:00:00Z"`
-	LeukemiaType         *string    `json:"leukemiaType,omitempty" doc:"Тип лейкемии" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	ImmunodeficiencyDate *time.Time `json:"immunodeficiencyDate,omitempty" doc:"Дата анализа на иммунодефицит" example:"2023-10-01T12:00:00Z"`
-	ImmunodeficiencyType *string    `json:"immunodeficiencyType,omitempty" doc:"Тип иммунодефицита" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	HemoplasmosisDate    *time.Time `json:"hemoplasmosisDate,omitempty" doc:"Дата анализа на гемоплазмоз" example:"2023-10-01T12:00:00Z"`
-	HemoplasmosisType    *string    `json:"hemoplasmosisType,omitempty" doc:"Тип гемоплазмоза" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	BartonellosisDate    *time.Time `json:"bartonellosisDate,omitempty" doc:"Дата анализа на бартонеллез" example:"2023-10-01T12:00:00Z"`
-	BartonellosisType    *string    `json:"bartonellosisType,omitempty" doc:"Тип бартонеллеза" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	BabesiosisDate       *time.Time `json:"babesiosisDate,omitempty" doc:"Дата анализа на бабезиоз" example:"2023-10-01T12:00:00Z"`
-	BabesiosisType       *string    `json:"babesiosisType,omitempty" doc:"Тип бабезиоза" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	DirofilariaDate      *time.Time `json:"dirofilariaDate,omitempty" doc:"Дата анализа на дирофиляриоз" example:"2023-10-01T12:00:00Z"`
-	DirofilariaType      *string    `json:"dirofilariaType,omitempty" doc:"Тип дирофиляриоза" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	EhrlichiosisDate     *time.Time `json:"ehrlichiosisDate,omitempty" doc:"Дата анализа на эрлихиоз" example:"2023-10-01T12:00:00Z"`
-	EhrlichiosisType     *string    `json:"ehrlichiosisType,omitempty" doc:"Тип эрлихиоза" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	AnaplasmosisDate     *time.Time `json:"anaplasmosisDate,omitempty" doc:"Дата анализа на анаплазмоз" example:"2023-10-01T12:00:00Z"`
-	AnaplasmosisType     *string    `json:"anaplasmosisType,omitempty" doc:"Тип анаплазмоза" enum:"PCR,ELISA,ICA,Microscopy,Express"`
+	ID           *string    `json:"id,omitempty" doc:"id анализа в системе" example:"2023-10-01T12:00:00Z"`
+	AnalysisName *string    `json:"analysisName,omitempty" doc:"Дата анализа на лейкемию" example:"2023-10-01T12:00:00Z"`
+	AnalysisType *string    `json:"analysisType,omitempty" doc:"Тип анализа" enum:"PCR,ELISA,ICA,Microscopy,Express"`
+	AnalysisDate *time.Time `json:"analysisDate,omitempty" doc:"Дата анализа" example:"2023-10-01T12:00:00Z"`
 }
 
 // PetBonus представляет дополнительную информацию о питомце

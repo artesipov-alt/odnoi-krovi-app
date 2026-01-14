@@ -297,31 +297,12 @@ func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 	if p.Edges.Analyses != nil {
 		petDTO.Analyses = make([]*dto.PetAnalysis, len(p.Edges.Analyses))
 		for i, a := range p.Edges.Analyses {
-			leukemiaType := string(a.LeukemiaType)
-			immunoType := string(a.ImmunodeficiencyType)
-			hemoType := string(a.HemoplasmosisType)
-			bartType := string(a.BartonellosisType)
-			babeType := string(a.BabesiosisType)
-			diroType := string(a.DirofilariaType)
-			ehriType := string(a.EhrlichiosisType)
-			anaType := string(a.AnaplasmosisType)
+			analysisName := string(a.AnalysisName)
+			analysisType := string(a.AnalysisType)
 			petDTO.Analyses[i] = &dto.PetAnalysis{
-				LeukemiaDate:         a.LeukemiaDate,
-				LeukemiaType:         &leukemiaType,
-				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
-				ImmunodeficiencyType: &immunoType,
-				HemoplasmosisDate:    a.HemoplasmosisDate,
-				HemoplasmosisType:    &hemoType,
-				BartonellosisDate:    a.BartonellosisDate,
-				BartonellosisType:    &bartType,
-				BabesiosisDate:       a.BabesiosisDate,
-				BabesiosisType:       &babeType,
-				DirofilariaDate:      a.DirofilariaDate,
-				DirofilariaType:      &diroType,
-				EhrlichiosisDate:     a.EhrlichiosisDate,
-				EhrlichiosisType:     &ehriType,
-				AnaplasmosisDate:     a.AnaplasmosisDate,
-				AnaplasmosisType:     &anaType,
+				AnalysisName: &analysisName,
+				AnalysisType: &analysisType,
+				AnalysisDate: a.AnalysisDate,
 			}
 		}
 	}
@@ -388,38 +369,13 @@ func mapDTOToPet(d dto.PetCreate) *ent.Pet {
 		p.Edges.Analyses = make([]*ent.PetAnalysis, len(d.Analyses))
 		for i, a := range d.Analyses {
 			p.Edges.Analyses[i] = &ent.PetAnalysis{
-				LeukemiaDate:         a.LeukemiaDate,
-				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
-				HemoplasmosisDate:    a.HemoplasmosisDate,
-				BartonellosisDate:    a.BartonellosisDate,
-				BabesiosisDate:       a.BabesiosisDate,
-				DirofilariaDate:      a.DirofilariaDate,
-				EhrlichiosisDate:     a.EhrlichiosisDate,
-				AnaplasmosisDate:     a.AnaplasmosisDate,
+				AnalysisDate: a.AnalysisDate,
 			}
-			if a.LeukemiaType != nil {
-				p.Edges.Analyses[i].LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
+			if a.AnalysisName != nil {
+				p.Edges.Analyses[i].AnalysisName = petanalysis.AnalysisName(*a.AnalysisName)
 			}
-			if a.ImmunodeficiencyType != nil {
-				p.Edges.Analyses[i].ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
-			}
-			if a.HemoplasmosisType != nil {
-				p.Edges.Analyses[i].HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
-			}
-			if a.BartonellosisType != nil {
-				p.Edges.Analyses[i].BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
-			}
-			if a.BabesiosisType != nil {
-				p.Edges.Analyses[i].BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
-			}
-			if a.DirofilariaType != nil {
-				p.Edges.Analyses[i].DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
-			}
-			if a.EhrlichiosisType != nil {
-				p.Edges.Analyses[i].EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
-			}
-			if a.AnaplasmosisType != nil {
-				p.Edges.Analyses[i].AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
+			if a.AnalysisType != nil {
+				p.Edges.Analyses[i].AnalysisType = petanalysis.AnalysisType(*a.AnalysisType)
 			}
 		}
 	}
@@ -516,38 +472,13 @@ func mapDTOToPetUpdates(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.P
 		analyses = make([]*ent.PetAnalysis, len(d.Analyses))
 		for i, a := range d.Analyses {
 			analyses[i] = &ent.PetAnalysis{
-				LeukemiaDate:         a.LeukemiaDate,
-				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
-				HemoplasmosisDate:    a.HemoplasmosisDate,
-				BartonellosisDate:    a.BartonellosisDate,
-				BabesiosisDate:       a.BabesiosisDate,
-				DirofilariaDate:      a.DirofilariaDate,
-				EhrlichiosisDate:     a.EhrlichiosisDate,
-				AnaplasmosisDate:     a.AnaplasmosisDate,
+				AnalysisDate: a.AnalysisDate,
 			}
-			if a.LeukemiaType != nil {
-				analyses[i].LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
+			if a.AnalysisName != nil {
+				analyses[i].AnalysisName = petanalysis.AnalysisName(*a.AnalysisName)
 			}
-			if a.ImmunodeficiencyType != nil {
-				analyses[i].ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
-			}
-			if a.HemoplasmosisType != nil {
-				analyses[i].HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
-			}
-			if a.BartonellosisType != nil {
-				analyses[i].BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
-			}
-			if a.BabesiosisType != nil {
-				analyses[i].BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
-			}
-			if a.DirofilariaType != nil {
-				analyses[i].DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
-			}
-			if a.EhrlichiosisType != nil {
-				analyses[i].EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
-			}
-			if a.AnaplasmosisType != nil {
-				analyses[i].AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
+			if a.AnalysisType != nil {
+				analyses[i].AnalysisType = petanalysis.AnalysisType(*a.AnalysisType)
 			}
 		}
 	}

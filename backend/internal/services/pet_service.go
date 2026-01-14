@@ -108,44 +108,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 
 	if petData.Edges.Analyses != nil {
 		for _, a := range petData.Edges.Analyses {
-			if string(a.LeukemiaType) != "" {
-				if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+			if string(a.AnalysisName) != "" {
+				if err := petanalysis.AnalysisNameValidator(a.AnalysisName); err != nil {
 					return nil, apperrors.Validation("неверный тип лейкемии", nil).WithInternal(err)
-				}
-			}
-			if string(a.ImmunodeficiencyType) != "" {
-				if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
-					return nil, apperrors.Validation("неверный тип иммунодефицита", nil).WithInternal(err)
-				}
-			}
-			if string(a.HemoplasmosisType) != "" {
-				if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
-					return nil, apperrors.Validation("неверный тип гемоплазмоза", nil).WithInternal(err)
-				}
-			}
-			if string(a.BartonellosisType) != "" {
-				if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
-					return nil, apperrors.Validation("неверный тип бартонеллеза", nil).WithInternal(err)
-				}
-			}
-			if string(a.BabesiosisType) != "" {
-				if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
-					return nil, apperrors.Validation("неверный тип бабезиоза", nil).WithInternal(err)
-				}
-			}
-			if string(a.DirofilariaType) != "" {
-				if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
-					return nil, apperrors.Validation("неверный тип дирофиляриоза", nil).WithInternal(err)
-				}
-			}
-			if string(a.EhrlichiosisType) != "" {
-				if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
-					return nil, apperrors.Validation("неверный тип эрлихиоза", nil).WithInternal(err)
-				}
-			}
-			if string(a.AnaplasmosisType) != "" {
-				if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
-					return nil, apperrors.Validation("неверный тип анаплазмоза", nil).WithInternal(err)
 				}
 			}
 		}
@@ -291,44 +256,9 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 		}
 	}
 	for _, a := range analyses {
-		if a.LeukemiaType != "" {
-			if err := petanalysis.LeukemiaTypeValidator(a.LeukemiaType); err != nil {
+		if string(a.AnalysisName) != "" {
+			if err := petanalysis.AnalysisNameValidator(a.AnalysisName); err != nil {
 				return apperrors.Validation("неверный тип лейкемии", nil).WithInternal(err)
-			}
-		}
-		if a.ImmunodeficiencyType != "" {
-			if err := petanalysis.ImmunodeficiencyTypeValidator(a.ImmunodeficiencyType); err != nil {
-				return apperrors.Validation("неверный тип иммунодефицита", nil).WithInternal(err)
-			}
-		}
-		if a.HemoplasmosisType != "" {
-			if err := petanalysis.HemoplasmosisTypeValidator(a.HemoplasmosisType); err != nil {
-				return apperrors.Validation("неверный тип гемоплазмоза", nil).WithInternal(err)
-			}
-		}
-		if a.BartonellosisType != "" {
-			if err := petanalysis.BartonellosisTypeValidator(a.BartonellosisType); err != nil {
-				return apperrors.Validation("неверный тип бартонеллеза", nil).WithInternal(err)
-			}
-		}
-		if a.BabesiosisType != "" {
-			if err := petanalysis.BabesiosisTypeValidator(a.BabesiosisType); err != nil {
-				return apperrors.Validation("неверный тип бабезиоза", nil).WithInternal(err)
-			}
-		}
-		if a.DirofilariaType != "" {
-			if err := petanalysis.DirofilariaTypeValidator(a.DirofilariaType); err != nil {
-				return apperrors.Validation("неверный тип дирофиляриоза", nil).WithInternal(err)
-			}
-		}
-		if a.EhrlichiosisType != "" {
-			if err := petanalysis.EhrlichiosisTypeValidator(a.EhrlichiosisType); err != nil {
-				return apperrors.Validation("неверный тип эрлихиоза", nil).WithInternal(err)
-			}
-		}
-		if a.AnaplasmosisType != "" {
-			if err := petanalysis.AnaplasmosisTypeValidator(a.AnaplasmosisType); err != nil {
-				return apperrors.Validation("неверный тип анаплазмоза", nil).WithInternal(err)
 			}
 		}
 	}

@@ -85,44 +85,9 @@ func PetID(v string) predicate.PetAnalysis {
 	return predicate.PetAnalysis(sql.FieldEQ(FieldPetID, v))
 }
 
-// LeukemiaDate applies equality check predicate on the "leukemia_date" field. It's identical to LeukemiaDateEQ.
-func LeukemiaDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldLeukemiaDate, v))
-}
-
-// ImmunodeficiencyDate applies equality check predicate on the "immunodeficiency_date" field. It's identical to ImmunodeficiencyDateEQ.
-func ImmunodeficiencyDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldImmunodeficiencyDate, v))
-}
-
-// HemoplasmosisDate applies equality check predicate on the "hemoplasmosis_date" field. It's identical to HemoplasmosisDateEQ.
-func HemoplasmosisDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldHemoplasmosisDate, v))
-}
-
-// BartonellosisDate applies equality check predicate on the "bartonellosis_date" field. It's identical to BartonellosisDateEQ.
-func BartonellosisDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldBartonellosisDate, v))
-}
-
-// BabesiosisDate applies equality check predicate on the "babesiosis_date" field. It's identical to BabesiosisDateEQ.
-func BabesiosisDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldBabesiosisDate, v))
-}
-
-// DirofilariaDate applies equality check predicate on the "dirofilaria_date" field. It's identical to DirofilariaDateEQ.
-func DirofilariaDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldDirofilariaDate, v))
-}
-
-// EhrlichiosisDate applies equality check predicate on the "ehrlichiosis_date" field. It's identical to EhrlichiosisDateEQ.
-func EhrlichiosisDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldEhrlichiosisDate, v))
-}
-
-// AnaplasmosisDate applies equality check predicate on the "anaplasmosis_date" field. It's identical to AnaplasmosisDateEQ.
-func AnaplasmosisDate(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldAnaplasmosisDate, v))
+// AnalysisDate applies equality check predicate on the "analysis_date" field. It's identical to AnalysisDateEQ.
+func AnalysisDate(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEQ(FieldAnalysisDate, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -320,644 +285,104 @@ func PetIDContainsFold(v string) predicate.PetAnalysis {
 	return predicate.PetAnalysis(sql.FieldContainsFold(FieldPetID, v))
 }
 
-// LeukemiaDateEQ applies the EQ predicate on the "leukemia_date" field.
-func LeukemiaDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldLeukemiaDate, v))
+// AnalysisNameEQ applies the EQ predicate on the "analysis_name" field.
+func AnalysisNameEQ(v AnalysisName) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEQ(FieldAnalysisName, v))
 }
 
-// LeukemiaDateNEQ applies the NEQ predicate on the "leukemia_date" field.
-func LeukemiaDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldLeukemiaDate, v))
+// AnalysisNameNEQ applies the NEQ predicate on the "analysis_name" field.
+func AnalysisNameNEQ(v AnalysisName) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNEQ(FieldAnalysisName, v))
 }
 
-// LeukemiaDateIn applies the In predicate on the "leukemia_date" field.
-func LeukemiaDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldLeukemiaDate, vs...))
+// AnalysisNameIn applies the In predicate on the "analysis_name" field.
+func AnalysisNameIn(vs ...AnalysisName) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldIn(FieldAnalysisName, vs...))
 }
 
-// LeukemiaDateNotIn applies the NotIn predicate on the "leukemia_date" field.
-func LeukemiaDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldLeukemiaDate, vs...))
+// AnalysisNameNotIn applies the NotIn predicate on the "analysis_name" field.
+func AnalysisNameNotIn(vs ...AnalysisName) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNotIn(FieldAnalysisName, vs...))
 }
 
-// LeukemiaDateGT applies the GT predicate on the "leukemia_date" field.
-func LeukemiaDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldLeukemiaDate, v))
+// AnalysisNameIsNil applies the IsNil predicate on the "analysis_name" field.
+func AnalysisNameIsNil() predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldIsNull(FieldAnalysisName))
 }
 
-// LeukemiaDateGTE applies the GTE predicate on the "leukemia_date" field.
-func LeukemiaDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldLeukemiaDate, v))
+// AnalysisNameNotNil applies the NotNil predicate on the "analysis_name" field.
+func AnalysisNameNotNil() predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNotNull(FieldAnalysisName))
 }
 
-// LeukemiaDateLT applies the LT predicate on the "leukemia_date" field.
-func LeukemiaDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldLeukemiaDate, v))
+// AnalysisTypeEQ applies the EQ predicate on the "analysis_type" field.
+func AnalysisTypeEQ(v AnalysisType) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEQ(FieldAnalysisType, v))
 }
 
-// LeukemiaDateLTE applies the LTE predicate on the "leukemia_date" field.
-func LeukemiaDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldLeukemiaDate, v))
+// AnalysisTypeNEQ applies the NEQ predicate on the "analysis_type" field.
+func AnalysisTypeNEQ(v AnalysisType) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNEQ(FieldAnalysisType, v))
 }
 
-// LeukemiaDateIsNil applies the IsNil predicate on the "leukemia_date" field.
-func LeukemiaDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldLeukemiaDate))
+// AnalysisTypeIn applies the In predicate on the "analysis_type" field.
+func AnalysisTypeIn(vs ...AnalysisType) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldIn(FieldAnalysisType, vs...))
 }
 
-// LeukemiaDateNotNil applies the NotNil predicate on the "leukemia_date" field.
-func LeukemiaDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldLeukemiaDate))
+// AnalysisTypeNotIn applies the NotIn predicate on the "analysis_type" field.
+func AnalysisTypeNotIn(vs ...AnalysisType) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNotIn(FieldAnalysisType, vs...))
 }
 
-// LeukemiaTypeEQ applies the EQ predicate on the "leukemia_type" field.
-func LeukemiaTypeEQ(v LeukemiaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldLeukemiaType, v))
+// AnalysisTypeIsNil applies the IsNil predicate on the "analysis_type" field.
+func AnalysisTypeIsNil() predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldIsNull(FieldAnalysisType))
 }
 
-// LeukemiaTypeNEQ applies the NEQ predicate on the "leukemia_type" field.
-func LeukemiaTypeNEQ(v LeukemiaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldLeukemiaType, v))
+// AnalysisTypeNotNil applies the NotNil predicate on the "analysis_type" field.
+func AnalysisTypeNotNil() predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNotNull(FieldAnalysisType))
 }
 
-// LeukemiaTypeIn applies the In predicate on the "leukemia_type" field.
-func LeukemiaTypeIn(vs ...LeukemiaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldLeukemiaType, vs...))
+// AnalysisDateEQ applies the EQ predicate on the "analysis_date" field.
+func AnalysisDateEQ(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldEQ(FieldAnalysisDate, v))
 }
 
-// LeukemiaTypeNotIn applies the NotIn predicate on the "leukemia_type" field.
-func LeukemiaTypeNotIn(vs ...LeukemiaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldLeukemiaType, vs...))
+// AnalysisDateNEQ applies the NEQ predicate on the "analysis_date" field.
+func AnalysisDateNEQ(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNEQ(FieldAnalysisDate, v))
 }
 
-// LeukemiaTypeIsNil applies the IsNil predicate on the "leukemia_type" field.
-func LeukemiaTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldLeukemiaType))
+// AnalysisDateIn applies the In predicate on the "analysis_date" field.
+func AnalysisDateIn(vs ...time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldIn(FieldAnalysisDate, vs...))
 }
 
-// LeukemiaTypeNotNil applies the NotNil predicate on the "leukemia_type" field.
-func LeukemiaTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldLeukemiaType))
+// AnalysisDateNotIn applies the NotIn predicate on the "analysis_date" field.
+func AnalysisDateNotIn(vs ...time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldNotIn(FieldAnalysisDate, vs...))
 }
 
-// ImmunodeficiencyDateEQ applies the EQ predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldImmunodeficiencyDate, v))
+// AnalysisDateGT applies the GT predicate on the "analysis_date" field.
+func AnalysisDateGT(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldGT(FieldAnalysisDate, v))
 }
 
-// ImmunodeficiencyDateNEQ applies the NEQ predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldImmunodeficiencyDate, v))
+// AnalysisDateGTE applies the GTE predicate on the "analysis_date" field.
+func AnalysisDateGTE(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldGTE(FieldAnalysisDate, v))
 }
 
-// ImmunodeficiencyDateIn applies the In predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldImmunodeficiencyDate, vs...))
+// AnalysisDateLT applies the LT predicate on the "analysis_date" field.
+func AnalysisDateLT(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldLT(FieldAnalysisDate, v))
 }
 
-// ImmunodeficiencyDateNotIn applies the NotIn predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldImmunodeficiencyDate, vs...))
-}
-
-// ImmunodeficiencyDateGT applies the GT predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldImmunodeficiencyDate, v))
-}
-
-// ImmunodeficiencyDateGTE applies the GTE predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldImmunodeficiencyDate, v))
-}
-
-// ImmunodeficiencyDateLT applies the LT predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldImmunodeficiencyDate, v))
-}
-
-// ImmunodeficiencyDateLTE applies the LTE predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldImmunodeficiencyDate, v))
-}
-
-// ImmunodeficiencyDateIsNil applies the IsNil predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldImmunodeficiencyDate))
-}
-
-// ImmunodeficiencyDateNotNil applies the NotNil predicate on the "immunodeficiency_date" field.
-func ImmunodeficiencyDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldImmunodeficiencyDate))
-}
-
-// ImmunodeficiencyTypeEQ applies the EQ predicate on the "immunodeficiency_type" field.
-func ImmunodeficiencyTypeEQ(v ImmunodeficiencyType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldImmunodeficiencyType, v))
-}
-
-// ImmunodeficiencyTypeNEQ applies the NEQ predicate on the "immunodeficiency_type" field.
-func ImmunodeficiencyTypeNEQ(v ImmunodeficiencyType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldImmunodeficiencyType, v))
-}
-
-// ImmunodeficiencyTypeIn applies the In predicate on the "immunodeficiency_type" field.
-func ImmunodeficiencyTypeIn(vs ...ImmunodeficiencyType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldImmunodeficiencyType, vs...))
-}
-
-// ImmunodeficiencyTypeNotIn applies the NotIn predicate on the "immunodeficiency_type" field.
-func ImmunodeficiencyTypeNotIn(vs ...ImmunodeficiencyType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldImmunodeficiencyType, vs...))
-}
-
-// ImmunodeficiencyTypeIsNil applies the IsNil predicate on the "immunodeficiency_type" field.
-func ImmunodeficiencyTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldImmunodeficiencyType))
-}
-
-// ImmunodeficiencyTypeNotNil applies the NotNil predicate on the "immunodeficiency_type" field.
-func ImmunodeficiencyTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldImmunodeficiencyType))
-}
-
-// HemoplasmosisDateEQ applies the EQ predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldHemoplasmosisDate, v))
-}
-
-// HemoplasmosisDateNEQ applies the NEQ predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldHemoplasmosisDate, v))
-}
-
-// HemoplasmosisDateIn applies the In predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldHemoplasmosisDate, vs...))
-}
-
-// HemoplasmosisDateNotIn applies the NotIn predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldHemoplasmosisDate, vs...))
-}
-
-// HemoplasmosisDateGT applies the GT predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldHemoplasmosisDate, v))
-}
-
-// HemoplasmosisDateGTE applies the GTE predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldHemoplasmosisDate, v))
-}
-
-// HemoplasmosisDateLT applies the LT predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldHemoplasmosisDate, v))
-}
-
-// HemoplasmosisDateLTE applies the LTE predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldHemoplasmosisDate, v))
-}
-
-// HemoplasmosisDateIsNil applies the IsNil predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldHemoplasmosisDate))
-}
-
-// HemoplasmosisDateNotNil applies the NotNil predicate on the "hemoplasmosis_date" field.
-func HemoplasmosisDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldHemoplasmosisDate))
-}
-
-// HemoplasmosisTypeEQ applies the EQ predicate on the "hemoplasmosis_type" field.
-func HemoplasmosisTypeEQ(v HemoplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldHemoplasmosisType, v))
-}
-
-// HemoplasmosisTypeNEQ applies the NEQ predicate on the "hemoplasmosis_type" field.
-func HemoplasmosisTypeNEQ(v HemoplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldHemoplasmosisType, v))
-}
-
-// HemoplasmosisTypeIn applies the In predicate on the "hemoplasmosis_type" field.
-func HemoplasmosisTypeIn(vs ...HemoplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldHemoplasmosisType, vs...))
-}
-
-// HemoplasmosisTypeNotIn applies the NotIn predicate on the "hemoplasmosis_type" field.
-func HemoplasmosisTypeNotIn(vs ...HemoplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldHemoplasmosisType, vs...))
-}
-
-// HemoplasmosisTypeIsNil applies the IsNil predicate on the "hemoplasmosis_type" field.
-func HemoplasmosisTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldHemoplasmosisType))
-}
-
-// HemoplasmosisTypeNotNil applies the NotNil predicate on the "hemoplasmosis_type" field.
-func HemoplasmosisTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldHemoplasmosisType))
-}
-
-// BartonellosisDateEQ applies the EQ predicate on the "bartonellosis_date" field.
-func BartonellosisDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldBartonellosisDate, v))
-}
-
-// BartonellosisDateNEQ applies the NEQ predicate on the "bartonellosis_date" field.
-func BartonellosisDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldBartonellosisDate, v))
-}
-
-// BartonellosisDateIn applies the In predicate on the "bartonellosis_date" field.
-func BartonellosisDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldBartonellosisDate, vs...))
-}
-
-// BartonellosisDateNotIn applies the NotIn predicate on the "bartonellosis_date" field.
-func BartonellosisDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldBartonellosisDate, vs...))
-}
-
-// BartonellosisDateGT applies the GT predicate on the "bartonellosis_date" field.
-func BartonellosisDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldBartonellosisDate, v))
-}
-
-// BartonellosisDateGTE applies the GTE predicate on the "bartonellosis_date" field.
-func BartonellosisDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldBartonellosisDate, v))
-}
-
-// BartonellosisDateLT applies the LT predicate on the "bartonellosis_date" field.
-func BartonellosisDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldBartonellosisDate, v))
-}
-
-// BartonellosisDateLTE applies the LTE predicate on the "bartonellosis_date" field.
-func BartonellosisDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldBartonellosisDate, v))
-}
-
-// BartonellosisDateIsNil applies the IsNil predicate on the "bartonellosis_date" field.
-func BartonellosisDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldBartonellosisDate))
-}
-
-// BartonellosisDateNotNil applies the NotNil predicate on the "bartonellosis_date" field.
-func BartonellosisDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldBartonellosisDate))
-}
-
-// BartonellosisTypeEQ applies the EQ predicate on the "bartonellosis_type" field.
-func BartonellosisTypeEQ(v BartonellosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldBartonellosisType, v))
-}
-
-// BartonellosisTypeNEQ applies the NEQ predicate on the "bartonellosis_type" field.
-func BartonellosisTypeNEQ(v BartonellosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldBartonellosisType, v))
-}
-
-// BartonellosisTypeIn applies the In predicate on the "bartonellosis_type" field.
-func BartonellosisTypeIn(vs ...BartonellosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldBartonellosisType, vs...))
-}
-
-// BartonellosisTypeNotIn applies the NotIn predicate on the "bartonellosis_type" field.
-func BartonellosisTypeNotIn(vs ...BartonellosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldBartonellosisType, vs...))
-}
-
-// BartonellosisTypeIsNil applies the IsNil predicate on the "bartonellosis_type" field.
-func BartonellosisTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldBartonellosisType))
-}
-
-// BartonellosisTypeNotNil applies the NotNil predicate on the "bartonellosis_type" field.
-func BartonellosisTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldBartonellosisType))
-}
-
-// BabesiosisDateEQ applies the EQ predicate on the "babesiosis_date" field.
-func BabesiosisDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldBabesiosisDate, v))
-}
-
-// BabesiosisDateNEQ applies the NEQ predicate on the "babesiosis_date" field.
-func BabesiosisDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldBabesiosisDate, v))
-}
-
-// BabesiosisDateIn applies the In predicate on the "babesiosis_date" field.
-func BabesiosisDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldBabesiosisDate, vs...))
-}
-
-// BabesiosisDateNotIn applies the NotIn predicate on the "babesiosis_date" field.
-func BabesiosisDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldBabesiosisDate, vs...))
-}
-
-// BabesiosisDateGT applies the GT predicate on the "babesiosis_date" field.
-func BabesiosisDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldBabesiosisDate, v))
-}
-
-// BabesiosisDateGTE applies the GTE predicate on the "babesiosis_date" field.
-func BabesiosisDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldBabesiosisDate, v))
-}
-
-// BabesiosisDateLT applies the LT predicate on the "babesiosis_date" field.
-func BabesiosisDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldBabesiosisDate, v))
-}
-
-// BabesiosisDateLTE applies the LTE predicate on the "babesiosis_date" field.
-func BabesiosisDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldBabesiosisDate, v))
-}
-
-// BabesiosisDateIsNil applies the IsNil predicate on the "babesiosis_date" field.
-func BabesiosisDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldBabesiosisDate))
-}
-
-// BabesiosisDateNotNil applies the NotNil predicate on the "babesiosis_date" field.
-func BabesiosisDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldBabesiosisDate))
-}
-
-// BabesiosisTypeEQ applies the EQ predicate on the "babesiosis_type" field.
-func BabesiosisTypeEQ(v BabesiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldBabesiosisType, v))
-}
-
-// BabesiosisTypeNEQ applies the NEQ predicate on the "babesiosis_type" field.
-func BabesiosisTypeNEQ(v BabesiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldBabesiosisType, v))
-}
-
-// BabesiosisTypeIn applies the In predicate on the "babesiosis_type" field.
-func BabesiosisTypeIn(vs ...BabesiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldBabesiosisType, vs...))
-}
-
-// BabesiosisTypeNotIn applies the NotIn predicate on the "babesiosis_type" field.
-func BabesiosisTypeNotIn(vs ...BabesiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldBabesiosisType, vs...))
-}
-
-// BabesiosisTypeIsNil applies the IsNil predicate on the "babesiosis_type" field.
-func BabesiosisTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldBabesiosisType))
-}
-
-// BabesiosisTypeNotNil applies the NotNil predicate on the "babesiosis_type" field.
-func BabesiosisTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldBabesiosisType))
-}
-
-// DirofilariaDateEQ applies the EQ predicate on the "dirofilaria_date" field.
-func DirofilariaDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldDirofilariaDate, v))
-}
-
-// DirofilariaDateNEQ applies the NEQ predicate on the "dirofilaria_date" field.
-func DirofilariaDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldDirofilariaDate, v))
-}
-
-// DirofilariaDateIn applies the In predicate on the "dirofilaria_date" field.
-func DirofilariaDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldDirofilariaDate, vs...))
-}
-
-// DirofilariaDateNotIn applies the NotIn predicate on the "dirofilaria_date" field.
-func DirofilariaDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldDirofilariaDate, vs...))
-}
-
-// DirofilariaDateGT applies the GT predicate on the "dirofilaria_date" field.
-func DirofilariaDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldDirofilariaDate, v))
-}
-
-// DirofilariaDateGTE applies the GTE predicate on the "dirofilaria_date" field.
-func DirofilariaDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldDirofilariaDate, v))
-}
-
-// DirofilariaDateLT applies the LT predicate on the "dirofilaria_date" field.
-func DirofilariaDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldDirofilariaDate, v))
-}
-
-// DirofilariaDateLTE applies the LTE predicate on the "dirofilaria_date" field.
-func DirofilariaDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldDirofilariaDate, v))
-}
-
-// DirofilariaDateIsNil applies the IsNil predicate on the "dirofilaria_date" field.
-func DirofilariaDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldDirofilariaDate))
-}
-
-// DirofilariaDateNotNil applies the NotNil predicate on the "dirofilaria_date" field.
-func DirofilariaDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldDirofilariaDate))
-}
-
-// DirofilariaTypeEQ applies the EQ predicate on the "dirofilaria_type" field.
-func DirofilariaTypeEQ(v DirofilariaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldDirofilariaType, v))
-}
-
-// DirofilariaTypeNEQ applies the NEQ predicate on the "dirofilaria_type" field.
-func DirofilariaTypeNEQ(v DirofilariaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldDirofilariaType, v))
-}
-
-// DirofilariaTypeIn applies the In predicate on the "dirofilaria_type" field.
-func DirofilariaTypeIn(vs ...DirofilariaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldDirofilariaType, vs...))
-}
-
-// DirofilariaTypeNotIn applies the NotIn predicate on the "dirofilaria_type" field.
-func DirofilariaTypeNotIn(vs ...DirofilariaType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldDirofilariaType, vs...))
-}
-
-// DirofilariaTypeIsNil applies the IsNil predicate on the "dirofilaria_type" field.
-func DirofilariaTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldDirofilariaType))
-}
-
-// DirofilariaTypeNotNil applies the NotNil predicate on the "dirofilaria_type" field.
-func DirofilariaTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldDirofilariaType))
-}
-
-// EhrlichiosisDateEQ applies the EQ predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldEhrlichiosisDate, v))
-}
-
-// EhrlichiosisDateNEQ applies the NEQ predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldEhrlichiosisDate, v))
-}
-
-// EhrlichiosisDateIn applies the In predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldEhrlichiosisDate, vs...))
-}
-
-// EhrlichiosisDateNotIn applies the NotIn predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldEhrlichiosisDate, vs...))
-}
-
-// EhrlichiosisDateGT applies the GT predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldEhrlichiosisDate, v))
-}
-
-// EhrlichiosisDateGTE applies the GTE predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldEhrlichiosisDate, v))
-}
-
-// EhrlichiosisDateLT applies the LT predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldEhrlichiosisDate, v))
-}
-
-// EhrlichiosisDateLTE applies the LTE predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldEhrlichiosisDate, v))
-}
-
-// EhrlichiosisDateIsNil applies the IsNil predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldEhrlichiosisDate))
-}
-
-// EhrlichiosisDateNotNil applies the NotNil predicate on the "ehrlichiosis_date" field.
-func EhrlichiosisDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldEhrlichiosisDate))
-}
-
-// EhrlichiosisTypeEQ applies the EQ predicate on the "ehrlichiosis_type" field.
-func EhrlichiosisTypeEQ(v EhrlichiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldEhrlichiosisType, v))
-}
-
-// EhrlichiosisTypeNEQ applies the NEQ predicate on the "ehrlichiosis_type" field.
-func EhrlichiosisTypeNEQ(v EhrlichiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldEhrlichiosisType, v))
-}
-
-// EhrlichiosisTypeIn applies the In predicate on the "ehrlichiosis_type" field.
-func EhrlichiosisTypeIn(vs ...EhrlichiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldEhrlichiosisType, vs...))
-}
-
-// EhrlichiosisTypeNotIn applies the NotIn predicate on the "ehrlichiosis_type" field.
-func EhrlichiosisTypeNotIn(vs ...EhrlichiosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldEhrlichiosisType, vs...))
-}
-
-// EhrlichiosisTypeIsNil applies the IsNil predicate on the "ehrlichiosis_type" field.
-func EhrlichiosisTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldEhrlichiosisType))
-}
-
-// EhrlichiosisTypeNotNil applies the NotNil predicate on the "ehrlichiosis_type" field.
-func EhrlichiosisTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldEhrlichiosisType))
-}
-
-// AnaplasmosisDateEQ applies the EQ predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldAnaplasmosisDate, v))
-}
-
-// AnaplasmosisDateNEQ applies the NEQ predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateNEQ(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldAnaplasmosisDate, v))
-}
-
-// AnaplasmosisDateIn applies the In predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldAnaplasmosisDate, vs...))
-}
-
-// AnaplasmosisDateNotIn applies the NotIn predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateNotIn(vs ...time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldAnaplasmosisDate, vs...))
-}
-
-// AnaplasmosisDateGT applies the GT predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateGT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGT(FieldAnaplasmosisDate, v))
-}
-
-// AnaplasmosisDateGTE applies the GTE predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateGTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldGTE(FieldAnaplasmosisDate, v))
-}
-
-// AnaplasmosisDateLT applies the LT predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateLT(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLT(FieldAnaplasmosisDate, v))
-}
-
-// AnaplasmosisDateLTE applies the LTE predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateLTE(v time.Time) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldLTE(FieldAnaplasmosisDate, v))
-}
-
-// AnaplasmosisDateIsNil applies the IsNil predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldAnaplasmosisDate))
-}
-
-// AnaplasmosisDateNotNil applies the NotNil predicate on the "anaplasmosis_date" field.
-func AnaplasmosisDateNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldAnaplasmosisDate))
-}
-
-// AnaplasmosisTypeEQ applies the EQ predicate on the "anaplasmosis_type" field.
-func AnaplasmosisTypeEQ(v AnaplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldEQ(FieldAnaplasmosisType, v))
-}
-
-// AnaplasmosisTypeNEQ applies the NEQ predicate on the "anaplasmosis_type" field.
-func AnaplasmosisTypeNEQ(v AnaplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNEQ(FieldAnaplasmosisType, v))
-}
-
-// AnaplasmosisTypeIn applies the In predicate on the "anaplasmosis_type" field.
-func AnaplasmosisTypeIn(vs ...AnaplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIn(FieldAnaplasmosisType, vs...))
-}
-
-// AnaplasmosisTypeNotIn applies the NotIn predicate on the "anaplasmosis_type" field.
-func AnaplasmosisTypeNotIn(vs ...AnaplasmosisType) predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotIn(FieldAnaplasmosisType, vs...))
-}
-
-// AnaplasmosisTypeIsNil applies the IsNil predicate on the "anaplasmosis_type" field.
-func AnaplasmosisTypeIsNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldIsNull(FieldAnaplasmosisType))
-}
-
-// AnaplasmosisTypeNotNil applies the NotNil predicate on the "anaplasmosis_type" field.
-func AnaplasmosisTypeNotNil() predicate.PetAnalysis {
-	return predicate.PetAnalysis(sql.FieldNotNull(FieldAnaplasmosisType))
+// AnalysisDateLTE applies the LTE predicate on the "analysis_date" field.
+func AnalysisDateLTE(v time.Time) predicate.PetAnalysis {
+	return predicate.PetAnalysis(sql.FieldLTE(FieldAnalysisDate, v))
 }
 
 // HasOwner applies the HasEdge predicate on the "owner" edge.

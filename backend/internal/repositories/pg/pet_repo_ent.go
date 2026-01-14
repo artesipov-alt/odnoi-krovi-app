@@ -103,22 +103,9 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 	for _, a := range analyses {
 		_, err = tx.PetAnalysis.Create().
 			SetOwnerID(newPet.ID).
-			SetNillableLeukemiaDate(a.LeukemiaDate).
-			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
-			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-			SetNillableImmunodeficiencyType(nillable(a.ImmunodeficiencyType)).
-			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-			SetNillableHemoplasmosisType(nillable(a.HemoplasmosisType)).
-			SetNillableBartonellosisDate(a.BartonellosisDate).
-			SetNillableBartonellosisType(nillable(a.BartonellosisType)).
-			SetNillableBabesiosisDate(a.BabesiosisDate).
-			SetNillableBabesiosisType(nillable(a.BabesiosisType)).
-			SetNillableDirofilariaDate(a.DirofilariaDate).
-			SetNillableDirofilariaType(nillable(a.DirofilariaType)).
-			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-			SetNillableEhrlichiosisType(nillable(a.EhrlichiosisType)).
-			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-			SetNillableAnaplasmosisType(nillable(a.AnaplasmosisType)).
+			SetAnalysisName(a.AnalysisName).
+			SetAnalysisType(a.AnalysisType).
+			SetAnalysisDate(*a.AnalysisDate).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
@@ -318,22 +305,9 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 	for _, a := range analyses {
 		_, err = tx.PetAnalysis.Create().
 			SetOwnerID(p.ID).
-			SetNillableLeukemiaDate(a.LeukemiaDate).
-			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
-			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-			SetNillableImmunodeficiencyType(nillable(a.ImmunodeficiencyType)).
-			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-			SetNillableHemoplasmosisType(nillable(a.HemoplasmosisType)).
-			SetNillableBartonellosisDate(a.BartonellosisDate).
-			SetNillableBartonellosisType(nillable(a.BartonellosisType)).
-			SetNillableBabesiosisDate(a.BabesiosisDate).
-			SetNillableBabesiosisType(nillable(a.BabesiosisType)).
-			SetNillableDirofilariaDate(a.DirofilariaDate).
-			SetNillableDirofilariaType(nillable(a.DirofilariaType)).
-			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-			SetNillableEhrlichiosisType(nillable(a.EhrlichiosisType)).
-			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-			SetNillableAnaplasmosisType(nillable(a.AnaplasmosisType)).
+			SetAnalysisName(a.AnalysisName).
+			SetAnalysisType(a.AnalysisType).
+			SetAnalysisDate(*a.AnalysisDate).
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()

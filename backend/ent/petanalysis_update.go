@@ -69,323 +69,57 @@ func (_u *PetAnalysisUpdate) SetNillablePetID(v *string) *PetAnalysisUpdate {
 	return _u
 }
 
-// SetLeukemiaDate sets the "leukemia_date" field.
-func (_u *PetAnalysisUpdate) SetLeukemiaDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetLeukemiaDate(v)
+// SetAnalysisName sets the "analysis_name" field.
+func (_u *PetAnalysisUpdate) SetAnalysisName(v petanalysis.AnalysisName) *PetAnalysisUpdate {
+	_u.mutation.SetAnalysisName(v)
 	return _u
 }
 
-// SetNillableLeukemiaDate sets the "leukemia_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableLeukemiaDate(v *time.Time) *PetAnalysisUpdate {
+// SetNillableAnalysisName sets the "analysis_name" field if the given value is not nil.
+func (_u *PetAnalysisUpdate) SetNillableAnalysisName(v *petanalysis.AnalysisName) *PetAnalysisUpdate {
 	if v != nil {
-		_u.SetLeukemiaDate(*v)
+		_u.SetAnalysisName(*v)
 	}
 	return _u
 }
 
-// ClearLeukemiaDate clears the value of the "leukemia_date" field.
-func (_u *PetAnalysisUpdate) ClearLeukemiaDate() *PetAnalysisUpdate {
-	_u.mutation.ClearLeukemiaDate()
+// ClearAnalysisName clears the value of the "analysis_name" field.
+func (_u *PetAnalysisUpdate) ClearAnalysisName() *PetAnalysisUpdate {
+	_u.mutation.ClearAnalysisName()
 	return _u
 }
 
-// SetLeukemiaType sets the "leukemia_type" field.
-func (_u *PetAnalysisUpdate) SetLeukemiaType(v petanalysis.LeukemiaType) *PetAnalysisUpdate {
-	_u.mutation.SetLeukemiaType(v)
+// SetAnalysisType sets the "analysis_type" field.
+func (_u *PetAnalysisUpdate) SetAnalysisType(v petanalysis.AnalysisType) *PetAnalysisUpdate {
+	_u.mutation.SetAnalysisType(v)
 	return _u
 }
 
-// SetNillableLeukemiaType sets the "leukemia_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableLeukemiaType(v *petanalysis.LeukemiaType) *PetAnalysisUpdate {
+// SetNillableAnalysisType sets the "analysis_type" field if the given value is not nil.
+func (_u *PetAnalysisUpdate) SetNillableAnalysisType(v *petanalysis.AnalysisType) *PetAnalysisUpdate {
 	if v != nil {
-		_u.SetLeukemiaType(*v)
+		_u.SetAnalysisType(*v)
 	}
 	return _u
 }
 
-// ClearLeukemiaType clears the value of the "leukemia_type" field.
-func (_u *PetAnalysisUpdate) ClearLeukemiaType() *PetAnalysisUpdate {
-	_u.mutation.ClearLeukemiaType()
+// ClearAnalysisType clears the value of the "analysis_type" field.
+func (_u *PetAnalysisUpdate) ClearAnalysisType() *PetAnalysisUpdate {
+	_u.mutation.ClearAnalysisType()
 	return _u
 }
 
-// SetImmunodeficiencyDate sets the "immunodeficiency_date" field.
-func (_u *PetAnalysisUpdate) SetImmunodeficiencyDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetImmunodeficiencyDate(v)
+// SetAnalysisDate sets the "analysis_date" field.
+func (_u *PetAnalysisUpdate) SetAnalysisDate(v time.Time) *PetAnalysisUpdate {
+	_u.mutation.SetAnalysisDate(v)
 	return _u
 }
 
-// SetNillableImmunodeficiencyDate sets the "immunodeficiency_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableImmunodeficiencyDate(v *time.Time) *PetAnalysisUpdate {
+// SetNillableAnalysisDate sets the "analysis_date" field if the given value is not nil.
+func (_u *PetAnalysisUpdate) SetNillableAnalysisDate(v *time.Time) *PetAnalysisUpdate {
 	if v != nil {
-		_u.SetImmunodeficiencyDate(*v)
+		_u.SetAnalysisDate(*v)
 	}
-	return _u
-}
-
-// ClearImmunodeficiencyDate clears the value of the "immunodeficiency_date" field.
-func (_u *PetAnalysisUpdate) ClearImmunodeficiencyDate() *PetAnalysisUpdate {
-	_u.mutation.ClearImmunodeficiencyDate()
-	return _u
-}
-
-// SetImmunodeficiencyType sets the "immunodeficiency_type" field.
-func (_u *PetAnalysisUpdate) SetImmunodeficiencyType(v petanalysis.ImmunodeficiencyType) *PetAnalysisUpdate {
-	_u.mutation.SetImmunodeficiencyType(v)
-	return _u
-}
-
-// SetNillableImmunodeficiencyType sets the "immunodeficiency_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableImmunodeficiencyType(v *petanalysis.ImmunodeficiencyType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetImmunodeficiencyType(*v)
-	}
-	return _u
-}
-
-// ClearImmunodeficiencyType clears the value of the "immunodeficiency_type" field.
-func (_u *PetAnalysisUpdate) ClearImmunodeficiencyType() *PetAnalysisUpdate {
-	_u.mutation.ClearImmunodeficiencyType()
-	return _u
-}
-
-// SetHemoplasmosisDate sets the "hemoplasmosis_date" field.
-func (_u *PetAnalysisUpdate) SetHemoplasmosisDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetHemoplasmosisDate(v)
-	return _u
-}
-
-// SetNillableHemoplasmosisDate sets the "hemoplasmosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableHemoplasmosisDate(v *time.Time) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetHemoplasmosisDate(*v)
-	}
-	return _u
-}
-
-// ClearHemoplasmosisDate clears the value of the "hemoplasmosis_date" field.
-func (_u *PetAnalysisUpdate) ClearHemoplasmosisDate() *PetAnalysisUpdate {
-	_u.mutation.ClearHemoplasmosisDate()
-	return _u
-}
-
-// SetHemoplasmosisType sets the "hemoplasmosis_type" field.
-func (_u *PetAnalysisUpdate) SetHemoplasmosisType(v petanalysis.HemoplasmosisType) *PetAnalysisUpdate {
-	_u.mutation.SetHemoplasmosisType(v)
-	return _u
-}
-
-// SetNillableHemoplasmosisType sets the "hemoplasmosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableHemoplasmosisType(v *petanalysis.HemoplasmosisType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetHemoplasmosisType(*v)
-	}
-	return _u
-}
-
-// ClearHemoplasmosisType clears the value of the "hemoplasmosis_type" field.
-func (_u *PetAnalysisUpdate) ClearHemoplasmosisType() *PetAnalysisUpdate {
-	_u.mutation.ClearHemoplasmosisType()
-	return _u
-}
-
-// SetBartonellosisDate sets the "bartonellosis_date" field.
-func (_u *PetAnalysisUpdate) SetBartonellosisDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetBartonellosisDate(v)
-	return _u
-}
-
-// SetNillableBartonellosisDate sets the "bartonellosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableBartonellosisDate(v *time.Time) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetBartonellosisDate(*v)
-	}
-	return _u
-}
-
-// ClearBartonellosisDate clears the value of the "bartonellosis_date" field.
-func (_u *PetAnalysisUpdate) ClearBartonellosisDate() *PetAnalysisUpdate {
-	_u.mutation.ClearBartonellosisDate()
-	return _u
-}
-
-// SetBartonellosisType sets the "bartonellosis_type" field.
-func (_u *PetAnalysisUpdate) SetBartonellosisType(v petanalysis.BartonellosisType) *PetAnalysisUpdate {
-	_u.mutation.SetBartonellosisType(v)
-	return _u
-}
-
-// SetNillableBartonellosisType sets the "bartonellosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableBartonellosisType(v *petanalysis.BartonellosisType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetBartonellosisType(*v)
-	}
-	return _u
-}
-
-// ClearBartonellosisType clears the value of the "bartonellosis_type" field.
-func (_u *PetAnalysisUpdate) ClearBartonellosisType() *PetAnalysisUpdate {
-	_u.mutation.ClearBartonellosisType()
-	return _u
-}
-
-// SetBabesiosisDate sets the "babesiosis_date" field.
-func (_u *PetAnalysisUpdate) SetBabesiosisDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetBabesiosisDate(v)
-	return _u
-}
-
-// SetNillableBabesiosisDate sets the "babesiosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableBabesiosisDate(v *time.Time) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetBabesiosisDate(*v)
-	}
-	return _u
-}
-
-// ClearBabesiosisDate clears the value of the "babesiosis_date" field.
-func (_u *PetAnalysisUpdate) ClearBabesiosisDate() *PetAnalysisUpdate {
-	_u.mutation.ClearBabesiosisDate()
-	return _u
-}
-
-// SetBabesiosisType sets the "babesiosis_type" field.
-func (_u *PetAnalysisUpdate) SetBabesiosisType(v petanalysis.BabesiosisType) *PetAnalysisUpdate {
-	_u.mutation.SetBabesiosisType(v)
-	return _u
-}
-
-// SetNillableBabesiosisType sets the "babesiosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableBabesiosisType(v *petanalysis.BabesiosisType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetBabesiosisType(*v)
-	}
-	return _u
-}
-
-// ClearBabesiosisType clears the value of the "babesiosis_type" field.
-func (_u *PetAnalysisUpdate) ClearBabesiosisType() *PetAnalysisUpdate {
-	_u.mutation.ClearBabesiosisType()
-	return _u
-}
-
-// SetDirofilariaDate sets the "dirofilaria_date" field.
-func (_u *PetAnalysisUpdate) SetDirofilariaDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetDirofilariaDate(v)
-	return _u
-}
-
-// SetNillableDirofilariaDate sets the "dirofilaria_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableDirofilariaDate(v *time.Time) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetDirofilariaDate(*v)
-	}
-	return _u
-}
-
-// ClearDirofilariaDate clears the value of the "dirofilaria_date" field.
-func (_u *PetAnalysisUpdate) ClearDirofilariaDate() *PetAnalysisUpdate {
-	_u.mutation.ClearDirofilariaDate()
-	return _u
-}
-
-// SetDirofilariaType sets the "dirofilaria_type" field.
-func (_u *PetAnalysisUpdate) SetDirofilariaType(v petanalysis.DirofilariaType) *PetAnalysisUpdate {
-	_u.mutation.SetDirofilariaType(v)
-	return _u
-}
-
-// SetNillableDirofilariaType sets the "dirofilaria_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableDirofilariaType(v *petanalysis.DirofilariaType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetDirofilariaType(*v)
-	}
-	return _u
-}
-
-// ClearDirofilariaType clears the value of the "dirofilaria_type" field.
-func (_u *PetAnalysisUpdate) ClearDirofilariaType() *PetAnalysisUpdate {
-	_u.mutation.ClearDirofilariaType()
-	return _u
-}
-
-// SetEhrlichiosisDate sets the "ehrlichiosis_date" field.
-func (_u *PetAnalysisUpdate) SetEhrlichiosisDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetEhrlichiosisDate(v)
-	return _u
-}
-
-// SetNillableEhrlichiosisDate sets the "ehrlichiosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableEhrlichiosisDate(v *time.Time) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetEhrlichiosisDate(*v)
-	}
-	return _u
-}
-
-// ClearEhrlichiosisDate clears the value of the "ehrlichiosis_date" field.
-func (_u *PetAnalysisUpdate) ClearEhrlichiosisDate() *PetAnalysisUpdate {
-	_u.mutation.ClearEhrlichiosisDate()
-	return _u
-}
-
-// SetEhrlichiosisType sets the "ehrlichiosis_type" field.
-func (_u *PetAnalysisUpdate) SetEhrlichiosisType(v petanalysis.EhrlichiosisType) *PetAnalysisUpdate {
-	_u.mutation.SetEhrlichiosisType(v)
-	return _u
-}
-
-// SetNillableEhrlichiosisType sets the "ehrlichiosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableEhrlichiosisType(v *petanalysis.EhrlichiosisType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetEhrlichiosisType(*v)
-	}
-	return _u
-}
-
-// ClearEhrlichiosisType clears the value of the "ehrlichiosis_type" field.
-func (_u *PetAnalysisUpdate) ClearEhrlichiosisType() *PetAnalysisUpdate {
-	_u.mutation.ClearEhrlichiosisType()
-	return _u
-}
-
-// SetAnaplasmosisDate sets the "anaplasmosis_date" field.
-func (_u *PetAnalysisUpdate) SetAnaplasmosisDate(v time.Time) *PetAnalysisUpdate {
-	_u.mutation.SetAnaplasmosisDate(v)
-	return _u
-}
-
-// SetNillableAnaplasmosisDate sets the "anaplasmosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableAnaplasmosisDate(v *time.Time) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetAnaplasmosisDate(*v)
-	}
-	return _u
-}
-
-// ClearAnaplasmosisDate clears the value of the "anaplasmosis_date" field.
-func (_u *PetAnalysisUpdate) ClearAnaplasmosisDate() *PetAnalysisUpdate {
-	_u.mutation.ClearAnaplasmosisDate()
-	return _u
-}
-
-// SetAnaplasmosisType sets the "anaplasmosis_type" field.
-func (_u *PetAnalysisUpdate) SetAnaplasmosisType(v petanalysis.AnaplasmosisType) *PetAnalysisUpdate {
-	_u.mutation.SetAnaplasmosisType(v)
-	return _u
-}
-
-// SetNillableAnaplasmosisType sets the "anaplasmosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdate) SetNillableAnaplasmosisType(v *petanalysis.AnaplasmosisType) *PetAnalysisUpdate {
-	if v != nil {
-		_u.SetAnaplasmosisType(*v)
-	}
-	return _u
-}
-
-// ClearAnaplasmosisType clears the value of the "anaplasmosis_type" field.
-func (_u *PetAnalysisUpdate) ClearAnaplasmosisType() *PetAnalysisUpdate {
-	_u.mutation.ClearAnaplasmosisType()
 	return _u
 }
 
@@ -449,44 +183,14 @@ func (_u *PetAnalysisUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PetAnalysisUpdate) check() error {
-	if v, ok := _u.mutation.LeukemiaType(); ok {
-		if err := petanalysis.LeukemiaTypeValidator(v); err != nil {
-			return &ValidationError{Name: "leukemia_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.leukemia_type": %w`, err)}
+	if v, ok := _u.mutation.AnalysisName(); ok {
+		if err := petanalysis.AnalysisNameValidator(v); err != nil {
+			return &ValidationError{Name: "analysis_name", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.analysis_name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.ImmunodeficiencyType(); ok {
-		if err := petanalysis.ImmunodeficiencyTypeValidator(v); err != nil {
-			return &ValidationError{Name: "immunodeficiency_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.immunodeficiency_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.HemoplasmosisType(); ok {
-		if err := petanalysis.HemoplasmosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "hemoplasmosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.hemoplasmosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.BartonellosisType(); ok {
-		if err := petanalysis.BartonellosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "bartonellosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.bartonellosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.BabesiosisType(); ok {
-		if err := petanalysis.BabesiosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "babesiosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.babesiosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.DirofilariaType(); ok {
-		if err := petanalysis.DirofilariaTypeValidator(v); err != nil {
-			return &ValidationError{Name: "dirofilaria_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.dirofilaria_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.EhrlichiosisType(); ok {
-		if err := petanalysis.EhrlichiosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "ehrlichiosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.ehrlichiosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AnaplasmosisType(); ok {
-		if err := petanalysis.AnaplasmosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "anaplasmosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.anaplasmosis_type": %w`, err)}
+	if v, ok := _u.mutation.AnalysisType(); ok {
+		if err := petanalysis.AnalysisTypeValidator(v); err != nil {
+			return &ValidationError{Name: "analysis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.analysis_type": %w`, err)}
 		}
 	}
 	if _u.mutation.OwnerCleared() && len(_u.mutation.OwnerIDs()) > 0 {
@@ -516,101 +220,20 @@ func (_u *PetAnalysisUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(petanalysis.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.LeukemiaDate(); ok {
-		_spec.SetField(petanalysis.FieldLeukemiaDate, field.TypeTime, value)
+	if value, ok := _u.mutation.AnalysisName(); ok {
+		_spec.SetField(petanalysis.FieldAnalysisName, field.TypeEnum, value)
 	}
-	if _u.mutation.LeukemiaDateCleared() {
-		_spec.ClearField(petanalysis.FieldLeukemiaDate, field.TypeTime)
+	if _u.mutation.AnalysisNameCleared() {
+		_spec.ClearField(petanalysis.FieldAnalysisName, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.LeukemiaType(); ok {
-		_spec.SetField(petanalysis.FieldLeukemiaType, field.TypeEnum, value)
+	if value, ok := _u.mutation.AnalysisType(); ok {
+		_spec.SetField(petanalysis.FieldAnalysisType, field.TypeEnum, value)
 	}
-	if _u.mutation.LeukemiaTypeCleared() {
-		_spec.ClearField(petanalysis.FieldLeukemiaType, field.TypeEnum)
+	if _u.mutation.AnalysisTypeCleared() {
+		_spec.ClearField(petanalysis.FieldAnalysisType, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.ImmunodeficiencyDate(); ok {
-		_spec.SetField(petanalysis.FieldImmunodeficiencyDate, field.TypeTime, value)
-	}
-	if _u.mutation.ImmunodeficiencyDateCleared() {
-		_spec.ClearField(petanalysis.FieldImmunodeficiencyDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.ImmunodeficiencyType(); ok {
-		_spec.SetField(petanalysis.FieldImmunodeficiencyType, field.TypeEnum, value)
-	}
-	if _u.mutation.ImmunodeficiencyTypeCleared() {
-		_spec.ClearField(petanalysis.FieldImmunodeficiencyType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.HemoplasmosisDate(); ok {
-		_spec.SetField(petanalysis.FieldHemoplasmosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.HemoplasmosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldHemoplasmosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.HemoplasmosisType(); ok {
-		_spec.SetField(petanalysis.FieldHemoplasmosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.HemoplasmosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldHemoplasmosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.BartonellosisDate(); ok {
-		_spec.SetField(petanalysis.FieldBartonellosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.BartonellosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldBartonellosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.BartonellosisType(); ok {
-		_spec.SetField(petanalysis.FieldBartonellosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.BartonellosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldBartonellosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.BabesiosisDate(); ok {
-		_spec.SetField(petanalysis.FieldBabesiosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.BabesiosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldBabesiosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.BabesiosisType(); ok {
-		_spec.SetField(petanalysis.FieldBabesiosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.BabesiosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldBabesiosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.DirofilariaDate(); ok {
-		_spec.SetField(petanalysis.FieldDirofilariaDate, field.TypeTime, value)
-	}
-	if _u.mutation.DirofilariaDateCleared() {
-		_spec.ClearField(petanalysis.FieldDirofilariaDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.DirofilariaType(); ok {
-		_spec.SetField(petanalysis.FieldDirofilariaType, field.TypeEnum, value)
-	}
-	if _u.mutation.DirofilariaTypeCleared() {
-		_spec.ClearField(petanalysis.FieldDirofilariaType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.EhrlichiosisDate(); ok {
-		_spec.SetField(petanalysis.FieldEhrlichiosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.EhrlichiosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldEhrlichiosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.EhrlichiosisType(); ok {
-		_spec.SetField(petanalysis.FieldEhrlichiosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.EhrlichiosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldEhrlichiosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.AnaplasmosisDate(); ok {
-		_spec.SetField(petanalysis.FieldAnaplasmosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.AnaplasmosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldAnaplasmosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.AnaplasmosisType(); ok {
-		_spec.SetField(petanalysis.FieldAnaplasmosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.AnaplasmosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldAnaplasmosisType, field.TypeEnum)
+	if value, ok := _u.mutation.AnalysisDate(); ok {
+		_spec.SetField(petanalysis.FieldAnalysisDate, field.TypeTime, value)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -701,323 +324,57 @@ func (_u *PetAnalysisUpdateOne) SetNillablePetID(v *string) *PetAnalysisUpdateOn
 	return _u
 }
 
-// SetLeukemiaDate sets the "leukemia_date" field.
-func (_u *PetAnalysisUpdateOne) SetLeukemiaDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetLeukemiaDate(v)
+// SetAnalysisName sets the "analysis_name" field.
+func (_u *PetAnalysisUpdateOne) SetAnalysisName(v petanalysis.AnalysisName) *PetAnalysisUpdateOne {
+	_u.mutation.SetAnalysisName(v)
 	return _u
 }
 
-// SetNillableLeukemiaDate sets the "leukemia_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableLeukemiaDate(v *time.Time) *PetAnalysisUpdateOne {
+// SetNillableAnalysisName sets the "analysis_name" field if the given value is not nil.
+func (_u *PetAnalysisUpdateOne) SetNillableAnalysisName(v *petanalysis.AnalysisName) *PetAnalysisUpdateOne {
 	if v != nil {
-		_u.SetLeukemiaDate(*v)
+		_u.SetAnalysisName(*v)
 	}
 	return _u
 }
 
-// ClearLeukemiaDate clears the value of the "leukemia_date" field.
-func (_u *PetAnalysisUpdateOne) ClearLeukemiaDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearLeukemiaDate()
+// ClearAnalysisName clears the value of the "analysis_name" field.
+func (_u *PetAnalysisUpdateOne) ClearAnalysisName() *PetAnalysisUpdateOne {
+	_u.mutation.ClearAnalysisName()
 	return _u
 }
 
-// SetLeukemiaType sets the "leukemia_type" field.
-func (_u *PetAnalysisUpdateOne) SetLeukemiaType(v petanalysis.LeukemiaType) *PetAnalysisUpdateOne {
-	_u.mutation.SetLeukemiaType(v)
+// SetAnalysisType sets the "analysis_type" field.
+func (_u *PetAnalysisUpdateOne) SetAnalysisType(v petanalysis.AnalysisType) *PetAnalysisUpdateOne {
+	_u.mutation.SetAnalysisType(v)
 	return _u
 }
 
-// SetNillableLeukemiaType sets the "leukemia_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableLeukemiaType(v *petanalysis.LeukemiaType) *PetAnalysisUpdateOne {
+// SetNillableAnalysisType sets the "analysis_type" field if the given value is not nil.
+func (_u *PetAnalysisUpdateOne) SetNillableAnalysisType(v *petanalysis.AnalysisType) *PetAnalysisUpdateOne {
 	if v != nil {
-		_u.SetLeukemiaType(*v)
+		_u.SetAnalysisType(*v)
 	}
 	return _u
 }
 
-// ClearLeukemiaType clears the value of the "leukemia_type" field.
-func (_u *PetAnalysisUpdateOne) ClearLeukemiaType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearLeukemiaType()
+// ClearAnalysisType clears the value of the "analysis_type" field.
+func (_u *PetAnalysisUpdateOne) ClearAnalysisType() *PetAnalysisUpdateOne {
+	_u.mutation.ClearAnalysisType()
 	return _u
 }
 
-// SetImmunodeficiencyDate sets the "immunodeficiency_date" field.
-func (_u *PetAnalysisUpdateOne) SetImmunodeficiencyDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetImmunodeficiencyDate(v)
+// SetAnalysisDate sets the "analysis_date" field.
+func (_u *PetAnalysisUpdateOne) SetAnalysisDate(v time.Time) *PetAnalysisUpdateOne {
+	_u.mutation.SetAnalysisDate(v)
 	return _u
 }
 
-// SetNillableImmunodeficiencyDate sets the "immunodeficiency_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableImmunodeficiencyDate(v *time.Time) *PetAnalysisUpdateOne {
+// SetNillableAnalysisDate sets the "analysis_date" field if the given value is not nil.
+func (_u *PetAnalysisUpdateOne) SetNillableAnalysisDate(v *time.Time) *PetAnalysisUpdateOne {
 	if v != nil {
-		_u.SetImmunodeficiencyDate(*v)
+		_u.SetAnalysisDate(*v)
 	}
-	return _u
-}
-
-// ClearImmunodeficiencyDate clears the value of the "immunodeficiency_date" field.
-func (_u *PetAnalysisUpdateOne) ClearImmunodeficiencyDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearImmunodeficiencyDate()
-	return _u
-}
-
-// SetImmunodeficiencyType sets the "immunodeficiency_type" field.
-func (_u *PetAnalysisUpdateOne) SetImmunodeficiencyType(v petanalysis.ImmunodeficiencyType) *PetAnalysisUpdateOne {
-	_u.mutation.SetImmunodeficiencyType(v)
-	return _u
-}
-
-// SetNillableImmunodeficiencyType sets the "immunodeficiency_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableImmunodeficiencyType(v *petanalysis.ImmunodeficiencyType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetImmunodeficiencyType(*v)
-	}
-	return _u
-}
-
-// ClearImmunodeficiencyType clears the value of the "immunodeficiency_type" field.
-func (_u *PetAnalysisUpdateOne) ClearImmunodeficiencyType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearImmunodeficiencyType()
-	return _u
-}
-
-// SetHemoplasmosisDate sets the "hemoplasmosis_date" field.
-func (_u *PetAnalysisUpdateOne) SetHemoplasmosisDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetHemoplasmosisDate(v)
-	return _u
-}
-
-// SetNillableHemoplasmosisDate sets the "hemoplasmosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableHemoplasmosisDate(v *time.Time) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetHemoplasmosisDate(*v)
-	}
-	return _u
-}
-
-// ClearHemoplasmosisDate clears the value of the "hemoplasmosis_date" field.
-func (_u *PetAnalysisUpdateOne) ClearHemoplasmosisDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearHemoplasmosisDate()
-	return _u
-}
-
-// SetHemoplasmosisType sets the "hemoplasmosis_type" field.
-func (_u *PetAnalysisUpdateOne) SetHemoplasmosisType(v petanalysis.HemoplasmosisType) *PetAnalysisUpdateOne {
-	_u.mutation.SetHemoplasmosisType(v)
-	return _u
-}
-
-// SetNillableHemoplasmosisType sets the "hemoplasmosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableHemoplasmosisType(v *petanalysis.HemoplasmosisType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetHemoplasmosisType(*v)
-	}
-	return _u
-}
-
-// ClearHemoplasmosisType clears the value of the "hemoplasmosis_type" field.
-func (_u *PetAnalysisUpdateOne) ClearHemoplasmosisType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearHemoplasmosisType()
-	return _u
-}
-
-// SetBartonellosisDate sets the "bartonellosis_date" field.
-func (_u *PetAnalysisUpdateOne) SetBartonellosisDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetBartonellosisDate(v)
-	return _u
-}
-
-// SetNillableBartonellosisDate sets the "bartonellosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableBartonellosisDate(v *time.Time) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetBartonellosisDate(*v)
-	}
-	return _u
-}
-
-// ClearBartonellosisDate clears the value of the "bartonellosis_date" field.
-func (_u *PetAnalysisUpdateOne) ClearBartonellosisDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearBartonellosisDate()
-	return _u
-}
-
-// SetBartonellosisType sets the "bartonellosis_type" field.
-func (_u *PetAnalysisUpdateOne) SetBartonellosisType(v petanalysis.BartonellosisType) *PetAnalysisUpdateOne {
-	_u.mutation.SetBartonellosisType(v)
-	return _u
-}
-
-// SetNillableBartonellosisType sets the "bartonellosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableBartonellosisType(v *petanalysis.BartonellosisType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetBartonellosisType(*v)
-	}
-	return _u
-}
-
-// ClearBartonellosisType clears the value of the "bartonellosis_type" field.
-func (_u *PetAnalysisUpdateOne) ClearBartonellosisType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearBartonellosisType()
-	return _u
-}
-
-// SetBabesiosisDate sets the "babesiosis_date" field.
-func (_u *PetAnalysisUpdateOne) SetBabesiosisDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetBabesiosisDate(v)
-	return _u
-}
-
-// SetNillableBabesiosisDate sets the "babesiosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableBabesiosisDate(v *time.Time) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetBabesiosisDate(*v)
-	}
-	return _u
-}
-
-// ClearBabesiosisDate clears the value of the "babesiosis_date" field.
-func (_u *PetAnalysisUpdateOne) ClearBabesiosisDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearBabesiosisDate()
-	return _u
-}
-
-// SetBabesiosisType sets the "babesiosis_type" field.
-func (_u *PetAnalysisUpdateOne) SetBabesiosisType(v petanalysis.BabesiosisType) *PetAnalysisUpdateOne {
-	_u.mutation.SetBabesiosisType(v)
-	return _u
-}
-
-// SetNillableBabesiosisType sets the "babesiosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableBabesiosisType(v *petanalysis.BabesiosisType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetBabesiosisType(*v)
-	}
-	return _u
-}
-
-// ClearBabesiosisType clears the value of the "babesiosis_type" field.
-func (_u *PetAnalysisUpdateOne) ClearBabesiosisType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearBabesiosisType()
-	return _u
-}
-
-// SetDirofilariaDate sets the "dirofilaria_date" field.
-func (_u *PetAnalysisUpdateOne) SetDirofilariaDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetDirofilariaDate(v)
-	return _u
-}
-
-// SetNillableDirofilariaDate sets the "dirofilaria_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableDirofilariaDate(v *time.Time) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetDirofilariaDate(*v)
-	}
-	return _u
-}
-
-// ClearDirofilariaDate clears the value of the "dirofilaria_date" field.
-func (_u *PetAnalysisUpdateOne) ClearDirofilariaDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearDirofilariaDate()
-	return _u
-}
-
-// SetDirofilariaType sets the "dirofilaria_type" field.
-func (_u *PetAnalysisUpdateOne) SetDirofilariaType(v petanalysis.DirofilariaType) *PetAnalysisUpdateOne {
-	_u.mutation.SetDirofilariaType(v)
-	return _u
-}
-
-// SetNillableDirofilariaType sets the "dirofilaria_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableDirofilariaType(v *petanalysis.DirofilariaType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetDirofilariaType(*v)
-	}
-	return _u
-}
-
-// ClearDirofilariaType clears the value of the "dirofilaria_type" field.
-func (_u *PetAnalysisUpdateOne) ClearDirofilariaType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearDirofilariaType()
-	return _u
-}
-
-// SetEhrlichiosisDate sets the "ehrlichiosis_date" field.
-func (_u *PetAnalysisUpdateOne) SetEhrlichiosisDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetEhrlichiosisDate(v)
-	return _u
-}
-
-// SetNillableEhrlichiosisDate sets the "ehrlichiosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableEhrlichiosisDate(v *time.Time) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetEhrlichiosisDate(*v)
-	}
-	return _u
-}
-
-// ClearEhrlichiosisDate clears the value of the "ehrlichiosis_date" field.
-func (_u *PetAnalysisUpdateOne) ClearEhrlichiosisDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearEhrlichiosisDate()
-	return _u
-}
-
-// SetEhrlichiosisType sets the "ehrlichiosis_type" field.
-func (_u *PetAnalysisUpdateOne) SetEhrlichiosisType(v petanalysis.EhrlichiosisType) *PetAnalysisUpdateOne {
-	_u.mutation.SetEhrlichiosisType(v)
-	return _u
-}
-
-// SetNillableEhrlichiosisType sets the "ehrlichiosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableEhrlichiosisType(v *petanalysis.EhrlichiosisType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetEhrlichiosisType(*v)
-	}
-	return _u
-}
-
-// ClearEhrlichiosisType clears the value of the "ehrlichiosis_type" field.
-func (_u *PetAnalysisUpdateOne) ClearEhrlichiosisType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearEhrlichiosisType()
-	return _u
-}
-
-// SetAnaplasmosisDate sets the "anaplasmosis_date" field.
-func (_u *PetAnalysisUpdateOne) SetAnaplasmosisDate(v time.Time) *PetAnalysisUpdateOne {
-	_u.mutation.SetAnaplasmosisDate(v)
-	return _u
-}
-
-// SetNillableAnaplasmosisDate sets the "anaplasmosis_date" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableAnaplasmosisDate(v *time.Time) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetAnaplasmosisDate(*v)
-	}
-	return _u
-}
-
-// ClearAnaplasmosisDate clears the value of the "anaplasmosis_date" field.
-func (_u *PetAnalysisUpdateOne) ClearAnaplasmosisDate() *PetAnalysisUpdateOne {
-	_u.mutation.ClearAnaplasmosisDate()
-	return _u
-}
-
-// SetAnaplasmosisType sets the "anaplasmosis_type" field.
-func (_u *PetAnalysisUpdateOne) SetAnaplasmosisType(v petanalysis.AnaplasmosisType) *PetAnalysisUpdateOne {
-	_u.mutation.SetAnaplasmosisType(v)
-	return _u
-}
-
-// SetNillableAnaplasmosisType sets the "anaplasmosis_type" field if the given value is not nil.
-func (_u *PetAnalysisUpdateOne) SetNillableAnaplasmosisType(v *petanalysis.AnaplasmosisType) *PetAnalysisUpdateOne {
-	if v != nil {
-		_u.SetAnaplasmosisType(*v)
-	}
-	return _u
-}
-
-// ClearAnaplasmosisType clears the value of the "anaplasmosis_type" field.
-func (_u *PetAnalysisUpdateOne) ClearAnaplasmosisType() *PetAnalysisUpdateOne {
-	_u.mutation.ClearAnaplasmosisType()
 	return _u
 }
 
@@ -1094,44 +451,14 @@ func (_u *PetAnalysisUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PetAnalysisUpdateOne) check() error {
-	if v, ok := _u.mutation.LeukemiaType(); ok {
-		if err := petanalysis.LeukemiaTypeValidator(v); err != nil {
-			return &ValidationError{Name: "leukemia_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.leukemia_type": %w`, err)}
+	if v, ok := _u.mutation.AnalysisName(); ok {
+		if err := petanalysis.AnalysisNameValidator(v); err != nil {
+			return &ValidationError{Name: "analysis_name", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.analysis_name": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.ImmunodeficiencyType(); ok {
-		if err := petanalysis.ImmunodeficiencyTypeValidator(v); err != nil {
-			return &ValidationError{Name: "immunodeficiency_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.immunodeficiency_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.HemoplasmosisType(); ok {
-		if err := petanalysis.HemoplasmosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "hemoplasmosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.hemoplasmosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.BartonellosisType(); ok {
-		if err := petanalysis.BartonellosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "bartonellosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.bartonellosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.BabesiosisType(); ok {
-		if err := petanalysis.BabesiosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "babesiosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.babesiosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.DirofilariaType(); ok {
-		if err := petanalysis.DirofilariaTypeValidator(v); err != nil {
-			return &ValidationError{Name: "dirofilaria_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.dirofilaria_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.EhrlichiosisType(); ok {
-		if err := petanalysis.EhrlichiosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "ehrlichiosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.ehrlichiosis_type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AnaplasmosisType(); ok {
-		if err := petanalysis.AnaplasmosisTypeValidator(v); err != nil {
-			return &ValidationError{Name: "anaplasmosis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.anaplasmosis_type": %w`, err)}
+	if v, ok := _u.mutation.AnalysisType(); ok {
+		if err := petanalysis.AnalysisTypeValidator(v); err != nil {
+			return &ValidationError{Name: "analysis_type", err: fmt.Errorf(`ent: validator failed for field "PetAnalysis.analysis_type": %w`, err)}
 		}
 	}
 	if _u.mutation.OwnerCleared() && len(_u.mutation.OwnerIDs()) > 0 {
@@ -1178,101 +505,20 @@ func (_u *PetAnalysisUpdateOne) sqlSave(ctx context.Context) (_node *PetAnalysis
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(petanalysis.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.LeukemiaDate(); ok {
-		_spec.SetField(petanalysis.FieldLeukemiaDate, field.TypeTime, value)
+	if value, ok := _u.mutation.AnalysisName(); ok {
+		_spec.SetField(petanalysis.FieldAnalysisName, field.TypeEnum, value)
 	}
-	if _u.mutation.LeukemiaDateCleared() {
-		_spec.ClearField(petanalysis.FieldLeukemiaDate, field.TypeTime)
+	if _u.mutation.AnalysisNameCleared() {
+		_spec.ClearField(petanalysis.FieldAnalysisName, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.LeukemiaType(); ok {
-		_spec.SetField(petanalysis.FieldLeukemiaType, field.TypeEnum, value)
+	if value, ok := _u.mutation.AnalysisType(); ok {
+		_spec.SetField(petanalysis.FieldAnalysisType, field.TypeEnum, value)
 	}
-	if _u.mutation.LeukemiaTypeCleared() {
-		_spec.ClearField(petanalysis.FieldLeukemiaType, field.TypeEnum)
+	if _u.mutation.AnalysisTypeCleared() {
+		_spec.ClearField(petanalysis.FieldAnalysisType, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.ImmunodeficiencyDate(); ok {
-		_spec.SetField(petanalysis.FieldImmunodeficiencyDate, field.TypeTime, value)
-	}
-	if _u.mutation.ImmunodeficiencyDateCleared() {
-		_spec.ClearField(petanalysis.FieldImmunodeficiencyDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.ImmunodeficiencyType(); ok {
-		_spec.SetField(petanalysis.FieldImmunodeficiencyType, field.TypeEnum, value)
-	}
-	if _u.mutation.ImmunodeficiencyTypeCleared() {
-		_spec.ClearField(petanalysis.FieldImmunodeficiencyType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.HemoplasmosisDate(); ok {
-		_spec.SetField(petanalysis.FieldHemoplasmosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.HemoplasmosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldHemoplasmosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.HemoplasmosisType(); ok {
-		_spec.SetField(petanalysis.FieldHemoplasmosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.HemoplasmosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldHemoplasmosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.BartonellosisDate(); ok {
-		_spec.SetField(petanalysis.FieldBartonellosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.BartonellosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldBartonellosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.BartonellosisType(); ok {
-		_spec.SetField(petanalysis.FieldBartonellosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.BartonellosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldBartonellosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.BabesiosisDate(); ok {
-		_spec.SetField(petanalysis.FieldBabesiosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.BabesiosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldBabesiosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.BabesiosisType(); ok {
-		_spec.SetField(petanalysis.FieldBabesiosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.BabesiosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldBabesiosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.DirofilariaDate(); ok {
-		_spec.SetField(petanalysis.FieldDirofilariaDate, field.TypeTime, value)
-	}
-	if _u.mutation.DirofilariaDateCleared() {
-		_spec.ClearField(petanalysis.FieldDirofilariaDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.DirofilariaType(); ok {
-		_spec.SetField(petanalysis.FieldDirofilariaType, field.TypeEnum, value)
-	}
-	if _u.mutation.DirofilariaTypeCleared() {
-		_spec.ClearField(petanalysis.FieldDirofilariaType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.EhrlichiosisDate(); ok {
-		_spec.SetField(petanalysis.FieldEhrlichiosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.EhrlichiosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldEhrlichiosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.EhrlichiosisType(); ok {
-		_spec.SetField(petanalysis.FieldEhrlichiosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.EhrlichiosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldEhrlichiosisType, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.AnaplasmosisDate(); ok {
-		_spec.SetField(petanalysis.FieldAnaplasmosisDate, field.TypeTime, value)
-	}
-	if _u.mutation.AnaplasmosisDateCleared() {
-		_spec.ClearField(petanalysis.FieldAnaplasmosisDate, field.TypeTime)
-	}
-	if value, ok := _u.mutation.AnaplasmosisType(); ok {
-		_spec.SetField(petanalysis.FieldAnaplasmosisType, field.TypeEnum, value)
-	}
-	if _u.mutation.AnaplasmosisTypeCleared() {
-		_spec.ClearField(petanalysis.FieldAnaplasmosisType, field.TypeEnum)
+	if value, ok := _u.mutation.AnalysisDate(); ok {
+		_spec.SetField(petanalysis.FieldAnalysisDate, field.TypeTime, value)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

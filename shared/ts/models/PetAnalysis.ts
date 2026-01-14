@@ -20,199 +20,43 @@ import { mapValues } from '../runtime';
  */
 export interface PetAnalysis {
     /**
-     * Дата анализа на анаплазмоз
+     * Дата анализа
      * @type {Date}
      * @memberof PetAnalysis
      */
-    anaplasmosisDate?: Date;
-    /**
-     * Тип анаплазмоза
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    anaplasmosisType?: PetAnalysisAnaplasmosisTypeEnum;
-    /**
-     * Дата анализа на бабезиоз
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    babesiosisDate?: Date;
-    /**
-     * Тип бабезиоза
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    babesiosisType?: PetAnalysisBabesiosisTypeEnum;
-    /**
-     * Дата анализа на бартонеллез
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    bartonellosisDate?: Date;
-    /**
-     * Тип бартонеллеза
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    bartonellosisType?: PetAnalysisBartonellosisTypeEnum;
-    /**
-     * Дата анализа на дирофиляриоз
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    dirofilariaDate?: Date;
-    /**
-     * Тип дирофиляриоза
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    dirofilariaType?: PetAnalysisDirofilariaTypeEnum;
-    /**
-     * Дата анализа на эрлихиоз
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    ehrlichiosisDate?: Date;
-    /**
-     * Тип эрлихиоза
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    ehrlichiosisType?: PetAnalysisEhrlichiosisTypeEnum;
-    /**
-     * Дата анализа на гемоплазмоз
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    hemoplasmosisDate?: Date;
-    /**
-     * Тип гемоплазмоза
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    hemoplasmosisType?: PetAnalysisHemoplasmosisTypeEnum;
-    /**
-     * Дата анализа на иммунодефицит
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    immunodeficiencyDate?: Date;
-    /**
-     * Тип иммунодефицита
-     * @type {string}
-     * @memberof PetAnalysis
-     */
-    immunodeficiencyType?: PetAnalysisImmunodeficiencyTypeEnum;
+    analysisDate?: Date;
     /**
      * Дата анализа на лейкемию
-     * @type {Date}
-     * @memberof PetAnalysis
-     */
-    leukemiaDate?: Date;
-    /**
-     * Тип лейкемии
      * @type {string}
      * @memberof PetAnalysis
      */
-    leukemiaType?: PetAnalysisLeukemiaTypeEnum;
+    analysisName?: string;
+    /**
+     * Тип анализа
+     * @type {string}
+     * @memberof PetAnalysis
+     */
+    analysisType?: PetAnalysisAnalysisTypeEnum;
+    /**
+     * id анализа в системе
+     * @type {string}
+     * @memberof PetAnalysis
+     */
+    id?: string;
 }
 
 
 /**
  * @export
  */
-export const PetAnalysisAnaplasmosisTypeEnum = {
+export const PetAnalysisAnalysisTypeEnum = {
     Pcr: 'PCR',
     Elisa: 'ELISA',
     Ica: 'ICA',
     Microscopy: 'Microscopy',
     Express: 'Express'
 } as const;
-export type PetAnalysisAnaplasmosisTypeEnum = typeof PetAnalysisAnaplasmosisTypeEnum[keyof typeof PetAnalysisAnaplasmosisTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisBabesiosisTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisBabesiosisTypeEnum = typeof PetAnalysisBabesiosisTypeEnum[keyof typeof PetAnalysisBabesiosisTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisBartonellosisTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisBartonellosisTypeEnum = typeof PetAnalysisBartonellosisTypeEnum[keyof typeof PetAnalysisBartonellosisTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisDirofilariaTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisDirofilariaTypeEnum = typeof PetAnalysisDirofilariaTypeEnum[keyof typeof PetAnalysisDirofilariaTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisEhrlichiosisTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisEhrlichiosisTypeEnum = typeof PetAnalysisEhrlichiosisTypeEnum[keyof typeof PetAnalysisEhrlichiosisTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisHemoplasmosisTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisHemoplasmosisTypeEnum = typeof PetAnalysisHemoplasmosisTypeEnum[keyof typeof PetAnalysisHemoplasmosisTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisImmunodeficiencyTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisImmunodeficiencyTypeEnum = typeof PetAnalysisImmunodeficiencyTypeEnum[keyof typeof PetAnalysisImmunodeficiencyTypeEnum];
-
-/**
- * @export
- */
-export const PetAnalysisLeukemiaTypeEnum = {
-    Pcr: 'PCR',
-    Elisa: 'ELISA',
-    Ica: 'ICA',
-    Microscopy: 'Microscopy',
-    Express: 'Express'
-} as const;
-export type PetAnalysisLeukemiaTypeEnum = typeof PetAnalysisLeukemiaTypeEnum[keyof typeof PetAnalysisLeukemiaTypeEnum];
+export type PetAnalysisAnalysisTypeEnum = typeof PetAnalysisAnalysisTypeEnum[keyof typeof PetAnalysisAnalysisTypeEnum];
 
 
 /**
@@ -232,22 +76,10 @@ export function PetAnalysisFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'anaplasmosisDate': json['anaplasmosisDate'] == null ? undefined : (new Date(json['anaplasmosisDate'])),
-        'anaplasmosisType': json['anaplasmosisType'] == null ? undefined : json['anaplasmosisType'],
-        'babesiosisDate': json['babesiosisDate'] == null ? undefined : (new Date(json['babesiosisDate'])),
-        'babesiosisType': json['babesiosisType'] == null ? undefined : json['babesiosisType'],
-        'bartonellosisDate': json['bartonellosisDate'] == null ? undefined : (new Date(json['bartonellosisDate'])),
-        'bartonellosisType': json['bartonellosisType'] == null ? undefined : json['bartonellosisType'],
-        'dirofilariaDate': json['dirofilariaDate'] == null ? undefined : (new Date(json['dirofilariaDate'])),
-        'dirofilariaType': json['dirofilariaType'] == null ? undefined : json['dirofilariaType'],
-        'ehrlichiosisDate': json['ehrlichiosisDate'] == null ? undefined : (new Date(json['ehrlichiosisDate'])),
-        'ehrlichiosisType': json['ehrlichiosisType'] == null ? undefined : json['ehrlichiosisType'],
-        'hemoplasmosisDate': json['hemoplasmosisDate'] == null ? undefined : (new Date(json['hemoplasmosisDate'])),
-        'hemoplasmosisType': json['hemoplasmosisType'] == null ? undefined : json['hemoplasmosisType'],
-        'immunodeficiencyDate': json['immunodeficiencyDate'] == null ? undefined : (new Date(json['immunodeficiencyDate'])),
-        'immunodeficiencyType': json['immunodeficiencyType'] == null ? undefined : json['immunodeficiencyType'],
-        'leukemiaDate': json['leukemiaDate'] == null ? undefined : (new Date(json['leukemiaDate'])),
-        'leukemiaType': json['leukemiaType'] == null ? undefined : json['leukemiaType'],
+        'analysisDate': json['analysisDate'] == null ? undefined : (new Date(json['analysisDate'])),
+        'analysisName': json['analysisName'] == null ? undefined : json['analysisName'],
+        'analysisType': json['analysisType'] == null ? undefined : json['analysisType'],
+        'id': json['id'] == null ? undefined : json['id'],
     };
 }
 
@@ -262,22 +94,10 @@ export function PetAnalysisToJSONTyped(value?: PetAnalysis | null, ignoreDiscrim
 
     return {
         
-        'anaplasmosisDate': value['anaplasmosisDate'] == null ? value['anaplasmosisDate'] : value['anaplasmosisDate'].toISOString(),
-        'anaplasmosisType': value['anaplasmosisType'],
-        'babesiosisDate': value['babesiosisDate'] == null ? value['babesiosisDate'] : value['babesiosisDate'].toISOString(),
-        'babesiosisType': value['babesiosisType'],
-        'bartonellosisDate': value['bartonellosisDate'] == null ? value['bartonellosisDate'] : value['bartonellosisDate'].toISOString(),
-        'bartonellosisType': value['bartonellosisType'],
-        'dirofilariaDate': value['dirofilariaDate'] == null ? value['dirofilariaDate'] : value['dirofilariaDate'].toISOString(),
-        'dirofilariaType': value['dirofilariaType'],
-        'ehrlichiosisDate': value['ehrlichiosisDate'] == null ? value['ehrlichiosisDate'] : value['ehrlichiosisDate'].toISOString(),
-        'ehrlichiosisType': value['ehrlichiosisType'],
-        'hemoplasmosisDate': value['hemoplasmosisDate'] == null ? value['hemoplasmosisDate'] : value['hemoplasmosisDate'].toISOString(),
-        'hemoplasmosisType': value['hemoplasmosisType'],
-        'immunodeficiencyDate': value['immunodeficiencyDate'] == null ? value['immunodeficiencyDate'] : value['immunodeficiencyDate'].toISOString(),
-        'immunodeficiencyType': value['immunodeficiencyType'],
-        'leukemiaDate': value['leukemiaDate'] == null ? value['leukemiaDate'] : value['leukemiaDate'].toISOString(),
-        'leukemiaType': value['leukemiaType'],
+        'analysisDate': value['analysisDate'] == null ? value['analysisDate'] : value['analysisDate'].toISOString(),
+        'analysisName': value['analysisName'],
+        'analysisType': value['analysisType'],
+        'id': value['id'],
     };
 }
 
