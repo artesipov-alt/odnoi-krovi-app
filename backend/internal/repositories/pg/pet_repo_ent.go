@@ -186,7 +186,7 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, prelo
 			query = query.WithHealth()
 		case "Treatments":
 			query = query.WithTreatments()
-		case "Analysis":
+		case "Analyses":
 			query = query.WithAnalyses()
 		case "Bonuses":
 			query = query.WithBonuses()
