@@ -108,7 +108,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	Body dto.PetCreate
 }) (*dto.PetResponse, error) {
-	petData := mapDTOToPet(input.Body)
+	petData := h.toCreateENT(input.Body)
 
 	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
 	if err != nil {
@@ -120,7 +120,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	return &dto.PetResponse{Body: mapPetToDTO(pet)}, nil
+	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
 }
 
 func (h *PetHandler) GetPet(ctx context.Context, input *struct {
@@ -139,7 +139,7 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	return &dto.PetResponse{Body: mapPetToDTO(pet)}, nil
+	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
 }
 
 func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
@@ -160,7 +160,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 
 	var petDTOs []dto.Pet
 	for _, p := range pets {
-		petDTOs = append(petDTOs, mapPetToDTO(p))
+		petDTOs = append(petDTOs, h.toDTO(p))
 	}
 
 	return &dto.PetsResponse{Body: petDTOs}, nil
@@ -170,7 +170,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	dto.PetIDPath
 	Body dto.PetUpdate
 }) (*dto.MessageResponse, error) {
-	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
+	updates, health, treatments, analyses, bonuses := h.toUpdateENT(input.Body)
 
 	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
@@ -253,7 +253,7 @@ func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
 }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
-func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
+func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 	petDTO := dto.Pet{
 		ID:              p.ID,
 		Name:            p.Name,
@@ -318,7 +318,7 @@ func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 }
 
 // mapDTOToPet преобразует DTO создания питомца в ENT модель
-func mapDTOToPet(d dto.PetCreate) *ent.Pet {
+func (h *PetHandler) toCreateENT(d dto.PetCreate) *ent.Pet {
 	p := &ent.Pet{
 		Name:            d.Name,
 		ChipNumber:      d.ChipNumber,
@@ -393,7 +393,7 @@ func mapDTOToPet(d dto.PetCreate) *ent.Pet {
 }
 
 // mapDTOToPetUpdates преобразует DTO обновления питомца в аргументы для сервиса
-func mapDTOToPetUpdates(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.PetTreatment, []*ent.PetAnalysis, *ent.PetBonus) {
+func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.PetTreatment, []*ent.PetAnalysis, *ent.PetBonus) {
 	updates := make(map[string]any)
 	if d.Name != nil {
 		updates["Name"] = *d.Name
