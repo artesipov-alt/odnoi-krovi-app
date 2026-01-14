@@ -24,10 +24,10 @@ type PetTreatment struct {
 
 // PetAnalysis представляет информацию об анализах питомца
 type PetAnalysis struct {
-	ID           *string    `json:"id,omitempty" doc:"id анализа в системе" example:"2023-10-01T12:00:00Z"`
-	AnalysisName *string    `json:"analysisName,omitempty" doc:"Дата анализа на лейкемию" example:"2023-10-01T12:00:00Z"`
-	AnalysisType *string    `json:"analysisType,omitempty" doc:"Тип анализа" enum:"PCR,ELISA,ICA,Microscopy,Express"`
-	AnalysisDate *time.Time `json:"analysisDate,omitempty" doc:"Дата анализа" example:"2023-10-01T12:00:00Z"`
+	ID           *string    `json:"id,omitempty" doc:"ID анализа в системе" example:"ANALYSIS-aBcDeF1234"`
+	AnalysisName *string    `json:"analysisName,omitempty" doc:"Название анализа" enum:"leukemia,immunodeficiency,hemoplasmosis,bartonellosis,babesiosis,dirofilaria,ehrlichiosis,anaplasmosis" example:"leukemia"`
+	AnalysisType *string    `json:"analysisType,omitempty" doc:"Тип анализа" enum:"PCR,ELISA,ICA,Microscopy,Express" example:"PCR"`
+	AnalysisDate *time.Time `json:"analysisDate,omitempty" doc:"Дата проведения анализа" example:"2023-10-01T12:00:00Z"`
 }
 
 // PetBonus представляет дополнительную информацию о питомце
