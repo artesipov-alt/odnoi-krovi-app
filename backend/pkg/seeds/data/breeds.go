@@ -10,7 +10,6 @@ type BreedData struct {
 
 var Breeds = []BreedData{
 	{ID: 1, Name: "МЕТИС", Type: breed.TypeDog},
-	{ID: 185, Name: "СИЛИХЕМ ТЕРЬЕР", Type: breed.TypeDog},
 	{ID: 2, Name: "АВСТРАЛИЙСКАЯ ОВЧАРКА", Type: breed.TypeDog},
 	{ID: 3, Name: "АВСТРАЛИЙСКИЙ КЕЛПИ", Type: breed.TypeDog},
 	{ID: 4, Name: "АВСТРАЛИЙСКИЙ ТЕРЬЕР", Type: breed.TypeDog},
@@ -194,6 +193,7 @@ var Breeds = []BreedData{
 	{ID: 182, Name: "СЕТТЕР ГОРДОН", Type: breed.TypeDog},
 	{ID: 183, Name: "СИБА", Type: breed.TypeDog},
 	{ID: 184, Name: "СИБИРСКИЙ ХАСКИ", Type: breed.TypeDog},
+	{ID: 185, Name: "СИЛИХЕМ ТЕРЬЕР", Type: breed.TypeDog},
 	{ID: 186, Name: "СКАЙ ТЕРЬЕР", Type: breed.TypeDog},
 	{ID: 187, Name: "СКОТЧ ТЕРЬЕР", Type: breed.TypeDog},
 	{ID: 188, Name: "СЛОВАЦКИЙ ЧУВАЧ", Type: breed.TypeDog},
@@ -248,7 +248,8 @@ var Breeds = []BreedData{
 	{ID: 237, Name: "ЯПОНСКИЙ ХИН", Type: breed.TypeDog},
 	{ID: 238, Name: "ЯПОНСКИЙ ШПИЦ", Type: breed.TypeDog},
 	{ID: 240, Name: "АБИССИНСКАЯ", Type: breed.TypeCat},
-	{ID: 241, Name: "АВСТРАЛИЙСКАЯ ДЫМЧАТАЯ (МИСТ)", Type: breed.TypeCat},
+	{ID: 241, Name: "МЕТИС", Type: breed.TypeCat},
+	{ID: 242, Name: "АВСТРАЛИЙСКАЯ ДЫМЧАТАЯ (МИСТ)", Type: breed.TypeCat},
 	{ID: 242, Name: "АЗИАТСКАЯ (ТАББИ/ДЫМЧАТАЯ)", Type: breed.TypeCat},
 	{ID: 243, Name: "АМЕРИКАНСКАЯ ЖЕСТКОШЕРСТНАЯ", Type: breed.TypeCat},
 	{ID: 244, Name: "АМЕРИКАНСКАЯ КОРОТКОШЕРСТНАЯ", Type: breed.TypeCat},
