@@ -54,7 +54,7 @@ export interface BloodSearchPetRequest {
      * @type {string}
      * @memberof BloodSearchPetRequest
      */
-    description: string;
+    description?: string;
     /**
      * ID питомца
      * @type {string}
@@ -66,7 +66,7 @@ export interface BloodSearchPetRequest {
      * @type {Array<string>}
      * @memberof BloodSearchPetRequest
      */
-    photoUrls: Array<string>;
+    photoUrls?: Array<string>;
     /**
      * Список ID регионов, где требуется кровь
      * @type {Array<number>}
@@ -89,9 +89,7 @@ export function instanceOfBloodSearchPetRequest(value: object): value is BloodSe
     if (!('bloodGroupIds' in value) || value['bloodGroupIds'] === undefined) return false;
     if (!('bloodVolumeNeeded' in value) || value['bloodVolumeNeeded'] === undefined) return false;
     if (!('bloodVolumeReserved' in value) || value['bloodVolumeReserved'] === undefined) return false;
-    if (!('description' in value) || value['description'] === undefined) return false;
     if (!('petId' in value) || value['petId'] === undefined) return false;
-    if (!('photoUrls' in value) || value['photoUrls'] === undefined) return false;
     if (!('regions' in value) || value['regions'] === undefined) return false;
     if (!('smallPetsNotifyAllowed' in value) || value['smallPetsNotifyAllowed'] === undefined) return false;
     return true;
@@ -112,9 +110,9 @@ export function BloodSearchPetRequestFromJSONTyped(json: any, ignoreDiscriminato
         'bloodGroupIds': json['bloodGroupIds'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
         'bloodVolumeReserved': json['bloodVolumeReserved'],
-        'description': json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'petId': json['petId'],
-        'photoUrls': json['photoUrls'],
+        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'regions': json['regions'],
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
     };

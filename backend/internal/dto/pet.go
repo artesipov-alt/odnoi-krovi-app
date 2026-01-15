@@ -38,27 +38,6 @@ type PetBonus struct {
 	IsGuideDog    bool `json:"isGuideDog,omitempty" doc:"Является ли питомец собакой-проводником" example:"false"`
 }
 
-// PetCreate представляет структуру для создания нового питомца
-type PetCreate struct {
-	Name            string         `json:"name" validate:"required,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
-	ChipNumber      string         `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
-	PhotoURL        string         `json:"photoUrl,omitempty" validate:"omitempty,url,max=255" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`
-	BreedID         int            `json:"breedId,omitempty" validate:"omitempty,min=1" doc:"ID породы" example:"1"`
-	WeightKg        float64        `json:"weightKg,omitempty" validate:"omitempty,min=0" doc:"Вес в килограммах" example:"15.5"`
-	AgeYears        int            `json:"ageYears,omitempty" validate:"omitempty,min=0" doc:"Возраст в годах" example:"3"`
-	AgeMonths       int            `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах" example:"6"`
-	BirthDate       *time.Time     `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
-	LivingCondition string         `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leashWalking,selfOutdoor" example:"indoor"`
-	Gender          string         `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
-	Type            string         `json:"type" validate:"required" doc:"Тип животного" enum:"dog,cat" example:"dog"`
-	BloodGroup      string         `json:"bloodGroup,omitempty" doc:"Группа крови" example:"DEA 1.1"`
-	PetStatus       string         `json:"petStatus" validate:"required,oneof=donor recipient none" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
-	Health          *PetHealth     `json:"health,omitempty" doc:"Информация о здоровье"`
-	Treatments      *PetTreatment  `json:"treatments,omitempty" doc:"Информация о лечении"`
-	Analyses        []*PetAnalysis `json:"analyses,omitempty" doc:"Список анализов"`
-	Bonuses         *PetBonus      `json:"bonuses,omitempty" doc:"Дополнительная информация"`
-}
-
 // PetUpdate представляет структуру для обновления существующего питомца
 type PetUpdate struct {
 	Name            *string        `json:"name,omitempty" validate:"omitempty,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
@@ -82,11 +61,11 @@ type PetUpdate struct {
 
 // Pet представляет ответ с информацией о питомце
 type Pet struct {
-	ID              string         `json:"id" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234"`
+	ID              string         `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234"`
 	Name            string         `json:"name" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber      string         `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
 	PhotoURL        string         `json:"photoUrl,omitempty" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`
-	BreedID         int            `json:"breedId,omitempty" doc:"ID породы" example:"1"`
+	BreedID         int            `json:"breedId" doc:"ID породы" example:"1"`
 	WeightKg        float64        `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
 	AgeYears        int            `json:"ageYears,omitempty" doc:"Возраст в годах" example:"3"`
 	AgeMonths       int            `json:"ageMonths,omitempty" doc:"Возраст в месяцах" example:"6"`
@@ -96,12 +75,13 @@ type Pet struct {
 	Type            string         `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
 	BloodGroup      string         `json:"bloodGroup,omitempty" doc:"Группа крови" example:"DEA 1.1"`
 	PetStatus       string         `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
-	Health          *PetHealth     `json:"health" doc:"Информация о здоровье"`
-	Treatments      *PetTreatment  `json:"treatments" doc:"Информация о лечении"`
-	Analyses        []*PetAnalysis `json:"analyses" doc:"Список анализов"`
-	Bonuses         *PetBonus      `json:"bonuses" doc:"Дополнительная информация"`
-	CreatedAt       string         `json:"createdAt" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt       string         `json:"updatedAt" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z"`
+	Health          *PetHealth     `json:"health,omitempty" doc:"Информация о здоровье"`
+	Treatments      *PetTreatment  `json:"treatments,omitempty" doc:"Информация о лечении"`
+	Analyses        []*PetAnalysis `json:"analyses,omitempty" doc:"Список анализов"`
+	Bonuses         *PetBonus      `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	CreatedAt       *time.Time     `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z"`
+	UpdatedAt       *time.Time     `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z"`
+	DeletedAt       *time.Time     `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z"`
 }
 
 // Вспомогательные структуры для Huma

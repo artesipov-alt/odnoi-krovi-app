@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 // UserIDPath представляет параметры пути с ID пользователя
 type UserIDPath struct {
 	ID string `path:"id" doc:"ID пользователя" minLength:"1" example:"USR-ABCDEABCDE"`
@@ -28,21 +30,21 @@ type UserUpdate struct {
 
 // User представляет данные пользователя для ответа API
 type User struct {
-	ID               string `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE"`
-	TelegramID       int64  `json:"telegramId" doc:"Telegram ID" example:"123456789"`
-	FullName         string `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
-	Phone            string `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
-	Email            string `json:"email,omitempty" doc:"Email" example:"user@example.com"`
-	OrganizationName string `json:"organizationName,omitempty" doc:"Название организации"`
-	ConsentPd        bool   `json:"consentPd" doc:"Согласие на ПД"`
-	OnBoarding       bool   `json:"onBoarding" doc:"Статус онбординга"`
-	AllowGeo         bool   `json:"allowGeo" doc:"Разрешение использовать геоданные"`
-	LocationID       int    `json:"locationId,omitempty" doc:"ID локации"`
-	Role             string `json:"role" doc:"Роль"`
-	Pets             []Pet  `json:"pets,omitempty" doc:"Список питомцев"`
-	CreatedAt        string `json:"createdAt" doc:"Дата создания" format:"date-time"`
-	UpdatedAt        string `json:"updatedAt" doc:"Дата обновления" format:"date-time"`
-	DeletedAt        string `json:"deletedAt,omitempty" doc:"Дата удаления" format:"date-time"`
+	ID               string     `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE"`
+	TelegramID       int64      `json:"telegramId" doc:"Telegram ID" example:"123456789"`
+	FullName         string     `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
+	Phone            string     `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
+	Email            string     `json:"email,omitempty" doc:"Email" example:"user@example.com"`
+	OrganizationName string     `json:"organizationName,omitempty" doc:"Название организации"`
+	ConsentPd        bool       `json:"consentPd" doc:"Согласие на ПД"`
+	OnBoarding       bool       `json:"onBoarding" doc:"Статус онбординга"`
+	AllowGeo         bool       `json:"allowGeo" doc:"Разрешение использовать геоданные"`
+	LocationID       int        `json:"locationId,omitempty" doc:"ID локации"`
+	Role             string     `json:"role" doc:"Роль"`
+	Pets             []Pet      `json:"pets,omitempty" doc:"Список питомцев"`
+	CreatedAt        *time.Time `json:"createdAt" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+	UpdatedAt        *time.Time `json:"updatedAt" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
+	DeletedAt        *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z"`
 }
 
 // UserResponse представляет обертку для ответа с одним пользователем для Huma

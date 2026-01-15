@@ -106,7 +106,7 @@ func (h *PetHandler) Register(api huma.API) {
 
 func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
-	Body dto.PetCreate
+	Body dto.Pet
 }) (*dto.PetResponse, error) {
 	petData := h.toCreateENT(input.Body)
 
@@ -269,8 +269,9 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.P
 		Type:            string(p.Type),
 		BloodGroup:      p.BloodGroup,
 		PetStatus:       string(p.PetStatus),
-		CreatedAt:       p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:       p.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt:       &p.CreatedAt,
+		UpdatedAt:       &p.UpdatedAt,
+		DeletedAt:       p.DeletedAt,
 	}
 	if p.Edges.Health != nil {
 		reproStatus := string(p.Edges.Health.ReproductiveStatus)
@@ -318,7 +319,7 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.P
 }
 
 // mapDTOToPet преобразует DTO создания питомца в ENT модель
-func (h *PetHandler) toCreateENT(d dto.PetCreate) *ent.Pet {
+func (h *PetHandler) toCreateENT(d dto.Pet) *ent.Pet {
 	p := &ent.Pet{
 		Name:            d.Name,
 		ChipNumber:      d.ChipNumber,

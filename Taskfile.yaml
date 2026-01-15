@@ -78,6 +78,7 @@ tasks:
     desc: "Запустить backend в dev режиме"
     dir: backend
     cmds:
+      - task: generate-swagger
       - go run cmd/api/main.go
 
   dev-micoservice:
