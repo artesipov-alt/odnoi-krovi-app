@@ -5,6 +5,25 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [2.0.5] - 2026-01-15
+
+### Изменено
+- Обновлены DTO для использования `omitempty` и полей-указателей для опциональных значений.
+- В `BloodSearchPetRequest` опциональные поля теперь используют `omitempty`.
+- Удалена структура `PetCreate`, теперь для создания питомца используется сама структура `Pet`.
+- В DTO `Pet` и `User` поля временных меток (`CreatedAt`, `UpdatedAt`, `DeletedAt`) теперь являются указателями.
+- Синхронизированы TypeScript модели с изменениями бэкенда.
+
+### Технические детали
+- Добавлена задача `generate-swagger` в команду `dev backend` для автоматической генерации документации.
+- В `schema/pet.go` и `schema/user.go` поля `CreatedAt`, `UpdatedAt`, `DeletedAt` изменены на `*time.Time`.
+- В `dto/blood_search.go` для `BloodSearchPetRequest` добавлены теги `json:",omitempty"` к опциональным полям.
+- Удален файл `dto/pet_create.go` и все ссылки на `PetCreate`.
+- Обновлены все места использования DTO `Pet` и `User` для корректной работы с полями-указателями и `omitempty`.
+- Перегенерированы TypeScript модели для соответствия новым DTO.
+
+
+
 ## [2.0.3] - 2026-01-14
 
 ### Изменено
