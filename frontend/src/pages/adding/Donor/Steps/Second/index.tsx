@@ -72,6 +72,8 @@ const Second: FC<Props> = ({
 
     const onChangerReproductiveStatusHandler = (newStatus: string) => () => {
         if (newStatus === reproductiveStatus) {
+            onChangeReproductiveStatus('');
+
             return;
         }
 

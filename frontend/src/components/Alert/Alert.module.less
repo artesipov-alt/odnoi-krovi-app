@@ -12,9 +12,9 @@
     background: @orangeBg;
     color: @common-red;
 
-    &.info {
-        background: rgba(@red6, .4);
-        color: @white;
+    &.infoWithoutIcon {
+        background: @orangeBg1;
+        color: @textColor8;
     }
 }
 
@@ -22,12 +22,8 @@
     width: 17px;
     height: 17px;
 
-    &.info {
-        transform: rotate(180deg);
-
-        svg {
-            fill: rgba(@red6, .7);
-        }
+    &.infoWithoutIcon {
+        display: none;
     }
 
     svg {

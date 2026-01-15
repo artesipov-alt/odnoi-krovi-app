@@ -148,6 +148,7 @@ const ImgEditor: FC<Props> = ({
                     <img className={styles.img} src={URL.createObjectURL(file)} onClick={onImgClickHandler} alt='' />
                     {onLoad && renderDeleteButton()}
                     {showStub && renderLabels()}
+                    {showStub && <div className={styles.gradient} />}
                 </div>
             )}
             <input

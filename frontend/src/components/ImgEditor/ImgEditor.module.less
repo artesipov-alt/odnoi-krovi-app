@@ -20,6 +20,10 @@
     &.mini {
         width: 80px;
         height: 110px;
+
+        & .gradient {
+            display: none;
+        }
     }
 }
 
@@ -82,14 +86,15 @@
     position: relative;
     height: 177px;
     width: 140px;
+    border-radius: 10px;
 
     &.cat {
-        background: url('imgs/catStub.png') no-repeat;
+        background: url('imgs/catStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
         background-size: cover;
     }
 
     &.dog {
-        background: url('imgs/dogStub.png') no-repeat;
+        background: url('imgs/dogStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
         background-size: cover;
     }
 }
@@ -136,10 +141,22 @@
     width: calc(100% - 14px);
     overflow: hidden;
     text-overflow: ellipsis;
+    z-index: 2;
 }
 
 .imgWithLabels {
     position: relative;
+}
+
+.gradient {
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    top: 0;
+    left: 0;
+    border-radius: 10px;
+    background: linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
+    z-index: 1;
 }
 
 .imgWrapper {

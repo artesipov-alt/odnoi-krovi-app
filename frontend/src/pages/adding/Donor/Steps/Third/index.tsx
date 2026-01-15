@@ -174,8 +174,8 @@ const Third: FC<Props> = ({
         <>
             <FormItem title='Состояние здоровья'>
                 <Alert
-                    view={View.INFO}
                     className={styles.alert}
+                    view={View.INFO_WITHOUT_ICON}
                     text='Есть ли у питомца хронические, инфекционные, аутоиммунные, онкологические заболевания?'
                 />
                 <div className={styles.buttonsRow}>

@@ -1,0 +1,15 @@
+@import 'styles/colors';
+
+@loaderSize: 80px;
+
+.wrapper {
+    color: @common-red;
+}
+
+.loader {
+    width: @loaderSize;
+    height: @loaderSize;
+    position: absolute;
+    top: calc(50% - var(--loading-size) / 2);
+    left: calc(50% - var(--loading-size) / 2);
+}
