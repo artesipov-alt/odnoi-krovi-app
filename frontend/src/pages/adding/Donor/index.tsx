@@ -27,12 +27,13 @@ import { Analiz, BirthDate } from './types';
 type GroupsDicts = Record<PetType, Dict[]>;
 
 type Props = {
+    userId: string;
     onBackToStart: () => void;
 };
 
 const captions = ['О питомце', 'Параметры', 'Здоровье', 'Обработки', 'Анализы'];
 
-const Donor: FC<Props> = ({ onBackToStart }) => {
+const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
@@ -587,7 +588,32 @@ const Donor: FC<Props> = ({ onBackToStart }) => {
         }
     };
 
+    const fetchCreateDonor = async (confirmedStep: number) => {
+        // const { success } = await createPet({
+        //     name,
+        //     photo,
+        //     userId,
+        //     type: petType,
+        //     petStatus: Role.DONOR,
+        //     weightKg: Number(weight),
+        //     bloodGroup: `${bloodGroup}`,
+        // });
+
+        // if (success) {
+        if (true) {
+            setStep(confirmedStep + 1);
+        } else {
+            showToast('Не удалось сохранить питомца, попробуйте еще раз');
+        }
+    };
+
     const onConfirmButtonClickHandler = (confirmedStep: number) => {
+        if (confirmedStep !== 0 && step === 6) {
+            fetchCreateDonor(confirmedStep);
+
+            return;
+        }
+
         setStep(confirmedStep + 1);
     };
 

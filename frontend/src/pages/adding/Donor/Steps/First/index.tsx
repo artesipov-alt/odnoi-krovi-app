@@ -90,6 +90,10 @@ const First: FC<Props> = ({
     };
 
     const onBirthDateTypeClickHandler = (newType: BirthDate) => () => {
+        if (birthDateType === newType) {
+            return;
+        }
+
         onChangeBirthDateType(newType);
     };
 

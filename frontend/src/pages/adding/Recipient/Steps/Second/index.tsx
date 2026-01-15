@@ -4,7 +4,7 @@ import Big from 'big.js';
 import cn from 'classnames';
 import Lock from 'imgs/svg/lock';
 import FormItem from 'pages/adding/common/FormItem';
-import { ChangeEvent, FC, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { regexReal } from 'utils/regexps';
 
 import { Dict } from 'api/reference';
@@ -55,9 +55,7 @@ const Second: FC<Props> = ({
     onChangeDesiredBloodGroups,
     onChangeNotifyOfSmallDonors,
 }) => {
-    const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(
-        !!bloodComponents.length && !!bloodVolume && !!locations.length,
-    );
+    const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(false);
 
     const onChangeDesiredBloodGroupHandler = (newBloodGroup: string) => () => {
         if (newBloodGroup === bloodGroup) {
@@ -84,8 +82,6 @@ const Second: FC<Props> = ({
             return;
         }
 
-        setIsConfirmButtonActive(!!newComponents.length && !!bloodVolume && !!locations.length);
-
         onChangeBloodComponents(newComponents);
     };
 
@@ -93,32 +89,22 @@ const Second: FC<Props> = ({
         const newValue = value.replaceAll(' ', '');
 
         if (!newValue) {
-            setIsConfirmButtonActive(false);
-
             onChangeBloodVolume('');
 
             return;
         }
 
         if (!newValue.match(regexReal)) {
-            setIsConfirmButtonActive(false);
-
             return;
         }
 
         if (petType === PetType.CAT && Number(newValue) > Number(weight) * 0.07 * 1000) {
-            setIsConfirmButtonActive(false);
-
             return;
         }
 
         if (petType === PetType.DOG && Number(newValue) > Number(weight) * 0.1 * 1000) {
-            setIsConfirmButtonActive(false);
-
             return;
         }
-
-        setIsConfirmButtonActive(!!bloodComponents.length && !!locations.length);
 
         onChangeBloodVolume(newValue);
     };
@@ -132,8 +118,6 @@ const Second: FC<Props> = ({
     const onChangeLocationsHandler = ({ target: { value } }: SelectChangeEvent<typeof locations>) => {
         const newLocations = typeof value === 'string' ? value.split(',') : value;
 
-        setIsConfirmButtonActive(!!newLocations.length && !!bloodVolume && !!bloodComponents.length);
-
         onChangeLocations(newLocations);
     };
 
@@ -144,6 +128,10 @@ const Second: FC<Props> = ({
     const onConfirmButtonClickHandler = () => {
         onConfirmButtonClick(2);
     };
+
+    useEffect(() => {
+        setIsConfirmButtonActive(!!bloodComponents.length && !!bloodVolume && !!locations.length);
+    }, [bloodComponents, bloodVolume, locations]);
 
     return (
         <>
@@ -178,7 +166,7 @@ const Second: FC<Props> = ({
                 {petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === '1' && (
                     <Alert
                         className={cn(styles.alert, { [styles.isTopMargin]: true })}
-                        text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу(DEA 1 +), чтобы не создавать дефицит для других собак.'
+                        text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу (DEA 1 +), чтобы не создавать дефицит для других собак.'
                     />
                 )}
             </FormItem>
