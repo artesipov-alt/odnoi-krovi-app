@@ -92,6 +92,7 @@ jobs:
             # Build and restart only changed services with Docker layer caching
             if [[ "$BACKEND_CHANGED" == "true" ]]; then
               echo "Rebuilding backend with cache 🏗️"
+              task generate-docs # Changed from generate-swagger to generate-docs
               docker compose build backend
               docker compose up -d backend
             fi

@@ -24,9 +24,6 @@ COPY backend/docsui/ ./docsui/
 COPY backend/ent/ ./ent/
 COPY backend/pkg/ ./pkg/
 
-# Генерируем свежую доку и делаем миграцию
-RUN go run cmd/api/main.go -d
-
 # Сборка бинарника
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api
 

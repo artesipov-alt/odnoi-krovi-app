@@ -4,15 +4,15 @@ env:
   ENV_FILE: .env
 
 tasks:
-  generate-api:
+  generate-ts:
     desc: "Сгенерировать типы API Backend для TypeScript"
     cmds:
-      - task: generate-swagger
+      - task: generate-docs # Changed from generate-swagger to generate-docs for consistency
       - openapi-generator generate -i ./backend/docs/openapi.json -g typescript-fetch -o shared/ts
 
-  generate-swagger:
+  generate-docs:
     desc: "Сгенерировать OpenAPI документацию"
-    dir: backend # Added dir: backend to run the command in the correct directory
+    dir: backend
     cmds:
       - go run ./cmd/api/main.go -d
 
@@ -49,7 +49,7 @@ tasks:
       - go mod tidy
 
   install-microservice:
-    desc: "Установить зависимости backend"
+    desc: "Установить зависимости микросервиса" # Corrected description
     dir: microservices/blood-microservice
     cmds:
       - go mod tidy
@@ -71,6 +71,7 @@ tasks:
     desc: "Запустить все сервисы в режиме разработки"
     cmds:
       - task: dev-backend
+      - task: dev-micoservice # Added microservice to dev tasks
       - task: dev-frontend
       - task: dev-bot
 
@@ -78,11 +79,11 @@ tasks:
     desc: "Запустить backend в dev режиме"
     dir: backend
     cmds:
-      - task: generate-swagger
+      - task: generate-docs # Changed from generate-swagger to generate-docs for consistency
       - go run cmd/api/main.go
 
   dev-micoservice:
-    desc: "Запустить миеросервис в dev режиме"
+    desc: "Запустить микросервис в dev режиме" # Corrected description
     dir: microservices/blood-microservice
     cmds:
       - go run cmd/microservice/main.go
