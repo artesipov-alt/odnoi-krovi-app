@@ -46,7 +46,7 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "closed", "draft"}, Default: "active"},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
-		{Name: "blood_group_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "blood_group_names", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_component_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "pet_id", Type: field.TypeString, Unique: true},
 	}

@@ -190,21 +190,21 @@ func (_u *BloodSearchRequestUpdate) ClearPhotoUrls() *BloodSearchRequestUpdate {
 	return _u
 }
 
-// SetBloodGroupIds sets the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdate) SetBloodGroupIds(v []string) *BloodSearchRequestUpdate {
-	_u.mutation.SetBloodGroupIds(v)
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (_u *BloodSearchRequestUpdate) SetBloodGroupNames(v []string) *BloodSearchRequestUpdate {
+	_u.mutation.SetBloodGroupNames(v)
 	return _u
 }
 
-// AppendBloodGroupIds appends value to the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdate) AppendBloodGroupIds(v []string) *BloodSearchRequestUpdate {
-	_u.mutation.AppendBloodGroupIds(v)
+// AppendBloodGroupNames appends value to the "blood_group_names" field.
+func (_u *BloodSearchRequestUpdate) AppendBloodGroupNames(v []string) *BloodSearchRequestUpdate {
+	_u.mutation.AppendBloodGroupNames(v)
 	return _u
 }
 
-// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdate) ClearBloodGroupIds() *BloodSearchRequestUpdate {
-	_u.mutation.ClearBloodGroupIds()
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (_u *BloodSearchRequestUpdate) ClearBloodGroupNames() *BloodSearchRequestUpdate {
+	_u.mutation.ClearBloodGroupNames()
 	return _u
 }
 
@@ -355,16 +355,16 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	if _u.mutation.PhotoUrlsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON)
 	}
-	if value, ok := _u.mutation.BloodGroupIds(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON, value)
+	if value, ok := _u.mutation.BloodGroupNames(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodGroupNames, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.AppendedBloodGroupIds(); ok {
+	if value, ok := _u.mutation.AppendedBloodGroupNames(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, bloodsearchrequest.FieldBloodGroupIds, value)
+			sqljson.Append(u, bloodsearchrequest.FieldBloodGroupNames, value)
 		})
 	}
-	if _u.mutation.BloodGroupIdsCleared() {
-		_spec.ClearField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON)
+	if _u.mutation.BloodGroupNamesCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldBloodGroupNames, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.BloodComponentIds(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)
@@ -586,21 +586,21 @@ func (_u *BloodSearchRequestUpdateOne) ClearPhotoUrls() *BloodSearchRequestUpdat
 	return _u
 }
 
-// SetBloodGroupIds sets the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodGroupIds(v []string) *BloodSearchRequestUpdateOne {
-	_u.mutation.SetBloodGroupIds(v)
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (_u *BloodSearchRequestUpdateOne) SetBloodGroupNames(v []string) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetBloodGroupNames(v)
 	return _u
 }
 
-// AppendBloodGroupIds appends value to the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdateOne) AppendBloodGroupIds(v []string) *BloodSearchRequestUpdateOne {
-	_u.mutation.AppendBloodGroupIds(v)
+// AppendBloodGroupNames appends value to the "blood_group_names" field.
+func (_u *BloodSearchRequestUpdateOne) AppendBloodGroupNames(v []string) *BloodSearchRequestUpdateOne {
+	_u.mutation.AppendBloodGroupNames(v)
 	return _u
 }
 
-// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
-func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupIds() *BloodSearchRequestUpdateOne {
-	_u.mutation.ClearBloodGroupIds()
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupNames() *BloodSearchRequestUpdateOne {
+	_u.mutation.ClearBloodGroupNames()
 	return _u
 }
 
@@ -781,16 +781,16 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	if _u.mutation.PhotoUrlsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON)
 	}
-	if value, ok := _u.mutation.BloodGroupIds(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON, value)
+	if value, ok := _u.mutation.BloodGroupNames(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodGroupNames, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.AppendedBloodGroupIds(); ok {
+	if value, ok := _u.mutation.AppendedBloodGroupNames(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, bloodsearchrequest.FieldBloodGroupIds, value)
+			sqljson.Append(u, bloodsearchrequest.FieldBloodGroupNames, value)
 		})
 	}
-	if _u.mutation.BloodGroupIdsCleared() {
-		_spec.ClearField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON)
+	if _u.mutation.BloodGroupNamesCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldBloodGroupNames, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.BloodComponentIds(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)

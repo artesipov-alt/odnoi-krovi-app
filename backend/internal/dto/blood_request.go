@@ -1,7 +1,5 @@
 package dto
 
-import "time"
-
 // BloodSearchRequestStatus представляет статус запроса на поиск крови
 type BloodSearchRequestStatus string
 
@@ -21,13 +19,13 @@ type BloodSearchPetRequest struct {
 	SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
 	Description            string   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
 	PhotoUrls              []string `json:"photoUrls,omitempty" doc:"Список URL фотографий питомца" example:"[\"https://example.com/pet_photo1.jpg\", \"https://example.com/pet_photo2.jpg\"]"`
-	BloodGroupIds          []string `json:"bloodGroupIds" doc:"Список ID групп крови, которые подходят" example:"[\"DEA 1.1\", \"DEA 1.2\"]"`
+	BloodGroupNames        []string `json:"bloodGroupIds" doc:"Список названий групп крови, которые подходят" example:"[\"DEA 1.1\", \"DEA 1.2\"]"`
 	BloodComponentIds      []int    `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются" example:"[1, 2]"`
 }
 
 // BloodSearchPetResponse представляет ответ после создания запроса на поиск крови
 type BloodSearchPetResponse struct {
-	ID     string                   `json:"id" doc:"ID запроса на поиск крови" example:"BSR-ABCDEABCDE"`
+	ID     string                   `json:"id" doc:"ID запроса на поиск крови" example:"BSR-ABCDEABCDE" readOnly:"true"`
 	PetID  string                   `json:"petId" doc:"ID питомца, для которого создан запрос" example:"PET-aBcDeF1234"`
 	Status BloodSearchRequestStatus `json:"status" doc:"Текущий статус запроса" example:"active"`
 }
@@ -40,26 +38,9 @@ type BloodSearchFilterRequest struct {
 	Offset int                      `json:"offset,omitempty" doc:"Смещение для пагинации" example:"0"`
 }
 
-// BloodSearchRequestDTO представляет DTO для запроса на поиск крови
-type BloodSearchRequestDTO struct {
-	ID                     string                   `json:"id" doc:"ID запроса на поиск крови" example:"BSR-ABCDEABCDE"`
-	PetID                  string                   `json:"petId" doc:"ID питомца" example:"PET-aBcDeF1234"`
-	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
-	BloodVolumeReserved    int32                    `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
-	Regions                []int32                  `json:"regions" doc:"Список ID регионов" example:"[1, 2]"`
-	SmallPetsNotifyAllowed bool                     `json:"smallPetsNotifyAllowed" doc:"Разрешены ли уведомления для мелких питомцев" example:"true"`
-	Description            string                   `json:"description" doc:"Описание запроса" example:"Срочно нужна кровь для переливания"`
-	PhotoUrls              []string                 `json:"photoUrls" doc:"Список URL фотографий" example:"[\"https://example.com/pet_photo1.jpg\"]"`
-	BloodGroupIds          []string                 `json:"bloodGroupIds" doc:"Список ID групп крови" example:"[\"DEA 1.1\"]"`
-	BloodComponentIds      []int                    `json:"bloodComponentIds" doc:"Список ID компонентов крови" example:"[1]"`
-	Status                 BloodSearchRequestStatus `json:"status" doc:"Статус запроса" example:"active"`
-	CreatedAt              time.Time                `json:"createdAt" doc:"Дата создания запроса" format:"date-time" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt              time.Time                `json:"updatedAt" doc:"Дата последнего обновления запроса" format:"date-time" example:"2023-10-01T12:00:00Z"`
-}
-
 // BloodSearchPetsResponse представляет список запросов на поиск крови
 type BloodSearchPetsResponse struct {
-	Requests []BloodSearchRequestDTO `json:"requests" doc:"Список запросов на поиск крови"`
+	Requests []BloodSearchPetRequest `json:"requests" doc:"Список запросов на поиск крови"`
 }
 
 // BloodSearchRequestIDPath представляет параметры пути с ID запроса на поиск крови
@@ -69,10 +50,10 @@ type BloodSearchRequestIDPath struct {
 
 // BloodSearchRequestResponse представляет обертку для ответа с одним запросом на поиск крови для Huma
 type BloodSearchRequestResponse struct {
-	Body BloodSearchRequestDTO
+	Body BloodSearchPetRequest
 }
 
 // BloodSearchRequestsResponse представляет обертку для ответа со списком запросов на поиск крови для Huma
 type BloodSearchRequestsResponse struct {
-	Body []BloodSearchRequestDTO
+	Body []BloodSearchPetRequest
 }

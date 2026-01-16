@@ -861,8 +861,8 @@ type BloodSearchRequestMutation struct {
 	description               *string
 	photo_urls                *[]string
 	appendphoto_urls          []string
-	blood_group_ids           *[]string
-	appendblood_group_ids     []string
+	blood_group_names         *[]string
+	appendblood_group_names   []string
 	blood_component_ids       *[]int
 	appendblood_component_ids []int
 	clearedFields             map[string]struct{}
@@ -1483,69 +1483,69 @@ func (m *BloodSearchRequestMutation) ResetPhotoUrls() {
 	delete(m.clearedFields, bloodsearchrequest.FieldPhotoUrls)
 }
 
-// SetBloodGroupIds sets the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) SetBloodGroupIds(s []string) {
-	m.blood_group_ids = &s
-	m.appendblood_group_ids = nil
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) SetBloodGroupNames(s []string) {
+	m.blood_group_names = &s
+	m.appendblood_group_names = nil
 }
 
-// BloodGroupIds returns the value of the "blood_group_ids" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodGroupIds() (r []string, exists bool) {
-	v := m.blood_group_ids
+// BloodGroupNames returns the value of the "blood_group_names" field in the mutation.
+func (m *BloodSearchRequestMutation) BloodGroupNames() (r []string, exists bool) {
+	v := m.blood_group_names
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldBloodGroupIds returns the old "blood_group_ids" field's value of the BloodSearchRequest entity.
+// OldBloodGroupNames returns the old "blood_group_names" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodGroupIds(ctx context.Context) (v []string, err error) {
+func (m *BloodSearchRequestMutation) OldBloodGroupNames(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodGroupIds is only allowed on UpdateOne operations")
+		return v, errors.New("OldBloodGroupNames is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodGroupIds requires an ID field in the mutation")
+		return v, errors.New("OldBloodGroupNames requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodGroupIds: %w", err)
+		return v, fmt.Errorf("querying old value for OldBloodGroupNames: %w", err)
 	}
-	return oldValue.BloodGroupIds, nil
+	return oldValue.BloodGroupNames, nil
 }
 
-// AppendBloodGroupIds adds s to the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) AppendBloodGroupIds(s []string) {
-	m.appendblood_group_ids = append(m.appendblood_group_ids, s...)
+// AppendBloodGroupNames adds s to the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) AppendBloodGroupNames(s []string) {
+	m.appendblood_group_names = append(m.appendblood_group_names, s...)
 }
 
-// AppendedBloodGroupIds returns the list of values that were appended to the "blood_group_ids" field in this mutation.
-func (m *BloodSearchRequestMutation) AppendedBloodGroupIds() ([]string, bool) {
-	if len(m.appendblood_group_ids) == 0 {
+// AppendedBloodGroupNames returns the list of values that were appended to the "blood_group_names" field in this mutation.
+func (m *BloodSearchRequestMutation) AppendedBloodGroupNames() ([]string, bool) {
+	if len(m.appendblood_group_names) == 0 {
 		return nil, false
 	}
-	return m.appendblood_group_ids, true
+	return m.appendblood_group_names, true
 }
 
-// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) ClearBloodGroupIds() {
-	m.blood_group_ids = nil
-	m.appendblood_group_ids = nil
-	m.clearedFields[bloodsearchrequest.FieldBloodGroupIds] = struct{}{}
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) ClearBloodGroupNames() {
+	m.blood_group_names = nil
+	m.appendblood_group_names = nil
+	m.clearedFields[bloodsearchrequest.FieldBloodGroupNames] = struct{}{}
 }
 
-// BloodGroupIdsCleared returns if the "blood_group_ids" field was cleared in this mutation.
-func (m *BloodSearchRequestMutation) BloodGroupIdsCleared() bool {
-	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodGroupIds]
+// BloodGroupNamesCleared returns if the "blood_group_names" field was cleared in this mutation.
+func (m *BloodSearchRequestMutation) BloodGroupNamesCleared() bool {
+	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodGroupNames]
 	return ok
 }
 
-// ResetBloodGroupIds resets all changes to the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) ResetBloodGroupIds() {
-	m.blood_group_ids = nil
-	m.appendblood_group_ids = nil
-	delete(m.clearedFields, bloodsearchrequest.FieldBloodGroupIds)
+// ResetBloodGroupNames resets all changes to the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) ResetBloodGroupNames() {
+	m.blood_group_names = nil
+	m.appendblood_group_names = nil
+	delete(m.clearedFields, bloodsearchrequest.FieldBloodGroupNames)
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
@@ -1708,8 +1708,8 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	if m.photo_urls != nil {
 		fields = append(fields, bloodsearchrequest.FieldPhotoUrls)
 	}
-	if m.blood_group_ids != nil {
-		fields = append(fields, bloodsearchrequest.FieldBloodGroupIds)
+	if m.blood_group_names != nil {
+		fields = append(fields, bloodsearchrequest.FieldBloodGroupNames)
 	}
 	if m.blood_component_ids != nil {
 		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
@@ -1744,8 +1744,8 @@ func (m *BloodSearchRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case bloodsearchrequest.FieldPhotoUrls:
 		return m.PhotoUrls()
-	case bloodsearchrequest.FieldBloodGroupIds:
-		return m.BloodGroupIds()
+	case bloodsearchrequest.FieldBloodGroupNames:
+		return m.BloodGroupNames()
 	case bloodsearchrequest.FieldBloodComponentIds:
 		return m.BloodComponentIds()
 	}
@@ -1779,8 +1779,8 @@ func (m *BloodSearchRequestMutation) OldField(ctx context.Context, name string) 
 		return m.OldDescription(ctx)
 	case bloodsearchrequest.FieldPhotoUrls:
 		return m.OldPhotoUrls(ctx)
-	case bloodsearchrequest.FieldBloodGroupIds:
-		return m.OldBloodGroupIds(ctx)
+	case bloodsearchrequest.FieldBloodGroupNames:
+		return m.OldBloodGroupNames(ctx)
 	case bloodsearchrequest.FieldBloodComponentIds:
 		return m.OldBloodComponentIds(ctx)
 	}
@@ -1869,12 +1869,12 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetPhotoUrls(v)
 		return nil
-	case bloodsearchrequest.FieldBloodGroupIds:
+	case bloodsearchrequest.FieldBloodGroupNames:
 		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBloodGroupIds(v)
+		m.SetBloodGroupNames(v)
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		v, ok := value.([]int)
@@ -1949,8 +1949,8 @@ func (m *BloodSearchRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(bloodsearchrequest.FieldPhotoUrls) {
 		fields = append(fields, bloodsearchrequest.FieldPhotoUrls)
 	}
-	if m.FieldCleared(bloodsearchrequest.FieldBloodGroupIds) {
-		fields = append(fields, bloodsearchrequest.FieldBloodGroupIds)
+	if m.FieldCleared(bloodsearchrequest.FieldBloodGroupNames) {
+		fields = append(fields, bloodsearchrequest.FieldBloodGroupNames)
 	}
 	if m.FieldCleared(bloodsearchrequest.FieldBloodComponentIds) {
 		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
@@ -1978,8 +1978,8 @@ func (m *BloodSearchRequestMutation) ClearField(name string) error {
 	case bloodsearchrequest.FieldPhotoUrls:
 		m.ClearPhotoUrls()
 		return nil
-	case bloodsearchrequest.FieldBloodGroupIds:
-		m.ClearBloodGroupIds()
+	case bloodsearchrequest.FieldBloodGroupNames:
+		m.ClearBloodGroupNames()
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		m.ClearBloodComponentIds()
@@ -2025,8 +2025,8 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 	case bloodsearchrequest.FieldPhotoUrls:
 		m.ResetPhotoUrls()
 		return nil
-	case bloodsearchrequest.FieldBloodGroupIds:
-		m.ResetBloodGroupIds()
+	case bloodsearchrequest.FieldBloodGroupNames:
+		m.ResetBloodGroupNames()
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		m.ResetBloodComponentIds()

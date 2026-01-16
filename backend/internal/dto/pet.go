@@ -24,7 +24,7 @@ type PetTreatment struct {
 
 // PetAnalysis представляет информацию об анализах питомца
 type PetAnalysis struct {
-	ID           *string    `json:"id,omitempty" doc:"ID анализа в системе" example:"ANALYSIS-aBcDeF1234"`
+	ID           *string    `json:"id,omitempty" doc:"ID анализа в системе" example:"PAN-aBcD1aBcD1" readOnly:"true"`
 	AnalysisName *string    `json:"analysisName,omitempty" doc:"Название анализа" enum:"leukemia,immunodeficiency,hemoplasmosis,bartonellosis,babesiosis,dirofilaria,ehrlichiosis,anaplasmosis" example:"leukemia"`
 	AnalysisType *string    `json:"analysisType,omitempty" doc:"Тип анализа" enum:"PCR,ELISA,ICA,Microscopy,Express" example:"PCR"`
 	AnalysisDate *time.Time `json:"analysisDate,omitempty" doc:"Дата проведения анализа" example:"2023-10-01T12:00:00Z"`
@@ -61,7 +61,7 @@ type PetUpdate struct {
 
 // Pet представляет ответ с информацией о питомце
 type Pet struct {
-	ID              string         `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234"`
+	ID              string         `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
 	Name            string         `json:"name" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber      string         `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
 	PhotoURL        string         `json:"photoUrl,omitempty" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`

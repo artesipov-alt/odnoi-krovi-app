@@ -143,9 +143,9 @@ func (_c *BloodSearchRequestCreate) SetPhotoUrls(v []string) *BloodSearchRequest
 	return _c
 }
 
-// SetBloodGroupIds sets the "blood_group_ids" field.
-func (_c *BloodSearchRequestCreate) SetBloodGroupIds(v []string) *BloodSearchRequestCreate {
-	_c.mutation.SetBloodGroupIds(v)
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (_c *BloodSearchRequestCreate) SetBloodGroupNames(v []string) *BloodSearchRequestCreate {
+	_c.mutation.SetBloodGroupNames(v)
 	return _c
 }
 
@@ -344,9 +344,9 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_spec.SetField(bloodsearchrequest.FieldPhotoUrls, field.TypeJSON, value)
 		_node.PhotoUrls = value
 	}
-	if value, ok := _c.mutation.BloodGroupIds(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodGroupIds, field.TypeJSON, value)
-		_node.BloodGroupIds = value
+	if value, ok := _c.mutation.BloodGroupNames(); ok {
+		_spec.SetField(bloodsearchrequest.FieldBloodGroupNames, field.TypeJSON, value)
+		_node.BloodGroupNames = value
 	}
 	if value, ok := _c.mutation.BloodComponentIds(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)

@@ -495,14 +495,14 @@ func PhotoUrlsNotNil() predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldPhotoUrls))
 }
 
-// BloodGroupIdsIsNil applies the IsNil predicate on the "blood_group_ids" field.
-func BloodGroupIdsIsNil() predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldIsNull(FieldBloodGroupIds))
+// BloodGroupNamesIsNil applies the IsNil predicate on the "blood_group_names" field.
+func BloodGroupNamesIsNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldIsNull(FieldBloodGroupNames))
 }
 
-// BloodGroupIdsNotNil applies the NotNil predicate on the "blood_group_ids" field.
-func BloodGroupIdsNotNil() predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldBloodGroupIds))
+// BloodGroupNamesNotNil applies the NotNil predicate on the "blood_group_names" field.
+func BloodGroupNamesNotNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldBloodGroupNames))
 }
 
 // BloodComponentIdsIsNil applies the IsNil predicate on the "blood_component_ids" field.

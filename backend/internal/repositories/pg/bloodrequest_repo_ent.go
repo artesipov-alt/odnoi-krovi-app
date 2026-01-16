@@ -30,7 +30,7 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *ent.BloodSe
 		SetStatus(bloodsearchrequest.Status(req.Status)).
 		SetNillableDescription(&req.Description).
 		SetPhotoUrls(req.PhotoUrls).
-		SetBloodGroupIds(req.BloodGroupIds).
+		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIds).
 		Save(ctx)
 }
@@ -57,7 +57,7 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, req *ent.BloodSe
 		SetStatus(bloodsearchrequest.Status(req.Status)).
 		SetDescription(req.Description).
 		SetPhotoUrls(req.PhotoUrls).
-		SetBloodGroupIds(req.BloodGroupIds).
+		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIds).
 		Save(ctx)
 }

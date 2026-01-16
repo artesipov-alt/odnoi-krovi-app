@@ -13,69 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
+import type { BloodSearchPetRequest } from './BloodSearchPetRequest';
+import {
+    BloodSearchPetRequestFromJSON,
+    BloodSearchPetRequestFromJSONTyped,
+    BloodSearchPetRequestToJSON,
+    BloodSearchPetRequestToJSONTyped,
+} from './BloodSearchPetRequest';
+
 /**
  * 
  * @export
- * @interface UserRegistrationSimple
+ * @interface BloodSearchRequestResponse
  */
-export interface UserRegistrationSimple {
+export interface BloodSearchRequestResponse {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof UserRegistrationSimple
+     * @memberof BloodSearchRequestResponse
      */
     readonly $schema?: string;
     /**
-     * Полное имя пользователя
-     * @type {string}
-     * @memberof UserRegistrationSimple
+     * 
+     * @type {BloodSearchPetRequest}
+     * @memberof BloodSearchRequestResponse
      */
-    fullName?: string;
-    /**
-     * Telegram ID пользователя
-     * @type {number}
-     * @memberof UserRegistrationSimple
-     */
-    telegramId: number;
+    body: BloodSearchPetRequest;
 }
 
 /**
- * Check if a given object implements the UserRegistrationSimple interface.
+ * Check if a given object implements the BloodSearchRequestResponse interface.
  */
-export function instanceOfUserRegistrationSimple(value: object): value is UserRegistrationSimple {
-    if (!('telegramId' in value) || value['telegramId'] === undefined) return false;
+export function instanceOfBloodSearchRequestResponse(value: object): value is BloodSearchRequestResponse {
+    if (!('body' in value) || value['body'] === undefined) return false;
     return true;
 }
 
-export function UserRegistrationSimpleFromJSON(json: any): UserRegistrationSimple {
-    return UserRegistrationSimpleFromJSONTyped(json, false);
+export function BloodSearchRequestResponseFromJSON(json: any): BloodSearchRequestResponse {
+    return BloodSearchRequestResponseFromJSONTyped(json, false);
 }
 
-export function UserRegistrationSimpleFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserRegistrationSimple {
+export function BloodSearchRequestResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): BloodSearchRequestResponse {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'fullName': json['fullName'] == null ? undefined : json['fullName'],
-        'telegramId': json['telegramId'],
+        'body': BloodSearchPetRequestFromJSON(json['Body']),
     };
 }
 
-export function UserRegistrationSimpleToJSON(json: any): UserRegistrationSimple {
-    return UserRegistrationSimpleToJSONTyped(json, false);
+export function BloodSearchRequestResponseToJSON(json: any): BloodSearchRequestResponse {
+    return BloodSearchRequestResponseToJSONTyped(json, false);
 }
 
-export function UserRegistrationSimpleToJSONTyped(value?: Omit<UserRegistrationSimple, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function BloodSearchRequestResponseToJSONTyped(value?: Omit<BloodSearchRequestResponse, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'fullName': value['fullName'],
-        'telegramId': value['telegramId'],
+        'Body': BloodSearchPetRequestToJSON(value['body']),
     };
 }
 

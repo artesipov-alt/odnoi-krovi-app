@@ -41,8 +41,8 @@ type BloodSearchRequest struct {
 	Description string `json:"description"`
 	// PhotoUrls holds the value of the "photo_urls" field.
 	PhotoUrls []string `json:"photoUrls"`
-	// BloodGroupIds holds the value of the "blood_group_ids" field.
-	BloodGroupIds []string `json:"bloodGroupIds"`
+	// BloodGroupNames holds the value of the "blood_group_names" field.
+	BloodGroupNames []string `json:"bloodGroupNames"`
 	// BloodComponentIds holds the value of the "blood_component_ids" field.
 	BloodComponentIds []int `json:"bloodComponentIds"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -76,7 +76,7 @@ func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls, bloodsearchrequest.FieldBloodGroupIds, bloodsearchrequest.FieldBloodComponentIds:
+		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls, bloodsearchrequest.FieldBloodGroupNames, bloodsearchrequest.FieldBloodComponentIds:
 			values[i] = new([]byte)
 		case bloodsearchrequest.FieldSmallPetsNotifyAllowed:
 			values[i] = new(sql.NullBool)
@@ -178,12 +178,12 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 					return fmt.Errorf("unmarshal field photo_urls: %w", err)
 				}
 			}
-		case bloodsearchrequest.FieldBloodGroupIds:
+		case bloodsearchrequest.FieldBloodGroupNames:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field blood_group_ids", values[i])
+				return fmt.Errorf("unexpected type %T for field blood_group_names", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.BloodGroupIds); err != nil {
-					return fmt.Errorf("unmarshal field blood_group_ids: %w", err)
+				if err := json.Unmarshal(*value, &_m.BloodGroupNames); err != nil {
+					return fmt.Errorf("unmarshal field blood_group_names: %w", err)
 				}
 			}
 		case bloodsearchrequest.FieldBloodComponentIds:
@@ -270,8 +270,8 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString("photo_urls=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
 	builder.WriteString(", ")
-	builder.WriteString("blood_group_ids=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BloodGroupIds))
+	builder.WriteString("blood_group_names=")
+	builder.WriteString(fmt.Sprintf("%v", _m.BloodGroupNames))
 	builder.WriteString(", ")
 	builder.WriteString("blood_component_ids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.BloodComponentIds))

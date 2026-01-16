@@ -30,7 +30,7 @@ type UserUpdate struct {
 
 // User представляет данные пользователя для ответа API
 type User struct {
-	ID               string     `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE"`
+	ID               string     `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
 	TelegramID       int64      `json:"telegramId" doc:"Telegram ID" example:"123456789"`
 	FullName         string     `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
 	Phone            string     `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
@@ -42,9 +42,9 @@ type User struct {
 	LocationID       int        `json:"locationId,omitempty" doc:"ID локации"`
 	Role             string     `json:"role" doc:"Роль"`
 	Pets             []Pet      `json:"pets,omitempty" doc:"Список питомцев"`
-	CreatedAt        *time.Time `json:"createdAt" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt        *time.Time `json:"updatedAt" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
-	DeletedAt        *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z"`
+	CreatedAt        *time.Time `json:"createdAt" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt        *time.Time `json:"updatedAt" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt        *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // UserResponse представляет обертку для ответа с одним пользователем для Huma

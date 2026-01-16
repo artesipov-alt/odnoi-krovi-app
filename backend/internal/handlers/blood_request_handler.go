@@ -84,14 +84,13 @@ type BloodSearchPetsResponseWrapper struct {
 	Body dto.BloodSearchPetsResponse
 }
 
-type BloodSearchRequestDTOWrapper struct {
-	Body dto.BloodSearchRequestDTO
+type BloodSearchRequestResponseWrapper struct {
+	Body dto.BloodSearchRequestResponse
 }
 
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
-func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchRequestDTO {
-	return dto.BloodSearchRequestDTO{
-		ID:                     req.ID,
+func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest {
+	return dto.BloodSearchPetRequest{
 		PetID:                  req.PetID,
 		BloodVolumeNeeded:      req.BloodVolumeNeeded,
 		BloodVolumeReserved:    req.BloodVolumeReserved,
@@ -99,11 +98,8 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchRequestDTO
 		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
 		Description:            req.Description,
 		PhotoUrls:              req.PhotoUrls,
-		BloodGroupIds:          req.BloodGroupIds,
+		BloodGroupNames:        req.BloodGroupNames,
 		BloodComponentIds:      req.BloodComponentIds,
-		Status:                 dto.BloodSearchRequestStatus(req.Status), // Fixed: Cast to dto.BloodSearchRequestStatus
-		CreatedAt:              req.CreatedAt,
-		UpdatedAt:              req.UpdatedAt,
 	}
 }
 
@@ -117,7 +113,7 @@ func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
 		SmallPetsNotifyAllowed: d.SmallPetsNotifyAllowed,
 		Description:            d.Description,
 		PhotoUrls:              d.PhotoUrls,
-		BloodGroupIds:          d.BloodGroupIds,
+		BloodGroupNames:        d.BloodGroupNames,
 		BloodComponentIds:      d.BloodComponentIds,
 		Status:                 bloodsearchrequest.StatusActive,
 	}
@@ -164,7 +160,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	dtos := make([]dto.BloodSearchRequestDTO, len(requests))
+	dtos := make([]dto.BloodSearchPetRequest, len(requests))
 	for i, req := range requests {
 		dtos[i] = mapBloodRequestToDTO(req)
 	}
@@ -174,7 +170,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 	}}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *BloodRequestIDPath) (*BloodSearchRequestDTOWrapper, error) {
+func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *BloodRequestIDPath) (*BloodSearchRequestResponseWrapper, error) {
 	result, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
@@ -185,7 +181,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *Bl
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	return &BloodSearchRequestDTOWrapper{Body: mapBloodRequestToDTO(result)}, nil
+	return &BloodSearchRequestResponseWrapper{Body: dto.BloodSearchRequestResponse{Body: mapBloodRequestToDTO(result)}}, nil
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*dto.MessageResponse, error) {
