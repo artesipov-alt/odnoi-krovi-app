@@ -14,7 +14,6 @@ COPY backend/go.mod backend/go.sum ./backend/
 # Скачиваем зависимости из директории backend
 WORKDIR /build/backend
 RUN go mod download
-RUN go run cmd/api/main.go -d
 
 # Копируем исходный код backend
 COPY backend/cmd/ ./cmd/
@@ -24,6 +23,9 @@ COPY backend/docs/ ./docs/
 COPY backend/docsui/ ./docsui/
 COPY backend/ent/ ./ent/
 COPY backend/pkg/ ./pkg/
+
+# Генерируем свежую доку и делаем миграцию
+RUN go run cmd/api/main.go -d
 
 # Сборка бинарника
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api
