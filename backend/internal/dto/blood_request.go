@@ -19,7 +19,7 @@ type BloodSearchPetRequest struct {
 	SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
 	Description            string   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
 	PhotoUrls              []string `json:"photoUrls,omitempty" doc:"Список URL фотографий питомца" example:"[\"https://example.com/pet_photo1.jpg\", \"https://example.com/pet_photo2.jpg\"]"`
-	BloodGroupNames        []string `json:"bloodGroupIds" doc:"Список названий групп крови, которые подходят" example:"[\"DEA 1.1\", \"DEA 1.2\"]"`
+	BloodGroupNames        []string `json:"bloodGroupNames" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
 	BloodComponentIds      []int    `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются" example:"[1, 2]"`
 }
 
