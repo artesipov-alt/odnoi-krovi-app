@@ -44,7 +44,6 @@ jobs:
             # Source ZSH profile to load PATH and aliases
             source ~/.zshrc || true
             source ~/.profile || true
-            source ~/.bash_profile || true
 
             # Check if bun is available and find its location
             if ! command -v bun &> /dev/null; then
