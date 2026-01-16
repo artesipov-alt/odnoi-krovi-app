@@ -50,7 +50,7 @@ export interface User {
      * @type {Date}
      * @memberof User
      */
-    readonly createdAt: Date | null;
+    readonly createdAt?: Date;
     /**
      * Дата удаления
      * @type {Date}
@@ -122,7 +122,7 @@ export interface User {
      * @type {Date}
      * @memberof User
      */
-    readonly updatedAt: Date | null;
+    readonly updatedAt?: Date;
 }
 
 /**
@@ -131,13 +131,11 @@ export interface User {
 export function instanceOfUser(value: object): value is User {
     if (!('allowGeo' in value) || value['allowGeo'] === undefined) return false;
     if (!('consentPd' in value) || value['consentPd'] === undefined) return false;
-    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
     if (!('fullName' in value) || value['fullName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('onBoarding' in value) || value['onBoarding'] === undefined) return false;
     if (!('role' in value) || value['role'] === undefined) return false;
     if (!('telegramId' in value) || value['telegramId'] === undefined) return false;
-    if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
     return true;
 }
 
@@ -154,7 +152,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'allowGeo': json['allowGeo'],
         'consentPd': json['consentPd'],
-        'createdAt': (json['createdAt'] == null ? null : new Date(json['createdAt'])),
+        'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'email': json['email'] == null ? undefined : json['email'],
         'fullName': json['fullName'],
@@ -166,7 +164,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'phone': json['phone'] == null ? undefined : json['phone'],
         'role': json['role'],
         'telegramId': json['telegramId'],
-        'updatedAt': (json['updatedAt'] == null ? null : new Date(json['updatedAt'])),
+        'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
     };
 }
 

@@ -43,7 +43,7 @@ export interface ConfirmPetAvatarUploadRequest {
 
 export interface CreatePetRequest {
     userId: string;
-    pet: Omit<Pet, '$schema'|'id'>;
+    pet: Omit<Pet, '$schema'|'createdAt'|'deletedAt'|'id'|'updatedAt'>;
 }
 
 export interface DeletePetRequest {

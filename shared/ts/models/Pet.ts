@@ -107,13 +107,13 @@ export interface Pet {
      * @type {Date}
      * @memberof Pet
      */
-    createdAt?: Date;
+    readonly createdAt?: Date;
     /**
      * Дата удаления записи
      * @type {Date}
      * @memberof Pet
      */
-    deletedAt?: Date;
+    readonly deletedAt?: Date;
     /**
      * Пол питомца
      * @type {string}
@@ -173,7 +173,7 @@ export interface Pet {
      * @type {Date}
      * @memberof Pet
      */
-    updatedAt?: Date;
+    readonly updatedAt?: Date;
     /**
      * Вес в килограммах
      * @type {number}
@@ -272,7 +272,7 @@ export function PetToJSON(json: any): Pet {
     return PetToJSONTyped(json, false);
 }
 
-export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'id'> | null, ignoreDiscriminator: boolean = false): any {
+export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'createdAt'|'deletedAt'|'id'|'updatedAt'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -287,8 +287,6 @@ export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'id'> | null, ignoreD
         'bonuses': PetBonusToJSON(value['bonuses']),
         'breedId': value['breedId'],
         'chipNumber': value['chipNumber'],
-        'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
-        'deletedAt': value['deletedAt'] == null ? value['deletedAt'] : value['deletedAt'].toISOString(),
         'gender': value['gender'],
         'health': PetHealthToJSON(value['health']),
         'livingCondition': value['livingCondition'],
@@ -297,7 +295,6 @@ export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'id'> | null, ignoreD
         'photoUrl': value['photoUrl'],
         'treatments': PetTreatmentToJSON(value['treatments']),
         'type': value['type'],
-        'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
         'weightKg': value['weightKg'],
     };
 }
