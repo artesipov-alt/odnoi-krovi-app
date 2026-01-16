@@ -79,9 +79,9 @@ type Pet struct {
 	Treatments      *PetTreatment  `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses        []*PetAnalysis `json:"analyses,omitempty" doc:"Список анализов"`
 	Bonuses         *PetBonus      `json:"bonuses,omitempty" doc:"Дополнительная информация"`
-	CreatedAt       *time.Time     `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt       *time.Time     `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z"`
-	DeletedAt       *time.Time     `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z"`
+	CreatedAt       *time.Time     `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt       *time.Time     `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt       *time.Time     `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // Вспомогательные структуры для Huma
