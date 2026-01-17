@@ -101,12 +101,16 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 	}
 
 	for _, a := range analyses {
-		_, err = tx.PetAnalysis.Create().
+		builder := tx.PetAnalysis.Create().
 			SetOwnerID(newPet.ID).
 			SetAnalysisName(a.AnalysisName).
-			SetAnalysisType(a.AnalysisType).
-			SetAnalysisDate(*a.AnalysisDate).
-			Save(ctx)
+			SetAnalysisType(a.AnalysisType)
+
+		if a.AnalysisDate != nil {
+			builder.SetAnalysisDate(*a.AnalysisDate)
+		}
+
+		_, err = builder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to create pet analysis: %w", err)
@@ -303,12 +307,16 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 
 	// For analyses, add new ones as history (do not delete existing)
 	for _, a := range analyses {
-		_, err = tx.PetAnalysis.Create().
+		builder := tx.PetAnalysis.Create().
 			SetOwnerID(p.ID).
 			SetAnalysisName(a.AnalysisName).
-			SetAnalysisType(a.AnalysisType).
-			SetAnalysisDate(*a.AnalysisDate).
-			Save(ctx)
+			SetAnalysisType(a.AnalysisType)
+
+		if a.AnalysisDate != nil {
+			builder.SetAnalysisDate(*a.AnalysisDate)
+		}
+
+		_, err = builder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to create pet analysis: %w", err)
