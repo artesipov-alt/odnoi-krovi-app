@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { PetAnalysis } from './PetAnalysis';
+import type { PetAnalysisGroup } from './PetAnalysisGroup';
 import {
-    PetAnalysisFromJSON,
-    PetAnalysisFromJSONTyped,
-    PetAnalysisToJSON,
-    PetAnalysisToJSONTyped,
-} from './PetAnalysis';
+    PetAnalysisGroupFromJSON,
+    PetAnalysisGroupFromJSONTyped,
+    PetAnalysisGroupToJSON,
+    PetAnalysisGroupToJSONTyped,
+} from './PetAnalysisGroup';
 import type { PetTreatment } from './PetTreatment';
 import {
     PetTreatmentFromJSON,
@@ -67,11 +67,11 @@ export interface PetUpdate {
      */
     ageYears?: number;
     /**
-     * Список анализов
-     * @type {Array<PetAnalysis>}
+     * Группированные анализы
+     * @type {PetAnalysisGroup}
      * @memberof PetUpdate
      */
-    analyses?: Array<PetAnalysis> | null;
+    analyses?: PetAnalysisGroup;
     /**
      * Дата рождения
      * @type {Date}
@@ -229,7 +229,7 @@ export function PetUpdateFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'ageMonths': json['ageMonths'] == null ? undefined : json['ageMonths'],
         'ageYears': json['ageYears'] == null ? undefined : json['ageYears'],
-        'analyses': json['analyses'] == null ? undefined : ((json['analyses'] as Array<any>).map(PetAnalysisFromJSON)),
+        'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'birthDate': json['birthDate'] == null ? undefined : (new Date(json['birthDate'])),
         'bloodGroup': json['bloodGroup'] == null ? undefined : json['bloodGroup'],
         'bonuses': json['bonuses'] == null ? undefined : PetBonusFromJSON(json['bonuses']),
@@ -260,7 +260,7 @@ export function PetUpdateToJSONTyped(value?: Omit<PetUpdate, '$schema'> | null, 
         
         'ageMonths': value['ageMonths'],
         'ageYears': value['ageYears'],
-        'analyses': value['analyses'] == null ? undefined : ((value['analyses'] as Array<any>).map(PetAnalysisToJSON)),
+        'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),
         'bloodGroup': value['bloodGroup'],
         'bonuses': PetBonusToJSON(value['bonuses']),

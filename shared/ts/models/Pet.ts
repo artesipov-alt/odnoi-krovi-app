@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { PetAnalysis } from './PetAnalysis';
+import type { PetAnalysisGroup } from './PetAnalysisGroup';
 import {
-    PetAnalysisFromJSON,
-    PetAnalysisFromJSONTyped,
-    PetAnalysisToJSON,
-    PetAnalysisToJSONTyped,
-} from './PetAnalysis';
+    PetAnalysisGroupFromJSON,
+    PetAnalysisGroupFromJSONTyped,
+    PetAnalysisGroupToJSON,
+    PetAnalysisGroupToJSONTyped,
+} from './PetAnalysisGroup';
 import type { PetTreatment } from './PetTreatment';
 import {
     PetTreatmentFromJSON,
@@ -67,11 +67,11 @@ export interface Pet {
      */
     ageYears?: number;
     /**
-     * Список анализов
-     * @type {Array<PetAnalysis>}
+     * Группированные анализы
+     * @type {PetAnalysisGroup}
      * @memberof Pet
      */
-    analyses?: Array<PetAnalysis> | null;
+    analyses?: PetAnalysisGroup;
     /**
      * Дата рождения
      * @type {Date}
@@ -95,7 +95,7 @@ export interface Pet {
      * @type {number}
      * @memberof Pet
      */
-    breedId: number;
+    breedId?: number;
     /**
      * Номер чипа
      * @type {string}
@@ -238,7 +238,6 @@ export type PetTypeEnum = typeof PetTypeEnum[keyof typeof PetTypeEnum];
  * Check if a given object implements the Pet interface.
  */
 export function instanceOfPet(value: object): value is Pet {
-    if (!('breedId' in value) || value['breedId'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('petStatus' in value) || value['petStatus'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
@@ -258,11 +257,11 @@ export function PetFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pet {
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'ageMonths': json['ageMonths'] == null ? undefined : json['ageMonths'],
         'ageYears': json['ageYears'] == null ? undefined : json['ageYears'],
-        'analyses': json['analyses'] == null ? undefined : ((json['analyses'] as Array<any>).map(PetAnalysisFromJSON)),
+        'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'birthDate': json['birthDate'] == null ? undefined : (new Date(json['birthDate'])),
         'bloodGroup': json['bloodGroup'] == null ? undefined : json['bloodGroup'],
         'bonuses': json['bonuses'] == null ? undefined : PetBonusFromJSON(json['bonuses']),
-        'breedId': json['breedId'],
+        'breedId': json['breedId'] == null ? undefined : json['breedId'],
         'chipNumber': json['chipNumber'] == null ? undefined : json['chipNumber'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
@@ -293,7 +292,7 @@ export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'createdAt'|'deletedA
         
         'ageMonths': value['ageMonths'],
         'ageYears': value['ageYears'],
-        'analyses': value['analyses'] == null ? undefined : ((value['analyses'] as Array<any>).map(PetAnalysisToJSON)),
+        'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),
         'bloodGroup': value['bloodGroup'],
         'bonuses': PetBonusToJSON(value['bonuses']),

@@ -15,6 +15,7 @@ models/ConfirmUploadResponseBody.ts
 models/MessageBody.ts
 models/Pet.ts
 models/PetAnalysis.ts
+models/PetAnalysisGroup.ts
 models/PetBonus.ts
 models/PetHealth.ts
 models/PetTreatment.ts

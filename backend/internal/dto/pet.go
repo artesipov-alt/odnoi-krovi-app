@@ -30,6 +30,17 @@ type PetAnalysis struct {
 	AnalysisDate *time.Time `json:"analysisDate,omitempty" doc:"Дата проведения анализа" example:"2023-10-01T12:00:00Z"`
 }
 
+type PetAnalysisGroup struct {
+	Leukemia         []*PetAnalysis `json:"leukemia,omitempty" doc:"Анализы на лейкемию"`
+	Immunodeficiency []*PetAnalysis `json:"immunodeficiency,omitempty" doc:"Анализ на иммунодефицит"`
+	Hemoplasmosis    []*PetAnalysis `json:"hemoplasmosis,omitempty" doc:"Анализ на гемоплазмоз"`
+	Bartonellosis    []*PetAnalysis `json:"bartonellosis,omitempty" doc:"Анализ на бартонеллез"`
+	Babesiosis       []*PetAnalysis `json:"babesiosis,omitempty" doc:"Анализ на бабезиоз"`
+	Dirofilaria      []*PetAnalysis `json:"dirofilaria,omitempty" doc:"Анализ на дирофиляриоз"`
+	Ehrlichiosis     []*PetAnalysis `json:"ehrlichiosis,omitempty" doc:"Анализ на эрлихиоз"`
+	Anaplasmosis     []*PetAnalysis `json:"anaplasmosis,omitempty" doc:"Анализ на анаплазмоз"`
+}
+
 // PetBonus представляет дополнительную информацию о питомце
 type PetBonus struct {
 	IsArtist      bool `json:"isArtist,omitempty" doc:"Является ли питомец артистом" example:"false"`
@@ -40,48 +51,48 @@ type PetBonus struct {
 
 // PetUpdate представляет структуру для обновления существующего питомца
 type PetUpdate struct {
-	Name            *string        `json:"name,omitempty" validate:"omitempty,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
-	ChipNumber      *string        `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
-	PhotoURL        *string        `json:"photoUrl,omitempty" validate:"omitempty,url,max=255" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`
-	BreedID         *int           `json:"breedId,omitempty" validate:"omitempty,min=1" doc:"ID породы" example:"1"`
-	WeightKg        *float64       `json:"weightKg,omitempty" validate:"omitempty,min=0" doc:"Вес в килограммах" example:"15.5"`
-	AgeYears        *int           `json:"ageYears,omitempty" validate:"omitempty,min=0" doc:"Возраст в годах" example:"3"`
-	AgeMonths       *int           `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах" example:"6"`
-	BirthDate       *time.Time     `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
-	LivingCondition *string        `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
-	Gender          *string        `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
-	Type            *string        `json:"type,omitempty" doc:"Тип животного" enum:"dog,cat" example:"dog"`
-	BloodGroup      *string        `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
-	PetStatus       *string        `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient" example:"donor"`
-	Health          *PetHealth     `json:"health,omitempty" doc:"Информация о здоровье"`
-	Treatments      *PetTreatment  `json:"treatments,omitempty" doc:"Информация о лечении"`
-	Analyses        []*PetAnalysis `json:"analyses,omitempty" doc:"Список анализов"`
-	Bonuses         *PetBonus      `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	Name            *string           `json:"name,omitempty" validate:"omitempty,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
+	ChipNumber      *string           `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
+	PhotoURL        *string           `json:"photoUrl,omitempty" validate:"omitempty,url,max=255" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`
+	BreedID         *int              `json:"breedId,omitempty" validate:"omitempty,min=1" doc:"ID породы" example:"1"`
+	WeightKg        *float64          `json:"weightKg,omitempty" validate:"omitempty,min=0" doc:"Вес в килограммах" example:"15.5"`
+	AgeYears        *int              `json:"ageYears,omitempty" validate:"omitempty,min=0" doc:"Возраст в годах" example:"3"`
+	AgeMonths       *int              `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах" example:"6"`
+	BirthDate       *time.Time        `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
+	LivingCondition *string           `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
+	Gender          *string           `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
+	Type            *string           `json:"type,omitempty" doc:"Тип животного" enum:"dog,cat" example:"dog"`
+	BloodGroup      *string           `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	PetStatus       *string           `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient" example:"donor"`
+	Health          *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
+	Treatments      *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
+	Analyses        *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
+	Bonuses         *PetBonus         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
 }
 
 // Pet представляет ответ с информацией о питомце
 type Pet struct {
-	ID              string         `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
-	Name            string         `json:"name" doc:"Имя питомца" example:"Шарик"`
-	ChipNumber      string         `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
-	PhotoURL        string         `json:"photoUrl,omitempty" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`
-	BreedID         int            `json:"breedId" doc:"ID породы" example:"1"`
-	WeightKg        float64        `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
-	AgeYears        int            `json:"ageYears,omitempty" doc:"Возраст в годах" example:"3"`
-	AgeMonths       int            `json:"ageMonths,omitempty" doc:"Возраст в месяцах" example:"6"`
-	BirthDate       *time.Time     `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
-	LivingCondition string         `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
-	Gender          string         `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
-	Type            string         `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
-	BloodGroup      string         `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
-	PetStatus       string         `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
-	Health          *PetHealth     `json:"health,omitempty" doc:"Информация о здоровье"`
-	Treatments      *PetTreatment  `json:"treatments,omitempty" doc:"Информация о лечении"`
-	Analyses        []*PetAnalysis `json:"analyses,omitempty" doc:"Список анализов"`
-	Bonuses         *PetBonus      `json:"bonuses,omitempty" doc:"Дополнительная информация"`
-	CreatedAt       *time.Time     `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	UpdatedAt       *time.Time     `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	DeletedAt       *time.Time     `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	ID              string            `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
+	Name            string            `json:"name" doc:"Имя питомца" example:"Шарик"`
+	ChipNumber      string            `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
+	PhotoURL        string            `json:"photoUrl,omitempty" doc:"URL фотографии питомца" example:"https://example.com/photo.jpg"`
+	BreedID         int               `json:"breedId,omitempty" doc:"ID породы" example:"1"`
+	WeightKg        float64           `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
+	AgeYears        int               `json:"ageYears,omitempty" doc:"Возраст в годах" example:"3"`
+	AgeMonths       int               `json:"ageMonths,omitempty" doc:"Возраст в месяцах" example:"6"`
+	BirthDate       *time.Time        `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
+	LivingCondition string            `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
+	Gender          string            `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
+	Type            string            `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
+	BloodGroup      string            `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	PetStatus       string            `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
+	Health          *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
+	Treatments      *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
+	Analyses        *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
+	Bonuses         *PetBonus         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	CreatedAt       *time.Time        `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt       *time.Time        `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt       *time.Time        `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // Вспомогательные структуры для Huma

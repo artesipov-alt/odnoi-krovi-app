@@ -10,6 +10,7 @@ export * from './ConfirmUploadResponseBody';
 export * from './MessageBody';
 export * from './Pet';
 export * from './PetAnalysis';
+export * from './PetAnalysisGroup';
 export * from './PetBonus';
 export * from './PetHealth';
 export * from './PetTreatment';
