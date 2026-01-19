@@ -26,6 +26,9 @@ type BloodSearchService interface {
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
 
+	// ExistsByID проверяет существование заявки по её ID
+	ExistsByID(ctx context.Context, id string) (bool, error)
+
 	// DeleteRequest удаляет заявку (soft delete)
 	DeleteRequest(ctx context.Context, id string) error
 

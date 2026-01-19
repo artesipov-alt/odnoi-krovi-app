@@ -31,9 +31,6 @@ type PetService interface {
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
 
-	// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
-	GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error)
-
 	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
 	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
 }
@@ -286,24 +283,6 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	}
 
 	return nil
-}
-
-// GetAvatarUploadURL Возвращает ссылку для загрузки аватарки питомца.
-func (s *PetServiceImpl) GetAvatarUploadURL(ctx context.Context, petID string) (string, string, error) {
-	exists, err := s.petRepo.ExistsByID(ctx, petID)
-	if err != nil {
-		return "", "", apperrors.Internal(err, "failed to check pet existence")
-	}
-	if !exists {
-		return "", "", apperrors.ErrPetNotFound
-	}
-
-	url, path, err := s.storage.GetAvatarUploadInfo(ctx, petID)
-	if err != nil {
-		return "", "", apperrors.Internal(err, "failed to get upload URL")
-	}
-
-	return url, path, nil
 }
 
 // UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище

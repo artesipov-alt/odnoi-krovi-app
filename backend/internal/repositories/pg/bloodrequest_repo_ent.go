@@ -106,6 +106,13 @@ func (r *EntBloodRequestRepository) ExistsByPetID(ctx context.Context, petID str
 		Exist(ctx)
 }
 
+// ExistsByID проверяет существование заявки по её идентификатору
+func (r *EntBloodRequestRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
+	return r.client.BloodSearchRequest.Query().
+		Where(bloodsearchrequest.ID(id)).
+		Exist(ctx)
+}
+
 // Count возвращает общее количество заявок в хранилище
 func (r *EntBloodRequestRepository) Count(ctx context.Context) (int, error) {
 	return r.client.BloodSearchRequest.Query().Count(ctx)

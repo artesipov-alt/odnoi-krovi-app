@@ -101,6 +101,23 @@ func (r *EntUserRepository) GetByTelegramID(ctx context.Context, telegramID int6
 	return u, nil
 }
 
+// ExistsByID checks if a user with the given ID exists
+func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
+	if id == "" {
+		return false, errors.New("invalid user ID")
+	}
+
+	exists, err := r.client.User.Query().
+		Where(user.ID(id)).
+		Exist(ctx)
+
+	if err != nil {
+		return false, fmt.Errorf("failed to check user existence by id %s: %w", id, err)
+	}
+
+	return exists, nil
+}
+
 // Update updates an existing user in the database
 func (r *EntUserRepository) Update(ctx context.Context, u *ent.User) (*ent.User, error) {
 	if u == nil {

@@ -32,6 +32,9 @@ type BloodRequestRepository interface {
 	// ExistsByPetID проверяет существование активной заявки для питомца
 	ExistsByPetID(ctx context.Context, petID string) (bool, error)
 
+	// ExistsByID проверяет существование заявки по её идентификатору
+	ExistsByID(ctx context.Context, id string) (bool, error)
+
 	// Count возвращает общее количество заявок в хранилище
 	Count(ctx context.Context) (int, error)
 }

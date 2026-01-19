@@ -15,6 +15,7 @@ import (
 
 	"github.com/aws/smithy-go"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 )
 
@@ -167,32 +168,44 @@ func (s *S3Storage) FileService() *services.FileService {
 	return s.fs
 }
 
-// GetAvatarUploadInfo возвращает информацию для загрузки аватарки
-// Возвращает: uploadURL (подписанная ссылка), objectPath (путь в S3), error
-func (s *S3Storage) GetAvatarUploadInfo(ctx context.Context, id string) (string, string, error) {
+// GetPresignedURLs возвращает информацию для загрузки нескольких фотографий
+// Возвращает: слайс UploadInfo, error
+func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string) ([]repositories.UploadInfo, error) {
 	var format string
+	var contentType string
+
 	switch {
 	case strings.HasPrefix(id, "USR"):
-		format = "users/%s/avatar.jpg"
+		format = "users/%s/photos/%d.jpg"
+		contentType = "image/jpeg"
 	case strings.HasPrefix(id, "PET"):
-		format = "pets/%s/avatar.jpg"
+		format = "pets/%s/photos/%d.jpg"
+		contentType = "image/jpeg"
 	default:
-		return "", "", fmt.Errorf("неподдерживаемый тип файла")
+		return nil, fmt.Errorf("неподдерживаемый тип файла для id: %s", id)
 	}
-
-	path := fmt.Sprintf(format, id)
 
 	presigner := s3.NewPresignClient(s.client)
-	req, err := presigner.PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket:      &s.cfg.bucketName,
-		Key:         &path,
-		ContentType: aws.String("image/jpeg"),
-	}, s3.WithPresignExpires(s.cfg.expire))
-	if err != nil {
-		return "", "", fmt.Errorf("ошибка создания presigned URL для загрузки: %v", err)
+	uploadInfos := make([]repositories.UploadInfo, count)
+
+	for p := range count {
+		path := fmt.Sprintf(format, id, p+1)
+
+		req, err := presigner.PresignPutObject(ctx, &s3.PutObjectInput{
+			Bucket:      &s.cfg.bucketName,
+			Key:         &path,
+			ContentType: aws.String(contentType),
+		}, s3.WithPresignExpires(s.cfg.expire))
+		if err != nil {
+			return nil, fmt.Errorf("ошибка создания presigned URL для загрузки %d: %v", p, err)
+		}
+		uploadInfos[p] = repositories.UploadInfo{
+			UploadURL:  req.URL,
+			ObjectPath: path,
+		}
 	}
 
-	return req.URL, path, nil
+	return uploadInfos, nil
 }
 
 // CheckObjectExists проверяет существование объекта в S3

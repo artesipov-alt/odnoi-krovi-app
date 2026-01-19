@@ -81,25 +81,6 @@ func (h *PetHandler) Register(api huma.API) {
 		Tags:        []string{"pets-v1"},
 	}, h.DeletePet)
 
-	// Получить ссылку для загрузки фотографии питомца
-	huma.Register(api, huma.Operation{
-		OperationID: "get-presigned-url",
-		Method:      http.MethodPost,
-		Path:        "/v1/uploads/presign/{id}",
-		Summary:     "Получить ссылку для загрузки фотографии",
-		Description: "Возвращает временную ссылку для загрузки фотографии по ID",
-		Tags:        []string{"pets-v1", "users-v1"},
-	}, h.GetPresignURL)
-
-	// Подтверждение загрузки аватарки питомца
-	huma.Register(api, huma.Operation{
-		OperationID: "confirm-upload",
-		Method:      http.MethodPost,
-		Path:        "/v1/uploads/confirm/{path}",
-		Summary:     "Подтверждение загрузки фото",
-		Description: "Подтверждает загрузку фотографии, делает её публичной и возвращает публичную ссылку",
-		Tags:        []string{"pets-v1", "users-v1"},
-	}, h.ConfirmPetAvatarUpload)
 }
 
 //==========Handlers==============================
@@ -199,36 +180,6 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPath) (*dto.Mes
 	resp := &dto.MessageResponse{}
 	resp.Body.Message = "Питомец успешно удален"
 	return resp, nil
-}
-
-func (h *PetHandler) GetPresignURL(ctx context.Context, input *dto.IDPath) (*dto.UploadURLResponse, error) {
-	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for avatar upload URL", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to get avatar upload URL", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	return &dto.UploadURLResponse{Body: struct {
-		URL  string `json:"url"`
-		Path string `json:"path"`
-	}{URL: url, Path: path}}, nil
-}
-
-func (h *PetHandler) ConfirmPetAvatarUpload(ctx context.Context, input *dto.AvatarPathParam) (*dto.ConfirmUploadResponse, error) {
-	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
-	if err != nil {
-		// This error is likely a server-side issue if the path was valid but the update failed.
-		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	return &dto.ConfirmUploadResponse{Body: struct {
-		PublicURL string `json:"publicUrl"`
-	}{PublicURL: publicURL}}, nil
 }
 
 // getPreloads извлекает список связей для предзагрузки из query-параметров

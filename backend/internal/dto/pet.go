@@ -109,31 +109,10 @@ type PetPreloadQuery struct {
 	WithAll        bool `query:"with_all" doc:"Включить все связанные данные"`
 }
 
-type AvatarPathParam struct {
-	Path string `path:"path" doc:"Путь к аватарке питомца" example:"pets/PET-aBcDeF1234/avatar.jpg"`
-}
-
 type PetResponse struct {
 	Body Pet
 }
 
 type PetsResponse struct {
 	Body []Pet
-}
-
-type UploadURLResponse struct {
-	Body struct {
-		URL  string `json:"url"`
-		Path string `json:"path"`
-	}
-}
-
-type ConfirmUploadResponse struct {
-	Body struct {
-		PublicURL string `json:"publicUrl"`
-	}
-}
-
-type PetPhotoPreloadQuery struct {
-	ForAvatar bool `query:"for_avatar" doc:"Включить данные о питомцах"`
 }
