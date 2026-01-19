@@ -24,38 +24,12 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldPetID holds the string denoting the pet_id field in the database.
 	FieldPetID = "pet_id"
-	// FieldLeukemiaDate holds the string denoting the leukemia_date field in the database.
-	FieldLeukemiaDate = "leukemia_date"
-	// FieldLeukemiaType holds the string denoting the leukemia_type field in the database.
-	FieldLeukemiaType = "leukemia_type"
-	// FieldImmunodeficiencyDate holds the string denoting the immunodeficiency_date field in the database.
-	FieldImmunodeficiencyDate = "immunodeficiency_date"
-	// FieldImmunodeficiencyType holds the string denoting the immunodeficiency_type field in the database.
-	FieldImmunodeficiencyType = "immunodeficiency_type"
-	// FieldHemoplasmosisDate holds the string denoting the hemoplasmosis_date field in the database.
-	FieldHemoplasmosisDate = "hemoplasmosis_date"
-	// FieldHemoplasmosisType holds the string denoting the hemoplasmosis_type field in the database.
-	FieldHemoplasmosisType = "hemoplasmosis_type"
-	// FieldBartonellosisDate holds the string denoting the bartonellosis_date field in the database.
-	FieldBartonellosisDate = "bartonellosis_date"
-	// FieldBartonellosisType holds the string denoting the bartonellosis_type field in the database.
-	FieldBartonellosisType = "bartonellosis_type"
-	// FieldBabesiosisDate holds the string denoting the babesiosis_date field in the database.
-	FieldBabesiosisDate = "babesiosis_date"
-	// FieldBabesiosisType holds the string denoting the babesiosis_type field in the database.
-	FieldBabesiosisType = "babesiosis_type"
-	// FieldDirofilariaDate holds the string denoting the dirofilaria_date field in the database.
-	FieldDirofilariaDate = "dirofilaria_date"
-	// FieldDirofilariaType holds the string denoting the dirofilaria_type field in the database.
-	FieldDirofilariaType = "dirofilaria_type"
-	// FieldEhrlichiosisDate holds the string denoting the ehrlichiosis_date field in the database.
-	FieldEhrlichiosisDate = "ehrlichiosis_date"
-	// FieldEhrlichiosisType holds the string denoting the ehrlichiosis_type field in the database.
-	FieldEhrlichiosisType = "ehrlichiosis_type"
-	// FieldAnaplasmosisDate holds the string denoting the anaplasmosis_date field in the database.
-	FieldAnaplasmosisDate = "anaplasmosis_date"
-	// FieldAnaplasmosisType holds the string denoting the anaplasmosis_type field in the database.
-	FieldAnaplasmosisType = "anaplasmosis_type"
+	// FieldAnalysisName holds the string denoting the analysis_name field in the database.
+	FieldAnalysisName = "analysis_name"
+	// FieldAnalysisType holds the string denoting the analysis_type field in the database.
+	FieldAnalysisType = "analysis_type"
+	// FieldAnalysisDate holds the string denoting the analysis_date field in the database.
+	FieldAnalysisDate = "analysis_date"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// Table holds the table name of the petanalysis in the database.
@@ -76,22 +50,9 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldPetID,
-	FieldLeukemiaDate,
-	FieldLeukemiaType,
-	FieldImmunodeficiencyDate,
-	FieldImmunodeficiencyType,
-	FieldHemoplasmosisDate,
-	FieldHemoplasmosisType,
-	FieldBartonellosisDate,
-	FieldBartonellosisType,
-	FieldBabesiosisDate,
-	FieldBabesiosisType,
-	FieldDirofilariaDate,
-	FieldDirofilariaType,
-	FieldEhrlichiosisDate,
-	FieldEhrlichiosisType,
-	FieldAnaplasmosisDate,
-	FieldAnaplasmosisType,
+	FieldAnalysisName,
+	FieldAnalysisType,
+	FieldAnalysisDate,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -121,211 +82,58 @@ var (
 	DefaultID func() string
 )
 
-// LeukemiaType defines the type for the "leukemia_type" enum field.
-type LeukemiaType string
+// AnalysisName defines the type for the "analysis_name" enum field.
+type AnalysisName string
 
-// LeukemiaType values.
+// AnalysisName values.
 const (
-	LeukemiaTypePCR        LeukemiaType = "PCR"
-	LeukemiaTypeELISA      LeukemiaType = "ELISA"
-	LeukemiaTypeICA        LeukemiaType = "ICA"
-	LeukemiaTypeMicroscopy LeukemiaType = "Microscopy"
-	LeukemiaTypeExpress    LeukemiaType = "Express"
+	AnalysisNameLeukemia         AnalysisName = "leukemia"
+	AnalysisNameImmunodeficiency AnalysisName = "immunodeficiency"
+	AnalysisNameHemoplasmosis    AnalysisName = "hemoplasmosis"
+	AnalysisNameBartonellosis    AnalysisName = "bartonellosis"
+	AnalysisNameBabesiosis       AnalysisName = "babesiosis"
+	AnalysisNameDirofilaria      AnalysisName = "dirofilaria"
+	AnalysisNameEhrlichiosis     AnalysisName = "ehrlichiosis"
+	AnalysisNameAnaplasmosis     AnalysisName = "anaplasmosis"
 )
 
-func (lt LeukemiaType) String() string {
-	return string(lt)
+func (an AnalysisName) String() string {
+	return string(an)
 }
 
-// LeukemiaTypeValidator is a validator for the "leukemia_type" field enum values. It is called by the builders before save.
-func LeukemiaTypeValidator(lt LeukemiaType) error {
-	switch lt {
-	case LeukemiaTypePCR, LeukemiaTypeELISA, LeukemiaTypeICA, LeukemiaTypeMicroscopy, LeukemiaTypeExpress:
+// AnalysisNameValidator is a validator for the "analysis_name" field enum values. It is called by the builders before save.
+func AnalysisNameValidator(an AnalysisName) error {
+	switch an {
+	case AnalysisNameLeukemia, AnalysisNameImmunodeficiency, AnalysisNameHemoplasmosis, AnalysisNameBartonellosis, AnalysisNameBabesiosis, AnalysisNameDirofilaria, AnalysisNameEhrlichiosis, AnalysisNameAnaplasmosis:
 		return nil
 	default:
-		return fmt.Errorf("petanalysis: invalid enum value for leukemia_type field: %q", lt)
+		return fmt.Errorf("petanalysis: invalid enum value for analysis_name field: %q", an)
 	}
 }
 
-// ImmunodeficiencyType defines the type for the "immunodeficiency_type" enum field.
-type ImmunodeficiencyType string
+// AnalysisType defines the type for the "analysis_type" enum field.
+type AnalysisType string
 
-// ImmunodeficiencyType values.
+// AnalysisType values.
 const (
-	ImmunodeficiencyTypePCR        ImmunodeficiencyType = "PCR"
-	ImmunodeficiencyTypeELISA      ImmunodeficiencyType = "ELISA"
-	ImmunodeficiencyTypeICA        ImmunodeficiencyType = "ICA"
-	ImmunodeficiencyTypeMicroscopy ImmunodeficiencyType = "Microscopy"
-	ImmunodeficiencyTypeExpress    ImmunodeficiencyType = "Express"
+	AnalysisTypePCR        AnalysisType = "PCR"
+	AnalysisTypeELISA      AnalysisType = "ELISA"
+	AnalysisTypeICA        AnalysisType = "ICA"
+	AnalysisTypeMicroscopy AnalysisType = "Microscopy"
+	AnalysisTypeExpress    AnalysisType = "Express"
 )
 
-func (it ImmunodeficiencyType) String() string {
-	return string(it)
-}
-
-// ImmunodeficiencyTypeValidator is a validator for the "immunodeficiency_type" field enum values. It is called by the builders before save.
-func ImmunodeficiencyTypeValidator(it ImmunodeficiencyType) error {
-	switch it {
-	case ImmunodeficiencyTypePCR, ImmunodeficiencyTypeELISA, ImmunodeficiencyTypeICA, ImmunodeficiencyTypeMicroscopy, ImmunodeficiencyTypeExpress:
-		return nil
-	default:
-		return fmt.Errorf("petanalysis: invalid enum value for immunodeficiency_type field: %q", it)
-	}
-}
-
-// HemoplasmosisType defines the type for the "hemoplasmosis_type" enum field.
-type HemoplasmosisType string
-
-// HemoplasmosisType values.
-const (
-	HemoplasmosisTypePCR        HemoplasmosisType = "PCR"
-	HemoplasmosisTypeELISA      HemoplasmosisType = "ELISA"
-	HemoplasmosisTypeICA        HemoplasmosisType = "ICA"
-	HemoplasmosisTypeMicroscopy HemoplasmosisType = "Microscopy"
-	HemoplasmosisTypeExpress    HemoplasmosisType = "Express"
-)
-
-func (ht HemoplasmosisType) String() string {
-	return string(ht)
-}
-
-// HemoplasmosisTypeValidator is a validator for the "hemoplasmosis_type" field enum values. It is called by the builders before save.
-func HemoplasmosisTypeValidator(ht HemoplasmosisType) error {
-	switch ht {
-	case HemoplasmosisTypePCR, HemoplasmosisTypeELISA, HemoplasmosisTypeICA, HemoplasmosisTypeMicroscopy, HemoplasmosisTypeExpress:
-		return nil
-	default:
-		return fmt.Errorf("petanalysis: invalid enum value for hemoplasmosis_type field: %q", ht)
-	}
-}
-
-// BartonellosisType defines the type for the "bartonellosis_type" enum field.
-type BartonellosisType string
-
-// BartonellosisType values.
-const (
-	BartonellosisTypePCR        BartonellosisType = "PCR"
-	BartonellosisTypeELISA      BartonellosisType = "ELISA"
-	BartonellosisTypeICA        BartonellosisType = "ICA"
-	BartonellosisTypeMicroscopy BartonellosisType = "Microscopy"
-	BartonellosisTypeExpress    BartonellosisType = "Express"
-)
-
-func (bt BartonellosisType) String() string {
-	return string(bt)
-}
-
-// BartonellosisTypeValidator is a validator for the "bartonellosis_type" field enum values. It is called by the builders before save.
-func BartonellosisTypeValidator(bt BartonellosisType) error {
-	switch bt {
-	case BartonellosisTypePCR, BartonellosisTypeELISA, BartonellosisTypeICA, BartonellosisTypeMicroscopy, BartonellosisTypeExpress:
-		return nil
-	default:
-		return fmt.Errorf("petanalysis: invalid enum value for bartonellosis_type field: %q", bt)
-	}
-}
-
-// BabesiosisType defines the type for the "babesiosis_type" enum field.
-type BabesiosisType string
-
-// BabesiosisType values.
-const (
-	BabesiosisTypePCR        BabesiosisType = "PCR"
-	BabesiosisTypeELISA      BabesiosisType = "ELISA"
-	BabesiosisTypeICA        BabesiosisType = "ICA"
-	BabesiosisTypeMicroscopy BabesiosisType = "Microscopy"
-	BabesiosisTypeExpress    BabesiosisType = "Express"
-)
-
-func (bt BabesiosisType) String() string {
-	return string(bt)
-}
-
-// BabesiosisTypeValidator is a validator for the "babesiosis_type" field enum values. It is called by the builders before save.
-func BabesiosisTypeValidator(bt BabesiosisType) error {
-	switch bt {
-	case BabesiosisTypePCR, BabesiosisTypeELISA, BabesiosisTypeICA, BabesiosisTypeMicroscopy, BabesiosisTypeExpress:
-		return nil
-	default:
-		return fmt.Errorf("petanalysis: invalid enum value for babesiosis_type field: %q", bt)
-	}
-}
-
-// DirofilariaType defines the type for the "dirofilaria_type" enum field.
-type DirofilariaType string
-
-// DirofilariaType values.
-const (
-	DirofilariaTypePCR        DirofilariaType = "PCR"
-	DirofilariaTypeELISA      DirofilariaType = "ELISA"
-	DirofilariaTypeICA        DirofilariaType = "ICA"
-	DirofilariaTypeMicroscopy DirofilariaType = "Microscopy"
-	DirofilariaTypeExpress    DirofilariaType = "Express"
-)
-
-func (dt DirofilariaType) String() string {
-	return string(dt)
-}
-
-// DirofilariaTypeValidator is a validator for the "dirofilaria_type" field enum values. It is called by the builders before save.
-func DirofilariaTypeValidator(dt DirofilariaType) error {
-	switch dt {
-	case DirofilariaTypePCR, DirofilariaTypeELISA, DirofilariaTypeICA, DirofilariaTypeMicroscopy, DirofilariaTypeExpress:
-		return nil
-	default:
-		return fmt.Errorf("petanalysis: invalid enum value for dirofilaria_type field: %q", dt)
-	}
-}
-
-// EhrlichiosisType defines the type for the "ehrlichiosis_type" enum field.
-type EhrlichiosisType string
-
-// EhrlichiosisType values.
-const (
-	EhrlichiosisTypePCR        EhrlichiosisType = "PCR"
-	EhrlichiosisTypeELISA      EhrlichiosisType = "ELISA"
-	EhrlichiosisTypeICA        EhrlichiosisType = "ICA"
-	EhrlichiosisTypeMicroscopy EhrlichiosisType = "Microscopy"
-	EhrlichiosisTypeExpress    EhrlichiosisType = "Express"
-)
-
-func (et EhrlichiosisType) String() string {
-	return string(et)
-}
-
-// EhrlichiosisTypeValidator is a validator for the "ehrlichiosis_type" field enum values. It is called by the builders before save.
-func EhrlichiosisTypeValidator(et EhrlichiosisType) error {
-	switch et {
-	case EhrlichiosisTypePCR, EhrlichiosisTypeELISA, EhrlichiosisTypeICA, EhrlichiosisTypeMicroscopy, EhrlichiosisTypeExpress:
-		return nil
-	default:
-		return fmt.Errorf("petanalysis: invalid enum value for ehrlichiosis_type field: %q", et)
-	}
-}
-
-// AnaplasmosisType defines the type for the "anaplasmosis_type" enum field.
-type AnaplasmosisType string
-
-// AnaplasmosisType values.
-const (
-	AnaplasmosisTypePCR        AnaplasmosisType = "PCR"
-	AnaplasmosisTypeELISA      AnaplasmosisType = "ELISA"
-	AnaplasmosisTypeICA        AnaplasmosisType = "ICA"
-	AnaplasmosisTypeMicroscopy AnaplasmosisType = "Microscopy"
-	AnaplasmosisTypeExpress    AnaplasmosisType = "Express"
-)
-
-func (at AnaplasmosisType) String() string {
+func (at AnalysisType) String() string {
 	return string(at)
 }
 
-// AnaplasmosisTypeValidator is a validator for the "anaplasmosis_type" field enum values. It is called by the builders before save.
-func AnaplasmosisTypeValidator(at AnaplasmosisType) error {
+// AnalysisTypeValidator is a validator for the "analysis_type" field enum values. It is called by the builders before save.
+func AnalysisTypeValidator(at AnalysisType) error {
 	switch at {
-	case AnaplasmosisTypePCR, AnaplasmosisTypeELISA, AnaplasmosisTypeICA, AnaplasmosisTypeMicroscopy, AnaplasmosisTypeExpress:
+	case AnalysisTypePCR, AnalysisTypeELISA, AnalysisTypeICA, AnalysisTypeMicroscopy, AnalysisTypeExpress:
 		return nil
 	default:
-		return fmt.Errorf("petanalysis: invalid enum value for anaplasmosis_type field: %q", at)
+		return fmt.Errorf("petanalysis: invalid enum value for analysis_type field: %q", at)
 	}
 }
 
@@ -357,84 +165,19 @@ func ByPetID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPetID, opts...).ToFunc()
 }
 
-// ByLeukemiaDate orders the results by the leukemia_date field.
-func ByLeukemiaDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLeukemiaDate, opts...).ToFunc()
+// ByAnalysisName orders the results by the analysis_name field.
+func ByAnalysisName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAnalysisName, opts...).ToFunc()
 }
 
-// ByLeukemiaType orders the results by the leukemia_type field.
-func ByLeukemiaType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLeukemiaType, opts...).ToFunc()
+// ByAnalysisType orders the results by the analysis_type field.
+func ByAnalysisType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAnalysisType, opts...).ToFunc()
 }
 
-// ByImmunodeficiencyDate orders the results by the immunodeficiency_date field.
-func ByImmunodeficiencyDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldImmunodeficiencyDate, opts...).ToFunc()
-}
-
-// ByImmunodeficiencyType orders the results by the immunodeficiency_type field.
-func ByImmunodeficiencyType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldImmunodeficiencyType, opts...).ToFunc()
-}
-
-// ByHemoplasmosisDate orders the results by the hemoplasmosis_date field.
-func ByHemoplasmosisDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldHemoplasmosisDate, opts...).ToFunc()
-}
-
-// ByHemoplasmosisType orders the results by the hemoplasmosis_type field.
-func ByHemoplasmosisType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldHemoplasmosisType, opts...).ToFunc()
-}
-
-// ByBartonellosisDate orders the results by the bartonellosis_date field.
-func ByBartonellosisDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBartonellosisDate, opts...).ToFunc()
-}
-
-// ByBartonellosisType orders the results by the bartonellosis_type field.
-func ByBartonellosisType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBartonellosisType, opts...).ToFunc()
-}
-
-// ByBabesiosisDate orders the results by the babesiosis_date field.
-func ByBabesiosisDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBabesiosisDate, opts...).ToFunc()
-}
-
-// ByBabesiosisType orders the results by the babesiosis_type field.
-func ByBabesiosisType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBabesiosisType, opts...).ToFunc()
-}
-
-// ByDirofilariaDate orders the results by the dirofilaria_date field.
-func ByDirofilariaDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDirofilariaDate, opts...).ToFunc()
-}
-
-// ByDirofilariaType orders the results by the dirofilaria_type field.
-func ByDirofilariaType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDirofilariaType, opts...).ToFunc()
-}
-
-// ByEhrlichiosisDate orders the results by the ehrlichiosis_date field.
-func ByEhrlichiosisDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEhrlichiosisDate, opts...).ToFunc()
-}
-
-// ByEhrlichiosisType orders the results by the ehrlichiosis_type field.
-func ByEhrlichiosisType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEhrlichiosisType, opts...).ToFunc()
-}
-
-// ByAnaplasmosisDate orders the results by the anaplasmosis_date field.
-func ByAnaplasmosisDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAnaplasmosisDate, opts...).ToFunc()
-}
-
-// ByAnaplasmosisType orders the results by the anaplasmosis_type field.
-func ByAnaplasmosisType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAnaplasmosisType, opts...).ToFunc()
+// ByAnalysisDate orders the results by the analysis_date field.
+func ByAnalysisDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAnalysisDate, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

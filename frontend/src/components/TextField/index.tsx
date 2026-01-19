@@ -66,6 +66,11 @@ const TextField: FC<Props> = ({
                     borderWidth: '1px',
                 },
             },
+            '& .MuiInputBase-input': {
+                '&:focus': {
+                    backgroundColor: '#ffffff',
+                },
+            },
         }}
     />
 );

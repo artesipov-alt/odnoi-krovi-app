@@ -59,7 +59,7 @@ func (r *EntBreedRepository) GetByPetType(ctx context.Context, petType breed.Typ
 
 	breeds, err := r.client.Breed.Query().
 		Where(breed.TypeEQ(petType)).
-		Order(ent.Asc(breed.FieldName)).
+		Order(ent.Asc(breed.FieldID)).
 		All(ctx)
 
 	if err != nil {

@@ -106,9 +106,9 @@ func (h *PetHandler) Register(api huma.API) {
 
 func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
-	Body dto.PetCreate
+	Body dto.Pet
 }) (*dto.PetResponse, error) {
-	petData := mapDTOToPet(input.Body)
+	petData := h.toCreateENT(input.Body)
 
 	pet, err := h.petService.CreatePet(ctx, input.ID, petData)
 	if err != nil {
@@ -120,7 +120,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	return &dto.PetResponse{Body: mapPetToDTO(pet)}, nil
+	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
 }
 
 func (h *PetHandler) GetPet(ctx context.Context, input *struct {
@@ -139,7 +139,7 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	return &dto.PetResponse{Body: mapPetToDTO(pet)}, nil
+	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
 }
 
 func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
@@ -160,7 +160,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 
 	var petDTOs []dto.Pet
 	for _, p := range pets {
-		petDTOs = append(petDTOs, mapPetToDTO(p))
+		petDTOs = append(petDTOs, h.toDTO(p))
 	}
 
 	return &dto.PetsResponse{Body: petDTOs}, nil
@@ -170,7 +170,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	dto.PetIDPath
 	Body dto.PetUpdate
 }) (*dto.MessageResponse, error) {
-	updates, health, treatments, analyses, bonuses := mapDTOToPetUpdates(input.Body)
+	updates, health, treatments, analyses, bonuses := h.toUpdateENT(input.Body)
 
 	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
@@ -253,7 +253,7 @@ func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
 }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
-func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
+func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 	petDTO := dto.Pet{
 		ID:              p.ID,
 		Name:            p.Name,
@@ -269,8 +269,9 @@ func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 		Type:            string(p.Type),
 		BloodGroup:      p.BloodGroup,
 		PetStatus:       string(p.PetStatus),
-		CreatedAt:       p.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:       p.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt:       &p.CreatedAt,
+		UpdatedAt:       &p.UpdatedAt,
+		DeletedAt:       p.DeletedAt,
 	}
 	if p.Edges.Health != nil {
 		reproStatus := string(p.Edges.Health.ReproductiveStatus)
@@ -295,33 +296,34 @@ func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 		}
 	}
 	if p.Edges.Analyses != nil {
-		petDTO.Analyses = make([]*dto.PetAnalysis, len(p.Edges.Analyses))
-		for i, a := range p.Edges.Analyses {
-			leukemiaType := string(a.LeukemiaType)
-			immunoType := string(a.ImmunodeficiencyType)
-			hemoType := string(a.HemoplasmosisType)
-			bartType := string(a.BartonellosisType)
-			babeType := string(a.BabesiosisType)
-			diroType := string(a.DirofilariaType)
-			ehriType := string(a.EhrlichiosisType)
-			anaType := string(a.AnaplasmosisType)
-			petDTO.Analyses[i] = &dto.PetAnalysis{
-				LeukemiaDate:         a.LeukemiaDate,
-				LeukemiaType:         &leukemiaType,
-				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
-				ImmunodeficiencyType: &immunoType,
-				HemoplasmosisDate:    a.HemoplasmosisDate,
-				HemoplasmosisType:    &hemoType,
-				BartonellosisDate:    a.BartonellosisDate,
-				BartonellosisType:    &bartType,
-				BabesiosisDate:       a.BabesiosisDate,
-				BabesiosisType:       &babeType,
-				DirofilariaDate:      a.DirofilariaDate,
-				DirofilariaType:      &diroType,
-				EhrlichiosisDate:     a.EhrlichiosisDate,
-				EhrlichiosisType:     &ehriType,
-				AnaplasmosisDate:     a.AnaplasmosisDate,
-				AnaplasmosisType:     &anaType,
+		petDTO.Analyses = &dto.PetAnalysisGroup{}
+		for _, a := range p.Edges.Analyses {
+			analysisName := string(a.AnalysisName)
+			analysisType := string(a.AnalysisType)
+			dtoAnalysis := &dto.PetAnalysis{
+				ID:           &a.ID,
+				AnalysisName: &analysisName,
+				AnalysisType: &analysisType,
+				AnalysisDate: a.AnalysisDate,
+			}
+
+			switch a.AnalysisName {
+			case petanalysis.AnalysisNameLeukemia:
+				petDTO.Analyses.Leukemia = append(petDTO.Analyses.Leukemia, dtoAnalysis)
+			case petanalysis.AnalysisNameImmunodeficiency:
+				petDTO.Analyses.Immunodeficiency = append(petDTO.Analyses.Immunodeficiency, dtoAnalysis)
+			case petanalysis.AnalysisNameHemoplasmosis:
+				petDTO.Analyses.Hemoplasmosis = append(petDTO.Analyses.Hemoplasmosis, dtoAnalysis)
+			case petanalysis.AnalysisNameBartonellosis:
+				petDTO.Analyses.Bartonellosis = append(petDTO.Analyses.Bartonellosis, dtoAnalysis)
+			case petanalysis.AnalysisNameBabesiosis:
+				petDTO.Analyses.Babesiosis = append(petDTO.Analyses.Babesiosis, dtoAnalysis)
+			case petanalysis.AnalysisNameDirofilaria:
+				petDTO.Analyses.Dirofilaria = append(petDTO.Analyses.Dirofilaria, dtoAnalysis)
+			case petanalysis.AnalysisNameEhrlichiosis:
+				petDTO.Analyses.Ehrlichiosis = append(petDTO.Analyses.Ehrlichiosis, dtoAnalysis)
+			case petanalysis.AnalysisNameAnaplasmosis:
+				petDTO.Analyses.Anaplasmosis = append(petDTO.Analyses.Anaplasmosis, dtoAnalysis)
 			}
 		}
 	}
@@ -337,7 +339,7 @@ func mapPetToDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
 }
 
 // mapDTOToPet преобразует DTO создания питомца в ENT модель
-func mapDTOToPet(d dto.PetCreate) *ent.Pet {
+func (h *PetHandler) toCreateENT(d dto.Pet) *ent.Pet {
 	p := &ent.Pet{
 		Name:            d.Name,
 		ChipNumber:      d.ChipNumber,
@@ -385,43 +387,30 @@ func mapDTOToPet(d dto.PetCreate) *ent.Pet {
 	}
 
 	if d.Analyses != nil {
-		p.Edges.Analyses = make([]*ent.PetAnalysis, len(d.Analyses))
-		for i, a := range d.Analyses {
-			p.Edges.Analyses[i] = &ent.PetAnalysis{
-				LeukemiaDate:         a.LeukemiaDate,
-				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
-				HemoplasmosisDate:    a.HemoplasmosisDate,
-				BartonellosisDate:    a.BartonellosisDate,
-				BabesiosisDate:       a.BabesiosisDate,
-				DirofilariaDate:      a.DirofilariaDate,
-				EhrlichiosisDate:     a.EhrlichiosisDate,
-				AnaplasmosisDate:     a.AnaplasmosisDate,
-			}
-			if a.LeukemiaType != nil {
-				p.Edges.Analyses[i].LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
-			}
-			if a.ImmunodeficiencyType != nil {
-				p.Edges.Analyses[i].ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
-			}
-			if a.HemoplasmosisType != nil {
-				p.Edges.Analyses[i].HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
-			}
-			if a.BartonellosisType != nil {
-				p.Edges.Analyses[i].BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
-			}
-			if a.BabesiosisType != nil {
-				p.Edges.Analyses[i].BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
-			}
-			if a.DirofilariaType != nil {
-				p.Edges.Analyses[i].DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
-			}
-			if a.EhrlichiosisType != nil {
-				p.Edges.Analyses[i].EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
-			}
-			if a.AnaplasmosisType != nil {
-				p.Edges.Analyses[i].AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
+		var analyses []*ent.PetAnalysis
+		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
+			for _, a := range group {
+				entA := &ent.PetAnalysis{
+					AnalysisName: name,
+					AnalysisDate: a.AnalysisDate,
+				}
+				if a.AnalysisType != nil {
+					entA.AnalysisType = petanalysis.AnalysisType(*a.AnalysisType)
+				}
+				analyses = append(analyses, entA)
 			}
 		}
+
+		processGroup(d.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
+		processGroup(d.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
+		processGroup(d.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
+		processGroup(d.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
+		processGroup(d.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
+		processGroup(d.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
+		processGroup(d.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
+		processGroup(d.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
+
+		p.Edges.Analyses = analyses
 	}
 
 	if d.Bonuses != nil {
@@ -437,7 +426,7 @@ func mapDTOToPet(d dto.PetCreate) *ent.Pet {
 }
 
 // mapDTOToPetUpdates преобразует DTO обновления питомца в аргументы для сервиса
-func mapDTOToPetUpdates(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.PetTreatment, []*ent.PetAnalysis, *ent.PetBonus) {
+func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.PetTreatment, []*ent.PetAnalysis, *ent.PetBonus) {
 	updates := make(map[string]any)
 	if d.Name != nil {
 		updates["Name"] = *d.Name
@@ -513,43 +502,27 @@ func mapDTOToPetUpdates(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.P
 
 	var analyses []*ent.PetAnalysis
 	if d.Analyses != nil {
-		analyses = make([]*ent.PetAnalysis, len(d.Analyses))
-		for i, a := range d.Analyses {
-			analyses[i] = &ent.PetAnalysis{
-				LeukemiaDate:         a.LeukemiaDate,
-				ImmunodeficiencyDate: a.ImmunodeficiencyDate,
-				HemoplasmosisDate:    a.HemoplasmosisDate,
-				BartonellosisDate:    a.BartonellosisDate,
-				BabesiosisDate:       a.BabesiosisDate,
-				DirofilariaDate:      a.DirofilariaDate,
-				EhrlichiosisDate:     a.EhrlichiosisDate,
-				AnaplasmosisDate:     a.AnaplasmosisDate,
-			}
-			if a.LeukemiaType != nil {
-				analyses[i].LeukemiaType = petanalysis.LeukemiaType(*a.LeukemiaType)
-			}
-			if a.ImmunodeficiencyType != nil {
-				analyses[i].ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(*a.ImmunodeficiencyType)
-			}
-			if a.HemoplasmosisType != nil {
-				analyses[i].HemoplasmosisType = petanalysis.HemoplasmosisType(*a.HemoplasmosisType)
-			}
-			if a.BartonellosisType != nil {
-				analyses[i].BartonellosisType = petanalysis.BartonellosisType(*a.BartonellosisType)
-			}
-			if a.BabesiosisType != nil {
-				analyses[i].BabesiosisType = petanalysis.BabesiosisType(*a.BabesiosisType)
-			}
-			if a.DirofilariaType != nil {
-				analyses[i].DirofilariaType = petanalysis.DirofilariaType(*a.DirofilariaType)
-			}
-			if a.EhrlichiosisType != nil {
-				analyses[i].EhrlichiosisType = petanalysis.EhrlichiosisType(*a.EhrlichiosisType)
-			}
-			if a.AnaplasmosisType != nil {
-				analyses[i].AnaplasmosisType = petanalysis.AnaplasmosisType(*a.AnaplasmosisType)
+		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
+			for _, a := range group {
+				entA := &ent.PetAnalysis{
+					AnalysisName: name,
+					AnalysisDate: a.AnalysisDate,
+				}
+				if a.AnalysisType != nil {
+					entA.AnalysisType = petanalysis.AnalysisType(*a.AnalysisType)
+				}
+				analyses = append(analyses, entA)
 			}
 		}
+
+		processGroup(d.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
+		processGroup(d.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
+		processGroup(d.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
+		processGroup(d.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
+		processGroup(d.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
+		processGroup(d.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
+		processGroup(d.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
+		processGroup(d.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
 	}
 
 	var bonuses *ent.PetBonus

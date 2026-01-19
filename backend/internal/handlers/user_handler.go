@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -265,26 +264,6 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 		return dto.User{}
 	}
 
-	formatDate := func(t any) string {
-		if t == nil {
-			return ""
-		}
-		switch v := t.(type) {
-		case *time.Time:
-			if v == nil || v.IsZero() || v.Unix() <= 0 {
-				return ""
-			}
-			return v.Format(time.RFC3339)
-		case time.Time:
-			if v.IsZero() || v.Unix() <= 0 {
-				return ""
-			}
-			return v.Format(time.RFC3339)
-		default:
-			return ""
-		}
-	}
-
 	userDTO := dto.User{
 		ID:               u.ID,
 		TelegramID:       u.TelegramID,
@@ -297,9 +276,9 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 		AllowGeo:         u.AllowGeo,
 		LocationID:       u.LocationID,
 		Role:             string(u.Role),
-		CreatedAt:        u.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:        u.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		DeletedAt:        formatDate(u.DeletedAt),
+		CreatedAt:        &u.CreatedAt,
+		UpdatedAt:        &u.UpdatedAt,
+		DeletedAt:        u.DeletedAt,
 	}
 
 	if u.Edges.Pets != nil {
@@ -320,8 +299,8 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 				Type:            pet.Type.String(),
 				BloodGroup:      pet.BloodGroup,
 				PetStatus:       pet.PetStatus.String(),
-				CreatedAt:       pet.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-				UpdatedAt:       pet.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+				CreatedAt:       &pet.CreatedAt,
+				UpdatedAt:       &pet.UpdatedAt,
 			}
 		}
 	}

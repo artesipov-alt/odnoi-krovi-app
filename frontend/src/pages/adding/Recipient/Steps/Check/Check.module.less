@@ -141,6 +141,7 @@
 
     &.accordionText {
         margin-top: 14px;
+        overflow-wrap: break-word;
     }
 }
 
@@ -154,6 +155,7 @@
     width: 50%;
     height: 60px;
     border-radius: 10px !important;
+    font-family: Marmelad, sans-serif !important;
     font-size: 15px !important;
     font-weight: 400 !important;
     line-height: 20px !important;
@@ -168,4 +170,11 @@
 .ok {
     background: @common-red !important;
     color: @textColor3 !important;
+}
+
+.loading {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
 }

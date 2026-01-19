@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 import cn from 'classnames';
 import BackArrow from 'imgs/svg/backArrow';
 import Blood from 'imgs/svg/blood';
@@ -13,6 +13,7 @@ import { FC } from 'react';
 import { Dict } from 'api/reference';
 import { PetType } from 'api/types';
 import ImgEditor from 'components/ImgEditor';
+import Loading from 'components/Loading';
 
 import styles from './Check.module.less';
 
@@ -22,6 +23,7 @@ type Props = {
     petType: string;
     bloodGroup: string;
     photo: File | null;
+    isLoading: boolean;
     locations: string[];
     bloodVolume: string;
     description: string;
@@ -39,6 +41,7 @@ const Check: FC<Props> = ({
     photo,
     weight,
     petType,
+    isLoading,
     locations,
     bloodGroup,
     description,
@@ -160,6 +163,11 @@ const Check: FC<Props> = ({
                         Все верно
                     </Button>
                 </div>
+                {isLoading && (
+                    <div className={styles.loading}>
+                        <Loading size={48} thickness={6} />
+                    </div>
+                )}
             </div>
         </>
     );

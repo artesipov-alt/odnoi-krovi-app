@@ -6,48 +6,48 @@ import { getUserByTelegramId } from 'api/apiServices/getUserByTelegramId';
 import { TelegramUser } from '../types';
 
 type TelegramAuth = {
-  isRegistered: boolean;
-  user: TelegramUser | null;
+    isRegistered: boolean;
+    user: TelegramUser | null;
 };
 
 export const useTelegramAuth = (): TelegramAuth => {
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [user, setUser] = useState<TelegramUser | null>(null);
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [user, setUser] = useState<TelegramUser | null>(null);
 
-  const initialize = useCallback(async () => {
-    if (!window.Telegram?.WebApp?.initDataUnsafe?.user) {
-      throw new Error('Telegram WebApp SDK не найден');
-    }
+    const initialize = useCallback(async () => {
+        if (!window.Telegram?.WebApp?.initDataUnsafe?.user) {
+            throw new Error('Telegram WebApp SDK не найден');
+        }
 
-    // const id = 995757392;
-    // const id = 248185030;
-    const { id } = window.Telegram.WebApp.initDataUnsafe.user;
+        // const id = 995757392;
+        // const id = 248185030;
+        const { id } = window.Telegram.WebApp.initDataUnsafe.user;
 
-    const { data, error } = await getUserByTelegramId(id);
+        const { data, error } = await getUserByTelegramId(id);
 
-    if (error) {
-      toast.warn(error);
+        if (error) {
+            toast.warn(error);
 
-      return;
-    }
+            return;
+        }
 
-    if (!data?.phone) {
-      setUser({
-        telegramId: id,
-        id: data?.id!,
-        fullName: data?.fullName!,
-      });
+        if (!data?.phone) {
+            setUser({
+                telegramId: id,
+                id: data?.id!,
+                fullName: data?.fullName!,
+            });
 
-      return;
-    }
+            return;
+        }
 
-    setUser(data);
-    setIsRegistered(true);
-  }, []);
+        setUser(data);
+        setIsRegistered(true);
+    }, []);
 
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
+    useEffect(() => {
+        initialize();
+    }, [initialize]);
 
-  return { user, isRegistered };
+    return { user, isRegistered };
 };

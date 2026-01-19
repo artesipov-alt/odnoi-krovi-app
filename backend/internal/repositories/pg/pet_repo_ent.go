@@ -101,25 +101,16 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 	}
 
 	for _, a := range analyses {
-		_, err = tx.PetAnalysis.Create().
+		builder := tx.PetAnalysis.Create().
 			SetOwnerID(newPet.ID).
-			SetNillableLeukemiaDate(a.LeukemiaDate).
-			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
-			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-			SetNillableImmunodeficiencyType(nillable(a.ImmunodeficiencyType)).
-			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-			SetNillableHemoplasmosisType(nillable(a.HemoplasmosisType)).
-			SetNillableBartonellosisDate(a.BartonellosisDate).
-			SetNillableBartonellosisType(nillable(a.BartonellosisType)).
-			SetNillableBabesiosisDate(a.BabesiosisDate).
-			SetNillableBabesiosisType(nillable(a.BabesiosisType)).
-			SetNillableDirofilariaDate(a.DirofilariaDate).
-			SetNillableDirofilariaType(nillable(a.DirofilariaType)).
-			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-			SetNillableEhrlichiosisType(nillable(a.EhrlichiosisType)).
-			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-			SetNillableAnaplasmosisType(nillable(a.AnaplasmosisType)).
-			Save(ctx)
+			SetAnalysisName(a.AnalysisName).
+			SetAnalysisType(a.AnalysisType)
+
+		if a.AnalysisDate != nil {
+			builder.SetAnalysisDate(*a.AnalysisDate)
+		}
+
+		_, err = builder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to create pet analysis: %w", err)
@@ -164,7 +155,7 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, preloads ...s
 			query = query.WithHealth()
 		case "Treatments":
 			query = query.WithTreatments()
-		case "Analysis":
+		case "Analyses":
 			query = query.WithAnalyses()
 		case "Bonuses":
 			query = query.WithBonuses()
@@ -199,7 +190,7 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, prelo
 			query = query.WithHealth()
 		case "Treatments":
 			query = query.WithTreatments()
-		case "Analysis":
+		case "Analyses":
 			query = query.WithAnalyses()
 		case "Bonuses":
 			query = query.WithBonuses()
@@ -316,25 +307,16 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 
 	// For analyses, add new ones as history (do not delete existing)
 	for _, a := range analyses {
-		_, err = tx.PetAnalysis.Create().
+		builder := tx.PetAnalysis.Create().
 			SetOwnerID(p.ID).
-			SetNillableLeukemiaDate(a.LeukemiaDate).
-			SetNillableLeukemiaType(nillable(a.LeukemiaType)).
-			SetNillableImmunodeficiencyDate(a.ImmunodeficiencyDate).
-			SetNillableImmunodeficiencyType(nillable(a.ImmunodeficiencyType)).
-			SetNillableHemoplasmosisDate(a.HemoplasmosisDate).
-			SetNillableHemoplasmosisType(nillable(a.HemoplasmosisType)).
-			SetNillableBartonellosisDate(a.BartonellosisDate).
-			SetNillableBartonellosisType(nillable(a.BartonellosisType)).
-			SetNillableBabesiosisDate(a.BabesiosisDate).
-			SetNillableBabesiosisType(nillable(a.BabesiosisType)).
-			SetNillableDirofilariaDate(a.DirofilariaDate).
-			SetNillableDirofilariaType(nillable(a.DirofilariaType)).
-			SetNillableEhrlichiosisDate(a.EhrlichiosisDate).
-			SetNillableEhrlichiosisType(nillable(a.EhrlichiosisType)).
-			SetNillableAnaplasmosisDate(a.AnaplasmosisDate).
-			SetNillableAnaplasmosisType(nillable(a.AnaplasmosisType)).
-			Save(ctx)
+			SetAnalysisName(a.AnalysisName).
+			SetAnalysisType(a.AnalysisType)
+
+		if a.AnalysisDate != nil {
+			builder.SetAnalysisDate(*a.AnalysisDate)
+		}
+
+		_, err = builder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to create pet analysis: %w", err)

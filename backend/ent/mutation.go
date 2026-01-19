@@ -861,8 +861,8 @@ type BloodSearchRequestMutation struct {
 	description               *string
 	photo_urls                *[]string
 	appendphoto_urls          []string
-	blood_group_ids           *[]string
-	appendblood_group_ids     []string
+	blood_group_names         *[]string
+	appendblood_group_names   []string
 	blood_component_ids       *[]int
 	appendblood_component_ids []int
 	clearedFields             map[string]struct{}
@@ -1483,69 +1483,69 @@ func (m *BloodSearchRequestMutation) ResetPhotoUrls() {
 	delete(m.clearedFields, bloodsearchrequest.FieldPhotoUrls)
 }
 
-// SetBloodGroupIds sets the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) SetBloodGroupIds(s []string) {
-	m.blood_group_ids = &s
-	m.appendblood_group_ids = nil
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) SetBloodGroupNames(s []string) {
+	m.blood_group_names = &s
+	m.appendblood_group_names = nil
 }
 
-// BloodGroupIds returns the value of the "blood_group_ids" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodGroupIds() (r []string, exists bool) {
-	v := m.blood_group_ids
+// BloodGroupNames returns the value of the "blood_group_names" field in the mutation.
+func (m *BloodSearchRequestMutation) BloodGroupNames() (r []string, exists bool) {
+	v := m.blood_group_names
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldBloodGroupIds returns the old "blood_group_ids" field's value of the BloodSearchRequest entity.
+// OldBloodGroupNames returns the old "blood_group_names" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodGroupIds(ctx context.Context) (v []string, err error) {
+func (m *BloodSearchRequestMutation) OldBloodGroupNames(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodGroupIds is only allowed on UpdateOne operations")
+		return v, errors.New("OldBloodGroupNames is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodGroupIds requires an ID field in the mutation")
+		return v, errors.New("OldBloodGroupNames requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodGroupIds: %w", err)
+		return v, fmt.Errorf("querying old value for OldBloodGroupNames: %w", err)
 	}
-	return oldValue.BloodGroupIds, nil
+	return oldValue.BloodGroupNames, nil
 }
 
-// AppendBloodGroupIds adds s to the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) AppendBloodGroupIds(s []string) {
-	m.appendblood_group_ids = append(m.appendblood_group_ids, s...)
+// AppendBloodGroupNames adds s to the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) AppendBloodGroupNames(s []string) {
+	m.appendblood_group_names = append(m.appendblood_group_names, s...)
 }
 
-// AppendedBloodGroupIds returns the list of values that were appended to the "blood_group_ids" field in this mutation.
-func (m *BloodSearchRequestMutation) AppendedBloodGroupIds() ([]string, bool) {
-	if len(m.appendblood_group_ids) == 0 {
+// AppendedBloodGroupNames returns the list of values that were appended to the "blood_group_names" field in this mutation.
+func (m *BloodSearchRequestMutation) AppendedBloodGroupNames() ([]string, bool) {
+	if len(m.appendblood_group_names) == 0 {
 		return nil, false
 	}
-	return m.appendblood_group_ids, true
+	return m.appendblood_group_names, true
 }
 
-// ClearBloodGroupIds clears the value of the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) ClearBloodGroupIds() {
-	m.blood_group_ids = nil
-	m.appendblood_group_ids = nil
-	m.clearedFields[bloodsearchrequest.FieldBloodGroupIds] = struct{}{}
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) ClearBloodGroupNames() {
+	m.blood_group_names = nil
+	m.appendblood_group_names = nil
+	m.clearedFields[bloodsearchrequest.FieldBloodGroupNames] = struct{}{}
 }
 
-// BloodGroupIdsCleared returns if the "blood_group_ids" field was cleared in this mutation.
-func (m *BloodSearchRequestMutation) BloodGroupIdsCleared() bool {
-	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodGroupIds]
+// BloodGroupNamesCleared returns if the "blood_group_names" field was cleared in this mutation.
+func (m *BloodSearchRequestMutation) BloodGroupNamesCleared() bool {
+	_, ok := m.clearedFields[bloodsearchrequest.FieldBloodGroupNames]
 	return ok
 }
 
-// ResetBloodGroupIds resets all changes to the "blood_group_ids" field.
-func (m *BloodSearchRequestMutation) ResetBloodGroupIds() {
-	m.blood_group_ids = nil
-	m.appendblood_group_ids = nil
-	delete(m.clearedFields, bloodsearchrequest.FieldBloodGroupIds)
+// ResetBloodGroupNames resets all changes to the "blood_group_names" field.
+func (m *BloodSearchRequestMutation) ResetBloodGroupNames() {
+	m.blood_group_names = nil
+	m.appendblood_group_names = nil
+	delete(m.clearedFields, bloodsearchrequest.FieldBloodGroupNames)
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
@@ -1708,8 +1708,8 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	if m.photo_urls != nil {
 		fields = append(fields, bloodsearchrequest.FieldPhotoUrls)
 	}
-	if m.blood_group_ids != nil {
-		fields = append(fields, bloodsearchrequest.FieldBloodGroupIds)
+	if m.blood_group_names != nil {
+		fields = append(fields, bloodsearchrequest.FieldBloodGroupNames)
 	}
 	if m.blood_component_ids != nil {
 		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
@@ -1744,8 +1744,8 @@ func (m *BloodSearchRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case bloodsearchrequest.FieldPhotoUrls:
 		return m.PhotoUrls()
-	case bloodsearchrequest.FieldBloodGroupIds:
-		return m.BloodGroupIds()
+	case bloodsearchrequest.FieldBloodGroupNames:
+		return m.BloodGroupNames()
 	case bloodsearchrequest.FieldBloodComponentIds:
 		return m.BloodComponentIds()
 	}
@@ -1779,8 +1779,8 @@ func (m *BloodSearchRequestMutation) OldField(ctx context.Context, name string) 
 		return m.OldDescription(ctx)
 	case bloodsearchrequest.FieldPhotoUrls:
 		return m.OldPhotoUrls(ctx)
-	case bloodsearchrequest.FieldBloodGroupIds:
-		return m.OldBloodGroupIds(ctx)
+	case bloodsearchrequest.FieldBloodGroupNames:
+		return m.OldBloodGroupNames(ctx)
 	case bloodsearchrequest.FieldBloodComponentIds:
 		return m.OldBloodComponentIds(ctx)
 	}
@@ -1869,12 +1869,12 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetPhotoUrls(v)
 		return nil
-	case bloodsearchrequest.FieldBloodGroupIds:
+	case bloodsearchrequest.FieldBloodGroupNames:
 		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBloodGroupIds(v)
+		m.SetBloodGroupNames(v)
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		v, ok := value.([]int)
@@ -1949,8 +1949,8 @@ func (m *BloodSearchRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(bloodsearchrequest.FieldPhotoUrls) {
 		fields = append(fields, bloodsearchrequest.FieldPhotoUrls)
 	}
-	if m.FieldCleared(bloodsearchrequest.FieldBloodGroupIds) {
-		fields = append(fields, bloodsearchrequest.FieldBloodGroupIds)
+	if m.FieldCleared(bloodsearchrequest.FieldBloodGroupNames) {
+		fields = append(fields, bloodsearchrequest.FieldBloodGroupNames)
 	}
 	if m.FieldCleared(bloodsearchrequest.FieldBloodComponentIds) {
 		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
@@ -1978,8 +1978,8 @@ func (m *BloodSearchRequestMutation) ClearField(name string) error {
 	case bloodsearchrequest.FieldPhotoUrls:
 		m.ClearPhotoUrls()
 		return nil
-	case bloodsearchrequest.FieldBloodGroupIds:
-		m.ClearBloodGroupIds()
+	case bloodsearchrequest.FieldBloodGroupNames:
+		m.ClearBloodGroupNames()
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		m.ClearBloodComponentIds()
@@ -2025,8 +2025,8 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 	case bloodsearchrequest.FieldPhotoUrls:
 		m.ResetPhotoUrls()
 		return nil
-	case bloodsearchrequest.FieldBloodGroupIds:
-		m.ResetBloodGroupIds()
+	case bloodsearchrequest.FieldBloodGroupNames:
+		m.ResetBloodGroupNames()
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		m.ResetBloodComponentIds()
@@ -5201,34 +5201,21 @@ func (m *PetMutation) ResetEdge(name string) error {
 // PetAnalysisMutation represents an operation that mutates the PetAnalysis nodes in the graph.
 type PetAnalysisMutation struct {
 	config
-	op                    Op
-	typ                   string
-	id                    *string
-	created_at            *time.Time
-	updated_at            *time.Time
-	deleted_at            *time.Time
-	leukemia_date         *time.Time
-	leukemia_type         *petanalysis.LeukemiaType
-	immunodeficiency_date *time.Time
-	immunodeficiency_type *petanalysis.ImmunodeficiencyType
-	hemoplasmosis_date    *time.Time
-	hemoplasmosis_type    *petanalysis.HemoplasmosisType
-	bartonellosis_date    *time.Time
-	bartonellosis_type    *petanalysis.BartonellosisType
-	babesiosis_date       *time.Time
-	babesiosis_type       *petanalysis.BabesiosisType
-	dirofilaria_date      *time.Time
-	dirofilaria_type      *petanalysis.DirofilariaType
-	ehrlichiosis_date     *time.Time
-	ehrlichiosis_type     *petanalysis.EhrlichiosisType
-	anaplasmosis_date     *time.Time
-	anaplasmosis_type     *petanalysis.AnaplasmosisType
-	clearedFields         map[string]struct{}
-	owner                 *string
-	clearedowner          bool
-	done                  bool
-	oldValue              func(context.Context) (*PetAnalysis, error)
-	predicates            []predicate.PetAnalysis
+	op            Op
+	typ           string
+	id            *string
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
+	analysis_name *petanalysis.AnalysisName
+	analysis_type *petanalysis.AnalysisType
+	analysis_date *time.Time
+	clearedFields map[string]struct{}
+	owner         *string
+	clearedowner  bool
+	done          bool
+	oldValue      func(context.Context) (*PetAnalysis, error)
+	predicates    []predicate.PetAnalysis
 }
 
 var _ ent.Mutation = (*PetAnalysisMutation)(nil)
@@ -5492,788 +5479,138 @@ func (m *PetAnalysisMutation) ResetPetID() {
 	m.owner = nil
 }
 
-// SetLeukemiaDate sets the "leukemia_date" field.
-func (m *PetAnalysisMutation) SetLeukemiaDate(t time.Time) {
-	m.leukemia_date = &t
+// SetAnalysisName sets the "analysis_name" field.
+func (m *PetAnalysisMutation) SetAnalysisName(pn petanalysis.AnalysisName) {
+	m.analysis_name = &pn
 }
 
-// LeukemiaDate returns the value of the "leukemia_date" field in the mutation.
-func (m *PetAnalysisMutation) LeukemiaDate() (r time.Time, exists bool) {
-	v := m.leukemia_date
+// AnalysisName returns the value of the "analysis_name" field in the mutation.
+func (m *PetAnalysisMutation) AnalysisName() (r petanalysis.AnalysisName, exists bool) {
+	v := m.analysis_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldLeukemiaDate returns the old "leukemia_date" field's value of the PetAnalysis entity.
+// OldAnalysisName returns the old "analysis_name" field's value of the PetAnalysis entity.
 // If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldLeukemiaDate(ctx context.Context) (v *time.Time, err error) {
+func (m *PetAnalysisMutation) OldAnalysisName(ctx context.Context) (v petanalysis.AnalysisName, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLeukemiaDate is only allowed on UpdateOne operations")
+		return v, errors.New("OldAnalysisName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLeukemiaDate requires an ID field in the mutation")
+		return v, errors.New("OldAnalysisName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLeukemiaDate: %w", err)
+		return v, fmt.Errorf("querying old value for OldAnalysisName: %w", err)
 	}
-	return oldValue.LeukemiaDate, nil
+	return oldValue.AnalysisName, nil
 }
 
-// ClearLeukemiaDate clears the value of the "leukemia_date" field.
-func (m *PetAnalysisMutation) ClearLeukemiaDate() {
-	m.leukemia_date = nil
-	m.clearedFields[petanalysis.FieldLeukemiaDate] = struct{}{}
+// ClearAnalysisName clears the value of the "analysis_name" field.
+func (m *PetAnalysisMutation) ClearAnalysisName() {
+	m.analysis_name = nil
+	m.clearedFields[petanalysis.FieldAnalysisName] = struct{}{}
 }
 
-// LeukemiaDateCleared returns if the "leukemia_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) LeukemiaDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldLeukemiaDate]
+// AnalysisNameCleared returns if the "analysis_name" field was cleared in this mutation.
+func (m *PetAnalysisMutation) AnalysisNameCleared() bool {
+	_, ok := m.clearedFields[petanalysis.FieldAnalysisName]
 	return ok
 }
 
-// ResetLeukemiaDate resets all changes to the "leukemia_date" field.
-func (m *PetAnalysisMutation) ResetLeukemiaDate() {
-	m.leukemia_date = nil
-	delete(m.clearedFields, petanalysis.FieldLeukemiaDate)
+// ResetAnalysisName resets all changes to the "analysis_name" field.
+func (m *PetAnalysisMutation) ResetAnalysisName() {
+	m.analysis_name = nil
+	delete(m.clearedFields, petanalysis.FieldAnalysisName)
 }
 
-// SetLeukemiaType sets the "leukemia_type" field.
-func (m *PetAnalysisMutation) SetLeukemiaType(pt petanalysis.LeukemiaType) {
-	m.leukemia_type = &pt
+// SetAnalysisType sets the "analysis_type" field.
+func (m *PetAnalysisMutation) SetAnalysisType(pt petanalysis.AnalysisType) {
+	m.analysis_type = &pt
 }
 
-// LeukemiaType returns the value of the "leukemia_type" field in the mutation.
-func (m *PetAnalysisMutation) LeukemiaType() (r petanalysis.LeukemiaType, exists bool) {
-	v := m.leukemia_type
+// AnalysisType returns the value of the "analysis_type" field in the mutation.
+func (m *PetAnalysisMutation) AnalysisType() (r petanalysis.AnalysisType, exists bool) {
+	v := m.analysis_type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldLeukemiaType returns the old "leukemia_type" field's value of the PetAnalysis entity.
+// OldAnalysisType returns the old "analysis_type" field's value of the PetAnalysis entity.
 // If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldLeukemiaType(ctx context.Context) (v petanalysis.LeukemiaType, err error) {
+func (m *PetAnalysisMutation) OldAnalysisType(ctx context.Context) (v petanalysis.AnalysisType, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLeukemiaType is only allowed on UpdateOne operations")
+		return v, errors.New("OldAnalysisType is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLeukemiaType requires an ID field in the mutation")
+		return v, errors.New("OldAnalysisType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLeukemiaType: %w", err)
+		return v, fmt.Errorf("querying old value for OldAnalysisType: %w", err)
 	}
-	return oldValue.LeukemiaType, nil
+	return oldValue.AnalysisType, nil
 }
 
-// ClearLeukemiaType clears the value of the "leukemia_type" field.
-func (m *PetAnalysisMutation) ClearLeukemiaType() {
-	m.leukemia_type = nil
-	m.clearedFields[petanalysis.FieldLeukemiaType] = struct{}{}
+// ClearAnalysisType clears the value of the "analysis_type" field.
+func (m *PetAnalysisMutation) ClearAnalysisType() {
+	m.analysis_type = nil
+	m.clearedFields[petanalysis.FieldAnalysisType] = struct{}{}
 }
 
-// LeukemiaTypeCleared returns if the "leukemia_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) LeukemiaTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldLeukemiaType]
+// AnalysisTypeCleared returns if the "analysis_type" field was cleared in this mutation.
+func (m *PetAnalysisMutation) AnalysisTypeCleared() bool {
+	_, ok := m.clearedFields[petanalysis.FieldAnalysisType]
 	return ok
 }
 
-// ResetLeukemiaType resets all changes to the "leukemia_type" field.
-func (m *PetAnalysisMutation) ResetLeukemiaType() {
-	m.leukemia_type = nil
-	delete(m.clearedFields, petanalysis.FieldLeukemiaType)
+// ResetAnalysisType resets all changes to the "analysis_type" field.
+func (m *PetAnalysisMutation) ResetAnalysisType() {
+	m.analysis_type = nil
+	delete(m.clearedFields, petanalysis.FieldAnalysisType)
 }
 
-// SetImmunodeficiencyDate sets the "immunodeficiency_date" field.
-func (m *PetAnalysisMutation) SetImmunodeficiencyDate(t time.Time) {
-	m.immunodeficiency_date = &t
+// SetAnalysisDate sets the "analysis_date" field.
+func (m *PetAnalysisMutation) SetAnalysisDate(t time.Time) {
+	m.analysis_date = &t
 }
 
-// ImmunodeficiencyDate returns the value of the "immunodeficiency_date" field in the mutation.
-func (m *PetAnalysisMutation) ImmunodeficiencyDate() (r time.Time, exists bool) {
-	v := m.immunodeficiency_date
+// AnalysisDate returns the value of the "analysis_date" field in the mutation.
+func (m *PetAnalysisMutation) AnalysisDate() (r time.Time, exists bool) {
+	v := m.analysis_date
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldImmunodeficiencyDate returns the old "immunodeficiency_date" field's value of the PetAnalysis entity.
+// OldAnalysisDate returns the old "analysis_date" field's value of the PetAnalysis entity.
 // If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldImmunodeficiencyDate(ctx context.Context) (v *time.Time, err error) {
+func (m *PetAnalysisMutation) OldAnalysisDate(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldImmunodeficiencyDate is only allowed on UpdateOne operations")
+		return v, errors.New("OldAnalysisDate is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldImmunodeficiencyDate requires an ID field in the mutation")
+		return v, errors.New("OldAnalysisDate requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldImmunodeficiencyDate: %w", err)
+		return v, fmt.Errorf("querying old value for OldAnalysisDate: %w", err)
 	}
-	return oldValue.ImmunodeficiencyDate, nil
+	return oldValue.AnalysisDate, nil
 }
 
-// ClearImmunodeficiencyDate clears the value of the "immunodeficiency_date" field.
-func (m *PetAnalysisMutation) ClearImmunodeficiencyDate() {
-	m.immunodeficiency_date = nil
-	m.clearedFields[petanalysis.FieldImmunodeficiencyDate] = struct{}{}
-}
-
-// ImmunodeficiencyDateCleared returns if the "immunodeficiency_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) ImmunodeficiencyDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldImmunodeficiencyDate]
-	return ok
-}
-
-// ResetImmunodeficiencyDate resets all changes to the "immunodeficiency_date" field.
-func (m *PetAnalysisMutation) ResetImmunodeficiencyDate() {
-	m.immunodeficiency_date = nil
-	delete(m.clearedFields, petanalysis.FieldImmunodeficiencyDate)
-}
-
-// SetImmunodeficiencyType sets the "immunodeficiency_type" field.
-func (m *PetAnalysisMutation) SetImmunodeficiencyType(pt petanalysis.ImmunodeficiencyType) {
-	m.immunodeficiency_type = &pt
-}
-
-// ImmunodeficiencyType returns the value of the "immunodeficiency_type" field in the mutation.
-func (m *PetAnalysisMutation) ImmunodeficiencyType() (r petanalysis.ImmunodeficiencyType, exists bool) {
-	v := m.immunodeficiency_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldImmunodeficiencyType returns the old "immunodeficiency_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldImmunodeficiencyType(ctx context.Context) (v petanalysis.ImmunodeficiencyType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldImmunodeficiencyType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldImmunodeficiencyType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldImmunodeficiencyType: %w", err)
-	}
-	return oldValue.ImmunodeficiencyType, nil
-}
-
-// ClearImmunodeficiencyType clears the value of the "immunodeficiency_type" field.
-func (m *PetAnalysisMutation) ClearImmunodeficiencyType() {
-	m.immunodeficiency_type = nil
-	m.clearedFields[petanalysis.FieldImmunodeficiencyType] = struct{}{}
-}
-
-// ImmunodeficiencyTypeCleared returns if the "immunodeficiency_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) ImmunodeficiencyTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldImmunodeficiencyType]
-	return ok
-}
-
-// ResetImmunodeficiencyType resets all changes to the "immunodeficiency_type" field.
-func (m *PetAnalysisMutation) ResetImmunodeficiencyType() {
-	m.immunodeficiency_type = nil
-	delete(m.clearedFields, petanalysis.FieldImmunodeficiencyType)
-}
-
-// SetHemoplasmosisDate sets the "hemoplasmosis_date" field.
-func (m *PetAnalysisMutation) SetHemoplasmosisDate(t time.Time) {
-	m.hemoplasmosis_date = &t
-}
-
-// HemoplasmosisDate returns the value of the "hemoplasmosis_date" field in the mutation.
-func (m *PetAnalysisMutation) HemoplasmosisDate() (r time.Time, exists bool) {
-	v := m.hemoplasmosis_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHemoplasmosisDate returns the old "hemoplasmosis_date" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldHemoplasmosisDate(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHemoplasmosisDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHemoplasmosisDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHemoplasmosisDate: %w", err)
-	}
-	return oldValue.HemoplasmosisDate, nil
-}
-
-// ClearHemoplasmosisDate clears the value of the "hemoplasmosis_date" field.
-func (m *PetAnalysisMutation) ClearHemoplasmosisDate() {
-	m.hemoplasmosis_date = nil
-	m.clearedFields[petanalysis.FieldHemoplasmosisDate] = struct{}{}
-}
-
-// HemoplasmosisDateCleared returns if the "hemoplasmosis_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) HemoplasmosisDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldHemoplasmosisDate]
-	return ok
-}
-
-// ResetHemoplasmosisDate resets all changes to the "hemoplasmosis_date" field.
-func (m *PetAnalysisMutation) ResetHemoplasmosisDate() {
-	m.hemoplasmosis_date = nil
-	delete(m.clearedFields, petanalysis.FieldHemoplasmosisDate)
-}
-
-// SetHemoplasmosisType sets the "hemoplasmosis_type" field.
-func (m *PetAnalysisMutation) SetHemoplasmosisType(pt petanalysis.HemoplasmosisType) {
-	m.hemoplasmosis_type = &pt
-}
-
-// HemoplasmosisType returns the value of the "hemoplasmosis_type" field in the mutation.
-func (m *PetAnalysisMutation) HemoplasmosisType() (r petanalysis.HemoplasmosisType, exists bool) {
-	v := m.hemoplasmosis_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHemoplasmosisType returns the old "hemoplasmosis_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldHemoplasmosisType(ctx context.Context) (v petanalysis.HemoplasmosisType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHemoplasmosisType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHemoplasmosisType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHemoplasmosisType: %w", err)
-	}
-	return oldValue.HemoplasmosisType, nil
-}
-
-// ClearHemoplasmosisType clears the value of the "hemoplasmosis_type" field.
-func (m *PetAnalysisMutation) ClearHemoplasmosisType() {
-	m.hemoplasmosis_type = nil
-	m.clearedFields[petanalysis.FieldHemoplasmosisType] = struct{}{}
-}
-
-// HemoplasmosisTypeCleared returns if the "hemoplasmosis_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) HemoplasmosisTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldHemoplasmosisType]
-	return ok
-}
-
-// ResetHemoplasmosisType resets all changes to the "hemoplasmosis_type" field.
-func (m *PetAnalysisMutation) ResetHemoplasmosisType() {
-	m.hemoplasmosis_type = nil
-	delete(m.clearedFields, petanalysis.FieldHemoplasmosisType)
-}
-
-// SetBartonellosisDate sets the "bartonellosis_date" field.
-func (m *PetAnalysisMutation) SetBartonellosisDate(t time.Time) {
-	m.bartonellosis_date = &t
-}
-
-// BartonellosisDate returns the value of the "bartonellosis_date" field in the mutation.
-func (m *PetAnalysisMutation) BartonellosisDate() (r time.Time, exists bool) {
-	v := m.bartonellosis_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBartonellosisDate returns the old "bartonellosis_date" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldBartonellosisDate(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBartonellosisDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBartonellosisDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBartonellosisDate: %w", err)
-	}
-	return oldValue.BartonellosisDate, nil
-}
-
-// ClearBartonellosisDate clears the value of the "bartonellosis_date" field.
-func (m *PetAnalysisMutation) ClearBartonellosisDate() {
-	m.bartonellosis_date = nil
-	m.clearedFields[petanalysis.FieldBartonellosisDate] = struct{}{}
-}
-
-// BartonellosisDateCleared returns if the "bartonellosis_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) BartonellosisDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldBartonellosisDate]
-	return ok
-}
-
-// ResetBartonellosisDate resets all changes to the "bartonellosis_date" field.
-func (m *PetAnalysisMutation) ResetBartonellosisDate() {
-	m.bartonellosis_date = nil
-	delete(m.clearedFields, petanalysis.FieldBartonellosisDate)
-}
-
-// SetBartonellosisType sets the "bartonellosis_type" field.
-func (m *PetAnalysisMutation) SetBartonellosisType(pt petanalysis.BartonellosisType) {
-	m.bartonellosis_type = &pt
-}
-
-// BartonellosisType returns the value of the "bartonellosis_type" field in the mutation.
-func (m *PetAnalysisMutation) BartonellosisType() (r petanalysis.BartonellosisType, exists bool) {
-	v := m.bartonellosis_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBartonellosisType returns the old "bartonellosis_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldBartonellosisType(ctx context.Context) (v petanalysis.BartonellosisType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBartonellosisType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBartonellosisType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBartonellosisType: %w", err)
-	}
-	return oldValue.BartonellosisType, nil
-}
-
-// ClearBartonellosisType clears the value of the "bartonellosis_type" field.
-func (m *PetAnalysisMutation) ClearBartonellosisType() {
-	m.bartonellosis_type = nil
-	m.clearedFields[petanalysis.FieldBartonellosisType] = struct{}{}
-}
-
-// BartonellosisTypeCleared returns if the "bartonellosis_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) BartonellosisTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldBartonellosisType]
-	return ok
-}
-
-// ResetBartonellosisType resets all changes to the "bartonellosis_type" field.
-func (m *PetAnalysisMutation) ResetBartonellosisType() {
-	m.bartonellosis_type = nil
-	delete(m.clearedFields, petanalysis.FieldBartonellosisType)
-}
-
-// SetBabesiosisDate sets the "babesiosis_date" field.
-func (m *PetAnalysisMutation) SetBabesiosisDate(t time.Time) {
-	m.babesiosis_date = &t
-}
-
-// BabesiosisDate returns the value of the "babesiosis_date" field in the mutation.
-func (m *PetAnalysisMutation) BabesiosisDate() (r time.Time, exists bool) {
-	v := m.babesiosis_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBabesiosisDate returns the old "babesiosis_date" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldBabesiosisDate(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBabesiosisDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBabesiosisDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBabesiosisDate: %w", err)
-	}
-	return oldValue.BabesiosisDate, nil
-}
-
-// ClearBabesiosisDate clears the value of the "babesiosis_date" field.
-func (m *PetAnalysisMutation) ClearBabesiosisDate() {
-	m.babesiosis_date = nil
-	m.clearedFields[petanalysis.FieldBabesiosisDate] = struct{}{}
-}
-
-// BabesiosisDateCleared returns if the "babesiosis_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) BabesiosisDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldBabesiosisDate]
-	return ok
-}
-
-// ResetBabesiosisDate resets all changes to the "babesiosis_date" field.
-func (m *PetAnalysisMutation) ResetBabesiosisDate() {
-	m.babesiosis_date = nil
-	delete(m.clearedFields, petanalysis.FieldBabesiosisDate)
-}
-
-// SetBabesiosisType sets the "babesiosis_type" field.
-func (m *PetAnalysisMutation) SetBabesiosisType(pt petanalysis.BabesiosisType) {
-	m.babesiosis_type = &pt
-}
-
-// BabesiosisType returns the value of the "babesiosis_type" field in the mutation.
-func (m *PetAnalysisMutation) BabesiosisType() (r petanalysis.BabesiosisType, exists bool) {
-	v := m.babesiosis_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBabesiosisType returns the old "babesiosis_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldBabesiosisType(ctx context.Context) (v petanalysis.BabesiosisType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBabesiosisType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBabesiosisType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBabesiosisType: %w", err)
-	}
-	return oldValue.BabesiosisType, nil
-}
-
-// ClearBabesiosisType clears the value of the "babesiosis_type" field.
-func (m *PetAnalysisMutation) ClearBabesiosisType() {
-	m.babesiosis_type = nil
-	m.clearedFields[petanalysis.FieldBabesiosisType] = struct{}{}
-}
-
-// BabesiosisTypeCleared returns if the "babesiosis_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) BabesiosisTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldBabesiosisType]
-	return ok
-}
-
-// ResetBabesiosisType resets all changes to the "babesiosis_type" field.
-func (m *PetAnalysisMutation) ResetBabesiosisType() {
-	m.babesiosis_type = nil
-	delete(m.clearedFields, petanalysis.FieldBabesiosisType)
-}
-
-// SetDirofilariaDate sets the "dirofilaria_date" field.
-func (m *PetAnalysisMutation) SetDirofilariaDate(t time.Time) {
-	m.dirofilaria_date = &t
-}
-
-// DirofilariaDate returns the value of the "dirofilaria_date" field in the mutation.
-func (m *PetAnalysisMutation) DirofilariaDate() (r time.Time, exists bool) {
-	v := m.dirofilaria_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDirofilariaDate returns the old "dirofilaria_date" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldDirofilariaDate(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDirofilariaDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDirofilariaDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDirofilariaDate: %w", err)
-	}
-	return oldValue.DirofilariaDate, nil
-}
-
-// ClearDirofilariaDate clears the value of the "dirofilaria_date" field.
-func (m *PetAnalysisMutation) ClearDirofilariaDate() {
-	m.dirofilaria_date = nil
-	m.clearedFields[petanalysis.FieldDirofilariaDate] = struct{}{}
-}
-
-// DirofilariaDateCleared returns if the "dirofilaria_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) DirofilariaDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldDirofilariaDate]
-	return ok
-}
-
-// ResetDirofilariaDate resets all changes to the "dirofilaria_date" field.
-func (m *PetAnalysisMutation) ResetDirofilariaDate() {
-	m.dirofilaria_date = nil
-	delete(m.clearedFields, petanalysis.FieldDirofilariaDate)
-}
-
-// SetDirofilariaType sets the "dirofilaria_type" field.
-func (m *PetAnalysisMutation) SetDirofilariaType(pt petanalysis.DirofilariaType) {
-	m.dirofilaria_type = &pt
-}
-
-// DirofilariaType returns the value of the "dirofilaria_type" field in the mutation.
-func (m *PetAnalysisMutation) DirofilariaType() (r petanalysis.DirofilariaType, exists bool) {
-	v := m.dirofilaria_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDirofilariaType returns the old "dirofilaria_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldDirofilariaType(ctx context.Context) (v petanalysis.DirofilariaType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDirofilariaType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDirofilariaType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDirofilariaType: %w", err)
-	}
-	return oldValue.DirofilariaType, nil
-}
-
-// ClearDirofilariaType clears the value of the "dirofilaria_type" field.
-func (m *PetAnalysisMutation) ClearDirofilariaType() {
-	m.dirofilaria_type = nil
-	m.clearedFields[petanalysis.FieldDirofilariaType] = struct{}{}
-}
-
-// DirofilariaTypeCleared returns if the "dirofilaria_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) DirofilariaTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldDirofilariaType]
-	return ok
-}
-
-// ResetDirofilariaType resets all changes to the "dirofilaria_type" field.
-func (m *PetAnalysisMutation) ResetDirofilariaType() {
-	m.dirofilaria_type = nil
-	delete(m.clearedFields, petanalysis.FieldDirofilariaType)
-}
-
-// SetEhrlichiosisDate sets the "ehrlichiosis_date" field.
-func (m *PetAnalysisMutation) SetEhrlichiosisDate(t time.Time) {
-	m.ehrlichiosis_date = &t
-}
-
-// EhrlichiosisDate returns the value of the "ehrlichiosis_date" field in the mutation.
-func (m *PetAnalysisMutation) EhrlichiosisDate() (r time.Time, exists bool) {
-	v := m.ehrlichiosis_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEhrlichiosisDate returns the old "ehrlichiosis_date" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldEhrlichiosisDate(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEhrlichiosisDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEhrlichiosisDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEhrlichiosisDate: %w", err)
-	}
-	return oldValue.EhrlichiosisDate, nil
-}
-
-// ClearEhrlichiosisDate clears the value of the "ehrlichiosis_date" field.
-func (m *PetAnalysisMutation) ClearEhrlichiosisDate() {
-	m.ehrlichiosis_date = nil
-	m.clearedFields[petanalysis.FieldEhrlichiosisDate] = struct{}{}
-}
-
-// EhrlichiosisDateCleared returns if the "ehrlichiosis_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) EhrlichiosisDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldEhrlichiosisDate]
-	return ok
-}
-
-// ResetEhrlichiosisDate resets all changes to the "ehrlichiosis_date" field.
-func (m *PetAnalysisMutation) ResetEhrlichiosisDate() {
-	m.ehrlichiosis_date = nil
-	delete(m.clearedFields, petanalysis.FieldEhrlichiosisDate)
-}
-
-// SetEhrlichiosisType sets the "ehrlichiosis_type" field.
-func (m *PetAnalysisMutation) SetEhrlichiosisType(pt petanalysis.EhrlichiosisType) {
-	m.ehrlichiosis_type = &pt
-}
-
-// EhrlichiosisType returns the value of the "ehrlichiosis_type" field in the mutation.
-func (m *PetAnalysisMutation) EhrlichiosisType() (r petanalysis.EhrlichiosisType, exists bool) {
-	v := m.ehrlichiosis_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEhrlichiosisType returns the old "ehrlichiosis_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldEhrlichiosisType(ctx context.Context) (v petanalysis.EhrlichiosisType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEhrlichiosisType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEhrlichiosisType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEhrlichiosisType: %w", err)
-	}
-	return oldValue.EhrlichiosisType, nil
-}
-
-// ClearEhrlichiosisType clears the value of the "ehrlichiosis_type" field.
-func (m *PetAnalysisMutation) ClearEhrlichiosisType() {
-	m.ehrlichiosis_type = nil
-	m.clearedFields[petanalysis.FieldEhrlichiosisType] = struct{}{}
-}
-
-// EhrlichiosisTypeCleared returns if the "ehrlichiosis_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) EhrlichiosisTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldEhrlichiosisType]
-	return ok
-}
-
-// ResetEhrlichiosisType resets all changes to the "ehrlichiosis_type" field.
-func (m *PetAnalysisMutation) ResetEhrlichiosisType() {
-	m.ehrlichiosis_type = nil
-	delete(m.clearedFields, petanalysis.FieldEhrlichiosisType)
-}
-
-// SetAnaplasmosisDate sets the "anaplasmosis_date" field.
-func (m *PetAnalysisMutation) SetAnaplasmosisDate(t time.Time) {
-	m.anaplasmosis_date = &t
-}
-
-// AnaplasmosisDate returns the value of the "anaplasmosis_date" field in the mutation.
-func (m *PetAnalysisMutation) AnaplasmosisDate() (r time.Time, exists bool) {
-	v := m.anaplasmosis_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAnaplasmosisDate returns the old "anaplasmosis_date" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldAnaplasmosisDate(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAnaplasmosisDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAnaplasmosisDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAnaplasmosisDate: %w", err)
-	}
-	return oldValue.AnaplasmosisDate, nil
-}
-
-// ClearAnaplasmosisDate clears the value of the "anaplasmosis_date" field.
-func (m *PetAnalysisMutation) ClearAnaplasmosisDate() {
-	m.anaplasmosis_date = nil
-	m.clearedFields[petanalysis.FieldAnaplasmosisDate] = struct{}{}
-}
-
-// AnaplasmosisDateCleared returns if the "anaplasmosis_date" field was cleared in this mutation.
-func (m *PetAnalysisMutation) AnaplasmosisDateCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldAnaplasmosisDate]
-	return ok
-}
-
-// ResetAnaplasmosisDate resets all changes to the "anaplasmosis_date" field.
-func (m *PetAnalysisMutation) ResetAnaplasmosisDate() {
-	m.anaplasmosis_date = nil
-	delete(m.clearedFields, petanalysis.FieldAnaplasmosisDate)
-}
-
-// SetAnaplasmosisType sets the "anaplasmosis_type" field.
-func (m *PetAnalysisMutation) SetAnaplasmosisType(pt petanalysis.AnaplasmosisType) {
-	m.anaplasmosis_type = &pt
-}
-
-// AnaplasmosisType returns the value of the "anaplasmosis_type" field in the mutation.
-func (m *PetAnalysisMutation) AnaplasmosisType() (r petanalysis.AnaplasmosisType, exists bool) {
-	v := m.anaplasmosis_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAnaplasmosisType returns the old "anaplasmosis_type" field's value of the PetAnalysis entity.
-// If the PetAnalysis object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetAnalysisMutation) OldAnaplasmosisType(ctx context.Context) (v petanalysis.AnaplasmosisType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAnaplasmosisType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAnaplasmosisType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAnaplasmosisType: %w", err)
-	}
-	return oldValue.AnaplasmosisType, nil
-}
-
-// ClearAnaplasmosisType clears the value of the "anaplasmosis_type" field.
-func (m *PetAnalysisMutation) ClearAnaplasmosisType() {
-	m.anaplasmosis_type = nil
-	m.clearedFields[petanalysis.FieldAnaplasmosisType] = struct{}{}
-}
-
-// AnaplasmosisTypeCleared returns if the "anaplasmosis_type" field was cleared in this mutation.
-func (m *PetAnalysisMutation) AnaplasmosisTypeCleared() bool {
-	_, ok := m.clearedFields[petanalysis.FieldAnaplasmosisType]
-	return ok
-}
-
-// ResetAnaplasmosisType resets all changes to the "anaplasmosis_type" field.
-func (m *PetAnalysisMutation) ResetAnaplasmosisType() {
-	m.anaplasmosis_type = nil
-	delete(m.clearedFields, petanalysis.FieldAnaplasmosisType)
+// ResetAnalysisDate resets all changes to the "analysis_date" field.
+func (m *PetAnalysisMutation) ResetAnalysisDate() {
+	m.analysis_date = nil
 }
 
 // SetOwnerID sets the "owner" edge to the Pet entity by id.
@@ -6350,7 +5687,7 @@ func (m *PetAnalysisMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetAnalysisMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, petanalysis.FieldCreatedAt)
 	}
@@ -6363,53 +5700,14 @@ func (m *PetAnalysisMutation) Fields() []string {
 	if m.owner != nil {
 		fields = append(fields, petanalysis.FieldPetID)
 	}
-	if m.leukemia_date != nil {
-		fields = append(fields, petanalysis.FieldLeukemiaDate)
+	if m.analysis_name != nil {
+		fields = append(fields, petanalysis.FieldAnalysisName)
 	}
-	if m.leukemia_type != nil {
-		fields = append(fields, petanalysis.FieldLeukemiaType)
+	if m.analysis_type != nil {
+		fields = append(fields, petanalysis.FieldAnalysisType)
 	}
-	if m.immunodeficiency_date != nil {
-		fields = append(fields, petanalysis.FieldImmunodeficiencyDate)
-	}
-	if m.immunodeficiency_type != nil {
-		fields = append(fields, petanalysis.FieldImmunodeficiencyType)
-	}
-	if m.hemoplasmosis_date != nil {
-		fields = append(fields, petanalysis.FieldHemoplasmosisDate)
-	}
-	if m.hemoplasmosis_type != nil {
-		fields = append(fields, petanalysis.FieldHemoplasmosisType)
-	}
-	if m.bartonellosis_date != nil {
-		fields = append(fields, petanalysis.FieldBartonellosisDate)
-	}
-	if m.bartonellosis_type != nil {
-		fields = append(fields, petanalysis.FieldBartonellosisType)
-	}
-	if m.babesiosis_date != nil {
-		fields = append(fields, petanalysis.FieldBabesiosisDate)
-	}
-	if m.babesiosis_type != nil {
-		fields = append(fields, petanalysis.FieldBabesiosisType)
-	}
-	if m.dirofilaria_date != nil {
-		fields = append(fields, petanalysis.FieldDirofilariaDate)
-	}
-	if m.dirofilaria_type != nil {
-		fields = append(fields, petanalysis.FieldDirofilariaType)
-	}
-	if m.ehrlichiosis_date != nil {
-		fields = append(fields, petanalysis.FieldEhrlichiosisDate)
-	}
-	if m.ehrlichiosis_type != nil {
-		fields = append(fields, petanalysis.FieldEhrlichiosisType)
-	}
-	if m.anaplasmosis_date != nil {
-		fields = append(fields, petanalysis.FieldAnaplasmosisDate)
-	}
-	if m.anaplasmosis_type != nil {
-		fields = append(fields, petanalysis.FieldAnaplasmosisType)
+	if m.analysis_date != nil {
+		fields = append(fields, petanalysis.FieldAnalysisDate)
 	}
 	return fields
 }
@@ -6427,38 +5725,12 @@ func (m *PetAnalysisMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case petanalysis.FieldPetID:
 		return m.PetID()
-	case petanalysis.FieldLeukemiaDate:
-		return m.LeukemiaDate()
-	case petanalysis.FieldLeukemiaType:
-		return m.LeukemiaType()
-	case petanalysis.FieldImmunodeficiencyDate:
-		return m.ImmunodeficiencyDate()
-	case petanalysis.FieldImmunodeficiencyType:
-		return m.ImmunodeficiencyType()
-	case petanalysis.FieldHemoplasmosisDate:
-		return m.HemoplasmosisDate()
-	case petanalysis.FieldHemoplasmosisType:
-		return m.HemoplasmosisType()
-	case petanalysis.FieldBartonellosisDate:
-		return m.BartonellosisDate()
-	case petanalysis.FieldBartonellosisType:
-		return m.BartonellosisType()
-	case petanalysis.FieldBabesiosisDate:
-		return m.BabesiosisDate()
-	case petanalysis.FieldBabesiosisType:
-		return m.BabesiosisType()
-	case petanalysis.FieldDirofilariaDate:
-		return m.DirofilariaDate()
-	case petanalysis.FieldDirofilariaType:
-		return m.DirofilariaType()
-	case petanalysis.FieldEhrlichiosisDate:
-		return m.EhrlichiosisDate()
-	case petanalysis.FieldEhrlichiosisType:
-		return m.EhrlichiosisType()
-	case petanalysis.FieldAnaplasmosisDate:
-		return m.AnaplasmosisDate()
-	case petanalysis.FieldAnaplasmosisType:
-		return m.AnaplasmosisType()
+	case petanalysis.FieldAnalysisName:
+		return m.AnalysisName()
+	case petanalysis.FieldAnalysisType:
+		return m.AnalysisType()
+	case petanalysis.FieldAnalysisDate:
+		return m.AnalysisDate()
 	}
 	return nil, false
 }
@@ -6476,38 +5748,12 @@ func (m *PetAnalysisMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldDeletedAt(ctx)
 	case petanalysis.FieldPetID:
 		return m.OldPetID(ctx)
-	case petanalysis.FieldLeukemiaDate:
-		return m.OldLeukemiaDate(ctx)
-	case petanalysis.FieldLeukemiaType:
-		return m.OldLeukemiaType(ctx)
-	case petanalysis.FieldImmunodeficiencyDate:
-		return m.OldImmunodeficiencyDate(ctx)
-	case petanalysis.FieldImmunodeficiencyType:
-		return m.OldImmunodeficiencyType(ctx)
-	case petanalysis.FieldHemoplasmosisDate:
-		return m.OldHemoplasmosisDate(ctx)
-	case petanalysis.FieldHemoplasmosisType:
-		return m.OldHemoplasmosisType(ctx)
-	case petanalysis.FieldBartonellosisDate:
-		return m.OldBartonellosisDate(ctx)
-	case petanalysis.FieldBartonellosisType:
-		return m.OldBartonellosisType(ctx)
-	case petanalysis.FieldBabesiosisDate:
-		return m.OldBabesiosisDate(ctx)
-	case petanalysis.FieldBabesiosisType:
-		return m.OldBabesiosisType(ctx)
-	case petanalysis.FieldDirofilariaDate:
-		return m.OldDirofilariaDate(ctx)
-	case petanalysis.FieldDirofilariaType:
-		return m.OldDirofilariaType(ctx)
-	case petanalysis.FieldEhrlichiosisDate:
-		return m.OldEhrlichiosisDate(ctx)
-	case petanalysis.FieldEhrlichiosisType:
-		return m.OldEhrlichiosisType(ctx)
-	case petanalysis.FieldAnaplasmosisDate:
-		return m.OldAnaplasmosisDate(ctx)
-	case petanalysis.FieldAnaplasmosisType:
-		return m.OldAnaplasmosisType(ctx)
+	case petanalysis.FieldAnalysisName:
+		return m.OldAnalysisName(ctx)
+	case petanalysis.FieldAnalysisType:
+		return m.OldAnalysisType(ctx)
+	case petanalysis.FieldAnalysisDate:
+		return m.OldAnalysisDate(ctx)
 	}
 	return nil, fmt.Errorf("unknown PetAnalysis field %s", name)
 }
@@ -6545,117 +5791,26 @@ func (m *PetAnalysisMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPetID(v)
 		return nil
-	case petanalysis.FieldLeukemiaDate:
+	case petanalysis.FieldAnalysisName:
+		v, ok := value.(petanalysis.AnalysisName)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAnalysisName(v)
+		return nil
+	case petanalysis.FieldAnalysisType:
+		v, ok := value.(petanalysis.AnalysisType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAnalysisType(v)
+		return nil
+	case petanalysis.FieldAnalysisDate:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetLeukemiaDate(v)
-		return nil
-	case petanalysis.FieldLeukemiaType:
-		v, ok := value.(petanalysis.LeukemiaType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLeukemiaType(v)
-		return nil
-	case petanalysis.FieldImmunodeficiencyDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetImmunodeficiencyDate(v)
-		return nil
-	case petanalysis.FieldImmunodeficiencyType:
-		v, ok := value.(petanalysis.ImmunodeficiencyType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetImmunodeficiencyType(v)
-		return nil
-	case petanalysis.FieldHemoplasmosisDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHemoplasmosisDate(v)
-		return nil
-	case petanalysis.FieldHemoplasmosisType:
-		v, ok := value.(petanalysis.HemoplasmosisType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHemoplasmosisType(v)
-		return nil
-	case petanalysis.FieldBartonellosisDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBartonellosisDate(v)
-		return nil
-	case petanalysis.FieldBartonellosisType:
-		v, ok := value.(petanalysis.BartonellosisType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBartonellosisType(v)
-		return nil
-	case petanalysis.FieldBabesiosisDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBabesiosisDate(v)
-		return nil
-	case petanalysis.FieldBabesiosisType:
-		v, ok := value.(petanalysis.BabesiosisType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBabesiosisType(v)
-		return nil
-	case petanalysis.FieldDirofilariaDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDirofilariaDate(v)
-		return nil
-	case petanalysis.FieldDirofilariaType:
-		v, ok := value.(petanalysis.DirofilariaType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDirofilariaType(v)
-		return nil
-	case petanalysis.FieldEhrlichiosisDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEhrlichiosisDate(v)
-		return nil
-	case petanalysis.FieldEhrlichiosisType:
-		v, ok := value.(petanalysis.EhrlichiosisType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEhrlichiosisType(v)
-		return nil
-	case petanalysis.FieldAnaplasmosisDate:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAnaplasmosisDate(v)
-		return nil
-	case petanalysis.FieldAnaplasmosisType:
-		v, ok := value.(petanalysis.AnaplasmosisType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAnaplasmosisType(v)
+		m.SetAnalysisDate(v)
 		return nil
 	}
 	return fmt.Errorf("unknown PetAnalysis field %s", name)
@@ -6690,53 +5845,11 @@ func (m *PetAnalysisMutation) ClearedFields() []string {
 	if m.FieldCleared(petanalysis.FieldDeletedAt) {
 		fields = append(fields, petanalysis.FieldDeletedAt)
 	}
-	if m.FieldCleared(petanalysis.FieldLeukemiaDate) {
-		fields = append(fields, petanalysis.FieldLeukemiaDate)
+	if m.FieldCleared(petanalysis.FieldAnalysisName) {
+		fields = append(fields, petanalysis.FieldAnalysisName)
 	}
-	if m.FieldCleared(petanalysis.FieldLeukemiaType) {
-		fields = append(fields, petanalysis.FieldLeukemiaType)
-	}
-	if m.FieldCleared(petanalysis.FieldImmunodeficiencyDate) {
-		fields = append(fields, petanalysis.FieldImmunodeficiencyDate)
-	}
-	if m.FieldCleared(petanalysis.FieldImmunodeficiencyType) {
-		fields = append(fields, petanalysis.FieldImmunodeficiencyType)
-	}
-	if m.FieldCleared(petanalysis.FieldHemoplasmosisDate) {
-		fields = append(fields, petanalysis.FieldHemoplasmosisDate)
-	}
-	if m.FieldCleared(petanalysis.FieldHemoplasmosisType) {
-		fields = append(fields, petanalysis.FieldHemoplasmosisType)
-	}
-	if m.FieldCleared(petanalysis.FieldBartonellosisDate) {
-		fields = append(fields, petanalysis.FieldBartonellosisDate)
-	}
-	if m.FieldCleared(petanalysis.FieldBartonellosisType) {
-		fields = append(fields, petanalysis.FieldBartonellosisType)
-	}
-	if m.FieldCleared(petanalysis.FieldBabesiosisDate) {
-		fields = append(fields, petanalysis.FieldBabesiosisDate)
-	}
-	if m.FieldCleared(petanalysis.FieldBabesiosisType) {
-		fields = append(fields, petanalysis.FieldBabesiosisType)
-	}
-	if m.FieldCleared(petanalysis.FieldDirofilariaDate) {
-		fields = append(fields, petanalysis.FieldDirofilariaDate)
-	}
-	if m.FieldCleared(petanalysis.FieldDirofilariaType) {
-		fields = append(fields, petanalysis.FieldDirofilariaType)
-	}
-	if m.FieldCleared(petanalysis.FieldEhrlichiosisDate) {
-		fields = append(fields, petanalysis.FieldEhrlichiosisDate)
-	}
-	if m.FieldCleared(petanalysis.FieldEhrlichiosisType) {
-		fields = append(fields, petanalysis.FieldEhrlichiosisType)
-	}
-	if m.FieldCleared(petanalysis.FieldAnaplasmosisDate) {
-		fields = append(fields, petanalysis.FieldAnaplasmosisDate)
-	}
-	if m.FieldCleared(petanalysis.FieldAnaplasmosisType) {
-		fields = append(fields, petanalysis.FieldAnaplasmosisType)
+	if m.FieldCleared(petanalysis.FieldAnalysisType) {
+		fields = append(fields, petanalysis.FieldAnalysisType)
 	}
 	return fields
 }
@@ -6755,53 +5868,11 @@ func (m *PetAnalysisMutation) ClearField(name string) error {
 	case petanalysis.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
-	case petanalysis.FieldLeukemiaDate:
-		m.ClearLeukemiaDate()
+	case petanalysis.FieldAnalysisName:
+		m.ClearAnalysisName()
 		return nil
-	case petanalysis.FieldLeukemiaType:
-		m.ClearLeukemiaType()
-		return nil
-	case petanalysis.FieldImmunodeficiencyDate:
-		m.ClearImmunodeficiencyDate()
-		return nil
-	case petanalysis.FieldImmunodeficiencyType:
-		m.ClearImmunodeficiencyType()
-		return nil
-	case petanalysis.FieldHemoplasmosisDate:
-		m.ClearHemoplasmosisDate()
-		return nil
-	case petanalysis.FieldHemoplasmosisType:
-		m.ClearHemoplasmosisType()
-		return nil
-	case petanalysis.FieldBartonellosisDate:
-		m.ClearBartonellosisDate()
-		return nil
-	case petanalysis.FieldBartonellosisType:
-		m.ClearBartonellosisType()
-		return nil
-	case petanalysis.FieldBabesiosisDate:
-		m.ClearBabesiosisDate()
-		return nil
-	case petanalysis.FieldBabesiosisType:
-		m.ClearBabesiosisType()
-		return nil
-	case petanalysis.FieldDirofilariaDate:
-		m.ClearDirofilariaDate()
-		return nil
-	case petanalysis.FieldDirofilariaType:
-		m.ClearDirofilariaType()
-		return nil
-	case petanalysis.FieldEhrlichiosisDate:
-		m.ClearEhrlichiosisDate()
-		return nil
-	case petanalysis.FieldEhrlichiosisType:
-		m.ClearEhrlichiosisType()
-		return nil
-	case petanalysis.FieldAnaplasmosisDate:
-		m.ClearAnaplasmosisDate()
-		return nil
-	case petanalysis.FieldAnaplasmosisType:
-		m.ClearAnaplasmosisType()
+	case petanalysis.FieldAnalysisType:
+		m.ClearAnalysisType()
 		return nil
 	}
 	return fmt.Errorf("unknown PetAnalysis nullable field %s", name)
@@ -6823,53 +5894,14 @@ func (m *PetAnalysisMutation) ResetField(name string) error {
 	case petanalysis.FieldPetID:
 		m.ResetPetID()
 		return nil
-	case petanalysis.FieldLeukemiaDate:
-		m.ResetLeukemiaDate()
+	case petanalysis.FieldAnalysisName:
+		m.ResetAnalysisName()
 		return nil
-	case petanalysis.FieldLeukemiaType:
-		m.ResetLeukemiaType()
+	case petanalysis.FieldAnalysisType:
+		m.ResetAnalysisType()
 		return nil
-	case petanalysis.FieldImmunodeficiencyDate:
-		m.ResetImmunodeficiencyDate()
-		return nil
-	case petanalysis.FieldImmunodeficiencyType:
-		m.ResetImmunodeficiencyType()
-		return nil
-	case petanalysis.FieldHemoplasmosisDate:
-		m.ResetHemoplasmosisDate()
-		return nil
-	case petanalysis.FieldHemoplasmosisType:
-		m.ResetHemoplasmosisType()
-		return nil
-	case petanalysis.FieldBartonellosisDate:
-		m.ResetBartonellosisDate()
-		return nil
-	case petanalysis.FieldBartonellosisType:
-		m.ResetBartonellosisType()
-		return nil
-	case petanalysis.FieldBabesiosisDate:
-		m.ResetBabesiosisDate()
-		return nil
-	case petanalysis.FieldBabesiosisType:
-		m.ResetBabesiosisType()
-		return nil
-	case petanalysis.FieldDirofilariaDate:
-		m.ResetDirofilariaDate()
-		return nil
-	case petanalysis.FieldDirofilariaType:
-		m.ResetDirofilariaType()
-		return nil
-	case petanalysis.FieldEhrlichiosisDate:
-		m.ResetEhrlichiosisDate()
-		return nil
-	case petanalysis.FieldEhrlichiosisType:
-		m.ResetEhrlichiosisType()
-		return nil
-	case petanalysis.FieldAnaplasmosisDate:
-		m.ResetAnaplasmosisDate()
-		return nil
-	case petanalysis.FieldAnaplasmosisType:
-		m.ResetAnaplasmosisType()
+	case petanalysis.FieldAnalysisDate:
+		m.ResetAnalysisDate()
 		return nil
 	}
 	return fmt.Errorf("unknown PetAnalysis field %s", name)

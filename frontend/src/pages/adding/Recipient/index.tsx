@@ -2,12 +2,14 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
+import { createPet } from 'api/apiServices/createPet';
 import { getBloodComponents } from 'api/apiServices/getBloodComponents';
 import { getBloodGroups } from 'api/apiServices/getBloodGroups';
 import { getLocations } from 'api/apiServices/getLocations';
 import { getPetsTypes } from 'api/apiServices/getPetsTypes';
 import { Dict, PetTypeDict } from 'api/reference';
 import { PetType } from 'api/types';
+import { Role } from 'api/user';
 
 import Header from '../common/Header';
 import styles from './Recipient.module.less';
@@ -16,8 +18,10 @@ import Final from './Steps/Final';
 import First from './Steps/First';
 import Second from './Steps/Second';
 import Three from './Steps/Three';
+import fs from 'fs';
 
 type Props = {
+    userId: string;
     onBackToStart: () => void;
 };
 
@@ -25,7 +29,7 @@ type BloodGroupsDicts = Record<PetType, Dict[]>;
 
 const captions = ['О питомце', 'Критерии поиска', 'Дополнительно'];
 
-const Recipient: FC<Props> = ({ onBackToStart }) => {
+const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const navigate = useNavigate();
 
     const [name, setName] = useState('');
@@ -40,6 +44,8 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
     const [bloodComponents, setBloodComponents] = useState<string[]>([]);
     const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [desiredBloodGroups, setDesiredBloodGroups] = useState<string[]>([]);
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const [locationsDict, setLocationsDict] = useState<Dict[]>([]);
     const [petTypesDict, setPetTypesDict] = useState<PetTypeDict[]>([]);
@@ -120,6 +126,33 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
         setPetTypesDict(response);
     }, [fetchBloodTypes, showToast]);
 
+    const fetchCreateRecipient = async (confirmedStep: number) => {
+        // const { success } = await createPet({
+        //     name,
+        //     photo,
+        //     userId,
+        //     type: petType,
+        //     weightKg: Number(weight),
+        //     petStatus: Role.RECIPIENT,
+        //     bloodGroup: `${bloodGroup}`,
+        //     poolInfo: {
+        //         description,
+        //         bloodVolumeNeeded: Number(bloodVolume),
+        //         regions: locations as unknown as number[],
+        //         smallPetsNotifyAllowed: notifyOfSmallDonors,
+        //         bloodComponentIds: bloodComponents as unknown as number[],
+        //         bloodGroupIds: desiredBloodGroups.map((item) => String(item)),
+        //     },
+        // });
+
+        // if (success) {
+        if (true) {
+            setStep(confirmedStep + 1);
+        } else {
+            showToast('Не удалось сохранить питомца, попробуйте еще раз');
+        }
+    };
+
     const onBackClickHandler = () => {
         if (step > 1) {
             setStep((prevState) => prevState - 1);
@@ -179,6 +212,12 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
     };
 
     const onConfirmButtonClickHandler = (confirmedStep: number) => {
+        if (confirmedStep !== 0 && step === 4) {
+            fetchCreateRecipient(confirmedStep);
+
+            return;
+        }
+
         setStep(confirmedStep + 1);
     };
 
@@ -259,6 +298,7 @@ const Recipient: FC<Props> = ({ onBackToStart }) => {
                     photo={photo}
                     weight={weight}
                     petType={petType}
+                    isLoading={isLoading}
                     locations={locations}
                     bloodGroup={bloodGroup}
                     bloodVolume={bloodVolume}

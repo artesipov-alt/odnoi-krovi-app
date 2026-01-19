@@ -101,7 +101,7 @@ const ImgEditor: FC<Props> = ({
 
     const renderLabels = () => (
         <>
-            {bloodGroup && <span className={styles.bloodGroup}>{bloodGroup}</span>}
+            {!isMiniView && <span className={styles.bloodGroup}>{bloodGroup || '?'}</span>}
             {weight && (
                 <div className={styles.weight}>
                     <span>{weight}</span>
@@ -148,6 +148,7 @@ const ImgEditor: FC<Props> = ({
                     <img className={styles.img} src={URL.createObjectURL(file)} onClick={onImgClickHandler} alt='' />
                     {onLoad && renderDeleteButton()}
                     {showStub && renderLabels()}
+                    {showStub && <div className={styles.gradient} />}
                 </div>
             )}
             <input

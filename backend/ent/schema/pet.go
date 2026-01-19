@@ -170,22 +170,13 @@ func (PetAnalysis) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("pet_id").
 			StructTag(`json:"petId"`),
-		field.Time("leukemia_date").Optional().Nillable().StructTag(`json:"leukemiaDate"`),
-		field.Enum("leukemia_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"leukemiaType"`),
-		field.Time("immunodeficiency_date").Optional().Nillable().StructTag(`json:"immunodeficiencyDate"`),
-		field.Enum("immunodeficiency_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"immunodeficiencyType"`),
-		field.Time("hemoplasmosis_date").Optional().Nillable().StructTag(`json:"hemoplasmosisDate"`),
-		field.Enum("hemoplasmosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"hemoplasmosisType"`),
-		field.Time("bartonellosis_date").Optional().Nillable().StructTag(`json:"bartonellosisDate"`),
-		field.Enum("bartonellosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"bartonellosisType"`),
-		field.Time("babesiosis_date").Optional().Nillable().StructTag(`json:"babesiosisDate"`),
-		field.Enum("babesiosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"babesiosisType"`),
-		field.Time("dirofilaria_date").Optional().Nillable().StructTag(`json:"dirofilariaDate"`),
-		field.Enum("dirofilaria_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"dirofilariaType"`),
-		field.Time("ehrlichiosis_date").Optional().Nillable().StructTag(`json:"ehrlichiosisDate"`),
-		field.Enum("ehrlichiosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"ehrlichiosisType"`),
-		field.Time("anaplasmosis_date").Optional().Nillable().StructTag(`json:"anaplasmosisDate"`),
-		field.Enum("anaplasmosis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").Optional().StructTag(`json:"anaplasmosisType"`),
+		field.Enum("analysis_name").Values("leukemia", "immunodeficiency", "hemoplasmosis", "bartonellosis", "babesiosis", "dirofilaria", "ehrlichiosis", "anaplasmosis").
+			Optional().
+			StructTag(`json:"analysisName"`),
+		field.Enum("analysis_type").Values("PCR", "ELISA", "ICA", "Microscopy", "Express").
+			Optional().
+			StructTag(`json:"analysisType"`),
+		field.Time("analysis_date").Nillable().StructTag(`json:"analysisDate"`),
 	}
 }
 

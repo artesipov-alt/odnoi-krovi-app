@@ -38,8 +38,8 @@ const (
 	FieldDescription = "description"
 	// FieldPhotoUrls holds the string denoting the photo_urls field in the database.
 	FieldPhotoUrls = "photo_urls"
-	// FieldBloodGroupIds holds the string denoting the blood_group_ids field in the database.
-	FieldBloodGroupIds = "blood_group_ids"
+	// FieldBloodGroupNames holds the string denoting the blood_group_names field in the database.
+	FieldBloodGroupNames = "blood_group_names"
 	// FieldBloodComponentIds holds the string denoting the blood_component_ids field in the database.
 	FieldBloodComponentIds = "blood_component_ids"
 	// EdgePet holds the string denoting the pet edge name in mutations.
@@ -69,7 +69,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldDescription,
 	FieldPhotoUrls,
-	FieldBloodGroupIds,
+	FieldBloodGroupNames,
 	FieldBloodComponentIds,
 }
 

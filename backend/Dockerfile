@@ -4,8 +4,6 @@ FROM golang:1.25-alpine AS builder
 # Устанавливаем рабочую директорию на уровень монорепо
 WORKDIR /build
 
-# Установка swag
-RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 # Копируем go.mod и go.sum из backend
 COPY backend/go.mod backend/go.sum ./backend/

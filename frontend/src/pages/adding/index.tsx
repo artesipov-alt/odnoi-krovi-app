@@ -35,10 +35,10 @@ const Adding: FC<Props> = ({ user }) => {
     const renderContent = () => {
         switch (view) {
             case View.RECIPIENT: {
-                return <Recipient onBackToStart={onBackToStartClickHandler} />;
+                return <Recipient onBackToStart={onBackToStartClickHandler} userId={user.id} />;
             }
             case View.DONOR: {
-                return <Donor onBackToStart={onBackToStartClickHandler} />;
+                return <Donor onBackToStart={onBackToStartClickHandler} userId={user.id} />;
             }
             default: {
                 return (

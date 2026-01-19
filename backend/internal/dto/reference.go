@@ -2,8 +2,8 @@ package dto
 
 // ReferenceItemCode представляет элемент справочных данных, определенных в коде (строковое значение)
 type ReferenceItemCode struct {
-	Value string `json:"value" doc:"Значение элемента справочника" example:"male"`
-	Label string `json:"label" doc:"Отображаемое название элемента справочника" example:"Мужской"`
+	Value string `json:"value" doc:"Значение элемента справочника"`
+	Label string `json:"label" doc:"Отображаемое название элемента справочника"`
 }
 
 // ReferenceDataCode представляет ответ со справочными данными, определенными в коде
@@ -13,8 +13,8 @@ type ReferenceDataCode struct {
 
 // ReferenceItemLocal представляет элемент справочных данных (строковое значение)
 type ReferenceItemLocal struct {
-	Value string `json:"value" doc:"Значение элемента справочника" example:"indoor"`
-	Label string `json:"label" doc:"Отображаемое название элемента справочника" example:"Домашнее содержание"`
+	Value string `json:"value" doc:"Значение элемента справочника"`
+	Label string `json:"label" doc:"Отображаемое название элемента справочника"`
 }
 
 // ReferenceDataLocal представляет ответ со справочными данными
@@ -24,8 +24,8 @@ type ReferenceDataLocal struct {
 
 // ReferenceItemDB представляет элемент справочных данных из базы данных (целочисленное значение)
 type ReferenceItemDB struct {
-	Value int    `json:"value" doc:"ID элемента справочника" example:"1"`
-	Label string `json:"label" doc:"Название элемента справочника" example:"Лабрадор ретривер"`
+	Value int    `json:"value" doc:"ID элемента справочника"`
+	Label string `json:"label" doc:"Название элемента справочника"`
 }
 
 // ReferenceDataDB представляет ответ со справочными данными из базы данных

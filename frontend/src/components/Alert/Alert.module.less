@@ -11,14 +11,24 @@
     border-radius: 8px;
     background: @orangeBg;
     color: @common-red;
+
+    &.infoWithoutIcon {
+        background: @orangeBg1;
+        color: @textColor8;
+    }
 }
 
 .logo {
     width: 17px;
     height: 17px;
 
+    &.infoWithoutIcon {
+        display: none;
+    }
+
     svg {
         width: inherit;
         height: inherit;
+        fill: @red6;
     }
 }

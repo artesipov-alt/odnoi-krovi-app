@@ -13,63 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
+import type { BloodSearchPetRequest } from './BloodSearchPetRequest';
+import {
+    BloodSearchPetRequestFromJSON,
+    BloodSearchPetRequestFromJSONTyped,
+    BloodSearchPetRequestToJSON,
+    BloodSearchPetRequestToJSONTyped,
+} from './BloodSearchPetRequest';
+
 /**
  * 
  * @export
- * @interface ReferenceItemDB
+ * @interface BloodSearchRequestResponse
  */
-export interface ReferenceItemDB {
+export interface BloodSearchRequestResponse {
     /**
-     * Название элемента справочника
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceItemDB
+     * @memberof BloodSearchRequestResponse
      */
-    label: string;
+    readonly $schema?: string;
     /**
-     * ID элемента справочника
-     * @type {number}
-     * @memberof ReferenceItemDB
+     * 
+     * @type {BloodSearchPetRequest}
+     * @memberof BloodSearchRequestResponse
      */
-    value: number;
+    body: BloodSearchPetRequest;
 }
 
 /**
- * Check if a given object implements the ReferenceItemDB interface.
+ * Check if a given object implements the BloodSearchRequestResponse interface.
  */
-export function instanceOfReferenceItemDB(value: object): value is ReferenceItemDB {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfBloodSearchRequestResponse(value: object): value is BloodSearchRequestResponse {
+    if (!('body' in value) || value['body'] === undefined) return false;
     return true;
 }
 
-export function ReferenceItemDBFromJSON(json: any): ReferenceItemDB {
-    return ReferenceItemDBFromJSONTyped(json, false);
+export function BloodSearchRequestResponseFromJSON(json: any): BloodSearchRequestResponse {
+    return BloodSearchRequestResponseFromJSONTyped(json, false);
 }
 
-export function ReferenceItemDBFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItemDB {
+export function BloodSearchRequestResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): BloodSearchRequestResponse {
     if (json == null) {
         return json;
     }
     return {
         
-        'label': json['label'],
-        'value': json['value'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'body': BloodSearchPetRequestFromJSON(json['Body']),
     };
 }
 
-export function ReferenceItemDBToJSON(json: any): ReferenceItemDB {
-    return ReferenceItemDBToJSONTyped(json, false);
+export function BloodSearchRequestResponseToJSON(json: any): BloodSearchRequestResponse {
+    return BloodSearchRequestResponseToJSONTyped(json, false);
 }
 
-export function ReferenceItemDBToJSONTyped(value?: ReferenceItemDB | null, ignoreDiscriminator: boolean = false): any {
+export function BloodSearchRequestResponseToJSONTyped(value?: Omit<BloodSearchRequestResponse, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'label': value['label'],
-        'value': value['value'],
+        'Body': BloodSearchPetRequestToJSON(value['body']),
     };
 }
 

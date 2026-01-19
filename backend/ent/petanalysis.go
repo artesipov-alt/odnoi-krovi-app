@@ -26,38 +26,12 @@ type PetAnalysis struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	// PetID holds the value of the "pet_id" field.
 	PetID string `json:"petId"`
-	// LeukemiaDate holds the value of the "leukemia_date" field.
-	LeukemiaDate *time.Time `json:"leukemiaDate"`
-	// LeukemiaType holds the value of the "leukemia_type" field.
-	LeukemiaType petanalysis.LeukemiaType `json:"leukemiaType"`
-	// ImmunodeficiencyDate holds the value of the "immunodeficiency_date" field.
-	ImmunodeficiencyDate *time.Time `json:"immunodeficiencyDate"`
-	// ImmunodeficiencyType holds the value of the "immunodeficiency_type" field.
-	ImmunodeficiencyType petanalysis.ImmunodeficiencyType `json:"immunodeficiencyType"`
-	// HemoplasmosisDate holds the value of the "hemoplasmosis_date" field.
-	HemoplasmosisDate *time.Time `json:"hemoplasmosisDate"`
-	// HemoplasmosisType holds the value of the "hemoplasmosis_type" field.
-	HemoplasmosisType petanalysis.HemoplasmosisType `json:"hemoplasmosisType"`
-	// BartonellosisDate holds the value of the "bartonellosis_date" field.
-	BartonellosisDate *time.Time `json:"bartonellosisDate"`
-	// BartonellosisType holds the value of the "bartonellosis_type" field.
-	BartonellosisType petanalysis.BartonellosisType `json:"bartonellosisType"`
-	// BabesiosisDate holds the value of the "babesiosis_date" field.
-	BabesiosisDate *time.Time `json:"babesiosisDate"`
-	// BabesiosisType holds the value of the "babesiosis_type" field.
-	BabesiosisType petanalysis.BabesiosisType `json:"babesiosisType"`
-	// DirofilariaDate holds the value of the "dirofilaria_date" field.
-	DirofilariaDate *time.Time `json:"dirofilariaDate"`
-	// DirofilariaType holds the value of the "dirofilaria_type" field.
-	DirofilariaType petanalysis.DirofilariaType `json:"dirofilariaType"`
-	// EhrlichiosisDate holds the value of the "ehrlichiosis_date" field.
-	EhrlichiosisDate *time.Time `json:"ehrlichiosisDate"`
-	// EhrlichiosisType holds the value of the "ehrlichiosis_type" field.
-	EhrlichiosisType petanalysis.EhrlichiosisType `json:"ehrlichiosisType"`
-	// AnaplasmosisDate holds the value of the "anaplasmosis_date" field.
-	AnaplasmosisDate *time.Time `json:"anaplasmosisDate"`
-	// AnaplasmosisType holds the value of the "anaplasmosis_type" field.
-	AnaplasmosisType petanalysis.AnaplasmosisType `json:"anaplasmosisType"`
+	// AnalysisName holds the value of the "analysis_name" field.
+	AnalysisName petanalysis.AnalysisName `json:"analysisName"`
+	// AnalysisType holds the value of the "analysis_type" field.
+	AnalysisType petanalysis.AnalysisType `json:"analysisType"`
+	// AnalysisDate holds the value of the "analysis_date" field.
+	AnalysisDate *time.Time `json:"analysisDate"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetAnalysisQuery when eager-loading is set.
 	Edges        PetAnalysisEdges `json:"edges"`
@@ -89,9 +63,9 @@ func (*PetAnalysis) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case petanalysis.FieldID, petanalysis.FieldPetID, petanalysis.FieldLeukemiaType, petanalysis.FieldImmunodeficiencyType, petanalysis.FieldHemoplasmosisType, petanalysis.FieldBartonellosisType, petanalysis.FieldBabesiosisType, petanalysis.FieldDirofilariaType, petanalysis.FieldEhrlichiosisType, petanalysis.FieldAnaplasmosisType:
+		case petanalysis.FieldID, petanalysis.FieldPetID, petanalysis.FieldAnalysisName, petanalysis.FieldAnalysisType:
 			values[i] = new(sql.NullString)
-		case petanalysis.FieldCreatedAt, petanalysis.FieldUpdatedAt, petanalysis.FieldDeletedAt, petanalysis.FieldLeukemiaDate, petanalysis.FieldImmunodeficiencyDate, petanalysis.FieldHemoplasmosisDate, petanalysis.FieldBartonellosisDate, petanalysis.FieldBabesiosisDate, petanalysis.FieldDirofilariaDate, petanalysis.FieldEhrlichiosisDate, petanalysis.FieldAnaplasmosisDate:
+		case petanalysis.FieldCreatedAt, petanalysis.FieldUpdatedAt, petanalysis.FieldDeletedAt, petanalysis.FieldAnalysisDate:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -139,109 +113,24 @@ func (_m *PetAnalysis) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.PetID = value.String
 			}
-		case petanalysis.FieldLeukemiaDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field leukemia_date", values[i])
-			} else if value.Valid {
-				_m.LeukemiaDate = new(time.Time)
-				*_m.LeukemiaDate = value.Time
-			}
-		case petanalysis.FieldLeukemiaType:
+		case petanalysis.FieldAnalysisName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field leukemia_type", values[i])
+				return fmt.Errorf("unexpected type %T for field analysis_name", values[i])
 			} else if value.Valid {
-				_m.LeukemiaType = petanalysis.LeukemiaType(value.String)
+				_m.AnalysisName = petanalysis.AnalysisName(value.String)
 			}
-		case petanalysis.FieldImmunodeficiencyDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field immunodeficiency_date", values[i])
-			} else if value.Valid {
-				_m.ImmunodeficiencyDate = new(time.Time)
-				*_m.ImmunodeficiencyDate = value.Time
-			}
-		case petanalysis.FieldImmunodeficiencyType:
+		case petanalysis.FieldAnalysisType:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field immunodeficiency_type", values[i])
+				return fmt.Errorf("unexpected type %T for field analysis_type", values[i])
 			} else if value.Valid {
-				_m.ImmunodeficiencyType = petanalysis.ImmunodeficiencyType(value.String)
+				_m.AnalysisType = petanalysis.AnalysisType(value.String)
 			}
-		case petanalysis.FieldHemoplasmosisDate:
+		case petanalysis.FieldAnalysisDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field hemoplasmosis_date", values[i])
+				return fmt.Errorf("unexpected type %T for field analysis_date", values[i])
 			} else if value.Valid {
-				_m.HemoplasmosisDate = new(time.Time)
-				*_m.HemoplasmosisDate = value.Time
-			}
-		case petanalysis.FieldHemoplasmosisType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field hemoplasmosis_type", values[i])
-			} else if value.Valid {
-				_m.HemoplasmosisType = petanalysis.HemoplasmosisType(value.String)
-			}
-		case petanalysis.FieldBartonellosisDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field bartonellosis_date", values[i])
-			} else if value.Valid {
-				_m.BartonellosisDate = new(time.Time)
-				*_m.BartonellosisDate = value.Time
-			}
-		case petanalysis.FieldBartonellosisType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field bartonellosis_type", values[i])
-			} else if value.Valid {
-				_m.BartonellosisType = petanalysis.BartonellosisType(value.String)
-			}
-		case petanalysis.FieldBabesiosisDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field babesiosis_date", values[i])
-			} else if value.Valid {
-				_m.BabesiosisDate = new(time.Time)
-				*_m.BabesiosisDate = value.Time
-			}
-		case petanalysis.FieldBabesiosisType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field babesiosis_type", values[i])
-			} else if value.Valid {
-				_m.BabesiosisType = petanalysis.BabesiosisType(value.String)
-			}
-		case petanalysis.FieldDirofilariaDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field dirofilaria_date", values[i])
-			} else if value.Valid {
-				_m.DirofilariaDate = new(time.Time)
-				*_m.DirofilariaDate = value.Time
-			}
-		case petanalysis.FieldDirofilariaType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field dirofilaria_type", values[i])
-			} else if value.Valid {
-				_m.DirofilariaType = petanalysis.DirofilariaType(value.String)
-			}
-		case petanalysis.FieldEhrlichiosisDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field ehrlichiosis_date", values[i])
-			} else if value.Valid {
-				_m.EhrlichiosisDate = new(time.Time)
-				*_m.EhrlichiosisDate = value.Time
-			}
-		case petanalysis.FieldEhrlichiosisType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ehrlichiosis_type", values[i])
-			} else if value.Valid {
-				_m.EhrlichiosisType = petanalysis.EhrlichiosisType(value.String)
-			}
-		case petanalysis.FieldAnaplasmosisDate:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field anaplasmosis_date", values[i])
-			} else if value.Valid {
-				_m.AnaplasmosisDate = new(time.Time)
-				*_m.AnaplasmosisDate = value.Time
-			}
-		case petanalysis.FieldAnaplasmosisType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field anaplasmosis_type", values[i])
-			} else if value.Valid {
-				_m.AnaplasmosisType = petanalysis.AnaplasmosisType(value.String)
+				_m.AnalysisDate = new(time.Time)
+				*_m.AnalysisDate = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -298,69 +187,16 @@ func (_m *PetAnalysis) String() string {
 	builder.WriteString("pet_id=")
 	builder.WriteString(_m.PetID)
 	builder.WriteString(", ")
-	if v := _m.LeukemiaDate; v != nil {
-		builder.WriteString("leukemia_date=")
+	builder.WriteString("analysis_name=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AnalysisName))
+	builder.WriteString(", ")
+	builder.WriteString("analysis_type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AnalysisType))
+	builder.WriteString(", ")
+	if v := _m.AnalysisDate; v != nil {
+		builder.WriteString("analysis_date=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
-	builder.WriteString(", ")
-	builder.WriteString("leukemia_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.LeukemiaType))
-	builder.WriteString(", ")
-	if v := _m.ImmunodeficiencyDate; v != nil {
-		builder.WriteString("immunodeficiency_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("immunodeficiency_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ImmunodeficiencyType))
-	builder.WriteString(", ")
-	if v := _m.HemoplasmosisDate; v != nil {
-		builder.WriteString("hemoplasmosis_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("hemoplasmosis_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.HemoplasmosisType))
-	builder.WriteString(", ")
-	if v := _m.BartonellosisDate; v != nil {
-		builder.WriteString("bartonellosis_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("bartonellosis_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BartonellosisType))
-	builder.WriteString(", ")
-	if v := _m.BabesiosisDate; v != nil {
-		builder.WriteString("babesiosis_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("babesiosis_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BabesiosisType))
-	builder.WriteString(", ")
-	if v := _m.DirofilariaDate; v != nil {
-		builder.WriteString("dirofilaria_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("dirofilaria_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DirofilariaType))
-	builder.WriteString(", ")
-	if v := _m.EhrlichiosisDate; v != nil {
-		builder.WriteString("ehrlichiosis_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("ehrlichiosis_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.EhrlichiosisType))
-	builder.WriteString(", ")
-	if v := _m.AnaplasmosisDate; v != nil {
-		builder.WriteString("anaplasmosis_date=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	builder.WriteString("anaplasmosis_type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AnaplasmosisType))
 	builder.WriteByte(')')
 	return builder.String()
 }
