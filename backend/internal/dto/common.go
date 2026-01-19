@@ -9,3 +9,8 @@ type MessageBody struct {
 type MessageResponse struct {
 	Body MessageBody
 }
+
+// IDPath представляет параметры пути с ID объекта
+type IDPath struct {
+	ID string `path:"id" doc:"ID объекта (пользователя/питомца)" minLength:"1" example:"USR-ABCDEABCDE"`
+}

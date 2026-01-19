@@ -83,22 +83,22 @@ func (h *PetHandler) Register(api huma.API) {
 
 	// Получить ссылку для загрузки фотографии питомца
 	huma.Register(api, huma.Operation{
-		OperationID: "get-avatar-upload-url",
-		Method:      http.MethodGet,
-		Path:        "/v1/pet/upload/avatar/{id}",
-		Summary:     "Получить ссылку для загрузки фотографии питомца",
-		Description: "Возвращает временную ссылку для загрузки фотографии питомца по ID",
-		Tags:        []string{"pets-v1"},
-	}, h.GetAvatarUploadURL)
+		OperationID: "get-presigned-url",
+		Method:      http.MethodPost,
+		Path:        "/v1/uploads/presign/{id}",
+		Summary:     "Получить ссылку для загрузки фотографии",
+		Description: "Возвращает временную ссылку для загрузки фотографии по ID",
+		Tags:        []string{"pets-v1", "users-v1"},
+	}, h.GetPresignURL)
 
 	// Подтверждение загрузки аватарки питомца
 	huma.Register(api, huma.Operation{
-		OperationID: "confirm-pet-avatar-upload",
+		OperationID: "confirm-upload",
 		Method:      http.MethodPost,
-		Path:        "/v1/pet/upload/avatar/confirm/{path}",
-		Summary:     "Подтверждение загрузки аватарки питомца",
-		Description: "Подтверждает загрузку аватарки питомца, делает её публичной и возвращает публичную ссылку",
-		Tags:        []string{"pets-v1"},
+		Path:        "/v1/uploads/confirm/{path}",
+		Summary:     "Подтверждение загрузки фото",
+		Description: "Подтверждает загрузку фотографии, делает её публичной и возвращает публичную ссылку",
+		Tags:        []string{"pets-v1", "users-v1"},
 	}, h.ConfirmPetAvatarUpload)
 }
 
@@ -124,7 +124,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 }
 
 func (h *PetHandler) GetPet(ctx context.Context, input *struct {
-	dto.PetIDPath
+	dto.IDPath
 	dto.PetPreloadQuery
 }) (*dto.PetResponse, error) {
 	preloads := h.getPreloads(input.PetPreloadQuery)
@@ -167,7 +167,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 }
 
 func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
-	dto.PetIDPath
+	dto.IDPath
 	Body dto.PetUpdate
 }) (*dto.MessageResponse, error) {
 	updates, health, treatments, analyses, bonuses := h.toUpdateENT(input.Body)
@@ -186,7 +186,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	return resp, nil
 }
 
-func (h *PetHandler) DeletePet(ctx context.Context, input *dto.PetIDPath) (*dto.MessageResponse, error) {
+func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
 			slog.DebugContext(ctx, "pet not found for deletion", "pet_id", input.ID, "error", err.Error())
@@ -201,7 +201,7 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.PetIDPath) (*dto.
 	return resp, nil
 }
 
-func (h *PetHandler) GetAvatarUploadURL(ctx context.Context, input *dto.PetIDPath) (*dto.UploadURLResponse, error) {
+func (h *PetHandler) GetPresignURL(ctx context.Context, input *dto.IDPath) (*dto.UploadURLResponse, error) {
 	url, path, err := h.petService.GetAvatarUploadURL(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {

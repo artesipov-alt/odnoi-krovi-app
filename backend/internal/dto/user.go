@@ -2,11 +2,6 @@ package dto
 
 import "time"
 
-// UserIDPath представляет параметры пути с ID пользователя
-type UserIDPath struct {
-	ID string `path:"id" doc:"ID пользователя" minLength:"1" example:"USR-ABCDEABCDE"`
-}
-
 // TelegramIDQuery представляет параметры запроса с Telegram ID
 type TelegramIDQuery struct {
 	TelegramID int64 `query:"telegram_id" doc:"Telegram ID пользователя" minimum:"1" example:"123456789"`

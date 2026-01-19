@@ -97,10 +97,6 @@ type Pet struct {
 
 // Вспомогательные структуры для Huma
 
-type PetIDPath struct {
-	ID string `path:"id" doc:"ID питомца" minLength:"1" example:"PET-aBcDeF1234"`
-}
-
 type PetUserIDPath struct {
 	ID string `path:"user_id" doc:"ID пользователя" minLength:"1" example:"1"`
 }
@@ -136,4 +132,8 @@ type ConfirmUploadResponse struct {
 	Body struct {
 		PublicURL string `json:"publicUrl"`
 	}
+}
+
+type PetPhotoPreloadQuery struct {
+	ForAvatar bool `query:"for_avatar" doc:"Включить данные о питомцах"`
 }
