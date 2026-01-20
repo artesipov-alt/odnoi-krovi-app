@@ -1,4 +1,4 @@
-import { Button, CircularProgress } from '@mui/material';
+import { Button } from '@mui/material';
 import cn from 'classnames';
 import BackArrow from 'imgs/svg/backArrow';
 import Blood from 'imgs/svg/blood';
@@ -165,7 +165,7 @@ const Check: FC<Props> = ({
                 </div>
                 {isLoading && (
                     <div className={styles.loading}>
-                        <Loading size={48} thickness={6} />
+                        <Loading size={90} thickness={4} />
                     </div>
                 )}
             </div>

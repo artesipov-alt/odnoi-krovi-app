@@ -19,6 +19,11 @@ const Loading: FC<Props> = ({ size = defaultSize, thickness = defaultThickness, 
             color='inherit'
             thickness={thickness}
             className={className}
+            sx={{
+                '& .MuiCircularProgress-circle': {
+                    strokeLinecap: 'round',
+                },
+            }}
             style={{ '--loading-size': `${size}px` } as CSSProperties}
         />
     </div>

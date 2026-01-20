@@ -15,6 +15,7 @@ import { getCorrectDeclension, Variants } from 'utils/utils';
 
 import { PetType } from 'api/types';
 import ImgEditor from 'components/ImgEditor';
+import Loading from 'components/Loading';
 
 import { Analiz } from '../../types';
 import styles from './Check.module.less';
@@ -22,22 +23,23 @@ import styles from './Check.module.less';
 type Props = {
     name: string;
     breed: string;
-    leicoz: Analiz;
     weight: string;
     petType: string;
+    leukemia: Analiz;
     petGender: string;
+    isLoading: boolean;
     babesiosis: Analiz;
     chipNumber: string;
     photo: File | null;
     bloodGroup: string;
     petTypeCode: string;
+    dirofilaria: Analiz;
     anaplasmosis: Analiz;
     ehrlichiosis: Analiz;
     surgicalList: string;
     healthStatus: string;
     bartonellosis: Analiz;
     hemoplasmosis: Analiz;
-    dirofilariasis: Analiz;
     exactDate: Date | null;
     medicationsList: string;
     livingCondition: string;
@@ -65,15 +67,17 @@ const Check: FC<Props> = ({
     name,
     photo,
     breed,
-    leicoz,
     weight,
     petType,
+    leukemia,
+    isLoading,
     petGender,
     exactDate,
     babesiosis,
     bloodGroup,
     chipNumber,
     petTypeCode,
+    dirofilaria,
     anaplasmosis,
     ehrlichiosis,
     surgicalList,
@@ -82,7 +86,6 @@ const Check: FC<Props> = ({
     dewormingDate,
     hemoplasmosis,
     bartonellosis,
-    dirofilariasis,
     livingCondition,
     medicationsList,
     immunodeficiency,
@@ -270,7 +273,7 @@ const Check: FC<Props> = ({
                                           analiz: true,
                                           vaccination: true,
                                           name: 'Дирофиляриоз',
-                                          value: getAnalizesValues(dirofilariasis),
+                                          value: getAnalizesValues(dirofilaria),
                                       },
                                       {
                                           analiz: true,
@@ -302,7 +305,7 @@ const Check: FC<Props> = ({
                                           analiz: true,
                                           vaccination: true,
                                           name: 'Лейкоз',
-                                          value: getAnalizesValues(leicoz),
+                                          value: getAnalizesValues(leukemia),
                                       },
                                       {
                                           analiz: true,
@@ -343,6 +346,11 @@ const Check: FC<Props> = ({
                     Все верно
                 </Button>
             </div>
+            {isLoading && (
+                <div className={styles.loading}>
+                    <Loading size={48} thickness={6} />
+                </div>
+            )}
         </>
     );
 };

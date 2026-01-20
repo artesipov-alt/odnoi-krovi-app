@@ -13,7 +13,7 @@ const Final: FC<Props> = ({ onBackToStart }) => {
     const navigate = useNavigate();
 
     const onBackToSearchClickHandler = () => {
-        navigate('/owner');
+        navigate('/owner#donor');
     };
 
     return (

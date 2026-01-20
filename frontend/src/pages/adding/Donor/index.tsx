@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
+import { createDonor } from 'api/apiServices/createDonor';
 import { getBloodGroups } from 'api/apiServices/getBloodGroups';
 import { getBreedsByType } from 'api/apiServices/getBreedsByType';
 import { getGenders } from 'api/apiServices/getGenders';
@@ -10,8 +11,10 @@ import { getHealthStatuses } from 'api/apiServices/getHealthStatuses';
 import { getLivingConditions } from 'api/apiServices/getLivingConditions';
 import { getPetsTypes } from 'api/apiServices/getPetsTypes';
 import { getReproductiveStatuses } from 'api/apiServices/getReproductiveStatuses';
+import { Analyses, AnalysesItem } from 'api/pets';
 import { Dict, PetGenderDict, PetTypeDict, StringDict } from 'api/reference';
-import { PetType } from 'api/types';
+import { AnalysesMapping, PetGender, PetType } from 'api/types';
+import { Role } from 'api/user';
 
 import styles from './Donor.module.less';
 import Onboarding from './Onboarding';
@@ -37,6 +40,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const [isOnboardingFinish, setIsOnboardingFinish] = useState(false);
 
     // 1 step
@@ -78,8 +82,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     const [ectoparasitesTreatmentDate, setEctoparasitesTreatmentDate] = useState<Date | null>(null);
 
     // 5 step
-    const [leicoz, setLeicoz] = useState<Analiz>({
-        type: 'leicoz',
+    const [leukemia, setLeukemia] = useState<Analiz>({
+        type: 'leukemia',
         name: 'Анализ на лейкоз (ВЛК)',
         items: [
             { name: 'ПЦР', value: null },
@@ -114,8 +118,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
             { name: 'Микроскопия мазка', value: null },
         ],
     });
-    const [dirofilariasis, setDirofilariasis] = useState<Analiz>({
-        type: 'dirofilariasis',
+    const [dirofilaria, setDirofilaria] = useState<Analiz>({
+        type: 'dirofilaria',
         name: 'Анализ на дирофиляриоз',
         items: [
             { name: 'ПЦР', value: null },
@@ -291,7 +295,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         setBreed(null);
         setBloodGroup('');
 
-        setLeicoz((prevState) => ({
+        setLeukemia((prevState) => ({
             ...prevState,
             items: prevState.items.map((item) => ({ ...item, value: null })),
         }));
@@ -311,7 +315,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
             ...prevState,
             items: prevState.items.map((item) => ({ ...item, value: null })),
         }));
-        setDirofilariasis((prevState) => ({
+        setDirofilaria((prevState) => ({
             ...prevState,
             items: prevState.items.map((item) => ({ ...item, value: null })),
         }));
@@ -472,8 +476,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
 
     const onChangeAnaliz = (type: string, analizName: string, value: Date | null) => {
         switch (type) {
-            case 'leicoz': {
-                setLeicoz((prevState) => ({
+            case 'leukemia': {
+                setLeukemia((prevState) => ({
                     ...prevState,
                     items: prevState.items.map((item) => {
                         if (item.name === analizName) {
@@ -542,8 +546,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
 
                 return;
             }
-            case 'dirofilariasis': {
-                setDirofilariasis((prevState) => ({
+            case 'dirofilaria': {
+                setDirofilaria((prevState) => ({
                     ...prevState,
                     items: prevState.items.map((item) => {
                         if (item.name === analizName) {
@@ -588,20 +592,82 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         }
     };
 
-    const fetchCreateDonor = async (confirmedStep: number) => {
-        // const { success } = await createPet({
-        //     name,
-        //     photo,
-        //     userId,
-        //     type: petType,
-        //     petStatus: Role.DONOR,
-        //     weightKg: Number(weight),
-        //     bloodGroup: `${bloodGroup}`,
-        // });
+    const getAnalizesToRequest = () => {
+        const result =
+            petType === PetType.DOG
+                ? [babesiosis, dirofilaria, hemoplasmosis, bartonellosis, ehrlichiosis, anaplasmosis]
+                : [leukemia, immunodeficiency, hemoplasmosis, bartonellosis].reduce((acc, analiz) => {
+                      acc[analiz.type] = analiz.items.reduce(
+                          (res, item) => {
+                              if (item.value) {
+                                  res.push({
+                                      analysisDate: item.value,
+                                      analysisName: analiz.type,
+                                      analysisType: AnalysesMapping[item.name],
+                                  });
+                              }
 
-        // if (success) {
-        if (true) {
+                              return res;
+                          },
+                          [] as unknown as AnalysesItem[],
+                      );
+
+                      return acc;
+                  }, {} as Analyses);
+
+        const filteredResult = Object.keys(result).reduce((res, key) => {
+            if (result[key].length) {
+                res[key] = result[key];
+            }
+
+            return res;
+        }, {} as Analyses);
+
+        if (Object.keys(filteredResult).length) {
+            return filteredResult;
+        }
+
+        return undefined;
+    };
+
+    const fetchCreateDonor = async (confirmedStep: number) => {
+        setIsLoading(true);
+
+        const { success } = await createDonor({
+            name,
+            userId,
+            photo,
+            breedId: breed?.value,
+            petStatus: Role.DONOR,
+            weightKg: Number(weight),
+            type: petType as PetType,
+            gender: petGender as PetGender,
+            birthDate: exactDate || undefined,
+            ageYears: Number(approximateDateYear) || undefined,
+            ageMonths: Number(approximateDateMonth) || undefined,
+            chipNumber: chipNumber === 'none' ? undefined : chipNumber,
+            bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
+            livingCondition: livingConditionsDict.find((item) => item.value === livingCondition)?.value,
+            health: {
+                healthStatus: healthStatusesDict.find((item) => item.value === healthStatus)?.value!,
+                lastDonation: lastDonation || undefined,
+                transfused: wasBloodTransfusion || undefined,
+                medications: isTakingMedications ? medicationsList : undefined,
+                surgicalInterventions: wasSurgicalInterventions ? surgicalList : undefined,
+                reproductiveStatus: reproductiveStatusesDict.find((item) => item.value === reproductiveStatus)?.value,
+            },
+            treatments: {
+                dewormingDate: dewormingDate || undefined,
+                rabiesVaccinationDate: rabiesVaccinationDate || undefined,
+                infectionVaccinationDate: infectionsVaccinationDate || undefined,
+                ectoparasiteTreatmentDate: ectoparasitesTreatmentDate || undefined,
+            },
+            analyses: getAnalizesToRequest(),
+        });
+
+        if (success) {
             setStep(confirmedStep + 1);
+            setIsLoading(false);
         } else {
             showToast('Не удалось сохранить питомца, попробуйте еще раз');
         }
@@ -735,14 +801,14 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
                         )}
                         {step === 5 && (
                             <Fifth
-                                leicoz={leicoz}
                                 petType={petType}
+                                leukemia={leukemia}
                                 babesiosis={babesiosis}
+                                dirofilaria={dirofilaria}
                                 anaplasmosis={anaplasmosis}
                                 ehrlichiosis={ehrlichiosis}
                                 bartonellosis={bartonellosis}
                                 hemoplasmosis={hemoplasmosis}
-                                dirofilariasis={dirofilariasis}
                                 onChangeAnaliz={onChangeAnaliz}
                                 immunodeficiency={immunodeficiency}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
@@ -756,11 +822,13 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
                     name={name}
                     photo={photo}
                     weight={weight}
-                    leicoz={leicoz}
+                    leukemia={leukemia}
+                    isLoading={isLoading}
                     exactDate={exactDate}
                     petTypeCode={petType}
                     chipNumber={chipNumber}
                     babesiosis={babesiosis}
+                    dirofilaria={dirofilaria}
                     anaplasmosis={anaplasmosis}
                     ehrlichiosis={ehrlichiosis}
                     surgicalList={surgicalList}
@@ -768,7 +836,6 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
                     dewormingDate={dewormingDate}
                     bartonellosis={bartonellosis}
                     hemoplasmosis={hemoplasmosis}
-                    dirofilariasis={dirofilariasis}
                     medicationsList={medicationsList}
                     immunodeficiency={immunodeficiency}
                     wasBloodTransfusion={wasBloodTransfusion}
