@@ -270,6 +270,7 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 		FullName:         u.FullName,
 		Phone:            u.Phone,
 		Email:            u.Email,
+		PhotoURLs:        u.PhotoUrls,
 		OrganizationName: u.OrganizationName,
 		ConsentPd:        u.ConsentPd,
 		OnBoarding:       u.OnBoarding,
@@ -288,7 +289,7 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 				ID:              pet.ID,
 				Name:            pet.Name,
 				ChipNumber:      pet.ChipNumber,
-				PhotoURL:        pet.PhotoURL,
+				PhotoURLs:       pet.PhotoUrls,
 				BreedID:         pet.BreedID,
 				WeightKg:        pet.WeightKg,
 				AgeYears:        pet.AgeYears,
@@ -319,6 +320,7 @@ func (h *UserHandler) toENT(u *dto.User) ent.User {
 		FullName:         u.FullName,
 		Phone:            u.Phone,
 		Email:            u.Email,
+		PhotoUrls:        u.PhotoURLs,
 		OrganizationName: u.OrganizationName,
 		ConsentPd:        u.ConsentPd,
 		OnBoarding:       u.OnBoarding,
@@ -339,6 +341,9 @@ func (h *UserHandler) toUpdatesMap(d dto.UserUpdate) map[string]any {
 	}
 	if d.Email != nil {
 		updates["Email"] = *d.Email
+	}
+	if d.PhotoURLs != nil {
+		updates["PhotoUrls"] = d.PhotoURLs
 	}
 	if d.AllowGeo != nil {
 		updates["AllowGeo"] = *d.AllowGeo

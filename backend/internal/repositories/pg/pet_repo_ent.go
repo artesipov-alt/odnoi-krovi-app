@@ -58,7 +58,7 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		SetNillableAgeMonths(nillable(p.AgeMonths)).
 		SetNillableBirthDate(p.BirthDate).
 		SetNillableChipNumber(nillable(p.ChipNumber)).
-		SetNillablePhotoURL(nillable(p.PhotoURL)).
+		SetPhotoUrls(p.PhotoUrls).
 		SetNillableBreedID(nillable(p.BreedID)).
 		SetNillableUserID(nillable(p.UserID)).
 		SetNillableLivingCondition(nillable(p.LivingCondition))
@@ -233,7 +233,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		SetNillableAgeMonths(nillable(p.AgeMonths)).
 		SetNillableBirthDate(p.BirthDate).
 		SetNillableChipNumber(nillable(p.ChipNumber)).
-		SetNillablePhotoURL(nillable(p.PhotoURL)).
+		SetPhotoUrls(p.PhotoUrls).
 		SetNillableBreedID(nillable(p.BreedID)).
 		SetNillableUserID(nillable(p.UserID)).
 		SetNillableLivingCondition(nillable(p.LivingCondition)).

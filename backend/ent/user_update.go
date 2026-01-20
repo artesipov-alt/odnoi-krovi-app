@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -219,6 +220,24 @@ func (_u *UserUpdate) ClearLocationID() *UserUpdate {
 	return _u
 }
 
+// SetPhotoUrls sets the "photo_urls" field.
+func (_u *UserUpdate) SetPhotoUrls(v []string) *UserUpdate {
+	_u.mutation.SetPhotoUrls(v)
+	return _u
+}
+
+// AppendPhotoUrls appends value to the "photo_urls" field.
+func (_u *UserUpdate) AppendPhotoUrls(v []string) *UserUpdate {
+	_u.mutation.AppendPhotoUrls(v)
+	return _u
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (_u *UserUpdate) ClearPhotoUrls() *UserUpdate {
+	_u.mutation.ClearPhotoUrls()
+	return _u
+}
+
 // SetRole sets the "role" field.
 func (_u *UserUpdate) SetRole(v user.Role) *UserUpdate {
 	_u.mutation.SetRole(v)
@@ -410,6 +429,17 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.PhotoUrls(); ok {
+		_spec.SetField(user.FieldPhotoUrls, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPhotoUrls(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, user.FieldPhotoUrls, value)
+		})
+	}
+	if _u.mutation.PhotoUrlsCleared() {
+		_spec.ClearField(user.FieldPhotoUrls, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
@@ -697,6 +727,24 @@ func (_u *UserUpdateOne) ClearLocationID() *UserUpdateOne {
 	return _u
 }
 
+// SetPhotoUrls sets the "photo_urls" field.
+func (_u *UserUpdateOne) SetPhotoUrls(v []string) *UserUpdateOne {
+	_u.mutation.SetPhotoUrls(v)
+	return _u
+}
+
+// AppendPhotoUrls appends value to the "photo_urls" field.
+func (_u *UserUpdateOne) AppendPhotoUrls(v []string) *UserUpdateOne {
+	_u.mutation.AppendPhotoUrls(v)
+	return _u
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (_u *UserUpdateOne) ClearPhotoUrls() *UserUpdateOne {
+	_u.mutation.ClearPhotoUrls()
+	return _u
+}
+
 // SetRole sets the "role" field.
 func (_u *UserUpdateOne) SetRole(v user.Role) *UserUpdateOne {
 	_u.mutation.SetRole(v)
@@ -918,6 +966,17 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.PhotoUrls(); ok {
+		_spec.SetField(user.FieldPhotoUrls, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPhotoUrls(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, user.FieldPhotoUrls, value)
+		})
+	}
+	if _u.mutation.PhotoUrlsCleared() {
+		_spec.ClearField(user.FieldPhotoUrls, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)

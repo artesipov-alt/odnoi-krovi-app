@@ -180,6 +180,9 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 		}
 		u.LocationID = locationID
 	}
+	if val, ok := updates["PhotoUrls"]; ok {
+		u.PhotoUrls = val.([]string)
+	}
 
 	// Сохраняем обновленного пользователя
 	if _, err := s.userRepo.Update(ctx, u); err != nil {

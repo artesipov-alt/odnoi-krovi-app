@@ -185,17 +185,9 @@ func (_c *PetCreate) SetNillableChipNumber(v *string) *PetCreate {
 	return _c
 }
 
-// SetPhotoURL sets the "photo_url" field.
-func (_c *PetCreate) SetPhotoURL(v string) *PetCreate {
-	_c.mutation.SetPhotoURL(v)
-	return _c
-}
-
-// SetNillablePhotoURL sets the "photo_url" field if the given value is not nil.
-func (_c *PetCreate) SetNillablePhotoURL(v *string) *PetCreate {
-	if v != nil {
-		_c.SetPhotoURL(*v)
-	}
+// SetPhotoUrls sets the "photo_urls" field.
+func (_c *PetCreate) SetPhotoUrls(v []string) *PetCreate {
+	_c.mutation.SetPhotoUrls(v)
 	return _c
 }
 
@@ -503,11 +495,6 @@ func (_c *PetCreate) check() error {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
 		}
 	}
-	if v, ok := _c.mutation.PhotoURL(); ok {
-		if err := pet.PhotoURLValidator(v); err != nil {
-			return &ValidationError{Name: "photo_url", err: fmt.Errorf(`ent: validator failed for field "Pet.photo_url": %w`, err)}
-		}
-	}
 	if v, ok := _c.mutation.LivingCondition(); ok {
 		if err := pet.LivingConditionValidator(v); err != nil {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
@@ -600,9 +587,9 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_spec.SetField(pet.FieldChipNumber, field.TypeString, value)
 		_node.ChipNumber = value
 	}
-	if value, ok := _c.mutation.PhotoURL(); ok {
-		_spec.SetField(pet.FieldPhotoURL, field.TypeString, value)
-		_node.PhotoURL = value
+	if value, ok := _c.mutation.PhotoUrls(); ok {
+		_spec.SetField(pet.FieldPhotoUrls, field.TypeJSON, value)
+		_node.PhotoUrls = value
 	}
 	if value, ok := _c.mutation.LivingCondition(); ok {
 		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)

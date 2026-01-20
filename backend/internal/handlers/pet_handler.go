@@ -209,7 +209,7 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.P
 		ID:              p.ID,
 		Name:            p.Name,
 		ChipNumber:      p.ChipNumber,
-		PhotoURL:        p.PhotoURL,
+		PhotoURLs:       p.PhotoUrls,
 		BreedID:         p.BreedID,
 		WeightKg:        p.WeightKg,
 		AgeYears:        p.AgeYears,
@@ -294,7 +294,7 @@ func (h *PetHandler) toCreateENT(d dto.Pet) *ent.Pet {
 	p := &ent.Pet{
 		Name:            d.Name,
 		ChipNumber:      d.ChipNumber,
-		PhotoURL:        d.PhotoURL,
+		PhotoUrls:       d.PhotoURLs,
 		BreedID:         d.BreedID,
 		WeightKg:        d.WeightKg,
 		AgeYears:        d.AgeYears,
@@ -385,8 +385,8 @@ func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealt
 	if d.ChipNumber != nil {
 		updates["ChipNumber"] = *d.ChipNumber
 	}
-	if d.PhotoURL != nil {
-		updates["PhotoURL"] = *d.PhotoURL
+	if d.PhotoURLs != nil {
+		updates["PhotoUrls"] = d.PhotoURLs
 	}
 	if d.BreedID != nil {
 		updates["BreedID"] = *d.BreedID

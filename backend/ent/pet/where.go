@@ -115,11 +115,6 @@ func ChipNumber(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldChipNumber, v))
 }
 
-// PhotoURL applies equality check predicate on the "photo_url" field. It's identical to PhotoURLEQ.
-func PhotoURL(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldPhotoURL, v))
-}
-
 // BreedID applies equality check predicate on the "breed_id" field. It's identical to BreedIDEQ.
 func BreedID(v int) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBreedID, v))
@@ -760,79 +755,14 @@ func ChipNumberContainsFold(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldContainsFold(FieldChipNumber, v))
 }
 
-// PhotoURLEQ applies the EQ predicate on the "photo_url" field.
-func PhotoURLEQ(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldPhotoURL, v))
+// PhotoUrlsIsNil applies the IsNil predicate on the "photo_urls" field.
+func PhotoUrlsIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldPhotoUrls))
 }
 
-// PhotoURLNEQ applies the NEQ predicate on the "photo_url" field.
-func PhotoURLNEQ(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldNEQ(FieldPhotoURL, v))
-}
-
-// PhotoURLIn applies the In predicate on the "photo_url" field.
-func PhotoURLIn(vs ...string) predicate.Pet {
-	return predicate.Pet(sql.FieldIn(FieldPhotoURL, vs...))
-}
-
-// PhotoURLNotIn applies the NotIn predicate on the "photo_url" field.
-func PhotoURLNotIn(vs ...string) predicate.Pet {
-	return predicate.Pet(sql.FieldNotIn(FieldPhotoURL, vs...))
-}
-
-// PhotoURLGT applies the GT predicate on the "photo_url" field.
-func PhotoURLGT(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldGT(FieldPhotoURL, v))
-}
-
-// PhotoURLGTE applies the GTE predicate on the "photo_url" field.
-func PhotoURLGTE(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldGTE(FieldPhotoURL, v))
-}
-
-// PhotoURLLT applies the LT predicate on the "photo_url" field.
-func PhotoURLLT(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldLT(FieldPhotoURL, v))
-}
-
-// PhotoURLLTE applies the LTE predicate on the "photo_url" field.
-func PhotoURLLTE(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldLTE(FieldPhotoURL, v))
-}
-
-// PhotoURLContains applies the Contains predicate on the "photo_url" field.
-func PhotoURLContains(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldContains(FieldPhotoURL, v))
-}
-
-// PhotoURLHasPrefix applies the HasPrefix predicate on the "photo_url" field.
-func PhotoURLHasPrefix(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldHasPrefix(FieldPhotoURL, v))
-}
-
-// PhotoURLHasSuffix applies the HasSuffix predicate on the "photo_url" field.
-func PhotoURLHasSuffix(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldHasSuffix(FieldPhotoURL, v))
-}
-
-// PhotoURLIsNil applies the IsNil predicate on the "photo_url" field.
-func PhotoURLIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldPhotoURL))
-}
-
-// PhotoURLNotNil applies the NotNil predicate on the "photo_url" field.
-func PhotoURLNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldPhotoURL))
-}
-
-// PhotoURLEqualFold applies the EqualFold predicate on the "photo_url" field.
-func PhotoURLEqualFold(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEqualFold(FieldPhotoURL, v))
-}
-
-// PhotoURLContainsFold applies the ContainsFold predicate on the "photo_url" field.
-func PhotoURLContainsFold(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldContainsFold(FieldPhotoURL, v))
+// PhotoUrlsNotNil applies the NotNil predicate on the "photo_urls" field.
+func PhotoUrlsNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldPhotoUrls))
 }
 
 // BreedIDEQ applies the EQ predicate on the "breed_id" field.

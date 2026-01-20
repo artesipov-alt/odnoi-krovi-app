@@ -3035,7 +3035,8 @@ type PetMutation struct {
 	addage_months               *int
 	birth_date                  *time.Time
 	chip_number                 *string
-	photo_url                   *string
+	photo_urls                  *[]string
+	appendphoto_urls            []string
 	living_condition            *pet.LivingCondition
 	clearedFields               map[string]struct{}
 	owner                       *string
@@ -3797,53 +3798,69 @@ func (m *PetMutation) ResetChipNumber() {
 	delete(m.clearedFields, pet.FieldChipNumber)
 }
 
-// SetPhotoURL sets the "photo_url" field.
-func (m *PetMutation) SetPhotoURL(s string) {
-	m.photo_url = &s
+// SetPhotoUrls sets the "photo_urls" field.
+func (m *PetMutation) SetPhotoUrls(s []string) {
+	m.photo_urls = &s
+	m.appendphoto_urls = nil
 }
 
-// PhotoURL returns the value of the "photo_url" field in the mutation.
-func (m *PetMutation) PhotoURL() (r string, exists bool) {
-	v := m.photo_url
+// PhotoUrls returns the value of the "photo_urls" field in the mutation.
+func (m *PetMutation) PhotoUrls() (r []string, exists bool) {
+	v := m.photo_urls
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPhotoURL returns the old "photo_url" field's value of the Pet entity.
+// OldPhotoUrls returns the old "photo_urls" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldPhotoURL(ctx context.Context) (v string, err error) {
+func (m *PetMutation) OldPhotoUrls(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPhotoURL is only allowed on UpdateOne operations")
+		return v, errors.New("OldPhotoUrls is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPhotoURL requires an ID field in the mutation")
+		return v, errors.New("OldPhotoUrls requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPhotoURL: %w", err)
+		return v, fmt.Errorf("querying old value for OldPhotoUrls: %w", err)
 	}
-	return oldValue.PhotoURL, nil
+	return oldValue.PhotoUrls, nil
 }
 
-// ClearPhotoURL clears the value of the "photo_url" field.
-func (m *PetMutation) ClearPhotoURL() {
-	m.photo_url = nil
-	m.clearedFields[pet.FieldPhotoURL] = struct{}{}
+// AppendPhotoUrls adds s to the "photo_urls" field.
+func (m *PetMutation) AppendPhotoUrls(s []string) {
+	m.appendphoto_urls = append(m.appendphoto_urls, s...)
 }
 
-// PhotoURLCleared returns if the "photo_url" field was cleared in this mutation.
-func (m *PetMutation) PhotoURLCleared() bool {
-	_, ok := m.clearedFields[pet.FieldPhotoURL]
+// AppendedPhotoUrls returns the list of values that were appended to the "photo_urls" field in this mutation.
+func (m *PetMutation) AppendedPhotoUrls() ([]string, bool) {
+	if len(m.appendphoto_urls) == 0 {
+		return nil, false
+	}
+	return m.appendphoto_urls, true
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (m *PetMutation) ClearPhotoUrls() {
+	m.photo_urls = nil
+	m.appendphoto_urls = nil
+	m.clearedFields[pet.FieldPhotoUrls] = struct{}{}
+}
+
+// PhotoUrlsCleared returns if the "photo_urls" field was cleared in this mutation.
+func (m *PetMutation) PhotoUrlsCleared() bool {
+	_, ok := m.clearedFields[pet.FieldPhotoUrls]
 	return ok
 }
 
-// ResetPhotoURL resets all changes to the "photo_url" field.
-func (m *PetMutation) ResetPhotoURL() {
-	m.photo_url = nil
-	delete(m.clearedFields, pet.FieldPhotoURL)
+// ResetPhotoUrls resets all changes to the "photo_urls" field.
+func (m *PetMutation) ResetPhotoUrls() {
+	m.photo_urls = nil
+	m.appendphoto_urls = nil
+	delete(m.clearedFields, pet.FieldPhotoUrls)
 }
 
 // SetBreedID sets the "breed_id" field.
@@ -4494,8 +4511,8 @@ func (m *PetMutation) Fields() []string {
 	if m.chip_number != nil {
 		fields = append(fields, pet.FieldChipNumber)
 	}
-	if m.photo_url != nil {
-		fields = append(fields, pet.FieldPhotoURL)
+	if m.photo_urls != nil {
+		fields = append(fields, pet.FieldPhotoUrls)
 	}
 	if m.breed_ref != nil {
 		fields = append(fields, pet.FieldBreedID)
@@ -4549,8 +4566,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.BirthDate()
 	case pet.FieldChipNumber:
 		return m.ChipNumber()
-	case pet.FieldPhotoURL:
-		return m.PhotoURL()
+	case pet.FieldPhotoUrls:
+		return m.PhotoUrls()
 	case pet.FieldBreedID:
 		return m.BreedID()
 	case pet.FieldUserID:
@@ -4598,8 +4615,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldBirthDate(ctx)
 	case pet.FieldChipNumber:
 		return m.OldChipNumber(ctx)
-	case pet.FieldPhotoURL:
-		return m.OldPhotoURL(ctx)
+	case pet.FieldPhotoUrls:
+		return m.OldPhotoUrls(ctx)
 	case pet.FieldBreedID:
 		return m.OldBreedID(ctx)
 	case pet.FieldUserID:
@@ -4712,12 +4729,12 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetChipNumber(v)
 		return nil
-	case pet.FieldPhotoURL:
-		v, ok := value.(string)
+	case pet.FieldPhotoUrls:
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPhotoURL(v)
+		m.SetPhotoUrls(v)
 		return nil
 	case pet.FieldBreedID:
 		v, ok := value.(int)
@@ -4854,8 +4871,8 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldChipNumber) {
 		fields = append(fields, pet.FieldChipNumber)
 	}
-	if m.FieldCleared(pet.FieldPhotoURL) {
-		fields = append(fields, pet.FieldPhotoURL)
+	if m.FieldCleared(pet.FieldPhotoUrls) {
+		fields = append(fields, pet.FieldPhotoUrls)
 	}
 	if m.FieldCleared(pet.FieldBreedID) {
 		fields = append(fields, pet.FieldBreedID)
@@ -4913,8 +4930,8 @@ func (m *PetMutation) ClearField(name string) error {
 	case pet.FieldChipNumber:
 		m.ClearChipNumber()
 		return nil
-	case pet.FieldPhotoURL:
-		m.ClearPhotoURL()
+	case pet.FieldPhotoUrls:
+		m.ClearPhotoUrls()
 		return nil
 	case pet.FieldBreedID:
 		m.ClearBreedID()
@@ -4981,8 +4998,8 @@ func (m *PetMutation) ResetField(name string) error {
 	case pet.FieldChipNumber:
 		m.ResetChipNumber()
 		return nil
-	case pet.FieldPhotoURL:
-		m.ResetPhotoURL()
+	case pet.FieldPhotoUrls:
+		m.ResetPhotoUrls()
 		return nil
 	case pet.FieldBreedID:
 		m.ResetBreedID()
@@ -8532,6 +8549,8 @@ type UserMutation struct {
 	consent_pd        *bool
 	on_boarding       *bool
 	allow_geo         *bool
+	photo_urls        *[]string
+	appendphoto_urls  []string
 	role              *user.Role
 	clearedFields     map[string]struct{}
 	pets              map[string]struct{}
@@ -9178,6 +9197,71 @@ func (m *UserMutation) ResetLocationID() {
 	delete(m.clearedFields, user.FieldLocationID)
 }
 
+// SetPhotoUrls sets the "photo_urls" field.
+func (m *UserMutation) SetPhotoUrls(s []string) {
+	m.photo_urls = &s
+	m.appendphoto_urls = nil
+}
+
+// PhotoUrls returns the value of the "photo_urls" field in the mutation.
+func (m *UserMutation) PhotoUrls() (r []string, exists bool) {
+	v := m.photo_urls
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPhotoUrls returns the old "photo_urls" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldPhotoUrls(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPhotoUrls is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPhotoUrls requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPhotoUrls: %w", err)
+	}
+	return oldValue.PhotoUrls, nil
+}
+
+// AppendPhotoUrls adds s to the "photo_urls" field.
+func (m *UserMutation) AppendPhotoUrls(s []string) {
+	m.appendphoto_urls = append(m.appendphoto_urls, s...)
+}
+
+// AppendedPhotoUrls returns the list of values that were appended to the "photo_urls" field in this mutation.
+func (m *UserMutation) AppendedPhotoUrls() ([]string, bool) {
+	if len(m.appendphoto_urls) == 0 {
+		return nil, false
+	}
+	return m.appendphoto_urls, true
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (m *UserMutation) ClearPhotoUrls() {
+	m.photo_urls = nil
+	m.appendphoto_urls = nil
+	m.clearedFields[user.FieldPhotoUrls] = struct{}{}
+}
+
+// PhotoUrlsCleared returns if the "photo_urls" field was cleared in this mutation.
+func (m *UserMutation) PhotoUrlsCleared() bool {
+	_, ok := m.clearedFields[user.FieldPhotoUrls]
+	return ok
+}
+
+// ResetPhotoUrls resets all changes to the "photo_urls" field.
+func (m *UserMutation) ResetPhotoUrls() {
+	m.photo_urls = nil
+	m.appendphoto_urls = nil
+	delete(m.clearedFields, user.FieldPhotoUrls)
+}
+
 // SetRole sets the "role" field.
 func (m *UserMutation) SetRole(u user.Role) {
 	m.role = &u
@@ -9329,7 +9413,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -9366,6 +9450,9 @@ func (m *UserMutation) Fields() []string {
 	if m.location != nil {
 		fields = append(fields, user.FieldLocationID)
 	}
+	if m.photo_urls != nil {
+		fields = append(fields, user.FieldPhotoUrls)
+	}
 	if m.role != nil {
 		fields = append(fields, user.FieldRole)
 	}
@@ -9401,6 +9488,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.AllowGeo()
 	case user.FieldLocationID:
 		return m.LocationID()
+	case user.FieldPhotoUrls:
+		return m.PhotoUrls()
 	case user.FieldRole:
 		return m.Role()
 	}
@@ -9436,6 +9525,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldAllowGeo(ctx)
 	case user.FieldLocationID:
 		return m.OldLocationID(ctx)
+	case user.FieldPhotoUrls:
+		return m.OldPhotoUrls(ctx)
 	case user.FieldRole:
 		return m.OldRole(ctx)
 	}
@@ -9531,6 +9622,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLocationID(v)
 		return nil
+	case user.FieldPhotoUrls:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPhotoUrls(v)
+		return nil
 	case user.FieldRole:
 		v, ok := value.(user.Role)
 		if !ok {
@@ -9601,6 +9699,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldLocationID) {
 		fields = append(fields, user.FieldLocationID)
 	}
+	if m.FieldCleared(user.FieldPhotoUrls) {
+		fields = append(fields, user.FieldPhotoUrls)
+	}
 	return fields
 }
 
@@ -9632,6 +9733,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldLocationID:
 		m.ClearLocationID()
+		return nil
+	case user.FieldPhotoUrls:
+		m.ClearPhotoUrls()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -9676,6 +9780,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldLocationID:
 		m.ResetLocationID()
+		return nil
+	case user.FieldPhotoUrls:
+		m.ResetPhotoUrls()
 		return nil
 	case user.FieldRole:
 		m.ResetRole()

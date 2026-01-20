@@ -103,7 +103,7 @@ var (
 		{Name: "age_months", Type: field.TypeInt, Nullable: true},
 		{Name: "birth_date", Type: field.TypeTime, Nullable: true},
 		{Name: "chip_number", Type: field.TypeString, Nullable: true, Size: 15},
-		{Name: "photo_url", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "living_condition", Type: field.TypeEnum, Nullable: true, Enums: []string{"indoor", "leash_walking", "self_outdoor"}},
 		{Name: "breed_id", Type: field.TypeInt, Nullable: true},
 		{Name: "bonus_id", Type: field.TypeString, Unique: true, Nullable: true},
@@ -241,6 +241,7 @@ var (
 		{Name: "consent_pd", Type: field.TypeBool},
 		{Name: "on_boarding", Type: field.TypeBool},
 		{Name: "allow_geo", Type: field.TypeBool},
+		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},
 	}
@@ -252,7 +253,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_locations_users",
-				Columns:    []*schema.Column{UsersColumns[13]},
+				Columns:    []*schema.Column{UsersColumns[14]},
 				RefColumns: []*schema.Column{LocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

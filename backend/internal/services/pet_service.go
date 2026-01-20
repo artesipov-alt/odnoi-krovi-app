@@ -118,8 +118,8 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 		return nil, apperrors.Internal(err, "failed to create pet")
 	}
 
-	// Преобразуем путь к фото в полный URL
-	newPet.PhotoURL = s.buildFullPhotoURL(newPet.PhotoURL)
+	// Преобразуем пути к фото в полные URL
+	newPet.PhotoUrls = s.buildFullPhotoURLs(newPet.PhotoUrls)
 
 	return newPet, nil
 }
@@ -138,8 +138,8 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads 
 		return nil, apperrors.Internal(err, "failed to get pet")
 	}
 
-	// Преобразуем путь к фото в полный URL
-	p.PhotoURL = s.buildFullPhotoURL(p.PhotoURL)
+	// Преобразуем пути к фото в полные URL
+	p.PhotoUrls = s.buildFullPhotoURLs(p.PhotoUrls)
 
 	return p, nil
 }
@@ -162,7 +162,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 
 	// Преобразуем пути к фото в полные URL
 	for _, pet := range pets {
-		pet.PhotoURL = s.buildFullPhotoURL(pet.PhotoURL)
+		pet.PhotoUrls = s.buildFullPhotoURLs(pet.PhotoUrls)
 	}
 
 	return pets, nil
@@ -186,8 +186,8 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	if val, ok := updates["ChipNumber"]; ok {
 		p.ChipNumber = val.(string)
 	}
-	if val, ok := updates["PhotoURL"]; ok {
-		p.PhotoURL = val.(string)
+	if val, ok := updates["PhotoUrls"]; ok {
+		p.PhotoUrls = val.([]string)
 	}
 	if val, ok := updates["BreedID"]; ok {
 		p.BreedID = val.(int)
@@ -320,7 +320,7 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 		return "", apperrors.Internal(errors.New("failed to generate public URL"), "failed to get public URL")
 	}
 
-	p.PhotoURL = decodedPath
+	p.PhotoUrls = []string{decodedPath}
 	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
 		return "", apperrors.Internal(err, "failed to update pet avatar")
 	}
@@ -358,10 +358,18 @@ func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
 	}
 }
 
-// buildFullPhotoURL преобразует путь к фото в полный публичный URL
-func (s *PetServiceImpl) buildFullPhotoURL(path string) string {
-	if path == "" {
-		return ""
+// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+func (s *PetServiceImpl) buildFullPhotoURLs(paths []string) []string {
+	if len(paths) == 0 {
+		return []string{}
 	}
-	return s.storage.GetPublicURLFromPath(path)
+	result := make([]string, len(paths))
+	for i, path := range paths {
+		if path == "" {
+			result[i] = ""
+		} else {
+			result[i] = s.storage.GetPublicURLFromPath(path)
+		}
+	}
+	return result
 }

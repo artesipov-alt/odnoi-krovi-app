@@ -44,6 +44,9 @@ func (User) Fields() []ent.Field {
 		field.Int("location_id").
 			Optional().
 			StructTag(`json:"locationId"`),
+		field.JSON("photo_urls", []string{}).
+			Optional().
+			StructTag(`json:"photoUrls"`),
 		field.Enum("role").
 			Values("user", "admin").
 			Default("user").

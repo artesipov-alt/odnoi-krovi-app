@@ -158,6 +158,12 @@ func (_c *UserCreate) SetNillableLocationID(v *int) *UserCreate {
 	return _c
 }
 
+// SetPhotoUrls sets the "photo_urls" field.
+func (_c *UserCreate) SetPhotoUrls(v []string) *UserCreate {
+	_c.mutation.SetPhotoUrls(v)
+	return _c
+}
+
 // SetRole sets the "role" field.
 func (_c *UserCreate) SetRole(v user.Role) *UserCreate {
 	_c.mutation.SetRole(v)
@@ -385,6 +391,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)
 		_node.AllowGeo = value
+	}
+	if value, ok := _c.mutation.PhotoUrls(); ok {
+		_spec.SetField(user.FieldPhotoUrls, field.TypeJSON, value)
+		_node.PhotoUrls = value
 	}
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)

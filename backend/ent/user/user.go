@@ -40,6 +40,8 @@ const (
 	FieldAllowGeo = "allow_geo"
 	// FieldLocationID holds the string denoting the location_id field in the database.
 	FieldLocationID = "location_id"
+	// FieldPhotoUrls holds the string denoting the photo_urls field in the database.
+	FieldPhotoUrls = "photo_urls"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
 	// EdgePets holds the string denoting the pets edge name in mutations.
@@ -79,6 +81,7 @@ var Columns = []string{
 	FieldOnBoarding,
 	FieldAllowGeo,
 	FieldLocationID,
+	FieldPhotoUrls,
 	FieldRole,
 }
 

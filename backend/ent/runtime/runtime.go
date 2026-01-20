@@ -157,10 +157,6 @@ func init() {
 	petDescChipNumber := petFields[9].Descriptor()
 	// pet.ChipNumberValidator is a validator for the "chip_number" field. It is called by the builders before save.
 	pet.ChipNumberValidator = petDescChipNumber.Validators[0].(func(string) error)
-	// petDescPhotoURL is the schema descriptor for photo_url field.
-	petDescPhotoURL := petFields[10].Descriptor()
-	// pet.PhotoURLValidator is a validator for the "photo_url" field. It is called by the builders before save.
-	pet.PhotoURLValidator = petDescPhotoURL.Validators[0].(func(string) error)
 	// petDescID is the schema descriptor for id field.
 	petDescID := petMixinFields0[0].Descriptor()
 	// pet.DefaultID holds the default value on creation for the id field.

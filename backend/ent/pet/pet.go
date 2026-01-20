@@ -42,8 +42,8 @@ const (
 	FieldBirthDate = "birth_date"
 	// FieldChipNumber holds the string denoting the chip_number field in the database.
 	FieldChipNumber = "chip_number"
-	// FieldPhotoURL holds the string denoting the photo_url field in the database.
-	FieldPhotoURL = "photo_url"
+	// FieldPhotoUrls holds the string denoting the photo_urls field in the database.
+	FieldPhotoUrls = "photo_urls"
 	// FieldBreedID holds the string denoting the breed_id field in the database.
 	FieldBreedID = "breed_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
@@ -139,7 +139,7 @@ var Columns = []string{
 	FieldAgeMonths,
 	FieldBirthDate,
 	FieldChipNumber,
-	FieldPhotoURL,
+	FieldPhotoUrls,
 	FieldBreedID,
 	FieldUserID,
 	FieldHealthID,
@@ -175,8 +175,6 @@ var (
 	NameValidator func(string) error
 	// ChipNumberValidator is a validator for the "chip_number" field. It is called by the builders before save.
 	ChipNumberValidator func(string) error
-	// PhotoURLValidator is a validator for the "photo_url" field. It is called by the builders before save.
-	PhotoURLValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -346,11 +344,6 @@ func ByBirthDate(opts ...sql.OrderTermOption) OrderOption {
 // ByChipNumber orders the results by the chip_number field.
 func ByChipNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldChipNumber, opts...).ToFunc()
-}
-
-// ByPhotoURL orders the results by the photo_url field.
-func ByPhotoURL(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPhotoURL, opts...).ToFunc()
 }
 
 // ByBreedID orders the results by the breed_id field.

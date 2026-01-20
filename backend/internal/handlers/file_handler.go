@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
@@ -102,15 +103,15 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 	}, nil
 }
 
-// func (h *FileHandler) ConfirmUpload(ctx context.Context, input *dto.AvatarPathParam) (*dto.ConfirmUploadResponse, error) {
-// 	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
-// 	if err != nil {
-// 		// This error is likely a server-side issue if the path was valid but the update failed.
-// 		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
-// 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-// 	}
+func (h *FileHandler) ConfirmUpload(ctx context.Context, input *[]dto.PathParam) (*[]dto.ConfirmUploadResponse, error) {
+	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
+	if err != nil {
+		// This error is likely a server-side issue if the path was valid but the update failed.
+		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
 
-// 	return &dto.ConfirmUploadResponse{Body: struct {
-// 		PublicURL string `json:"publicUrl"`
-// 	}{PublicURL: publicURL}}, nil
-// }
+	return &dto.ConfirmUploadResponse{Body: struct {
+		PublicURL string `json:"publicUrl"`
+	}{PublicURL: publicURL}}, nil
+}

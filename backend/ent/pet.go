@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -49,8 +50,8 @@ type Pet struct {
 	BirthDate *time.Time `json:"birthDate"`
 	// ChipNumber holds the value of the "chip_number" field.
 	ChipNumber string `json:"chipNumber"`
-	// PhotoURL holds the value of the "photo_url" field.
-	PhotoURL string `json:"photoUrl"`
+	// PhotoUrls holds the value of the "photo_urls" field.
+	PhotoUrls []string `json:"photoUrls"`
 	// BreedID holds the value of the "breed_id" field.
 	BreedID int `json:"breedId"`
 	// UserID holds the value of the "user_id" field.
@@ -170,11 +171,13 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case pet.FieldPhotoUrls:
+			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
 		case pet.FieldAgeYears, pet.FieldAgeMonths, pet.FieldBreedID:
 			values[i] = new(sql.NullInt64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldPhotoURL, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
@@ -279,11 +282,13 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ChipNumber = value.String
 			}
-		case pet.FieldPhotoURL:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field photo_url", values[i])
-			} else if value.Valid {
-				_m.PhotoURL = value.String
+		case pet.FieldPhotoUrls:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field photo_urls", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.PhotoUrls); err != nil {
+					return fmt.Errorf("unmarshal field photo_urls: %w", err)
+				}
 			}
 		case pet.FieldBreedID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -435,8 +440,8 @@ func (_m *Pet) String() string {
 	builder.WriteString("chip_number=")
 	builder.WriteString(_m.ChipNumber)
 	builder.WriteString(", ")
-	builder.WriteString("photo_url=")
-	builder.WriteString(_m.PhotoURL)
+	builder.WriteString("photo_urls=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
 	builder.WriteString(", ")
 	builder.WriteString("breed_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.BreedID))

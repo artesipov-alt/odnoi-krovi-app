@@ -43,6 +43,7 @@ func (r *EntUserRepository) Create(ctx context.Context, u *ent.User) (*ent.User,
 			}
 			return nil
 		}()).
+		SetPhotoUrls(u.PhotoUrls).
 		SetRole(u.Role).
 		Save(ctx)
 
@@ -142,6 +143,7 @@ func (r *EntUserRepository) Update(ctx context.Context, u *ent.User) (*ent.User,
 			}
 			return nil
 		}()).
+		SetPhotoUrls(u.PhotoUrls).
 		SetRole(u.Role).
 		Save(ctx)
 

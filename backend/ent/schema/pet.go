@@ -23,23 +23,40 @@ func (Pet) Mixin() []ent.Mixin {
 // Fields of the Pet.
 func (Pet) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").MaxLen(100).StructTag(`json:"name"`),
-		field.Enum("type").Values("dog", "cat").StructTag(`json:"type"`),
-		field.Enum("pet_status").Values("donor", "recipient", "none").StructTag(`json:"petStatus"`),
-		field.Float("weight_kg").Optional().StructTag(`json:"weightKg"`),
-		field.String("blood_group").Optional().StructTag(`json:"bloodGroup"`),
-		field.Enum("gender").Values("male", "female").Optional().StructTag(`json:"gender"`),
-		field.Int("age_years").Optional().StructTag(`json:"ageYears"`),
-		field.Int("age_months").Optional().StructTag(`json:"ageMonths"`),
-		field.Time("birth_date").Optional().Nillable().StructTag(`json:"birthDate"`),
-		field.String("chip_number").Optional().MaxLen(15).StructTag(`json:"chipNumber"`),
-		field.String("photo_url").Optional().MaxLen(255).StructTag(`json:"photoUrl"`),
-		field.Int("breed_id").Optional().StructTag(`json:"breedId"`),
-		field.String("user_id").Optional().StructTag(`json:"userId"`),
-		field.String("health_id").Optional().StructTag(`json:"healthId"`),
-		field.String("treatment_id").Optional().StructTag(`json:"treatmentId"`),
-		field.String("bonus_id").Optional().StructTag(`json:"bonusId"`),
-		field.Enum("living_condition").Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
+		field.String("name").
+			MaxLen(100).StructTag(`json:"name"`),
+		field.Enum("type").
+			Values("dog", "cat").StructTag(`json:"type"`),
+		field.Enum("pet_status").
+			Values("donor", "recipient", "none").StructTag(`json:"petStatus"`),
+		field.Float("weight_kg").
+			Optional().StructTag(`json:"weightKg"`),
+		field.String("blood_group").
+			Optional().StructTag(`json:"bloodGroup"`),
+		field.Enum("gender").
+			Values("male", "female").Optional().StructTag(`json:"gender"`),
+		field.Int("age_years").
+			Optional().StructTag(`json:"ageYears"`),
+		field.Int("age_months").
+			Optional().StructTag(`json:"ageMonths"`),
+		field.Time("birth_date").
+			Optional().Nillable().StructTag(`json:"birthDate"`),
+		field.String("chip_number").
+			Optional().MaxLen(15).StructTag(`json:"chipNumber"`),
+		field.JSON("photo_urls", []string{}).
+			Optional().StructTag(`json:"photoUrls"`),
+		field.Int("breed_id").
+			Optional().StructTag(`json:"breedId"`),
+		field.String("user_id").
+			Optional().StructTag(`json:"userId"`),
+		field.String("health_id").
+			Optional().StructTag(`json:"healthId"`),
+		field.String("treatment_id").
+			Optional().StructTag(`json:"treatmentId"`),
+		field.String("bonus_id").
+			Optional().StructTag(`json:"bonusId"`),
+		field.Enum("living_condition").
+			Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 	}
 }
 

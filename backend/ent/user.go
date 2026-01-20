@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -42,6 +43,8 @@ type User struct {
 	AllowGeo bool `json:"allowGeo"`
 	// LocationID holds the value of the "location_id" field.
 	LocationID int `json:"locationId"`
+	// PhotoUrls holds the value of the "photo_urls" field.
+	PhotoUrls []string `json:"photoUrls"`
 	// Role holds the value of the "role" field.
 	Role user.Role `json:"role"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -86,6 +89,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldPhotoUrls:
+			values[i] = new([]byte)
 		case user.FieldConsentPd, user.FieldOnBoarding, user.FieldAllowGeo:
 			values[i] = new(sql.NullBool)
 		case user.FieldTelegramID, user.FieldLocationID:
@@ -188,6 +193,14 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.LocationID = int(value.Int64)
 			}
+		case user.FieldPhotoUrls:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field photo_urls", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.PhotoUrls); err != nil {
+					return fmt.Errorf("unmarshal field photo_urls: %w", err)
+				}
+			}
 		case user.FieldRole:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field role", values[i])
@@ -277,6 +290,9 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("location_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.LocationID))
+	builder.WriteString(", ")
+	builder.WriteString("photo_urls=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Role))

@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
@@ -264,23 +265,21 @@ func (_u *PetUpdate) ClearChipNumber() *PetUpdate {
 	return _u
 }
 
-// SetPhotoURL sets the "photo_url" field.
-func (_u *PetUpdate) SetPhotoURL(v string) *PetUpdate {
-	_u.mutation.SetPhotoURL(v)
+// SetPhotoUrls sets the "photo_urls" field.
+func (_u *PetUpdate) SetPhotoUrls(v []string) *PetUpdate {
+	_u.mutation.SetPhotoUrls(v)
 	return _u
 }
 
-// SetNillablePhotoURL sets the "photo_url" field if the given value is not nil.
-func (_u *PetUpdate) SetNillablePhotoURL(v *string) *PetUpdate {
-	if v != nil {
-		_u.SetPhotoURL(*v)
-	}
+// AppendPhotoUrls appends value to the "photo_urls" field.
+func (_u *PetUpdate) AppendPhotoUrls(v []string) *PetUpdate {
+	_u.mutation.AppendPhotoUrls(v)
 	return _u
 }
 
-// ClearPhotoURL clears the value of the "photo_url" field.
-func (_u *PetUpdate) ClearPhotoURL() *PetUpdate {
-	_u.mutation.ClearPhotoURL()
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (_u *PetUpdate) ClearPhotoUrls() *PetUpdate {
+	_u.mutation.ClearPhotoUrls()
 	return _u
 }
 
@@ -644,11 +643,6 @@ func (_u *PetUpdate) check() error {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.PhotoURL(); ok {
-		if err := pet.PhotoURLValidator(v); err != nil {
-			return &ValidationError{Name: "photo_url", err: fmt.Errorf(`ent: validator failed for field "Pet.photo_url": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.LivingCondition(); ok {
 		if err := pet.LivingConditionValidator(v); err != nil {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
@@ -738,11 +732,16 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.ChipNumberCleared() {
 		_spec.ClearField(pet.FieldChipNumber, field.TypeString)
 	}
-	if value, ok := _u.mutation.PhotoURL(); ok {
-		_spec.SetField(pet.FieldPhotoURL, field.TypeString, value)
+	if value, ok := _u.mutation.PhotoUrls(); ok {
+		_spec.SetField(pet.FieldPhotoUrls, field.TypeJSON, value)
 	}
-	if _u.mutation.PhotoURLCleared() {
-		_spec.ClearField(pet.FieldPhotoURL, field.TypeString)
+	if value, ok := _u.mutation.AppendedPhotoUrls(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, pet.FieldPhotoUrls, value)
+		})
+	}
+	if _u.mutation.PhotoUrlsCleared() {
+		_spec.ClearField(pet.FieldPhotoUrls, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.LivingCondition(); ok {
 		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)
@@ -1218,23 +1217,21 @@ func (_u *PetUpdateOne) ClearChipNumber() *PetUpdateOne {
 	return _u
 }
 
-// SetPhotoURL sets the "photo_url" field.
-func (_u *PetUpdateOne) SetPhotoURL(v string) *PetUpdateOne {
-	_u.mutation.SetPhotoURL(v)
+// SetPhotoUrls sets the "photo_urls" field.
+func (_u *PetUpdateOne) SetPhotoUrls(v []string) *PetUpdateOne {
+	_u.mutation.SetPhotoUrls(v)
 	return _u
 }
 
-// SetNillablePhotoURL sets the "photo_url" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillablePhotoURL(v *string) *PetUpdateOne {
-	if v != nil {
-		_u.SetPhotoURL(*v)
-	}
+// AppendPhotoUrls appends value to the "photo_urls" field.
+func (_u *PetUpdateOne) AppendPhotoUrls(v []string) *PetUpdateOne {
+	_u.mutation.AppendPhotoUrls(v)
 	return _u
 }
 
-// ClearPhotoURL clears the value of the "photo_url" field.
-func (_u *PetUpdateOne) ClearPhotoURL() *PetUpdateOne {
-	_u.mutation.ClearPhotoURL()
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (_u *PetUpdateOne) ClearPhotoUrls() *PetUpdateOne {
+	_u.mutation.ClearPhotoUrls()
 	return _u
 }
 
@@ -1611,11 +1608,6 @@ func (_u *PetUpdateOne) check() error {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.PhotoURL(); ok {
-		if err := pet.PhotoURLValidator(v); err != nil {
-			return &ValidationError{Name: "photo_url", err: fmt.Errorf(`ent: validator failed for field "Pet.photo_url": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.LivingCondition(); ok {
 		if err := pet.LivingConditionValidator(v); err != nil {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
@@ -1722,11 +1714,16 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	if _u.mutation.ChipNumberCleared() {
 		_spec.ClearField(pet.FieldChipNumber, field.TypeString)
 	}
-	if value, ok := _u.mutation.PhotoURL(); ok {
-		_spec.SetField(pet.FieldPhotoURL, field.TypeString, value)
+	if value, ok := _u.mutation.PhotoUrls(); ok {
+		_spec.SetField(pet.FieldPhotoUrls, field.TypeJSON, value)
 	}
-	if _u.mutation.PhotoURLCleared() {
-		_spec.ClearField(pet.FieldPhotoURL, field.TypeString)
+	if value, ok := _u.mutation.AppendedPhotoUrls(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, pet.FieldPhotoUrls, value)
+		})
+	}
+	if _u.mutation.PhotoUrlsCleared() {
+		_spec.ClearField(pet.FieldPhotoUrls, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.LivingCondition(); ok {
 		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)

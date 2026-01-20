@@ -655,6 +655,16 @@ func LocationIDNotNil() predicate.User {
 	return predicate.User(sql.FieldNotNull(FieldLocationID))
 }
 
+// PhotoUrlsIsNil applies the IsNil predicate on the "photo_urls" field.
+func PhotoUrlsIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldPhotoUrls))
+}
+
+// PhotoUrlsNotNil applies the NotNil predicate on the "photo_urls" field.
+func PhotoUrlsNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldPhotoUrls))
+}
+
 // RoleEQ applies the EQ predicate on the "role" field.
 func RoleEQ(v Role) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldRole, v))
