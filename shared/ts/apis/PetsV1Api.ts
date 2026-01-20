@@ -135,7 +135,7 @@ export class PetsV1Api extends runtime.BaseAPI {
         if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
                 'userId',
-                'Required parameter "userId" was null or undefined when calling createPet().'
+                'Required parameter "userId" was null or undefined when calling createRecipient().'
             );
         }
 

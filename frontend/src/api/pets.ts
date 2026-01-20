@@ -15,67 +15,66 @@ type Health = {
     healthStatus: string;
     medications?: string;
     transfused?: boolean;
-    lastDonation?: string;
+    lastDonation?: Date;
     reproductiveStatus?: string;
     surgicalInterventions?: string;
 };
 
 type Treatments = {
-    dewormingDate?: string;
-    rabiesVaccinationDate?: string;
-    ectoparasiteTreatmentDate?: string;
-    infectionVaccinationDate?: string;
+    dewormingDate?: Date;
+    rabiesVaccinationDate?: Date;
+    infectionVaccinationDate?: Date;
+    ectoparasiteTreatmentDate?: Date;
+};
+
+export type AnalysesItem = {
+    analysisDate: Date;
+    analysisName: string;
+    analysisType: string;
+};
+
+export type Analyses = {
+    leukemia?: AnalysesItem[];
+    babesiosis?: AnalysesItem[];
+    dirofilaria?: AnalysesItem[];
+    anaplasmosis?: AnalysesItem[];
+    ehrlichiosis?: AnalysesItem[];
+    bartonellosis?: AnalysesItem[];
+    hemoplasmosis?: AnalysesItem[];
+    immunodeficiency?: AnalysesItem[];
 };
 
 export type Pet = {
     id: string;
     name: string;
     type: PetType;
-    analyses?: any; // TODO добавить тип
     health?: Health;
     petStatus: Role;
     breedId?: number;
     weightKg: number;
+    birthDate?: Date;
     bonuses?: Bonuses;
-    photoUrl?: string;
     ageYears?: number;
     gender?: PetGender;
     ageMonths?: number;
-    birthDate?: string;
     bloodGroup: string;
+    analyses?: Analyses;
     chipNumber?: string;
+    photoUrls?: string[];
     treatments?: Treatments;
     livingCondition?: string;
 };
 
 export type GetPetsResponse = Pet[];
 
-export type CreatePetRequest = {
-    name: string;
-    type: string;
-    userId: string;
-    petStatus: Role;
-    weightKg?: number;
-    bloodGroup: string;
-};
+export type CreatePetRequest = Omit<Pet, 'id'> & { userId: string };
 
 export type CreatePetResponse = Pet;
-
-export type GetPhotoLinkResponse = {
-    url: 'string';
-    path: 'string';
-};
-
-export type ConfirmUploadPhotoResponse = {
-    publicUrl: string;
-};
 
 export interface IPetsApi {
     getPets(id: string): AxiosPromise<GetPetsResponse>;
     createPet(data: CreatePetRequest): AxiosPromise<CreatePetResponse>;
     deletePetById(id: string): AxiosPromise<void>;
-    getPhotoLink(id: string): AxiosPromise<GetPhotoLinkResponse>;
-    confirmUploadPhoto(path: string): AxiosPromise<ConfirmUploadPhotoResponse>;
 }
 
 export const PETS_URL = '/v1/pet';
@@ -89,11 +88,5 @@ export const petsApi = (): IPetsApi => ({
     },
     deletePetById(id) {
         return instance.delete(`${PETS_URL}/user/${id}`);
-    },
-    getPhotoLink(id) {
-        return instance.get(`${PETS_URL}/upload/avatar/${id}`);
-    },
-    confirmUploadPhoto(path) {
-        return instance.post(`${PETS_URL}/upload/avatar/confirm/${path}`);
     },
 });

@@ -10,29 +10,29 @@ import { Analiz } from '../../types';
 import styles from './Fifth.module.less';
 
 type Props = {
-    leicoz: Analiz;
     petType: string;
+    leukemia: Analiz;
     babesiosis: Analiz;
+    dirofilaria: Analiz;
     ehrlichiosis: Analiz;
     anaplasmosis: Analiz;
     hemoplasmosis: Analiz;
     bartonellosis: Analiz;
-    dirofilariasis: Analiz;
     immunodeficiency: Analiz;
     onConfirmButtonClick: (step: number) => void;
     onChangeAnaliz: (type: string, analizName: string, value: Date | null) => void;
 };
 
 const Fifth: FC<Props> = ({
-    leicoz,
     petType,
+    leukemia,
     babesiosis,
+    dirofilaria,
     ehrlichiosis,
     anaplasmosis,
     bartonellosis,
     hemoplasmosis,
     onChangeAnaliz,
-    dirofilariasis,
     immunodeficiency,
     onConfirmButtonClick,
 }) => {
@@ -54,8 +54,8 @@ const Fifth: FC<Props> = ({
                 проведенных анализов
             </h2>
             {(isDog
-                ? [babesiosis, dirofilariasis, hemoplasmosis, bartonellosis, ehrlichiosis, anaplasmosis]
-                : [leicoz, immunodeficiency, hemoplasmosis, bartonellosis]
+                ? [babesiosis, dirofilaria, hemoplasmosis, bartonellosis, ehrlichiosis, anaplasmosis]
+                : [leukemia, immunodeficiency, hemoplasmosis, bartonellosis]
             ).map((analiz) => (
                 <div key={analiz.name} className={styles.group}>
                     <p className={styles.analiz}>{analiz.name}</p>

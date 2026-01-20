@@ -6,7 +6,7 @@ export type AddToPoolRequest = {
     petId: string;
     regions: number[];
     description?: string;
-    bloodGroupIds: string[];
+    bloodGroupNames: string[];
     bloodVolumeNeeded: number;
     bloodComponentIds: number[];
     smallPetsNotifyAllowed: boolean;

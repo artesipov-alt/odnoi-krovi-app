@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
-import { createPet } from 'api/apiServices/createPet';
+import { createRecipient } from 'api/apiServices/createRecipient';
 import { getBloodComponents } from 'api/apiServices/getBloodComponents';
 import { getBloodGroups } from 'api/apiServices/getBloodGroups';
 import { getLocations } from 'api/apiServices/getLocations';
@@ -18,7 +18,6 @@ import Final from './Steps/Final';
 import First from './Steps/First';
 import Second from './Steps/Second';
 import Three from './Steps/Three';
-import fs from 'fs';
 
 type Props = {
     userId: string;
@@ -127,27 +126,35 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     }, [fetchBloodTypes, showToast]);
 
     const fetchCreateRecipient = async (confirmedStep: number) => {
-        // const { success } = await createPet({
-        //     name,
-        //     photo,
-        //     userId,
-        //     type: petType,
-        //     weightKg: Number(weight),
-        //     petStatus: Role.RECIPIENT,
-        //     bloodGroup: `${bloodGroup}`,
-        //     poolInfo: {
-        //         description,
-        //         bloodVolumeNeeded: Number(bloodVolume),
-        //         regions: locations as unknown as number[],
-        //         smallPetsNotifyAllowed: notifyOfSmallDonors,
-        //         bloodComponentIds: bloodComponents as unknown as number[],
-        //         bloodGroupIds: desiredBloodGroups.map((item) => String(item)),
-        //     },
-        // });
+        setIsLoading(true);
 
-        // if (success) {
-        if (true) {
+        const { success } = await createRecipient({
+            name,
+            photo,
+            userId,
+            type: petType as PetType,
+            weightKg: Number(weight),
+            petStatus: Role.RECIPIENT,
+            bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
+            poolInfo: {
+                description,
+                bloodVolumeNeeded: Number(bloodVolume),
+                regions: locations as unknown as number[],
+                smallPetsNotifyAllowed: notifyOfSmallDonors,
+                bloodComponentIds: bloodComponents as unknown as number[],
+                bloodGroupNames: bloodGroupDict[petType].reduce((res, item) => {
+                    if (desiredBloodGroups.includes(item.value)) {
+                        res.push(item.label);
+                    }
+
+                    return res;
+                }, [] as string[]),
+            },
+        });
+
+        if (success) {
             setStep(confirmedStep + 1);
+            setIsLoading(false);
         } else {
             showToast('Не удалось сохранить питомца, попробуйте еще раз');
         }
