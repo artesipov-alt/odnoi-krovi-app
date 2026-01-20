@@ -173,13 +173,17 @@ func (s *S3Storage) FileService() *services.FileService {
 func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string) ([]repositories.UploadInfo, error) {
 	var format string
 	var contentType string
+	year := time.Now().Year()
 
 	switch {
 	case strings.HasPrefix(id, "USR"):
-		format = "users/%s/photos/%d.jpg"
+		format = fmt.Sprintf("users/%d/%%s/photos/%%d.jpg", year)
 		contentType = "image/jpeg"
 	case strings.HasPrefix(id, "PET"):
-		format = "pets/%s/photos/%d.jpg"
+		format = fmt.Sprintf("pets/%d/%%s/photos/%%d.jpg", year)
+		contentType = "image/jpeg"
+	case strings.HasPrefix(id, "BLS"):
+		format = fmt.Sprintf("blood_requests/%d/%%s/photos/%%d.jpg", year)
 		contentType = "image/jpeg"
 	default:
 		return nil, fmt.Errorf("неподдерживаемый тип файла для id: %s", id)
@@ -227,11 +231,14 @@ func (s *S3Storage) CheckObjectExists(ctx context.Context, objectPath string) (b
 // GetAvatarPublicURL возвращает публичный URL для просмотра аватарки
 func (s *S3Storage) GetAvatarPublicURL(id string) string {
 	var format string
+	year := time.Now().Year()
 	switch {
 	case strings.HasPrefix(id, "USR"):
-		format = "users/%s/avatar.jpg"
+		format = fmt.Sprintf("users/%d/%%s/avatar.jpg", year)
 	case strings.HasPrefix(id, "PET"):
-		format = "pets/%s/avatar.jpg"
+		format = fmt.Sprintf("pets/%d/%%s/avatar.jpg", year)
+	case strings.HasPrefix(id, "BLS"):
+		format = fmt.Sprintf("blood_requests/%d/%%s/avatar.jpg", year)
 	default:
 		return ""
 	}
