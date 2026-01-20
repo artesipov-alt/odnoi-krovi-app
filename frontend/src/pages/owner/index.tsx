@@ -56,7 +56,7 @@ const Owner: FC<Props> = ({ user }) => {
 
     return (
         <Layout>
-            <div className={styles.wrapper}>
+            <div className={cn(styles.wrapper, { [styles.isPets]: !!pets.length })}>
                 <div className={styles.header}>
                     <div className={styles.avatar}>{user.fullName.charAt(0).toUpperCase()}</div>
                 </div>
@@ -65,7 +65,7 @@ const Owner: FC<Props> = ({ user }) => {
                         <div className={styles.pawIcon}>
                             <Paw />
                         </div>
-                        <p className={styles.buttonText}>Добавить питомца</p>
+                        <p className={styles.pawButtonText}>Добавить питомца</p>
                     </div>
                 ) : (
                     <>
