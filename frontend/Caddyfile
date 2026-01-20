@@ -3,25 +3,25 @@
 }
 
 1krovi.app {
+    # Прямое указание использовать Let's Encrypt вместо ZeroSSL
+    tls r.stupa@ya.ru {
+        issuer acme https://acme-v02.api.letsencrypt.org/directory
+    }
+
     root * /srv
     encode gzip zstd
 
-    # API routes first - handle all /api/* requests
     handle /api/* {
         reverse_proxy backend:3000
     }
 
-    # SPA routing - serve index.html for all non-file requests
     handle {
         try_files {path} {path}/ /index.html
         file_server
     }
 
-    # Логирование для отладки
     log {
         output stdout
         format console
     }
-
-
 }
