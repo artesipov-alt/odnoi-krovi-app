@@ -46,13 +46,15 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - caddy_data:/data/caddy
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - odnoi_net
     restart: unless-stopped
 
 volumes:
   caddy_data:
+  caddy_config:
 
 networks:
   odnoi_net:
