@@ -1,20 +1,23 @@
 {
+    # Глобальные настройки: твой email для уведомлений от ACME
     email r.stupa@ya.ru
 }
 
 1krovi.app {
-    # Прямое указание использовать Let's Encrypt вместо ZeroSSL
-    tls r.stupa@ya.ru {
+    # Указываем Let's Encrypt явно и без лишних параметров
+    tls {
         issuer acme https://acme-v02.api.letsencrypt.org/directory
     }
 
     root * /srv
     encode gzip zstd
 
+    # API маршруты
     handle /api/* {
         reverse_proxy backend:3000
     }
 
+    # SPA routing
     handle {
         try_files {path} {path}/ /index.html
         file_server
