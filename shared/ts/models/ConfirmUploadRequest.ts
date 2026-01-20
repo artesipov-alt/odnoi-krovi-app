@@ -13,69 +13,70 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItemDB } from './ReferenceItemDB';
-import {
-    ReferenceItemDBFromJSON,
-    ReferenceItemDBFromJSONTyped,
-    ReferenceItemDBToJSON,
-    ReferenceItemDBToJSONTyped,
-} from './ReferenceItemDB';
-
 /**
  * 
  * @export
- * @interface ReferenceDataDB
+ * @interface ConfirmUploadRequest
  */
-export interface ReferenceDataDB {
+export interface ConfirmUploadRequest {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceDataDB
+     * @memberof ConfirmUploadRequest
      */
     readonly $schema?: string;
     /**
-     * Список элементов справочника
-     * @type {Array<ReferenceItemDB>}
-     * @memberof ReferenceDataDB
+     * ID сущности (питомец/пользователь/заявка)
+     * @type {string}
+     * @memberof ConfirmUploadRequest
      */
-    data: Array<ReferenceItemDB> | null;
+    entityId: string;
+    /**
+     * Массив путей к загруженным фото
+     * @type {Array<string>}
+     * @memberof ConfirmUploadRequest
+     */
+    paths: Array<string> | null;
 }
 
 /**
- * Check if a given object implements the ReferenceDataDB interface.
+ * Check if a given object implements the ConfirmUploadRequest interface.
  */
-export function instanceOfReferenceDataDB(value: object): value is ReferenceDataDB {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfConfirmUploadRequest(value: object): value is ConfirmUploadRequest {
+    if (!('entityId' in value) || value['entityId'] === undefined) return false;
+    if (!('paths' in value) || value['paths'] === undefined) return false;
     return true;
 }
 
-export function ReferenceDataDBFromJSON(json: any): ReferenceDataDB {
-    return ReferenceDataDBFromJSONTyped(json, false);
+export function ConfirmUploadRequestFromJSON(json: any): ConfirmUploadRequest {
+    return ConfirmUploadRequestFromJSONTyped(json, false);
 }
 
-export function ReferenceDataDBFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceDataDB {
+export function ConfirmUploadRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): ConfirmUploadRequest {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': (json['data'] == null ? null : (json['data'] as Array<any>).map(ReferenceItemDBFromJSON)),
+        'entityId': json['entityId'],
+        'paths': json['paths'] == null ? null : json['paths'],
     };
 }
 
-export function ReferenceDataDBToJSON(json: any): ReferenceDataDB {
-    return ReferenceDataDBToJSONTyped(json, false);
+export function ConfirmUploadRequestToJSON(json: any): ConfirmUploadRequest {
+    return ConfirmUploadRequestToJSONTyped(json, false);
 }
 
-export function ReferenceDataDBToJSONTyped(value?: Omit<ReferenceDataDB, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ConfirmUploadRequestToJSONTyped(value?: Omit<ConfirmUploadRequest, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'data': (value['data'] == null ? null : (value['data'] as Array<any>).map(ReferenceItemDBToJSON)),
+        'entityId': value['entityId'],
+        'paths': value['paths'],
     };
 }
 

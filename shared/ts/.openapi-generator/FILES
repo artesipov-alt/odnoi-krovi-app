@@ -11,7 +11,7 @@ models/BloodSearchPetRequest.ts
 models/BloodSearchPetResponse.ts
 models/BloodSearchPetsResponse.ts
 models/BloodSearchRequestResponse.ts
-models/ConfirmUploadResponseBody.ts
+models/ConfirmUploadRequest.ts
 models/MessageBody.ts
 models/Pet.ts
 models/PetAnalysis.ts
@@ -24,6 +24,7 @@ models/ReferenceDataCode.ts
 models/ReferenceDataDB.ts
 models/ReferenceItemCode.ts
 models/ReferenceItemDB.ts
+models/UploadItem.ts
 models/UploadURLResponseBody.ts
 models/User.ts
 models/UserRegistrationSimple.ts

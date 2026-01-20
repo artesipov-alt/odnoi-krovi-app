@@ -13,69 +13,63 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItemDB } from './ReferenceItemDB';
-import {
-    ReferenceItemDBFromJSON,
-    ReferenceItemDBFromJSONTyped,
-    ReferenceItemDBToJSON,
-    ReferenceItemDBToJSONTyped,
-} from './ReferenceItemDB';
-
 /**
  * 
  * @export
- * @interface ReferenceDataDB
+ * @interface UploadItem
  */
-export interface ReferenceDataDB {
+export interface UploadItem {
     /**
-     * A URL to the JSON Schema for this object.
+     * Путь к файлу в хранилище
      * @type {string}
-     * @memberof ReferenceDataDB
+     * @memberof UploadItem
      */
-    readonly $schema?: string;
+    path: string;
     /**
-     * Список элементов справочника
-     * @type {Array<ReferenceItemDB>}
-     * @memberof ReferenceDataDB
+     * Подписанная ссылка для загрузки
+     * @type {string}
+     * @memberof UploadItem
      */
-    data: Array<ReferenceItemDB> | null;
+    url: string;
 }
 
 /**
- * Check if a given object implements the ReferenceDataDB interface.
+ * Check if a given object implements the UploadItem interface.
  */
-export function instanceOfReferenceDataDB(value: object): value is ReferenceDataDB {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfUploadItem(value: object): value is UploadItem {
+    if (!('path' in value) || value['path'] === undefined) return false;
+    if (!('url' in value) || value['url'] === undefined) return false;
     return true;
 }
 
-export function ReferenceDataDBFromJSON(json: any): ReferenceDataDB {
-    return ReferenceDataDBFromJSONTyped(json, false);
+export function UploadItemFromJSON(json: any): UploadItem {
+    return UploadItemFromJSONTyped(json, false);
 }
 
-export function ReferenceDataDBFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceDataDB {
+export function UploadItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): UploadItem {
     if (json == null) {
         return json;
     }
     return {
         
-        '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': (json['data'] == null ? null : (json['data'] as Array<any>).map(ReferenceItemDBFromJSON)),
+        'path': json['path'],
+        'url': json['url'],
     };
 }
 
-export function ReferenceDataDBToJSON(json: any): ReferenceDataDB {
-    return ReferenceDataDBToJSONTyped(json, false);
+export function UploadItemToJSON(json: any): UploadItem {
+    return UploadItemToJSONTyped(json, false);
 }
 
-export function ReferenceDataDBToJSONTyped(value?: Omit<ReferenceDataDB, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function UploadItemToJSONTyped(value?: UploadItem | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'data': (value['data'] == null ? null : (value['data'] as Array<any>).map(ReferenceItemDBToJSON)),
+        'path': value['path'],
+        'url': value['url'],
     };
 }
 
