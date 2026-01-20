@@ -4,10 +4,6 @@
 }
 
 1krovi.app {
-    # Указываем Let's Encrypt явно и без лишних параметров
-    tls {
-        issuer acme https://acme-v02.api.letsencrypt.org/directory
-    }
 
     root * /srv
     encode gzip zstd
