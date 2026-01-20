@@ -97,14 +97,16 @@ func main() {
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 
 		// Инициализация сервисов
-		userService := services.NewUserService(userRepo, locationRepo)
+		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
 		petService := services.NewPetService(petRepo, userRepo, fileStorage)
-		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo)
+		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage)
+		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage, petService, userService, bloodSearchService)
 
 		// Инициализация обработчиков
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(petService)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
+		fileHandler := handlers.NewFileHandler(fileService, petService, userService, bloodSearchService)
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 
 		// Настройка Huma
@@ -117,6 +119,7 @@ func main() {
 		userHandler.Register(api)
 		petHandler.Register(api)
 		bloodRequestHandler.Register(api)
+		fileHandler.Register(api)
 		referenceHandler.Register(api)
 
 		// Если опция Doc включена, генерируем документацию и выходим

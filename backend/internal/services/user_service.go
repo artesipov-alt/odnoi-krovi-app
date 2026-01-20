@@ -37,19 +37,25 @@ type UserService interface {
 
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
+
+	// ConfirmPhotos подтверждает загрузку фото для пользователя и обновляет PhotoUrls
+	ConfirmPhotos(ctx context.Context, userID string, paths []string) error
 }
 
 // UserServiceImpl реализует UserService
 type UserServiceImpl struct {
 	userRepo     repositories.UserRepository
 	locationRepo repositories.LocationRepository
+	storage      repositories.FileStorage
 }
 
 // NewUserService создает новый сервис пользователей
-func NewUserService(userRepo repositories.UserRepository, locationRepo repositories.LocationRepository) *UserServiceImpl {
+// NewUserService создает новый экземпляр UserService
+func NewUserService(userRepo repositories.UserRepository, locationRepo repositories.LocationRepository, storage repositories.FileStorage) *UserServiceImpl {
 	return &UserServiceImpl{
 		userRepo:     userRepo,
 		locationRepo: locationRepo,
+		storage:      storage,
 	}
 }
 
@@ -137,6 +143,9 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloa
 		}
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
+
+	// Преобразуем пути к фото в полные URL
+	u.PhotoUrls = s.buildFullPhotoURLs(u.PhotoUrls)
 
 	return u, nil
 }
@@ -228,4 +237,42 @@ func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, err
 		return nil, apperrors.Internal(err, "failed to get deleted users")
 	}
 	return users, nil
+}
+
+// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+func (s *UserServiceImpl) buildFullPhotoURLs(paths []string) []string {
+	if len(paths) == 0 {
+		return []string{}
+	}
+	result := make([]string, len(paths))
+	for i, path := range paths {
+		if path == "" {
+			result[i] = ""
+		} else {
+			result[i] = s.storage.GetPublicURLFromPath(path)
+		}
+	}
+	return result
+}
+
+// ConfirmPhotos подтверждает загрузку фото для пользователя и обновляет PhotoUrls
+func (s *UserServiceImpl) ConfirmPhotos(ctx context.Context, userID string, paths []string) error {
+	// Получить пользователя
+	u, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperrors.ErrUserNotFound
+		}
+		return apperrors.Internal(err, "failed to get user")
+	}
+
+	// Обновить PhotoUrls: добавить новые пути к существующим
+	u.PhotoUrls = append(u.PhotoUrls, paths...)
+
+	// Сохранить обновленного пользователя
+	if _, err := s.userRepo.Update(ctx, u); err != nil {
+		return apperrors.Internal(err, "failed to update user photos")
+	}
+
+	return nil
 }

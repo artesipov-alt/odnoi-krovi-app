@@ -33,6 +33,9 @@ type PetService interface {
 
 	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
 	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
+
+	// ConfirmPhotos подтверждает загрузку фото для питомца и обновляет PhotoUrls
+	ConfirmPhotos(ctx context.Context, petID string, paths []string) error
 }
 
 // PetServiceImpl реализует PetService
@@ -372,4 +375,26 @@ func (s *PetServiceImpl) buildFullPhotoURLs(paths []string) []string {
 		}
 	}
 	return result
+}
+
+// ConfirmPhotos подтверждает загрузку фото для питомца и обновляет PhotoUrls
+func (s *PetServiceImpl) ConfirmPhotos(ctx context.Context, petID string, paths []string) error {
+	// Получить питомца
+	p, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperrors.ErrPetNotFound
+		}
+		return apperrors.Internal(err, "failed to get pet")
+	}
+
+	// Обновить PhotoUrls: добавить новые пути к существующим
+	p.PhotoUrls = append(p.PhotoUrls, paths...)
+
+	// Сохранить обновленного питомца
+	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
+		return apperrors.Internal(err, "failed to update pet photos")
+	}
+
+	return nil
 }

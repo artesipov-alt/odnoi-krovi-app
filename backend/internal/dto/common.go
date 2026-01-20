@@ -37,8 +37,13 @@ type UploadURLResponse struct {
 	}
 }
 
+type ConfirmUploadRequest struct {
+	EntityID string   `json:"entityId" doc:"ID сущности (питомец/пользователь/заявка)" example:"PET-aBcDeF1234"`
+	Paths    []string `json:"paths" doc:"Массив путей к загруженным фото" example:"pets/PET-aBcDeF1234/photos/1.jpg"`
+}
+
 type ConfirmUploadResponse struct {
 	Body struct {
-		PublicURL string `json:"publicUrl"`
+		Message string `json:"message" doc:"Сообщение об успехе"`
 	}
 }

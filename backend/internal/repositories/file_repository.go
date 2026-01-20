@@ -10,6 +10,7 @@ type FileStorage interface {
 	GetAvatarPublicURL(id string) string
 	GetPublicURLFromPath(path string) string
 	SetObjectPublicACL(ctx context.Context, objectPath string) error
+	ConfirmUploads(ctx context.Context, paths []string) error
 }
 
 // UploadInfo содержит информацию для загрузки файла: подписанную ссылку и путь в S3

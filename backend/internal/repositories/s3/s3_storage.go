@@ -261,6 +261,27 @@ func (s *S3Storage) SetObjectPublicACL(ctx context.Context, objectPath string) e
 	return err
 }
 
+// ConfirmUploads подтверждает загрузку массива файлов: проверяет существование и устанавливает публичный ACL
+func (s *S3Storage) ConfirmUploads(ctx context.Context, paths []string) error {
+	for _, path := range paths {
+		// Проверить существование файла
+		exists, err := s.CheckObjectExists(ctx, path)
+		if err != nil {
+			return fmt.Errorf("failed to check existence of %s: %w", path, err)
+		}
+		if !exists {
+			return fmt.Errorf("file %s does not exist", path)
+		}
+
+		// Установить публичный ACL
+		err = s.SetObjectPublicACL(ctx, path)
+		if err != nil {
+			return fmt.Errorf("failed to set public ACL for %s: %w", path, err)
+		}
+	}
+	return nil
+}
+
 // GetPublicURLFromPath возвращает публичный URL для объекта по пути
 func (s *S3Storage) GetPublicURLFromPath(path string) string {
 	protocol := "https"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
@@ -37,18 +38,18 @@ func (h *FileHandler) Register(api huma.API) {
 		Path:        "/v1/uploads/presign/{id}",
 		Summary:     "Получить ссылку для загрузки фотографии",
 		Description: "Возвращает временную ссылку для загрузки фотографии по ID",
-		Tags:        []string{"pets-v1", "users-v1"},
+		Tags:        []string{"pets-v1", "users-v1", "blood-request-v1"},
 	}, h.GetPresignURL)
 
-	// Подтверждение загрузки аватарки питомца
-	// huma.Register(api, huma.Operation{
-	// 	OperationID: "confirm-upload",
-	// 	Method:      http.MethodPost,
-	// 	Path:        "/v1/uploads/confirm/{path}",
-	// 	Summary:     "Подтверждение загрузки фото",
-	// 	Description: "Подтверждает загрузку фотографии, делает её публичной и возвращает публичную ссылку",
-	// 	Tags:        []string{"pets-v1", "users-v1"},
-	// }, h.ConfirmUpload)
+	// Подтверждение загрузки фото
+	huma.Register(api, huma.Operation{
+		OperationID: "confirm-upload",
+		Method:      http.MethodPost,
+		Path:        "/v1/uploads/confirm",
+		Summary:     "Подтверждение загрузки фото",
+		Description: "Подтверждает загрузку массива фотографий, делает их публичными и обновляет сущность",
+		Tags:        []string{"pets-v1", "users-v1", "blood-request-v1"},
+	}, h.ConfirmUpload)
 }
 
 func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
@@ -103,15 +104,47 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 	}, nil
 }
 
-func (h *FileHandler) ConfirmUpload(ctx context.Context, input *[]dto.PathParam) (*[]dto.ConfirmUploadResponse, error) {
-	publicURL, err := h.petService.UpdatePetAvatar(ctx, input.Path)
-	if err != nil {
-		// This error is likely a server-side issue if the path was valid but the update failed.
-		slog.ErrorContext(ctx, "failed to confirm pet avatar upload", "path", input.Path, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+// getEntityType определяет тип сущности по префиксу ID
+func getEntityType(id string) string {
+	switch {
+	case strings.HasPrefix(id, "USR"):
+		return "user"
+	case strings.HasPrefix(id, "PET"):
+		return "pet"
+	case strings.HasPrefix(id, "BLS"):
+		return "blood_req"
+	default:
+		return ""
+	}
+}
+
+func (h *FileHandler) ConfirmUpload(ctx context.Context, input *struct {
+	Body dto.ConfirmUploadRequest
+}) (*dto.MessageResponse, error) {
+	entityType := getEntityType(input.Body.EntityID)
+	if entityType == "" {
+		return nil, huma.Error400BadRequest("Неверный ID сущности")
 	}
 
-	return &dto.ConfirmUploadResponse{Body: struct {
-		PublicURL string `json:"publicUrl"`
-	}{PublicURL: publicURL}}, nil
+	var preload string
+	switch entityType {
+	case "pet":
+		preload = "pet_avatar"
+	case "user":
+		preload = "user_avatar"
+	case "blood_req":
+		preload = "blood_req"
+	}
+
+	err := h.fileService.ConfirmUploads(ctx, input.Body.EntityID, input.Body.Paths, preload)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to confirm uploads", "entity_id", input.Body.EntityID, "type", entityType, "error", err.Error())
+		return nil, err
+	}
+
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
+			Message: "Фото успешно подтверждены и добавлены",
+		},
+	}, nil
 }
