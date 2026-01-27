@@ -12,6 +12,7 @@ export * from './Pet';
 export * from './PetAnalysis';
 export * from './PetAnalysisGroup';
 export * from './PetBonus';
+export * from './PetCreate';
 export * from './PetHealth';
 export * from './PetTreatment';
 export * from './PetUpdate';

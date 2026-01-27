@@ -34,10 +34,6 @@ const (
 	FieldBloodGroup = "blood_group"
 	// FieldGender holds the string denoting the gender field in the database.
 	FieldGender = "gender"
-	// FieldAgeYears holds the string denoting the age_years field in the database.
-	FieldAgeYears = "age_years"
-	// FieldAgeMonths holds the string denoting the age_months field in the database.
-	FieldAgeMonths = "age_months"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
 	FieldBirthDate = "birth_date"
 	// FieldChipNumber holds the string denoting the chip_number field in the database.
@@ -135,8 +131,6 @@ var Columns = []string{
 	FieldWeightKg,
 	FieldBloodGroup,
 	FieldGender,
-	FieldAgeYears,
-	FieldAgeMonths,
 	FieldBirthDate,
 	FieldChipNumber,
 	FieldPhotoUrls,
@@ -324,16 +318,6 @@ func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
 // ByGender orders the results by the gender field.
 func ByGender(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGender, opts...).ToFunc()
-}
-
-// ByAgeYears orders the results by the age_years field.
-func ByAgeYears(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAgeYears, opts...).ToFunc()
-}
-
-// ByAgeMonths orders the results by the age_months field.
-func ByAgeMonths(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAgeMonths, opts...).ToFunc()
 }
 
 // ByBirthDate orders the results by the birth_date field.

@@ -3029,10 +3029,6 @@ type PetMutation struct {
 	addweight_kg                *float64
 	blood_group                 *string
 	gender                      *pet.Gender
-	age_years                   *int
-	addage_years                *int
-	age_months                  *int
-	addage_months               *int
 	birth_date                  *time.Time
 	chip_number                 *string
 	photo_urls                  *[]string
@@ -3558,146 +3554,6 @@ func (m *PetMutation) GenderCleared() bool {
 func (m *PetMutation) ResetGender() {
 	m.gender = nil
 	delete(m.clearedFields, pet.FieldGender)
-}
-
-// SetAgeYears sets the "age_years" field.
-func (m *PetMutation) SetAgeYears(i int) {
-	m.age_years = &i
-	m.addage_years = nil
-}
-
-// AgeYears returns the value of the "age_years" field in the mutation.
-func (m *PetMutation) AgeYears() (r int, exists bool) {
-	v := m.age_years
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAgeYears returns the old "age_years" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldAgeYears(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAgeYears is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAgeYears requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAgeYears: %w", err)
-	}
-	return oldValue.AgeYears, nil
-}
-
-// AddAgeYears adds i to the "age_years" field.
-func (m *PetMutation) AddAgeYears(i int) {
-	if m.addage_years != nil {
-		*m.addage_years += i
-	} else {
-		m.addage_years = &i
-	}
-}
-
-// AddedAgeYears returns the value that was added to the "age_years" field in this mutation.
-func (m *PetMutation) AddedAgeYears() (r int, exists bool) {
-	v := m.addage_years
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearAgeYears clears the value of the "age_years" field.
-func (m *PetMutation) ClearAgeYears() {
-	m.age_years = nil
-	m.addage_years = nil
-	m.clearedFields[pet.FieldAgeYears] = struct{}{}
-}
-
-// AgeYearsCleared returns if the "age_years" field was cleared in this mutation.
-func (m *PetMutation) AgeYearsCleared() bool {
-	_, ok := m.clearedFields[pet.FieldAgeYears]
-	return ok
-}
-
-// ResetAgeYears resets all changes to the "age_years" field.
-func (m *PetMutation) ResetAgeYears() {
-	m.age_years = nil
-	m.addage_years = nil
-	delete(m.clearedFields, pet.FieldAgeYears)
-}
-
-// SetAgeMonths sets the "age_months" field.
-func (m *PetMutation) SetAgeMonths(i int) {
-	m.age_months = &i
-	m.addage_months = nil
-}
-
-// AgeMonths returns the value of the "age_months" field in the mutation.
-func (m *PetMutation) AgeMonths() (r int, exists bool) {
-	v := m.age_months
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAgeMonths returns the old "age_months" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldAgeMonths(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAgeMonths is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAgeMonths requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAgeMonths: %w", err)
-	}
-	return oldValue.AgeMonths, nil
-}
-
-// AddAgeMonths adds i to the "age_months" field.
-func (m *PetMutation) AddAgeMonths(i int) {
-	if m.addage_months != nil {
-		*m.addage_months += i
-	} else {
-		m.addage_months = &i
-	}
-}
-
-// AddedAgeMonths returns the value that was added to the "age_months" field in this mutation.
-func (m *PetMutation) AddedAgeMonths() (r int, exists bool) {
-	v := m.addage_months
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearAgeMonths clears the value of the "age_months" field.
-func (m *PetMutation) ClearAgeMonths() {
-	m.age_months = nil
-	m.addage_months = nil
-	m.clearedFields[pet.FieldAgeMonths] = struct{}{}
-}
-
-// AgeMonthsCleared returns if the "age_months" field was cleared in this mutation.
-func (m *PetMutation) AgeMonthsCleared() bool {
-	_, ok := m.clearedFields[pet.FieldAgeMonths]
-	return ok
-}
-
-// ResetAgeMonths resets all changes to the "age_months" field.
-func (m *PetMutation) ResetAgeMonths() {
-	m.age_months = nil
-	m.addage_months = nil
-	delete(m.clearedFields, pet.FieldAgeMonths)
 }
 
 // SetBirthDate sets the "birth_date" field.
@@ -4471,7 +4327,7 @@ func (m *PetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, pet.FieldCreatedAt)
 	}
@@ -4498,12 +4354,6 @@ func (m *PetMutation) Fields() []string {
 	}
 	if m.gender != nil {
 		fields = append(fields, pet.FieldGender)
-	}
-	if m.age_years != nil {
-		fields = append(fields, pet.FieldAgeYears)
-	}
-	if m.age_months != nil {
-		fields = append(fields, pet.FieldAgeMonths)
 	}
 	if m.birth_date != nil {
 		fields = append(fields, pet.FieldBirthDate)
@@ -4558,10 +4408,6 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.BloodGroup()
 	case pet.FieldGender:
 		return m.Gender()
-	case pet.FieldAgeYears:
-		return m.AgeYears()
-	case pet.FieldAgeMonths:
-		return m.AgeMonths()
 	case pet.FieldBirthDate:
 		return m.BirthDate()
 	case pet.FieldChipNumber:
@@ -4607,10 +4453,6 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldBloodGroup(ctx)
 	case pet.FieldGender:
 		return m.OldGender(ctx)
-	case pet.FieldAgeYears:
-		return m.OldAgeYears(ctx)
-	case pet.FieldAgeMonths:
-		return m.OldAgeMonths(ctx)
 	case pet.FieldBirthDate:
 		return m.OldBirthDate(ctx)
 	case pet.FieldChipNumber:
@@ -4701,20 +4543,6 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetGender(v)
 		return nil
-	case pet.FieldAgeYears:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAgeYears(v)
-		return nil
-	case pet.FieldAgeMonths:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAgeMonths(v)
-		return nil
 	case pet.FieldBirthDate:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -4789,12 +4617,6 @@ func (m *PetMutation) AddedFields() []string {
 	if m.addweight_kg != nil {
 		fields = append(fields, pet.FieldWeightKg)
 	}
-	if m.addage_years != nil {
-		fields = append(fields, pet.FieldAgeYears)
-	}
-	if m.addage_months != nil {
-		fields = append(fields, pet.FieldAgeMonths)
-	}
 	return fields
 }
 
@@ -4805,10 +4627,6 @@ func (m *PetMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case pet.FieldWeightKg:
 		return m.AddedWeightKg()
-	case pet.FieldAgeYears:
-		return m.AddedAgeYears()
-	case pet.FieldAgeMonths:
-		return m.AddedAgeMonths()
 	}
 	return nil, false
 }
@@ -4824,20 +4642,6 @@ func (m *PetMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddWeightKg(v)
-		return nil
-	case pet.FieldAgeYears:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddAgeYears(v)
-		return nil
-	case pet.FieldAgeMonths:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddAgeMonths(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Pet numeric field %s", name)
@@ -4858,12 +4662,6 @@ func (m *PetMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(pet.FieldGender) {
 		fields = append(fields, pet.FieldGender)
-	}
-	if m.FieldCleared(pet.FieldAgeYears) {
-		fields = append(fields, pet.FieldAgeYears)
-	}
-	if m.FieldCleared(pet.FieldAgeMonths) {
-		fields = append(fields, pet.FieldAgeMonths)
 	}
 	if m.FieldCleared(pet.FieldBirthDate) {
 		fields = append(fields, pet.FieldBirthDate)
@@ -4917,12 +4715,6 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldGender:
 		m.ClearGender()
-		return nil
-	case pet.FieldAgeYears:
-		m.ClearAgeYears()
-		return nil
-	case pet.FieldAgeMonths:
-		m.ClearAgeMonths()
 		return nil
 	case pet.FieldBirthDate:
 		m.ClearBirthDate()
@@ -4985,12 +4777,6 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldGender:
 		m.ResetGender()
-		return nil
-	case pet.FieldAgeYears:
-		m.ResetAgeYears()
-		return nil
-	case pet.FieldAgeMonths:
-		m.ResetAgeMonths()
 		return nil
 	case pet.FieldBirthDate:
 		m.ResetBirthDate()

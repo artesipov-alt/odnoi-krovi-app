@@ -35,10 +35,6 @@ func (Pet) Fields() []ent.Field {
 			Optional().StructTag(`json:"bloodGroup"`),
 		field.Enum("gender").
 			Values("male", "female").Optional().StructTag(`json:"gender"`),
-		field.Int("age_years").
-			Optional().StructTag(`json:"ageYears"`),
-		field.Int("age_months").
-			Optional().StructTag(`json:"ageMonths"`),
 		field.Time("birth_date").
 			Optional().Nillable().StructTag(`json:"birthDate"`),
 		field.String("chip_number").

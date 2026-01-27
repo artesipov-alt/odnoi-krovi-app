@@ -74,9 +74,6 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 	// Устанавливаем UserID
 	petData.UserID = userID
 
-	// Вычисляем возраст или дату рождения
-	s.calculateAgeFields(&petData.AgeYears, &petData.AgeMonths, &petData.BirthDate)
-
 	// Валидируем тип животного
 	if err := pet.TypeValidator(petData.Type); err != nil {
 		return nil, apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
@@ -207,12 +204,6 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	if val, ok := updates["WeightKg"]; ok {
 		p.WeightKg = val.(float64)
 	}
-	if val, ok := updates["AgeYears"]; ok {
-		p.AgeYears = val.(int)
-	}
-	if val, ok := updates["AgeMonths"]; ok {
-		p.AgeMonths = val.(int)
-	}
 	if val, ok := updates["BirthDate"]; ok {
 		p.BirthDate = val.(*time.Time)
 	}
@@ -247,9 +238,6 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 		}
 		p.PetStatus = pet.PetStatus(ps)
 	}
-
-	// Вычисляем возраст или дату рождения при обновлении
-	s.calculateAgeFields(&p.AgeYears, &p.AgeMonths, &p.BirthDate)
 
 	// Валидируем вложенные структуры
 	if health != nil {
@@ -368,23 +356,26 @@ func (s *PetServiceImpl) ConfirmPhotos(ctx context.Context, petID string, paths 
 func (s *PetServiceImpl) calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
 	now := time.Now()
 	if *birthDate != nil && **birthDate != (time.Time{}) {
-		// Вычисляем возраст из даты рождения
-		birth := **birthDate
-		years := now.Year() - birth.Year()
-		months := int(now.Month()) - int(birth.Month())
-		if now.Day() < birth.Day() {
-			months--
+		if *ageYears == 0 && *ageMonths == 0 {
+			// Вычисляем возраст из даты рождения только если возраст не предоставлен
+			birth := **birthDate
+			years := now.Year() - birth.Year()
+			months := int(now.Month()) - int(birth.Month())
+			if now.Day() < birth.Day() {
+				months--
+			}
+			if months < 0 {
+				years--
+				months += 12
+			}
+			if ageYears != nil {
+				*ageYears = years
+			}
+			if ageMonths != nil {
+				*ageMonths = months
+			}
 		}
-		if months < 0 {
-			years--
-			months += 12
-		}
-		if ageYears != nil {
-			*ageYears = years
-		}
-		if ageMonths != nil {
-			*ageMonths = months
-		}
+		// Если возраст уже предоставлен, оставляем как есть
 	} else if ageYears != nil && ageMonths != nil && (*ageYears > 0 || *ageMonths > 0) {
 		// Вычисляем дату рождения из возраста
 		*birthDate = new(time.Time)

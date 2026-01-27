@@ -71,8 +71,8 @@ type PetUpdate struct {
 }
 
 // Pet представляет ответ с информацией о питомце
-type Pet struct {
-	ID              string            `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
+// PetCreate представляет структуру для создания нового питомца
+type PetCreate struct {
 	Name            string            `json:"name" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber      string            `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
 	PhotoURLs       []string          `json:"photoUrls,omitempty" doc:"URLs фотографий питомца" example:"https://example.com/photo.jpg"`
@@ -80,6 +80,25 @@ type Pet struct {
 	WeightKg        float64           `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
 	AgeYears        int               `json:"ageYears,omitempty" doc:"Возраст в годах" example:"3"`
 	AgeMonths       int               `json:"ageMonths,omitempty" doc:"Возраст в месяцах" example:"6"`
+	BirthDate       *time.Time        `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
+	LivingCondition string            `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
+	Gender          string            `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`
+	Type            string            `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
+	BloodGroup      string            `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	PetStatus       string            `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
+	Health          *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
+	Treatments      *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
+	Analyses        *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
+	Bonuses         *PetBonus         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+}
+
+type Pet struct {
+	ID              string            `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
+	Name            string            `json:"name" doc:"Имя питомца" example:"Шарик"`
+	ChipNumber      string            `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
+	PhotoURLs       []string          `json:"photoUrls,omitempty" doc:"URLs фотографий питомца" example:"https://example.com/photo.jpg"`
+	BreedID         int               `json:"breedId,omitempty" doc:"ID породы" example:"1"`
+	WeightKg        float64           `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
 	BirthDate       *time.Time        `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
 	LivingCondition string            `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
 	Gender          string            `json:"gender,omitempty" doc:"Пол питомца" enum:"male,female" example:"male"`

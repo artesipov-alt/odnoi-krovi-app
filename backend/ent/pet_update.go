@@ -171,60 +171,6 @@ func (_u *PetUpdate) ClearGender() *PetUpdate {
 	return _u
 }
 
-// SetAgeYears sets the "age_years" field.
-func (_u *PetUpdate) SetAgeYears(v int) *PetUpdate {
-	_u.mutation.ResetAgeYears()
-	_u.mutation.SetAgeYears(v)
-	return _u
-}
-
-// SetNillableAgeYears sets the "age_years" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableAgeYears(v *int) *PetUpdate {
-	if v != nil {
-		_u.SetAgeYears(*v)
-	}
-	return _u
-}
-
-// AddAgeYears adds value to the "age_years" field.
-func (_u *PetUpdate) AddAgeYears(v int) *PetUpdate {
-	_u.mutation.AddAgeYears(v)
-	return _u
-}
-
-// ClearAgeYears clears the value of the "age_years" field.
-func (_u *PetUpdate) ClearAgeYears() *PetUpdate {
-	_u.mutation.ClearAgeYears()
-	return _u
-}
-
-// SetAgeMonths sets the "age_months" field.
-func (_u *PetUpdate) SetAgeMonths(v int) *PetUpdate {
-	_u.mutation.ResetAgeMonths()
-	_u.mutation.SetAgeMonths(v)
-	return _u
-}
-
-// SetNillableAgeMonths sets the "age_months" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableAgeMonths(v *int) *PetUpdate {
-	if v != nil {
-		_u.SetAgeMonths(*v)
-	}
-	return _u
-}
-
-// AddAgeMonths adds value to the "age_months" field.
-func (_u *PetUpdate) AddAgeMonths(v int) *PetUpdate {
-	_u.mutation.AddAgeMonths(v)
-	return _u
-}
-
-// ClearAgeMonths clears the value of the "age_months" field.
-func (_u *PetUpdate) ClearAgeMonths() *PetUpdate {
-	_u.mutation.ClearAgeMonths()
-	return _u
-}
-
 // SetBirthDate sets the "birth_date" field.
 func (_u *PetUpdate) SetBirthDate(v time.Time) *PetUpdate {
 	_u.mutation.SetBirthDate(v)
@@ -702,24 +648,6 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.GenderCleared() {
 		_spec.ClearField(pet.FieldGender, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.AgeYears(); ok {
-		_spec.SetField(pet.FieldAgeYears, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedAgeYears(); ok {
-		_spec.AddField(pet.FieldAgeYears, field.TypeInt, value)
-	}
-	if _u.mutation.AgeYearsCleared() {
-		_spec.ClearField(pet.FieldAgeYears, field.TypeInt)
-	}
-	if value, ok := _u.mutation.AgeMonths(); ok {
-		_spec.SetField(pet.FieldAgeMonths, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedAgeMonths(); ok {
-		_spec.AddField(pet.FieldAgeMonths, field.TypeInt, value)
-	}
-	if _u.mutation.AgeMonthsCleared() {
-		_spec.ClearField(pet.FieldAgeMonths, field.TypeInt)
-	}
 	if value, ok := _u.mutation.BirthDate(); ok {
 		_spec.SetField(pet.FieldBirthDate, field.TypeTime, value)
 	}
@@ -1120,60 +1048,6 @@ func (_u *PetUpdateOne) SetNillableGender(v *pet.Gender) *PetUpdateOne {
 // ClearGender clears the value of the "gender" field.
 func (_u *PetUpdateOne) ClearGender() *PetUpdateOne {
 	_u.mutation.ClearGender()
-	return _u
-}
-
-// SetAgeYears sets the "age_years" field.
-func (_u *PetUpdateOne) SetAgeYears(v int) *PetUpdateOne {
-	_u.mutation.ResetAgeYears()
-	_u.mutation.SetAgeYears(v)
-	return _u
-}
-
-// SetNillableAgeYears sets the "age_years" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableAgeYears(v *int) *PetUpdateOne {
-	if v != nil {
-		_u.SetAgeYears(*v)
-	}
-	return _u
-}
-
-// AddAgeYears adds value to the "age_years" field.
-func (_u *PetUpdateOne) AddAgeYears(v int) *PetUpdateOne {
-	_u.mutation.AddAgeYears(v)
-	return _u
-}
-
-// ClearAgeYears clears the value of the "age_years" field.
-func (_u *PetUpdateOne) ClearAgeYears() *PetUpdateOne {
-	_u.mutation.ClearAgeYears()
-	return _u
-}
-
-// SetAgeMonths sets the "age_months" field.
-func (_u *PetUpdateOne) SetAgeMonths(v int) *PetUpdateOne {
-	_u.mutation.ResetAgeMonths()
-	_u.mutation.SetAgeMonths(v)
-	return _u
-}
-
-// SetNillableAgeMonths sets the "age_months" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableAgeMonths(v *int) *PetUpdateOne {
-	if v != nil {
-		_u.SetAgeMonths(*v)
-	}
-	return _u
-}
-
-// AddAgeMonths adds value to the "age_months" field.
-func (_u *PetUpdateOne) AddAgeMonths(v int) *PetUpdateOne {
-	_u.mutation.AddAgeMonths(v)
-	return _u
-}
-
-// ClearAgeMonths clears the value of the "age_months" field.
-func (_u *PetUpdateOne) ClearAgeMonths() *PetUpdateOne {
-	_u.mutation.ClearAgeMonths()
 	return _u
 }
 
@@ -1683,24 +1557,6 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.GenderCleared() {
 		_spec.ClearField(pet.FieldGender, field.TypeEnum)
-	}
-	if value, ok := _u.mutation.AgeYears(); ok {
-		_spec.SetField(pet.FieldAgeYears, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedAgeYears(); ok {
-		_spec.AddField(pet.FieldAgeYears, field.TypeInt, value)
-	}
-	if _u.mutation.AgeYearsCleared() {
-		_spec.ClearField(pet.FieldAgeYears, field.TypeInt)
-	}
-	if value, ok := _u.mutation.AgeMonths(); ok {
-		_spec.SetField(pet.FieldAgeMonths, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedAgeMonths(); ok {
-		_spec.AddField(pet.FieldAgeMonths, field.TypeInt, value)
-	}
-	if _u.mutation.AgeMonthsCleared() {
-		_spec.ClearField(pet.FieldAgeMonths, field.TypeInt)
 	}
 	if value, ok := _u.mutation.BirthDate(); ok {
 		_spec.SetField(pet.FieldBirthDate, field.TypeTime, value)

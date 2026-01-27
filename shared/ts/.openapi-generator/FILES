@@ -17,6 +17,7 @@ models/Pet.ts
 models/PetAnalysis.ts
 models/PetAnalysisGroup.ts
 models/PetBonus.ts
+models/PetCreate.ts
 models/PetHealth.ts
 models/PetTreatment.ts
 models/PetUpdate.ts

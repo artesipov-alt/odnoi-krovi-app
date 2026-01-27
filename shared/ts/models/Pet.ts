@@ -55,18 +55,6 @@ export interface Pet {
      */
     readonly $schema?: string;
     /**
-     * Возраст в месяцах
-     * @type {number}
-     * @memberof Pet
-     */
-    ageMonths?: number;
-    /**
-     * Возраст в годах
-     * @type {number}
-     * @memberof Pet
-     */
-    ageYears?: number;
-    /**
      * Группированные анализы
      * @type {PetAnalysisGroup}
      * @memberof Pet
@@ -255,8 +243,6 @@ export function PetFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pet {
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'ageMonths': json['ageMonths'] == null ? undefined : json['ageMonths'],
-        'ageYears': json['ageYears'] == null ? undefined : json['ageYears'],
         'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'birthDate': json['birthDate'] == null ? undefined : (new Date(json['birthDate'])),
         'bloodGroup': json['bloodGroup'] == null ? undefined : json['bloodGroup'],
@@ -290,8 +276,6 @@ export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'createdAt'|'deletedA
 
     return {
         
-        'ageMonths': value['ageMonths'],
-        'ageYears': value['ageYears'],
         'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),
         'bloodGroup': value['bloodGroup'],

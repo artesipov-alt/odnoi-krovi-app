@@ -95,16 +95,6 @@ func BloodGroup(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBloodGroup, v))
 }
 
-// AgeYears applies equality check predicate on the "age_years" field. It's identical to AgeYearsEQ.
-func AgeYears(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldAgeYears, v))
-}
-
-// AgeMonths applies equality check predicate on the "age_months" field. It's identical to AgeMonthsEQ.
-func AgeMonths(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldAgeMonths, v))
-}
-
 // BirthDate applies equality check predicate on the "birth_date" field. It's identical to BirthDateEQ.
 func BirthDate(v time.Time) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBirthDate, v))
@@ -528,106 +518,6 @@ func GenderIsNil() predicate.Pet {
 // GenderNotNil applies the NotNil predicate on the "gender" field.
 func GenderNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldGender))
-}
-
-// AgeYearsEQ applies the EQ predicate on the "age_years" field.
-func AgeYearsEQ(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldAgeYears, v))
-}
-
-// AgeYearsNEQ applies the NEQ predicate on the "age_years" field.
-func AgeYearsNEQ(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldNEQ(FieldAgeYears, v))
-}
-
-// AgeYearsIn applies the In predicate on the "age_years" field.
-func AgeYearsIn(vs ...int) predicate.Pet {
-	return predicate.Pet(sql.FieldIn(FieldAgeYears, vs...))
-}
-
-// AgeYearsNotIn applies the NotIn predicate on the "age_years" field.
-func AgeYearsNotIn(vs ...int) predicate.Pet {
-	return predicate.Pet(sql.FieldNotIn(FieldAgeYears, vs...))
-}
-
-// AgeYearsGT applies the GT predicate on the "age_years" field.
-func AgeYearsGT(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldGT(FieldAgeYears, v))
-}
-
-// AgeYearsGTE applies the GTE predicate on the "age_years" field.
-func AgeYearsGTE(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldGTE(FieldAgeYears, v))
-}
-
-// AgeYearsLT applies the LT predicate on the "age_years" field.
-func AgeYearsLT(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldLT(FieldAgeYears, v))
-}
-
-// AgeYearsLTE applies the LTE predicate on the "age_years" field.
-func AgeYearsLTE(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldLTE(FieldAgeYears, v))
-}
-
-// AgeYearsIsNil applies the IsNil predicate on the "age_years" field.
-func AgeYearsIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldAgeYears))
-}
-
-// AgeYearsNotNil applies the NotNil predicate on the "age_years" field.
-func AgeYearsNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldAgeYears))
-}
-
-// AgeMonthsEQ applies the EQ predicate on the "age_months" field.
-func AgeMonthsEQ(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldAgeMonths, v))
-}
-
-// AgeMonthsNEQ applies the NEQ predicate on the "age_months" field.
-func AgeMonthsNEQ(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldNEQ(FieldAgeMonths, v))
-}
-
-// AgeMonthsIn applies the In predicate on the "age_months" field.
-func AgeMonthsIn(vs ...int) predicate.Pet {
-	return predicate.Pet(sql.FieldIn(FieldAgeMonths, vs...))
-}
-
-// AgeMonthsNotIn applies the NotIn predicate on the "age_months" field.
-func AgeMonthsNotIn(vs ...int) predicate.Pet {
-	return predicate.Pet(sql.FieldNotIn(FieldAgeMonths, vs...))
-}
-
-// AgeMonthsGT applies the GT predicate on the "age_months" field.
-func AgeMonthsGT(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldGT(FieldAgeMonths, v))
-}
-
-// AgeMonthsGTE applies the GTE predicate on the "age_months" field.
-func AgeMonthsGTE(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldGTE(FieldAgeMonths, v))
-}
-
-// AgeMonthsLT applies the LT predicate on the "age_months" field.
-func AgeMonthsLT(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldLT(FieldAgeMonths, v))
-}
-
-// AgeMonthsLTE applies the LTE predicate on the "age_months" field.
-func AgeMonthsLTE(v int) predicate.Pet {
-	return predicate.Pet(sql.FieldLTE(FieldAgeMonths, v))
-}
-
-// AgeMonthsIsNil applies the IsNil predicate on the "age_months" field.
-func AgeMonthsIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldAgeMonths))
-}
-
-// AgeMonthsNotNil applies the NotNil predicate on the "age_months" field.
-func AgeMonthsNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldAgeMonths))
 }
 
 // BirthDateEQ applies the EQ predicate on the "birth_date" field.

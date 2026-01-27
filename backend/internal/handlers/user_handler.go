@@ -292,8 +292,6 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 				PhotoURLs:       pet.PhotoUrls,
 				BreedID:         pet.BreedID,
 				WeightKg:        pet.WeightKg,
-				AgeYears:        pet.AgeYears,
-				AgeMonths:       pet.AgeMonths,
 				BirthDate:       pet.BirthDate,
 				LivingCondition: pet.LivingCondition.String(),
 				Gender:          pet.Gender.String(),

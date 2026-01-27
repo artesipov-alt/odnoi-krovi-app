@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -87,7 +88,7 @@ func (h *PetHandler) Register(api huma.API) {
 
 func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
-	Body dto.Pet
+	Body dto.PetCreate
 }) (*dto.PetResponse, error) {
 	petData := h.toCreateENT(input.Body)
 
@@ -204,7 +205,7 @@ func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
 }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
-func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.Pet
+func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 	petDTO := dto.Pet{
 		ID:              p.ID,
 		Name:            p.Name,
@@ -212,8 +213,6 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.P
 		PhotoURLs:       p.PhotoUrls,
 		BreedID:         p.BreedID,
 		WeightKg:        p.WeightKg,
-		AgeYears:        p.AgeYears,
-		AgeMonths:       p.AgeMonths,
 		BirthDate:       p.BirthDate,
 		LivingCondition: string(p.LivingCondition),
 		Gender:          string(p.Gender),
@@ -290,15 +289,18 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet { // Changed return type to dto.P
 }
 
 // mapDTOToPet преобразует DTO создания питомца в ENT модель
-func (h *PetHandler) toCreateENT(d dto.Pet) *ent.Pet {
+func (h *PetHandler) toCreateENT(d dto.PetCreate) *ent.Pet {
+	if d.BirthDate == nil && (d.AgeYears > 0 || d.AgeMonths > 0) {
+		birthDate := time.Now().AddDate(-d.AgeYears, -d.AgeMonths, 0)
+		birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+		d.BirthDate = &birthDate
+	}
 	p := &ent.Pet{
 		Name:            d.Name,
 		ChipNumber:      d.ChipNumber,
 		PhotoUrls:       d.PhotoURLs,
 		BreedID:         d.BreedID,
 		WeightKg:        d.WeightKg,
-		AgeYears:        d.AgeYears,
-		AgeMonths:       d.AgeMonths,
 		BirthDate:       d.BirthDate,
 		LivingCondition: pet.LivingCondition(d.LivingCondition),
 		Gender:          pet.Gender(d.Gender),
@@ -394,14 +396,22 @@ func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealt
 	if d.WeightKg != nil {
 		updates["WeightKg"] = *d.WeightKg
 	}
-	if d.AgeYears != nil {
-		updates["AgeYears"] = *d.AgeYears
-	}
-	if d.AgeMonths != nil {
-		updates["AgeMonths"] = *d.AgeMonths
-	}
 	if d.BirthDate != nil {
 		updates["BirthDate"] = d.BirthDate
+	} else if d.AgeYears != nil || d.AgeMonths != nil {
+		ageYears := 0
+		if d.AgeYears != nil {
+			ageYears = *d.AgeYears
+		}
+		ageMonths := 0
+		if d.AgeMonths != nil {
+			ageMonths = *d.AgeMonths
+		}
+		if ageYears > 0 || ageMonths > 0 {
+			birthDate := time.Now().AddDate(-ageYears, -ageMonths, 0)
+			birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+			updates["BirthDate"] = &birthDate
+		}
 	}
 	if d.LivingCondition != nil {
 		updates["LivingCondition"] = *d.LivingCondition

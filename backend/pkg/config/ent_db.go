@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/migrate"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
 
@@ -93,6 +94,7 @@ func RunMigrations(client *ent.Client) error {
 	// Опция WithDiffSchema(true) заставляет Ent учитывать схемы при сравнении текущего состояния БД и схемы Ent.
 	if err := client.Schema.Create(ctx,
 		schemaent.WithForeignKeys(true),
+		migrate.WithDropColumn(true),
 	); err != nil {
 		return fmt.Errorf("failed creating schema resources: %w", err)
 	}

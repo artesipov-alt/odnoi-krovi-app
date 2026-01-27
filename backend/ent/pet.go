@@ -42,10 +42,6 @@ type Pet struct {
 	BloodGroup string `json:"bloodGroup"`
 	// Gender holds the value of the "gender" field.
 	Gender pet.Gender `json:"gender"`
-	// AgeYears holds the value of the "age_years" field.
-	AgeYears int `json:"ageYears"`
-	// AgeMonths holds the value of the "age_months" field.
-	AgeMonths int `json:"ageMonths"`
 	// BirthDate holds the value of the "birth_date" field.
 	BirthDate *time.Time `json:"birthDate"`
 	// ChipNumber holds the value of the "chip_number" field.
@@ -175,7 +171,7 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
-		case pet.FieldAgeYears, pet.FieldAgeMonths, pet.FieldBreedID:
+		case pet.FieldBreedID:
 			values[i] = new(sql.NullInt64)
 		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition:
 			values[i] = new(sql.NullString)
@@ -256,18 +252,6 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field gender", values[i])
 			} else if value.Valid {
 				_m.Gender = pet.Gender(value.String)
-			}
-		case pet.FieldAgeYears:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field age_years", values[i])
-			} else if value.Valid {
-				_m.AgeYears = int(value.Int64)
-			}
-		case pet.FieldAgeMonths:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field age_months", values[i])
-			} else if value.Valid {
-				_m.AgeMonths = int(value.Int64)
 			}
 		case pet.FieldBirthDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -425,12 +409,6 @@ func (_m *Pet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("gender=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Gender))
-	builder.WriteString(", ")
-	builder.WriteString("age_years=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AgeYears))
-	builder.WriteString(", ")
-	builder.WriteString("age_months=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AgeMonths))
 	builder.WriteString(", ")
 	if v := _m.BirthDate; v != nil {
 		builder.WriteString("birth_date=")

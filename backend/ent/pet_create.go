@@ -129,34 +129,6 @@ func (_c *PetCreate) SetNillableGender(v *pet.Gender) *PetCreate {
 	return _c
 }
 
-// SetAgeYears sets the "age_years" field.
-func (_c *PetCreate) SetAgeYears(v int) *PetCreate {
-	_c.mutation.SetAgeYears(v)
-	return _c
-}
-
-// SetNillableAgeYears sets the "age_years" field if the given value is not nil.
-func (_c *PetCreate) SetNillableAgeYears(v *int) *PetCreate {
-	if v != nil {
-		_c.SetAgeYears(*v)
-	}
-	return _c
-}
-
-// SetAgeMonths sets the "age_months" field.
-func (_c *PetCreate) SetAgeMonths(v int) *PetCreate {
-	_c.mutation.SetAgeMonths(v)
-	return _c
-}
-
-// SetNillableAgeMonths sets the "age_months" field if the given value is not nil.
-func (_c *PetCreate) SetNillableAgeMonths(v *int) *PetCreate {
-	if v != nil {
-		_c.SetAgeMonths(*v)
-	}
-	return _c
-}
-
 // SetBirthDate sets the "birth_date" field.
 func (_c *PetCreate) SetBirthDate(v time.Time) *PetCreate {
 	_c.mutation.SetBirthDate(v)
@@ -570,14 +542,6 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Gender(); ok {
 		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
 		_node.Gender = value
-	}
-	if value, ok := _c.mutation.AgeYears(); ok {
-		_spec.SetField(pet.FieldAgeYears, field.TypeInt, value)
-		_node.AgeYears = value
-	}
-	if value, ok := _c.mutation.AgeMonths(); ok {
-		_spec.SetField(pet.FieldAgeMonths, field.TypeInt, value)
-		_node.AgeMonths = value
 	}
 	if value, ok := _c.mutation.BirthDate(); ok {
 		_spec.SetField(pet.FieldBirthDate, field.TypeTime, value)

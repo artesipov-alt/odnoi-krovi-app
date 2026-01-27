@@ -19,6 +19,7 @@ import type {
   ConfirmUploadRequest,
   MessageBody,
   Pet,
+  PetCreate,
   PetUpdate,
   UploadURLResponseBody,
 } from '../models/index';
@@ -31,6 +32,8 @@ import {
     MessageBodyToJSON,
     PetFromJSON,
     PetToJSON,
+    PetCreateFromJSON,
+    PetCreateToJSON,
     PetUpdateFromJSON,
     PetUpdateToJSON,
     UploadURLResponseBodyFromJSON,
@@ -43,7 +46,7 @@ export interface ConfirmUploadOperationRequest {
 
 export interface CreatePetRequest {
     userId: string;
-    pet: Omit<Pet, '$schema'|'createdAt'|'deletedAt'|'id'|'updatedAt'>;
+    petCreate: Omit<PetCreate, '$schema'>;
 }
 
 export interface DeletePetRequest {
@@ -139,10 +142,10 @@ export class PetsV1Api extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['pet'] == null) {
+        if (requestParameters['petCreate'] == null) {
             throw new runtime.RequiredError(
-                'pet',
-                'Required parameter "pet" was null or undefined when calling createPet().'
+                'petCreate',
+                'Required parameter "petCreate" was null or undefined when calling createPet().'
             );
         }
 
@@ -161,7 +164,7 @@ export class PetsV1Api extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PetToJSON(requestParameters['pet']),
+            body: PetCreateToJSON(requestParameters['petCreate']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PetFromJSON(jsonValue));
