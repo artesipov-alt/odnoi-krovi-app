@@ -36,6 +36,12 @@ type PetService interface {
 
 	// ConfirmPhotos подтверждает загрузку фото для питомца и обновляет PhotoUrls
 	ConfirmPhotos(ctx context.Context, petID string, paths []string) error
+
+	// calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
+	calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time)
+
+	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	buildFullPhotoURLs(paths []string) []string
 }
 
 // PetServiceImpl реализует PetService
@@ -67,6 +73,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 
 	// Устанавливаем UserID
 	petData.UserID = userID
+
+	// Вычисляем возраст или дату рождения
+	s.calculateAgeFields(&petData.AgeYears, &petData.AgeMonths, &petData.BirthDate)
 
 	// Валидируем тип животного
 	if err := pet.TypeValidator(petData.Type); err != nil {
@@ -240,7 +249,7 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	}
 
 	// Вычисляем возраст или дату рождения при обновлении
-	calculateAgeFields(&p.AgeYears, &p.AgeMonths, &p.BirthDate)
+	s.calculateAgeFields(&p.AgeYears, &p.AgeMonths, &p.BirthDate)
 
 	// Валидируем вложенные структуры
 	if health != nil {
@@ -331,10 +340,32 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 	return publicURL, nil
 }
 
+// ConfirmPhotos подтверждает загрузку фото для питомца и обновляет PhotoUrls
+func (s *PetServiceImpl) ConfirmPhotos(ctx context.Context, petID string, paths []string) error {
+	// Получить питомца
+	p, err := s.petRepo.GetByID(ctx, petID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperrors.ErrPetNotFound
+		}
+		return apperrors.Internal(err, "failed to get pet")
+	}
+
+	// Обновить PhotoUrls: добавить новые пути к существующим
+	p.PhotoUrls = append(p.PhotoUrls, paths...)
+
+	// Сохранить обновленного питомца
+	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
+		return apperrors.Internal(err, "failed to update pet photos")
+	}
+
+	return nil
+}
+
 //===================HELPERS===============================================
 
 // calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
-func calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
+func (s *PetServiceImpl) calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
 	now := time.Now()
 	if *birthDate != nil && **birthDate != (time.Time{}) {
 		// Вычисляем возраст из даты рождения
@@ -375,26 +406,4 @@ func (s *PetServiceImpl) buildFullPhotoURLs(paths []string) []string {
 		}
 	}
 	return result
-}
-
-// ConfirmPhotos подтверждает загрузку фото для питомца и обновляет PhotoUrls
-func (s *PetServiceImpl) ConfirmPhotos(ctx context.Context, petID string, paths []string) error {
-	// Получить питомца
-	p, err := s.petRepo.GetByID(ctx, petID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrPetNotFound
-		}
-		return apperrors.Internal(err, "failed to get pet")
-	}
-
-	// Обновить PhotoUrls: добавить новые пути к существующим
-	p.PhotoUrls = append(p.PhotoUrls, paths...)
-
-	// Сохранить обновленного питомца
-	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
-		return apperrors.Internal(err, "failed to update pet photos")
-	}
-
-	return nil
 }

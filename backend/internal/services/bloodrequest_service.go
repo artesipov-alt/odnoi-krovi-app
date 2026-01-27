@@ -37,6 +37,9 @@ type BloodSearchService interface {
 
 	// ConfirmPhotos подтверждает загрузку фото для заявки и обновляет PhotoUrls
 	ConfirmPhotos(ctx context.Context, requestID string, paths []string) error
+
+	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	buildFullPhotoURLs(paths []string) []string
 }
 
 // BloodSearchServiceImpl реализует BloodSearchService
@@ -186,22 +189,6 @@ func (s *BloodSearchServiceImpl) ExistsByID(ctx context.Context, id string) (boo
 	return s.repo.ExistsByID(ctx, id)
 }
 
-// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *BloodSearchServiceImpl) buildFullPhotoURLs(paths []string) []string {
-	if len(paths) == 0 {
-		return []string{}
-	}
-	result := make([]string, len(paths))
-	for i, path := range paths {
-		if path == "" {
-			result[i] = ""
-		} else {
-			result[i] = s.storage.GetPublicURLFromPath(path)
-		}
-	}
-	return result
-}
-
 // ConfirmPhotos подтверждает загрузку фото для заявки и обновляет PhotoUrls
 func (s *BloodSearchServiceImpl) ConfirmPhotos(ctx context.Context, requestID string, paths []string) error {
 	// Получить заявку
@@ -222,4 +209,20 @@ func (s *BloodSearchServiceImpl) ConfirmPhotos(ctx context.Context, requestID st
 	}
 
 	return nil
+}
+
+// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+func (s *BloodSearchServiceImpl) buildFullPhotoURLs(paths []string) []string {
+	if len(paths) == 0 {
+		return []string{}
+	}
+	result := make([]string, len(paths))
+	for i, path := range paths {
+		if path == "" {
+			result[i] = ""
+		} else {
+			result[i] = s.storage.GetPublicURLFromPath(path)
+		}
+	}
+	return result
 }

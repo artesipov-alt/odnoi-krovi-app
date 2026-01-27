@@ -135,7 +135,7 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return r.GetByID(ctx, newPet.ID, "Health", "Treatments", "Analysis", "Bonuses")
+	return r.GetByID(ctx, newPet.ID, "Health", "Treatments", "Analyses", "Bonuses")
 }
 
 // GetByID retrieves a pet by their ID with related entities based on preloads
@@ -355,7 +355,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return r.GetByID(ctx, p.ID, "Health", "Treatments", "Analysis", "Bonuses")
+	return r.GetByID(ctx, p.ID, "Health", "Treatments", "Analyses", "Bonuses")
 }
 
 // Delete deletes a pet by their ID (soft delete)

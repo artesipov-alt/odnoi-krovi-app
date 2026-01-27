@@ -40,6 +40,9 @@ type UserService interface {
 
 	// ConfirmPhotos подтверждает загрузку фото для пользователя и обновляет PhotoUrls
 	ConfirmPhotos(ctx context.Context, userID string, paths []string) error
+
+	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	buildFullPhotoURLs(paths []string) []string
 }
 
 // UserServiceImpl реализует UserService
@@ -239,22 +242,6 @@ func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, err
 	return users, nil
 }
 
-// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *UserServiceImpl) buildFullPhotoURLs(paths []string) []string {
-	if len(paths) == 0 {
-		return []string{}
-	}
-	result := make([]string, len(paths))
-	for i, path := range paths {
-		if path == "" {
-			result[i] = ""
-		} else {
-			result[i] = s.storage.GetPublicURLFromPath(path)
-		}
-	}
-	return result
-}
-
 // ConfirmPhotos подтверждает загрузку фото для пользователя и обновляет PhotoUrls
 func (s *UserServiceImpl) ConfirmPhotos(ctx context.Context, userID string, paths []string) error {
 	// Получить пользователя
@@ -275,4 +262,20 @@ func (s *UserServiceImpl) ConfirmPhotos(ctx context.Context, userID string, path
 	}
 
 	return nil
+}
+
+// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+func (s *UserServiceImpl) buildFullPhotoURLs(paths []string) []string {
+	if len(paths) == 0 {
+		return []string{}
+	}
+	result := make([]string, len(paths))
+	for i, path := range paths {
+		if path == "" {
+			result[i] = ""
+		} else {
+			result[i] = s.storage.GetPublicURLFromPath(path)
+		}
+	}
+	return result
 }
