@@ -37,9 +37,6 @@ type PetService interface {
 	// ConfirmPhotos подтверждает загрузку фото для питомца и обновляет PhotoUrls
 	ConfirmPhotos(ctx context.Context, petID string, paths []string) error
 
-	// calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
-	calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time)
-
 	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
 	buildFullPhotoURLs(paths []string) []string
 }
@@ -351,37 +348,6 @@ func (s *PetServiceImpl) ConfirmPhotos(ctx context.Context, petID string, paths 
 }
 
 //===================HELPERS===============================================
-
-// calculateAgeFields вычисляет возраст из даты рождения или дату из возраста
-func (s *PetServiceImpl) calculateAgeFields(ageYears, ageMonths *int, birthDate **time.Time) {
-	now := time.Now()
-	if *birthDate != nil && **birthDate != (time.Time{}) {
-		if *ageYears == 0 && *ageMonths == 0 {
-			// Вычисляем возраст из даты рождения только если возраст не предоставлен
-			birth := **birthDate
-			years := now.Year() - birth.Year()
-			months := int(now.Month()) - int(birth.Month())
-			if now.Day() < birth.Day() {
-				months--
-			}
-			if months < 0 {
-				years--
-				months += 12
-			}
-			if ageYears != nil {
-				*ageYears = years
-			}
-			if ageMonths != nil {
-				*ageMonths = months
-			}
-		}
-		// Если возраст уже предоставлен, оставляем как есть
-	} else if ageYears != nil && ageMonths != nil && (*ageYears > 0 || *ageMonths > 0) {
-		// Вычисляем дату рождения из возраста
-		*birthDate = new(time.Time)
-		**birthDate = now.AddDate(-*ageYears, -*ageMonths, 0)
-	}
-}
 
 // buildFullPhotoURLs преобразует пути к фото в полные публичные URL
 func (s *PetServiceImpl) buildFullPhotoURLs(paths []string) []string {
