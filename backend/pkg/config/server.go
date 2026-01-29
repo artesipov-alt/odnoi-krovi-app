@@ -33,11 +33,11 @@ func (s *MyServer) Use(middlewares ...func(http.Handler) http.Handler) {
 
 // NewHumaConfig создает и возвращает конфигурацию Huma API на основе README.md
 func NewHumaConfig(miniappDomain string) huma.Config {
-	config := huma.DefaultConfig("Одной Крови API", "2.1.2")
+	config := huma.DefaultConfig("Одной Крови API", "2.1.3")
 
 	config.Info = &huma.Info{
 		Title:       "Одной Крови API",
-		Version:     "2.1.2", // Или динамически брать из переменной окружения/сборки
+		Version:     "2.1.3", // Или динамически брать из переменной окружения/сборки
 		Description: "### Описание платформы\n**Одной Крови** — это Telegram Mini App, который помогает находить донорскую кровь для животных и позволяет владельцам питомцев становиться донорами вместе со своими любимцами.\n\n* **Поиск доноров**: Быстрый поиск доноров крови для животных в экстренных ситуациях.\n* **Регистрация доноров**: Возможность регистрации питомцев как потенциальных доноров.\n* **Геолокация**: Определение ближайших доноров через Telegram Web App.\n* **Уведомления**: Система оповещений через Telegram Bot API.\n* **Интеграция с Telegram**: Удобное общение между пользователями через Telegram.",
 		Contact: &huma.Contact{
 			Name:  "Команда Одной Крови",
@@ -51,20 +51,19 @@ func NewHumaConfig(miniappDomain string) huma.Config {
 	}
 
 	config.ExternalDocs = &huma.ExternalDocs{
-		Description: "Дорожная карта проекта",
-		URL:         "https://github.com/artesipov-alt/odnoi-krovi-app/blob/main/ROADMAP.md",
+		Description: "Журнал изменений",
+		URL:         "https://github.com/artesipov-alt/odnoi-krovi-app/blob/dev/backend/CHANGELOG.md",
 	}
 
 	// Добавляем серверы, включая локальный и MiniApp домен
 	config.Servers = []*huma.Server{
-		{URL: "http://localhost:3001/api", Description: "Локальная разработка API"},
-	}
-
-	if miniappDomain != "" {
-		config.Servers = append(config.Servers, &huma.Server{
+		{
 			URL:         "https://1krovi.app/api",
 			Description: "Production API для Telegram Mini App",
-		})
+		},
+		{
+			URL:         "http://localhost:3001/api",
+			Description: "Локальная разработка API"},
 	}
 
 	// Явно указываем пути для OpenAPI спецификации и UI документации
