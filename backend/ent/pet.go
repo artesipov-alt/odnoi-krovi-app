@@ -60,6 +60,8 @@ type Pet struct {
 	BonusID string `json:"bonusId"`
 	// LivingCondition holds the value of the "living_condition" field.
 	LivingCondition pet.LivingCondition `json:"livingCondition"`
+	// ReproductiveStatus holds the value of the "reproductive_status" field.
+	ReproductiveStatus pet.ReproductiveStatus `json:"reproductiveStatus"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
 	Edges        PetEdges `json:"edges"`
@@ -173,7 +175,7 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case pet.FieldBreedID:
 			values[i] = new(sql.NullInt64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition, pet.FieldReproductiveStatus:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
@@ -310,6 +312,12 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.LivingCondition = pet.LivingCondition(value.String)
 			}
+		case pet.FieldReproductiveStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field reproductive_status", values[i])
+			} else if value.Valid {
+				_m.ReproductiveStatus = pet.ReproductiveStatus(value.String)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -438,6 +446,9 @@ func (_m *Pet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("living_condition=")
 	builder.WriteString(fmt.Sprintf("%v", _m.LivingCondition))
+	builder.WriteString(", ")
+	builder.WriteString("reproductive_status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ReproductiveStatus))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -55,26 +55,6 @@ func (_u *PetHealthUpdate) ClearDeletedAt() *PetHealthUpdate {
 	return _u
 }
 
-// SetReproductiveStatus sets the "reproductive_status" field.
-func (_u *PetHealthUpdate) SetReproductiveStatus(v pethealth.ReproductiveStatus) *PetHealthUpdate {
-	_u.mutation.SetReproductiveStatus(v)
-	return _u
-}
-
-// SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
-func (_u *PetHealthUpdate) SetNillableReproductiveStatus(v *pethealth.ReproductiveStatus) *PetHealthUpdate {
-	if v != nil {
-		_u.SetReproductiveStatus(*v)
-	}
-	return _u
-}
-
-// ClearReproductiveStatus clears the value of the "reproductive_status" field.
-func (_u *PetHealthUpdate) ClearReproductiveStatus() *PetHealthUpdate {
-	_u.mutation.ClearReproductiveStatus()
-	return _u
-}
-
 // SetHealthStatus sets the "health_status" field.
 func (_u *PetHealthUpdate) SetHealthStatus(v pethealth.HealthStatus) *PetHealthUpdate {
 	_u.mutation.SetHealthStatus(v)
@@ -235,11 +215,6 @@ func (_u *PetHealthUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PetHealthUpdate) check() error {
-	if v, ok := _u.mutation.ReproductiveStatus(); ok {
-		if err := pethealth.ReproductiveStatusValidator(v); err != nil {
-			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.reproductive_status": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.HealthStatus(); ok {
 		if err := pethealth.HealthStatusValidator(v); err != nil {
 			return &ValidationError{Name: "health_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.health_status": %w`, err)}
@@ -271,12 +246,6 @@ func (_u *PetHealthUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(pethealth.FieldDeletedAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.ReproductiveStatus(); ok {
-		_spec.SetField(pethealth.FieldReproductiveStatus, field.TypeEnum, value)
-	}
-	if _u.mutation.ReproductiveStatusCleared() {
-		_spec.ClearField(pethealth.FieldReproductiveStatus, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.HealthStatus(); ok {
 		_spec.SetField(pethealth.FieldHealthStatus, field.TypeEnum, value)
@@ -380,26 +349,6 @@ func (_u *PetHealthUpdateOne) SetNillableDeletedAt(v *time.Time) *PetHealthUpdat
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (_u *PetHealthUpdateOne) ClearDeletedAt() *PetHealthUpdateOne {
 	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
-// SetReproductiveStatus sets the "reproductive_status" field.
-func (_u *PetHealthUpdateOne) SetReproductiveStatus(v pethealth.ReproductiveStatus) *PetHealthUpdateOne {
-	_u.mutation.SetReproductiveStatus(v)
-	return _u
-}
-
-// SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
-func (_u *PetHealthUpdateOne) SetNillableReproductiveStatus(v *pethealth.ReproductiveStatus) *PetHealthUpdateOne {
-	if v != nil {
-		_u.SetReproductiveStatus(*v)
-	}
-	return _u
-}
-
-// ClearReproductiveStatus clears the value of the "reproductive_status" field.
-func (_u *PetHealthUpdateOne) ClearReproductiveStatus() *PetHealthUpdateOne {
-	_u.mutation.ClearReproductiveStatus()
 	return _u
 }
 
@@ -576,11 +525,6 @@ func (_u *PetHealthUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PetHealthUpdateOne) check() error {
-	if v, ok := _u.mutation.ReproductiveStatus(); ok {
-		if err := pethealth.ReproductiveStatusValidator(v); err != nil {
-			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.reproductive_status": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.HealthStatus(); ok {
 		if err := pethealth.HealthStatusValidator(v); err != nil {
 			return &ValidationError{Name: "health_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.health_status": %w`, err)}
@@ -629,12 +573,6 @@ func (_u *PetHealthUpdateOne) sqlSave(ctx context.Context) (_node *PetHealth, er
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(pethealth.FieldDeletedAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.ReproductiveStatus(); ok {
-		_spec.SetField(pethealth.FieldReproductiveStatus, field.TypeEnum, value)
-	}
-	if _u.mutation.ReproductiveStatusCleared() {
-		_spec.ClearField(pethealth.FieldReproductiveStatus, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.HealthStatus(); ok {
 		_spec.SetField(pethealth.FieldHealthStatus, field.TypeEnum, value)

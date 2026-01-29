@@ -24,8 +24,6 @@ type PetHealth struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
-	// ReproductiveStatus holds the value of the "reproductive_status" field.
-	ReproductiveStatus pethealth.ReproductiveStatus `json:"reproductiveStatus"`
 	// HealthStatus holds the value of the "health_status" field.
 	HealthStatus pethealth.HealthStatus `json:"healthStatus"`
 	// LastDonation holds the value of the "last_donation" field.
@@ -69,7 +67,7 @@ func (*PetHealth) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case pethealth.FieldTransfused:
 			values[i] = new(sql.NullBool)
-		case pethealth.FieldID, pethealth.FieldReproductiveStatus, pethealth.FieldHealthStatus, pethealth.FieldMedications, pethealth.FieldSurgicalInterventions:
+		case pethealth.FieldID, pethealth.FieldHealthStatus, pethealth.FieldMedications, pethealth.FieldSurgicalInterventions:
 			values[i] = new(sql.NullString)
 		case pethealth.FieldCreatedAt, pethealth.FieldUpdatedAt, pethealth.FieldDeletedAt, pethealth.FieldLastDonation:
 			values[i] = new(sql.NullTime)
@@ -112,12 +110,6 @@ func (_m *PetHealth) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
-			}
-		case pethealth.FieldReproductiveStatus:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field reproductive_status", values[i])
-			} else if value.Valid {
-				_m.ReproductiveStatus = pethealth.ReproductiveStatus(value.String)
 			}
 		case pethealth.FieldHealthStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -201,9 +193,6 @@ func (_m *PetHealth) String() string {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
-	builder.WriteString(", ")
-	builder.WriteString("reproductive_status=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ReproductiveStatus))
 	builder.WriteString(", ")
 	builder.WriteString("health_status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.HealthStatus))

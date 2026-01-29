@@ -59,6 +59,7 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		SetPhotoUrls(p.PhotoUrls).
 		SetNillableBreedID(nillable(p.BreedID)).
 		SetNillableUserID(nillable(p.UserID)).
+		SetNillableReproductiveStatus(nillable(p.ReproductiveStatus)).
 		SetNillableLivingCondition(nillable(p.LivingCondition))
 
 	newPet, err := petCreate.Save(ctx)
@@ -71,7 +72,6 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 	if health != nil {
 		_, err = tx.PetHealth.Create().
 			SetOwner(newPet).
-			SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
 			SetNillableHealthStatus(nillable(health.HealthStatus)).
 			SetNillableLastDonation(health.LastDonation).
 			SetTransfused(health.Transfused).
@@ -232,6 +232,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		SetPhotoUrls(p.PhotoUrls).
 		SetNillableBreedID(nillable(p.BreedID)).
 		SetNillableUserID(nillable(p.UserID)).
+		SetNillableReproductiveStatus(nillable(p.ReproductiveStatus)).
 		SetNillableLivingCondition(nillable(p.LivingCondition)).
 		Exec(ctx)
 
@@ -249,7 +250,6 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		}
 		if existingHealth != nil {
 			err = tx.PetHealth.UpdateOne(existingHealth).
-				SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
 				SetNillableHealthStatus(nillable(health.HealthStatus)).
 				SetNillableLastDonation(health.LastDonation).
 				SetTransfused(health.Transfused).
@@ -259,7 +259,6 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		} else {
 			_, err = tx.PetHealth.Create().
 				SetOwnerID(p.ID).
-				SetNillableReproductiveStatus(nillable(health.ReproductiveStatus)).
 				SetNillableHealthStatus(nillable(health.HealthStatus)).
 				SetNillableLastDonation(health.LastDonation).
 				SetTransfused(health.Transfused).

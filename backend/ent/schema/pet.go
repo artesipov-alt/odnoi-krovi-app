@@ -53,6 +53,8 @@ func (Pet) Fields() []ent.Field {
 			Optional().StructTag(`json:"bonusId"`),
 		field.Enum("living_condition").
 			Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
+		field.Enum("reproductive_status").
+			Values("pregnancy", "lactation", "estrus").Optional().StructTag(`json:"reproductiveStatus"`),
 	}
 }
 
@@ -99,7 +101,6 @@ func (PetHealth) Mixin() []ent.Mixin {
 // Fields of the PetHealth.
 func (PetHealth) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("reproductive_status").Values("pregnancy", "lactation", "estrus").Optional().StructTag(`json:"reproductiveStatus"`),
 		field.Enum("health_status").Values("healthy", "ill", "unknown").Optional().StructTag(`json:"healthStatus"`),
 		field.Time("last_donation").Optional().Nillable().StructTag(`json:"lastDonation"`),
 		field.Bool("transfused").Optional().StructTag(`json:"transfused"`),

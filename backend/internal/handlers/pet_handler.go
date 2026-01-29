@@ -207,29 +207,28 @@ func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
 func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 	petDTO := dto.Pet{
-		ID:              p.ID,
-		Name:            p.Name,
-		ChipNumber:      p.ChipNumber,
-		PhotoURLs:       p.PhotoUrls,
-		BreedID:         p.BreedID,
-		WeightKg:        p.WeightKg,
-		BirthDate:       p.BirthDate,
-		LivingCondition: string(p.LivingCondition),
-		Gender:          string(p.Gender),
-		Type:            string(p.Type),
-		BloodGroup:      p.BloodGroup,
-		PetStatus:       string(p.PetStatus),
-		CreatedAt:       &p.CreatedAt,
-		UpdatedAt:       &p.UpdatedAt,
-		DeletedAt:       p.DeletedAt,
+		ID:                 p.ID,
+		Name:               p.Name,
+		ChipNumber:         p.ChipNumber,
+		PhotoURLs:          p.PhotoUrls,
+		BreedID:            p.BreedID,
+		WeightKg:           p.WeightKg,
+		BirthDate:          p.BirthDate,
+		LivingCondition:    string(p.LivingCondition),
+		Gender:             string(p.Gender),
+		Type:               string(p.Type),
+		BloodGroup:         p.BloodGroup,
+		ReproductiveStatus: string(p.ReproductiveStatus),
+		PetStatus:          string(p.PetStatus),
+		CreatedAt:          &p.CreatedAt,
+		UpdatedAt:          &p.UpdatedAt,
+		DeletedAt:          p.DeletedAt,
 	}
 	if p.Edges.Health != nil {
-		reproStatus := string(p.Edges.Health.ReproductiveStatus)
 		healthStatus := string(p.Edges.Health.HealthStatus)
 		medications := p.Edges.Health.Medications
 		surgical := p.Edges.Health.SurgicalInterventions
 		petDTO.Health = &dto.PetHealth{
-			ReproductiveStatus:    &reproStatus,
 			HealthStatus:          &healthStatus,
 			LastDonation:          p.Edges.Health.LastDonation,
 			Transfused:            &p.Edges.Health.Transfused,
@@ -296,25 +295,23 @@ func (h *PetHandler) toCreateENT(d dto.PetCreate) *ent.Pet {
 		d.BirthDate = &birthDate
 	}
 	p := &ent.Pet{
-		Name:            d.Name,
-		ChipNumber:      d.ChipNumber,
-		PhotoUrls:       d.PhotoURLs,
-		BreedID:         d.BreedID,
-		WeightKg:        d.WeightKg,
-		BirthDate:       d.BirthDate,
-		LivingCondition: pet.LivingCondition(d.LivingCondition),
-		Gender:          pet.Gender(d.Gender),
-		Type:            pet.Type(d.Type),
-		BloodGroup:      d.BloodGroup,
-		PetStatus:       pet.PetStatus(d.PetStatus),
+		Name:               d.Name,
+		ChipNumber:         d.ChipNumber,
+		PhotoUrls:          d.PhotoURLs,
+		BreedID:            d.BreedID,
+		WeightKg:           d.WeightKg,
+		BirthDate:          d.BirthDate,
+		LivingCondition:    pet.LivingCondition(d.LivingCondition),
+		Gender:             pet.Gender(d.Gender),
+		Type:               pet.Type(d.Type),
+		BloodGroup:         d.BloodGroup,
+		ReproductiveStatus: pet.ReproductiveStatus(d.ReproductiveStatus),
+		PetStatus:          pet.PetStatus(d.PetStatus),
 	}
 
 	if d.Health != nil {
 		p.Edges.Health = &ent.PetHealth{
 			LastDonation: d.Health.LastDonation,
-		}
-		if d.Health.ReproductiveStatus != nil {
-			p.Edges.Health.ReproductiveStatus = pethealth.ReproductiveStatus(*d.Health.ReproductiveStatus)
 		}
 		if d.Health.HealthStatus != nil {
 			p.Edges.Health.HealthStatus = pethealth.HealthStatus(*d.Health.HealthStatus)
@@ -425,6 +422,9 @@ func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealt
 	if d.BloodGroup != nil {
 		updates["BloodGroup"] = *d.BloodGroup
 	}
+	if d.ReproductiveStatus != nil {
+		updates["ReproductiveStatus"] = *d.ReproductiveStatus
+	}
 	if d.PetStatus != nil {
 		updates["PetStatus"] = *d.PetStatus
 	}
@@ -433,9 +433,6 @@ func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealt
 	if d.Health != nil {
 		health = &ent.PetHealth{
 			LastDonation: d.Health.LastDonation,
-		}
-		if d.Health.ReproductiveStatus != nil {
-			health.ReproductiveStatus = pethealth.ReproductiveStatus(*d.Health.ReproductiveStatus)
 		}
 		if d.Health.HealthStatus != nil {
 			health.HealthStatus = pethealth.HealthStatus(*d.Health.HealthStatus)

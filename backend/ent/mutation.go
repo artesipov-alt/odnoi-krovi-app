@@ -3034,6 +3034,7 @@ type PetMutation struct {
 	photo_urls                  *[]string
 	appendphoto_urls            []string
 	living_condition            *pet.LivingCondition
+	reproductive_status         *pet.ReproductiveStatus
 	clearedFields               map[string]struct{}
 	owner                       *string
 	clearedowner                bool
@@ -4013,6 +4014,55 @@ func (m *PetMutation) ResetLivingCondition() {
 	delete(m.clearedFields, pet.FieldLivingCondition)
 }
 
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (m *PetMutation) SetReproductiveStatus(ps pet.ReproductiveStatus) {
+	m.reproductive_status = &ps
+}
+
+// ReproductiveStatus returns the value of the "reproductive_status" field in the mutation.
+func (m *PetMutation) ReproductiveStatus() (r pet.ReproductiveStatus, exists bool) {
+	v := m.reproductive_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReproductiveStatus returns the old "reproductive_status" field's value of the Pet entity.
+// If the Pet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetMutation) OldReproductiveStatus(ctx context.Context) (v pet.ReproductiveStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReproductiveStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReproductiveStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReproductiveStatus: %w", err)
+	}
+	return oldValue.ReproductiveStatus, nil
+}
+
+// ClearReproductiveStatus clears the value of the "reproductive_status" field.
+func (m *PetMutation) ClearReproductiveStatus() {
+	m.reproductive_status = nil
+	m.clearedFields[pet.FieldReproductiveStatus] = struct{}{}
+}
+
+// ReproductiveStatusCleared returns if the "reproductive_status" field was cleared in this mutation.
+func (m *PetMutation) ReproductiveStatusCleared() bool {
+	_, ok := m.clearedFields[pet.FieldReproductiveStatus]
+	return ok
+}
+
+// ResetReproductiveStatus resets all changes to the "reproductive_status" field.
+func (m *PetMutation) ResetReproductiveStatus() {
+	m.reproductive_status = nil
+	delete(m.clearedFields, pet.FieldReproductiveStatus)
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by id.
 func (m *PetMutation) SetOwnerID(id string) {
 	m.owner = &id
@@ -4327,7 +4377,7 @@ func (m *PetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 18)
+	fields := make([]string, 0, 19)
 	if m.created_at != nil {
 		fields = append(fields, pet.FieldCreatedAt)
 	}
@@ -4382,6 +4432,9 @@ func (m *PetMutation) Fields() []string {
 	if m.living_condition != nil {
 		fields = append(fields, pet.FieldLivingCondition)
 	}
+	if m.reproductive_status != nil {
+		fields = append(fields, pet.FieldReproductiveStatus)
+	}
 	return fields
 }
 
@@ -4426,6 +4479,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.BonusID()
 	case pet.FieldLivingCondition:
 		return m.LivingCondition()
+	case pet.FieldReproductiveStatus:
+		return m.ReproductiveStatus()
 	}
 	return nil, false
 }
@@ -4471,6 +4526,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldBonusID(ctx)
 	case pet.FieldLivingCondition:
 		return m.OldLivingCondition(ctx)
+	case pet.FieldReproductiveStatus:
+		return m.OldReproductiveStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
@@ -4606,6 +4663,13 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLivingCondition(v)
 		return nil
+	case pet.FieldReproductiveStatus:
+		v, ok := value.(pet.ReproductiveStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReproductiveStatus(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
@@ -4690,6 +4754,9 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldLivingCondition) {
 		fields = append(fields, pet.FieldLivingCondition)
 	}
+	if m.FieldCleared(pet.FieldReproductiveStatus) {
+		fields = append(fields, pet.FieldReproductiveStatus)
+	}
 	return fields
 }
 
@@ -4742,6 +4809,9 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldLivingCondition:
 		m.ClearLivingCondition()
+		return nil
+	case pet.FieldReproductiveStatus:
+		m.ClearReproductiveStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet nullable field %s", name)
@@ -4804,6 +4874,9 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldLivingCondition:
 		m.ResetLivingCondition()
+		return nil
+	case pet.FieldReproductiveStatus:
+		m.ResetReproductiveStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
@@ -6538,7 +6611,6 @@ type PetHealthMutation struct {
 	created_at             *time.Time
 	updated_at             *time.Time
 	deleted_at             *time.Time
-	reproductive_status    *pethealth.ReproductiveStatus
 	health_status          *pethealth.HealthStatus
 	last_donation          *time.Time
 	transfused             *bool
@@ -6775,55 +6847,6 @@ func (m *PetHealthMutation) DeletedAtCleared() bool {
 func (m *PetHealthMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	delete(m.clearedFields, pethealth.FieldDeletedAt)
-}
-
-// SetReproductiveStatus sets the "reproductive_status" field.
-func (m *PetHealthMutation) SetReproductiveStatus(ps pethealth.ReproductiveStatus) {
-	m.reproductive_status = &ps
-}
-
-// ReproductiveStatus returns the value of the "reproductive_status" field in the mutation.
-func (m *PetHealthMutation) ReproductiveStatus() (r pethealth.ReproductiveStatus, exists bool) {
-	v := m.reproductive_status
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldReproductiveStatus returns the old "reproductive_status" field's value of the PetHealth entity.
-// If the PetHealth object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetHealthMutation) OldReproductiveStatus(ctx context.Context) (v pethealth.ReproductiveStatus, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldReproductiveStatus is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldReproductiveStatus requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldReproductiveStatus: %w", err)
-	}
-	return oldValue.ReproductiveStatus, nil
-}
-
-// ClearReproductiveStatus clears the value of the "reproductive_status" field.
-func (m *PetHealthMutation) ClearReproductiveStatus() {
-	m.reproductive_status = nil
-	m.clearedFields[pethealth.FieldReproductiveStatus] = struct{}{}
-}
-
-// ReproductiveStatusCleared returns if the "reproductive_status" field was cleared in this mutation.
-func (m *PetHealthMutation) ReproductiveStatusCleared() bool {
-	_, ok := m.clearedFields[pethealth.FieldReproductiveStatus]
-	return ok
-}
-
-// ResetReproductiveStatus resets all changes to the "reproductive_status" field.
-func (m *PetHealthMutation) ResetReproductiveStatus() {
-	m.reproductive_status = nil
-	delete(m.clearedFields, pethealth.FieldReproductiveStatus)
 }
 
 // SetHealthStatus sets the "health_status" field.
@@ -7144,7 +7167,7 @@ func (m *PetHealthMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetHealthMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, pethealth.FieldCreatedAt)
 	}
@@ -7153,9 +7176,6 @@ func (m *PetHealthMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, pethealth.FieldDeletedAt)
-	}
-	if m.reproductive_status != nil {
-		fields = append(fields, pethealth.FieldReproductiveStatus)
 	}
 	if m.health_status != nil {
 		fields = append(fields, pethealth.FieldHealthStatus)
@@ -7186,8 +7206,6 @@ func (m *PetHealthMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case pethealth.FieldDeletedAt:
 		return m.DeletedAt()
-	case pethealth.FieldReproductiveStatus:
-		return m.ReproductiveStatus()
 	case pethealth.FieldHealthStatus:
 		return m.HealthStatus()
 	case pethealth.FieldLastDonation:
@@ -7213,8 +7231,6 @@ func (m *PetHealthMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldUpdatedAt(ctx)
 	case pethealth.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case pethealth.FieldReproductiveStatus:
-		return m.OldReproductiveStatus(ctx)
 	case pethealth.FieldHealthStatus:
 		return m.OldHealthStatus(ctx)
 	case pethealth.FieldLastDonation:
@@ -7254,13 +7270,6 @@ func (m *PetHealthMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
-		return nil
-	case pethealth.FieldReproductiveStatus:
-		v, ok := value.(pethealth.ReproductiveStatus)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetReproductiveStatus(v)
 		return nil
 	case pethealth.FieldHealthStatus:
 		v, ok := value.(pethealth.HealthStatus)
@@ -7330,9 +7339,6 @@ func (m *PetHealthMutation) ClearedFields() []string {
 	if m.FieldCleared(pethealth.FieldDeletedAt) {
 		fields = append(fields, pethealth.FieldDeletedAt)
 	}
-	if m.FieldCleared(pethealth.FieldReproductiveStatus) {
-		fields = append(fields, pethealth.FieldReproductiveStatus)
-	}
 	if m.FieldCleared(pethealth.FieldHealthStatus) {
 		fields = append(fields, pethealth.FieldHealthStatus)
 	}
@@ -7365,9 +7371,6 @@ func (m *PetHealthMutation) ClearField(name string) error {
 	case pethealth.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
-	case pethealth.FieldReproductiveStatus:
-		m.ClearReproductiveStatus()
-		return nil
 	case pethealth.FieldHealthStatus:
 		m.ClearHealthStatus()
 		return nil
@@ -7399,9 +7402,6 @@ func (m *PetHealthMutation) ResetField(name string) error {
 		return nil
 	case pethealth.FieldDeletedAt:
 		m.ResetDeletedAt()
-		return nil
-	case pethealth.FieldReproductiveStatus:
-		m.ResetReproductiveStatus()
 		return nil
 	case pethealth.FieldHealthStatus:
 		m.ResetHealthStatus()

@@ -349,6 +349,26 @@ func (_u *PetUpdate) ClearLivingCondition() *PetUpdate {
 	return _u
 }
 
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (_u *PetUpdate) SetReproductiveStatus(v pet.ReproductiveStatus) *PetUpdate {
+	_u.mutation.SetReproductiveStatus(v)
+	return _u
+}
+
+// SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *PetUpdate {
+	if v != nil {
+		_u.SetReproductiveStatus(*v)
+	}
+	return _u
+}
+
+// ClearReproductiveStatus clears the value of the "reproductive_status" field.
+func (_u *PetUpdate) ClearReproductiveStatus() *PetUpdate {
+	_u.mutation.ClearReproductiveStatus()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdate) SetOwnerID(id string) *PetUpdate {
 	_u.mutation.SetOwnerID(id)
@@ -594,6 +614,11 @@ func (_u *PetUpdate) check() error {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ReproductiveStatus(); ok {
+		if err := pet.ReproductiveStatusValidator(v); err != nil {
+			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "Pet.reproductive_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -676,6 +701,12 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.LivingConditionCleared() {
 		_spec.ClearField(pet.FieldLivingCondition, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.ReproductiveStatus(); ok {
+		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
+	}
+	if _u.mutation.ReproductiveStatusCleared() {
+		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeEnum)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1229,6 +1260,26 @@ func (_u *PetUpdateOne) ClearLivingCondition() *PetUpdateOne {
 	return _u
 }
 
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (_u *PetUpdateOne) SetReproductiveStatus(v pet.ReproductiveStatus) *PetUpdateOne {
+	_u.mutation.SetReproductiveStatus(v)
+	return _u
+}
+
+// SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *PetUpdateOne {
+	if v != nil {
+		_u.SetReproductiveStatus(*v)
+	}
+	return _u
+}
+
+// ClearReproductiveStatus clears the value of the "reproductive_status" field.
+func (_u *PetUpdateOne) ClearReproductiveStatus() *PetUpdateOne {
+	_u.mutation.ClearReproductiveStatus()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdateOne) SetOwnerID(id string) *PetUpdateOne {
 	_u.mutation.SetOwnerID(id)
@@ -1487,6 +1538,11 @@ func (_u *PetUpdateOne) check() error {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ReproductiveStatus(); ok {
+		if err := pet.ReproductiveStatusValidator(v); err != nil {
+			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "Pet.reproductive_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1586,6 +1642,12 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.LivingConditionCleared() {
 		_spec.ClearField(pet.FieldLivingCondition, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.ReproductiveStatus(); ok {
+		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
+	}
+	if _u.mutation.ReproductiveStatusCleared() {
+		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeEnum)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

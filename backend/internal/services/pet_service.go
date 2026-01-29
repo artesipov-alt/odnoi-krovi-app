@@ -95,6 +95,12 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 		}
 	}
 
+	if string(petData.ReproductiveStatus) != "" {
+		if err := pet.ReproductiveStatusValidator(petData.ReproductiveStatus); err != nil {
+			return nil, apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
+		}
+	}
+
 	// Валидируем вложенные структуры, если они есть
 	if petData.Edges.Health != nil {
 		if string(petData.Edges.Health.HealthStatus) != "" {
@@ -102,11 +108,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 				return nil, apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
 			}
 		}
-		if string(petData.Edges.Health.ReproductiveStatus) != "" {
-			if err := pethealth.ReproductiveStatusValidator(petData.Edges.Health.ReproductiveStatus); err != nil {
-				return nil, apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
-			}
-		}
+
 	}
 
 	if petData.Edges.Analyses != nil {
@@ -228,6 +230,13 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	if val, ok := updates["BloodGroup"]; ok {
 		p.BloodGroup = val.(string)
 	}
+	if val, ok := updates["ReproductiveStatus"]; ok {
+		rs := val.(string)
+		if err := pet.ReproductiveStatusValidator(pet.ReproductiveStatus(rs)); err != nil {
+			return apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
+		}
+		p.ReproductiveStatus = pet.ReproductiveStatus(rs)
+	}
 	if val, ok := updates["PetStatus"]; ok {
 		ps := val.(string)
 		if err := pet.PetStatusValidator(pet.PetStatus(ps)); err != nil {
@@ -241,11 +250,6 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 		if health.HealthStatus != "" {
 			if err := pethealth.HealthStatusValidator(health.HealthStatus); err != nil {
 				return apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
-			}
-		}
-		if health.ReproductiveStatus != "" {
-			if err := pethealth.ReproductiveStatusValidator(health.ReproductiveStatus); err != nil {
-				return apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
 			}
 		}
 	}

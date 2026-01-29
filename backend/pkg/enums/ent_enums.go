@@ -40,11 +40,11 @@ func GetAllEntHealthStatuses() []pethealth.HealthStatus {
 }
 
 // GetAllEntReproductiveStatuses возвращает все доступные репродуктивные состояния из ENT
-func GetAllEntReproductiveStatuses() []pethealth.ReproductiveStatus {
-	return []pethealth.ReproductiveStatus{
-		pethealth.ReproductiveStatusPregnancy,
-		pethealth.ReproductiveStatusLactation,
-		pethealth.ReproductiveStatusEstrus,
+func GetAllEntReproductiveStatuses() []pet.ReproductiveStatus {
+	return []pet.ReproductiveStatus{
+		pet.ReproductiveStatusPregnancy,
+		pet.ReproductiveStatusLactation,
+		pet.ReproductiveStatusEstrus,
 	}
 }
 
@@ -133,13 +133,13 @@ func LocalizeEntUserRole(r user.Role) string {
 }
 
 // LocalizeEntReproductiveStatus локализует физиологическое состояние из ENT
-func LocalizeEntReproductiveStatus(rs pethealth.ReproductiveStatus) string {
+func LocalizeEntReproductiveStatus(rs pet.ReproductiveStatus) string {
 	switch rs {
-	case pethealth.ReproductiveStatusPregnancy:
+	case pet.ReproductiveStatusPregnancy:
 		return "Беременность"
-	case pethealth.ReproductiveStatusLactation:
+	case pet.ReproductiveStatusLactation:
 		return "Лактация"
-	case pethealth.ReproductiveStatusEstrus:
+	case pet.ReproductiveStatusEstrus:
 		return "Течка"
 	default:
 		return string(rs)

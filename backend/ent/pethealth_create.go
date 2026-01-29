@@ -63,20 +63,6 @@ func (_c *PetHealthCreate) SetNillableDeletedAt(v *time.Time) *PetHealthCreate {
 	return _c
 }
 
-// SetReproductiveStatus sets the "reproductive_status" field.
-func (_c *PetHealthCreate) SetReproductiveStatus(v pethealth.ReproductiveStatus) *PetHealthCreate {
-	_c.mutation.SetReproductiveStatus(v)
-	return _c
-}
-
-// SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
-func (_c *PetHealthCreate) SetNillableReproductiveStatus(v *pethealth.ReproductiveStatus) *PetHealthCreate {
-	if v != nil {
-		_c.SetReproductiveStatus(*v)
-	}
-	return _c
-}
-
 // SetHealthStatus sets the "health_status" field.
 func (_c *PetHealthCreate) SetHealthStatus(v pethealth.HealthStatus) *PetHealthCreate {
 	_c.mutation.SetHealthStatus(v)
@@ -229,11 +215,6 @@ func (_c *PetHealthCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PetHealth.updated_at"`)}
 	}
-	if v, ok := _c.mutation.ReproductiveStatus(); ok {
-		if err := pethealth.ReproductiveStatusValidator(v); err != nil {
-			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.reproductive_status": %w`, err)}
-		}
-	}
 	if v, ok := _c.mutation.HealthStatus(); ok {
 		if err := pethealth.HealthStatusValidator(v); err != nil {
 			return &ValidationError{Name: "health_status", err: fmt.Errorf(`ent: validator failed for field "PetHealth.health_status": %w`, err)}
@@ -288,10 +269,6 @@ func (_c *PetHealthCreate) createSpec() (*PetHealth, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(pethealth.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
-	}
-	if value, ok := _c.mutation.ReproductiveStatus(); ok {
-		_spec.SetField(pethealth.FieldReproductiveStatus, field.TypeEnum, value)
-		_node.ReproductiveStatus = value
 	}
 	if value, ok := _c.mutation.HealthStatus(); ok {
 		_spec.SetField(pethealth.FieldHealthStatus, field.TypeEnum, value)

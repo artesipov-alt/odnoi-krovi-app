@@ -22,8 +22,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldReproductiveStatus holds the string denoting the reproductive_status field in the database.
-	FieldReproductiveStatus = "reproductive_status"
 	// FieldHealthStatus holds the string denoting the health_status field in the database.
 	FieldHealthStatus = "health_status"
 	// FieldLastDonation holds the string denoting the last_donation field in the database.
@@ -53,7 +51,6 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldReproductiveStatus,
 	FieldHealthStatus,
 	FieldLastDonation,
 	FieldTransfused,
@@ -87,30 +84,6 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
-
-// ReproductiveStatus defines the type for the "reproductive_status" enum field.
-type ReproductiveStatus string
-
-// ReproductiveStatus values.
-const (
-	ReproductiveStatusPregnancy ReproductiveStatus = "pregnancy"
-	ReproductiveStatusLactation ReproductiveStatus = "lactation"
-	ReproductiveStatusEstrus    ReproductiveStatus = "estrus"
-)
-
-func (rs ReproductiveStatus) String() string {
-	return string(rs)
-}
-
-// ReproductiveStatusValidator is a validator for the "reproductive_status" field enum values. It is called by the builders before save.
-func ReproductiveStatusValidator(rs ReproductiveStatus) error {
-	switch rs {
-	case ReproductiveStatusPregnancy, ReproductiveStatusLactation, ReproductiveStatusEstrus:
-		return nil
-	default:
-		return fmt.Errorf("pethealth: invalid enum value for reproductive_status field: %q", rs)
-	}
-}
 
 // HealthStatus defines the type for the "health_status" enum field.
 type HealthStatus string
@@ -157,11 +130,6 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
-}
-
-// ByReproductiveStatus orders the results by the reproductive_status field.
-func ByReproductiveStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReproductiveStatus, opts...).ToFunc()
 }
 
 // ByHealthStatus orders the results by the health_status field.

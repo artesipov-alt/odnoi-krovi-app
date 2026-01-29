@@ -230,36 +230,6 @@ func DeletedAtNotNil() predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// ReproductiveStatusEQ applies the EQ predicate on the "reproductive_status" field.
-func ReproductiveStatusEQ(v ReproductiveStatus) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldEQ(FieldReproductiveStatus, v))
-}
-
-// ReproductiveStatusNEQ applies the NEQ predicate on the "reproductive_status" field.
-func ReproductiveStatusNEQ(v ReproductiveStatus) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldNEQ(FieldReproductiveStatus, v))
-}
-
-// ReproductiveStatusIn applies the In predicate on the "reproductive_status" field.
-func ReproductiveStatusIn(vs ...ReproductiveStatus) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldIn(FieldReproductiveStatus, vs...))
-}
-
-// ReproductiveStatusNotIn applies the NotIn predicate on the "reproductive_status" field.
-func ReproductiveStatusNotIn(vs ...ReproductiveStatus) predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldNotIn(FieldReproductiveStatus, vs...))
-}
-
-// ReproductiveStatusIsNil applies the IsNil predicate on the "reproductive_status" field.
-func ReproductiveStatusIsNil() predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldIsNull(FieldReproductiveStatus))
-}
-
-// ReproductiveStatusNotNil applies the NotNil predicate on the "reproductive_status" field.
-func ReproductiveStatusNotNil() predicate.PetHealth {
-	return predicate.PetHealth(sql.FieldNotNull(FieldReproductiveStatus))
-}
-
 // HealthStatusEQ applies the EQ predicate on the "health_status" field.
 func HealthStatusEQ(v HealthStatus) predicate.PetHealth {
 	return predicate.PetHealth(sql.FieldEQ(FieldHealthStatus, v))

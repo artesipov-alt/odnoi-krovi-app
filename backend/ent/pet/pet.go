@@ -52,6 +52,8 @@ const (
 	FieldBonusID = "bonus_id"
 	// FieldLivingCondition holds the string denoting the living_condition field in the database.
 	FieldLivingCondition = "living_condition"
+	// FieldReproductiveStatus holds the string denoting the reproductive_status field in the database.
+	FieldReproductiveStatus = "reproductive_status"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeHealth holds the string denoting the health edge name in mutations.
@@ -140,6 +142,7 @@ var Columns = []string{
 	FieldTreatmentID,
 	FieldBonusID,
 	FieldLivingCondition,
+	FieldReproductiveStatus,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -267,6 +270,30 @@ func LivingConditionValidator(lc LivingCondition) error {
 	}
 }
 
+// ReproductiveStatus defines the type for the "reproductive_status" enum field.
+type ReproductiveStatus string
+
+// ReproductiveStatus values.
+const (
+	ReproductiveStatusPregnancy ReproductiveStatus = "pregnancy"
+	ReproductiveStatusLactation ReproductiveStatus = "lactation"
+	ReproductiveStatusEstrus    ReproductiveStatus = "estrus"
+)
+
+func (rs ReproductiveStatus) String() string {
+	return string(rs)
+}
+
+// ReproductiveStatusValidator is a validator for the "reproductive_status" field enum values. It is called by the builders before save.
+func ReproductiveStatusValidator(rs ReproductiveStatus) error {
+	switch rs {
+	case ReproductiveStatusPregnancy, ReproductiveStatusLactation, ReproductiveStatusEstrus:
+		return nil
+	default:
+		return fmt.Errorf("pet: invalid enum value for reproductive_status field: %q", rs)
+	}
+}
+
 // OrderOption defines the ordering options for the Pet queries.
 type OrderOption func(*sql.Selector)
 
@@ -358,6 +385,11 @@ func ByBonusID(opts ...sql.OrderTermOption) OrderOption {
 // ByLivingCondition orders the results by the living_condition field.
 func ByLivingCondition(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLivingCondition, opts...).ToFunc()
+}
+
+// ByReproductiveStatus orders the results by the reproductive_status field.
+func ByReproductiveStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReproductiveStatus, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

@@ -247,6 +247,20 @@ func (_c *PetCreate) SetNillableLivingCondition(v *pet.LivingCondition) *PetCrea
 	return _c
 }
 
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (_c *PetCreate) SetReproductiveStatus(v pet.ReproductiveStatus) *PetCreate {
+	_c.mutation.SetReproductiveStatus(v)
+	return _c
+}
+
+// SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
+func (_c *PetCreate) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *PetCreate {
+	if v != nil {
+		_c.SetReproductiveStatus(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PetCreate) SetID(v string) *PetCreate {
 	_c.mutation.SetID(v)
@@ -472,6 +486,11 @@ func (_c *PetCreate) check() error {
 			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.ReproductiveStatus(); ok {
+		if err := pet.ReproductiveStatusValidator(v); err != nil {
+			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "Pet.reproductive_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -558,6 +577,10 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.LivingCondition(); ok {
 		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)
 		_node.LivingCondition = value
+	}
+	if value, ok := _c.mutation.ReproductiveStatus(); ok {
+		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
+		_node.ReproductiveStatus = value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

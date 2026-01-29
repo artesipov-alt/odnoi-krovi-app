@@ -1015,6 +1015,36 @@ func LivingConditionNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldLivingCondition))
 }
 
+// ReproductiveStatusEQ applies the EQ predicate on the "reproductive_status" field.
+func ReproductiveStatusEQ(v ReproductiveStatus) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusNEQ applies the NEQ predicate on the "reproductive_status" field.
+func ReproductiveStatusNEQ(v ReproductiveStatus) predicate.Pet {
+	return predicate.Pet(sql.FieldNEQ(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusIn applies the In predicate on the "reproductive_status" field.
+func ReproductiveStatusIn(vs ...ReproductiveStatus) predicate.Pet {
+	return predicate.Pet(sql.FieldIn(FieldReproductiveStatus, vs...))
+}
+
+// ReproductiveStatusNotIn applies the NotIn predicate on the "reproductive_status" field.
+func ReproductiveStatusNotIn(vs ...ReproductiveStatus) predicate.Pet {
+	return predicate.Pet(sql.FieldNotIn(FieldReproductiveStatus, vs...))
+}
+
+// ReproductiveStatusIsNil applies the IsNil predicate on the "reproductive_status" field.
+func ReproductiveStatusIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldReproductiveStatus))
+}
+
+// ReproductiveStatusNotNil applies the NotNil predicate on the "reproductive_status" field.
+func ReproductiveStatusNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldReproductiveStatus))
+}
+
 // HasOwner applies the HasEdge predicate on the "owner" edge.
 func HasOwner() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
