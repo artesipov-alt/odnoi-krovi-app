@@ -27,7 +27,7 @@ type BloodRequestRepository interface {
 	Delete(ctx context.Context, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
-	List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error)
+	List(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
 
 	// ExistsByPetID проверяет существование активной заявки для питомца
 	ExistsByPetID(ctx context.Context, petID string) (bool, error)

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -43,17 +44,19 @@ type PetService interface {
 
 // PetServiceImpl реализует PetService
 type PetServiceImpl struct {
-	petRepo  repositories.PetRepository
-	userRepo repositories.UserRepository
-	storage  repositories.FileStorage
+	petRepo            repositories.PetRepository
+	userRepo           repositories.UserRepository
+	storage            repositories.FileStorage
+	bloodSearchService BloodSearchService
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, storage repositories.FileStorage) *PetServiceImpl {
+func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, storage repositories.FileStorage, bloodSearchService BloodSearchService) *PetServiceImpl {
 	return &PetServiceImpl{
-		petRepo:  petRepo,
-		userRepo: userRepo,
-		storage:  storage,
+		petRepo:            petRepo,
+		userRepo:           userRepo,
+		storage:            storage,
+		bloodSearchService: bloodSearchService,
 	}
 }
 
@@ -277,6 +280,23 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	}
 	if !exists {
 		return apperrors.ErrPetNotFound
+	}
+
+	// Получаем все заявки на поиск крови, связанные с этим питомцем
+	bloodRequests, err := s.bloodSearchService.ListRequests(ctx, 0, 0, map[string]any{"pet_id": petID})
+	if err != nil {
+		return apperrors.Internal(err, "failed to list blood requests for pet")
+	}
+
+	// Удаляем каждую связанную заявку
+	for _, req := range bloodRequests {
+		if err := s.bloodSearchService.DeleteRequest(ctx, req.ID); err != nil {
+			// Логируем ошибку, но продолжаем удаление питомца, чтобы не блокировать операцию
+			// В реальном приложении здесь может быть более сложная логика обработки ошибок
+			// например, попытка повтора или уведомление администратора.
+			// Для данного кейса, просто логируем и продолжаем.
+			slog.WarnContext(ctx, "Failed to delete blood request for pet", "blood_request_id", req.ID, "pet_id", petID, "error", err)
+		}
 	}
 
 	if err := s.petRepo.Delete(ctx, petID); err != nil {

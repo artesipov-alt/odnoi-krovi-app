@@ -98,8 +98,8 @@ func main() {
 
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := services.NewPetService(petRepo, userRepo, fileStorage)
 		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage)
+		petService := services.NewPetService(petRepo, userRepo, fileStorage, bloodSearchService)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage, petService, userService, bloodSearchService)
 
 		// Инициализация обработчиков
