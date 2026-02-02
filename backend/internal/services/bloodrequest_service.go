@@ -35,9 +35,6 @@ type BloodSearchService interface {
 	// ListRequests возвращает список заявок с фильтрацией
 	ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
 
-	// ConfirmPhotos подтверждает загрузку фото для заявки и обновляет PhotoUrls
-	ConfirmPhotos(ctx context.Context, requestID string, paths []string) error
-
 	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
 	buildFullPhotoURLs(paths []string) []string
 }
@@ -187,28 +184,6 @@ func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset
 // ExistsByID проверяет существование заявки по её ID
 func (s *BloodSearchServiceImpl) ExistsByID(ctx context.Context, id string) (bool, error) {
 	return s.repo.ExistsByID(ctx, id)
-}
-
-// ConfirmPhotos подтверждает загрузку фото для заявки и обновляет PhotoUrls
-func (s *BloodSearchServiceImpl) ConfirmPhotos(ctx context.Context, requestID string, paths []string) error {
-	// Получить заявку
-	req, err := s.repo.GetByID(ctx, requestID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrBloodRequestNotFound
-		}
-		return apperrors.Internal(err, "failed to get blood request")
-	}
-
-	// Обновить PhotoUrls: добавить новые пути к существующим
-	req.PhotoUrls = append(req.PhotoUrls, paths...)
-
-	// Сохранить обновленную заявку
-	if _, err := s.repo.Update(ctx, req); err != nil {
-		return apperrors.Internal(err, "failed to update blood request photos")
-	}
-
-	return nil
 }
 
 // buildFullPhotoURLs преобразует пути к фото в полные публичные URL

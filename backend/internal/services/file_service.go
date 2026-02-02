@@ -9,34 +9,25 @@ import (
 )
 
 type FileService interface {
-	// UploadPetAvatar(ctx context.Context, petID string, file io.Reader) (string, error)
-	// ValidateImage(file io.Reader) error
-	// ResizeImage(file io.Reader, width, height int) (io.Reader, error)
 	GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]repositories.UploadInfo, error)
 	ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error
 }
 
 // FileServiceImpl реализует FileService
 type FileServiceImpl struct {
-	PetRepo         repositories.PetRepository
-	UserRepo        repositories.UserRepository
-	BloodRepo       repositories.BloodRequestRepository
-	storage         repositories.FileStorage
-	petService      PetService
-	userService     UserService
-	bloodReqService BloodSearchService
+	PetRepo   repositories.PetRepository
+	UserRepo  repositories.UserRepository
+	BloodRepo repositories.BloodRequestRepository
+	storage   repositories.FileStorage
 }
 
 // NewFileService создает новый FileServiceImpl
-func NewFileService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo repositories.BloodRequestRepository, storage repositories.FileStorage, petService PetService, userService UserService, bloodReqService BloodSearchService) *FileServiceImpl {
+func NewFileService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo repositories.BloodRequestRepository, storage repositories.FileStorage) *FileServiceImpl {
 	return &FileServiceImpl{
-		PetRepo:         petRepo,
-		UserRepo:        userRepo,
-		BloodRepo:       bloodRepo,
-		storage:         storage,
-		petService:      petService,
-		userService:     userService,
-		bloodReqService: bloodReqService,
+		PetRepo:   petRepo,
+		UserRepo:  userRepo,
+		BloodRepo: bloodRepo,
+		storage:   storage,
 	}
 }
 
@@ -111,9 +102,9 @@ func (s *FileServiceImpl) ConfirmUploads(ctx context.Context, ID string, paths [
 		if err != nil {
 			return apperrors.Internal(err, "failed to confirm uploads for pet")
 		}
-		// Обновить PhotoUrls в питомце
-		if err := s.petService.ConfirmPhotos(ctx, ID, paths); err != nil {
-			return err
+		// Обновить PhotoUrls в питомце через репозиторий
+		if err := s.PetRepo.AddPhotoURLs(ctx, ID, paths); err != nil {
+			return apperrors.Internal(err, "failed to update pet photos")
 		}
 	case "user_avatar":
 		exists, err := s.UserRepo.ExistsByID(ctx, ID)
@@ -127,9 +118,9 @@ func (s *FileServiceImpl) ConfirmUploads(ctx context.Context, ID string, paths [
 		if err != nil {
 			return apperrors.Internal(err, "failed to confirm uploads for user")
 		}
-		// Обновить PhotoUrls в пользователе
-		if err := s.userService.ConfirmPhotos(ctx, ID, paths); err != nil {
-			return err
+		// Обновить PhotoUrls в пользователе через репозиторий
+		if err := s.UserRepo.AddPhotoURLs(ctx, ID, paths); err != nil {
+			return apperrors.Internal(err, "failed to update user photos")
 		}
 	case "blood_req":
 		exists, err := s.BloodRepo.ExistsByID(ctx, ID)
@@ -143,9 +134,9 @@ func (s *FileServiceImpl) ConfirmUploads(ctx context.Context, ID string, paths [
 		if err != nil {
 			return apperrors.Internal(err, "failed to confirm uploads for blood request")
 		}
-		// Обновить PhotoUrls в заявке
-		if err := s.bloodReqService.ConfirmPhotos(ctx, ID, paths); err != nil {
-			return err
+		// Обновить PhotoUrls в заявке через репозиторий
+		if err := s.BloodRepo.AddPhotoURLs(ctx, ID, paths); err != nil {
+			return apperrors.Internal(err, "failed to update blood request photos")
 		}
 	default:
 		return apperrors.BadRequest("unsupported preload type")

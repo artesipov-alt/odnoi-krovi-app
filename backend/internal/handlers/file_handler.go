@@ -11,27 +11,21 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
-// FileHandler обрабатывает HTTP запросы для справочных данных
+// FileHandler обрабатывает HTTP запросы для загрузки и подтверждения файлов
 type FileHandler struct {
-	fileService     services.FileService
-	petService      services.PetService
-	userService     services.UserService
-	bloodReqService services.BloodSearchService
+	fileService services.FileService
 }
 
-// NewFileHandler создает новый обработчик справочных данных
-func NewFileHandler(fileService services.FileService, petService services.PetService, userService services.UserService, bloodReqService services.BloodSearchService) *FileHandler {
+// NewFileHandler создает новый обработчик файлов
+func NewFileHandler(fileService services.FileService) *FileHandler {
 	return &FileHandler{
-		fileService:     fileService,
-		petService:      petService,
-		userService:     userService,
-		bloodReqService: bloodReqService,
+		fileService: fileService,
 	}
 }
 
-// Register регистрирует маршруты справочников в Huma API
+// Register регистрирует маршруты для работы с файлами в Huma API
 func (h *FileHandler) Register(api huma.API) {
-	// Получить ссылку для загрузки фотографии питомца
+	// Получить ссылку для загрузки фотографии
 	huma.Register(api, huma.Operation{
 		OperationID: "get-presigned-url",
 		Method:      http.MethodPost,

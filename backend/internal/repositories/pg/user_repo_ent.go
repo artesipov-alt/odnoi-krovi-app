@@ -249,3 +249,30 @@ func (r *EntUserRepository) GetDeletedUsers(ctx context.Context) ([]*ent.User, e
 
 	return users, nil
 }
+
+// AddPhotoURLs adds new photo paths to the user's PhotoUrls array
+func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths []string) error {
+	if id == "" {
+		return errors.New("invalid user ID")
+	}
+
+	// Fetch current photo URLs
+	u, err := r.client.User.Get(ctx, id)
+	if err != nil {
+		return fmt.Errorf("failed to get user for photo update: %w", err)
+	}
+
+	// Append new paths
+	newPhotoUrls := append(u.PhotoUrls, paths...)
+
+	// Update user
+	err = r.client.User.UpdateOneID(id).
+		SetPhotoUrls(newPhotoUrls).
+		Exec(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to update user photo URLs: %w", err)
+	}
+
+	return nil
+}

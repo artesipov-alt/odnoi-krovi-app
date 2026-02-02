@@ -431,3 +431,30 @@ func (r *EntPetRepository) GetDeletedPets(ctx context.Context) ([]*ent.Pet, erro
 
 	return pets, nil
 }
+
+// AddPhotoURLs adds new photo paths to the pet's PhotoUrls array
+func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []string) error {
+	if id == "" {
+		return errors.New("invalid pet ID")
+	}
+
+	// Fetch current photo URLs
+	p, err := r.client.Pet.Get(ctx, id)
+	if err != nil {
+		return fmt.Errorf("failed to get pet for photo update: %w", err)
+	}
+
+	// Append new paths
+	newPhotoUrls := append(p.PhotoUrls, paths...)
+
+	// Update pet
+	err = r.client.Pet.UpdateOneID(id).
+		SetPhotoUrls(newPhotoUrls).
+		Exec(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to update pet photo URLs: %w", err)
+	}
+
+	return nil
+}

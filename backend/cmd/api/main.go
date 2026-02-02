@@ -100,13 +100,13 @@ func main() {
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
 		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage)
 		petService := services.NewPetService(petRepo, userRepo, fileStorage, bloodSearchService)
-		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage, petService, userService, bloodSearchService)
+		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация обработчиков
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(petService)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
-		fileHandler := handlers.NewFileHandler(fileService, petService, userService, bloodSearchService)
+		fileHandler := handlers.NewFileHandler(fileService)
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 
 		// Настройка Huma

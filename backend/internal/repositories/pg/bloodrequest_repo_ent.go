@@ -2,6 +2,8 @@ package pg
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
@@ -116,4 +118,31 @@ func (r *EntBloodRequestRepository) ExistsByID(ctx context.Context, id string) (
 // Count возвращает общее количество заявок в хранилище
 func (r *EntBloodRequestRepository) Count(ctx context.Context) (int, error) {
 	return r.client.BloodSearchRequest.Query().Count(ctx)
+}
+
+// AddPhotoURLs adds new photo paths to the blood request's PhotoUrls array
+func (r *EntBloodRequestRepository) AddPhotoURLs(ctx context.Context, id string, paths []string) error {
+	if id == "" {
+		return errors.New("invalid blood request ID")
+	}
+
+	// Fetch current photo URLs
+	req, err := r.client.BloodSearchRequest.Get(ctx, id)
+	if err != nil {
+		return fmt.Errorf("failed to get blood request for photo update: %w", err)
+	}
+
+	// Append new paths
+	newPhotoUrls := append(req.PhotoUrls, paths...)
+
+	// Update blood request
+	err = r.client.BloodSearchRequest.UpdateOneID(id).
+		SetPhotoUrls(newPhotoUrls).
+		Exec(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to update blood request photo URLs: %w", err)
+	}
+
+	return nil
 }

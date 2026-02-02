@@ -38,9 +38,6 @@ type UserService interface {
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
 
-	// ConfirmPhotos подтверждает загрузку фото для пользователя и обновляет PhotoUrls
-	ConfirmPhotos(ctx context.Context, userID string, paths []string) error
-
 	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
 	buildFullPhotoURLs(paths []string) []string
 }
@@ -240,28 +237,6 @@ func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, err
 		return nil, apperrors.Internal(err, "failed to get deleted users")
 	}
 	return users, nil
-}
-
-// ConfirmPhotos подтверждает загрузку фото для пользователя и обновляет PhotoUrls
-func (s *UserServiceImpl) ConfirmPhotos(ctx context.Context, userID string, paths []string) error {
-	// Получить пользователя
-	u, err := s.userRepo.GetByID(ctx, userID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrUserNotFound
-		}
-		return apperrors.Internal(err, "failed to get user")
-	}
-
-	// Обновить PhotoUrls: добавить новые пути к существующим
-	u.PhotoUrls = append(u.PhotoUrls, paths...)
-
-	// Сохранить обновленного пользователя
-	if _, err := s.userRepo.Update(ctx, u); err != nil {
-		return apperrors.Internal(err, "failed to update user photos")
-	}
-
-	return nil
 }
 
 // buildFullPhotoURLs преобразует пути к фото в полные публичные URL

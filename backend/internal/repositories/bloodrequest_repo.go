@@ -37,4 +37,7 @@ type BloodRequestRepository interface {
 
 	// Count возвращает общее количество заявок в хранилище
 	Count(ctx context.Context) (int, error)
+
+	// AddPhotoURLs добавляет новые пути к фотографиям заявки
+	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }

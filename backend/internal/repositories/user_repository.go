@@ -37,4 +37,7 @@ type UserRepository interface {
 
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
+
+	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
+	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }
