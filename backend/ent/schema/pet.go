@@ -55,6 +55,10 @@ func (Pet) Fields() []ent.Field {
 			Values("indoor", "leash_walking", "self_outdoor").Optional().StructTag(`json:"livingCondition"`),
 		field.Enum("reproductive_status").
 			Values("pregnancy", "lactation", "estrus").Optional().StructTag(`json:"reproductiveStatus"`),
+		field.JSON("donor_stop_factors", []string{}).
+			Optional().StructTag(`json:"donorStopFactors"`),
+		field.JSON("donor_warn_factors", []string{}).
+			Optional().StructTag(`json:"donorWarnFactors"`),
 	}
 }
 

@@ -3035,6 +3035,10 @@ type PetMutation struct {
 	appendphoto_urls            []string
 	living_condition            *pet.LivingCondition
 	reproductive_status         *pet.ReproductiveStatus
+	donor_stop_factors          *[]string
+	appenddonor_stop_factors    []string
+	donor_warn_factors          *[]string
+	appenddonor_warn_factors    []string
 	clearedFields               map[string]struct{}
 	owner                       *string
 	clearedowner                bool
@@ -4063,6 +4067,136 @@ func (m *PetMutation) ResetReproductiveStatus() {
 	delete(m.clearedFields, pet.FieldReproductiveStatus)
 }
 
+// SetDonorStopFactors sets the "donor_stop_factors" field.
+func (m *PetMutation) SetDonorStopFactors(s []string) {
+	m.donor_stop_factors = &s
+	m.appenddonor_stop_factors = nil
+}
+
+// DonorStopFactors returns the value of the "donor_stop_factors" field in the mutation.
+func (m *PetMutation) DonorStopFactors() (r []string, exists bool) {
+	v := m.donor_stop_factors
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDonorStopFactors returns the old "donor_stop_factors" field's value of the Pet entity.
+// If the Pet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetMutation) OldDonorStopFactors(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDonorStopFactors is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDonorStopFactors requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDonorStopFactors: %w", err)
+	}
+	return oldValue.DonorStopFactors, nil
+}
+
+// AppendDonorStopFactors adds s to the "donor_stop_factors" field.
+func (m *PetMutation) AppendDonorStopFactors(s []string) {
+	m.appenddonor_stop_factors = append(m.appenddonor_stop_factors, s...)
+}
+
+// AppendedDonorStopFactors returns the list of values that were appended to the "donor_stop_factors" field in this mutation.
+func (m *PetMutation) AppendedDonorStopFactors() ([]string, bool) {
+	if len(m.appenddonor_stop_factors) == 0 {
+		return nil, false
+	}
+	return m.appenddonor_stop_factors, true
+}
+
+// ClearDonorStopFactors clears the value of the "donor_stop_factors" field.
+func (m *PetMutation) ClearDonorStopFactors() {
+	m.donor_stop_factors = nil
+	m.appenddonor_stop_factors = nil
+	m.clearedFields[pet.FieldDonorStopFactors] = struct{}{}
+}
+
+// DonorStopFactorsCleared returns if the "donor_stop_factors" field was cleared in this mutation.
+func (m *PetMutation) DonorStopFactorsCleared() bool {
+	_, ok := m.clearedFields[pet.FieldDonorStopFactors]
+	return ok
+}
+
+// ResetDonorStopFactors resets all changes to the "donor_stop_factors" field.
+func (m *PetMutation) ResetDonorStopFactors() {
+	m.donor_stop_factors = nil
+	m.appenddonor_stop_factors = nil
+	delete(m.clearedFields, pet.FieldDonorStopFactors)
+}
+
+// SetDonorWarnFactors sets the "donor_warn_factors" field.
+func (m *PetMutation) SetDonorWarnFactors(s []string) {
+	m.donor_warn_factors = &s
+	m.appenddonor_warn_factors = nil
+}
+
+// DonorWarnFactors returns the value of the "donor_warn_factors" field in the mutation.
+func (m *PetMutation) DonorWarnFactors() (r []string, exists bool) {
+	v := m.donor_warn_factors
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDonorWarnFactors returns the old "donor_warn_factors" field's value of the Pet entity.
+// If the Pet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetMutation) OldDonorWarnFactors(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDonorWarnFactors is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDonorWarnFactors requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDonorWarnFactors: %w", err)
+	}
+	return oldValue.DonorWarnFactors, nil
+}
+
+// AppendDonorWarnFactors adds s to the "donor_warn_factors" field.
+func (m *PetMutation) AppendDonorWarnFactors(s []string) {
+	m.appenddonor_warn_factors = append(m.appenddonor_warn_factors, s...)
+}
+
+// AppendedDonorWarnFactors returns the list of values that were appended to the "donor_warn_factors" field in this mutation.
+func (m *PetMutation) AppendedDonorWarnFactors() ([]string, bool) {
+	if len(m.appenddonor_warn_factors) == 0 {
+		return nil, false
+	}
+	return m.appenddonor_warn_factors, true
+}
+
+// ClearDonorWarnFactors clears the value of the "donor_warn_factors" field.
+func (m *PetMutation) ClearDonorWarnFactors() {
+	m.donor_warn_factors = nil
+	m.appenddonor_warn_factors = nil
+	m.clearedFields[pet.FieldDonorWarnFactors] = struct{}{}
+}
+
+// DonorWarnFactorsCleared returns if the "donor_warn_factors" field was cleared in this mutation.
+func (m *PetMutation) DonorWarnFactorsCleared() bool {
+	_, ok := m.clearedFields[pet.FieldDonorWarnFactors]
+	return ok
+}
+
+// ResetDonorWarnFactors resets all changes to the "donor_warn_factors" field.
+func (m *PetMutation) ResetDonorWarnFactors() {
+	m.donor_warn_factors = nil
+	m.appenddonor_warn_factors = nil
+	delete(m.clearedFields, pet.FieldDonorWarnFactors)
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by id.
 func (m *PetMutation) SetOwnerID(id string) {
 	m.owner = &id
@@ -4377,7 +4511,7 @@ func (m *PetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 21)
 	if m.created_at != nil {
 		fields = append(fields, pet.FieldCreatedAt)
 	}
@@ -4435,6 +4569,12 @@ func (m *PetMutation) Fields() []string {
 	if m.reproductive_status != nil {
 		fields = append(fields, pet.FieldReproductiveStatus)
 	}
+	if m.donor_stop_factors != nil {
+		fields = append(fields, pet.FieldDonorStopFactors)
+	}
+	if m.donor_warn_factors != nil {
+		fields = append(fields, pet.FieldDonorWarnFactors)
+	}
 	return fields
 }
 
@@ -4481,6 +4621,10 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.LivingCondition()
 	case pet.FieldReproductiveStatus:
 		return m.ReproductiveStatus()
+	case pet.FieldDonorStopFactors:
+		return m.DonorStopFactors()
+	case pet.FieldDonorWarnFactors:
+		return m.DonorWarnFactors()
 	}
 	return nil, false
 }
@@ -4528,6 +4672,10 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldLivingCondition(ctx)
 	case pet.FieldReproductiveStatus:
 		return m.OldReproductiveStatus(ctx)
+	case pet.FieldDonorStopFactors:
+		return m.OldDonorStopFactors(ctx)
+	case pet.FieldDonorWarnFactors:
+		return m.OldDonorWarnFactors(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
@@ -4670,6 +4818,20 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReproductiveStatus(v)
 		return nil
+	case pet.FieldDonorStopFactors:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDonorStopFactors(v)
+		return nil
+	case pet.FieldDonorWarnFactors:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDonorWarnFactors(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
@@ -4757,6 +4919,12 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldReproductiveStatus) {
 		fields = append(fields, pet.FieldReproductiveStatus)
 	}
+	if m.FieldCleared(pet.FieldDonorStopFactors) {
+		fields = append(fields, pet.FieldDonorStopFactors)
+	}
+	if m.FieldCleared(pet.FieldDonorWarnFactors) {
+		fields = append(fields, pet.FieldDonorWarnFactors)
+	}
 	return fields
 }
 
@@ -4812,6 +4980,12 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldReproductiveStatus:
 		m.ClearReproductiveStatus()
+		return nil
+	case pet.FieldDonorStopFactors:
+		m.ClearDonorStopFactors()
+		return nil
+	case pet.FieldDonorWarnFactors:
+		m.ClearDonorWarnFactors()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet nullable field %s", name)
@@ -4877,6 +5051,12 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldReproductiveStatus:
 		m.ResetReproductiveStatus()
+		return nil
+	case pet.FieldDonorStopFactors:
+		m.ResetDonorStopFactors()
+		return nil
+	case pet.FieldDonorWarnFactors:
+		m.ResetDonorWarnFactors()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)

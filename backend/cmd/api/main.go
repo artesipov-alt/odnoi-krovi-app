@@ -98,16 +98,16 @@ func main() {
 
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
+		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage)
-		petService := services.NewPetService(petRepo, userRepo, fileStorage, bloodSearchService)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация обработчиков
+		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(petService)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 		fileHandler := handlers.NewFileHandler(fileService)
-		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 
 		// Настройка Huma
 		api := humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
