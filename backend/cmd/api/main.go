@@ -22,6 +22,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
@@ -96,9 +97,11 @@ func main() {
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 
+		donorValidator := validator.NewDonorValidator(validator.DefaultStopChecks, validator.DefaultWarnChecks)
+
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage)
+		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage, donorValidator)
 		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 

@@ -36,6 +36,9 @@ type PetService interface {
 	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
 	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
 
+	// ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
+	ApplyValidation(ctx context.Context, pet *ent.Pet) ([]validator.FactorCode, []validator.FactorCode, error)
+
 	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
 	buildFullPhotoURLs(paths []string) []string
 }
@@ -46,16 +49,17 @@ type PetServiceImpl struct {
 	userRepo  repositories.UserRepository
 	storage   repositories.FileStorage
 	bloodRepo repositories.BloodRequestRepository
-	validator validator.PetValidator
+	validator validator.DonorValidator
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo repositories.BloodRequestRepository, storage repositories.FileStorage) *PetServiceImpl {
+func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo repositories.BloodRequestRepository, storage repositories.FileStorage, validator validator.DonorValidator) *PetServiceImpl {
 	return &PetServiceImpl{
 		petRepo:   petRepo,
 		userRepo:  userRepo,
 		storage:   storage,
 		bloodRepo: bloodRepo,
+		validator: validator,
 	}
 }
 
@@ -126,6 +130,12 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, petData *
 	newPet, err := s.petRepo.Create(ctx, petData, petData.Edges.Health, petData.Edges.Treatments, petData.Edges.Analyses, petData.Edges.Bonuses)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create pet")
+	}
+
+	// Применяем валидацию, модифицируем объект и сохраняем
+	_, _, err = s.ApplyValidation(ctx, newPet)
+	if err != nil {
+		return nil, err
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -264,8 +274,15 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 	}
 
 	// Сохраняем обновленного питомца
-	if _, err := s.petRepo.Update(ctx, p, health, treatments, analyses, bonuses); err != nil {
+	p, err = s.petRepo.Update(ctx, p, health, treatments, analyses, bonuses)
+	if err != nil {
 		return apperrors.Internal(err, "failed to update pet")
+	}
+
+	// Применяем валидацию, модифицируем объект и сохраняем
+	_, _, err = s.ApplyValidation(ctx, p)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -343,6 +360,31 @@ func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string)
 	}
 
 	return publicURL, nil
+}
+
+// ValidatePet валидирует питомца и возвращает стоп-факторы и предупреждения
+func (s *PetServiceImpl) ApplyValidation(ctx context.Context, p *ent.Pet) ([]validator.FactorCode, []validator.FactorCode, error) {
+	stopFactors := s.validator.GetStopFactors(p)
+	warnFactors := s.validator.GetWarnFactors(p)
+
+	// Присваиваем результаты валидации объекту питомца
+	stopFactorsStr := make([]string, len(stopFactors))
+	for i, f := range stopFactors {
+		stopFactorsStr[i] = string(f)
+	}
+	warnFactorsStr := make([]string, len(warnFactors))
+	for i, f := range warnFactors {
+		warnFactorsStr[i] = string(f)
+	}
+	p.DonorStopFactors = stopFactorsStr
+	p.DonorWarnFactors = warnFactorsStr
+
+	// Сохраняем изменения
+	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
+		return nil, nil, apperrors.Internal(err, "failed to save validation results")
+	}
+
+	return stopFactors, warnFactors, nil
 }
 
 //===================HELPERS===============================================

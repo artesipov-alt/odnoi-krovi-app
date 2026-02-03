@@ -35,7 +35,7 @@ const (
 	WarnFactorNoCurrentAnalyses    FactorCode = "WARN_NO_CURRENT_ANALYSES"
 )
 
-type PetValidator interface {
+type DonorValidator interface {
 	GetStopFactors(p *ent.Pet) []FactorCode
 	GetWarnFactors(p *ent.Pet) []FactorCode
 }
@@ -48,8 +48,8 @@ type PetValidatorImpl struct {
 	warnChecks []CheckFunc
 }
 
-// NewPetValidator — конструктор, который принимает набор проверок
-func NewPetValidator(stopChecks []CheckFunc, warnChecks []CheckFunc) *PetValidatorImpl {
+// NewDonorValidator — конструктор, который принимает набор проверок
+func NewDonorValidator(stopChecks []CheckFunc, warnChecks []CheckFunc) *PetValidatorImpl {
 	return &PetValidatorImpl{
 		stopChecks: stopChecks,
 		warnChecks: warnChecks,
