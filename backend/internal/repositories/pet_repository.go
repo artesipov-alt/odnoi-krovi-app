@@ -26,6 +26,12 @@ type PetRepository interface {
 	// ExistsByID проверяет, существует ли питомец с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)
 
+	// UpdateStatus обновляет статус питомца по его ID
+	UpdateStatus(ctx context.Context, id string, status string) error
+
+	// UpdateStatusWithTx обновляет статус питомца по его ID в рамках транзакции
+	UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error
+
 	// AddPhotoURLs добавляет новые пути к фотографиям питомца
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }

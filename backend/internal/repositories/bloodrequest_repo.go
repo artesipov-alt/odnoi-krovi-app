@@ -11,6 +11,9 @@ type BloodRequestRepository interface {
 	// Create создает новую заявку на поиск крови
 	Create(ctx context.Context, request *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
 
+	// CreateWithTx создает новую заявку на поиск крови в рамках транзакции
+	CreateWithTx(ctx context.Context, tx *ent.Tx, request *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
+
 	// GetByID возвращает заявку по её идентификатору
 	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
 
@@ -23,8 +26,14 @@ type BloodRequestRepository interface {
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
 
+	// UpdateStatusWithTx обновляет статус заявки в рамках транзакции
+	UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error
+
 	// Delete удаляет заявку из хранилища
 	Delete(ctx context.Context, id string) error
+
+	// DeleteWithTx удаляет заявку из хранилища в рамках транзакции
+	DeleteWithTx(ctx context.Context, tx *ent.Tx, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
 	List(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)

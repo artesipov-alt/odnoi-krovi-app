@@ -459,3 +459,43 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 
 	return nil
 }
+
+// UpdateStatus обновляет статус питомца по его ID
+func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {
+	if id == "" {
+		return errors.New("invalid pet ID")
+	}
+
+	err := r.client.Pet.UpdateOneID(id).
+		SetPetStatus(pet.PetStatus(status)).
+		Exec(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("pet with id %s not found", id)
+		}
+		return fmt.Errorf("failed to update pet status: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateStatusWithTx обновляет статус питомца по его ID в рамках транзакции
+func (r *EntPetRepository) UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error {
+	if id == "" {
+		return errors.New("invalid pet ID")
+	}
+
+	err := tx.Pet.UpdateOneID(id).
+		SetPetStatus(pet.PetStatus(status)).
+		Exec(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("pet with id %s not found", id)
+		}
+		return fmt.Errorf("failed to update pet status: %w", err)
+	}
+
+	return nil
+}

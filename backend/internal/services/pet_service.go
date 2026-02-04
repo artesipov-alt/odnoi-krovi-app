@@ -385,7 +385,7 @@ func (s *PetServiceImpl) ApplyValidation(ctx context.Context, p *ent.Pet) ([]val
 		}
 	}
 	p.DonorRestrictions = allFactors
-	if len(allFactors) == 0 {
+	if len(stopFactors) == 0 {
 		p.PetStatus = "donor"
 	}
 

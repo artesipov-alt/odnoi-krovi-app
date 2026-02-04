@@ -102,7 +102,7 @@ func main() {
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
 		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage, donorValidator)
-		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage)
+		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage, db)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация обработчиков

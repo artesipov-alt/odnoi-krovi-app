@@ -44,14 +44,16 @@ type BloodSearchServiceImpl struct {
 	bloodRepo repositories.BloodRequestRepository
 	petRepo   repositories.PetRepository
 	storage   repositories.FileStorage
+	client    *ent.Client
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage) *BloodSearchServiceImpl {
+func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage, client *ent.Client) *BloodSearchServiceImpl {
 	return &BloodSearchServiceImpl{
 		bloodRepo: repo,
 		petRepo:   petRepo,
 		storage:   storage,
+		client:    client,
 	}
 }
 
@@ -78,10 +80,29 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	// Устанавливаем статус по умолчанию
 	bloodReq.Status = bloodsearchrequest.StatusActive
 
-	// Создаем заявку
-	newReq, err := s.bloodRepo.Create(ctx, bloodReq)
+	// Создаем транзакцию
+	tx, err := s.client.Tx(ctx)
 	if err != nil {
+		return nil, apperrors.Internal(err, "failed to start transaction")
+	}
+
+	// Создаем заявку в рамках транзакции
+	newReq, err := s.bloodRepo.CreateWithTx(ctx, tx, bloodReq)
+	if err != nil {
+		tx.Rollback()
 		return nil, apperrors.Internal(err, "failed to create blood request")
+	}
+
+	// Обновляем статус питомца на "recipient"
+	err = s.petRepo.UpdateStatusWithTx(ctx, tx, bloodReq.PetID, "recipient")
+	if err != nil {
+		tx.Rollback()
+		return nil, apperrors.Internal(err, "failed to update pet status")
+	}
+
+	// Коммитим транзакцию
+	if err := tx.Commit(); err != nil {
+		return nil, apperrors.Internal(err, "failed to commit transaction")
 	}
 
 	return newReq, nil
@@ -148,12 +169,43 @@ func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, st
 		return apperrors.ErrInvalidBloodRequestStatus.WithInternal(err)
 	}
 
-	err := s.bloodRepo.UpdateStatus(ctx, id, status)
+	// Получаем заявку, чтобы узнать PetID
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrBloodRequestNotFound
 		}
+		return apperrors.Internal(err, "failed to get blood request")
+	}
+
+	// Создаем транзакцию
+	tx, err := s.client.Tx(ctx)
+	if err != nil {
+		return apperrors.Internal(err, "failed to start transaction")
+	}
+
+	// Обновляем статус заявки
+	err = s.bloodRepo.UpdateStatusWithTx(ctx, tx, id, status)
+	if err != nil {
+		tx.Rollback()
+		if ent.IsNotFound(err) {
+			return apperrors.ErrBloodRequestNotFound
+		}
 		return apperrors.Internal(err, "failed to update status")
+	}
+
+	// Если статус закрыт, сбрасываем статус питомца на "none"
+	if status == "closed" {
+		err = s.petRepo.UpdateStatusWithTx(ctx, tx, req.PetID, "none")
+		if err != nil {
+			tx.Rollback()
+			return apperrors.Internal(err, "failed to update pet status")
+		}
+	}
+
+	// Коммитим транзакцию
+	if err := tx.Commit(); err != nil {
+		return apperrors.Internal(err, "failed to commit transaction")
 	}
 
 	return nil
@@ -161,13 +213,43 @@ func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, st
 
 // DeleteRequest удаляет заявку (soft delete)
 func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) error {
-	err := s.bloodRepo.Delete(ctx, id)
+	// Получаем заявку, чтобы узнать PetID
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return apperrors.ErrBloodRequestNotFound
+		}
+		return apperrors.Internal(err, "failed to get blood request")
+	}
+
+	// Создаем транзакцию
+	tx, err := s.client.Tx(ctx)
+	if err != nil {
+		return apperrors.Internal(err, "failed to start transaction")
+	}
+
+	// Обновляем статус питомца на "none"
+	err = s.petRepo.UpdateStatusWithTx(ctx, tx, req.PetID, "none")
+	if err != nil {
+		tx.Rollback()
+		return apperrors.Internal(err, "failed to update pet status")
+	}
+
+	// Удаляем заявку
+	err = s.bloodRepo.DeleteWithTx(ctx, tx, id)
+	if err != nil {
+		tx.Rollback()
 		if ent.IsNotFound(err) {
 			return apperrors.ErrBloodRequestNotFound
 		}
 		return apperrors.Internal(err, "failed to delete blood request")
 	}
+
+	// Коммитим транзакцию
+	if err := tx.Commit(); err != nil {
+		return apperrors.Internal(err, "failed to commit transaction")
+	}
+
 	return nil
 }
 
