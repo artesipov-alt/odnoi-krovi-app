@@ -6,10 +6,13 @@
     border-radius: 16px !important;
     background: @white;
     color: @textColor4 !important;
+    padding-right: 30px !important;
 }
 
 .select {
     padding: 8px 13px !important;
+    position: relative;
+    z-index: 1;
 }
 
 .placeholder {
@@ -20,6 +23,10 @@
 .selectArrow {
     width: 22px;
     height: 22px;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 0;
 
     svg {
         width: inherit;

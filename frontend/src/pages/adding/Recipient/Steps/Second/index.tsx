@@ -110,6 +110,10 @@ const Second: FC<Props> = ({
     };
 
     const onBlurBloodVolumeHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (!value) {
+            return;
+        }
+
         if (Number(value) < 10) {
             onChangeBloodVolume('10');
         }

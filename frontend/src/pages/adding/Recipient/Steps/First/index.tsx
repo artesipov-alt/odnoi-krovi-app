@@ -54,6 +54,18 @@ const First: FC<Props> = ({
         onChangeName(value);
     };
 
+    const onBlurPetWeightHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (!value) {
+            return;
+        }
+
+        const [int, real] = value.split(',');
+
+        if (Number(int) === 0 && Number(real || '0') === 0) {
+            onChangeWeight('0,05');
+        }
+    };
+
     const onChangePetWeightHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const newValue = value.replaceAll(' ', '');
 
@@ -144,6 +156,7 @@ const First: FC<Props> = ({
                     isDigitInput
                     value={weight}
                     disabled={!petType}
+                    onBlur={onBlurPetWeightHandler}
                     onChange={onChangePetWeightHandler}
                     inputClass={cn({ [styles.lock]: !petType })}
                     htmlInputClass={cn({ [styles.lock]: !petType })}

@@ -146,6 +146,18 @@ const ParamsStep: FC<Props> = ({
         setNewBloodGroup(newGroup);
     };
 
+    const onBlurPetWeightHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (!value) {
+            return;
+        }
+
+        const [int, real] = value.split(',');
+
+        if (Number(int) === 0 && Number(real || '0') === 0) {
+            setNewWeight('0,05');
+        }
+    };
+
     const onChangePetWeightHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const newValue = value.replaceAll(' ', '');
 
@@ -466,11 +478,12 @@ const ParamsStep: FC<Props> = ({
                 </>
             </FormItem>
             {/* eslint-disable-next-line no-nested-ternary */}
-            <FormItem title='Вес' subtitle={type ? undefined : type === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}>
+            <FormItem title='Вес' subtitle={!type ? undefined : type === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}>
                 <TextField
                     name='weight'
                     isDigitInput
                     value={newWeight}
+                    onBlur={onBlurPetWeightHandler}
                     onChange={onChangePetWeightHandler}
                     placeholder='Сколько весит питомец?'
                     endAdornment={<div className={styles.endAdornment}>кг</div>}
