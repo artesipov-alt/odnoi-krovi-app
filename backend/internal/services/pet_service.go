@@ -385,6 +385,9 @@ func (s *PetServiceImpl) ApplyValidation(ctx context.Context, p *ent.Pet) ([]val
 		}
 	}
 	p.DonorRestrictions = allFactors
+	if len(allFactors) == 0 {
+		p.PetStatus = "donor"
+	}
 
 	// Сохраняем изменения
 	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
