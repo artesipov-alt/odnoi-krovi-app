@@ -1,3 +1,6 @@
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+
 export enum Variants {
     YEARS = 'years',
     MONTHS = 'months',
@@ -24,5 +27,7 @@ export const getCorrectDeclension = (type: Variants, number: number): string => 
         return declension[type][1];
     }
 
-    return declension[type][2];;
+    return declension[type][2];
 };
+
+export const getDateFormat = (date: Date) => format(date, 'dd.MM.yyyy', { locale: ru });

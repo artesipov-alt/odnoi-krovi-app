@@ -4,6 +4,7 @@ import { instance } from './instance';
 
 export enum Role {
     USER = 'user',
+    NONE = 'none',
     ADMIN = 'admin',
     DONOR = 'donor',
     CLINIC = 'clinic',

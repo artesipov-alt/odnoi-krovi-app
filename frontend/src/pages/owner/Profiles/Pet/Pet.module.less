@@ -1,0 +1,282 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding: 17px 12px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+    margin-bottom: 17px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.title {
+    flex-grow: 1;
+    padding: 0 11px;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    color: @textColor2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.buttons {
+    display: flex;
+    gap: 5px;
+
+    &.isEditMode {
+        display: none;
+    }
+}
+
+.button {
+    width: 30px;
+    height: 30px;
+    background: @white;
+    border-radius: 25px;
+}
+
+.icon {
+    line-height: 29px;
+    margin-left: 11px;
+    fill: @red9;
+
+    &.edit {
+        width: 10px;
+        height: 10px;
+    }
+
+    &.basket {
+        width: 8px;
+        height: 10px;
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.info {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.photoWrapper {
+    flex-shrink: 0;
+    width: 48%;
+    height: auto;
+    min-width: 166px;
+    max-width: 300px;
+    aspect-ratio: 1 / 1.27;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.photo {
+    border-radius: 12px;
+}
+
+.labels {
+    flex-grow: 1;
+}
+
+.labelIcon {
+    width: 8px;
+    height: 13px;
+    margin-top: -4px;
+    fill: @red4;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.donation {
+    display: flex;
+    gap: 12px;
+    padding: 10px 8px;
+    background: @white;
+    border-radius: 4px;
+}
+
+.params {
+    flex-grow: 1;
+    position: relative;
+}
+
+.labelInfoTitle {
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 15px;
+    margin: 0 0 9px;
+}
+
+.labelInfoValue {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.labelDescr {
+    color: @textColor1;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    margin: 0;
+}
+
+.infoIcon {
+    width: 17px;
+    height: 17px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    transform: translate(4.5%, 110%);
+    background: @orangeBg1;
+    color: @textColor8;
+    padding: 8px;
+    border-radius: 8px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.tiles {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tile {
+    display: flex;
+    align-items: center;
+    width: calc(50% - 4px);
+    padding: 22px 18px;
+    border-radius: 6px;
+    background: @white;
+    box-sizing: border-box;
+
+    &.noActive {
+        opacity: 0.6;
+        pointer-events: none;
+
+        & .tileTitle {
+            color: @textColor4;
+        }
+
+        & .arrowTileIcon,
+        & .tileEdit {
+            display: none;
+        }
+    }
+
+    &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+
+        & .tileTitle {
+            color: @textColor4;
+        }
+
+        & .arrowTileIcon
+        {
+            display: none;
+        }
+    }
+}
+
+.tileIcon {
+    width: 16px;
+    height: 16px;
+
+    &.needFill {
+        fill: @grayBg6;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.tileTitle {
+    margin-left: 8px;
+    color: @textColor2;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.arrowTileIcon {
+    width: 6px;
+    height: 23px;
+    margin-left: auto;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @grayBg6;
+    }
+}
+
+.tileEdit {
+    display: flex;
+    flex-shrink: 0;
+    height: 30px;
+    width: 30px;
+    border-radius: 30px;
+    background: @grayBg7;
+    margin-left: auto;
+
+    svg {
+        width: 10px;
+        height: 10px;
+        margin: auto;
+        fill: @red9;
+    }
+}
+

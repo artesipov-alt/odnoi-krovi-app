@@ -154,7 +154,9 @@ const First: FC<Props> = ({
 
     return (
         <>
-            <ImgEditor src={photo} onLoad={onLoadPhoto} className={styles.photo} />
+            <div className={styles.photo}>
+                <ImgEditor src={photo} onLoad={onLoadPhoto} />
+            </div>
             <FormItem title='Кличка'>
                 <TextField name='name' value={name} placeholder='Как зовут питомца?' onChange={onChangeNameHandler} />
             </FormItem>

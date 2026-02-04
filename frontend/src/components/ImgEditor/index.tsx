@@ -1,5 +1,6 @@
 import cn from 'classnames';
 import Cancel from 'imgs/svg/cancel';
+import Edit from 'imgs/svg/edit';
 import Plus from 'imgs/svg/plus';
 import { ChangeEvent, FC, memo, MouseEvent, useRef, useState } from 'react';
 
@@ -16,6 +17,7 @@ type Props = {
     serverSrc?: string;
     bloodGroup?: string;
     isMiniView?: boolean;
+    isEditIcon?: boolean;
     onLoad?: (photo: File | null) => void;
 };
 
@@ -32,6 +34,7 @@ const ImgEditor: FC<Props> = ({
     serverSrc,
     bloodGroup,
     isMiniView,
+    isEditIcon,
 }) => {
     const [imgSrc, setImgSrc] = useState('');
     const [file, setFile] = useState<File | null>(src);
@@ -99,6 +102,12 @@ const ImgEditor: FC<Props> = ({
         </div>
     );
 
+    const renderEditButton = () => (
+        <div className={styles.edit} onClick={onAddItemClickHandler}>
+            <Edit />
+        </div>
+    );
+
     const renderLabels = () => (
         <>
             {!isMiniView && <span className={styles.bloodGroup}>{bloodGroup || '?'}</span>}
@@ -114,8 +123,11 @@ const ImgEditor: FC<Props> = ({
 
     const renderContent = () => (
         <>
-            {!src && !file && showStub && petType && (
-                <div className={cn(styles.stub, { [styles[petType]]: true })}>{renderLabels()}</div>
+            {!src && !file && !serverSrc && showStub && petType && (
+                <div className={cn(styles.stub, { [styles[petType]]: true, [styles.isEdit]: serverSrc })}>
+                    {isEditIcon && renderEditButton()}
+                    {renderLabels()}
+                </div>
             )}
             {!src && !file && !serverSrc && !showStub && (
                 <div className={styles.photo} onClick={onAddItemClickHandler}>
@@ -133,20 +145,24 @@ const ImgEditor: FC<Props> = ({
             {!file && serverSrc && !isLoadImageError && (
                 <div className={styles.imgWrapper}>
                     <img
-                        alt=''
+                        alt={name}
                         src={serverSrc}
                         className={styles.img}
                         onLoad={onImgLoadHandler}
                         onError={onImgErrorHandler}
                         onClick={onImgClickHandler}
                     />
-                    {onLoad && renderDeleteButton()}
+                    {onLoad && !isEditIcon && renderDeleteButton()}
+                    {isEditIcon && renderEditButton()}
+                    {showStub && renderLabels()}
+                    {showStub && <div className={styles.gradient} />}
                 </div>
             )}
             {file && (
                 <div className={cn(styles.imgWrapper, { [styles.imgWithLabels]: showStub })}>
                     <img className={styles.img} src={URL.createObjectURL(file)} onClick={onImgClickHandler} alt='' />
-                    {onLoad && renderDeleteButton()}
+                    {onLoad && !isEditIcon && renderDeleteButton()}
+                    {isEditIcon && renderEditButton()}
                     {showStub && renderLabels()}
                     {showStub && <div className={styles.gradient} />}
                 </div>
@@ -166,7 +182,7 @@ const ImgEditor: FC<Props> = ({
         <div
             className={cn(styles.container, className, {
                 [styles.showStub]: showStub,
-                [styles.withPhoto]: src || file,
+                [styles.withPhoto]: src || file || serverSrc,
                 [styles.mini]: isMiniView,
             })}
         >

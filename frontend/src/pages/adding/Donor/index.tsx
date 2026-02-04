@@ -13,7 +13,7 @@ import { getPetsTypes } from 'api/apiServices/getPetsTypes';
 import { getReproductiveStatuses } from 'api/apiServices/getReproductiveStatuses';
 import { Analyses, AnalysesItem } from 'api/pets';
 import { Dict, PetGenderDict, PetTypeDict, StringDict } from 'api/reference';
-import { AnalysesMapping, PetGender, PetType } from 'api/types';
+import { AnalysesEnum, AnalysesMapping, AnalysesNamesMapping, PetGender, PetType } from 'api/types';
 import { Role } from 'api/user';
 
 import styles from './Donor.module.less';
@@ -83,8 +83,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
 
     // 5 step
     const [leukemia, setLeukemia] = useState<Analiz>({
-        type: 'leukemia',
-        name: 'Анализ на лейкоз (ВЛК)',
+        type: AnalysesEnum.LEUKEMIA,
+        name: AnalysesNamesMapping[AnalysesEnum.LEUKEMIA],
         items: [
             { name: 'ПЦР', value: null },
             { name: 'ИФА', value: null },
@@ -92,8 +92,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         ],
     });
     const [immunodeficiency, setImmunodeficiency] = useState<Analiz>({
-        type: 'immunodeficiency',
-        name: 'Анализ на иммунодефицит (ВИК)',
+        type: AnalysesEnum.IMMUNODEFICIENCY,
+        name: AnalysesNamesMapping[AnalysesEnum.IMMUNODEFICIENCY],
         items: [
             { name: 'ПЦР', value: null },
             { name: 'ИФА', value: null },
@@ -101,42 +101,42 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         ],
     });
     const [hemoplasmosis, setHemoplasmosis] = useState<Analiz>({
-        type: 'hemoplasmosis',
-        name: 'Анализ на гемоплазмоз',
+        type: AnalysesEnum.HEMOPLASMOSIS,
+        name: AnalysesNamesMapping[AnalysesEnum.HEMOPLASMOSIS],
         items: [{ name: 'ПЦР', value: null }],
     });
     const [bartonellosis, setBartonellosis] = useState<Analiz>({
-        type: 'bartonellosis',
-        name: 'Анализ на бартонеллез',
+        type: AnalysesEnum.BARTONELLOSIS,
+        name: AnalysesNamesMapping[AnalysesEnum.BARTONELLOSIS],
         items: [{ name: 'ПЦР', value: null }],
     });
     const [babesiosis, setBabesiosis] = useState<Analiz>({
-        type: 'babesiosis',
-        name: 'Анализ на бабезиоз',
+        type: AnalysesEnum.BABESIOSIS,
+        name: AnalysesNamesMapping[AnalysesEnum.BABESIOSIS],
         items: [
             { name: 'ПЦР', value: null },
             { name: 'Микроскопия мазка', value: null },
         ],
     });
     const [dirofilaria, setDirofilaria] = useState<Analiz>({
-        type: 'dirofilaria',
-        name: 'Анализ на дирофиляриоз',
+        type: AnalysesEnum.DIROFILARIA,
+        name: AnalysesNamesMapping[AnalysesEnum.DIROFILARIA],
         items: [
             { name: 'ПЦР', value: null },
             { name: 'Микроскопия мазка', value: null },
         ],
     });
     const [ehrlichiosis, setEhrlichiosis] = useState<Analiz>({
-        type: 'ehrlichiosis',
-        name: 'Анализ на эрлихиоз',
+        type: AnalysesEnum.EHRLICHIOSIS,
+        name: AnalysesNamesMapping[AnalysesEnum.EHRLICHIOSIS],
         items: [
             { name: 'ПЦР', value: null },
             { name: 'Экспресс-тест', value: null },
         ],
     });
     const [anaplasmosis, setAnaplasmosis] = useState<Analiz>({
-        type: 'anaplasmosis',
-        name: 'Анализ на анаплазмоз',
+        type: AnalysesEnum.ANAPLASMOSIS,
+        name: AnalysesNamesMapping[AnalysesEnum.ANAPLASMOSIS],
         items: [
             { name: 'ПЦР', value: null },
             { name: 'Экспресс-тест', value: null },
@@ -637,8 +637,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
             name,
             userId,
             photo,
+            petStatus: Role.NONE,
             breedId: breed?.value,
-            petStatus: Role.DONOR,
             weightKg: Number(weight),
             type: petType as PetType,
             gender: petGender as PetGender,
@@ -648,13 +648,13 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
             chipNumber: chipNumber === 'none' ? undefined : chipNumber,
             bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
             livingCondition: livingConditionsDict.find((item) => item.value === livingCondition)?.value,
+            reproductiveStatus: reproductiveStatusesDict.find((item) => item.value === reproductiveStatus)?.value,
             health: {
                 healthStatus: healthStatusesDict.find((item) => item.value === healthStatus)?.value!,
                 lastDonation: lastDonation || undefined,
                 transfused: wasBloodTransfusion || undefined,
                 medications: isTakingMedications ? medicationsList : undefined,
                 surgicalInterventions: wasSurgicalInterventions ? surgicalList : undefined,
-                reproductiveStatus: reproductiveStatusesDict.find((item) => item.value === reproductiveStatus)?.value,
             },
             treatments: {
                 dewormingDate: dewormingDate || undefined,

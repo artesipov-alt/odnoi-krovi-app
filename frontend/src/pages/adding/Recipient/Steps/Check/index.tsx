@@ -66,15 +66,18 @@ const Check: FC<Props> = ({
         <>
             <div className={styles.header} />
             <div className={styles.container}>
-                <ImgEditor
-                    showStub
-                    src={photo}
-                    name={name}
-                    weight={weight}
-                    petType={petType}
-                    className={styles.photo}
-                    bloodGroup={bloodGroupDict[petType].filter(({ value }) => value === Number(bloodGroup))[0].label}
-                />
+                <div className={styles.photo}>
+                    <ImgEditor
+                        showStub
+                        src={photo}
+                        name={name}
+                        weight={weight}
+                        petType={petType}
+                        bloodGroup={
+                            bloodGroupDict[petType].filter(({ value }) => value === Number(bloodGroup))[0].label
+                        }
+                    />
+                </div>
                 <div className={styles.titleWrapper}>
                     <h2 className={styles.title}>Проверьте все поля</h2>
                     <p className={styles.descr}>
