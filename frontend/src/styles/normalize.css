@@ -263,7 +263,7 @@ input { /* 1 */
     overflow: visible;
 }
 
-input { touch-action: none; }
+input:focus { font-size: 16px!important}
 
 /**
  * Remove the inheritance of text transform in Edge, Firefox, and IE.
