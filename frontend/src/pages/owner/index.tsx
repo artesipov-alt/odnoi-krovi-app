@@ -9,6 +9,7 @@ import { TelegramUser } from 'types';
 import { getPets } from 'api/apiServices/getPets';
 import { Pet } from 'api/pets';
 import Layout from 'components/Layout';
+import Loading from 'components/Loading';
 
 import styles from './Owner.module.less';
 import PetProfile from './Profiles/Pet';
@@ -22,10 +23,9 @@ type View = 'donor' | 'recipient';
 const Owner: FC<Props> = ({ user }) => {
     const navigate = useNavigate();
 
-    // TODO loader
-
     const [pets, setPets] = useState<Pet[]>([]);
     const [view, setView] = useState<View>('recipient');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
 
@@ -43,6 +43,7 @@ const Owner: FC<Props> = ({ user }) => {
 
             return prevState;
         });
+        setIsLoading(false);
     }, [user.id]);
 
     const onButtonClickHandler = (newView: View) => () => {
@@ -60,6 +61,8 @@ const Owner: FC<Props> = ({ user }) => {
     };
 
     useEffect(() => {
+        setIsLoading(true);
+
         fetchPets();
     }, [fetchPets]);
 
@@ -87,14 +90,20 @@ const Owner: FC<Props> = ({ user }) => {
                 <div className={styles.header}>
                     <div className={styles.avatar}>{user.fullName.charAt(0).toUpperCase()}</div>
                 </div>
-                {!pets.length ? (
+                {isLoading && (
+                    <div className={styles.loading}>
+                        <Loading size={90} thickness={4} />
+                    </div>
+                )}
+                {!isLoading && !pets.length && (
                     <div className={styles.button} onClick={onAddPetClickHandler}>
                         <div className={styles.pawIcon}>
                             <Paw />
                         </div>
                         <p className={styles.pawButtonText}>Добавить питомца</p>
                     </div>
-                ) : (
+                )}
+                {!isLoading && pets.length && (
                     <>
                         <div className={styles.showcase}>
                             {pets.map((pet) => (

@@ -80,6 +80,18 @@ const Second: FC<Props> = ({
         onChangeReproductiveStatus(newStatus);
     };
 
+    const onBlurPetWeightHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (!value) {
+            return;
+        }
+
+        const [int, real] = value.split(',');
+
+        if (Number(int) === 0 && Number(real || '0') === 0) {
+            onChangeWeight('0,05');
+        }
+    };
+
     const onChangePetWeightHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const newValue = value.replaceAll(' ', '');
 
@@ -154,6 +166,7 @@ const Second: FC<Props> = ({
                     name='weight'
                     value={weight}
                     isDigitInput
+                    onBlur={onBlurPetWeightHandler}
                     onChange={onChangePetWeightHandler}
                     placeholder='Сколько весит питомец?'
                     endAdornment={<div className={styles.endAdornment}>кг</div>}
