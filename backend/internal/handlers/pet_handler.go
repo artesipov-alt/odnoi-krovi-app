@@ -297,7 +297,6 @@ func (h *PetHandler) toCreateENT(d dto.PetCreate) *ent.Pet {
 	p := &ent.Pet{
 		Name:               d.Name,
 		ChipNumber:         d.ChipNumber,
-		PhotoUrls:          d.PhotoURLs,
 		BreedID:            d.BreedID,
 		WeightKg:           d.WeightKg,
 		BirthDate:          d.BirthDate,

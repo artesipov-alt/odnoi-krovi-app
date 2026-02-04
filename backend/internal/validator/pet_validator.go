@@ -8,8 +8,7 @@ import (
 type FactorCode string
 
 const (
-	StopFactorTooOld FactorCode = "STOP_TOO_OLD"
-
+	StopFactorTooOld                       FactorCode = "STOP_TOO_OLD"
 	StopFactorNoPhoto                      FactorCode = "STOP_NO_PHOTO"
 	StopFactorNoInfectionVaccination       FactorCode = "STOP_NO_INFECTION_VACCINATION"
 	StopFactorNoRabiesVaccination          FactorCode = "STOP_NO_RABIES_VACCINATION"
