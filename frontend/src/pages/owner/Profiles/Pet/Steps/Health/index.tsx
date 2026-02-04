@@ -1,84 +1,74 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
+import Health from 'imgs/svg/health';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 
+import { updatePet } from 'api/apiServices/updatePet';
+import { Pet } from 'api/pets';
 import { StringDict } from 'api/reference';
 import Alert, { View } from 'components/Alert';
-import DatePicker from 'components/DatePicker';
 import TextField from 'components/TextField';
 
-import styles from './Third.module.less';
+import Header from '../Header';
+import ViewString from '../ViewString';
+import styles from './Health.module.less';
 
 type Props = {
-    healthStatus: string;
-    surgicalList: string;
-    medicationsList: string;
-    lastDonation: Date | null;
-    isNoLastDonation: boolean;
+    id: string;
+    isEditMode: boolean;
+    onClose: () => void;
+    transfused?: boolean;
+    medications?: string;
+    healthStatus?: string;
+    onErrorUpdate: () => void;
+    onSuccessUpdate: () => void;
+    surgicalInterventions?: string;
     healthStatusesDict: StringDict[];
-    wasBloodTransfusion: boolean | null;
-    isTakingMedications: boolean | null;
-    wasSurgicalInterventions: boolean | null;
-    onConfirmButtonClick: (step: number) => void;
-    onChangeHealthStatus: (status: string) => void;
-    onChangeSurgicalList: (status: string) => void;
-    onChangeMedicationsList: (status: string) => void;
-    onChangeLastDonationDate: (date: Date | null) => void;
-    onChangeIsNoLastDonation: (newValue: boolean) => void;
-    onChangeWasBloodTransfusion: (newValue: boolean) => void;
-    onChangeIsTakingMedications: (newValue: boolean) => void;
-    onChangeWasSurgicalInterventions: (newValue: boolean) => void;
 };
 
 const MAX_LETTERS = 250;
 
-const Third: FC<Props> = ({
-    lastDonation,
+const HealthStep: FC<Props> = ({
+    id,
+    onClose,
+    isEditMode,
+    transfused,
+    medications,
     healthStatus,
-    surgicalList,
-    medicationsList,
-    isNoLastDonation,
+    onErrorUpdate,
+    onSuccessUpdate,
     healthStatusesDict,
-    wasBloodTransfusion,
-    isTakingMedications,
-    onConfirmButtonClick,
-    onChangeHealthStatus,
-    onChangeSurgicalList,
-    onChangeMedicationsList,
-    onChangeIsNoLastDonation,
-    onChangeLastDonationDate,
-    wasSurgicalInterventions,
-    onChangeIsTakingMedications,
-    onChangeWasBloodTransfusion,
-    onChangeWasSurgicalInterventions,
+    surgicalInterventions,
 }) => {
-    const [surgicalListValue, setSurgicalListValue] = useState<string>(surgicalList);
-    const [medicationsListValue, setMedicationsListValue] = useState<string>(medicationsList);
-    const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(false);
+    const [newMedications, setNewMedications] = useState<string | undefined>(medications);
+    const [isSaveButtonActive, setIsSaveButtonActive] = useState<boolean>(false);
+    const [newHealthStatus, setNewHealthStatus] = useState<string | undefined>(healthStatus);
+    const [newTransfusedValue, setNewTransfusedValue] = useState<boolean | undefined>(transfused);
+    const [newSurgicalInterventions, setNewSurgicalInterventions] = useState<string | undefined>(surgicalInterventions);
+    const [isTakingMedications, setIsTakingMedications] = useState<boolean | undefined>(
+        medications === undefined ? undefined : !!medications,
+    );
+    const [wasSurgicalInterventions, setWasSurgicalInterventions] = useState<boolean | undefined>(
+        surgicalInterventions === undefined ? undefined : !!surgicalInterventions,
+    );
 
-    const onChangerHealthStatusHandler = (newStatus: string) => () => {
-        if (newStatus === healthStatus) {
+    const isAllFieldsEmpty = !medications && !transfused && !healthStatus && !surgicalInterventions;
+
+    const onChangerHealthStatusHandler = (newValue: string) => () => {
+        if (newValue === newHealthStatus) {
             return;
         }
 
-        onChangeHealthStatus(newStatus);
-    };
-
-    const onIsNoLastDonationClickHandler = () => {
-        if (isNoLastDonation) {
-            return;
-        }
-
-        onChangeIsNoLastDonation(true);
+        setNewHealthStatus(newValue);
     };
 
     const onWasBloodTransfusionClickHandler = (newValue: boolean) => () => {
-        if (newValue === wasBloodTransfusion) {
+        if (newValue === newTransfusedValue) {
             return;
         }
 
-        onChangeWasBloodTransfusion(newValue);
+        setNewTransfusedValue(newValue);
     };
 
     const onIsTakingMedicationsClickHandler = (newValue: boolean) => () => {
@@ -87,32 +77,16 @@ const Third: FC<Props> = ({
         }
 
         if (!newValue) {
-            setMedicationsListValue('');
-
-            onChangeMedicationsList('');
+            setNewMedications('');
         }
 
-        onChangeIsTakingMedications(newValue);
+        setIsTakingMedications(newValue);
     };
 
     const onMedicationsListChangeHandler = ({
         target: { value },
     }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        setMedicationsListValue(value);
-
-        if (!medicationsList.length && value) {
-            onChangeMedicationsList(value);
-        }
-
-        if (medicationsList.length && !value) {
-            onChangeMedicationsList('');
-        }
-    };
-
-    const onMedicationsListBlurHandler = ({
-        target: { value },
-    }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        onChangeMedicationsList(value);
+        setNewMedications(value);
     };
 
     const onWasSurgicalInterventionsClickHandler = (newValue: boolean) => () => {
@@ -121,56 +95,41 @@ const Third: FC<Props> = ({
         }
 
         if (!newValue) {
-            setSurgicalListValue('');
-
-            onChangeSurgicalList('');
+            setNewSurgicalInterventions('');
         }
 
-        onChangeWasSurgicalInterventions(newValue);
+        setWasSurgicalInterventions(newValue);
     };
 
     const onSurgicalListChangeHandler = ({
         target: { value },
     }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        setSurgicalListValue(value);
+        setNewSurgicalInterventions(value);
+    };
 
-        if (!surgicalList.length && value) {
-            onChangeSurgicalList(value);
+    const onSaveButtonClickHandler = async () => {
+        const newData: Partial<Pet> = {
+            id,
+            health: {
+                healthStatus: newHealthStatus!,
+                transfused: newTransfusedValue,
+                medications: newMedications || undefined,
+                surgicalInterventions: newSurgicalInterventions || undefined,
+            },
+        };
+
+        const { success } = await updatePet(newData as Pet);
+
+        if (success) {
+            onSuccessUpdate();
+        } else {
+            onErrorUpdate();
         }
 
-        if (surgicalList.length && !value) {
-            onChangeSurgicalList('');
-        }
+        onClose();
     };
 
-    const onSurgicalListBlurHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        onChangeSurgicalList(value);
-    };
-
-    const onConfirmButtonClickHandler = () => {
-        onConfirmButtonClick(3);
-    };
-
-    useEffect(() => {
-        setIsConfirmButtonActive(
-            !!healthStatus &&
-                (isNoLastDonation || !!lastDonation) &&
-                wasBloodTransfusion !== null &&
-                (isTakingMedications ? !!medicationsList.length : isTakingMedications === false) &&
-                (wasSurgicalInterventions ? !!surgicalList.length : wasSurgicalInterventions === false),
-        );
-    }, [
-        lastDonation,
-        healthStatus,
-        surgicalList,
-        medicationsList,
-        isNoLastDonation,
-        isTakingMedications,
-        wasBloodTransfusion,
-        wasSurgicalInterventions,
-    ]);
-
-    return (
+    const renderEditView = () => (
         <>
             <FormItem title='Состояние здоровья'>
                 <Alert
@@ -184,29 +143,12 @@ const Third: FC<Props> = ({
                             key={value}
                             onClick={onChangerHealthStatusHandler(value)}
                             className={cn(styles.buttonsRowItem, {
-                                [styles.checked]: healthStatus === value,
+                                [styles.checked]: newHealthStatus === value,
                             })}
                         >
                             {label}
                         </Button>
                     ))}
-                </div>
-            </FormItem>
-            <FormItem title='Последняя донация'>
-                <div className={styles.buttonsRow}>
-                    <div className={styles.datePicker}>
-                        <DatePicker
-                            value={lastDonation}
-                            onChange={onChangeLastDonationDate}
-                            backgroundColor={isNoLastDonation ? '#EFF1F6' : undefined}
-                        />
-                    </div>
-                    <Button
-                        onClick={onIsNoLastDonationClickHandler}
-                        className={cn(styles.buttonsRowItem, { [styles.checked]: isNoLastDonation })}
-                    >
-                        Не был донором
-                    </Button>
                 </div>
             </FormItem>
             <FormItem className={styles.formItem} title='Питомцу проводили переливания?'>
@@ -215,7 +157,7 @@ const Third: FC<Props> = ({
                         onClick={onWasBloodTransfusionClickHandler(true)}
                         className={cn(styles.buttonsRowItem, {
                             [styles.yewNo]: true,
-                            [styles.checked]: wasBloodTransfusion,
+                            [styles.checked]: newTransfusedValue,
                         })}
                     >
                         Да
@@ -224,7 +166,7 @@ const Third: FC<Props> = ({
                         onClick={onWasBloodTransfusionClickHandler(false)}
                         className={cn(styles.buttonsRowItem, {
                             [styles.yewNo]: true,
-                            [styles.checked]: wasBloodTransfusion === false,
+                            [styles.checked]: newTransfusedValue === false,
                         })}
                     >
                         Нет
@@ -262,18 +204,17 @@ const Third: FC<Props> = ({
                         multiline
                         name='medications'
                         maxLength={MAX_LETTERS}
-                        value={medicationsListValue}
+                        value={newMedications || ''}
                         htmlInputClass={styles.input}
                         placeholder='Укажите препараты'
-                        onBlur={onMedicationsListBlurHandler}
                         onChange={onMedicationsListChangeHandler}
                     />
                     <div
                         className={cn(styles.counter, {
-                            [styles.bigText]: medicationsListValue.length === MAX_LETTERS,
+                            [styles.bigText]: (newMedications || '').length === MAX_LETTERS,
                         })}
                     >
-                        {medicationsListValue.length}/{MAX_LETTERS}
+                        {(newMedications || '').length}/{MAX_LETTERS}
                     </div>
                 </div>
             )}
@@ -306,32 +247,94 @@ const Third: FC<Props> = ({
                 <div className={styles.textarea}>
                     <TextField
                         multiline
-                        maxLength={250}
                         name='surgical'
-                        value={surgicalListValue}
+                        maxLength={MAX_LETTERS}
                         htmlInputClass={styles.input}
-                        onBlur={onSurgicalListBlurHandler}
+                        value={newSurgicalInterventions || ''}
                         onChange={onSurgicalListChangeHandler}
                         placeholder='Укажите, когда и какие хирургические вмешательства проводились питомцу'
                     />
                     <div
                         className={cn(styles.counter, {
-                            [styles.bigText]: surgicalListValue.length === MAX_LETTERS,
+                            [styles.bigText]: (newSurgicalInterventions || '').length === MAX_LETTERS,
                         })}
                     >
-                        {surgicalListValue.length}/{MAX_LETTERS}
+                        {(newSurgicalInterventions || '').length}/{MAX_LETTERS}
                     </div>
                 </div>
             )}
             <Button
                 fullWidth
-                onClick={onConfirmButtonClickHandler}
-                className={cn(styles.confirm, { [styles.enabled]: isConfirmButtonActive })}
+                onClick={onSaveButtonClickHandler}
+                className={cn(styles.confirm, { [styles.enabled]: isSaveButtonActive })}
             >
-                Далее
+                Сохранить изменения
             </Button>
         </>
     );
+
+    const renderView = () => (
+        <>
+            {healthStatus && (
+                <ViewString
+                    noAlignCanter
+                    name='Состояние здоровья'
+                    tooltip='Есть ли у питомца хронические, инфекционные, аутоиммунные, онкологические заболевания?'
+                    value={healthStatusesDict.filter(({ value }) => value === healthStatus)[0].label}
+                />
+            )}
+            <ViewString noAlignCanter name='Питомцу проводили переливания?' value={transfused ? 'Да' : 'Нет'} />
+            <ViewString
+                noAlignCanter
+                value={medications ? '' : 'Нет'}
+                descr={medications || undefined}
+                name='Питомец принимает препараты'
+            />
+            <ViewString
+                noAlignCanter
+                value={surgicalInterventions ? '' : 'Нет'}
+                descr={surgicalInterventions || undefined}
+                name='Питомцу проводили хирургические вмешательства'
+            />
+        </>
+    );
+
+    useEffect(() => {
+        setIsSaveButtonActive(
+            !isAllFieldsEmpty
+                ? newHealthStatus !== healthStatus ||
+                      newTransfusedValue !== transfused ||
+                      (!!newMedications && newMedications !== medications) ||
+                      (!!medications && isTakingMedications === false) ||
+                      (!!newSurgicalInterventions && newSurgicalInterventions !== surgicalInterventions) ||
+                      (!!surgicalInterventions && wasSurgicalInterventions === false)
+                : !!newHealthStatus &&
+                      newTransfusedValue !== undefined &&
+                      (isTakingMedications ? !!newMedications?.length : isTakingMedications === false) &&
+                      (wasSurgicalInterventions
+                          ? !!newSurgicalInterventions?.length
+                          : wasSurgicalInterventions !== undefined),
+        );
+    }, [
+        transfused,
+        medications,
+        healthStatus,
+        newMedications,
+        newHealthStatus,
+        isAllFieldsEmpty,
+        newTransfusedValue,
+        isTakingMedications,
+        surgicalInterventions,
+        newSurgicalInterventions,
+        wasSurgicalInterventions,
+    ]);
+
+    return (
+        <div className={styles.wrapper}>
+            <Header title='Здоровье' onClose={onClose} isEditMode={isEditMode} icon={<Health />} />
+            {isEditMode ? renderEditView() : renderView()}
+        </div>
+    );
 };
 
-export default Third;
+export default HealthStep;

@@ -1,8 +1,8 @@
 @import 'styles/colors';
 
 .container {
-    width: 140px;
-    height: 177px;
+    height: 100%;
+    width: 100%;
     border-radius: 10px;
     border: 1px dashed @textColor3;
     background: @grayBg;
@@ -62,7 +62,7 @@
 .img {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: inherit;
 }
 
 .delete {
@@ -82,11 +82,30 @@
     }
 }
 
+.edit {
+    display: flex;
+    position: absolute;
+    top: 9px;
+    right: 8px;
+    height: 30px;
+    width: 30px;
+    border-radius: 30px;
+    background: @white;
+    z-index: 10;
+
+    svg {
+        width: 10px;
+        height: 10px;
+        margin: auto;
+        fill: @red9;
+    }
+}
+
 .stub {
     position: relative;
-    height: 177px;
-    width: 140px;
-    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+    border-radius: inherit;
 
     &.cat {
         background: url('imgs/catStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
@@ -154,7 +173,7 @@
     height: inherit;
     top: 0;
     left: 0;
-    border-radius: 10px;
+    border-radius: inherit;
     background: linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
     z-index: 1;
 }
@@ -162,4 +181,5 @@
 .imgWrapper {
     width: inherit;
     height: inherit;
+    border-radius: inherit;
 }

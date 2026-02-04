@@ -1,7 +1,5 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
-import { format } from 'date-fns';
-import { ru } from 'date-fns/locale';
 import Analizes from 'imgs/svg/analizes';
 import BackArrow from 'imgs/svg/backArrow';
 import Health from 'imgs/svg/health';
@@ -11,7 +9,7 @@ import Processing from 'imgs/svg/processing';
 import Success from 'imgs/svg/success';
 import Accordion from 'pages/adding/common/Accordion';
 import { FC, useRef, useState } from 'react';
-import { getCorrectDeclension, Variants } from 'utils/utils';
+import { getCorrectDeclension, getDateFormat, Variants } from 'utils/utils';
 
 import { PetType } from 'api/types';
 import ImgEditor from 'components/ImgEditor';
@@ -137,8 +135,6 @@ const Check: FC<Props> = ({
         return `${years} ${months}`;
     };
 
-    const getDateFormat = (date: Date) => format(date, 'dd.MM.yyyy', { locale: ru });
-
     const getAnalizesValues = (analiz: Analiz) => {
         const result = analiz.items.reduce((acc, item) => {
             if (item.value) {
@@ -196,7 +192,9 @@ const Check: FC<Props> = ({
                 <h2 className={cn(styles.title, { [styles.isOpen]: isOpenView })}>Проверьте все поля</h2>
             </div>
             <div className={cn(styles.content, { [styles.isOpen]: isOpenView })}>
-                <ImgEditor showStub src={photo} name={name} className={styles.photo} bloodGroup={bloodGroup} />
+                <div className={styles.photo}>
+                    <ImgEditor showStub src={photo} name={name} bloodGroup={bloodGroup} />
+                </div>
                 <div className={cn(styles.accordions, { [styles.isOpen]: isOpenView })}>
                     <Accordion title='Параметры' icon={<Params />} onToggle={onAccordionToggleHandler(1)}>
                         {renderString([
@@ -348,7 +346,7 @@ const Check: FC<Props> = ({
             </div>
             {isLoading && (
                 <div className={styles.loading}>
-                    <Loading size={48} thickness={6} />
+                    <Loading size={90} thickness={4} />
                 </div>
             )}
         </>

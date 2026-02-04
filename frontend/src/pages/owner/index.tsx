@@ -11,6 +11,7 @@ import { Pet } from 'api/pets';
 import Layout from 'components/Layout';
 
 import styles from './Owner.module.less';
+import PetProfile from './Profiles/Pet';
 
 type Props = {
     user: TelegramUser;
@@ -21,8 +22,12 @@ type View = 'donor' | 'recipient';
 const Owner: FC<Props> = ({ user }) => {
     const navigate = useNavigate();
 
+    // TODO loader
+
     const [pets, setPets] = useState<Pet[]>([]);
     const [view, setView] = useState<View>('recipient');
+    const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+    const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
 
     const fetchPets = useCallback(async () => {
         const items = await getPets(user.id);
@@ -30,10 +35,24 @@ const Owner: FC<Props> = ({ user }) => {
         if (items?.length) {
             setPets(items);
         }
+
+        setSelectedPet((prevState) => {
+            if (prevState) {
+                return items?.find((pet) => pet.id === prevState.id) || null;
+            }
+
+            return prevState;
+        });
     }, [user.id]);
 
     const onButtonClickHandler = (newView: View) => () => {
         setView(newView);
+    };
+
+    const onPetProfileToggleHandler = (petData: Pet | null) => () => {
+        setSelectedPet(petData);
+
+        setIsPetProfileOpen((prevState) => !prevState);
     };
 
     const onAddPetClickHandler = () => {
@@ -54,6 +73,14 @@ const Owner: FC<Props> = ({ user }) => {
         }
     }, []);
 
+    if (isPetProfileOpen && selectedPet) {
+        return (
+            <Layout>
+                <PetProfile updatePets={fetchPets} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
+            </Layout>
+        );
+    }
+
     return (
         <Layout>
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets.length })}>
@@ -72,7 +99,7 @@ const Owner: FC<Props> = ({ user }) => {
                         <div className={styles.showcase}>
                             {pets.map((pet) => (
                                 <div key={pet.id} className={cn(styles.pet, { [styles[pet.type]]: true })}>
-                                    <div className={styles.photo}>
+                                    <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>
                                         {!!pet.photoUrls?.[0] && (
                                             <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />
                                         )}

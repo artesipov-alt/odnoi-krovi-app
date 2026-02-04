@@ -43,7 +43,9 @@ const Three: FC<Props> = ({ onConfirmButtonClick, description, onDescriptionChan
                 />
             </div>
             <FormItem title='Добавьте фото' subtitle='Необязательно'>
-                <ImgEditor src={photo} onLoad={onLoadPhoto} className={styles.photo} />
+                <div className={styles.photo}>
+                    <ImgEditor src={photo} onLoad={onLoadPhoto} />
+                </div>
             </FormItem>
             <FormItem title='Опишите ситуацию' subtitle='Необязательно'>
                 <div className={styles.textFieldWrapper}>

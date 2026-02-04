@@ -6,6 +6,7 @@ export enum BirthDate {
 export type AnalizItem = {
     name: string;
     value: Date | null;
+    defaultValue?: Date | null;
 };
 
 export type Analiz = {

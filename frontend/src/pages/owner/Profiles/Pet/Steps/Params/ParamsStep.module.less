@@ -1,9 +1,7 @@
 @import 'styles/colors';
 
-.photo {
-    width: 140px;
-    height: 177px;
-    margin: 0 auto 20px;
+.wrapper {
+    padding: 13px 12px;
 }
 
 .buttonsRow {
@@ -12,6 +10,10 @@
 
     &.chip {
         gap: 10px;
+    }
+
+    &.dogGroup {
+        margin-bottom: 20px;
     }
 }
 
@@ -30,6 +32,11 @@
     &.checked {
         background: @common-red !important;
         color: @textColor3 !important;
+    }
+
+    &.responsive {
+        width: unset;
+        flex-grow: 1;
     }
 }
 
@@ -63,6 +70,15 @@
     }
 }
 
+.endAdornment {
+    color: @textColor1;
+    height: 50px;
+    line-height: 50px;
+    width: 33px;
+    text-align: right;
+    border-left: 1px solid @border3;
+}
+
 .picker {
     margin-top: 8px;
 }
@@ -80,7 +96,7 @@
     font-family: Marmelad, sans-serif !important;
     font-size: 15px !important;
     font-weight: 400 !important;
-    line-height: 20px !important;
+    line-height: 18px !important;
     color: @textColor3 !important;
     text-transform: none !important;
     pointer-events: none;
@@ -91,3 +107,5 @@
         pointer-events: auto;
     }
 }
+
+

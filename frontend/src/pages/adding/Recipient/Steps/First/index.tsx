@@ -112,7 +112,9 @@ const First: FC<Props> = ({
 
     return (
         <>
-            <ImgEditor src={photo} onLoad={onLoadPhoto} className={styles.photo} />
+            <div className={styles.photo}>
+                <ImgEditor src={photo} onLoad={onLoadPhoto} />
+            </div>
             <Alert
                 className={styles.alert}
                 text='Фото может вызвать эмоциональный отклик у хозяев доноров и увеличить шансы найти помощь'
