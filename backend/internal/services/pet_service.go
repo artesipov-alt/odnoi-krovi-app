@@ -376,8 +376,7 @@ func (s *PetServiceImpl) ApplyValidation(ctx context.Context, p *ent.Pet) ([]val
 	for i, f := range warnFactors {
 		warnFactorsStr[i] = string(f)
 	}
-	p.DonorStopFactors = stopFactorsStr
-	p.DonorWarnFactors = warnFactorsStr
+	p.DonorRestrictions = append(stopFactorsStr, warnFactorsStr...)
 
 	// Сохраняем изменения
 	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {

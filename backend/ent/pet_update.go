@@ -369,39 +369,21 @@ func (_u *PetUpdate) ClearReproductiveStatus() *PetUpdate {
 	return _u
 }
 
-// SetDonorStopFactors sets the "donor_stop_factors" field.
-func (_u *PetUpdate) SetDonorStopFactors(v []string) *PetUpdate {
-	_u.mutation.SetDonorStopFactors(v)
+// SetDonorRestrictions sets the "donor_restrictions" field.
+func (_u *PetUpdate) SetDonorRestrictions(v []string) *PetUpdate {
+	_u.mutation.SetDonorRestrictions(v)
 	return _u
 }
 
-// AppendDonorStopFactors appends value to the "donor_stop_factors" field.
-func (_u *PetUpdate) AppendDonorStopFactors(v []string) *PetUpdate {
-	_u.mutation.AppendDonorStopFactors(v)
+// AppendDonorRestrictions appends value to the "donor_restrictions" field.
+func (_u *PetUpdate) AppendDonorRestrictions(v []string) *PetUpdate {
+	_u.mutation.AppendDonorRestrictions(v)
 	return _u
 }
 
-// ClearDonorStopFactors clears the value of the "donor_stop_factors" field.
-func (_u *PetUpdate) ClearDonorStopFactors() *PetUpdate {
-	_u.mutation.ClearDonorStopFactors()
-	return _u
-}
-
-// SetDonorWarnFactors sets the "donor_warn_factors" field.
-func (_u *PetUpdate) SetDonorWarnFactors(v []string) *PetUpdate {
-	_u.mutation.SetDonorWarnFactors(v)
-	return _u
-}
-
-// AppendDonorWarnFactors appends value to the "donor_warn_factors" field.
-func (_u *PetUpdate) AppendDonorWarnFactors(v []string) *PetUpdate {
-	_u.mutation.AppendDonorWarnFactors(v)
-	return _u
-}
-
-// ClearDonorWarnFactors clears the value of the "donor_warn_factors" field.
-func (_u *PetUpdate) ClearDonorWarnFactors() *PetUpdate {
-	_u.mutation.ClearDonorWarnFactors()
+// ClearDonorRestrictions clears the value of the "donor_restrictions" field.
+func (_u *PetUpdate) ClearDonorRestrictions() *PetUpdate {
+	_u.mutation.ClearDonorRestrictions()
 	return _u
 }
 
@@ -744,27 +726,16 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.ReproductiveStatusCleared() {
 		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.DonorStopFactors(); ok {
-		_spec.SetField(pet.FieldDonorStopFactors, field.TypeJSON, value)
+	if value, ok := _u.mutation.DonorRestrictions(); ok {
+		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.AppendedDonorStopFactors(); ok {
+	if value, ok := _u.mutation.AppendedDonorRestrictions(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldDonorStopFactors, value)
+			sqljson.Append(u, pet.FieldDonorRestrictions, value)
 		})
 	}
-	if _u.mutation.DonorStopFactorsCleared() {
-		_spec.ClearField(pet.FieldDonorStopFactors, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.DonorWarnFactors(); ok {
-		_spec.SetField(pet.FieldDonorWarnFactors, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedDonorWarnFactors(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldDonorWarnFactors, value)
-		})
-	}
-	if _u.mutation.DonorWarnFactorsCleared() {
-		_spec.ClearField(pet.FieldDonorWarnFactors, field.TypeJSON)
+	if _u.mutation.DonorRestrictionsCleared() {
+		_spec.ClearField(pet.FieldDonorRestrictions, field.TypeJSON)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1338,39 +1309,21 @@ func (_u *PetUpdateOne) ClearReproductiveStatus() *PetUpdateOne {
 	return _u
 }
 
-// SetDonorStopFactors sets the "donor_stop_factors" field.
-func (_u *PetUpdateOne) SetDonorStopFactors(v []string) *PetUpdateOne {
-	_u.mutation.SetDonorStopFactors(v)
+// SetDonorRestrictions sets the "donor_restrictions" field.
+func (_u *PetUpdateOne) SetDonorRestrictions(v []string) *PetUpdateOne {
+	_u.mutation.SetDonorRestrictions(v)
 	return _u
 }
 
-// AppendDonorStopFactors appends value to the "donor_stop_factors" field.
-func (_u *PetUpdateOne) AppendDonorStopFactors(v []string) *PetUpdateOne {
-	_u.mutation.AppendDonorStopFactors(v)
+// AppendDonorRestrictions appends value to the "donor_restrictions" field.
+func (_u *PetUpdateOne) AppendDonorRestrictions(v []string) *PetUpdateOne {
+	_u.mutation.AppendDonorRestrictions(v)
 	return _u
 }
 
-// ClearDonorStopFactors clears the value of the "donor_stop_factors" field.
-func (_u *PetUpdateOne) ClearDonorStopFactors() *PetUpdateOne {
-	_u.mutation.ClearDonorStopFactors()
-	return _u
-}
-
-// SetDonorWarnFactors sets the "donor_warn_factors" field.
-func (_u *PetUpdateOne) SetDonorWarnFactors(v []string) *PetUpdateOne {
-	_u.mutation.SetDonorWarnFactors(v)
-	return _u
-}
-
-// AppendDonorWarnFactors appends value to the "donor_warn_factors" field.
-func (_u *PetUpdateOne) AppendDonorWarnFactors(v []string) *PetUpdateOne {
-	_u.mutation.AppendDonorWarnFactors(v)
-	return _u
-}
-
-// ClearDonorWarnFactors clears the value of the "donor_warn_factors" field.
-func (_u *PetUpdateOne) ClearDonorWarnFactors() *PetUpdateOne {
-	_u.mutation.ClearDonorWarnFactors()
+// ClearDonorRestrictions clears the value of the "donor_restrictions" field.
+func (_u *PetUpdateOne) ClearDonorRestrictions() *PetUpdateOne {
+	_u.mutation.ClearDonorRestrictions()
 	return _u
 }
 
@@ -1743,27 +1696,16 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	if _u.mutation.ReproductiveStatusCleared() {
 		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeEnum)
 	}
-	if value, ok := _u.mutation.DonorStopFactors(); ok {
-		_spec.SetField(pet.FieldDonorStopFactors, field.TypeJSON, value)
+	if value, ok := _u.mutation.DonorRestrictions(); ok {
+		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.AppendedDonorStopFactors(); ok {
+	if value, ok := _u.mutation.AppendedDonorRestrictions(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldDonorStopFactors, value)
+			sqljson.Append(u, pet.FieldDonorRestrictions, value)
 		})
 	}
-	if _u.mutation.DonorStopFactorsCleared() {
-		_spec.ClearField(pet.FieldDonorStopFactors, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.DonorWarnFactors(); ok {
-		_spec.SetField(pet.FieldDonorWarnFactors, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedDonorWarnFactors(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldDonorWarnFactors, value)
-		})
-	}
-	if _u.mutation.DonorWarnFactorsCleared() {
-		_spec.ClearField(pet.FieldDonorWarnFactors, field.TypeJSON)
+	if _u.mutation.DonorRestrictionsCleared() {
+		_spec.ClearField(pet.FieldDonorRestrictions, field.TypeJSON)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -62,10 +62,8 @@ type Pet struct {
 	LivingCondition pet.LivingCondition `json:"livingCondition"`
 	// ReproductiveStatus holds the value of the "reproductive_status" field.
 	ReproductiveStatus pet.ReproductiveStatus `json:"reproductiveStatus"`
-	// DonorStopFactors holds the value of the "donor_stop_factors" field.
-	DonorStopFactors []string `json:"donorStopFactors"`
-	// DonorWarnFactors holds the value of the "donor_warn_factors" field.
-	DonorWarnFactors []string `json:"donorWarnFactors"`
+	// DonorRestrictions holds the value of the "donor_restrictions" field.
+	DonorRestrictions []string `json:"donorRestrictions"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
 	Edges        PetEdges `json:"edges"`
@@ -173,7 +171,7 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case pet.FieldPhotoUrls, pet.FieldDonorStopFactors, pet.FieldDonorWarnFactors:
+		case pet.FieldPhotoUrls, pet.FieldDonorRestrictions:
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
@@ -322,20 +320,12 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ReproductiveStatus = pet.ReproductiveStatus(value.String)
 			}
-		case pet.FieldDonorStopFactors:
+		case pet.FieldDonorRestrictions:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field donor_stop_factors", values[i])
+				return fmt.Errorf("unexpected type %T for field donor_restrictions", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.DonorStopFactors); err != nil {
-					return fmt.Errorf("unmarshal field donor_stop_factors: %w", err)
-				}
-			}
-		case pet.FieldDonorWarnFactors:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field donor_warn_factors", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.DonorWarnFactors); err != nil {
-					return fmt.Errorf("unmarshal field donor_warn_factors: %w", err)
+				if err := json.Unmarshal(*value, &_m.DonorRestrictions); err != nil {
+					return fmt.Errorf("unmarshal field donor_restrictions: %w", err)
 				}
 			}
 		default:
@@ -470,11 +460,8 @@ func (_m *Pet) String() string {
 	builder.WriteString("reproductive_status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ReproductiveStatus))
 	builder.WriteString(", ")
-	builder.WriteString("donor_stop_factors=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DonorStopFactors))
-	builder.WriteString(", ")
-	builder.WriteString("donor_warn_factors=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DonorWarnFactors))
+	builder.WriteString("donor_restrictions=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DonorRestrictions))
 	builder.WriteByte(')')
 	return builder.String()
 }

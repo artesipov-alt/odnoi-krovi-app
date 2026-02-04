@@ -1045,24 +1045,14 @@ func ReproductiveStatusNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldReproductiveStatus))
 }
 
-// DonorStopFactorsIsNil applies the IsNil predicate on the "donor_stop_factors" field.
-func DonorStopFactorsIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldDonorStopFactors))
+// DonorRestrictionsIsNil applies the IsNil predicate on the "donor_restrictions" field.
+func DonorRestrictionsIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldDonorRestrictions))
 }
 
-// DonorStopFactorsNotNil applies the NotNil predicate on the "donor_stop_factors" field.
-func DonorStopFactorsNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldDonorStopFactors))
-}
-
-// DonorWarnFactorsIsNil applies the IsNil predicate on the "donor_warn_factors" field.
-func DonorWarnFactorsIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldDonorWarnFactors))
-}
-
-// DonorWarnFactorsNotNil applies the NotNil predicate on the "donor_warn_factors" field.
-func DonorWarnFactorsNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldDonorWarnFactors))
+// DonorRestrictionsNotNil applies the NotNil predicate on the "donor_restrictions" field.
+func DonorRestrictionsNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldDonorRestrictions))
 }
 
 // HasOwner applies the HasEdge predicate on the "owner" edge.

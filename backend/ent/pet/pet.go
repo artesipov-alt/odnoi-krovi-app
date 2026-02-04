@@ -54,10 +54,8 @@ const (
 	FieldLivingCondition = "living_condition"
 	// FieldReproductiveStatus holds the string denoting the reproductive_status field in the database.
 	FieldReproductiveStatus = "reproductive_status"
-	// FieldDonorStopFactors holds the string denoting the donor_stop_factors field in the database.
-	FieldDonorStopFactors = "donor_stop_factors"
-	// FieldDonorWarnFactors holds the string denoting the donor_warn_factors field in the database.
-	FieldDonorWarnFactors = "donor_warn_factors"
+	// FieldDonorRestrictions holds the string denoting the donor_restrictions field in the database.
+	FieldDonorRestrictions = "donor_restrictions"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeHealth holds the string denoting the health edge name in mutations.
@@ -147,8 +145,7 @@ var Columns = []string{
 	FieldBonusID,
 	FieldLivingCondition,
 	FieldReproductiveStatus,
-	FieldDonorStopFactors,
-	FieldDonorWarnFactors,
+	FieldDonorRestrictions,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

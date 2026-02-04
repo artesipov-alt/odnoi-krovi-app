@@ -261,15 +261,9 @@ func (_c *PetCreate) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *P
 	return _c
 }
 
-// SetDonorStopFactors sets the "donor_stop_factors" field.
-func (_c *PetCreate) SetDonorStopFactors(v []string) *PetCreate {
-	_c.mutation.SetDonorStopFactors(v)
-	return _c
-}
-
-// SetDonorWarnFactors sets the "donor_warn_factors" field.
-func (_c *PetCreate) SetDonorWarnFactors(v []string) *PetCreate {
-	_c.mutation.SetDonorWarnFactors(v)
+// SetDonorRestrictions sets the "donor_restrictions" field.
+func (_c *PetCreate) SetDonorRestrictions(v []string) *PetCreate {
+	_c.mutation.SetDonorRestrictions(v)
 	return _c
 }
 
@@ -594,13 +588,9 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
 		_node.ReproductiveStatus = value
 	}
-	if value, ok := _c.mutation.DonorStopFactors(); ok {
-		_spec.SetField(pet.FieldDonorStopFactors, field.TypeJSON, value)
-		_node.DonorStopFactors = value
-	}
-	if value, ok := _c.mutation.DonorWarnFactors(); ok {
-		_spec.SetField(pet.FieldDonorWarnFactors, field.TypeJSON, value)
-		_node.DonorWarnFactors = value
+	if value, ok := _c.mutation.DonorRestrictions(); ok {
+		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
+		_node.DonorRestrictions = value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
