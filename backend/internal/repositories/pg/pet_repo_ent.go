@@ -234,6 +234,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		SetNillableUserID(nillable(p.UserID)).
 		SetNillableReproductiveStatus(nillable(p.ReproductiveStatus)).
 		SetNillableLivingCondition(nillable(p.LivingCondition)).
+		SetDonorRestrictions(p.DonorRestrictions).
 		Exec(ctx)
 
 	if err != nil {
