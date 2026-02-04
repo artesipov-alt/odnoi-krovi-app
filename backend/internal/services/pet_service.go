@@ -367,16 +367,24 @@ func (s *PetServiceImpl) ApplyValidation(ctx context.Context, p *ent.Pet) ([]val
 	stopFactors := s.validator.GetStopFactors(p)
 	warnFactors := s.validator.GetWarnFactors(p)
 
-	// Присваиваем результаты валидации объекту питомца
-	stopFactorsStr := make([]string, len(stopFactors))
-	for i, f := range stopFactors {
-		stopFactorsStr[i] = string(f)
+	// Присваиваем результаты валидации объекту питомца (дедуплицируем)
+	factorSet := make(map[string]bool)
+	var allFactors []string
+	for _, f := range stopFactors {
+		code := string(f)
+		if !factorSet[code] {
+			factorSet[code] = true
+			allFactors = append(allFactors, code)
+		}
 	}
-	warnFactorsStr := make([]string, len(warnFactors))
-	for i, f := range warnFactors {
-		warnFactorsStr[i] = string(f)
+	for _, f := range warnFactors {
+		code := string(f)
+		if !factorSet[code] {
+			factorSet[code] = true
+			allFactors = append(allFactors, code)
+		}
 	}
-	p.DonorRestrictions = append(stopFactorsStr, warnFactorsStr...)
+	p.DonorRestrictions = allFactors
 
 	// Сохраняем изменения
 	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {

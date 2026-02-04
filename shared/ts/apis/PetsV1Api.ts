@@ -445,7 +445,7 @@ export class PetsV1Api extends runtime.BaseAPI {
     }
 
     /**
-     * Проверяет возможность донорства и возвращает факторы
+     * Пересчитывает и сохраняет факторы валидации донора для питомца
      * Валидация донора по ID
      */
     async validateDonorRaw(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Pet>> {
@@ -466,7 +466,7 @@ export class PetsV1Api extends runtime.BaseAPI {
 
         const response = await this.request({
             path: urlPath,
-            method: 'GET',
+            method: 'POST',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
@@ -475,7 +475,7 @@ export class PetsV1Api extends runtime.BaseAPI {
     }
 
     /**
-     * Проверяет возможность донорства и возвращает факторы
+     * Пересчитывает и сохраняет факторы валидации донора для питомца
      * Валидация донора по ID
      */
     async validateDonor(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Pet> {

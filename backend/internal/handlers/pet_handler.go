@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -85,14 +86,15 @@ func (h *PetHandler) Register(api huma.API) {
 		Tags:        []string{"pets-v1"},
 	}, h.DeletePet)
 
-	// Валидация донора по ID
+	// Валидация донора по ID (изменено на POST)
 	huma.Register(api, huma.Operation{
-		OperationID: "validate-donor",
-		Method:      http.MethodGet,
-		Path:        "/v1/pet/validate-donor/{id}",
-		Summary:     "Валидация донора по ID",
-		Description: "Проверяет возможность донорства и возвращает факторы",
-		Tags:        []string{"pets-v1"},
+		OperationID:   "validate-donor",
+		Method:        http.MethodPost,
+		Path:          "/v1/pet/validate-donor/{id}",
+		Summary:       "Валидация донора по ID",
+		Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
+		Tags:          []string{"pets-v1"},
+		DefaultStatus: http.StatusOK,
 	}, h.ValidateDonor)
 
 }
@@ -209,8 +211,16 @@ func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPath) (*dto
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
+	// Применяем валидацию: пересчитываем и сохраняем факторы
+	_, _, err = h.petService.ApplyValidation(ctx, p)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to apply validation", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Ошибка валидации")
+	}
+
+	// Возвращаем обновлённый DTO (факторы теперь сохранены и будут включены)
 	resp := &dto.PetResponse{}
-	resp.Body = h.toDTO(p) // Валидация применяется здесь через валидатор
+	resp.Body = h.toDTO(p)
 	return resp, nil
 }
 
@@ -316,35 +326,38 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 		}
 	}
 
-	// Заполняем DonorRestrictions
-	// TODO: Определять статус прежде чем заполнять, или же добавить изъявление желания быть донором.
-	if p.PetStatus != "" {
-		stopFactors := h.validator.GetStopFactors(p)
-		warnFactors := h.validator.GetWarnFactors(p)
-
+	// Заполняем DonorRestrictions из сохранённых данных
+	if p.PetStatus != "" && len(p.DonorRestrictions) > 0 {
 		var stopRestrictionFactors []dto.RestrictionFactor
-		for _, code := range stopFactors {
-			desc := validator.GetFactorDescription(code)
-			stopRestrictionFactors = append(stopRestrictionFactors, dto.RestrictionFactor{
-				Code:           string(code),
-				Description:    desc.Description,
-				SubDescription: desc.SubDescription,
-			})
-		}
-
 		var warnRestrictionFactors []dto.RestrictionFactor
-		for _, code := range warnFactors {
+
+		for _, codeStr := range p.DonorRestrictions {
+			code := validator.FactorCode(codeStr)
 			desc := validator.GetFactorDescription(code)
-			warnRestrictionFactors = append(warnRestrictionFactors, dto.RestrictionFactor{
-				Code:           string(code),
+
+			factor := dto.RestrictionFactor{
+				Code:           codeStr,
 				Description:    desc.Description,
 				SubDescription: desc.SubDescription,
-			})
+			}
+
+			// Разделяем на стопы и предупреждения по префиксу
+			if strings.HasPrefix(codeStr, "STOP_") {
+				stopRestrictionFactors = append(stopRestrictionFactors, factor)
+			} else if strings.HasPrefix(codeStr, "WARN_") {
+				warnRestrictionFactors = append(warnRestrictionFactors, factor)
+			}
 		}
 
 		petDTO.DonorRestrictions = &dto.DonorRestrictions{
 			StopFactors: stopRestrictionFactors,
 			WarnFactors: warnRestrictionFactors,
+		}
+	} else if p.PetStatus != "" {
+		// Если факторы ещё не рассчитаны, возвращаем пустые (не рассчитываем на лету)
+		petDTO.DonorRestrictions = &dto.DonorRestrictions{
+			StopFactors: []dto.RestrictionFactor{},
+			WarnFactors: []dto.RestrictionFactor{},
 		}
 	}
 
