@@ -4,8 +4,6 @@ export * from './AppError';
 export * from './BloodSearchFilterRequest';
 export * from './BloodSearchPetRequest';
 export * from './BloodSearchPetResponse';
-export * from './BloodSearchPetsResponse';
-export * from './BloodSearchRequestResponse';
 export * from './ConfirmUploadRequest';
 export * from './DonorRestrictions';
 export * from './MessageBody';

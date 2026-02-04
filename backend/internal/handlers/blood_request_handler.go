@@ -72,22 +72,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 
 // Вспомогательные структуры для Huma
 
-type BloodRequestIDPath struct {
-	ID string `path:"id" doc:"ID заявки" minLength:"1" example:"BR-25-000001"`
-}
-
-type BloodSearchPetResponseWrapper struct {
-	Body dto.BloodSearchPetResponse
-}
-
-type BloodSearchPetsResponseWrapper struct {
-	Body dto.BloodSearchPetsResponse
-}
-
-type BloodSearchRequestResponseWrapper struct {
-	Body dto.BloodSearchRequestResponse
-}
-
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
 func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest {
 	return dto.BloodSearchPetRequest{
@@ -100,6 +84,7 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest
 		PhotoUrls:              req.PhotoUrls,
 		BloodGroupNames:        req.BloodGroupNames,
 		BloodComponentIds:      req.BloodComponentIds,
+		Status:                 dto.BloodSearchRequestStatus(req.Status),
 	}
 }
 
@@ -123,7 +108,7 @@ func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
 	Body dto.BloodSearchPetRequest
-}) (*BloodSearchPetResponseWrapper, error) {
+}) (*dto.BloodRequestCreateResponse, error) {
 	bloodReq := mapDTOToBloodRequest(input.Body)
 
 	result, err := h.service.CreateRequest(ctx, bloodReq)
@@ -136,16 +121,16 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	return &BloodSearchPetResponseWrapper{Body: dto.BloodSearchPetResponse{
+	return &dto.BloodRequestCreateResponse{Body: dto.BloodSearchPetResponse{
 		ID:     result.ID,
 		PetID:  result.PetID,
-		Status: dto.BloodSearchRequestStatus(result.Status), // Fixed: Cast to dto.BloodSearchRequestStatus
+		Status: dto.BloodSearchRequestStatus(result.Status),
 	}}, nil
 }
 
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
 	Body dto.BloodSearchFilterRequest
-}) (*BloodSearchPetsResponseWrapper, error) {
+}) (*dto.BloodRequestsResponse, error) {
 	filters := make(map[string]any)
 	if input.Body.PetID != "" {
 		filters["pet_id"] = input.Body.PetID
@@ -165,12 +150,10 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 		dtos[i] = mapBloodRequestToDTO(req)
 	}
 
-	return &BloodSearchPetsResponseWrapper{Body: dto.BloodSearchPetsResponse{
-		Requests: dtos,
-	}}, nil
+	return &dto.BloodRequestsResponse{Body: dtos}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *BloodRequestIDPath) (*BloodSearchRequestResponseWrapper, error) {
+func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPath) (*dto.BloodRequestResponse, error) {
 	result, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
@@ -181,10 +164,10 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *Bl
 		return nil, huma.Error500InternalServerError("Ошибка сервера")
 	}
 
-	return &BloodSearchRequestResponseWrapper{Body: dto.BloodSearchRequestResponse{Body: mapBloodRequestToDTO(result)}}, nil
+	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(result)}, nil
 }
 
-func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *BloodRequestIDPath) (*dto.MessageResponse, error) {
+func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
 	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			slog.DebugContext(ctx, "blood request not found for deletion", "request_id", input.ID, "error", err.Error())

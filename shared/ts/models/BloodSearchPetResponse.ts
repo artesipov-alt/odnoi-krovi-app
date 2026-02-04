@@ -42,8 +42,20 @@ export interface BloodSearchPetResponse {
      * @type {string}
      * @memberof BloodSearchPetResponse
      */
-    status: string;
+    status: BloodSearchPetResponseStatusEnum;
 }
+
+
+/**
+ * @export
+ */
+export const BloodSearchPetResponseStatusEnum = {
+    Active: 'active',
+    Closed: 'closed',
+    Draft: 'draft'
+} as const;
+export type BloodSearchPetResponseStatusEnum = typeof BloodSearchPetResponseStatusEnum[keyof typeof BloodSearchPetResponseStatusEnum];
+
 
 /**
  * Check if a given object implements the BloodSearchPetResponse interface.

@@ -41,17 +41,17 @@ type BloodSearchService interface {
 
 // BloodSearchServiceImpl реализует BloodSearchService
 type BloodSearchServiceImpl struct {
-	repo    repositories.BloodRequestRepository
-	petRepo repositories.PetRepository
-	storage repositories.FileStorage
+	bloodRepo repositories.BloodRequestRepository
+	petRepo   repositories.PetRepository
+	storage   repositories.FileStorage
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
 func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage) *BloodSearchServiceImpl {
 	return &BloodSearchServiceImpl{
-		repo:    repo,
-		petRepo: petRepo,
-		storage: storage,
+		bloodRepo: repo,
+		petRepo:   petRepo,
+		storage:   storage,
 	}
 }
 
@@ -67,7 +67,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
-	activeExists, err := s.repo.ExistsByPetID(ctx, bloodReq.PetID)
+	activeExists, err := s.bloodRepo.ExistsByPetID(ctx, bloodReq.PetID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check request existence")
 	}
@@ -79,7 +79,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	bloodReq.Status = bloodsearchrequest.StatusActive
 
 	// Создаем заявку
-	newReq, err := s.repo.Create(ctx, bloodReq)
+	newReq, err := s.bloodRepo.Create(ctx, bloodReq)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create blood request")
 	}
@@ -89,7 +89,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 
 // GetRequestByID получает заявку по её ID
 func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
-	req, err := s.repo.GetByID(ctx, id)
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
@@ -105,7 +105,7 @@ func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) 
 
 // GetRequestByPetID получает активную заявку для конкретного питомца
 func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
-	req, err := s.repo.GetByPetID(ctx, petID)
+	req, err := s.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
@@ -119,7 +119,7 @@ func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID st
 // UpdateRequest обновляет информацию о заявке
 func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование
-	existing, err := s.repo.GetByID(ctx, id)
+	existing, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
@@ -134,7 +134,7 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 		bloodReq.Status = existing.Status
 	}
 
-	updated, err := s.repo.Update(ctx, bloodReq)
+	updated, err := s.bloodRepo.Update(ctx, bloodReq)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
@@ -148,7 +148,7 @@ func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, st
 		return apperrors.ErrInvalidBloodRequestStatus.WithInternal(err)
 	}
 
-	err := s.repo.UpdateStatus(ctx, id, status)
+	err := s.bloodRepo.UpdateStatus(ctx, id, status)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrBloodRequestNotFound
@@ -161,7 +161,7 @@ func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, st
 
 // DeleteRequest удаляет заявку (soft delete)
 func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) error {
-	err := s.repo.Delete(ctx, id)
+	err := s.bloodRepo.Delete(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrBloodRequestNotFound
@@ -173,7 +173,7 @@ func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) e
 
 // ListRequests возвращает список заявок с фильтрацией
 func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
-	requests, err := s.repo.List(ctx, limit, offset, filters)
+	requests, err := s.bloodRepo.List(ctx, limit, offset, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")
 	}
@@ -183,7 +183,7 @@ func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset
 
 // ExistsByID проверяет существование заявки по её ID
 func (s *BloodSearchServiceImpl) ExistsByID(ctx context.Context, id string) (bool, error) {
-	return s.repo.ExistsByID(ctx, id)
+	return s.bloodRepo.ExistsByID(ctx, id)
 }
 
 // buildFullPhotoURLs преобразует пути к фото в полные публичные URL

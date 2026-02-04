@@ -19,8 +19,6 @@ import type {
   BloodSearchFilterRequest,
   BloodSearchPetRequest,
   BloodSearchPetResponse,
-  BloodSearchPetsResponse,
-  BloodSearchRequestResponse,
   ConfirmUploadRequest,
   MessageBody,
   UploadURLResponseBody,
@@ -34,10 +32,6 @@ import {
     BloodSearchPetRequestToJSON,
     BloodSearchPetResponseFromJSON,
     BloodSearchPetResponseToJSON,
-    BloodSearchPetsResponseFromJSON,
-    BloodSearchPetsResponseToJSON,
-    BloodSearchRequestResponseFromJSON,
-    BloodSearchRequestResponseToJSON,
     ConfirmUploadRequestFromJSON,
     ConfirmUploadRequestToJSON,
     MessageBodyFromJSON,
@@ -204,7 +198,7 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Возвращает информацию о конкретной заявке
      * Получить заявку по ID
      */
-    async getBloodRequestByIdRaw(requestParameters: GetBloodRequestByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchRequestResponse>> {
+    async getBloodRequestByIdRaw(requestParameters: GetBloodRequestByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchPetRequest>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -227,14 +221,14 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BloodSearchRequestResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BloodSearchPetRequestFromJSON(jsonValue));
     }
 
     /**
      * Возвращает информацию о конкретной заявке
      * Получить заявку по ID
      */
-    async getBloodRequestById(requestParameters: GetBloodRequestByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchRequestResponse> {
+    async getBloodRequestById(requestParameters: GetBloodRequestByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetRequest> {
         const response = await this.getBloodRequestByIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -243,7 +237,7 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Возвращает список заявок по фильтрам
      * Получить список заявок на поиск крови
      */
-    async getPetsFromBloodRequestPoolRaw(requestParameters: GetPetsFromBloodRequestPoolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchPetsResponse>> {
+    async getPetsFromBloodRequestPoolRaw(requestParameters: GetPetsFromBloodRequestPoolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<BloodSearchPetRequest>>> {
         if (requestParameters['bloodSearchFilterRequest'] == null) {
             throw new runtime.RequiredError(
                 'bloodSearchFilterRequest',
@@ -268,14 +262,14 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
             body: BloodSearchFilterRequestToJSON(requestParameters['bloodSearchFilterRequest']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BloodSearchPetsResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(BloodSearchPetRequestFromJSON));
     }
 
     /**
      * Возвращает список заявок по фильтрам
      * Получить список заявок на поиск крови
      */
-    async getPetsFromBloodRequestPool(requestParameters: GetPetsFromBloodRequestPoolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetsResponse> {
+    async getPetsFromBloodRequestPool(requestParameters: GetPetsFromBloodRequestPoolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<BloodSearchPetRequest>> {
         const response = await this.getPetsFromBloodRequestPoolRaw(requestParameters, initOverrides);
         return await response.value();
     }

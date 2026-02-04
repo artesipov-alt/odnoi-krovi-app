@@ -48,8 +48,20 @@ export interface BloodSearchFilterRequest {
      * @type {string}
      * @memberof BloodSearchFilterRequest
      */
-    status?: string;
+    status?: BloodSearchFilterRequestStatusEnum;
 }
+
+
+/**
+ * @export
+ */
+export const BloodSearchFilterRequestStatusEnum = {
+    Active: 'active',
+    Closed: 'closed',
+    Draft: 'draft'
+} as const;
+export type BloodSearchFilterRequestStatusEnum = typeof BloodSearchFilterRequestStatusEnum[keyof typeof BloodSearchFilterRequestStatusEnum];
+
 
 /**
  * Check if a given object implements the BloodSearchFilterRequest interface.

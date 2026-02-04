@@ -9,8 +9,6 @@ models/AppError.ts
 models/BloodSearchFilterRequest.ts
 models/BloodSearchPetRequest.ts
 models/BloodSearchPetResponse.ts
-models/BloodSearchPetsResponse.ts
-models/BloodSearchRequestResponse.ts
 models/ConfirmUploadRequest.ts
 models/DonorRestrictions.ts
 models/MessageBody.ts

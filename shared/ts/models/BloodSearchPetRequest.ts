@@ -79,6 +79,12 @@ export interface BloodSearchPetRequest {
      * @memberof BloodSearchPetRequest
      */
     smallPetsNotifyAllowed: boolean;
+    /**
+     * Статус запроса
+     * @type {string}
+     * @memberof BloodSearchPetRequest
+     */
+    status?: BloodSearchPetRequestStatusEnum;
 }
 
 
@@ -93,6 +99,16 @@ export const BloodSearchPetRequestBloodGroupNamesEnum = {
     Ab: 'AB'
 } as const;
 export type BloodSearchPetRequestBloodGroupNamesEnum = typeof BloodSearchPetRequestBloodGroupNamesEnum[keyof typeof BloodSearchPetRequestBloodGroupNamesEnum];
+
+/**
+ * @export
+ */
+export const BloodSearchPetRequestStatusEnum = {
+    Active: 'active',
+    Closed: 'closed',
+    Draft: 'draft'
+} as const;
+export type BloodSearchPetRequestStatusEnum = typeof BloodSearchPetRequestStatusEnum[keyof typeof BloodSearchPetRequestStatusEnum];
 
 
 /**
@@ -128,6 +144,7 @@ export function BloodSearchPetRequestFromJSONTyped(json: any, ignoreDiscriminato
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'regions': json['regions'],
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
+        'status': json['status'] == null ? undefined : json['status'],
     };
 }
 
@@ -151,6 +168,7 @@ export function BloodSearchPetRequestToJSONTyped(value?: Omit<BloodSearchPetRequ
         'photoUrls': value['photoUrls'],
         'regions': value['regions'],
         'smallPetsNotifyAllowed': value['smallPetsNotifyAllowed'],
+        'status': value['status'],
     };
 }
 
