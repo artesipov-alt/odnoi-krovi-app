@@ -34,6 +34,113 @@ const (
 	WarnFactorNoCurrentAnalyses    FactorCode = "WARN_NO_CURRENT_ANALYSES"
 )
 
+// FactorDescription представляет описание фактора
+type FactorDescription struct {
+	Description    string
+	SubDescription string
+}
+
+// factorDescriptions маппа кодов факторов в их описания
+var factorDescriptions = map[FactorCode]FactorDescription{
+	StopFactorTooOld: {
+		Description:    "Возраст больше 8 лет",
+		SubDescription: "Донации после 8 лет рискованны для донора",
+	},
+	StopFactorNoPhoto: {
+		Description:    "Отсутствует фото питомца",
+		SubDescription: "",
+	},
+	StopFactorNoInfectionVaccination: {
+		Description:    "Отсутствует вакцинация от инфекций",
+		SubDescription: "",
+	},
+	StopFactorNoRabiesVaccination: {
+		Description:    "Отсутствует вакцинация от бешенства",
+		SubDescription: "",
+	},
+	StopFactorVaccinationExpired: {
+		Description:    "Прошло больше года после вакцинации",
+		SubDescription: "",
+	},
+	StopFactorVaccinationTooRecent: {
+		Description:    "Прошло меньше месяца после вакцинации",
+		SubDescription: "",
+	},
+	StopFactorEctoparasiteTreatmentExpired: {
+		Description:    "Прошло больше 3 месяцев после обработки от эктопаразитов",
+		SubDescription: "",
+	},
+	StopFactorNoDeworming: {
+		Description:    "Не проведена дегельминтизация",
+		SubDescription: "",
+	},
+	StopFactorNoEctoparasiteTreatment: {
+		Description:    "Не обработан от эктопаразитов",
+		SubDescription: "",
+	},
+	StopFactorDewormingExpired: {
+		Description:    "Прошло больше 3 месяцев после дегельминтизации",
+		SubDescription: "",
+	},
+	StopFactorTooYoung: {
+		Description:    "Возраст меньше года",
+		SubDescription: "",
+	},
+	StopFactorPregnancy: {
+		Description:    "Беременность",
+		SubDescription: "",
+	},
+	StopFactorLactation: {
+		Description:    "Лактация",
+		SubDescription: "",
+	},
+	StopFactorEstrus: {
+		Description:    "Течка",
+		SubDescription: "",
+	},
+	StopFactorHasDiseases: {
+		Description:    "Есть заболевания",
+		SubDescription: "",
+	},
+	StopFactorDonationTooRecent: {
+		Description:    "Прошло меньше 2 месяцев с последней донации",
+		SubDescription: "",
+	},
+	StopFactorTransfused: {
+		Description:    "Питомцу переливали кровь",
+		SubDescription: "",
+	},
+	StopFactorCurrentlyRecipient: {
+		Description:    "Питомцу сейчас ищут кровь",
+		SubDescription: "",
+	},
+	WarnFactorTakingMedications: {
+		Description:    "Идет прием препаратов",
+		SubDescription: "Прием препаратов может говорить о проблемах со здоровьем",
+	},
+	WarnFactorSurgicalIntervention: {
+		Description:    "Было хирургическое вмешательство",
+		SubDescription: "Донор может еще восстанавливаться после операции",
+	},
+	WarnFactorApproaching8Years: {
+		Description:    "Скоро исполнится 8 лет",
+		SubDescription: "Донации после 8 лет рискованны для донора",
+	},
+	WarnFactorFreeRange: {
+		Description:    "Животное на самовыгуле",
+		SubDescription: "",
+	},
+	WarnFactorNoCurrentAnalyses: {
+		Description:    "Отсутствуют актуальные анализы",
+		SubDescription: "Рекомендованы проверки раз в год на особо опасные инфекции - их можно сдать перед донацией (в некоторых клиниках за 1 день)",
+	},
+}
+
+// GetFactorDescription возвращает описание для данного кода фактора
+func GetFactorDescription(code FactorCode) FactorDescription {
+	return factorDescriptions[code]
+}
+
 type DonorValidator interface {
 	GetStopFactors(p *ent.Pet) []FactorCode
 	GetWarnFactors(p *ent.Pet) []FactorCode

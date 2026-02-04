@@ -84,6 +84,10 @@ export interface UpdatePetRequest {
     petUpdate: Omit<PetUpdate, '$schema'>;
 }
 
+export interface ValidateDonorRequest {
+    id: string;
+}
+
 /**
  * 
  */
@@ -437,6 +441,45 @@ export class PetsV1Api extends runtime.BaseAPI {
      */
     async updatePet(requestParameters: UpdatePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageBody> {
         const response = await this.updatePetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Проверяет возможность донорства и возвращает факторы
+     * Валидация донора по ID
+     */
+    async validateDonorRaw(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Pet>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling validateDonor().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/pet/validate-donor/{id}`;
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PetFromJSON(jsonValue));
+    }
+
+    /**
+     * Проверяет возможность донорства и возвращает факторы
+     * Валидация донора по ID
+     */
+    async validateDonor(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Pet> {
+        const response = await this.validateDonorRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

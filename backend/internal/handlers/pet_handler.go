@@ -14,18 +14,21 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
 	petService services.PetService
+	validator  validator.DonorValidator
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService services.PetService) *PetHandler {
+func NewPetHandler(petService services.PetService, validator validator.DonorValidator) *PetHandler {
 	return &PetHandler{
 		petService: petService,
+		validator:  validator,
 	}
 }
 
@@ -81,6 +84,16 @@ func (h *PetHandler) Register(api huma.API) {
 		Description: "Удаляет питомца из системы",
 		Tags:        []string{"pets-v1"},
 	}, h.DeletePet)
+
+	// Валидация донора по ID
+	huma.Register(api, huma.Operation{
+		OperationID: "validate-donor",
+		Method:      http.MethodGet,
+		Path:        "/v1/pet/validate-donor/{id}",
+		Summary:     "Валидация донора по ID",
+		Description: "Проверяет возможность донорства и возвращает факторы",
+		Tags:        []string{"pets-v1"},
+	}, h.ValidateDonor)
 
 }
 
@@ -180,6 +193,24 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPath) (*dto.Mes
 
 	resp := &dto.MessageResponse{}
 	resp.Body.Message = "Питомец успешно удален"
+	return resp, nil
+}
+
+func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPath) (*dto.PetResponse, error) {
+	// Загружаем все связанные данные для полной валидации
+	preloads := []string{"Health", "Treatments", "Analyses", "Bonuses"}
+	p, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrPetNotFound) {
+			slog.DebugContext(ctx, "pet not found for donor validation", "pet_id", input.ID, "error", err.Error())
+			return nil, huma.Error404NotFound("Питомец не найден")
+		}
+		slog.ErrorContext(ctx, "failed to get pet for donor validation", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	resp := &dto.PetResponse{}
+	resp.Body = h.toDTO(p) // Валидация применяется здесь через валидатор
 	return resp, nil
 }
 
@@ -284,6 +315,39 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 			IsGuideDog:    p.Edges.Bonuses.IsGuideDog,
 		}
 	}
+
+	// Заполняем DonorRestrictions
+	// TODO: Определять статус прежде чем заполнять, или же добавить изъявление желания быть донором.
+	if p.PetStatus != "" {
+		stopFactors := h.validator.GetStopFactors(p)
+		warnFactors := h.validator.GetWarnFactors(p)
+
+		var stopRestrictionFactors []dto.RestrictionFactor
+		for _, code := range stopFactors {
+			desc := validator.GetFactorDescription(code)
+			stopRestrictionFactors = append(stopRestrictionFactors, dto.RestrictionFactor{
+				Code:           string(code),
+				Description:    desc.Description,
+				SubDescription: desc.SubDescription,
+			})
+		}
+
+		var warnRestrictionFactors []dto.RestrictionFactor
+		for _, code := range warnFactors {
+			desc := validator.GetFactorDescription(code)
+			warnRestrictionFactors = append(warnRestrictionFactors, dto.RestrictionFactor{
+				Code:           string(code),
+				Description:    desc.Description,
+				SubDescription: desc.SubDescription,
+			})
+		}
+
+		petDTO.DonorRestrictions = &dto.DonorRestrictions{
+			StopFactors: stopRestrictionFactors,
+			WarnFactors: warnRestrictionFactors,
+		}
+	}
+
 	return petDTO
 }
 

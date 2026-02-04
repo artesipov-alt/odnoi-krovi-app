@@ -50,14 +50,14 @@ type PetBonus struct {
 
 // DonorRestrictions представляет собой стоп-факторы и вопросы о донорстве.
 type DonorRestrictions struct {
-	StopFactors []RestrictionFactor `json:"stopFactors,omitempty" doc:"Стоп-факторы" example:"false"`
-	WarnFactors []RestrictionFactor `json:"warnFactors,omitempty" doc:"Предупреждающие факторы" example:"false"`
+	StopFactors []RestrictionFactor `json:"stopFactors,omitempty" doc:"Стоп-факторы"`
+	WarnFactors []RestrictionFactor `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
 }
 
 type RestrictionFactor struct {
-	Code           string  `json:"code" doc:"Код фактора" example:"STOP_TOO_OLD"`
-	Description    string  `json:"description" doc:"Описание фактора" example:"Питомцу больше 8 лет"`
-	SubDescription *string `json:"subDescription,omitempty" doc:"Дополнительное описание фактора" example:"Питомцу больше 8 лет"`
+	Code           string `json:"code" doc:"Код фактора" example:"STOP_TOO_OLD"`
+	Description    string `json:"description" doc:"Описание фактора" example:"Питомцу больше 8 лет"`
+	SubDescription string `json:"subDescription,omitempty" doc:"Дополнительное описание фактора"`
 }
 
 // PetUpdate представляет структуру для обновления существующего питомца
@@ -118,7 +118,7 @@ type Pet struct {
 	BloodGroup         string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
 	ReproductiveStatus string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус питомца" enum:"pregnancy,lactation,estrus"`
 	PetStatus          string             `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none" example:"donor"`
-	DonorRestrictions  *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и вопросы о донорстве." example:"STOP_TOO_OLD"`
+	DonorRestrictions  *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и вопросы о донорстве."`
 	Health             *PetHealth         `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment      `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup  `json:"analyses,omitempty" doc:"Группированные анализы"`

@@ -41,6 +41,13 @@ import {
     PetHealthToJSON,
     PetHealthToJSONTyped,
 } from './PetHealth';
+import type { DonorRestrictions } from './DonorRestrictions';
+import {
+    DonorRestrictionsFromJSON,
+    DonorRestrictionsFromJSONTyped,
+    DonorRestrictionsToJSON,
+    DonorRestrictionsToJSONTyped,
+} from './DonorRestrictions';
 
 /**
  * 
@@ -102,6 +109,12 @@ export interface Pet {
      * @memberof Pet
      */
     readonly deletedAt?: Date;
+    /**
+     * Стоп-факторы и вопросы о донорстве.
+     * @type {DonorRestrictions}
+     * @memberof Pet
+     */
+    donorRestrictions?: DonorRestrictions;
     /**
      * Пол питомца
      * @type {string}
@@ -267,6 +280,7 @@ export function PetFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pet {
         'chipNumber': json['chipNumber'] == null ? undefined : json['chipNumber'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
+        'donorRestrictions': json['donorRestrictions'] == null ? undefined : DonorRestrictionsFromJSON(json['donorRestrictions']),
         'gender': json['gender'] == null ? undefined : json['gender'],
         'health': json['health'] == null ? undefined : PetHealthFromJSON(json['health']),
         'id': json['id'] == null ? undefined : json['id'],
@@ -299,6 +313,7 @@ export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'createdAt'|'deletedA
         'bonuses': PetBonusToJSON(value['bonuses']),
         'breedId': value['breedId'],
         'chipNumber': value['chipNumber'],
+        'donorRestrictions': DonorRestrictionsToJSON(value['donorRestrictions']),
         'gender': value['gender'],
         'health': PetHealthToJSON(value['health']),
         'livingCondition': value['livingCondition'],

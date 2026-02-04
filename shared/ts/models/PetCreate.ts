@@ -133,12 +133,6 @@ export interface PetCreate {
      */
     petStatus: PetCreatePetStatusEnum;
     /**
-     * URLs фотографий питомца
-     * @type {Array<string>}
-     * @memberof PetCreate
-     */
-    photoUrls?: Array<string> | null;
-    /**
      * Репродуктивный статус питомца
      * @type {string}
      * @memberof PetCreate
@@ -260,7 +254,6 @@ export function PetCreateFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'livingCondition': json['livingCondition'] == null ? undefined : json['livingCondition'],
         'name': json['name'],
         'petStatus': json['petStatus'],
-        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'reproductiveStatus': json['reproductiveStatus'] == null ? undefined : json['reproductiveStatus'],
         'treatments': json['treatments'] == null ? undefined : PetTreatmentFromJSON(json['treatments']),
         'type': json['type'],
@@ -292,7 +285,6 @@ export function PetCreateToJSONTyped(value?: Omit<PetCreate, '$schema'> | null, 
         'livingCondition': value['livingCondition'],
         'name': value['name'],
         'petStatus': value['petStatus'],
-        'photoUrls': value['photoUrls'],
         'reproductiveStatus': value['reproductiveStatus'],
         'treatments': PetTreatmentToJSON(value['treatments']),
         'type': value['type'],
