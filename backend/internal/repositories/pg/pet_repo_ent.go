@@ -229,7 +229,7 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		SetNillableBloodGroup(nillable(p.BloodGroup)).
 		SetNillableGender(nillable(p.Gender)).
 		SetNillableBirthDate(p.BirthDate).
-		SetNillableChipNumber(nillable(p.ChipNumber)).
+		SetNillableChipNumber(&p.ChipNumber).
 		SetPhotoUrls(p.PhotoUrls).
 		SetNillableBreedID(nillable(p.BreedID)).
 		SetNillableUserID(nillable(p.UserID)).

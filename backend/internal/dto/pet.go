@@ -86,7 +86,7 @@ type PetUpdate struct {
 // PetCreate представляет структуру для создания нового питомца
 type PetCreate struct {
 	Name               string            `json:"name" doc:"Имя питомца" example:"Шарик"`
-	ChipNumber         string            `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
+	ChipNumber         string            `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
 	BreedID            int               `json:"breedId,omitempty" doc:"ID породы" example:"1"`
 	WeightKg           float64           `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
 	AgeYears           int               `json:"ageYears,omitempty" doc:"Возраст в годах" example:"3"`
@@ -107,7 +107,7 @@ type PetCreate struct {
 type Pet struct {
 	ID                 string             `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
 	Name               string             `json:"name" doc:"Имя питомца" example:"Шарик"`
-	ChipNumber         string             `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
+	ChipNumber         string             `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
 	PhotoURLs          []string           `json:"photoUrls,omitempty" doc:"URLs фотографий питомца" example:"https://example.com/photo.jpg"`
 	BreedID            int                `json:"breedId,omitempty" doc:"ID породы" example:"1"`
 	WeightKg           float64            `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
