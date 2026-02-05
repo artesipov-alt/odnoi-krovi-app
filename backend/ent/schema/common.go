@@ -88,8 +88,8 @@ func (StandardMixin) Interceptors() []entgo.Interceptor {
 func SoftDeleteHook() entgo.Hook {
 	return func(next entgo.Mutator) entgo.Mutator {
 		return entgo.MutateFunc(func(ctx context.Context, m entgo.Mutation) (entgo.Value, error) {
-			// Check if the operation is a delete operation.
-			if !m.Op().Is(entgo.OpDelete | entgo.OpDeleteOne) {
+			// Check if the operation is a delete operation and if soft-delete should be skipped.
+			if !m.Op().Is(entgo.OpDelete|entgo.OpDeleteOne) || IsSkipSoftDelete(ctx) {
 				return next.Mutate(ctx, m)
 			}
 

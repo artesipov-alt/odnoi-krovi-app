@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
@@ -250,22 +251,29 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 			return nil, err
 		}
 		if existingHealth != nil {
-			err = tx.PetHealth.UpdateOne(existingHealth).
+			updateBuilder := tx.PetHealth.UpdateOne(existingHealth)
+			if health.LastDonation == nil {
+				updateBuilder.ClearLastDonation()
+			} else {
+				updateBuilder.SetLastDonation(*health.LastDonation)
+			}
+			err = updateBuilder.
 				SetNillableHealthStatus(nillable(health.HealthStatus)).
-				SetNillableLastDonation(health.LastDonation).
 				SetTransfused(health.Transfused).
 				SetMedications(health.Medications).
 				SetSurgicalInterventions(health.SurgicalInterventions).
 				Exec(ctx)
 		} else {
-			_, err = tx.PetHealth.Create().
+			createBuilder := tx.PetHealth.Create().
 				SetOwnerID(p.ID).
 				SetNillableHealthStatus(nillable(health.HealthStatus)).
-				SetNillableLastDonation(health.LastDonation).
 				SetTransfused(health.Transfused).
 				SetMedications(health.Medications).
-				SetSurgicalInterventions(health.SurgicalInterventions).
-				Save(ctx)
+				SetSurgicalInterventions(health.SurgicalInterventions)
+			if health.LastDonation != nil {
+				createBuilder.SetLastDonation(*health.LastDonation)
+			}
+			_, err = createBuilder.Save(ctx)
 		}
 		if err != nil {
 			tx.Rollback()
@@ -280,12 +288,28 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 			return nil, err
 		}
 		if existingTreatment != nil {
-			err = tx.PetTreatment.UpdateOne(existingTreatment).
-				SetNillableRabiesVaccinationDate(treatments.RabiesVaccinationDate).
-				SetNillableInfectionVaccinationDate(treatments.InfectionVaccinationDate).
-				SetNillableEctoparasiteTreatmentDate(treatments.EctoparasiteTreatmentDate).
-				SetNillableDewormingDate(treatments.DewormingDate).
-				Exec(ctx)
+			updateBuilder := tx.PetTreatment.UpdateOne(existingTreatment)
+			if treatments.RabiesVaccinationDate == nil {
+				updateBuilder.ClearRabiesVaccinationDate()
+			} else {
+				updateBuilder.SetRabiesVaccinationDate(*treatments.RabiesVaccinationDate)
+			}
+			if treatments.InfectionVaccinationDate == nil {
+				updateBuilder.ClearInfectionVaccinationDate()
+			} else {
+				updateBuilder.SetInfectionVaccinationDate(*treatments.InfectionVaccinationDate)
+			}
+			if treatments.EctoparasiteTreatmentDate == nil {
+				updateBuilder.ClearEctoparasiteTreatmentDate()
+			} else {
+				updateBuilder.SetEctoparasiteTreatmentDate(*treatments.EctoparasiteTreatmentDate)
+			}
+			if treatments.DewormingDate == nil {
+				updateBuilder.ClearDewormingDate()
+			} else {
+				updateBuilder.SetDewormingDate(*treatments.DewormingDate)
+			}
+			err = updateBuilder.Exec(ctx)
 		} else {
 			_, err = tx.PetTreatment.Create().
 				SetOwnerID(p.ID).
@@ -301,21 +325,31 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		}
 	}
 
-	// For analyses, add new ones as history (do not delete existing)
-	for _, a := range analyses {
-		builder := tx.PetAnalysis.Create().
-			SetOwnerID(p.ID).
-			SetAnalysisName(a.AnalysisName).
-			SetAnalysisType(a.AnalysisType)
-
-		if a.AnalysisDate != nil {
-			builder.SetAnalysisDate(*a.AnalysisDate)
-		}
-
-		_, err = builder.Save(ctx)
+	// For analyses, delete existing ones and create new ones
+	if len(analyses) > 0 {
+		// Delete existing analyses for this pet (hard delete)
+		_, err = tx.PetAnalysis.Delete().Where(petanalysis.HasOwnerWith(pet.ID(p.ID))).Exec(schema.SkipSoftDelete(ctx))
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to create pet analysis: %w", err)
+			return nil, fmt.Errorf("failed to delete existing pet analyses: %w", err)
+		}
+
+		// Create new analyses
+		for _, a := range analyses {
+			builder := tx.PetAnalysis.Create().
+				SetOwnerID(p.ID).
+				SetAnalysisName(a.AnalysisName).
+				SetAnalysisType(a.AnalysisType)
+
+			if a.AnalysisDate != nil {
+				builder.SetAnalysisDate(*a.AnalysisDate)
+			}
+
+			_, err = builder.Save(ctx)
+			if err != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("failed to create pet analysis: %w", err)
+			}
 		}
 	}
 
