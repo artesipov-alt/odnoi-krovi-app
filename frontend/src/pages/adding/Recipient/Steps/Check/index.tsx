@@ -32,6 +32,7 @@ type Props = {
     bloodComponentsDict: Dict[];
     desiredBloodGroups: string[];
     notifyOfSmallDonors: boolean;
+    bloodRequestPhoto: File | null;
     bloodGroupDict: Record<PetType, Dict[]>;
     onConfirmButtonClick: (step: number) => void;
 };
@@ -49,6 +50,7 @@ const Check: FC<Props> = ({
     locationsDict,
     bloodGroupDict,
     bloodComponents,
+    bloodRequestPhoto,
     desiredBloodGroups,
     bloodComponentsDict,
     notifyOfSmallDonors,
@@ -143,10 +145,17 @@ const Check: FC<Props> = ({
                         </div>
                     </div>
                 </div>
-                {!!description.length && (
+                {(!!description.length || !!bloodRequestPhoto) && (
                     <>
                         <Accordion icon={<Pin />} title='Дополнительная информация'>
                             <div className={cn(styles.itemText, { [styles.accordionText]: true })}>{description}</div>
+                            {bloodRequestPhoto && (
+                                <img
+                                    alt='Фото рецепиента'
+                                    className={styles.bloodRequestPhoto}
+                                    src={URL.createObjectURL(bloodRequestPhoto)}
+                                />
+                            )}
                         </Accordion>
                     </>
                 )}

@@ -50,52 +50,40 @@ const TreatmentsStep: FC<Props> = ({
     const [newDewormingDate, setNewDewormingDate] = useState<Date | null>(
         dewormingDate ? new Date(dewormingDate) : null,
     );
-    const [isNotDeworming, setIsNotDeworming] = useState<boolean>(false);
-    const [isNotRabiesVaccination, setIsNotRabiesVaccination] = useState<boolean>(false);
-    const [isNotInfectionVaccination, setIsNotInfectionVaccination] = useState<boolean>(false);
-    const [isNotEctoparasiteTreatment, setIsNotEctoparasiteTreatment] = useState<boolean>(false);
 
     const isAllFieldsEmpty =
         !rabiesVaccinationDate && !infectionVaccinationDate && !ectoparasiteTreatmentDate && !dewormingDate;
 
     const onChangeRabiesVaccinationDateHandler = (date: Date | null) => {
         setNewRabiesVaccinationDate(date);
-        setIsNotRabiesVaccination(false);
     };
 
     const onIsNoRabiesVaccinationClickHandler = () => {
         setNewRabiesVaccinationDate(null);
-        setIsNotRabiesVaccination(true);
     };
 
     const onChangeInfectionsVaccinationDateHandler = (date: Date | null) => {
         setNewInfectionVaccinationDate(date);
-        setIsNotInfectionVaccination(false);
     };
 
     const onIsNoInfectionsVaccinationClickHandler = () => {
         setNewInfectionVaccinationDate(null);
-        setIsNotInfectionVaccination(true);
     };
 
     const onChangeEctoparasitesTreatmentDateHandler = (date: Date | null) => {
         setNewEctoparasiteTreatmentDate(date);
-        setIsNotEctoparasiteTreatment(false);
     };
 
     const onIsNoEctoparasitesTreatmentClickHandler = () => {
         setNewEctoparasiteTreatmentDate(null);
-        setIsNotEctoparasiteTreatment(true);
     };
 
     const onChangeDewormingDateHandler = (date: Date | null) => {
         setNewDewormingDate(date);
-        setIsNotDeworming(false);
     };
 
     const onIsNoDewormingClickHandler = () => {
         setNewDewormingDate(null);
-        setIsNotDeworming(true);
     };
 
     const onSaveButtonClickHandler = async () => {
@@ -152,18 +140,14 @@ const TreatmentsStep: FC<Props> = ({
                     <div className={styles.buttonsRowItem}>
                         <DatePicker
                             onChange={onChangeRabiesVaccinationDateHandler}
-                            backgroundColor={
-                                (isAllFieldsEmpty ? isNotRabiesVaccination : !newRabiesVaccinationDate)
-                                    ? '#EFF1F6'
-                                    : undefined
-                            }
+                            backgroundColor={!newRabiesVaccinationDate ? '#EFF1F6' : undefined}
                             value={newRabiesVaccinationDate ? new Date(newRabiesVaccinationDate) : null}
                         />
                     </div>
                     <Button
                         onClick={onIsNoRabiesVaccinationClickHandler}
                         className={cn(styles.buttonsRowItem, {
-                            [styles.checked]: isAllFieldsEmpty ? isNotRabiesVaccination : !newRabiesVaccinationDate,
+                            [styles.checked]: !newRabiesVaccinationDate,
                         })}
                     >
                         Отсутствует
@@ -175,20 +159,14 @@ const TreatmentsStep: FC<Props> = ({
                     <div className={styles.buttonsRowItem}>
                         <DatePicker
                             onChange={onChangeInfectionsVaccinationDateHandler}
-                            backgroundColor={
-                                (isAllFieldsEmpty ? isNotInfectionVaccination : !newInfectionVaccinationDate)
-                                    ? '#EFF1F6'
-                                    : undefined
-                            }
+                            backgroundColor={!newInfectionVaccinationDate ? '#EFF1F6' : undefined}
                             value={newInfectionVaccinationDate ? new Date(newInfectionVaccinationDate) : null}
                         />
                     </div>
                     <Button
                         onClick={onIsNoInfectionsVaccinationClickHandler}
                         className={cn(styles.buttonsRowItem, {
-                            [styles.checked]: isAllFieldsEmpty
-                                ? isNotInfectionVaccination
-                                : !newInfectionVaccinationDate,
+                            [styles.checked]: !newInfectionVaccinationDate,
                         })}
                     >
                         Отсутствует
@@ -201,19 +179,13 @@ const TreatmentsStep: FC<Props> = ({
                         <DatePicker
                             value={newEctoparasiteTreatmentDate ? new Date(newEctoparasiteTreatmentDate) : null}
                             onChange={onChangeEctoparasitesTreatmentDateHandler}
-                            backgroundColor={
-                                (isAllFieldsEmpty ? isNotEctoparasiteTreatment : !newEctoparasiteTreatmentDate)
-                                    ? '#EFF1F6'
-                                    : undefined
-                            }
+                            backgroundColor={!newEctoparasiteTreatmentDate ? '#EFF1F6' : undefined}
                         />
                     </div>
                     <Button
                         onClick={onIsNoEctoparasitesTreatmentClickHandler}
                         className={cn(styles.buttonsRowItem, {
-                            [styles.checked]: isAllFieldsEmpty
-                                ? isNotEctoparasiteTreatment
-                                : !newEctoparasiteTreatmentDate,
+                            [styles.checked]: !newEctoparasiteTreatmentDate,
                         })}
                     >
                         Отсутствует
@@ -225,16 +197,14 @@ const TreatmentsStep: FC<Props> = ({
                     <div className={styles.buttonsRowItem}>
                         <DatePicker
                             onChange={onChangeDewormingDateHandler}
-                            backgroundColor={
-                                (isAllFieldsEmpty ? isNotDeworming : !newDewormingDate) ? '#EFF1F6' : undefined
-                            }
+                            backgroundColor={!newDewormingDate ? '#EFF1F6' : undefined}
                             value={newDewormingDate ? new Date(newDewormingDate) : null}
                         />
                     </div>
                     <Button
                         onClick={onIsNoDewormingClickHandler}
                         className={cn(styles.buttonsRowItem, {
-                            [styles.checked]: isAllFieldsEmpty ? isNotDeworming : !newDewormingDate,
+                            [styles.checked]: !newDewormingDate,
                         })}
                     >
                         Отсутствует
@@ -252,45 +222,35 @@ const TreatmentsStep: FC<Props> = ({
     );
 
     useEffect(() => {
-        const result = !isAllFieldsEmpty
-            ? (!rabiesVaccinationDate && !!newRabiesVaccinationDate) ||
-              (!!rabiesVaccinationDate && !newRabiesVaccinationDate) ||
-              (!!rabiesVaccinationDate &&
-                  !!newRabiesVaccinationDate &&
-                  new Date(rabiesVaccinationDate).getTime() !== newRabiesVaccinationDate.getTime()) ||
-              (!infectionVaccinationDate && !!newInfectionVaccinationDate) ||
-              (!!infectionVaccinationDate && !newInfectionVaccinationDate) ||
-              (!!infectionVaccinationDate &&
-                  !!newInfectionVaccinationDate &&
-                  new Date(infectionVaccinationDate).getTime() !== newInfectionVaccinationDate.getTime()) ||
-              (!ectoparasiteTreatmentDate && !!newEctoparasiteTreatmentDate) ||
-              (!!ectoparasiteTreatmentDate && !newEctoparasiteTreatmentDate) ||
-              (!!ectoparasiteTreatmentDate &&
-                  !!newEctoparasiteTreatmentDate &&
-                  new Date(ectoparasiteTreatmentDate).getTime() !== newEctoparasiteTreatmentDate.getTime()) ||
-              (!dewormingDate && !!newDewormingDate) ||
-              (!!dewormingDate && !newDewormingDate) ||
-              (!!dewormingDate &&
-                  !!newDewormingDate &&
-                  new Date(dewormingDate).getTime() !== newDewormingDate.getTime())
-            : (isNotRabiesVaccination || !!newRabiesVaccinationDate) &&
-              (isNotInfectionVaccination || !!newInfectionVaccinationDate) &&
-              (isNotEctoparasiteTreatment || !!newEctoparasiteTreatmentDate) &&
-              (isNotDeworming || !!newDewormingDate);
+        const result =
+            (!rabiesVaccinationDate && !!newRabiesVaccinationDate) ||
+            (!!rabiesVaccinationDate && !newRabiesVaccinationDate) ||
+            (!!rabiesVaccinationDate &&
+                !!newRabiesVaccinationDate &&
+                new Date(rabiesVaccinationDate).getTime() !== newRabiesVaccinationDate.getTime()) ||
+            (!infectionVaccinationDate && !!newInfectionVaccinationDate) ||
+            (!!infectionVaccinationDate && !newInfectionVaccinationDate) ||
+            (!!infectionVaccinationDate &&
+                !!newInfectionVaccinationDate &&
+                new Date(infectionVaccinationDate).getTime() !== newInfectionVaccinationDate.getTime()) ||
+            (!ectoparasiteTreatmentDate && !!newEctoparasiteTreatmentDate) ||
+            (!!ectoparasiteTreatmentDate && !newEctoparasiteTreatmentDate) ||
+            (!!ectoparasiteTreatmentDate &&
+                !!newEctoparasiteTreatmentDate &&
+                new Date(ectoparasiteTreatmentDate).getTime() !== newEctoparasiteTreatmentDate.getTime()) ||
+            (!dewormingDate && !!newDewormingDate) ||
+            (!!dewormingDate && !newDewormingDate) ||
+            (!!dewormingDate && !!newDewormingDate && new Date(dewormingDate).getTime() !== newDewormingDate.getTime());
 
         setIsSaveButtonActive(result);
     }, [
         dewormingDate,
-        isNotDeworming,
         newDewormingDate,
         isAllFieldsEmpty,
         rabiesVaccinationDate,
-        isNotRabiesVaccination,
         infectionVaccinationDate,
         newRabiesVaccinationDate,
         ectoparasiteTreatmentDate,
-        isNotInfectionVaccination,
-        isNotEctoparasiteTreatment,
         newInfectionVaccinationDate,
         newEctoparasiteTreatmentDate,
     ]);

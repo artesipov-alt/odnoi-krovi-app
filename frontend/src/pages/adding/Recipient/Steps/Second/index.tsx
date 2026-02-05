@@ -1,6 +1,5 @@
 import { Button } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import Big from 'big.js';
 import cn from 'classnames';
 import Lock from 'imgs/svg/lock';
 import FormItem from 'pages/adding/common/FormItem';
@@ -183,7 +182,8 @@ const Second: FC<Props> = ({
             </FormItem>
             <FormItem
                 title='Какой объем требуется?'
-                subtitle={`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
+                // subtitle={`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
+                subtitle={`до ${Number((Number(weight) * (petType === PetType.DOG ? 17.6 : 13.2) * 0.2).toFixed(2))} мл`}
             >
                 <TextField
                     name='volume'

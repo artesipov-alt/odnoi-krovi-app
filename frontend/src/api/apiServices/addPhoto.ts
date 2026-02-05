@@ -3,12 +3,18 @@ import api from '../index';
 type Args = {
     id: string;
     photo: File;
-    isAvatar: boolean;
+    isAvatar?: boolean;
+    isBloodRequest?: boolean;
 };
 
-export const addPhoto = async ({ id, photo, isAvatar }: Args) => {
+export const addPhoto = async ({ id, photo, isAvatar, isBloodRequest }: Args) => {
     try {
-        const { data: photoLink } = await api.getPhotoLink({ id, photos_count: 1, for_pet_avatar: isAvatar });
+        const { data: photoLink } = await api.getPhotoLink({
+            id,
+            photos_count: 1,
+            for_pet_avatar: isAvatar,
+            for_blood_req: isBloodRequest,
+        });
 
         await fetch(photoLink.items[0].url, {
             method: 'PUT',

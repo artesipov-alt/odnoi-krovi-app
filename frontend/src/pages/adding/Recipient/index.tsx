@@ -43,6 +43,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const [bloodComponents, setBloodComponents] = useState<string[]>([]);
     const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [desiredBloodGroups, setDesiredBloodGroups] = useState<string[]>([]);
+    const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -128,10 +129,11 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const fetchCreateRecipient = async (confirmedStep: number) => {
         setIsLoading(true);
 
-        const { success } = await createRecipient({
+        const { success, error } = await createRecipient({
             name,
             photo,
             userId,
+            bloodRequestPhoto,
             petStatus: Role.NONE,
             type: petType as PetType,
             weightKg: Number(weight),
@@ -156,7 +158,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
             setStep(confirmedStep + 1);
             setIsLoading(false);
         } else {
-            showToast('Не удалось сохранить питомца, попробуйте еще раз');
+            showToast(error || '');
         }
     };
 
@@ -169,6 +171,10 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
 
         onBackToStart();
     };
+
+    const onLoadBloodRequestPhotoHandler = useCallback((newPhoto: File | null) => {
+        setBloodRequestPhoto(newPhoto);
+    }, []);
 
     const onLoadPhotoHandler = useCallback((newPhoto: File | null) => {
         setPhoto(newPhoto);
@@ -289,9 +295,9 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                         )}
                         {step === 3 && (
                             <Three
-                                photo={photo}
+                                photo={bloodRequestPhoto}
                                 description={description}
-                                onLoadPhoto={onLoadPhotoHandler}
+                                onLoadPhoto={onLoadBloodRequestPhotoHandler}
                                 onDescriptionChange={onDescriptionChangeHandler}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
                             />
@@ -313,6 +319,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                     locationsDict={locationsDict}
                     bloodGroupDict={bloodGroupDict}
                     bloodComponents={bloodComponents}
+                    bloodRequestPhoto={bloodRequestPhoto}
                     desiredBloodGroups={desiredBloodGroups}
                     bloodComponentsDict={bloodComponentsDict}
                     notifyOfSmallDonors={notifyOfSmallDonors}
