@@ -72,6 +72,9 @@ const tiles = [
     { name: TileName.SEARCH, title: 'История поисков', icon: <RecipientButton /> },
 ];
 
+const dogAnalizesCount = 6;
+const catAnalizesCount = 4;
+
 const PetProfile: FC<Props> = ({
     id,
     name,
@@ -491,7 +494,9 @@ const PetProfile: FC<Props> = ({
                             <div className={styles.params}>
                                 <p className={styles.labelInfoTitle}>Примерный объем донации</p>
                                 <div className={styles.labelInfoValue}>
-                                    <p className={styles.labelDescr}>{Number((weightKg * 17.6 * 0.2).toFixed(2))} мл</p>
+                                    <p className={styles.labelDescr}>
+                                        {Number((weightKg * (type === PetType.DOG ? 17.6 : 13.2) * 0.2).toFixed(2))} мл
+                                    </p>
                                     <div onClick={toggleTooltip} className={styles.infoIcon}>
                                         <Info />
                                     </div>
@@ -531,6 +536,12 @@ const PetProfile: FC<Props> = ({
                         ) : (
                             <div className={styles.arrowTileIcon}>
                                 <AccordionArrow />
+                            </div>
+                        )}
+                        {tileName === TileName.ANALYSES && (
+                            <div className={styles.analizesCount}>
+                                {Object.keys(analyses).length} из{' '}
+                                {type === PetType.DOG ? dogAnalizesCount : catAnalizesCount}
                             </div>
                         )}
                     </div>
