@@ -127,13 +127,15 @@ func main() {
 			}
 		}
 
-		// Middleware
-		handler := sloghttp.Recovery(rootMux)
-		handler = sloghttp.New(slog.Default())(handler)
-		handler = config.DefaultCorsHandler(env, miniappDomain)(handler)
+		// Создаем сервер с корневым mux
+		server := config.NewServer(options.Port, rootMux)
 
-		// Создаем сервер
-		server := config.NewServer(options.Port, handler)
+		// Применяем middleware с использованием метода Use
+		server.Use(
+			sloghttp.Recovery,
+			sloghttp.New(slog.Default()),
+			config.DefaultCorsHandler(env, miniappDomain),
+		)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
