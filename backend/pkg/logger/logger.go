@@ -5,41 +5,41 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/log"
+	charmlog "github.com/charmbracelet/log"
 )
 
 // NewSlogHandler returns a new slog.Handler using charmbracelet/log.
 // It configures the logger based on the provided environment.
 func NewSlogHandler(env string) slog.Handler {
-	var level log.Level
-	var formatter log.Formatter
+	var level charmlog.Level
+	var formatter charmlog.Formatter
 
 	switch strings.ToLower(env) {
 	case "prod", "production":
-		level = log.InfoLevel
-		formatter = log.JSONFormatter
+		level = charmlog.InfoLevel
+		formatter = charmlog.JSONFormatter
 	default:
-		level = log.DebugLevel
-		formatter = log.TextFormatter
+		level = charmlog.DebugLevel
+		formatter = charmlog.TextFormatter
 	}
 
-	opts := log.Options{
+	opts := charmlog.Options{
 		ReportTimestamp: true,
 		Level:           level,
 		Formatter:       formatter,
 	}
 
 	// For development, we might want to report caller
-	if formatter == log.TextFormatter {
+	if formatter == charmlog.TextFormatter {
 		opts.ReportCaller = true
 	}
 
-	handler := log.NewWithOptions(os.Stderr, opts)
+	handler := charmlog.NewWithOptions(os.Stderr, opts)
 
 	return handler
 }
 
-// SetupLogger initializes the default slog logger with the charmbracelet handler.
+// Setup logger initializes the default slog logger with the charmbracelet handler.
 func SetupSlogDefaultLogger(env string) {
 	handler := NewSlogHandler(env)
 	logger := slog.New(handler)
