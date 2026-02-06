@@ -3,6 +3,7 @@ package schema
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	entgo "entgo.io/ent"
@@ -12,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/intercept"
 	"github.com/jaevor/go-nanoid"
+	sloghttp "github.com/samber/slog-http"
 )
 
 // Prefix constants for ID generation
@@ -126,4 +128,36 @@ func SoftDeleteHook() entgo.Hook {
 func IsSkipSoftDelete(ctx context.Context) bool {
 	skip, _ := ctx.Value(softDeleteKey{}).(bool)
 	return skip
+}
+
+func DbInterceptor() ent.Interceptor {
+	return ent.InterceptFunc(func(next ent.Querier) ent.Querier {
+		return ent.QuerierFunc(func(ctx context.Context, q ent.Query) (ent.Value, error) {
+			start := time.Now()
+			res, err := next.Query(ctx, q)
+			duration := time.Since(start)
+
+			rid := sloghttp.GetRequestIDFromContext(ctx)
+
+			// Порог медленного запроса (вынеси в конфиг потом)
+			slowThreshold := 200 * time.Millisecond
+
+			if duration > slowThreshold {
+				// Логируем как предупреждение, если тормозит
+				slog.WarnContext(ctx, "SLOW SQL Query",
+					"rid", rid,
+					"duration", duration,
+					"threshold", slowThreshold,
+				)
+			} else {
+				// Обычный лог в DEBUG
+				slog.DebugContext(ctx, "SQL Query (Select)",
+					"rid", rid,
+					"duration", duration,
+				)
+			}
+
+			return res, err
+		})
+	})
 }

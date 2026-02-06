@@ -80,6 +80,8 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 
 	client := ent.NewClient(ent.Driver(drv))
 
+	client.Intercept(schema.DbInterceptor())
+
 	// Register global hooks
 	client.Use(schema.SoftDeleteHook())
 
