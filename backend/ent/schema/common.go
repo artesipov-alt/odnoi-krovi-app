@@ -27,7 +27,7 @@ const (
 
 // generateID generates a new ID with prefix and nanoID of 10 characters
 func generateID(prefix string) string {
-	gen, _ := nanoid.Standard(10)
+	gen, _ := nanoid.Custom("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 10)
 	id := gen()
 	return prefix + "-" + id
 }
