@@ -18,6 +18,7 @@ require (
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/rs/cors v1.11.1
+	github.com/samber/slog-http v1.11.1
 )
 
 require (
@@ -68,6 +69,8 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
+	go.opentelemetry.io/otel v1.29.0 // indirect
+	go.opentelemetry.io/otel/trace v1.29.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect

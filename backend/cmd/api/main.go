@@ -18,7 +18,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
@@ -26,6 +25,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
+
+	sloghttp "github.com/samber/slog-http"
 )
 
 // Options for the CLI.
@@ -142,15 +143,13 @@ func main() {
 			}
 		}
 
+		// Middleware
+		handler := sloghttp.Recovery(rootMux)
+		handler = sloghttp.New(slog.Default())(handler)
+		handler = corsHandler.Handler(handler)
+
 		// Создаем сервер
-		server := config.NewServer(options.Port, rootMux)
-		// Применяем CORS middleware первым
-		server.Use(
-			corsHandler.Handler,
-			middleware.RecoveryMiddleware,
-			middleware.RequestIDMiddleware,
-			middleware.LoggingMiddleware,
-		)
+		server := config.NewServer(options.Port, handler)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
