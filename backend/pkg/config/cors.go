@@ -2,12 +2,13 @@ package config
 
 import (
 	"log/slog"
+	"net/http"
 	"net/url"
 
 	"github.com/rs/cors"
 )
 
-func SetupCORS(env, miniappDomain string) *cors.Cors {
+func DefaultCorsHandler(env, miniappDomain string) func(http.Handler) http.Handler {
 	var allowedOrigins []string
 
 	if env == "development" {
@@ -36,7 +37,7 @@ func SetupCORS(env, miniappDomain string) *cors.Cors {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,                 // Позволяет передавать куки/авторизацию
 		Debug:            env == "development", // Включает подробные логи CORS в консоль
-	})
+	}).Handler
 }
 
 // hasScheme проверяет, содержит ли URL схему (http/https).

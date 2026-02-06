@@ -40,7 +40,7 @@ func NewSlogHandler(env string) slog.Handler {
 }
 
 // SetupLogger initializes the default slog logger with the charmbracelet handler.
-func SetupLogger(env string) {
+func SetupSlogDefaultLogger(env string) {
 	handler := NewSlogHandler(env)
 	logger := slog.New(handler)
 	slog.SetDefault(logger)

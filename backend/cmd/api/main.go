@@ -14,6 +14,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -31,24 +32,21 @@ import (
 
 // Options for the CLI.
 type Options struct {
-	Port int  `help:"Port to listen on" short:"p" default:"3001"`
-	Doc  bool `help:"Generate OpenAPI documentation and exit" short:"d"`
+	Port int `help:"Port to listen on" short:"p" default:"3001"`
 }
 
 func main() {
-	// Create a CLI app which takes a port option.
-	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
+	var humapi huma.API
 
+	// Создаем CLI инструмент сервера.
+	cli := humacli.New(func(hooks humacli.Hooks, options *Options) {
 		// Загрузка переменных окружения из .env файла
 		godotenv.Load("../.env")
-
 		env := config.GetEnv("ENV", "development")
 		miniappDomain := os.Getenv("MINIAPP_DOMAIN") // Получаем домен мини-приложения
 
-		logger.SetupLogger(env)
-
-		// Настройка CORS
-		corsHandler := config.SetupCORS(env, miniappDomain)
+		// Заменяем стандартный слог логером от Charm Bracelet.
+		logger.SetupSlogDefaultLogger(env)
 
 		// Корневой mux
 		rootMux := http.NewServeMux()
@@ -77,17 +75,12 @@ func main() {
 			os.Exit(1)
 		}
 
-		if db != nil {
-			if err := config.RunMigrations(db); err != nil {
-				slog.Error("Ошибка запуска миграций ENT", "error", err)
-			}
-
-			ctx := context.Background()
-			seeds.SeedBloodGroups(ctx, db)
-			seeds.SeedBloodComponents(ctx, db)
-			seeds.SeedLocations(ctx, db)
-			seeds.SeedBreeds(ctx, db)
-		}
+		//Миграции
+		ctx := context.Background()
+		seeds.SeedBloodGroups(ctx, db)
+		seeds.SeedBloodComponents(ctx, db)
+		seeds.SeedLocations(ctx, db)
+		seeds.SeedBreeds(ctx, db)
 
 		// Инициализация репозиториев
 		userRepo := pg.NewEntUserRepository(db)
@@ -114,26 +107,17 @@ func main() {
 		fileHandler := handlers.NewFileHandler(fileService)
 
 		// Настройка Huma
-		api := humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
+		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
 
 		// Инициализируем интеграцию AppError с Huma
-		apperrors.InitHuma(api)
+		apperrors.InitHuma(humapi)
 
 		// Регистрация маршрутов
-		userHandler.Register(api)
-		petHandler.Register(api)
-		bloodRequestHandler.Register(api)
-		fileHandler.Register(api)
-		referenceHandler.Register(api)
-
-		// Если опция Doc включена, генерируем документацию и выходим
-		if options.Doc {
-			hooks.OnStart(func() {
-				generateAndSaveOpenAPI(api, openapiPath)
-				os.Exit(0)
-			})
-			return
-		}
+		userHandler.Register(humapi)
+		petHandler.Register(humapi)
+		bloodRequestHandler.Register(humapi)
+		fileHandler.Register(humapi)
+		referenceHandler.Register(humapi)
 
 		if portStr := os.Getenv("SERVER_PORT"); portStr != "" {
 			if port, err := strconv.Atoi(portStr); err == nil {
@@ -146,7 +130,7 @@ func main() {
 		// Middleware
 		handler := sloghttp.Recovery(rootMux)
 		handler = sloghttp.New(slog.Default())(handler)
-		handler = corsHandler.Handler(handler)
+		handler = config.DefaultCorsHandler(env, miniappDomain)(handler)
 
 		// Создаем сервер
 		server := config.NewServer(options.Port, handler)
@@ -159,7 +143,7 @@ func main() {
 
 		// Tell the CLI how to stop your server.
 		hooks.OnStop(func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
 			if db != nil {
 				db.Close()
@@ -168,11 +152,21 @@ func main() {
 		})
 	})
 
+	// Добавляем команду для генерации документации.
+	cli.Root().AddCommand(&cobra.Command{
+		Use:   "openapi",
+		Short: "Generate the OpenAPI spec",
+		Run: func(cmd *cobra.Command, args []string) {
+			GenerateOpenAPI(humapi, "./docs/openapi.json")
+			slog.Info("Спецификация создана!")
+		},
+	})
+
 	// Run the CLI. When passed no commands, it starts the server.
 	cli.Run()
 }
 
-func generateAndSaveOpenAPI(api huma.API, filePath string) {
+func GenerateOpenAPI(api huma.API, filePath string) {
 	// Создаем директорию, если она не существует
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -192,6 +186,4 @@ func generateAndSaveOpenAPI(api huma.API, filePath string) {
 		slog.Error("Failed to write OpenAPI spec to file", "error", err, "path", filePath)
 		return
 	}
-
-	slog.Info("OpenAPI documentation successfully generated", "path", filePath)
 }
