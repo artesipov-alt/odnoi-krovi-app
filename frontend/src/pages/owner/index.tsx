@@ -53,7 +53,7 @@ const Owner: FC<Props> = ({ user }) => {
         });
 
         setIsLoading(false);
-    }, [user.id]);
+    }, [user]);
 
     const onButtonClickHandler = (newView: View) => () => {
         setView(newView);
@@ -71,6 +71,7 @@ const Owner: FC<Props> = ({ user }) => {
 
     useEffect(() => {
         setIsLoading(true);
+        alert('fetchPets');
 
         fetchPets();
     }, [fetchPets]);
