@@ -263,7 +263,7 @@ const PetProfile: FC<Props> = ({
             if (success) {
                 setNeedUpdatePets(true);
             } else {
-                showToast('Не удалось обновить фотограйию, попробуйте еще раз');
+                showToast('Не удалось обновить фотографию, попробуйте еще раз');
             }
         },
         [id, showToast],
