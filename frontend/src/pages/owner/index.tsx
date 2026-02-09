@@ -32,7 +32,15 @@ const Owner: FC<Props> = ({ user }) => {
     const fetchPets = useCallback(async () => {
         const items = await getPets(user.id);
 
-        if (items?.length) {
+        if (!items) {
+            setPets([]);
+            setSelectedPet(null);
+            setIsLoading(false);
+
+            return;
+        }
+
+        if (items.length) {
             setPets(items);
         }
 
@@ -43,6 +51,7 @@ const Owner: FC<Props> = ({ user }) => {
 
             return prevState;
         });
+
         setIsLoading(false);
     }, [user.id]);
 
@@ -103,11 +112,12 @@ const Owner: FC<Props> = ({ user }) => {
                         <p className={styles.pawButtonText}>Добавить питомца</p>
                     </div>
                 )}
-                {!isLoading && pets.length && (
+                {!isLoading && !!pets.length && (
                     <>
                         <div className={styles.showcase}>
-                            {pets.map((pet) => (
-                                <div key={pet.id} className={cn(styles.pet, { [styles[pet.type]]: true })}>
+                            {pets.map((pet, i) => (
+                                // eslint-disable-next-line react/no-array-index-key
+                                <div key={`${pet.id}_${i}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
                                     <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>
                                         {!!pet.photoUrls?.[0] && (
                                             <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />

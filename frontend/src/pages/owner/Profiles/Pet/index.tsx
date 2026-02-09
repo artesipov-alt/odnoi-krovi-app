@@ -574,6 +574,5 @@ const PetProfile: FC<Props> = ({
         </div>
     );
 };
-// TODO analizes count
 
 export default PetProfile;
