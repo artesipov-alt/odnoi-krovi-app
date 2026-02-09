@@ -30,12 +30,14 @@ const Owner: FC<Props> = ({ user }) => {
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
 
     const fetchPets = useCallback(async () => {
+        alert('fetchPets');
         const items = await getPets(user.id);
 
         if (!items) {
             setPets([]);
             setSelectedPet(null);
             setIsLoading(false);
+            alert('no pets');
 
             return;
         }
@@ -43,6 +45,8 @@ const Owner: FC<Props> = ({ user }) => {
         if (items.length) {
             setPets(items);
         }
+
+        alert(`${items.length} pets`);
 
         setSelectedPet((prevState) => {
             if (prevState) {
@@ -71,7 +75,6 @@ const Owner: FC<Props> = ({ user }) => {
 
     useEffect(() => {
         setIsLoading(true);
-        alert('fetchPets');
 
         fetchPets();
     }, [fetchPets]);
