@@ -30,14 +30,14 @@ const Owner: FC<Props> = ({ user }) => {
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
 
     const fetchPets = useCallback(async () => {
-        alert('fetchPets');
+        // alert('fetchPets');
         const items = await getPets(user.id);
 
         if (!items) {
             setPets([]);
             setSelectedPet(null);
             setIsLoading(false);
-            alert('no pets');
+            // alert('no pets');
 
             return;
         }
@@ -46,7 +46,7 @@ const Owner: FC<Props> = ({ user }) => {
             setPets(items);
         }
 
-        alert(`${items.length} pets`);
+        // alert(`${items.length} pets`);
 
         setSelectedPet((prevState) => {
             if (prevState) {
@@ -91,14 +91,14 @@ const Owner: FC<Props> = ({ user }) => {
 
     if (isPetProfileOpen && selectedPet) {
         return (
-            <Layout>
+            <Layout key='profile'>
                 <PetProfile updatePets={fetchPets} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
             </Layout>
         );
     }
 
     return (
-        <Layout>
+        <Layout key='owner'>
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets.length })}>
                 <div className={styles.header}>
                     <div className={styles.avatar}>{user.fullName.charAt(0).toUpperCase()}</div>
@@ -119,9 +119,9 @@ const Owner: FC<Props> = ({ user }) => {
                 {!isLoading && !!pets.length && (
                     <>
                         <div className={styles.showcase}>
-                            {pets.map((pet, i) => (
+                            {pets.map((pet) => (
                                 // eslint-disable-next-line react/no-array-index-key
-                                <div key={`${pet.id}_${i}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
+                                <div key={`${Date.now()}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
                                     <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>
                                         {!!pet.photoUrls?.[0] && (
                                             <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />
