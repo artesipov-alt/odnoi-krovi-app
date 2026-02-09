@@ -300,6 +300,12 @@ const HealthStep: FC<Props> = ({
     );
 
     useEffect(() => {
+        if ((isTakingMedications && !newMedications) || (wasSurgicalInterventions && !newSurgicalInterventions)) {
+            setIsSaveButtonActive(false);
+
+            return;
+        }
+
         setIsSaveButtonActive(
             !isAllFieldsEmpty
                 ? newHealthStatus !== healthStatus ||

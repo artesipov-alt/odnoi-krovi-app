@@ -68,7 +68,7 @@ const calculateAge = (birthDate: string | Date) => {
     const yearsDescr = years ? `${years} ${getCorrectDeclension(Variants.YEARS, +years)}` : '';
     const monthDescr = months ? `${months} ${getCorrectDeclension(Variants.MONTHS, +months)}` : '';
 
-    return `${yearsDescr} ${monthDescr}`;
+    return yearsDescr || monthDescr ? `${yearsDescr} ${monthDescr}` : 'Меньше месяца';
 };
 
 const ParamsStep: FC<Props> = ({

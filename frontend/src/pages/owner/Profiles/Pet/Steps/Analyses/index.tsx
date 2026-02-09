@@ -265,7 +265,7 @@ const AnalysesStep: FC<Props> = ({ petId, onClose, isEditMode, analyses, petType
             return filteredResult;
         }
 
-        return undefined;
+        return {};
     };
 
     const onSaveButtonClickHandler = async () => {
