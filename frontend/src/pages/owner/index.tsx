@@ -30,14 +30,12 @@ const Owner: FC<Props> = ({ user }) => {
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
 
     const fetchPets = useCallback(async () => {
-        // alert('fetchPets');
         const items = await getPets(user.id);
 
         if (!items) {
             setPets([]);
             setSelectedPet(null);
             setIsLoading(false);
-            // alert('no pets');
 
             return;
         }
@@ -45,8 +43,6 @@ const Owner: FC<Props> = ({ user }) => {
         if (items.length) {
             setPets(items);
         }
-
-        // alert(`${items.length} pets`);
 
         setSelectedPet((prevState) => {
             if (prevState) {
@@ -91,14 +87,14 @@ const Owner: FC<Props> = ({ user }) => {
 
     if (isPetProfileOpen && selectedPet) {
         return (
-            <Layout key='profile'>
+            <Layout>
                 <PetProfile updatePets={fetchPets} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
             </Layout>
         );
     }
 
     return (
-        <Layout key='owner'>
+        <Layout>
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets.length })}>
                 <div className={styles.header}>
                     <div className={styles.avatar}>{user.fullName.charAt(0).toUpperCase()}</div>
@@ -120,8 +116,7 @@ const Owner: FC<Props> = ({ user }) => {
                     <>
                         <div className={styles.showcase}>
                             {pets.map((pet) => (
-                                // eslint-disable-next-line react/no-array-index-key
-                                <div key={`${Date.now()}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
+                                <div key={`${pet.id}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
                                     <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>
                                         {!!pet.photoUrls?.[0] && (
                                             <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />
