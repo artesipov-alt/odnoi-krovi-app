@@ -536,6 +536,7 @@ func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealt
 
 	var analyses []*ent.PetAnalysis
 	if d.Analyses != nil {
+		analyses = []*ent.PetAnalysis{}
 		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
 			for _, a := range group {
 				entA := &ent.PetAnalysis{
