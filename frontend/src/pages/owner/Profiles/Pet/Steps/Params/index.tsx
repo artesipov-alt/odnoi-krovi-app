@@ -122,12 +122,12 @@ const ParamsStep: FC<Props> = ({
         setNewBreed(null);
         setNewBloodGroup('');
         setNewWeight('');
-        setNewReproductiveStatus('');
+        setNewReproductiveStatus(undefined);
     };
 
     const onPetGenderChangeHandler = (newPetGender: string) => () => {
         setNewGender(newPetGender);
-        setNewReproductiveStatus('');
+        setNewReproductiveStatus(undefined);
     };
 
     const onChangeChipNumberHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -171,11 +171,11 @@ const ParamsStep: FC<Props> = ({
             return;
         }
 
-        if (type === PetType.CAT && Number(newValue) > 15) {
+        if (newPetType === PetType.CAT && Number(newValue) > 15) {
             return;
         }
 
-        if (type === PetType.DOG && Number(newValue) > 170) {
+        if (newPetType === PetType.DOG && Number(newValue) > 170) {
             return;
         }
 
@@ -294,7 +294,7 @@ const ParamsStep: FC<Props> = ({
         }
 
         if (bloodGroup !== newBloodGroup) {
-            newData.bloodGroup = newBloodGroup === 'none' ? undefined : newBloodGroup;
+            newData.bloodGroup = newBloodGroup === 'none' || newBloodGroup === 'Не знаю' ? undefined : newBloodGroup;
         }
 
         if (birthDateType === BirthDate.EXACT_DATE && newExactDate) {
@@ -477,8 +477,11 @@ const ParamsStep: FC<Props> = ({
                     )}
                 </>
             </FormItem>
-            {/* eslint-disable-next-line no-nested-ternary */}
-            <FormItem title='Вес' subtitle={!type ? undefined : type === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}>
+            <FormItem
+                title='Вес'
+                /* eslint-disable-next-line no-nested-ternary */
+                subtitle={!newPetType ? undefined : newPetType === PetType.CAT ? 'до 15 кг' : 'до 170 кг'}
+            >
                 <TextField
                     name='weight'
                     isDigitInput

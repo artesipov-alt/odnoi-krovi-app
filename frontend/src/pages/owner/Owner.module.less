@@ -181,20 +181,41 @@
     border-radius: 12px;
 }
 
-.name {
+.photoFooter {
+    width: calc(100% - 12px);
     position: absolute;
-    bottom: 9px;
-    left: 5px;
+    bottom: 10px;
+    left: 6px;
+    z-index: 2;
+}
+
+.name {
     color: @white;
     font-size: 15px;
     font-weight: 400;
     line-height: 20px;
     margin: 0;
     white-space: nowrap;
-    width: calc(100% - 10px);
     overflow: hidden;
     text-overflow: ellipsis;
-    z-index: 2;
+}
+
+.bloodGroup {
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    color: @white1;
+    text-align: center;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 32px;
+    border-radius: 25px;
+    background: @red2;
+    box-sizing: border-box;
 }
 
 .gradient {
@@ -215,4 +236,84 @@
     inset: 0;
     background-color: rgba(0,0,0,0.4);
     z-index: 10000;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 5px;
+    height: 32px;
+    border-radius: 8px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 15px;
+
+    @media (min-width: 500px) {
+        height: 42px;
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+
+    @media (min-width: 768px) {
+        height: 50px;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+
+    &.activeSearch {
+        background: @red1;
+        color: @white2;
+    }
+
+    &.startSearch {
+        color: @grayBg10;
+        background: @grayBg9;
+    }
+}
+
+.searchIcon {
+    width: 13px;
+    height: 13px;
+    fill: @white-bg;
+
+    @media (min-width: 500px) {
+        width: 16px;
+        height: 16px;
+    }
+
+    @media (min-width: 768px) {
+        width: 18px;
+        height: 18px;
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.labelText {
+    position: relative;
+}
+
+.labelArrow {
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-58%);
+    margin: 0;
+
+    @media (min-width: 500px) {
+        right: -20px;
+    }
+
+    @media (min-width: 768px) {
+        right: -22px;
+    }
 }

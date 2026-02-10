@@ -1,13 +1,15 @@
 import cn from 'classnames';
+import BloodSearch from 'imgs/svg/bloodSearch';
 import DonorButton from 'imgs/svg/donorButton';
 import Paw from 'imgs/svg/paw';
 import RecipientButton from 'imgs/svg/recipientButton';
-import { FC, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { FC, MouseEvent, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { TelegramUser } from 'types';
 
 import { getPets } from 'api/apiServices/getPets';
 import { Pet } from 'api/pets';
+import { Role } from 'api/user';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
@@ -56,6 +58,8 @@ const Owner: FC<Props> = ({ user }) => {
     }, [user]);
 
     const onButtonClickHandler = (newView: View) => () => {
+        window.location.hash = `#${newView}`;
+
         setView(newView);
     };
 
@@ -69,6 +73,51 @@ const Owner: FC<Props> = ({ user }) => {
         navigate('/adding');
     };
 
+    const onLabelClickHandler =
+        (label: 'startSearch' | 'activeSearch', petId: string) => (e: MouseEvent<HTMLDivElement>) => {
+            e.stopPropagation();
+
+            if (label === 'startSearch') {
+                navigate(`/adding#startSearch_${petId}`);
+            }
+        };
+
+    const renderLabel = (petsStatus: Role, petId: string) => {
+        switch (true) {
+            case petsStatus === Role.RECIPIENT: {
+                return (
+                    <div
+                        onClick={onLabelClickHandler('activeSearch', petId)}
+                        className={cn(styles.label, { [styles.activeSearch]: true })}
+                    >
+                        <div className={styles.searchIcon}>
+                            <BloodSearch />
+                        </div>
+                        <div className={styles.labelText}>
+                            Идет поиск <p className={styles.labelArrow}>⟶</p>
+                        </div>
+                    </div>
+                );
+            }
+            case petsStatus === Role.NONE || petsStatus === Role.DONOR: {
+                return (
+                    <div
+                        onClick={onLabelClickHandler('startSearch', petId)}
+                        className={cn(styles.label, { [styles.startSearch]: true })}
+                    >
+                        <div className={styles.searchIcon}>
+                            <RecipientButton />
+                        </div>
+                        Начать поиск
+                    </div>
+                );
+            }
+            default: {
+                return null;
+            }
+        }
+    };
+
     useEffect(() => {
         setIsLoading(true);
 
@@ -78,11 +127,17 @@ const Owner: FC<Props> = ({ user }) => {
     useLayoutEffect(() => {
         if (window.location.hash === '#recipient') {
             setView('recipient');
+
+            return;
         }
 
         if (window.location.hash === '#donor') {
             setView('donor');
+
+            return;
         }
+
+        window.location.hash = '#recipient';
     }, []);
 
     if (isPetProfileOpen && selectedPet) {
@@ -121,7 +176,11 @@ const Owner: FC<Props> = ({ user }) => {
                                         {!!pet.photoUrls?.[0] && (
                                             <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />
                                         )}
-                                        <p className={styles.name}>{pet.name.toUpperCase()}</p>
+                                        <div className={styles.bloodGroup}>{pet.bloodGroup || '?'}</div>
+                                        <div className={styles.photoFooter}>
+                                            <p className={styles.name}>{pet.name.toUpperCase()}</p>
+                                            {view === 'recipient' && renderLabel(pet.petStatus, pet.id)}
+                                        </div>
                                         <div className={styles.gradient} />
                                     </div>
                                 </div>
