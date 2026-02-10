@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useLayoutEffect, useState } from 'react';
 import { TelegramUser } from 'types';
 
 import Layout from 'components/Layout';
@@ -11,6 +11,7 @@ enum View {
     START = 'start',
     DONOR = 'donor',
     RECIPIENT = 'recipient',
+    START_SEARCH = '#startSearch',
 }
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 
 const Adding: FC<Props> = ({ user }) => {
     const [view, setView] = useState<View>(View.START);
+    const [petIdForSearch, setPetIdForSearch] = useState<string | undefined>();
 
     const onAddRecipientPetClickHandler = () => {
         setView(View.RECIPIENT);
@@ -40,6 +42,9 @@ const Adding: FC<Props> = ({ user }) => {
             case View.DONOR: {
                 return <Donor onBackToStart={onBackToStartClickHandler} userId={user.id} />;
             }
+            // case View.START_SEARCH: {
+            //     return <div>Start her</div>;
+            // }
             default: {
                 return (
                     <Start
@@ -50,6 +55,17 @@ const Adding: FC<Props> = ({ user }) => {
             }
         }
     };
+
+    useLayoutEffect(() => {
+        if (window.location.hash) {
+            const [hash, id] = window.location.hash.split('_');
+
+            if (hash === View.START_SEARCH) {
+                setView(View.START_SEARCH);
+                setPetIdForSearch(id);
+            }
+        }
+    }, []);
 
     return <Layout>{renderContent()}</Layout>;
 };
