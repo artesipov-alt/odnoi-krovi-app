@@ -14,7 +14,7 @@ tasks:
     desc: "Сгенерировать OpenAPI документацию"
     dir: backend
     cmds:
-      - go run ./cmd/api/main.go -d
+      - go run ./cmd/api/main.go openapi
 
   # generate-proto:
   #   desc: "Сгенерировать прото-типы от микросервиса"
