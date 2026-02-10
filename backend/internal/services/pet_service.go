@@ -2,9 +2,7 @@ package services
 
 import (
 	"context"
-	"errors"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -32,9 +30,6 @@ type PetService interface {
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
-
-	// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
-	UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error)
 
 	// ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
 	ApplyValidation(ctx context.Context, pet *ent.Pet) ([]validator.FactorCode, []validator.FactorCode, error)
@@ -317,49 +312,6 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	}
 
 	return nil
-}
-
-// UpdatePetAvatar обновляет аватар питомца и делает его публичным в хранилище
-func (s *PetServiceImpl) UpdatePetAvatar(ctx context.Context, avatarPath string) (string, error) {
-	decodedPath := strings.ReplaceAll(avatarPath, "%2F", "/")
-	parts := strings.Split(decodedPath, "/")
-	if len(parts) < 2 {
-		return "", apperrors.BadRequest("неверный формат пути аватара")
-	}
-	petID := parts[1]
-
-	p, err := s.petRepo.GetByID(ctx, petID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return "", apperrors.ErrPetNotFound
-		}
-		return "", apperrors.Internal(err, "failed to get pet")
-	}
-
-	exists, err := s.storage.CheckObjectExists(ctx, decodedPath)
-	if err != nil {
-		return "", apperrors.Internal(err, "failed to check file existence")
-	}
-	if !exists {
-		return "", apperrors.NotFound("файл не найден")
-	}
-
-	err = s.storage.SetObjectPublicACL(ctx, decodedPath)
-	if err != nil {
-		return "", apperrors.Internal(err, "failed to set public ACL")
-	}
-
-	publicURL := s.storage.GetAvatarPublicURL(petID)
-	if publicURL == "" {
-		return "", apperrors.Internal(errors.New("failed to generate public URL"), "failed to get public URL")
-	}
-
-	p.PhotoUrls = []string{decodedPath}
-	if _, err := s.petRepo.Update(ctx, p, nil, nil, nil, nil); err != nil {
-		return "", apperrors.Internal(err, "failed to update pet avatar")
-	}
-
-	return publicURL, nil
 }
 
 // ValidatePet валидирует питомца и возвращает стоп-факторы и предупреждения

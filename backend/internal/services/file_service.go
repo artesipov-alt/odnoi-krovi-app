@@ -4,6 +4,7 @@ package services
 import (
 	"context"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
@@ -102,8 +103,17 @@ func (s *FileServiceImpl) ConfirmUploads(ctx context.Context, ID string, paths [
 		if err != nil {
 			return apperrors.Internal(err, "failed to confirm uploads for pet")
 		}
-		// Обновить PhotoUrls в питомце через репозиторий
-		if err := s.PetRepo.AddPhotoURLs(ctx, ID, paths); err != nil {
+		// Обновить PhotoUrls в питомце через репозиторий (замена на новые)
+		p, err := s.PetRepo.GetByID(ctx, ID)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return apperrors.ErrPetNotFound
+			}
+			return apperrors.Internal(err, "failed to get pet for update")
+		}
+		p.PhotoUrls = paths
+		_, err = s.PetRepo.Update(ctx, p, nil, nil, nil, nil)
+		if err != nil {
 			return apperrors.Internal(err, "failed to update pet photos")
 		}
 	case "user_avatar":
