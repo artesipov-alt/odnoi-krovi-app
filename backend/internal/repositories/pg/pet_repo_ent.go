@@ -325,8 +325,8 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		}
 	}
 
-	// For analyses, delete existing ones and create new ones
-	if len(analyses) > 0 {
+	// For analyses, delete existing ones and create new ones if provided
+	if analyses != nil {
 		// Delete existing analyses for this pet (hard delete)
 		_, err = tx.PetAnalysis.Delete().Where(petanalysis.HasOwnerWith(pet.ID(p.ID))).Exec(schema.SkipSoftDelete(ctx))
 		if err != nil {
