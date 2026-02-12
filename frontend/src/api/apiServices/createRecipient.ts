@@ -4,40 +4,45 @@ import { CreatePetRequest } from '../pets';
 import { addPhoto } from './addPhoto';
 
 type Args = CreatePetRequest & {
+    petId?: string;
     photo: File | null;
     bloodRequestPhoto: File | null;
     poolInfo: Omit<AddToPoolRequest, 'petId'>;
 };
 
-export const createRecipient = async ({ photo, poolInfo, bloodRequestPhoto, ...params }: Args) => {
-    let petId;
+export const createRecipient = async ({ petId, photo, poolInfo, bloodRequestPhoto, ...params }: Args) => {
+    let newPetId;
     let poolRequestId;
 
-    try {
-        const { data } = await api.createPet(params);
+    if (!petId) {
+        try {
+            const { data } = await api.createPet(params);
 
-        petId = data.id;
-    } catch (e) {
-        return { success: false, error: 'Не удалось создать профиль питомца' };
+            newPetId = data.id;
+        } catch (e) {
+            return { success: false, error: 'Не удалось создать профиль питомца' };
+        }
     }
 
     try {
-        const { data } = await api.addToPool({ ...poolInfo, petId });
+        const { data } = await api.addToPool({ ...poolInfo, petId: petId || newPetId });
 
         poolRequestId = data.id;
     } catch (e) {
         return { success: false, error: 'Профиль питомца создано, но не удалось создать заявку поиск крови' };
     }
 
-    if (photo) {
-        try {
-            const { success } = await addPhoto({ photo, id: petId, isAvatar: true });
+    if (!petId) {
+        if (photo) {
+            try {
+                const { success } = await addPhoto({ photo, id: petId || newPetId, isAvatar: true });
 
-            if (!success) {
+                if (!success) {
+                    return { success: false, error: 'Не удалось сохранить аватарку питомца' };
+                }
+            } catch (e) {
                 return { success: false, error: 'Не удалось сохранить аватарку питомца' };
             }
-        } catch (e) {
-            return { success: false, error: 'Не удалось сохранить аватарку питомца' };
         }
     }
 

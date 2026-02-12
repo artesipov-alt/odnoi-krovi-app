@@ -1,15 +1,11 @@
 import api from '../index';
 
 export const getGenders = async () => {
-    try {
-        const { status, data } = await api.getGenders();
+    const { status, data } = await api.getGenders();
 
-        if (status !== 200) {
-            return null;
-        }
-
-        return data.data; // TODO errors?
-    } catch (e) {
-        return null;
+    if (status !== 200) {
+        throw new Error(`Ошибка сервера: ${status}`);
     }
+
+    return data.data;
 };

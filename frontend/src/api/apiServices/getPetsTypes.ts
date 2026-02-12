@@ -1,15 +1,11 @@
 import api from '../index';
 
 export const getPetsTypes = async () => {
-    try {
-        const { status, data } = await api.getPetsTypes();
+    const { status, data } = await api.getPetsTypes();
 
-        if (status !== 200) {
-            return null;
-        }
-
-        return data.data; // TODO errors?
-    } catch (e) {
-        return null;
+    if (status !== 200) {
+        throw new Error(`Ошибка сервера: ${status}`);
     }
+
+    return data.data;
 };

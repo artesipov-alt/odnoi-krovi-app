@@ -33,6 +33,7 @@ const Header: FC<Props> = ({ step, stepsCount, onBackClickHandler, caption }) =>
         <div className={styles.progressWrapper}>
             <div
                 className={cn(styles.progress, {
+                    [styles.twoSteps]: stepsCount === 2,
                     [styles.fiveSteps]: stepsCount === 5,
                     [styles.one]: step === 1,
                     [styles.two]: step === 2,

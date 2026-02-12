@@ -6,14 +6,15 @@ import { useNavigate } from 'react-router';
 import styles from './Final.module.less';
 
 type Props = {
+    fromSearch?: boolean;
     onBackToStart: () => void;
 };
 
-const Final: FC<Props> = ({ onBackToStart }) => {
+const Final: FC<Props> = ({ onBackToStart, fromSearch }) => {
     const navigate = useNavigate();
 
     const onBackToSearchClickHandler = () => {
-        navigate('/owner#donor');
+        navigate('/owner#recipient');
     };
 
     return (
@@ -30,9 +31,11 @@ const Final: FC<Props> = ({ onBackToStart }) => {
                 <Button onClick={onBackToSearchClickHandler} className={styles.button} variant='contained'>
                     К поиску
                 </Button>
-                <p className={styles.link} onClick={onBackToStart}>
-                    Добавить еще питомца
-                </p>
+                {!fromSearch && (
+                    <p className={styles.link} onClick={onBackToStart}>
+                        Добавить еще питомца
+                    </p>
+                )}
             </div>
         </div>
     );

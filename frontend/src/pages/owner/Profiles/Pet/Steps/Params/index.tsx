@@ -1,6 +1,7 @@
 import { Button, TextField as MuiTextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import cn from 'classnames';
+import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
 import FemaleIcon from 'imgs/svg/femaleIcon';
 import MaleIcon from 'imgs/svg/maleIcon';
 import Params from 'imgs/svg/params';
@@ -41,9 +42,9 @@ type Props = {
     petGenders: PetGenderDict[];
     onSuccessUpdate: () => void;
     livingConditionsDict: StringDict[];
-    breedsDict: Record<PetType, Dict[]>;
+    breedsDict: BloodAndBreedGroupsDict;
     reproductiveStatusesDict: StringDict[];
-    bloodGroupDict: Record<PetType, Dict[]>;
+    bloodGroupDict: BloodAndBreedGroupsDict;
 };
 
 const calculateAge = (birthDate: string | Date) => {

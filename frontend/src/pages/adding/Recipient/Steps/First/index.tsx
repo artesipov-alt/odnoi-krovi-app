@@ -1,11 +1,12 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
+import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
 import Lock from 'imgs/svg/lock';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useState } from 'react';
 import { regexReal } from 'utils/regexps';
 
-import { Dict, PetTypeDict } from 'api/reference';
+import { PetTypeDict } from 'api/reference';
 import { PetType } from 'api/types';
 import Alert from 'components/Alert';
 import ImgEditor from 'components/ImgEditor';
@@ -22,7 +23,7 @@ type Props = {
     petTypes: PetTypeDict[];
     onChangeName: (name: string) => void;
     onChangePetType: (type: string) => void;
-    bloodGroupDict: Record<PetType, Dict[]>;
+    bloodGroupDict: BloodAndBreedGroupsDict;
     onChangeWeight: (weight: string) => void;
     onLoadPhoto: (photo: File | null) => void;
     onChangeBloodGroup: (blood: string) => void;

@@ -1,6 +1,7 @@
 import { Button } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import cn from 'classnames';
+import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
 import Lock from 'imgs/svg/lock';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
@@ -26,7 +27,7 @@ type Props = {
     bloodComponentsDict: Dict[];
     desiredBloodGroups: string[];
     notifyOfSmallDonors: boolean;
-    bloodGroupDict: Record<PetType, Dict[]>;
+    bloodGroupDict: BloodAndBreedGroupsDict;
     onConfirmButtonClick: (step: number) => void;
     onChangeBloodVolume: (volume: string) => void;
     onChangeLocations: (locations: string[]) => void;
@@ -140,7 +141,7 @@ const Second: FC<Props> = ({
         <>
             <FormItem title='Какую группу ищете?'>
                 <div className={styles.bloodGroups}>
-                    {bloodGroupDict[petType].map(({ label, value }) => {
+                    {bloodGroupDict[petType]?.map(({ label, value }) => {
                         const isGroupChecked = desiredBloodGroups.includes(value);
 
                         return (
