@@ -5,6 +5,7 @@ import Layout from 'components/Layout';
 
 import Donor from './Donor';
 import Recipient from './Recipient';
+import Search from './Recipient/Search';
 import Start from './Start';
 
 enum View {
@@ -42,9 +43,9 @@ const Adding: FC<Props> = ({ user }) => {
             case View.DONOR: {
                 return <Donor onBackToStart={onBackToStartClickHandler} userId={user.id} />;
             }
-            // case View.START_SEARCH: {
-            //     return <div>Start her</div>;
-            // }
+            case View.START_SEARCH: {
+                return <Search petId={petIdForSearch} userId={user.id} />;
+            }
             default: {
                 return (
                     <Start

@@ -1,13 +1,15 @@
+import {
+    BloodAndBreedGroupsDict,
+    useBloodComponentsQuery,
+    useLocationsQuery,
+    usePetTypesAndBloodGroupsQuery,
+} from 'hooks/useDicts';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { createRecipient } from 'api/apiServices/createRecipient';
-import { getBloodComponents } from 'api/apiServices/getBloodComponents';
-import { getBloodGroups } from 'api/apiServices/getBloodGroups';
-import { getLocations } from 'api/apiServices/getLocations';
-import { getPetsTypes } from 'api/apiServices/getPetsTypes';
-import { Dict, PetTypeDict } from 'api/reference';
+import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { Role } from 'api/user';
 
@@ -23,8 +25,6 @@ type Props = {
     userId: string;
     onBackToStart: () => void;
 };
-
-type BloodGroupsDicts = Record<PetType, Dict[]>;
 
 const captions = ['О питомце', 'Критерии поиска', 'Дополнительно'];
 
@@ -47,10 +47,10 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const [locationsDict, setLocationsDict] = useState<Dict[]>([]);
-    const [petTypesDict, setPetTypesDict] = useState<PetTypeDict[]>([]);
-    const [bloodComponentsDict, setBloodComponentsDict] = useState<Dict[]>([]);
-    const [bloodGroupDict, setBloodGroupDict] = useState<BloodGroupsDicts>({} as BloodGroupsDicts);
+    const { data: locationsDict = [], isError: isErrorLocations } = useLocationsQuery();
+    const { data: bloodComponentsDict = [], isError: isErrorBloodComponents } = useBloodComponentsQuery();
+    const { data: { petTypesDict = [], bloodGroupDict = {} } = {}, isError: isErrorPetTypesAndBloodGroups } =
+        usePetTypesAndBloodGroupsQuery();
 
     const showToast = useCallback(
         (text: string) => {
@@ -62,69 +62,6 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         },
         [navigate],
     );
-
-    const fetchBloodTypes = useCallback(
-        async (pets: PetTypeDict[]) => {
-            const dict: BloodGroupsDicts = {} as BloodGroupsDicts;
-
-            await Promise.allSettled(
-                pets.map(async ({ value }) => {
-                    const response = await getBloodGroups(value);
-
-                    if (response) {
-                        dict[value] = response;
-                    }
-
-                    return { [value]: response };
-                }),
-            ).then((result) => {
-                if (result.some(({ status }) => status === 'rejected')) {
-                    showToast('Не удалось загрузить словарь групп крови, попробуйте еще раз');
-                }
-            });
-
-            setBloodGroupDict(dict);
-        },
-        [showToast],
-    );
-
-    const fetchBloodComponents = useCallback(async () => {
-        const response = await getBloodComponents();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь компонентов крови, попробуйте еще раз');
-
-            return;
-        }
-
-        setBloodComponentsDict(response);
-    }, [showToast]);
-
-    const fetchLocations = useCallback(async () => {
-        const response = await getLocations();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь регионов, попробуйте еще раз');
-
-            return;
-        }
-
-        setLocationsDict(response);
-    }, [showToast]);
-
-    const fetchPetTypes = useCallback(async () => {
-        const response = await getPetsTypes();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь типов животных, попробуйте еще раз');
-
-            return;
-        }
-
-        fetchBloodTypes(response);
-
-        setPetTypesDict(response);
-    }, [fetchBloodTypes, showToast]);
 
     const fetchCreateRecipient = async (confirmedStep: number) => {
         setIsLoading(true);
@@ -157,6 +94,8 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         if (success) {
             setStep(confirmedStep + 1);
             setIsLoading(false);
+
+            await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
         } else {
             showToast(error || '');
         }
@@ -235,14 +174,26 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     };
 
     useEffect(() => {
-        fetchPetTypes();
-        fetchLocations();
-        fetchBloodComponents();
-    }, [fetchBloodComponents, fetchLocations, fetchPetTypes]);
-
-    useEffect(() => {
         document.documentElement.classList.add('useWhiteBg1');
     }, []);
+
+    useEffect(() => {
+        if (isErrorBloodComponents) {
+            showToast('Не удалось загрузить словарь компонентов крови, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorBloodComponents, showToast]);
+
+    useEffect(() => {
+        if (isErrorLocations) {
+            showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorLocations, showToast]);
+
+    useEffect(() => {
+        if (isErrorPetTypesAndBloodGroups) {
+            showToast('Не удалось загрузить словарь типов животных и групп крови, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorPetTypesAndBloodGroups, showToast]);
 
     return (
         <>
@@ -263,13 +214,13 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                                 petType={petType}
                                 petTypes={petTypesDict}
                                 bloodGroup={bloodGroup}
-                                bloodGroupDict={bloodGroupDict}
                                 onLoadPhoto={onLoadPhotoHandler}
                                 onChangeName={onChangeNameHandler}
                                 onChangeWeight={onChangeWeightHandler}
                                 onChangePetType={onChangePetTypeHandler}
                                 onChangeBloodGroup={onChangeBloodGroupHandler}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
+                                bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                             />
                         )}
                         {step === 2 && (
@@ -280,7 +231,6 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                                 bloodGroup={bloodGroup}
                                 bloodVolume={bloodVolume}
                                 locationsDict={locationsDict}
-                                bloodGroupDict={bloodGroupDict}
                                 bloodComponents={bloodComponents}
                                 desiredBloodGroups={desiredBloodGroups}
                                 notifyOfSmallDonors={notifyOfSmallDonors}
@@ -290,6 +240,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
                                 onChangeBloodComponents={onChangeBloodComponentsHandler}
                                 onChangeNotifyOfSmallDonors={onChangeNotifyOfSmallDonors}
+                                bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                                 onChangeDesiredBloodGroups={onChangeDesiredBloodGroupHandler}
                             />
                         )}
@@ -317,13 +268,13 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                     bloodVolume={bloodVolume}
                     description={description}
                     locationsDict={locationsDict}
-                    bloodGroupDict={bloodGroupDict}
                     bloodComponents={bloodComponents}
                     bloodRequestPhoto={bloodRequestPhoto}
                     desiredBloodGroups={desiredBloodGroups}
                     bloodComponentsDict={bloodComponentsDict}
                     notifyOfSmallDonors={notifyOfSmallDonors}
                     onConfirmButtonClick={onConfirmButtonClickHandler}
+                    bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                 />
             )}
             {step === 5 && <Final onBackToStart={onBackToStart} />}

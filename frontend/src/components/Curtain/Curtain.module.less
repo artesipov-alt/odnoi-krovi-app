@@ -51,6 +51,12 @@
     display: flex;
     gap: 8px;
     margin-top: 24px;
+
+    &.column {
+        flex-direction: column;
+        width: 90%;
+        margin: 24px auto 0;
+    }
 }
 
 .button {
@@ -65,8 +71,23 @@
     font-size: 15px !important;
     line-height: 18px !important;
 
+    &.disabled {
+        pointer-events: none;
+        opacity: .4;
+    }
+
     &:first-child {
         color: @grayBg6 !important;
         background: @common-red !important;
     }
+}
+
+.link {
+    display: block;
+    margin: 4px 0 0;
+    text-align: center;
+    color: @textColor2;
+    font-size: 14px;
+    line-height: 16px;
+    opacity: .6;
 }

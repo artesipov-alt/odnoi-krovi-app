@@ -1,18 +1,20 @@
+import {
+    BloodAndBreedGroupsDict,
+    useGendersQuery,
+    useHealthStatusesQuery,
+    useLivingConditionsQuery,
+    usePetTypesAndBloodGroupsQuery,
+    useReproductiveStatusesQuery,
+} from 'hooks/useDicts';
 import Header from 'pages/adding/common/Header';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { createDonor } from 'api/apiServices/createDonor';
-import { getBloodGroups } from 'api/apiServices/getBloodGroups';
-import { getBreedsByType } from 'api/apiServices/getBreedsByType';
-import { getGenders } from 'api/apiServices/getGenders';
-import { getHealthStatuses } from 'api/apiServices/getHealthStatuses';
-import { getLivingConditions } from 'api/apiServices/getLivingConditions';
-import { getPetsTypes } from 'api/apiServices/getPetsTypes';
-import { getReproductiveStatuses } from 'api/apiServices/getReproductiveStatuses';
 import { Analyses, AnalysesItem } from 'api/pets';
-import { Dict, PetGenderDict, PetTypeDict, StringDict } from 'api/reference';
+import { queryClient } from 'api/queryClient';
+import { Dict } from 'api/reference';
 import { AnalysesEnum, AnalysesMapping, AnalysesNamesMapping, PetGender, PetType } from 'api/types';
 import { Role } from 'api/user';
 
@@ -26,8 +28,6 @@ import Fourth from './Steps/Fourth';
 import Second from './Steps/Second';
 import Third from './Steps/Third';
 import { Analiz, BirthDate } from './types';
-
-type GroupsDicts = Record<PetType, Dict[]>;
 
 type Props = {
     userId: string;
@@ -144,13 +144,15 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     });
 
     // dicts
-    const [petTypesDict, setPetTypesDict] = useState<PetTypeDict[]>([]);
-    const [petGendersDict, setPetGendersDict] = useState<PetGenderDict[]>([]);
-    const [breedsDict, setBreedsDict] = useState<GroupsDicts>({} as GroupsDicts);
-    const [healthStatusesDict, setHealthStatusesDict] = useState<StringDict[]>([]);
-    const [livingConditionsDict, setLivingConditionsDict] = useState<StringDict[]>([]);
-    const [bloodGroupDict, setBloodGroupDict] = useState<GroupsDicts>({} as GroupsDicts);
-    const [reproductiveStatusesDict, setReproductiveStatusesDict] = useState<StringDict[]>([]);
+    const { data: petGendersDict = [], isError: isErrorGenders } = useGendersQuery();
+    const { data: healthStatusesDict = [], isError: isErrorHealthStatuses } = useHealthStatusesQuery();
+    const { data: livingConditionsDict = [], isError: isErrorLivingConditions } = useLivingConditionsQuery();
+    const { data: reproductiveStatusesDict = [], isError: isErrorReproductiveStatusesDict } =
+        useReproductiveStatusesQuery();
+    const {
+        data: { petTypesDict = [], bloodGroupDict = {}, breedsDict = {} } = {},
+        isError: isErrorPetTypesAndBloodGroups,
+    } = usePetTypesAndBloodGroupsQuery();
 
     const showToast = useCallback(
         (text: string) => {
@@ -162,119 +164,6 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         },
         [navigate],
     );
-
-    const fetchBloodTypes = useCallback(
-        async (pets: PetTypeDict[]) => {
-            const dict: GroupsDicts = {} as GroupsDicts;
-
-            await Promise.allSettled(
-                pets.map(async ({ value }) => {
-                    const response = await getBloodGroups(value);
-
-                    if (response) {
-                        dict[value] = response;
-                    }
-
-                    return { [value]: response };
-                }),
-            ).then((result) => {
-                if (result.some(({ status }) => status === 'rejected')) {
-                    showToast('Не удалось загрузить словарь групп крови, попробуйте еще раз');
-                }
-            });
-
-            setBloodGroupDict(dict);
-        },
-        [showToast],
-    );
-
-    const fetchBreedsTypes = useCallback(
-        async (pets: PetTypeDict[]) => {
-            const dict: GroupsDicts = {} as GroupsDicts;
-
-            await Promise.allSettled(
-                pets.map(async ({ value }) => {
-                    const response = await getBreedsByType(value);
-
-                    if (response) {
-                        dict[value] = response;
-                    }
-
-                    return { [value]: response };
-                }),
-            ).then((result) => {
-                if (result.some(({ status }) => status === 'rejected')) {
-                    showToast('Не удалось загрузить словарь пород, попробуйте еще раз');
-                }
-            });
-
-            setBreedsDict(dict);
-        },
-        [showToast],
-    );
-
-    const fetchPetTypes = useCallback(async () => {
-        const response = await getPetsTypes();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь типов животных, попробуйте еще раз');
-
-            return;
-        }
-
-        fetchBloodTypes(response);
-        fetchBreedsTypes(response);
-
-        setPetTypesDict(response);
-    }, [fetchBloodTypes, fetchBreedsTypes, showToast]);
-
-    const fetchGenders = useCallback(async () => {
-        const response = await getGenders();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь полов, попробуйте еще раз');
-
-            return;
-        }
-
-        setPetGendersDict(response);
-    }, [showToast]);
-
-    const fetchLivingConditions = useCallback(async () => {
-        const response = await getLivingConditions();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь условий проживания, попробуйте еще раз');
-
-            return;
-        }
-
-        setLivingConditionsDict(response);
-    }, [showToast]);
-
-    const fetchHealthStatuses = useCallback(async () => {
-        const response = await getHealthStatuses();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь статусов здоровья, попробуйте еще раз');
-
-            return;
-        }
-
-        setHealthStatusesDict(response);
-    }, [showToast]);
-
-    const fetchReproductiveStatuses = useCallback(async () => {
-        const response = await getReproductiveStatuses();
-
-        if (!response) {
-            showToast('Не удалось загрузить словарь репродуктивных состояний, попробуйте еще раз');
-
-            return;
-        }
-
-        setReproductiveStatusesDict(response);
-    }, [showToast]);
 
     const onFinishOnboardingHandler = () => {
         setIsOnboardingFinish(true);
@@ -668,6 +557,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         if (success) {
             setStep(confirmedStep + 1);
             setIsLoading(false);
+
+            await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
         } else {
             showToast('Не удалось сохранить питомца, попробуйте еще раз');
         }
@@ -684,16 +575,38 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     };
 
     useEffect(() => {
-        fetchPetTypes();
-        fetchGenders();
-        fetchHealthStatuses();
-        fetchLivingConditions();
-        fetchReproductiveStatuses();
-    }, [fetchGenders, fetchHealthStatuses, fetchLivingConditions, fetchPetTypes, fetchReproductiveStatuses]);
-
-    useEffect(() => {
         document.documentElement.classList.add('useWhiteBg1');
     }, []);
+
+    useEffect(() => {
+        if (isErrorPetTypesAndBloodGroups) {
+            showToast('Не удалось загрузить словарь типов животных и групп крови, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorPetTypesAndBloodGroups, showToast]);
+
+    useEffect(() => {
+        if (isErrorGenders) {
+            showToast('Не удалось загрузить словарь полов, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorGenders, showToast]);
+
+    useEffect(() => {
+        if (isErrorHealthStatuses) {
+            showToast('Не удалось загрузить словарь статусов здоровья, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorHealthStatuses, showToast]);
+
+    useEffect(() => {
+        if (isErrorLivingConditions) {
+            showToast('Не удалось загрузить словарь условий проживания, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorLivingConditions, showToast]);
+
+    useEffect(() => {
+        if (isErrorReproductiveStatusesDict) {
+            showToast('Не удалось загрузить словарь репродуктивных состояний, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorReproductiveStatusesDict, showToast]);
 
     if (!isOnboardingFinish) {
         return <Onboarding onFinish={onFinishOnboardingHandler} onBackToStart={onBackToStart} />;
@@ -742,17 +655,17 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
                                 petType={petType}
                                 petGender={petGender}
                                 bloodGroup={bloodGroup}
-                                breedsDict={breedsDict}
-                                bloodGroupDict={bloodGroupDict}
                                 livingCondition={livingCondition}
                                 onChangeBreed={onChangeBreedHandler}
                                 onChangeWeight={onChangeWeightHandler}
                                 reproductiveStatus={reproductiveStatus}
                                 livingConditionsDict={livingConditionsDict}
                                 onChangeBloodGroup={onChangeBloodGroupHandler}
+                                breedsDict={breedsDict as BloodAndBreedGroupsDict}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
                                 reproductiveStatusesDict={reproductiveStatusesDict}
                                 onChangeLivingCondition={onChangeLivingConditionHandler}
+                                bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                                 onChangeReproductiveStatus={onChangeReproductiveStatusHandler}
                             />
                         )}

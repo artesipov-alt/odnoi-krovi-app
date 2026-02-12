@@ -1,0 +1,55 @@
+@import 'styles/colors';
+
+.wrapper {
+    position: relative;
+}
+
+.form {
+    padding: 15px 17px 20px;
+}
+
+.blood {
+    margin: 26px auto 0;
+    width: 90%;
+}
+
+.bloodGroups {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+
+    &.dogGroup {
+        margin-bottom: 8px;
+    }
+}
+
+.bloodItem {
+    flex-grow: 1;
+    height: 50px;
+    background: @white;
+    border-radius: 30px;
+    text-align: center;
+    line-height: 50px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 14px;
+    color: @textColor4;
+
+    &.checked {
+        color: @textColor3;
+        background: @common-red;
+    }
+}
+
+.curtainSubtitle {
+    margin-top: 6px;
+    color: @red1;
+}
+
+.loading {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}

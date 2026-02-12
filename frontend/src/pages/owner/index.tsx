@@ -1,13 +1,13 @@
 import cn from 'classnames';
+import { usePetsQuery } from 'hooks/usePetsQuery';
 import BloodSearch from 'imgs/svg/bloodSearch';
 import DonorButton from 'imgs/svg/donorButton';
 import Paw from 'imgs/svg/paw';
 import RecipientButton from 'imgs/svg/recipientButton';
-import { FC, MouseEvent, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { FC, MouseEvent, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { TelegramUser } from 'types';
 
-import { getPets } from 'api/apiServices/getPets';
 import { Pet } from 'api/pets';
 import { Role } from 'api/user';
 import Layout from 'components/Layout';
@@ -25,37 +25,11 @@ type View = 'donor' | 'recipient';
 const Owner: FC<Props> = ({ user }) => {
     const navigate = useNavigate();
 
-    const [pets, setPets] = useState<Pet[]>([]);
     const [view, setView] = useState<View>('recipient');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
 
-    const fetchPets = useCallback(async () => {
-        const items = await getPets(user.id);
-
-        if (!items) {
-            setPets([]);
-            setSelectedPet(null);
-            setIsLoading(false);
-
-            return;
-        }
-
-        if (items.length) {
-            setPets(items);
-        }
-
-        setSelectedPet((prevState) => {
-            if (prevState) {
-                return items?.find((pet) => pet.id === prevState.id) || null;
-            }
-
-            return prevState;
-        });
-
-        setIsLoading(false);
-    }, [user]);
+    const { data: pets = [], isLoading, refetch } = usePetsQuery(user.id);
 
     const onButtonClickHandler = (newView: View) => () => {
         window.location.hash = `#${newView}`;
@@ -118,12 +92,6 @@ const Owner: FC<Props> = ({ user }) => {
         }
     };
 
-    useEffect(() => {
-        setIsLoading(true);
-
-        fetchPets();
-    }, [fetchPets]);
-
     useLayoutEffect(() => {
         if (window.location.hash === '#recipient') {
             setView('recipient');
@@ -140,17 +108,33 @@ const Owner: FC<Props> = ({ user }) => {
         window.location.hash = '#recipient';
     }, []);
 
+    useEffect(() => {
+        if (!pets) {
+            setSelectedPet(null);
+
+            return;
+        }
+
+        setSelectedPet((prevState) => {
+            if (prevState) {
+                return pets?.find((pet) => pet.id === prevState.id) || null;
+            }
+
+            return prevState;
+        });
+    }, [pets]);
+
     if (isPetProfileOpen && selectedPet) {
         return (
             <Layout>
-                <PetProfile updatePets={fetchPets} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
+                <PetProfile updatePets={refetch} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
             </Layout>
         );
     }
 
     return (
         <Layout>
-            <div className={cn(styles.wrapper, { [styles.isPets]: !!pets.length })}>
+            <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.length })}>
                 <div className={styles.header}>
                     <div className={styles.avatar}>{user.fullName.charAt(0).toUpperCase()}</div>
                 </div>
@@ -159,7 +143,7 @@ const Owner: FC<Props> = ({ user }) => {
                         <Loading size={90} thickness={4} />
                     </div>
                 )}
-                {!isLoading && !pets.length && (
+                {!isLoading && !pets?.length && (
                     <div className={styles.button} onClick={onAddPetClickHandler}>
                         <div className={styles.pawIcon}>
                             <Paw />
@@ -167,7 +151,7 @@ const Owner: FC<Props> = ({ user }) => {
                         <p className={styles.pawButtonText}>Добавить питомца</p>
                     </div>
                 )}
-                {!isLoading && !!pets.length && (
+                {!isLoading && !!pets?.length && (
                     <>
                         <div className={styles.showcase}>
                             {pets.map((pet) => (

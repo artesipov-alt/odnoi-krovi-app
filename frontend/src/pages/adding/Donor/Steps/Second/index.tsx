@@ -1,6 +1,7 @@
 import { Button, TextField as MuiTextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import cn from 'classnames';
+import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { regexReal } from 'utils/regexps';
@@ -21,9 +22,9 @@ type Props = {
     livingCondition: string;
     reproductiveStatus: string;
     livingConditionsDict: StringDict[];
-    breedsDict: Record<PetType, Dict[]>;
+    breedsDict: BloodAndBreedGroupsDict;
     reproductiveStatusesDict: StringDict[];
-    bloodGroupDict: Record<PetType, Dict[]>;
+    bloodGroupDict: BloodAndBreedGroupsDict;
     onChangeWeight: (weight: string) => void;
     onChangeBreed: (breed: Dict | null) => void;
     onChangeBloodGroup: (blood: string) => void;

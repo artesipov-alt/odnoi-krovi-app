@@ -1,5 +1,6 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
+import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
 import BackArrow from 'imgs/svg/backArrow';
 import Blood from 'imgs/svg/blood';
 import BloodComponents from 'imgs/svg/bloodComponents';
@@ -11,7 +12,6 @@ import Accordion from 'pages/adding/common/Accordion';
 import { FC } from 'react';
 
 import { Dict } from 'api/reference';
-import { PetType } from 'api/types';
 import ImgEditor from 'components/ImgEditor';
 import Loading from 'components/Loading';
 
@@ -21,6 +21,7 @@ type Props = {
     name: string;
     weight: string;
     petType: string;
+    photoUrl?: string;
     bloodGroup: string;
     photo: File | null;
     isLoading: boolean;
@@ -33,7 +34,7 @@ type Props = {
     desiredBloodGroups: string[];
     notifyOfSmallDonors: boolean;
     bloodRequestPhoto: File | null;
-    bloodGroupDict: Record<PetType, Dict[]>;
+    bloodGroupDict: BloodAndBreedGroupsDict;
     onConfirmButtonClick: (step: number) => void;
 };
 
@@ -42,6 +43,7 @@ const Check: FC<Props> = ({
     photo,
     weight,
     petType,
+    photoUrl,
     isLoading,
     locations,
     bloodGroup,
@@ -75,6 +77,7 @@ const Check: FC<Props> = ({
                         name={name}
                         weight={weight}
                         petType={petType}
+                        serverSrc={photoUrl}
                         bloodGroup={
                             bloodGroupDict[petType].filter(({ value }) => value === Number(bloodGroup))[0].label
                         }
