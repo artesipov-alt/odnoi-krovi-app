@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -26,8 +25,8 @@ type PetService interface {
 	// GetUserPets получает всех питомцев пользователя с preload связей
 	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
-	// UpdatePet обновляет информацию о питомце
-	UpdatePet(ctx context.Context, petID string, updates map[string]any, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
+	// UpdatePetRelations обновляет связанные сущности питомца (здоровье, лечения, анализы, бонусы)
+	UpdatePetRelations(ctx context.Context, petID string, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
@@ -184,78 +183,11 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 	return pets, nil
 }
 
-// UpdatePet обновляет информацию о питомце
-func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates map[string]any, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error {
-	// Получаем существующего питомца
-	p, err := s.petRepo.GetByID(ctx, petID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrPetNotFound
-		}
-		return apperrors.Internal(err, "failed to get pet")
-	}
-
-	// Применяем обновления и валидируем
-	if val, ok := updates["Name"]; ok {
-		p.Name = val.(string)
-	}
-	if val, ok := updates["ChipNumber"]; ok {
-		p.ChipNumber = val.(string)
-	}
-	if val, ok := updates["PhotoUrls"]; ok {
-		p.PhotoUrls = val.([]string)
-	}
-	if val, ok := updates["BreedID"]; ok {
-		p.BreedID = val.(int)
-	}
-	if val, ok := updates["WeightKg"]; ok {
-		p.WeightKg = val.(float64)
-	}
-	if val, ok := updates["BirthDate"]; ok {
-		p.BirthDate = val.(*time.Time)
-	}
-	if val, ok := updates["LivingCondition"]; ok {
-		lc := val.(string)
-		if err := pet.LivingConditionValidator(pet.LivingCondition(lc)); err != nil {
-			return apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
-		}
-		p.LivingCondition = pet.LivingCondition(lc)
-	}
-	if val, ok := updates["Gender"]; ok {
-		g := val.(string)
-		if err := pet.GenderValidator(pet.Gender(g)); err != nil {
-			return apperrors.Validation("неверный пол животного", nil).WithInternal(err)
-		}
-		p.Gender = pet.Gender(g)
-	}
-	if val, ok := updates["Type"]; ok {
-		t := val.(string)
-		if err := pet.TypeValidator(pet.Type(t)); err != nil {
-			return apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
-		}
-		p.Type = pet.Type(t)
-	}
-	if val, ok := updates["BloodGroup"]; ok {
-		p.BloodGroup = val.(string)
-	}
-	if val, ok := updates["ReproductiveStatus"]; ok {
-		rs := val.(string)
-		if err := pet.ReproductiveStatusValidator(pet.ReproductiveStatus(rs)); err != nil {
-			return apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
-		}
-		p.ReproductiveStatus = pet.ReproductiveStatus(rs)
-	}
-	if val, ok := updates["PetStatus"]; ok {
-		ps := val.(string)
-		if err := pet.PetStatusValidator(pet.PetStatus(ps)); err != nil {
-			return apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
-		}
-		p.PetStatus = pet.PetStatus(ps)
-	}
-
+// UpdatePetRelations обновляет связанные сущности питомца (здоровье, лечения, анализы, бонусы)
+func (s *PetServiceImpl) UpdatePetRelations(ctx context.Context, petID string, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error {
 	// Валидируем вложенные структуры
 	if health != nil {
-		if health.HealthStatus != "" {
+		if string(health.HealthStatus) != "" {
 			if err := pethealth.HealthStatusValidator(health.HealthStatus); err != nil {
 				return apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
 			}
@@ -269,13 +201,22 @@ func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates ma
 		}
 	}
 
-	// Сохраняем обновленного питомца
-	p, err = s.petRepo.Update(ctx, p, health, treatments, analyses, bonuses)
+	// Получаем питомца
+	p, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
-		return apperrors.Internal(err, "failed to update pet")
+		if ent.IsNotFound(err) {
+			return apperrors.ErrPetNotFound
+		}
+		return apperrors.Internal(err, "failed to get pet")
 	}
 
-	// Применяем валидацию, модифицируем объект и сохраняем
+	// Обновляем через репозиторий
+	_, err = s.petRepo.Update(ctx, p, health, treatments, analyses, bonuses)
+	if err != nil {
+		return apperrors.Internal(err, "failed to update pet relations")
+	}
+
+	// Применяем валидацию
 	_, _, err = s.ApplyValidation(ctx, p)
 	if err != nil {
 		return err

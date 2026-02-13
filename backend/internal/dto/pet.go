@@ -64,7 +64,6 @@ type RestrictionFactor struct {
 type PetUpdate struct {
 	Name               *string           `json:"name,omitempty" validate:"omitempty,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber         *string           `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
-	PhotoURLs          []string          `json:"photoUrls,omitempty" validate:"omitempty,dive,max=255" doc:"URLs фотографий питомца" example:"https://example.com/photo.jpg"`
 	BreedID            *int              `json:"breedId,omitempty" validate:"omitempty,min=1" doc:"ID породы" example:"1"`
 	WeightKg           *float64          `json:"weightKg,omitempty" validate:"omitempty,min=0" doc:"Вес в килограммах" example:"15.5"`
 	AgeYears           *int              `json:"ageYears,omitempty" validate:"omitempty,min=0" doc:"Возраст в годах" example:"3"`

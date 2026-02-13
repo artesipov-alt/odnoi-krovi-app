@@ -167,15 +167,172 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	dto.IDPath
 	Body dto.PetUpdate
 }) (*dto.MessageResponse, error) {
-	updates, health, treatments, analyses, bonuses := h.toUpdateENT(input.Body)
-
-	if err := h.petService.UpdatePet(ctx, input.ID, updates, health, treatments, analyses, bonuses); err != nil {
+	// Получаем питомца
+	p, err := h.petService.GetPetByID(ctx, input.ID)
+	if err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
 			slog.DebugContext(ctx, "pet not found for update", "pet_id", input.ID, "error", err.Error())
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
+		slog.ErrorContext(ctx, "failed to get pet", "pet_id", input.ID, "error", err.Error())
+		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	// Создаем мутацию для обновления основного объекта
+	mutation := p.Update()
+
+	// Устанавливаем поля из DTO
+	if input.Body.Name != nil {
+		mutation = mutation.SetName(*input.Body.Name)
+	}
+	if input.Body.ChipNumber != nil {
+		mutation = mutation.SetNillableChipNumber(input.Body.ChipNumber)
+	}
+	if input.Body.BreedID != nil {
+		mutation = mutation.SetNillableBreedID(input.Body.BreedID)
+	}
+	if input.Body.WeightKg != nil {
+		mutation = mutation.SetNillableWeightKg(input.Body.WeightKg)
+	}
+	if input.Body.BirthDate != nil {
+		mutation = mutation.SetNillableBirthDate(input.Body.BirthDate)
+	} else if input.Body.AgeYears != nil || input.Body.AgeMonths != nil {
+		ageYears := 0
+		if input.Body.AgeYears != nil {
+			ageYears = *input.Body.AgeYears
+		}
+		ageMonths := 0
+		if input.Body.AgeMonths != nil {
+			ageMonths = *input.Body.AgeMonths
+		}
+		if ageYears > 0 || ageMonths > 0 {
+			birthDate := time.Now().AddDate(-ageYears, -ageMonths, 0)
+			birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+			mutation = mutation.SetNillableBirthDate(&birthDate)
+		}
+	}
+	if input.Body.LivingCondition != nil {
+		lc := pet.LivingCondition(*input.Body.LivingCondition)
+		if err := pet.LivingConditionValidator(lc); err != nil {
+			slog.ErrorContext(ctx, "invalid living condition", "value", *input.Body.LivingCondition, "error", err.Error())
+			return nil, huma.Error400BadRequest("Неверные условия проживания")
+		}
+		mutation = mutation.SetNillableLivingCondition(&lc)
+	}
+	if input.Body.Gender != nil {
+		g := pet.Gender(*input.Body.Gender)
+		if err := pet.GenderValidator(g); err != nil {
+			slog.ErrorContext(ctx, "invalid gender", "value", *input.Body.Gender, "error", err.Error())
+			return nil, huma.Error400BadRequest("Неверный пол животного")
+		}
+		mutation = mutation.SetNillableGender(&g)
+	}
+	if input.Body.Type != nil {
+		t := pet.Type(*input.Body.Type)
+		if err := pet.TypeValidator(t); err != nil {
+			slog.ErrorContext(ctx, "invalid pet type", "value", *input.Body.Type, "error", err.Error())
+			return nil, huma.Error400BadRequest("Неверный тип питомца")
+		}
+		mutation = mutation.SetType(t)
+	}
+	if input.Body.BloodGroup != nil {
+		mutation = mutation.SetNillableBloodGroup(input.Body.BloodGroup)
+	}
+	if input.Body.ReproductiveStatus != nil {
+		rs := pet.ReproductiveStatus(*input.Body.ReproductiveStatus)
+		if err := pet.ReproductiveStatusValidator(rs); err != nil {
+			slog.ErrorContext(ctx, "invalid reproductive status", "value", *input.Body.ReproductiveStatus, "error", err.Error())
+			return nil, huma.Error400BadRequest("Неверный репродуктивный статус")
+		}
+		mutation = mutation.SetNillableReproductiveStatus(&rs)
+	}
+	if input.Body.PetStatus != nil {
+		ps := pet.PetStatus(*input.Body.PetStatus)
+		if err := pet.PetStatusValidator(ps); err != nil {
+			slog.ErrorContext(ctx, "invalid pet status", "value", *input.Body.PetStatus, "error", err.Error())
+			return nil, huma.Error400BadRequest("Неверный статус питомца")
+		}
+		mutation = mutation.SetPetStatus(ps)
+	}
+
+	// Выполняем обновление основного объекта
+	err = mutation.Exec(ctx)
+	if err != nil {
 		slog.ErrorContext(ctx, "failed to update pet", "pet_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+	}
+
+	// Обновляем связанные сущности, если они есть
+	var health *ent.PetHealth
+	if input.Body.Health != nil {
+		health = &ent.PetHealth{
+			LastDonation: input.Body.Health.LastDonation,
+		}
+		if input.Body.Health.HealthStatus != nil {
+			health.HealthStatus = pethealth.HealthStatus(*input.Body.Health.HealthStatus)
+		}
+		if input.Body.Health.Transfused != nil {
+			health.Transfused = *input.Body.Health.Transfused
+		}
+		if input.Body.Health.Medications != nil {
+			health.Medications = *input.Body.Health.Medications
+		}
+		if input.Body.Health.SurgicalInterventions != nil {
+			health.SurgicalInterventions = *input.Body.Health.SurgicalInterventions
+		}
+	}
+
+	var treatments *ent.PetTreatment
+	if input.Body.Treatments != nil {
+		treatments = &ent.PetTreatment{
+			RabiesVaccinationDate:     input.Body.Treatments.RabiesVaccinationDate,
+			InfectionVaccinationDate:  input.Body.Treatments.InfectionVaccinationDate,
+			EctoparasiteTreatmentDate: input.Body.Treatments.EctoparasiteTreatmentDate,
+			DewormingDate:             input.Body.Treatments.DewormingDate,
+		}
+	}
+
+	var analyses []*ent.PetAnalysis
+	if input.Body.Analyses != nil {
+		analyses = []*ent.PetAnalysis{}
+		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
+			for _, a := range group {
+				entA := &ent.PetAnalysis{
+					AnalysisName: name,
+					AnalysisDate: a.AnalysisDate,
+				}
+				if a.AnalysisType != nil {
+					entA.AnalysisType = petanalysis.AnalysisType(*a.AnalysisType)
+				}
+				analyses = append(analyses, entA)
+			}
+		}
+
+		processGroup(input.Body.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
+		processGroup(input.Body.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
+		processGroup(input.Body.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
+		processGroup(input.Body.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
+		processGroup(input.Body.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
+		processGroup(input.Body.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
+		processGroup(input.Body.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
+		processGroup(input.Body.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
+	}
+
+	var bonuses *ent.PetBonus
+	if input.Body.Bonuses != nil {
+		bonuses = &ent.PetBonus{
+			IsArtist:      input.Body.Bonuses.IsArtist,
+			IsTherapist:   input.Body.Bonuses.IsTherapist,
+			IsFormerDonor: input.Body.Bonuses.IsFormerDonor,
+			IsGuideDog:    input.Body.Bonuses.IsGuideDog,
+		}
+	}
+
+	if health != nil || treatments != nil || len(analyses) > 0 || bonuses != nil {
+		if err := h.petService.UpdatePetRelations(ctx, input.ID, health, treatments, analyses, bonuses); err != nil {
+			slog.ErrorContext(ctx, "failed to update pet relations", "pet_id", input.ID, "error", err.Error())
+			return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+		}
 	}
 
 	resp := &dto.MessageResponse{}
@@ -452,123 +609,3 @@ func (h *PetHandler) toCreateENT(d dto.PetCreate) *ent.Pet {
 }
 
 // mapDTOToPetUpdates преобразует DTO обновления питомца в аргументы для сервиса
-func (h *PetHandler) toUpdateENT(d dto.PetUpdate) (map[string]any, *ent.PetHealth, *ent.PetTreatment, []*ent.PetAnalysis, *ent.PetBonus) {
-	updates := make(map[string]any)
-	if d.Name != nil {
-		updates["Name"] = *d.Name
-	}
-	if d.ChipNumber != nil {
-		updates["ChipNumber"] = *d.ChipNumber
-	}
-	if d.PhotoURLs != nil {
-		updates["PhotoUrls"] = d.PhotoURLs
-	}
-	if d.BreedID != nil {
-		updates["BreedID"] = *d.BreedID
-	}
-	if d.WeightKg != nil {
-		updates["WeightKg"] = *d.WeightKg
-	}
-	if d.BirthDate != nil {
-		updates["BirthDate"] = d.BirthDate
-	} else if d.AgeYears != nil || d.AgeMonths != nil {
-		ageYears := 0
-		if d.AgeYears != nil {
-			ageYears = *d.AgeYears
-		}
-		ageMonths := 0
-		if d.AgeMonths != nil {
-			ageMonths = *d.AgeMonths
-		}
-		if ageYears > 0 || ageMonths > 0 {
-			birthDate := time.Now().AddDate(-ageYears, -ageMonths, 0)
-			birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
-			updates["BirthDate"] = &birthDate
-		}
-	}
-	if d.LivingCondition != nil {
-		updates["LivingCondition"] = *d.LivingCondition
-	}
-	if d.Gender != nil {
-		updates["Gender"] = *d.Gender
-	}
-	if d.Type != nil {
-		updates["Type"] = *d.Type
-	}
-	if d.BloodGroup != nil {
-		updates["BloodGroup"] = *d.BloodGroup
-	}
-	if d.ReproductiveStatus != nil {
-		updates["ReproductiveStatus"] = *d.ReproductiveStatus
-	}
-	if d.PetStatus != nil {
-		updates["PetStatus"] = *d.PetStatus
-	}
-
-	var health *ent.PetHealth
-	if d.Health != nil {
-		health = &ent.PetHealth{
-			LastDonation: d.Health.LastDonation,
-		}
-		if d.Health.HealthStatus != nil {
-			health.HealthStatus = pethealth.HealthStatus(*d.Health.HealthStatus)
-		}
-		if d.Health.Transfused != nil {
-			health.Transfused = *d.Health.Transfused
-		}
-		if d.Health.Medications != nil {
-			health.Medications = *d.Health.Medications
-		}
-		if d.Health.SurgicalInterventions != nil {
-			health.SurgicalInterventions = *d.Health.SurgicalInterventions
-		}
-	}
-
-	var treatments *ent.PetTreatment
-	if d.Treatments != nil {
-		treatments = &ent.PetTreatment{
-			RabiesVaccinationDate:     d.Treatments.RabiesVaccinationDate,
-			InfectionVaccinationDate:  d.Treatments.InfectionVaccinationDate,
-			EctoparasiteTreatmentDate: d.Treatments.EctoparasiteTreatmentDate,
-			DewormingDate:             d.Treatments.DewormingDate,
-		}
-	}
-
-	var analyses []*ent.PetAnalysis
-	if d.Analyses != nil {
-		analyses = []*ent.PetAnalysis{}
-		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
-			for _, a := range group {
-				entA := &ent.PetAnalysis{
-					AnalysisName: name,
-					AnalysisDate: a.AnalysisDate,
-				}
-				if a.AnalysisType != nil {
-					entA.AnalysisType = petanalysis.AnalysisType(*a.AnalysisType)
-				}
-				analyses = append(analyses, entA)
-			}
-		}
-
-		processGroup(d.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
-		processGroup(d.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
-		processGroup(d.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
-		processGroup(d.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
-		processGroup(d.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
-		processGroup(d.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
-		processGroup(d.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
-		processGroup(d.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
-	}
-
-	var bonuses *ent.PetBonus
-	if d.Bonuses != nil {
-		bonuses = &ent.PetBonus{
-			IsArtist:      d.Bonuses.IsArtist,
-			IsTherapist:   d.Bonuses.IsTherapist,
-			IsFormerDonor: d.Bonuses.IsFormerDonor,
-			IsGuideDog:    d.Bonuses.IsGuideDog,
-		}
-	}
-
-	return updates, health, treatments, analyses, bonuses
-}
