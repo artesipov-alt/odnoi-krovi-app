@@ -67,7 +67,7 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-user-by-telegram",
 		Method:      http.MethodGet,
-		Path:        "/v1/user/telegram",
+		Path:        "/v1/user/telegram/{id}",
 		Summary:     "Получение пользователя по Telegram ID",
 		Description: "Возвращает информацию о пользователе по его Telegram ID",
 		Tags:        []string{"users-v1"},
@@ -117,7 +117,7 @@ func (h *UserHandler) Register(api huma.API) {
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *struct {
-	dto.IDPath
+	dto.IDPathStr
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
 	query := h.userService.GetUserQueryByID(ctx, input.ID)
@@ -170,7 +170,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
-	dto.IDPath
+	dto.IDPathStr
 	Body dto.UserUpdate
 }) (*dto.MessageResponse, error) {
 	u, err := h.userService.GetUserByID(ctx, input.ID)
@@ -228,10 +228,10 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 }
 
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
-	dto.TelegramIDQuery
+	dto.IDPathInt
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
-	query := h.userService.GetUserQueryByTelegram(ctx, input.TelegramID)
+	query := h.userService.GetUserQueryByTelegram(ctx, input.ID)
 	if input.WithPets {
 		query = query.WithPets()
 	}
@@ -239,10 +239,10 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 	u, err := query.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			slog.DebugContext(ctx, "user not found", "telegram_id", input.TelegramID)
+			slog.DebugContext(ctx, "user not found", "telegram_id", input.ID)
 			return nil, apperrors.ErrUserNotFound
 		}
-		slog.ErrorContext(ctx, "failed to get user", "telegram_id", input.TelegramID, "error", err.Error())
+		slog.ErrorContext(ctx, "failed to get user", "telegram_id", input.ID, "error", err.Error())
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
@@ -252,7 +252,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 	return &dto.UserResponse{Body: h.toDTO(u)}, nil
 }
 
-func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
+func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
 		slog.ErrorContext(ctx, "failed to delete user", "user_id", input.ID, "error", err.Error())
 		return nil, err
@@ -265,7 +265,7 @@ func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPath) (*dto.M
 	}, nil
 }
 
-func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
+func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
 		slog.ErrorContext(ctx, "failed to reset user", "user_id", input.ID, "error", err.Error())
 		return nil, err
@@ -278,7 +278,7 @@ func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPath) (*dto.Me
 	}, nil
 }
 
-func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
+func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
 		slog.ErrorContext(ctx, "failed to restore user", "user_id", input.ID, "error", err.Error())
 		return nil, err

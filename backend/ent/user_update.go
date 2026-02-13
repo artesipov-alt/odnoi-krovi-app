@@ -184,6 +184,12 @@ func (_u *UserUpdate) AppendOnBoarding(v []string) *UserUpdate {
 	return _u
 }
 
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (_u *UserUpdate) ClearOnBoarding() *UserUpdate {
+	_u.mutation.ClearOnBoarding()
+	return _u
+}
+
 // SetAllowGeo sets the "allow_geo" field.
 func (_u *UserUpdate) SetAllowGeo(v bool) *UserUpdate {
 	_u.mutation.SetAllowGeo(v)
@@ -429,6 +435,9 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, user.FieldOnBoarding, value)
 		})
+	}
+	if _u.mutation.OnBoardingCleared() {
+		_spec.ClearField(user.FieldOnBoarding, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)
@@ -691,6 +700,12 @@ func (_u *UserUpdateOne) SetOnBoarding(v []string) *UserUpdateOne {
 // AppendOnBoarding appends value to the "on_boarding" field.
 func (_u *UserUpdateOne) AppendOnBoarding(v []string) *UserUpdateOne {
 	_u.mutation.AppendOnBoarding(v)
+	return _u
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (_u *UserUpdateOne) ClearOnBoarding() *UserUpdateOne {
+	_u.mutation.ClearOnBoarding()
 	return _u
 }
 
@@ -969,6 +984,9 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, user.FieldOnBoarding, value)
 		})
+	}
+	if _u.mutation.OnBoardingCleared() {
+		_spec.ClearField(user.FieldOnBoarding, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)

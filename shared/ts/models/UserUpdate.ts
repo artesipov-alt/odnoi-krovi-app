@@ -50,11 +50,11 @@ export interface UserUpdate {
      */
     locationId?: number;
     /**
-     * Статус онбординга
-     * @type {boolean}
+     * Статусы онбординга
+     * @type {Array<string>}
      * @memberof UserUpdate
      */
-    onBoarding?: boolean;
+    onBoarding?: Array<UserUpdateOnBoardingEnum>;
     /**
      * Номер телефона
      * @type {string}
@@ -68,6 +68,17 @@ export interface UserUpdate {
      */
     photoUrls?: Array<string> | null;
 }
+
+
+/**
+ * @export
+ */
+export const UserUpdateOnBoardingEnum = {
+    Donor: 'DONOR',
+    Recipient: 'RECIPIENT'
+} as const;
+export type UserUpdateOnBoardingEnum = typeof UserUpdateOnBoardingEnum[keyof typeof UserUpdateOnBoardingEnum];
+
 
 /**
  * Check if a given object implements the UserUpdate interface.

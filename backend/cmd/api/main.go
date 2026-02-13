@@ -75,6 +75,12 @@ func main() {
 			os.Exit(1)
 		}
 
+		// Запуск миграций
+		if err := config.RunMigrations(db); err != nil {
+			slog.Error("Ошибка выполнения миграций", "error", err)
+			os.Exit(1)
+		}
+
 		//Миграции
 		ctx := context.Background()
 		seeds.SeedBloodGroups(ctx, db)

@@ -82,11 +82,11 @@ export interface User {
      */
     locationId?: number;
     /**
-     * Статус онбординга
-     * @type {boolean}
+     * Статусы онбординга
+     * @type {Array<string>}
      * @memberof User
      */
-    onBoarding: boolean;
+    onBoarding: Array<string> | null;
     /**
      * Название организации
      * @type {string}
@@ -164,7 +164,7 @@ export function UserFromJSONTyped(json: any, ignoreDiscriminator: boolean): User
         'fullName': json['fullName'],
         'id': json['id'],
         'locationId': json['locationId'] == null ? undefined : json['locationId'],
-        'onBoarding': json['onBoarding'],
+        'onBoarding': json['onBoarding'] == null ? null : json['onBoarding'],
         'organizationName': json['organizationName'] == null ? undefined : json['organizationName'],
         'pets': json['pets'] == null ? undefined : ((json['pets'] as Array<any>).map(PetFromJSON)),
         'phone': json['phone'] == null ? undefined : json['phone'],

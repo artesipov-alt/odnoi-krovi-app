@@ -299,9 +299,6 @@ func (_c *UserCreate) check() error {
 	if _, ok := _c.mutation.ConsentPd(); !ok {
 		return &ValidationError{Name: "consent_pd", err: errors.New(`ent: missing required field "User.consent_pd"`)}
 	}
-	if _, ok := _c.mutation.OnBoarding(); !ok {
-		return &ValidationError{Name: "on_boarding", err: errors.New(`ent: missing required field "User.on_boarding"`)}
-	}
 	if _, ok := _c.mutation.AllowGeo(); !ok {
 		return &ValidationError{Name: "allow_geo", err: errors.New(`ent: missing required field "User.allow_geo"`)}
 	}

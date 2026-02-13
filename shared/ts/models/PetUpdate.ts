@@ -133,12 +133,6 @@ export interface PetUpdate {
      */
     petStatus?: PetUpdatePetStatusEnum;
     /**
-     * URLs фотографий питомца
-     * @type {Array<string>}
-     * @memberof PetUpdate
-     */
-    photoUrls?: Array<string> | null;
-    /**
      * Репродуктивный статус питомца
      * @type {string}
      * @memberof PetUpdate
@@ -256,7 +250,6 @@ export function PetUpdateFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'livingCondition': json['livingCondition'] == null ? undefined : json['livingCondition'],
         'name': json['name'] == null ? undefined : json['name'],
         'petStatus': json['petStatus'] == null ? undefined : json['petStatus'],
-        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'reproductiveStatus': json['reproductiveStatus'] == null ? undefined : json['reproductiveStatus'],
         'treatments': json['treatments'] == null ? undefined : PetTreatmentFromJSON(json['treatments']),
         'type': json['type'] == null ? undefined : json['type'],
@@ -288,7 +281,6 @@ export function PetUpdateToJSONTyped(value?: Omit<PetUpdate, '$schema'> | null, 
         'livingCondition': value['livingCondition'],
         'name': value['name'],
         'petStatus': value['petStatus'],
-        'photoUrls': value['photoUrls'],
         'reproductiveStatus': value['reproductiveStatus'],
         'treatments': PetTreatmentToJSON(value['treatments']),
         'type': value['type'],

@@ -11,8 +11,13 @@ type MessageResponse struct {
 }
 
 // IDPath представляет параметры пути с ID объекта
-type IDPath struct {
-	ID string `path:"id" doc:"ID сущности (запроса/питомца/пользователя)" minLength:"1" example:"USR-ABCDEABCDE"`
+type IDPathStr struct {
+	ID string `path:"id" doc:"ID сущности (запроса/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
+}
+
+// IDPath представляет параметры пути с ID объекта
+type IDPathInt struct {
+	ID int64 `path:"id" doc:"ID Телеграм" minLength:"1" example:"12345678"`
 }
 
 type PhotoPreloadQuery struct {

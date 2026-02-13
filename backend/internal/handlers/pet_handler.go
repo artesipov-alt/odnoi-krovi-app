@@ -121,7 +121,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 }
 
 func (h *PetHandler) GetPet(ctx context.Context, input *struct {
-	dto.IDPath
+	dto.IDPathStr
 	dto.PetPreloadQuery
 }) (*dto.PetResponse, error) {
 	query := h.petService.GetPetQuery(ctx, input.ID)
@@ -193,7 +193,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 }
 
 func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
-	dto.IDPath
+	dto.IDPathStr
 	Body dto.PetUpdate
 }) (*dto.MessageResponse, error) {
 	// Получаем питомца
@@ -369,7 +369,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	return resp, nil
 }
 
-func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
+func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
 			slog.DebugContext(ctx, "pet not found for deletion", "pet_id", input.ID, "error", err.Error())
@@ -384,7 +384,7 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPath) (*dto.Mes
 	return resp, nil
 }
 
-func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPath) (*dto.PetResponse, error) {
+func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
 	// Загружаем все связанные данные для полной валидации
 	preloads := []string{"Health", "Treatments", "Analyses", "Bonuses"}
 	p, err := h.petService.GetPetByID(ctx, input.ID, preloads...)

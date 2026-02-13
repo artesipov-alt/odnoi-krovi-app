@@ -600,6 +600,16 @@ func ConsentPdNEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldConsentPd, v))
 }
 
+// OnBoardingIsNil applies the IsNil predicate on the "on_boarding" field.
+func OnBoardingIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldOnBoarding))
+}
+
+// OnBoardingNotNil applies the NotNil predicate on the "on_boarding" field.
+func OnBoardingNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldOnBoarding))
+}
+
 // AllowGeoEQ applies the EQ predicate on the "allow_geo" field.
 func AllowGeoEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldAllowGeo, v))

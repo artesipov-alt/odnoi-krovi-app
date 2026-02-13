@@ -153,7 +153,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 	return &dto.BloodRequestsResponse{Body: dtos}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPath) (*dto.BloodRequestResponse, error) {
+func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
 	result, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
@@ -167,7 +167,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(result)}, nil
 }
 
-func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPath) (*dto.MessageResponse, error) {
+func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
 		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			slog.DebugContext(ctx, "blood request not found for deletion", "request_id", input.ID, "error", err.Error())

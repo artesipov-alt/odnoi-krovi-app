@@ -8998,10 +8998,24 @@ func (m *UserMutation) AppendedOnBoarding() ([]string, bool) {
 	return m.appendon_boarding, true
 }
 
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (m *UserMutation) ClearOnBoarding() {
+	m.on_boarding = nil
+	m.appendon_boarding = nil
+	m.clearedFields[user.FieldOnBoarding] = struct{}{}
+}
+
+// OnBoardingCleared returns if the "on_boarding" field was cleared in this mutation.
+func (m *UserMutation) OnBoardingCleared() bool {
+	_, ok := m.clearedFields[user.FieldOnBoarding]
+	return ok
+}
+
 // ResetOnBoarding resets all changes to the "on_boarding" field.
 func (m *UserMutation) ResetOnBoarding() {
 	m.on_boarding = nil
 	m.appendon_boarding = nil
+	delete(m.clearedFields, user.FieldOnBoarding)
 }
 
 // SetAllowGeo sets the "allow_geo" field.
@@ -9588,6 +9602,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldOrganizationName) {
 		fields = append(fields, user.FieldOrganizationName)
 	}
+	if m.FieldCleared(user.FieldOnBoarding) {
+		fields = append(fields, user.FieldOnBoarding)
+	}
 	if m.FieldCleared(user.FieldLocationID) {
 		fields = append(fields, user.FieldLocationID)
 	}
@@ -9622,6 +9639,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldOrganizationName:
 		m.ClearOrganizationName()
+		return nil
+	case user.FieldOnBoarding:
+		m.ClearOnBoarding()
 		return nil
 	case user.FieldLocationID:
 		m.ClearLocationID()

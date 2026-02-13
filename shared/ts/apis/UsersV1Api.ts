@@ -68,7 +68,8 @@ export interface GetUserByIdRequest {
 }
 
 export interface GetUserByTelegramRequest {
-    telegramId?: number;
+    id: number;
+    withPets?: boolean;
 }
 
 export interface RegisterUserSimpleRequest {
@@ -307,16 +308,24 @@ export class UsersV1Api extends runtime.BaseAPI {
      * Получение пользователя по Telegram ID
      */
     async getUserByTelegramRaw(requestParameters: GetUserByTelegramRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<User>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling getUserByTelegram().'
+            );
+        }
+
         const queryParameters: any = {};
 
-        if (requestParameters['telegramId'] != null) {
-            queryParameters['telegram_id'] = requestParameters['telegramId'];
+        if (requestParameters['withPets'] != null) {
+            queryParameters['with_pets'] = requestParameters['withPets'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/user/telegram`;
+        let urlPath = `/v1/user/telegram/{id}`;
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         const response = await this.request({
             path: urlPath,
@@ -332,7 +341,7 @@ export class UsersV1Api extends runtime.BaseAPI {
      * Возвращает информацию о пользователе по его Telegram ID
      * Получение пользователя по Telegram ID
      */
-    async getUserByTelegram(requestParameters: GetUserByTelegramRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {
+    async getUserByTelegram(requestParameters: GetUserByTelegramRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<User> {
         const response = await this.getUserByTelegramRaw(requestParameters, initOverrides);
         return await response.value();
     }

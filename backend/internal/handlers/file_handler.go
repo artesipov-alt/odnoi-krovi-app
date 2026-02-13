@@ -47,7 +47,7 @@ func (h *FileHandler) Register(api huma.API) {
 }
 
 func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
-	dto.IDPath
+	dto.IDPathStr
 	dto.PhotoPreloadQuery
 }) (*dto.UploadURLResponse, error) {
 	var preloads []string
