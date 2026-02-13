@@ -51,6 +51,12 @@ func main() {
 		// Корневой mux
 		rootMux := http.NewServeMux()
 
+		// Health check endpoint
+		rootMux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("OK"))
+		})
+
 		// API mux с префиксом /api
 		apiMux := http.NewServeMux()
 
