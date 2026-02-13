@@ -357,7 +357,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 		}
 	}
 
-	if health != nil || treatments != nil || len(analyses) > 0 || bonuses != nil {
+	if health != nil || treatments != nil || input.Body.Analyses != nil || bonuses != nil {
 		if err := h.petService.UpdatePetRelations(ctx, input.ID, health, treatments, analyses, bonuses); err != nil {
 			slog.ErrorContext(ctx, "failed to update pet relations", "pet_id", input.ID, "error", err.Error())
 			return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
