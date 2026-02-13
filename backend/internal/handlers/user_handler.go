@@ -39,7 +39,7 @@ func (h *UserHandler) Register(api huma.API) {
 		Summary:     "Получение пользователя по ID",
 		Description: "Возвращает информацию о пользователе по его идентификатору",
 		Tags:        []string{"users-v1"},
-	}, h.User)
+	}, h.GetUser)
 
 	// Простая регистрация пользователя
 	// Простая регистрация пользователя
@@ -116,11 +116,11 @@ func (h *UserHandler) Register(api huma.API) {
 
 // Handlers
 
-func (h *UserHandler) User(ctx context.Context, input *struct {
+func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 	dto.IDPath
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
-	query := h.userService.GetUserQuery(ctx, input.ID)
+	query := h.userService.GetUserQueryByID(ctx, input.ID)
 	if input.WithPets {
 		query = query.WithPets()
 	}
@@ -227,17 +227,27 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	}, nil
 }
 
-func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.TelegramIDQuery) (*dto.UserResponse, error) {
-	u, err := h.userService.GetUserByTelegramID(ctx, input.TelegramID)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to get user by Telegram ID", "telegram_id", input.TelegramID, "error", err.Error())
-		return nil, err
+func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
+	dto.TelegramIDQuery
+	dto.UserPreloadQuery
+}) (*dto.UserResponse, error) {
+	query := h.userService.GetUserQueryByTelegram(ctx, input.TelegramID)
+	if input.WithPets {
+		query = query.WithPets()
 	}
 
-	if u == nil {
-		slog.DebugContext(ctx, "user not found", "telegram_id", input.TelegramID)
-		return nil, apperrors.ErrUserNotFound
+	u, err := query.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			slog.DebugContext(ctx, "user not found", "telegram_id", input.TelegramID)
+			return nil, apperrors.ErrUserNotFound
+		}
+		slog.ErrorContext(ctx, "failed to get user", "telegram_id", input.TelegramID, "error", err.Error())
+		return nil, apperrors.Internal(err, "failed to get user")
 	}
+
+	// Преобразуем пути к фото в полные URL
+	u.PhotoUrls = h.userService.BuildFullPhotoURLs(u.PhotoUrls)
 
 	return &dto.UserResponse{Body: h.toDTO(u)}, nil
 }

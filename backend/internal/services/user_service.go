@@ -21,7 +21,10 @@ type UserService interface {
 	GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error)
 
 	// GetUserQuery возвращает query для eager loading
-	GetUserQuery(ctx context.Context, userID string) *ent.UserQuery
+	GetUserQueryByID(ctx context.Context, userID string) *ent.UserQuery
+
+	// GetUserQueryByTelegram возвращает query для eager loading по Telegram ID
+	GetUserQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
@@ -151,8 +154,13 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloa
 }
 
 // GetUserQuery возвращает query для eager loading
-func (s *UserServiceImpl) GetUserQuery(ctx context.Context, userID string) *ent.UserQuery {
-	return s.userRepo.GetQuery(ctx, userID)
+func (s *UserServiceImpl) GetUserQueryByID(ctx context.Context, userID string) *ent.UserQuery {
+	return s.userRepo.GetQueryByID(ctx, userID)
+}
+
+// GetUserQueryByTelegram возвращает query для eager loading по Telegram ID
+func (s *UserServiceImpl) GetUserQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery {
+	return s.userRepo.GetQueryByTelegram(ctx, telegramID)
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
