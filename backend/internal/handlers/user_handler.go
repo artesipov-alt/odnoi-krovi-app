@@ -120,21 +120,23 @@ func (h *UserHandler) User(ctx context.Context, input *struct {
 	dto.IDPath
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
-	var preloads []string
+	query := h.userService.GetUserQuery(ctx, input.ID)
 	if input.WithPets {
-		preloads = append(preloads, "pets")
+		query = query.WithPets()
 	}
 
-	u, err := h.userService.GetUserByID(ctx, input.ID, preloads...)
+	u, err := query.Only(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get user by ID", "user_id", input.ID, "error", err.Error())
-		return nil, err
+		if ent.IsNotFound(err) {
+			slog.DebugContext(ctx, "user not found", "user_id", input.ID)
+			return nil, apperrors.ErrUserNotFound
+		}
+		slog.ErrorContext(ctx, "failed to get user", "user_id", input.ID, "error", err.Error())
+		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	if u == nil {
-		slog.DebugContext(ctx, "user not found", "user_id", input.ID)
-		return nil, apperrors.ErrUserNotFound
-	}
+	// Преобразуем пути к фото в полные URL (как в сервисе)
+	u.PhotoUrls = h.userService.BuildFullPhotoURLs(u.PhotoUrls)
 
 	return &dto.UserResponse{Body: h.toDTO(u)}, nil
 }

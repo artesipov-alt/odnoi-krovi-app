@@ -82,6 +82,11 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, preloads ...
 	return u, nil
 }
 
+// GetQuery returns a query for eager loading
+func (r *EntUserRepository) GetQuery(ctx context.Context, id string) *ent.UserQuery {
+	return r.client.User.Query().Where(user.ID(id))
+}
+
 // GetByTelegramID retrieves a user by their Telegram ID
 func (r *EntUserRepository) GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error) {
 	if telegramID <= 0 {

@@ -17,6 +17,9 @@ type UserRepository interface {
 	// GetByTelegramID получает пользователя по его Telegram ID
 	GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
 
+	// GetQuery возвращает query для eager loading
+	GetQuery(ctx context.Context, id string) *ent.UserQuery
+
 	// Update обновляет существующего пользователя в базе данных
 	Update(ctx context.Context, user *ent.User) (*ent.User, error)
 

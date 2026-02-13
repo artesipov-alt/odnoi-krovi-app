@@ -20,6 +20,9 @@ type UserService interface {
 	// GetUserByID получает пользователя по его внутреннему ID
 	GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error)
 
+	// GetUserQuery возвращает query для eager loading
+	GetUserQuery(ctx context.Context, userID string) *ent.UserQuery
+
 	// GetUserByTelegramID получает пользователя по Telegram ID
 	GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
 
@@ -35,8 +38,8 @@ type UserService interface {
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
 
-	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	buildFullPhotoURLs(paths []string) []string
+	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	BuildFullPhotoURLs(paths []string) []string
 }
 
 // UserServiceImpl реализует UserService
@@ -142,9 +145,14 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloa
 	}
 
 	// Преобразуем пути к фото в полные URL
-	u.PhotoUrls = s.buildFullPhotoURLs(u.PhotoUrls)
+	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls)
 
 	return u, nil
+}
+
+// GetUserQuery возвращает query для eager loading
+func (s *UserServiceImpl) GetUserQuery(ctx context.Context, userID string) *ent.UserQuery {
+	return s.userRepo.GetQuery(ctx, userID)
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
@@ -185,8 +193,8 @@ func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, err
 	return users, nil
 }
 
-// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *UserServiceImpl) buildFullPhotoURLs(paths []string) []string {
+// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
+func (s *UserServiceImpl) BuildFullPhotoURLs(paths []string) []string {
 	if len(paths) == 0 {
 		return []string{}
 	}
