@@ -110,11 +110,6 @@ func ConsentPd(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldConsentPd, v))
 }
 
-// OnBoarding applies equality check predicate on the "on_boarding" field. It's identical to OnBoardingEQ.
-func OnBoarding(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldOnBoarding, v))
-}
-
 // AllowGeo applies equality check predicate on the "allow_geo" field. It's identical to AllowGeoEQ.
 func AllowGeo(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldAllowGeo, v))
@@ -603,16 +598,6 @@ func ConsentPdEQ(v bool) predicate.User {
 // ConsentPdNEQ applies the NEQ predicate on the "consent_pd" field.
 func ConsentPdNEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldConsentPd, v))
-}
-
-// OnBoardingEQ applies the EQ predicate on the "on_boarding" field.
-func OnBoardingEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldOnBoarding, v))
-}
-
-// OnBoardingNEQ applies the NEQ predicate on the "on_boarding" field.
-func OnBoardingNEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldOnBoarding, v))
 }
 
 // AllowGeoEQ applies the EQ predicate on the "allow_geo" field.

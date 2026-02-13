@@ -199,11 +199,6 @@ func ByConsentPd(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldConsentPd, opts...).ToFunc()
 }
 
-// ByOnBoarding orders the results by the on_boarding field.
-func ByOnBoarding(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOnBoarding, opts...).ToFunc()
-}
-
 // ByAllowGeo orders the results by the allow_geo field.
 func ByAllowGeo(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAllowGeo, opts...).ToFunc()

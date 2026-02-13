@@ -133,7 +133,7 @@ func (_c *UserCreate) SetConsentPd(v bool) *UserCreate {
 }
 
 // SetOnBoarding sets the "on_boarding" field.
-func (_c *UserCreate) SetOnBoarding(v bool) *UserCreate {
+func (_c *UserCreate) SetOnBoarding(v []string) *UserCreate {
 	_c.mutation.SetOnBoarding(v)
 	return _c
 }
@@ -385,7 +385,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node.ConsentPd = value
 	}
 	if value, ok := _c.mutation.OnBoarding(); ok {
-		_spec.SetField(user.FieldOnBoarding, field.TypeBool, value)
+		_spec.SetField(user.FieldOnBoarding, field.TypeJSON, value)
 		_node.OnBoarding = value
 	}
 	if value, ok := _c.mutation.AllowGeo(); ok {

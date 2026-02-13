@@ -175,7 +175,7 @@ func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, 
 		u.AllowGeo = val.(bool)
 	}
 	if val, ok := updates["OnBoarding"]; ok {
-		u.OnBoarding = val.(bool)
+		u.OnBoarding = val.([]string)
 	}
 	if val, ok := updates["LocationID"]; ok {
 		locationID := val.(int)

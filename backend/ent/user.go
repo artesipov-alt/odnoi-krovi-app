@@ -38,7 +38,7 @@ type User struct {
 	// ConsentPd holds the value of the "consent_pd" field.
 	ConsentPd bool `json:"consentPd"`
 	// OnBoarding holds the value of the "on_boarding" field.
-	OnBoarding bool `json:"onBoarding"`
+	OnBoarding []string `json:"onBoarding"`
 	// AllowGeo holds the value of the "allow_geo" field.
 	AllowGeo bool `json:"allowGeo"`
 	// LocationID holds the value of the "location_id" field.
@@ -89,9 +89,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldPhotoUrls:
+		case user.FieldOnBoarding, user.FieldPhotoUrls:
 			values[i] = new([]byte)
-		case user.FieldConsentPd, user.FieldOnBoarding, user.FieldAllowGeo:
+		case user.FieldConsentPd, user.FieldAllowGeo:
 			values[i] = new(sql.NullBool)
 		case user.FieldTelegramID, user.FieldLocationID:
 			values[i] = new(sql.NullInt64)
@@ -176,10 +176,12 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				_m.ConsentPd = value.Bool
 			}
 		case user.FieldOnBoarding:
-			if value, ok := values[i].(*sql.NullBool); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field on_boarding", values[i])
-			} else if value.Valid {
-				_m.OnBoarding = value.Bool
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.OnBoarding); err != nil {
+					return fmt.Errorf("unmarshal field on_boarding: %w", err)
+				}
 			}
 		case user.FieldAllowGeo:
 			if value, ok := values[i].(*sql.NullBool); !ok {

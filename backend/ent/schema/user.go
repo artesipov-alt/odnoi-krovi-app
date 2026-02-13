@@ -37,7 +37,7 @@ func (User) Fields() []ent.Field {
 			StructTag(`json:"organizationName"`),
 		field.Bool("consent_pd").
 			StructTag(`json:"consentPd"`),
-		field.Bool("on_boarding").
+		field.JSON("on_boarding", []string{}).
 			StructTag(`json:"onBoarding"`),
 		field.Bool("allow_geo").
 			StructTag(`json:"allowGeo"`),

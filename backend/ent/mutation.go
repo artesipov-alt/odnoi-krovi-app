@@ -8423,7 +8423,8 @@ type UserMutation struct {
 	email             *string
 	organization_name *string
 	consent_pd        *bool
-	on_boarding       *bool
+	on_boarding       *[]string
+	appendon_boarding []string
 	allow_geo         *bool
 	photo_urls        *[]string
 	appendphoto_urls  []string
@@ -8953,12 +8954,13 @@ func (m *UserMutation) ResetConsentPd() {
 }
 
 // SetOnBoarding sets the "on_boarding" field.
-func (m *UserMutation) SetOnBoarding(b bool) {
-	m.on_boarding = &b
+func (m *UserMutation) SetOnBoarding(s []string) {
+	m.on_boarding = &s
+	m.appendon_boarding = nil
 }
 
 // OnBoarding returns the value of the "on_boarding" field in the mutation.
-func (m *UserMutation) OnBoarding() (r bool, exists bool) {
+func (m *UserMutation) OnBoarding() (r []string, exists bool) {
 	v := m.on_boarding
 	if v == nil {
 		return
@@ -8969,7 +8971,7 @@ func (m *UserMutation) OnBoarding() (r bool, exists bool) {
 // OldOnBoarding returns the old "on_boarding" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldOnBoarding(ctx context.Context) (v bool, err error) {
+func (m *UserMutation) OldOnBoarding(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOnBoarding is only allowed on UpdateOne operations")
 	}
@@ -8983,9 +8985,23 @@ func (m *UserMutation) OldOnBoarding(ctx context.Context) (v bool, err error) {
 	return oldValue.OnBoarding, nil
 }
 
+// AppendOnBoarding adds s to the "on_boarding" field.
+func (m *UserMutation) AppendOnBoarding(s []string) {
+	m.appendon_boarding = append(m.appendon_boarding, s...)
+}
+
+// AppendedOnBoarding returns the list of values that were appended to the "on_boarding" field in this mutation.
+func (m *UserMutation) AppendedOnBoarding() ([]string, bool) {
+	if len(m.appendon_boarding) == 0 {
+		return nil, false
+	}
+	return m.appendon_boarding, true
+}
+
 // ResetOnBoarding resets all changes to the "on_boarding" field.
 func (m *UserMutation) ResetOnBoarding() {
 	m.on_boarding = nil
+	m.appendon_boarding = nil
 }
 
 // SetAllowGeo sets the "allow_geo" field.
@@ -9478,7 +9494,7 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		m.SetConsentPd(v)
 		return nil
 	case user.FieldOnBoarding:
-		v, ok := value.(bool)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

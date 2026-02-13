@@ -173,16 +173,14 @@ func (_u *UserUpdate) SetNillableConsentPd(v *bool) *UserUpdate {
 }
 
 // SetOnBoarding sets the "on_boarding" field.
-func (_u *UserUpdate) SetOnBoarding(v bool) *UserUpdate {
+func (_u *UserUpdate) SetOnBoarding(v []string) *UserUpdate {
 	_u.mutation.SetOnBoarding(v)
 	return _u
 }
 
-// SetNillableOnBoarding sets the "on_boarding" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableOnBoarding(v *bool) *UserUpdate {
-	if v != nil {
-		_u.SetOnBoarding(*v)
-	}
+// AppendOnBoarding appends value to the "on_boarding" field.
+func (_u *UserUpdate) AppendOnBoarding(v []string) *UserUpdate {
+	_u.mutation.AppendOnBoarding(v)
 	return _u
 }
 
@@ -425,7 +423,12 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.SetField(user.FieldConsentPd, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.OnBoarding(); ok {
-		_spec.SetField(user.FieldOnBoarding, field.TypeBool, value)
+		_spec.SetField(user.FieldOnBoarding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedOnBoarding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, user.FieldOnBoarding, value)
+		})
 	}
 	if value, ok := _u.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)
@@ -680,16 +683,14 @@ func (_u *UserUpdateOne) SetNillableConsentPd(v *bool) *UserUpdateOne {
 }
 
 // SetOnBoarding sets the "on_boarding" field.
-func (_u *UserUpdateOne) SetOnBoarding(v bool) *UserUpdateOne {
+func (_u *UserUpdateOne) SetOnBoarding(v []string) *UserUpdateOne {
 	_u.mutation.SetOnBoarding(v)
 	return _u
 }
 
-// SetNillableOnBoarding sets the "on_boarding" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableOnBoarding(v *bool) *UserUpdateOne {
-	if v != nil {
-		_u.SetOnBoarding(*v)
-	}
+// AppendOnBoarding appends value to the "on_boarding" field.
+func (_u *UserUpdateOne) AppendOnBoarding(v []string) *UserUpdateOne {
+	_u.mutation.AppendOnBoarding(v)
 	return _u
 }
 
@@ -962,7 +963,12 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 		_spec.SetField(user.FieldConsentPd, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.OnBoarding(); ok {
-		_spec.SetField(user.FieldOnBoarding, field.TypeBool, value)
+		_spec.SetField(user.FieldOnBoarding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedOnBoarding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, user.FieldOnBoarding, value)
+		})
 	}
 	if value, ok := _u.mutation.AllowGeo(); ok {
 		_spec.SetField(user.FieldAllowGeo, field.TypeBool, value)

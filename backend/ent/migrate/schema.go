@@ -238,7 +238,7 @@ var (
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "organization_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "consent_pd", Type: field.TypeBool},
-		{Name: "on_boarding", Type: field.TypeBool},
+		{Name: "on_boarding", Type: field.TypeJSON},
 		{Name: "allow_geo", Type: field.TypeBool},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},

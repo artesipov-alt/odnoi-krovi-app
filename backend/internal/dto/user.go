@@ -15,13 +15,13 @@ type UserRegistrationSimple struct {
 
 // UserUpdate представляет структуру для обновления данных пользователя
 type UserUpdate struct {
-	FullName   *string  `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
-	Phone      *string  `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$"`
-	Email      *string  `json:"email,omitempty" doc:"Email адрес" format:"email"`
-	PhotoURLs  []string `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
-	AllowGeo   *bool    `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
-	OnBoarding *bool    `json:"onBoarding,omitempty" doc:"Статус онбординга"`
-	LocationID *int     `json:"locationId,omitempty" doc:"ID локации" minimum:"1"`
+	FullName   *string   `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
+	Phone      *string   `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$"`
+	Email      *string   `json:"email,omitempty" doc:"Email адрес" format:"email"`
+	PhotoURLs  []string  `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
+	AllowGeo   *bool     `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
+	OnBoarding *[]string `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"DONOR,RECIPIENT"`
+	LocationID *int      `json:"locationId,omitempty" doc:"ID локации" minimum:"1"`
 }
 
 // User представляет данные пользователя для ответа API
@@ -34,7 +34,7 @@ type User struct {
 	PhotoURLs        []string   `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" example:"https://example.com/photo.jpg"`
 	OrganizationName string     `json:"organizationName,omitempty" doc:"Название организации"`
 	ConsentPd        bool       `json:"consentPd" doc:"Согласие на ПД"`
-	OnBoarding       bool       `json:"onBoarding" doc:"Статус онбординга"`
+	OnBoarding       []string   `json:"onBoarding" doc:"Статусы онбординга"`
 	AllowGeo         bool       `json:"allowGeo" doc:"Разрешение использовать геоданные"`
 	LocationID       int        `json:"locationId,omitempty" doc:"ID локации"`
 	Role             string     `json:"role" doc:"Роль"`

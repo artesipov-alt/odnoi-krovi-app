@@ -185,7 +185,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 }
 
 // UpdatePet обновляет информацию о питомце
-func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates map[string]interface{}, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error {
+func (s *PetServiceImpl) UpdatePet(ctx context.Context, petID string, updates map[string]any, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error {
 	// Получаем существующего питомца
 	p, err := s.petRepo.GetByID(ctx, petID)
 	if err != nil {
