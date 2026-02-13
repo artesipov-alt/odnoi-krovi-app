@@ -10,19 +10,22 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	userService services.UserService
+	userService  services.UserService
+	locationRepo repositories.LocationRepository
 }
 
 // NewUserHandler создает новый обработчик пользователей
-func NewUserHandler(userService services.UserService) *UserHandler {
+func NewUserHandler(userService services.UserService, locationRepo repositories.LocationRepository) *UserHandler {
 	return &UserHandler{
-		userService: userService,
+		userService:  userService,
+		locationRepo: locationRepo,
 	}
 }
 
@@ -168,11 +171,51 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	dto.IDPath
 	Body dto.UserUpdate
 }) (*dto.MessageResponse, error) {
-	updates := h.toUpdatesMap(input.Body)
+	u, err := h.userService.GetUserByID(ctx, input.ID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrUserNotFound
+		}
+		slog.ErrorContext(ctx, "failed to get user", "user_id", input.ID, "error", err.Error())
+		return nil, apperrors.Internal(err, "failed to get user")
+	}
 
-	if err := h.userService.UpdateUserProfile(ctx, input.ID, updates); err != nil {
-		slog.ErrorContext(ctx, "failed to update user profile", "user_id", input.ID, "error", err.Error())
-		return nil, err
+	mutation := u.Update()
+
+	if input.Body.FullName != nil {
+		mutation = mutation.SetFullName(*input.Body.FullName)
+	}
+	if input.Body.Phone != nil {
+		mutation = mutation.SetPhone(*input.Body.Phone)
+	}
+	if input.Body.Email != nil {
+		mutation = mutation.SetEmail(*input.Body.Email)
+	}
+	if input.Body.PhotoURLs != nil {
+		mutation = mutation.SetPhotoUrls(input.Body.PhotoURLs)
+	}
+	if input.Body.AllowGeo != nil {
+		mutation = mutation.SetAllowGeo(*input.Body.AllowGeo)
+	}
+	if input.Body.OnBoarding != nil {
+		mutation = mutation.SetOnBoarding(*input.Body.OnBoarding)
+	}
+	if input.Body.LocationID != nil {
+		_, err := h.locationRepo.GetByID(ctx, *input.Body.LocationID)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, apperrors.ErrLocationNotFound
+			}
+			slog.ErrorContext(ctx, "failed to get location", "location_id", *input.Body.LocationID, "error", err.Error())
+			return nil, apperrors.Internal(err, "failed to get location")
+		}
+		mutation = mutation.SetLocationID(*input.Body.LocationID)
+	}
+
+	err = mutation.Exec(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to update user", "user_id", input.ID, "error", err.Error())
+		return nil, apperrors.Internal(err, "failed to update user")
 	}
 
 	return &dto.MessageResponse{
@@ -326,31 +369,4 @@ func (h *UserHandler) toENT(u *dto.User) ent.User {
 		LocationID:       u.LocationID,
 		Role:             user.Role(u.Role),
 	}
-}
-
-// toUpdatesMap преобразует DTO обновления в карту для сервиса
-func (h *UserHandler) toUpdatesMap(d dto.UserUpdate) map[string]any {
-	updates := make(map[string]any)
-	if d.FullName != nil {
-		updates["FullName"] = *d.FullName
-	}
-	if d.Phone != nil {
-		updates["Phone"] = *d.Phone
-	}
-	if d.Email != nil {
-		updates["Email"] = *d.Email
-	}
-	if d.PhotoURLs != nil {
-		updates["PhotoUrls"] = d.PhotoURLs
-	}
-	if d.AllowGeo != nil {
-		updates["AllowGeo"] = *d.AllowGeo
-	}
-	if d.OnBoarding != nil {
-		updates["OnBoarding"] = *d.OnBoarding
-	}
-	if d.LocationID != nil {
-		updates["LocationID"] = *d.LocationID
-	}
-	return updates
 }

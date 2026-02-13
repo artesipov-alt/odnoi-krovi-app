@@ -17,7 +17,7 @@ type UserService interface {
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
 	RegisterUserSimple(ctx context.Context, user *ent.User) (*ent.User, error)
 
-	// UpdateUserProfile обновляет информацию о пользователе
+	// UpdateUserProfile обновляет информацию о пользователе (deprecated: теперь используется в handler'е через mutations)
 	UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error
 
 	// GetUserByID получает пользователя по его внутреннему ID
@@ -150,54 +150,9 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloa
 	return u, nil
 }
 
-// UpdateUserProfile обновляет информацию о пользователе
+// UpdateUserProfile обновляет информацию о пользователе (deprecated: теперь используется в handler'е через mutations)
 func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error {
-	// Получаем существующего пользователя
-	u, err := s.userRepo.GetByID(ctx, userID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrUserNotFound
-		}
-		return apperrors.Internal(err, "failed to get user")
-	}
-
-	// Применяем обновления
-	if val, ok := updates["FullName"]; ok {
-		u.FullName = val.(string)
-	}
-	if val, ok := updates["Phone"]; ok {
-		u.Phone = val.(string)
-	}
-	if val, ok := updates["Email"]; ok {
-		u.Email = val.(string)
-	}
-	if val, ok := updates["AllowGeo"]; ok {
-		u.AllowGeo = val.(bool)
-	}
-	if val, ok := updates["OnBoarding"]; ok {
-		u.OnBoarding = val.([]string)
-	}
-	if val, ok := updates["LocationID"]; ok {
-		locationID := val.(int)
-		// Проверяем существование локации
-		_, err := s.locationRepo.GetByID(ctx, locationID)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return apperrors.ErrLocationNotFound
-			}
-			return apperrors.Internal(err, "failed to get location")
-		}
-		u.LocationID = locationID
-	}
-	if val, ok := updates["PhotoUrls"]; ok {
-		u.PhotoUrls = val.([]string)
-	}
-
-	// Сохраняем обновленного пользователя
-	if _, err := s.userRepo.Update(ctx, u); err != nil {
-		return apperrors.Internal(err, "failed to update user")
-	}
-
+	// Логика перенесена в handler для использования Entgo Mutations
 	return nil
 }
 
