@@ -124,17 +124,35 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	dto.IDPath
 	dto.PetPreloadQuery
 }) (*dto.PetResponse, error) {
-	preloads := h.getPreloads(input.PetPreloadQuery)
+	query := h.petService.GetPetQuery(ctx, input.ID)
+	if input.WithHealth {
+		query = query.WithHealth()
+	}
+	if input.WithTreatments {
+		query = query.WithTreatments()
+	}
+	if input.WithAnalysis {
+		query = query.WithAnalyses()
+	}
+	if input.WithBonuses {
+		query = query.WithBonuses()
+	}
+	if input.WithAll {
+		query = query.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	}
 
-	pet, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
+	pet, err := query.Only(ctx)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found", "pet_id", input.ID, "error", err.Error())
+		if ent.IsNotFound(err) {
+			slog.DebugContext(ctx, "pet not found", "pet_id", input.ID)
 			return nil, huma.Error404NotFound("Питомец не найден")
 		}
-		slog.ErrorContext(ctx, "failed to get pet by ID", "pet_id", input.ID, "error", err.Error())
+		slog.ErrorContext(ctx, "failed to get pet", "pet_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
+
+	// Преобразуем пути к фото в полные URL
+	h.petService.BuildFullPhotoURLs(pet)
 
 	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
 }
@@ -143,24 +161,35 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	dto.PetPreloadQuery
 }) (*dto.PetsResponse, error) {
-	preloads := h.getPreloads(input.PetPreloadQuery)
+	query := h.petService.GetPetsQueryByUser(ctx, input.ID)
+	if input.WithHealth {
+		query = query.WithHealth()
+	}
+	if input.WithTreatments {
+		query = query.WithTreatments()
+	}
+	if input.WithAnalysis {
+		query = query.WithAnalyses()
+	}
+	if input.WithBonuses {
+		query = query.WithBonuses()
+	}
+	if input.WithAll {
+		query = query.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	}
 
-	pets, err := h.petService.GetUserPets(ctx, input.ID, preloads...)
+	pets, err := query.All(ctx)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrUserNotFound) {
-			slog.DebugContext(ctx, "user not found for getting pets", "user_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
 		slog.ErrorContext(ctx, "failed to get user pets", "user_id", input.ID, "error", err.Error())
 		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
 	}
 
-	var petDTOs []dto.Pet
-	for _, p := range pets {
-		petDTOs = append(petDTOs, h.toDTO(p))
+	// Преобразуем пути к фото в полные URL для каждого питомца
+	for _, pet := range pets {
+		h.petService.BuildFullPhotoURLs(pet)
 	}
 
-	return &dto.PetsResponse{Body: petDTOs}, nil
+	return &dto.PetsResponse{Body: h.toPetsDTO(pets)}, nil
 }
 
 func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
@@ -381,27 +410,6 @@ func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPath) (*dto
 	return resp, nil
 }
 
-// getPreloads извлекает список связей для предзагрузки из query-параметров
-func (h *PetHandler) getPreloads(pq dto.PetPreloadQuery) []string {
-	var preloads []string
-	if pq.WithHealth {
-		preloads = append(preloads, "Health")
-	}
-	if pq.WithTreatments {
-		preloads = append(preloads, "Treatments")
-	}
-	if pq.WithAnalysis {
-		preloads = append(preloads, "Analyses") // Changed from "Analysis" to "Analyses" to match the DTO struct
-	}
-	if pq.WithBonuses {
-		preloads = append(preloads, "Bonuses")
-	}
-	if pq.WithAll {
-		return []string{"Health", "Treatments", "Analyses", "Bonuses"} // Changed from "Analysis" to "Analyses"
-	}
-	return preloads
-}
-
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
 func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 	petDTO := dto.Pet{
@@ -519,6 +527,15 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 	}
 
 	return petDTO
+}
+
+// toPetsDTO преобразует слайс ENT питомцев в слайс DTO
+func (h *PetHandler) toPetsDTO(pets []*ent.Pet) []dto.Pet {
+	petDTOs := make([]dto.Pet, len(pets))
+	for i, p := range pets {
+		petDTOs[i] = h.toDTO(p)
+	}
+	return petDTOs
 }
 
 // mapDTOToPet преобразует DTO создания питомца в ENT модель

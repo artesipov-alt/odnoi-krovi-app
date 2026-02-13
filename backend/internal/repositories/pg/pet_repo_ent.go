@@ -134,7 +134,8 @@ func (r *EntPetRepository) Create(ctx context.Context, p *ent.Pet, health *ent.P
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return r.GetByID(ctx, newPet.ID, "Health", "Treatments", "Analyses", "Bonuses")
+	query := r.client.Pet.Query().Where(pet.ID(newPet.ID)).WithBreedRef().WithOwner()
+	return query.Only(ctx)
 }
 
 // GetByID retrieves a pet by their ID with related entities based on preloads
@@ -171,6 +172,16 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, preloads ...s
 	}
 
 	return p, nil
+}
+
+// GetPetQuery returns a query for eager loading
+func (r *EntPetRepository) GetPetQuery(ctx context.Context, id string) *ent.PetQuery {
+	return r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithOwner()
+}
+
+// GetPetsQueryByUser returns a query for eager loading pets by user ID
+func (r *EntPetRepository) GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery {
+	return r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef()
 }
 
 // GetByUserID retrieves all pets for a specific user with related entities based on preloads
@@ -385,7 +396,8 @@ func (r *EntPetRepository) Update(ctx context.Context, p *ent.Pet, health *ent.P
 		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	return r.GetByID(ctx, p.ID, "Health", "Treatments", "Analyses", "Bonuses")
+	query := r.client.Pet.Query().Where(pet.ID(p.ID)).WithBreedRef().WithOwner()
+	return query.Only(ctx)
 }
 
 // Delete deletes a pet by their ID (soft delete)

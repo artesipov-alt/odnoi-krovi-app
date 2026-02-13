@@ -22,8 +22,14 @@ type PetService interface {
 	// GetPetByID получает питомца по ID с preload связей
 	GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error)
 
+	// GetPetQuery возвращает query для eager loading
+	GetPetQuery(ctx context.Context, petID string) *ent.PetQuery
+
 	// GetUserPets получает всех питомцев пользователя с preload связей
 	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
+
+	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
+	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
 
 	// UpdatePetRelations обновляет связанные сущности питомца (здоровье, лечения, анализы, бонусы)
 	UpdatePetRelations(ctx context.Context, petID string, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) error
@@ -159,6 +165,11 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads 
 	return p, nil
 }
 
+// GetPetQuery возвращает query для eager loading
+func (s *PetServiceImpl) GetPetQuery(ctx context.Context, petID string) *ent.PetQuery {
+	return s.petRepo.GetPetQuery(ctx, petID)
+}
+
 // GetUserPets получает всех питомцев пользователя с preload связей
 func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
@@ -181,6 +192,11 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 	}
 
 	return pets, nil
+}
+
+// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
+func (s *PetServiceImpl) GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery {
+	return s.petRepo.GetPetsQueryByUser(ctx, userID)
 }
 
 // UpdatePetRelations обновляет связанные сущности питомца (здоровье, лечения, анализы, бонусы)

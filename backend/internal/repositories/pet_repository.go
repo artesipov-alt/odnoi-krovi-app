@@ -14,8 +14,14 @@ type PetRepository interface {
 	// GetByID получает питомца по его ID со связями по запросу
 	GetByID(ctx context.Context, id string, preloads ...string) (*ent.Pet, error)
 
+	// GetPetQuery возвращает query для eager loading
+	GetPetQuery(ctx context.Context, id string) *ent.PetQuery
+
 	// GetByUserID получает всех питомцев конкретного пользователя со связями по запросу
 	GetByUserID(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
+
+	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
+	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
 
 	// Update обновляет существующего питомца в базе данных
 	Update(ctx context.Context, pet *ent.Pet, health *ent.PetHealth, treatments *ent.PetTreatment, analyses []*ent.PetAnalysis, bonuses *ent.PetBonus) (*ent.Pet, error)
