@@ -17,9 +17,6 @@ type UserService interface {
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
 	RegisterUserSimple(ctx context.Context, user *ent.User) (*ent.User, error)
 
-	// UpdateUserProfile обновляет информацию о пользователе (deprecated: теперь используется в handler'е через mutations)
-	UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error
-
 	// GetUserByID получает пользователя по его внутреннему ID
 	GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error)
 
@@ -148,12 +145,6 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloa
 	u.PhotoUrls = s.buildFullPhotoURLs(u.PhotoUrls)
 
 	return u, nil
-}
-
-// UpdateUserProfile обновляет информацию о пользователе (deprecated: теперь используется в handler'е через mutations)
-func (s *UserServiceImpl) UpdateUserProfile(ctx context.Context, userID string, updates map[string]any) error {
-	// Логика перенесена в handler для использования Entgo Mutations
-	return nil
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
