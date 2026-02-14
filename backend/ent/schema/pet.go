@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -85,6 +86,10 @@ func (Pet) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "pets",
 		},
+		entgql.Mutations(
+			entgql.MutationCreate(),
+			entgql.MutationUpdate(),
+		),
 	}
 }
 
@@ -126,6 +131,10 @@ func (PetHealth) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "pet_healths",
 		},
+		entgql.Mutations(
+			entgql.MutationCreate(),
+			entgql.MutationUpdate(),
+		),
 	}
 }
 
@@ -166,6 +175,10 @@ func (PetTreatment) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "pet_treatments",
 		},
+		entgql.Mutations(
+			entgql.MutationCreate(),
+			entgql.MutationUpdate(),
+		),
 	}
 }
 
@@ -212,6 +225,10 @@ func (PetAnalysis) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "pet_analyses",
 		},
+		entgql.Mutations(
+			entgql.MutationCreate(),
+			entgql.MutationUpdate(),
+		),
 	}
 }
 
@@ -252,5 +269,9 @@ func (PetBonus) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "pet_bonuses",
 		},
+		entgql.Mutations(
+			entgql.MutationCreate(),
+			entgql.MutationUpdate(),
+		),
 	}
 }

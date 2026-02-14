@@ -130,7 +130,8 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, input *ent.Cre
 // DeleteUser удаляет пользователя по ID (soft delete)
 func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	// Проверяем, существует ли пользователь
-	_, err := s.userRepo.GetByID(ctx, userID)
+	query := s.userRepo.GetQueryByID(ctx, userID)
+	_, err := query.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrUserNotFound

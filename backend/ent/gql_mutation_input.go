@@ -5,8 +5,709 @@ package ent
 import (
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 )
+
+// CreatePetInput represents a mutation input for creating pets.
+type CreatePetInput struct {
+	CreatedAt            *time.Time
+	UpdatedAt            *time.Time
+	DeletedAt            *time.Time
+	Name                 string
+	Type                 pet.Type
+	PetStatus            pet.PetStatus
+	WeightKg             *float64
+	BloodGroup           *string
+	Gender               *pet.Gender
+	BirthDate            *time.Time
+	ChipNumber           *string
+	PhotoUrls            []string
+	LivingCondition      *pet.LivingCondition
+	ReproductiveStatus   *pet.ReproductiveStatus
+	DonorRestrictions    []string
+	OwnerID              *string
+	HealthID             *string
+	TreatmentsID         *string
+	AnalysisIDs          []string
+	BonusesID            *string
+	BreedRefID           *string
+	BloodSearchRequestID *string
+}
+
+// Mutate applies the CreatePetInput on the PetMutation builder.
+func (i *CreatePetInput) Mutate(m *PetMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	m.SetName(i.Name)
+	m.SetType(i.Type)
+	m.SetPetStatus(i.PetStatus)
+	if v := i.WeightKg; v != nil {
+		m.SetWeightKg(*v)
+	}
+	if v := i.BloodGroup; v != nil {
+		m.SetBloodGroup(*v)
+	}
+	if v := i.Gender; v != nil {
+		m.SetGender(*v)
+	}
+	if v := i.BirthDate; v != nil {
+		m.SetBirthDate(*v)
+	}
+	if v := i.ChipNumber; v != nil {
+		m.SetChipNumber(*v)
+	}
+	if v := i.PhotoUrls; v != nil {
+		m.SetPhotoUrls(v)
+	}
+	if v := i.LivingCondition; v != nil {
+		m.SetLivingCondition(*v)
+	}
+	if v := i.ReproductiveStatus; v != nil {
+		m.SetReproductiveStatus(*v)
+	}
+	if v := i.DonorRestrictions; v != nil {
+		m.SetDonorRestrictions(v)
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+	if v := i.HealthID; v != nil {
+		m.SetHealthID(*v)
+	}
+	if v := i.TreatmentsID; v != nil {
+		m.SetTreatmentsID(*v)
+	}
+	if v := i.AnalysisIDs; len(v) > 0 {
+		m.AddAnalysisIDs(v...)
+	}
+	if v := i.BonusesID; v != nil {
+		m.SetBonusesID(*v)
+	}
+	if v := i.BreedRefID; v != nil {
+		m.SetBreedRefID(*v)
+	}
+	if v := i.BloodSearchRequestID; v != nil {
+		m.SetBloodSearchRequestID(*v)
+	}
+}
+
+// SetInput applies the change-set in the CreatePetInput on the PetCreate builder.
+func (c *PetCreate) SetInput(i CreatePetInput) *PetCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdatePetInput represents a mutation input for updating pets.
+type UpdatePetInput struct {
+	UpdatedAt               *time.Time
+	ClearDeletedAt          bool
+	DeletedAt               *time.Time
+	Name                    *string
+	Type                    *pet.Type
+	PetStatus               *pet.PetStatus
+	ClearWeightKg           bool
+	WeightKg                *float64
+	ClearBloodGroup         bool
+	BloodGroup              *string
+	ClearGender             bool
+	Gender                  *pet.Gender
+	ClearBirthDate          bool
+	BirthDate               *time.Time
+	ClearChipNumber         bool
+	ChipNumber              *string
+	ClearPhotoUrls          bool
+	PhotoUrls               []string
+	AppendPhotoUrls         []string
+	ClearLivingCondition    bool
+	LivingCondition         *pet.LivingCondition
+	ClearReproductiveStatus bool
+	ReproductiveStatus      *pet.ReproductiveStatus
+	ClearDonorRestrictions  bool
+	DonorRestrictions       []string
+	AppendDonorRestrictions []string
+	ClearOwner              bool
+	OwnerID                 *string
+	ClearHealth             bool
+	HealthID                *string
+	ClearTreatments         bool
+	TreatmentsID            *string
+	ClearAnalyses           bool
+	AddAnalysisIDs          []string
+	RemoveAnalysisIDs       []string
+	ClearBonuses            bool
+	BonusesID               *string
+	ClearBreedRef           bool
+	BreedRefID              *string
+	ClearBloodSearchRequest bool
+	BloodSearchRequestID    *string
+}
+
+// Mutate applies the UpdatePetInput on the PetMutation builder.
+func (i *UpdatePetInput) Mutate(m *PetMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.Name; v != nil {
+		m.SetName(*v)
+	}
+	if v := i.Type; v != nil {
+		m.SetType(*v)
+	}
+	if v := i.PetStatus; v != nil {
+		m.SetPetStatus(*v)
+	}
+	if i.ClearWeightKg {
+		m.ClearWeightKg()
+	}
+	if v := i.WeightKg; v != nil {
+		m.SetWeightKg(*v)
+	}
+	if i.ClearBloodGroup {
+		m.ClearBloodGroup()
+	}
+	if v := i.BloodGroup; v != nil {
+		m.SetBloodGroup(*v)
+	}
+	if i.ClearGender {
+		m.ClearGender()
+	}
+	if v := i.Gender; v != nil {
+		m.SetGender(*v)
+	}
+	if i.ClearBirthDate {
+		m.ClearBirthDate()
+	}
+	if v := i.BirthDate; v != nil {
+		m.SetBirthDate(*v)
+	}
+	if i.ClearChipNumber {
+		m.ClearChipNumber()
+	}
+	if v := i.ChipNumber; v != nil {
+		m.SetChipNumber(*v)
+	}
+	if i.ClearPhotoUrls {
+		m.ClearPhotoUrls()
+	}
+	if v := i.PhotoUrls; v != nil {
+		m.SetPhotoUrls(v)
+	}
+	if i.AppendPhotoUrls != nil {
+		m.AppendPhotoUrls(i.PhotoUrls)
+	}
+	if i.ClearLivingCondition {
+		m.ClearLivingCondition()
+	}
+	if v := i.LivingCondition; v != nil {
+		m.SetLivingCondition(*v)
+	}
+	if i.ClearReproductiveStatus {
+		m.ClearReproductiveStatus()
+	}
+	if v := i.ReproductiveStatus; v != nil {
+		m.SetReproductiveStatus(*v)
+	}
+	if i.ClearDonorRestrictions {
+		m.ClearDonorRestrictions()
+	}
+	if v := i.DonorRestrictions; v != nil {
+		m.SetDonorRestrictions(v)
+	}
+	if i.AppendDonorRestrictions != nil {
+		m.AppendDonorRestrictions(i.DonorRestrictions)
+	}
+	if i.ClearOwner {
+		m.ClearOwner()
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+	if i.ClearHealth {
+		m.ClearHealth()
+	}
+	if v := i.HealthID; v != nil {
+		m.SetHealthID(*v)
+	}
+	if i.ClearTreatments {
+		m.ClearTreatments()
+	}
+	if v := i.TreatmentsID; v != nil {
+		m.SetTreatmentsID(*v)
+	}
+	if i.ClearAnalyses {
+		m.ClearAnalyses()
+	}
+	if v := i.AddAnalysisIDs; len(v) > 0 {
+		m.AddAnalysisIDs(v...)
+	}
+	if v := i.RemoveAnalysisIDs; len(v) > 0 {
+		m.RemoveAnalysisIDs(v...)
+	}
+	if i.ClearBonuses {
+		m.ClearBonuses()
+	}
+	if v := i.BonusesID; v != nil {
+		m.SetBonusesID(*v)
+	}
+	if i.ClearBreedRef {
+		m.ClearBreedRef()
+	}
+	if v := i.BreedRefID; v != nil {
+		m.SetBreedRefID(*v)
+	}
+	if i.ClearBloodSearchRequest {
+		m.ClearBloodSearchRequest()
+	}
+	if v := i.BloodSearchRequestID; v != nil {
+		m.SetBloodSearchRequestID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdatePetInput on the PetUpdate builder.
+func (c *PetUpdate) SetInput(i UpdatePetInput) *PetUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdatePetInput on the PetUpdateOne builder.
+func (c *PetUpdateOne) SetInput(i UpdatePetInput) *PetUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreatePetAnalysisInput represents a mutation input for creating petanalyses.
+type CreatePetAnalysisInput struct {
+	CreatedAt    *time.Time
+	UpdatedAt    *time.Time
+	DeletedAt    *time.Time
+	AnalysisName *petanalysis.AnalysisName
+	AnalysisType *petanalysis.AnalysisType
+	AnalysisDate time.Time
+	OwnerID      string
+}
+
+// Mutate applies the CreatePetAnalysisInput on the PetAnalysisMutation builder.
+func (i *CreatePetAnalysisInput) Mutate(m *PetAnalysisMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.AnalysisName; v != nil {
+		m.SetAnalysisName(*v)
+	}
+	if v := i.AnalysisType; v != nil {
+		m.SetAnalysisType(*v)
+	}
+	m.SetAnalysisDate(i.AnalysisDate)
+	m.SetOwnerID(i.OwnerID)
+}
+
+// SetInput applies the change-set in the CreatePetAnalysisInput on the PetAnalysisCreate builder.
+func (c *PetAnalysisCreate) SetInput(i CreatePetAnalysisInput) *PetAnalysisCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdatePetAnalysisInput represents a mutation input for updating petanalyses.
+type UpdatePetAnalysisInput struct {
+	UpdatedAt         *time.Time
+	ClearDeletedAt    bool
+	DeletedAt         *time.Time
+	ClearAnalysisName bool
+	AnalysisName      *petanalysis.AnalysisName
+	ClearAnalysisType bool
+	AnalysisType      *petanalysis.AnalysisType
+	AnalysisDate      *time.Time
+	OwnerID           *string
+}
+
+// Mutate applies the UpdatePetAnalysisInput on the PetAnalysisMutation builder.
+func (i *UpdatePetAnalysisInput) Mutate(m *PetAnalysisMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if i.ClearAnalysisName {
+		m.ClearAnalysisName()
+	}
+	if v := i.AnalysisName; v != nil {
+		m.SetAnalysisName(*v)
+	}
+	if i.ClearAnalysisType {
+		m.ClearAnalysisType()
+	}
+	if v := i.AnalysisType; v != nil {
+		m.SetAnalysisType(*v)
+	}
+	if v := i.AnalysisDate; v != nil {
+		m.SetAnalysisDate(*v)
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdatePetAnalysisInput on the PetAnalysisUpdate builder.
+func (c *PetAnalysisUpdate) SetInput(i UpdatePetAnalysisInput) *PetAnalysisUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdatePetAnalysisInput on the PetAnalysisUpdateOne builder.
+func (c *PetAnalysisUpdateOne) SetInput(i UpdatePetAnalysisInput) *PetAnalysisUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreatePetBonusInput represents a mutation input for creating petbonusslice.
+type CreatePetBonusInput struct {
+	CreatedAt     *time.Time
+	UpdatedAt     *time.Time
+	DeletedAt     *time.Time
+	IsArtist      bool
+	IsTherapist   bool
+	IsFormerDonor bool
+	IsGuideDog    bool
+	OwnerID       string
+}
+
+// Mutate applies the CreatePetBonusInput on the PetBonusMutation builder.
+func (i *CreatePetBonusInput) Mutate(m *PetBonusMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	m.SetIsArtist(i.IsArtist)
+	m.SetIsTherapist(i.IsTherapist)
+	m.SetIsFormerDonor(i.IsFormerDonor)
+	m.SetIsGuideDog(i.IsGuideDog)
+	m.SetOwnerID(i.OwnerID)
+}
+
+// SetInput applies the change-set in the CreatePetBonusInput on the PetBonusCreate builder.
+func (c *PetBonusCreate) SetInput(i CreatePetBonusInput) *PetBonusCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdatePetBonusInput represents a mutation input for updating petbonusslice.
+type UpdatePetBonusInput struct {
+	UpdatedAt      *time.Time
+	ClearDeletedAt bool
+	DeletedAt      *time.Time
+	IsArtist       *bool
+	IsTherapist    *bool
+	IsFormerDonor  *bool
+	IsGuideDog     *bool
+	OwnerID        *string
+}
+
+// Mutate applies the UpdatePetBonusInput on the PetBonusMutation builder.
+func (i *UpdatePetBonusInput) Mutate(m *PetBonusMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.IsArtist; v != nil {
+		m.SetIsArtist(*v)
+	}
+	if v := i.IsTherapist; v != nil {
+		m.SetIsTherapist(*v)
+	}
+	if v := i.IsFormerDonor; v != nil {
+		m.SetIsFormerDonor(*v)
+	}
+	if v := i.IsGuideDog; v != nil {
+		m.SetIsGuideDog(*v)
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdatePetBonusInput on the PetBonusUpdate builder.
+func (c *PetBonusUpdate) SetInput(i UpdatePetBonusInput) *PetBonusUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdatePetBonusInput on the PetBonusUpdateOne builder.
+func (c *PetBonusUpdateOne) SetInput(i UpdatePetBonusInput) *PetBonusUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreatePetHealthInput represents a mutation input for creating pethealths.
+type CreatePetHealthInput struct {
+	CreatedAt             *time.Time
+	UpdatedAt             *time.Time
+	DeletedAt             *time.Time
+	HealthStatus          *pethealth.HealthStatus
+	LastDonation          *time.Time
+	Transfused            *bool
+	Medications           *string
+	SurgicalInterventions *string
+	OwnerID               string
+}
+
+// Mutate applies the CreatePetHealthInput on the PetHealthMutation builder.
+func (i *CreatePetHealthInput) Mutate(m *PetHealthMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.HealthStatus; v != nil {
+		m.SetHealthStatus(*v)
+	}
+	if v := i.LastDonation; v != nil {
+		m.SetLastDonation(*v)
+	}
+	if v := i.Transfused; v != nil {
+		m.SetTransfused(*v)
+	}
+	if v := i.Medications; v != nil {
+		m.SetMedications(*v)
+	}
+	if v := i.SurgicalInterventions; v != nil {
+		m.SetSurgicalInterventions(*v)
+	}
+	m.SetOwnerID(i.OwnerID)
+}
+
+// SetInput applies the change-set in the CreatePetHealthInput on the PetHealthCreate builder.
+func (c *PetHealthCreate) SetInput(i CreatePetHealthInput) *PetHealthCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdatePetHealthInput represents a mutation input for updating pethealths.
+type UpdatePetHealthInput struct {
+	UpdatedAt                  *time.Time
+	ClearDeletedAt             bool
+	DeletedAt                  *time.Time
+	ClearHealthStatus          bool
+	HealthStatus               *pethealth.HealthStatus
+	ClearLastDonation          bool
+	LastDonation               *time.Time
+	ClearTransfused            bool
+	Transfused                 *bool
+	ClearMedications           bool
+	Medications                *string
+	ClearSurgicalInterventions bool
+	SurgicalInterventions      *string
+	OwnerID                    *string
+}
+
+// Mutate applies the UpdatePetHealthInput on the PetHealthMutation builder.
+func (i *UpdatePetHealthInput) Mutate(m *PetHealthMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if i.ClearHealthStatus {
+		m.ClearHealthStatus()
+	}
+	if v := i.HealthStatus; v != nil {
+		m.SetHealthStatus(*v)
+	}
+	if i.ClearLastDonation {
+		m.ClearLastDonation()
+	}
+	if v := i.LastDonation; v != nil {
+		m.SetLastDonation(*v)
+	}
+	if i.ClearTransfused {
+		m.ClearTransfused()
+	}
+	if v := i.Transfused; v != nil {
+		m.SetTransfused(*v)
+	}
+	if i.ClearMedications {
+		m.ClearMedications()
+	}
+	if v := i.Medications; v != nil {
+		m.SetMedications(*v)
+	}
+	if i.ClearSurgicalInterventions {
+		m.ClearSurgicalInterventions()
+	}
+	if v := i.SurgicalInterventions; v != nil {
+		m.SetSurgicalInterventions(*v)
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdatePetHealthInput on the PetHealthUpdate builder.
+func (c *PetHealthUpdate) SetInput(i UpdatePetHealthInput) *PetHealthUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdatePetHealthInput on the PetHealthUpdateOne builder.
+func (c *PetHealthUpdateOne) SetInput(i UpdatePetHealthInput) *PetHealthUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreatePetTreatmentInput represents a mutation input for creating pettreatments.
+type CreatePetTreatmentInput struct {
+	CreatedAt                 *time.Time
+	UpdatedAt                 *time.Time
+	DeletedAt                 *time.Time
+	RabiesVaccinationDate     *time.Time
+	InfectionVaccinationDate  *time.Time
+	EctoparasiteTreatmentDate *time.Time
+	DewormingDate             *time.Time
+	OwnerID                   string
+}
+
+// Mutate applies the CreatePetTreatmentInput on the PetTreatmentMutation builder.
+func (i *CreatePetTreatmentInput) Mutate(m *PetTreatmentMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.RabiesVaccinationDate; v != nil {
+		m.SetRabiesVaccinationDate(*v)
+	}
+	if v := i.InfectionVaccinationDate; v != nil {
+		m.SetInfectionVaccinationDate(*v)
+	}
+	if v := i.EctoparasiteTreatmentDate; v != nil {
+		m.SetEctoparasiteTreatmentDate(*v)
+	}
+	if v := i.DewormingDate; v != nil {
+		m.SetDewormingDate(*v)
+	}
+	m.SetOwnerID(i.OwnerID)
+}
+
+// SetInput applies the change-set in the CreatePetTreatmentInput on the PetTreatmentCreate builder.
+func (c *PetTreatmentCreate) SetInput(i CreatePetTreatmentInput) *PetTreatmentCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdatePetTreatmentInput represents a mutation input for updating pettreatments.
+type UpdatePetTreatmentInput struct {
+	UpdatedAt                      *time.Time
+	ClearDeletedAt                 bool
+	DeletedAt                      *time.Time
+	ClearRabiesVaccinationDate     bool
+	RabiesVaccinationDate          *time.Time
+	ClearInfectionVaccinationDate  bool
+	InfectionVaccinationDate       *time.Time
+	ClearEctoparasiteTreatmentDate bool
+	EctoparasiteTreatmentDate      *time.Time
+	ClearDewormingDate             bool
+	DewormingDate                  *time.Time
+	OwnerID                        *string
+}
+
+// Mutate applies the UpdatePetTreatmentInput on the PetTreatmentMutation builder.
+func (i *UpdatePetTreatmentInput) Mutate(m *PetTreatmentMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if i.ClearRabiesVaccinationDate {
+		m.ClearRabiesVaccinationDate()
+	}
+	if v := i.RabiesVaccinationDate; v != nil {
+		m.SetRabiesVaccinationDate(*v)
+	}
+	if i.ClearInfectionVaccinationDate {
+		m.ClearInfectionVaccinationDate()
+	}
+	if v := i.InfectionVaccinationDate; v != nil {
+		m.SetInfectionVaccinationDate(*v)
+	}
+	if i.ClearEctoparasiteTreatmentDate {
+		m.ClearEctoparasiteTreatmentDate()
+	}
+	if v := i.EctoparasiteTreatmentDate; v != nil {
+		m.SetEctoparasiteTreatmentDate(*v)
+	}
+	if i.ClearDewormingDate {
+		m.ClearDewormingDate()
+	}
+	if v := i.DewormingDate; v != nil {
+		m.SetDewormingDate(*v)
+	}
+	if v := i.OwnerID; v != nil {
+		m.SetOwnerID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdatePetTreatmentInput on the PetTreatmentUpdate builder.
+func (c *PetTreatmentUpdate) SetInput(i UpdatePetTreatmentInput) *PetTreatmentUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdatePetTreatmentInput on the PetTreatmentUpdateOne builder.
+func (c *PetTreatmentUpdateOne) SetInput(i UpdatePetTreatmentInput) *PetTreatmentUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
 
 // CreateUserInput represents a mutation input for creating users.
 type CreateUserInput struct {

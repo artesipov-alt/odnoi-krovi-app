@@ -104,15 +104,17 @@ func (s *FileServiceImpl) ConfirmUploads(ctx context.Context, ID string, paths [
 			return apperrors.Internal(err, "failed to confirm uploads for pet")
 		}
 		// Обновить PhotoUrls в питомце через репозиторий (замена на новые)
-		p, err := s.PetRepo.GetByID(ctx, ID)
+		// Сначала проверяем, существует ли питомец
+		_, err = s.PetRepo.GetPetQuery(ctx, ID).Only(ctx)
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return apperrors.ErrPetNotFound
 			}
 			return apperrors.Internal(err, "failed to get pet for update")
 		}
-		p.PhotoUrls = paths
-		_, err = s.PetRepo.Update(ctx, p, nil, nil, nil, nil)
+		_, err = s.PetRepo.Update(ctx, ID, &ent.UpdatePetInput{
+			PhotoUrls: paths,
+		}, nil, nil, nil, nil)
 		if err != nil {
 			return apperrors.Internal(err, "failed to update pet photos")
 		}

@@ -36,34 +36,6 @@ func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInp
 	return newUser, nil
 }
 
-// GetByID retrieves a user by their ID
-func (r *EntUserRepository) GetByID(ctx context.Context, id string, preloads ...string) (*ent.User, error) {
-	if id == "" {
-		return nil, errors.New("invalid user ID")
-	}
-
-	query := r.client.User.Query().Where(user.ID(id))
-
-	for _, preload := range preloads {
-		switch preload {
-		case "pets":
-			query = query.WithPets()
-		case "location":
-			query = query.WithLocation()
-		}
-	}
-
-	u, err := query.Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("user with id %s not found: %w", id, err)
-		}
-		return nil, fmt.Errorf("failed to get user by id %s: %w", id, err)
-	}
-
-	return u, nil
-}
-
 // GetQuery returns a query for eager loading
 func (r *EntUserRepository) GetQueryByID(ctx context.Context, id string) *ent.UserQuery {
 	return r.client.User.Query().Where(user.ID(id))

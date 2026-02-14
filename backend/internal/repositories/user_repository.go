@@ -11,11 +11,11 @@ type UserRepository interface {
 	// Create создает нового пользователя в базе данных
 	Create(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
-	// GetByID получает пользователя по его ID
-	GetByID(ctx context.Context, id string, preloads ...string) (*ent.User, error)
+	// // GetByID получает пользователя по его ID
+	// GetByID(ctx context.Context, id string, preloads ...string) (*ent.User, error)
 
-	// GetByTelegramID получает пользователя по его Telegram ID
-	GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
+	// // GetByTelegramID получает пользователя по его Telegram ID
+	// GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
 
 	// GetQuery возвращает query для eager loading
 	GetQueryByID(ctx context.Context, id string) *ent.UserQuery
