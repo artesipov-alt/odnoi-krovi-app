@@ -87,10 +87,10 @@ export interface Pet {
     bonuses?: PetBonus;
     /**
      * ID породы
-     * @type {number}
+     * @type {string}
      * @memberof Pet
      */
-    breedId?: number;
+    breedId?: string;
     /**
      * Номер чипа
      * @type {string}

@@ -92,10 +92,10 @@ export interface PetUpdate {
     bonuses?: PetBonus;
     /**
      * ID породы
-     * @type {number}
+     * @type {string}
      * @memberof PetUpdate
      */
-    breedId?: number;
+    breedId?: string;
     /**
      * Номер чипа
      * @type {string}

@@ -45,10 +45,10 @@ export interface UserUpdate {
     fullName?: string;
     /**
      * ID локации
-     * @type {number}
+     * @type {string}
      * @memberof UserUpdate
      */
-    locationId?: number;
+    locationId?: string;
     /**
      * Статусы онбординга
      * @type {Array<string>}

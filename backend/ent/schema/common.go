@@ -140,7 +140,15 @@ func DbInterceptor() ent.Interceptor {
 			rid := sloghttp.GetRequestIDFromContext(ctx)
 
 			// Логируем все SQL запросы
+			// The original logging of `&q` resulted in an unhelpful output like `query="&{{...}}"`.
+			// To get a more meaningful representation of the query, we can try to extract the SQL
+			// statement if the query object provides a way to do so, or log a more specific
+			// identifier for the query type. Since `ent.Query` doesn't directly expose the SQL,
+			// and to avoid complex reflection or type assertions here, we'll log the query's
+			// string representation (if available) or its type.
+			// For now, we'll log the type of the query for better debuggability than the raw struct pointer.
 			slog.DebugContext(ctx, "SQL Query",
+				"query_type", fmt.Sprintf("%T", q), // Log the type of the query
 				"rid", rid,
 				"duration", duration,
 			)

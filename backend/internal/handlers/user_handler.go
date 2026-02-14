@@ -142,7 +142,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 
 	var userData ent.CreateUserInput
 
-	if copier.Copy(userData, input.Body) != nil {
+	if err := copier.Copy(&userData, &input.Body); err != nil {
 		return nil, apperrors.Internal(errors.New("failed to copy user data"), "ошибка при копировании данных пользователя")
 	}
 
@@ -165,15 +165,18 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	Body dto.UserUpdate
 }) (*dto.MessageResponse, error) {
 
-	var user *ent.UpdateUserInput
+	var user ent.UpdateUserInput
 
 	if err := copier.Copy(&user, &input.Body); err != nil {
 		slog.ErrorContext(ctx, "failed to copy user update data", "error", err.Error())
 		return nil, apperrors.Internal(err, "failed to copy user update data")
 	}
 
-	if err := h.userService.Update(ctx, input.ID, user); err != nil {
-		slog.ErrorContext(ctx, "failed to update user", "error", err.Error())
+	if err := h.userService.Update(ctx, input.ID, &user); err != nil {
+		// Проверяем специфичные ошибки и возвращаем соответствующие коды
+		if err == apperrors.ErrUserNotFound || err == apperrors.ErrLocationNotFound {
+			return nil, err
+		}
 		return nil, apperrors.Internal(err, "failed to update user")
 	}
 

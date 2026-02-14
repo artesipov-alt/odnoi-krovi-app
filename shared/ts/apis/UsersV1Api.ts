@@ -18,7 +18,7 @@ import type {
   AppError,
   ConfirmUploadRequest,
   MessageBody,
-  ReferenceDataCode,
+  ReferenceData,
   UploadURLResponseBody,
   User,
   UserRegistrationSimple,
@@ -32,8 +32,8 @@ import {
     ConfirmUploadRequestToJSON,
     MessageBodyFromJSON,
     MessageBodyToJSON,
-    ReferenceDataCodeFromJSON,
-    ReferenceDataCodeToJSON,
+    ReferenceDataFromJSON,
+    ReferenceDataToJSON,
     UploadURLResponseBodyFromJSON,
     UploadURLResponseBodyToJSON,
     UserFromJSON,
@@ -350,7 +350,7 @@ export class UsersV1Api extends runtime.BaseAPI {
      * Возвращает все доступные роли пользователей для выбора на фронтенде
      * Получение всех ролей пользователей
      */
-    async getUserRolesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceDataCode>> {
+    async getUserRolesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -365,14 +365,14 @@ export class UsersV1Api extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataCodeFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
     }
 
     /**
      * Возвращает все доступные роли пользователей для выбора на фронтенде
      * Получение всех ролей пользователей
      */
-    async getUserRoles(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceDataCode> {
+    async getUserRoles(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
         const response = await this.getUserRolesRaw(initOverrides);
         return await response.value();
     }

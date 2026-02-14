@@ -32,7 +32,7 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client) error {
 		if !exists {
 			// Если не существует, создаем новую запись
 			err := client.BloodGroup.Create().
-				SetID(schema.BloodGroupPrefix + strconv.Itoa(i+1)).
+				SetID(schema.BloodGroupPrefix + "-" + strconv.Itoa(i+1)).
 				SetPetType(g.PetType).
 				SetBloodGroup(g.BloodGroup).
 				SetDescription(g.Description).
@@ -78,7 +78,7 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client) error {
 		if !exists {
 			// Если не существует, создаем новую запись
 			err := client.BloodComponent.Create().
-				SetID(schema.BloodComponentPrefix + strconv.Itoa(i+1)).
+				SetID(schema.BloodComponentPrefix + "-" + strconv.Itoa(i+1)).
 				SetName(name).
 				Exec(ctx)
 

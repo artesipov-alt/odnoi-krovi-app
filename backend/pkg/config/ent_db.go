@@ -78,7 +78,7 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 	// Создаем драйвер Ent на основе существующего соединения
 	drv := entsql.OpenDB(dialect.Postgres, db)
 
-	client := ent.NewClient(ent.Driver(drv))
+	client := ent.NewClient(ent.Driver(drv), ent.Debug())
 
 	client.Intercept(schema.DbInterceptor())
 

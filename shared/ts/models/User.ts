@@ -77,10 +77,10 @@ export interface User {
     readonly id: string;
     /**
      * ID локации
-     * @type {number}
+     * @type {string}
      * @memberof User
      */
-    locationId?: number;
+    locationId?: string;
     /**
      * Статусы онбординга
      * @type {Array<string>}

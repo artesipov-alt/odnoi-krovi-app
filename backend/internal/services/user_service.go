@@ -158,7 +158,11 @@ func (s *UserServiceImpl) Update(ctx context.Context, id string, input *ent.Upda
 	// 2. Просто обновляем. SetInput сам проигнорирует nil поля.
 	err := s.userRepo.Update(ctx, id, input)
 	if err != nil {
-		return err
+		// Используем ent.IsNotFound - это идиоматический способ для Ent
+		if ent.IsNotFound(err) {
+			return apperrors.ErrUserNotFound
+		}
+		return apperrors.Internal(err, "failed to update user")
 	}
 
 	return nil

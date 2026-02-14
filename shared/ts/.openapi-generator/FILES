@@ -20,10 +20,8 @@ models/PetCreate.ts
 models/PetHealth.ts
 models/PetTreatment.ts
 models/PetUpdate.ts
-models/ReferenceDataCode.ts
-models/ReferenceDataDB.ts
-models/ReferenceItemCode.ts
-models/ReferenceItemDB.ts
+models/ReferenceData.ts
+models/ReferenceItem.ts
 models/RestrictionFactor.ts
 models/UploadItem.ts
 models/UploadURLResponseBody.ts
