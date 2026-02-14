@@ -139,23 +139,11 @@ func DbInterceptor() ent.Interceptor {
 
 			rid := sloghttp.GetRequestIDFromContext(ctx)
 
-			// Порог медленного запроса (вынеси в конфиг потом)
-			slowThreshold := 200 * time.Millisecond
-
-			if duration > slowThreshold {
-				// Логируем как предупреждение, если тормозит
-				slog.WarnContext(ctx, "SLOW SQL Query",
-					"rid", rid,
-					"duration", duration,
-					"threshold", slowThreshold,
-				)
-			} else {
-				// Обычный лог в DEBUG
-				slog.DebugContext(ctx, "SQL Query (Select)",
-					"rid", rid,
-					"duration", duration,
-				)
-			}
+			// Логируем все SQL запросы
+			slog.DebugContext(ctx, "SQL Query",
+				"rid", rid,
+				"duration", duration,
+			)
 
 			return res, err
 		})

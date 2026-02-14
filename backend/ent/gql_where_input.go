@@ -40,38 +40,6 @@ type BloodComponentWhereInput struct {
 	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
 	IDContainsFold *string  `json:"idContainsFold,omitempty"`
 
-	// "created_at" field predicates.
-	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
-	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
-	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
-	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
-	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
-	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
-	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
-	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
-
-	// "updated_at" field predicates.
-	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
-	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
-	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
-	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
-	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
-	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
-	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
-	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
-
-	// "deleted_at" field predicates.
-	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
-	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
-	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
-	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
-	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
-	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
-	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
-	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
-	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
-	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
-
 	// "name" field predicates.
 	Name             *string  `json:"name,omitempty"`
 	NameNEQ          *string  `json:"nameNEQ,omitempty"`
@@ -189,84 +157,6 @@ func (i *BloodComponentWhereInput) P() (predicate.BloodComponent, error) {
 	if i.IDContainsFold != nil {
 		predicates = append(predicates, bloodcomponent.IDContainsFold(*i.IDContainsFold))
 	}
-	if i.CreatedAt != nil {
-		predicates = append(predicates, bloodcomponent.CreatedAtEQ(*i.CreatedAt))
-	}
-	if i.CreatedAtNEQ != nil {
-		predicates = append(predicates, bloodcomponent.CreatedAtNEQ(*i.CreatedAtNEQ))
-	}
-	if len(i.CreatedAtIn) > 0 {
-		predicates = append(predicates, bloodcomponent.CreatedAtIn(i.CreatedAtIn...))
-	}
-	if len(i.CreatedAtNotIn) > 0 {
-		predicates = append(predicates, bloodcomponent.CreatedAtNotIn(i.CreatedAtNotIn...))
-	}
-	if i.CreatedAtGT != nil {
-		predicates = append(predicates, bloodcomponent.CreatedAtGT(*i.CreatedAtGT))
-	}
-	if i.CreatedAtGTE != nil {
-		predicates = append(predicates, bloodcomponent.CreatedAtGTE(*i.CreatedAtGTE))
-	}
-	if i.CreatedAtLT != nil {
-		predicates = append(predicates, bloodcomponent.CreatedAtLT(*i.CreatedAtLT))
-	}
-	if i.CreatedAtLTE != nil {
-		predicates = append(predicates, bloodcomponent.CreatedAtLTE(*i.CreatedAtLTE))
-	}
-	if i.UpdatedAt != nil {
-		predicates = append(predicates, bloodcomponent.UpdatedAtEQ(*i.UpdatedAt))
-	}
-	if i.UpdatedAtNEQ != nil {
-		predicates = append(predicates, bloodcomponent.UpdatedAtNEQ(*i.UpdatedAtNEQ))
-	}
-	if len(i.UpdatedAtIn) > 0 {
-		predicates = append(predicates, bloodcomponent.UpdatedAtIn(i.UpdatedAtIn...))
-	}
-	if len(i.UpdatedAtNotIn) > 0 {
-		predicates = append(predicates, bloodcomponent.UpdatedAtNotIn(i.UpdatedAtNotIn...))
-	}
-	if i.UpdatedAtGT != nil {
-		predicates = append(predicates, bloodcomponent.UpdatedAtGT(*i.UpdatedAtGT))
-	}
-	if i.UpdatedAtGTE != nil {
-		predicates = append(predicates, bloodcomponent.UpdatedAtGTE(*i.UpdatedAtGTE))
-	}
-	if i.UpdatedAtLT != nil {
-		predicates = append(predicates, bloodcomponent.UpdatedAtLT(*i.UpdatedAtLT))
-	}
-	if i.UpdatedAtLTE != nil {
-		predicates = append(predicates, bloodcomponent.UpdatedAtLTE(*i.UpdatedAtLTE))
-	}
-	if i.DeletedAt != nil {
-		predicates = append(predicates, bloodcomponent.DeletedAtEQ(*i.DeletedAt))
-	}
-	if i.DeletedAtNEQ != nil {
-		predicates = append(predicates, bloodcomponent.DeletedAtNEQ(*i.DeletedAtNEQ))
-	}
-	if len(i.DeletedAtIn) > 0 {
-		predicates = append(predicates, bloodcomponent.DeletedAtIn(i.DeletedAtIn...))
-	}
-	if len(i.DeletedAtNotIn) > 0 {
-		predicates = append(predicates, bloodcomponent.DeletedAtNotIn(i.DeletedAtNotIn...))
-	}
-	if i.DeletedAtGT != nil {
-		predicates = append(predicates, bloodcomponent.DeletedAtGT(*i.DeletedAtGT))
-	}
-	if i.DeletedAtGTE != nil {
-		predicates = append(predicates, bloodcomponent.DeletedAtGTE(*i.DeletedAtGTE))
-	}
-	if i.DeletedAtLT != nil {
-		predicates = append(predicates, bloodcomponent.DeletedAtLT(*i.DeletedAtLT))
-	}
-	if i.DeletedAtLTE != nil {
-		predicates = append(predicates, bloodcomponent.DeletedAtLTE(*i.DeletedAtLTE))
-	}
-	if i.DeletedAtIsNil {
-		predicates = append(predicates, bloodcomponent.DeletedAtIsNil())
-	}
-	if i.DeletedAtNotNil {
-		predicates = append(predicates, bloodcomponent.DeletedAtNotNil())
-	}
 	if i.Name != nil {
 		predicates = append(predicates, bloodcomponent.NameEQ(*i.Name))
 	}
@@ -335,38 +225,6 @@ type BloodGroupWhereInput struct {
 	IDLTE          *string  `json:"idLTE,omitempty"`
 	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
 	IDContainsFold *string  `json:"idContainsFold,omitempty"`
-
-	// "created_at" field predicates.
-	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
-	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
-	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
-	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
-	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
-	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
-	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
-	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
-
-	// "updated_at" field predicates.
-	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
-	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
-	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
-	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
-	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
-	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
-	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
-	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
-
-	// "deleted_at" field predicates.
-	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
-	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
-	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
-	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
-	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
-	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
-	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
-	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
-	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
-	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
 	// "pet_type" field predicates.
 	PetType      *bloodgroup.PetType  `json:"petType,omitempty"`
@@ -511,84 +369,6 @@ func (i *BloodGroupWhereInput) P() (predicate.BloodGroup, error) {
 	}
 	if i.IDContainsFold != nil {
 		predicates = append(predicates, bloodgroup.IDContainsFold(*i.IDContainsFold))
-	}
-	if i.CreatedAt != nil {
-		predicates = append(predicates, bloodgroup.CreatedAtEQ(*i.CreatedAt))
-	}
-	if i.CreatedAtNEQ != nil {
-		predicates = append(predicates, bloodgroup.CreatedAtNEQ(*i.CreatedAtNEQ))
-	}
-	if len(i.CreatedAtIn) > 0 {
-		predicates = append(predicates, bloodgroup.CreatedAtIn(i.CreatedAtIn...))
-	}
-	if len(i.CreatedAtNotIn) > 0 {
-		predicates = append(predicates, bloodgroup.CreatedAtNotIn(i.CreatedAtNotIn...))
-	}
-	if i.CreatedAtGT != nil {
-		predicates = append(predicates, bloodgroup.CreatedAtGT(*i.CreatedAtGT))
-	}
-	if i.CreatedAtGTE != nil {
-		predicates = append(predicates, bloodgroup.CreatedAtGTE(*i.CreatedAtGTE))
-	}
-	if i.CreatedAtLT != nil {
-		predicates = append(predicates, bloodgroup.CreatedAtLT(*i.CreatedAtLT))
-	}
-	if i.CreatedAtLTE != nil {
-		predicates = append(predicates, bloodgroup.CreatedAtLTE(*i.CreatedAtLTE))
-	}
-	if i.UpdatedAt != nil {
-		predicates = append(predicates, bloodgroup.UpdatedAtEQ(*i.UpdatedAt))
-	}
-	if i.UpdatedAtNEQ != nil {
-		predicates = append(predicates, bloodgroup.UpdatedAtNEQ(*i.UpdatedAtNEQ))
-	}
-	if len(i.UpdatedAtIn) > 0 {
-		predicates = append(predicates, bloodgroup.UpdatedAtIn(i.UpdatedAtIn...))
-	}
-	if len(i.UpdatedAtNotIn) > 0 {
-		predicates = append(predicates, bloodgroup.UpdatedAtNotIn(i.UpdatedAtNotIn...))
-	}
-	if i.UpdatedAtGT != nil {
-		predicates = append(predicates, bloodgroup.UpdatedAtGT(*i.UpdatedAtGT))
-	}
-	if i.UpdatedAtGTE != nil {
-		predicates = append(predicates, bloodgroup.UpdatedAtGTE(*i.UpdatedAtGTE))
-	}
-	if i.UpdatedAtLT != nil {
-		predicates = append(predicates, bloodgroup.UpdatedAtLT(*i.UpdatedAtLT))
-	}
-	if i.UpdatedAtLTE != nil {
-		predicates = append(predicates, bloodgroup.UpdatedAtLTE(*i.UpdatedAtLTE))
-	}
-	if i.DeletedAt != nil {
-		predicates = append(predicates, bloodgroup.DeletedAtEQ(*i.DeletedAt))
-	}
-	if i.DeletedAtNEQ != nil {
-		predicates = append(predicates, bloodgroup.DeletedAtNEQ(*i.DeletedAtNEQ))
-	}
-	if len(i.DeletedAtIn) > 0 {
-		predicates = append(predicates, bloodgroup.DeletedAtIn(i.DeletedAtIn...))
-	}
-	if len(i.DeletedAtNotIn) > 0 {
-		predicates = append(predicates, bloodgroup.DeletedAtNotIn(i.DeletedAtNotIn...))
-	}
-	if i.DeletedAtGT != nil {
-		predicates = append(predicates, bloodgroup.DeletedAtGT(*i.DeletedAtGT))
-	}
-	if i.DeletedAtGTE != nil {
-		predicates = append(predicates, bloodgroup.DeletedAtGTE(*i.DeletedAtGTE))
-	}
-	if i.DeletedAtLT != nil {
-		predicates = append(predicates, bloodgroup.DeletedAtLT(*i.DeletedAtLT))
-	}
-	if i.DeletedAtLTE != nil {
-		predicates = append(predicates, bloodgroup.DeletedAtLTE(*i.DeletedAtLTE))
-	}
-	if i.DeletedAtIsNil {
-		predicates = append(predicates, bloodgroup.DeletedAtIsNil())
-	}
-	if i.DeletedAtNotNil {
-		predicates = append(predicates, bloodgroup.DeletedAtNotNil())
 	}
 	if i.PetType != nil {
 		predicates = append(predicates, bloodgroup.PetTypeEQ(*i.PetType))
@@ -1210,38 +990,6 @@ type BreedWhereInput struct {
 	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
 	IDContainsFold *string  `json:"idContainsFold,omitempty"`
 
-	// "created_at" field predicates.
-	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
-	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
-	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
-	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
-	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
-	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
-	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
-	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
-
-	// "updated_at" field predicates.
-	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
-	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
-	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
-	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
-	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
-	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
-	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
-	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
-
-	// "deleted_at" field predicates.
-	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
-	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
-	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
-	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
-	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
-	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
-	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
-	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
-	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
-	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
-
 	// "name" field predicates.
 	Name             *string  `json:"name,omitempty"`
 	NameNEQ          *string  `json:"nameNEQ,omitempty"`
@@ -1369,84 +1117,6 @@ func (i *BreedWhereInput) P() (predicate.Breed, error) {
 	if i.IDContainsFold != nil {
 		predicates = append(predicates, breed.IDContainsFold(*i.IDContainsFold))
 	}
-	if i.CreatedAt != nil {
-		predicates = append(predicates, breed.CreatedAtEQ(*i.CreatedAt))
-	}
-	if i.CreatedAtNEQ != nil {
-		predicates = append(predicates, breed.CreatedAtNEQ(*i.CreatedAtNEQ))
-	}
-	if len(i.CreatedAtIn) > 0 {
-		predicates = append(predicates, breed.CreatedAtIn(i.CreatedAtIn...))
-	}
-	if len(i.CreatedAtNotIn) > 0 {
-		predicates = append(predicates, breed.CreatedAtNotIn(i.CreatedAtNotIn...))
-	}
-	if i.CreatedAtGT != nil {
-		predicates = append(predicates, breed.CreatedAtGT(*i.CreatedAtGT))
-	}
-	if i.CreatedAtGTE != nil {
-		predicates = append(predicates, breed.CreatedAtGTE(*i.CreatedAtGTE))
-	}
-	if i.CreatedAtLT != nil {
-		predicates = append(predicates, breed.CreatedAtLT(*i.CreatedAtLT))
-	}
-	if i.CreatedAtLTE != nil {
-		predicates = append(predicates, breed.CreatedAtLTE(*i.CreatedAtLTE))
-	}
-	if i.UpdatedAt != nil {
-		predicates = append(predicates, breed.UpdatedAtEQ(*i.UpdatedAt))
-	}
-	if i.UpdatedAtNEQ != nil {
-		predicates = append(predicates, breed.UpdatedAtNEQ(*i.UpdatedAtNEQ))
-	}
-	if len(i.UpdatedAtIn) > 0 {
-		predicates = append(predicates, breed.UpdatedAtIn(i.UpdatedAtIn...))
-	}
-	if len(i.UpdatedAtNotIn) > 0 {
-		predicates = append(predicates, breed.UpdatedAtNotIn(i.UpdatedAtNotIn...))
-	}
-	if i.UpdatedAtGT != nil {
-		predicates = append(predicates, breed.UpdatedAtGT(*i.UpdatedAtGT))
-	}
-	if i.UpdatedAtGTE != nil {
-		predicates = append(predicates, breed.UpdatedAtGTE(*i.UpdatedAtGTE))
-	}
-	if i.UpdatedAtLT != nil {
-		predicates = append(predicates, breed.UpdatedAtLT(*i.UpdatedAtLT))
-	}
-	if i.UpdatedAtLTE != nil {
-		predicates = append(predicates, breed.UpdatedAtLTE(*i.UpdatedAtLTE))
-	}
-	if i.DeletedAt != nil {
-		predicates = append(predicates, breed.DeletedAtEQ(*i.DeletedAt))
-	}
-	if i.DeletedAtNEQ != nil {
-		predicates = append(predicates, breed.DeletedAtNEQ(*i.DeletedAtNEQ))
-	}
-	if len(i.DeletedAtIn) > 0 {
-		predicates = append(predicates, breed.DeletedAtIn(i.DeletedAtIn...))
-	}
-	if len(i.DeletedAtNotIn) > 0 {
-		predicates = append(predicates, breed.DeletedAtNotIn(i.DeletedAtNotIn...))
-	}
-	if i.DeletedAtGT != nil {
-		predicates = append(predicates, breed.DeletedAtGT(*i.DeletedAtGT))
-	}
-	if i.DeletedAtGTE != nil {
-		predicates = append(predicates, breed.DeletedAtGTE(*i.DeletedAtGTE))
-	}
-	if i.DeletedAtLT != nil {
-		predicates = append(predicates, breed.DeletedAtLT(*i.DeletedAtLT))
-	}
-	if i.DeletedAtLTE != nil {
-		predicates = append(predicates, breed.DeletedAtLTE(*i.DeletedAtLTE))
-	}
-	if i.DeletedAtIsNil {
-		predicates = append(predicates, breed.DeletedAtIsNil())
-	}
-	if i.DeletedAtNotNil {
-		predicates = append(predicates, breed.DeletedAtNotNil())
-	}
 	if i.Name != nil {
 		predicates = append(predicates, breed.NameEQ(*i.Name))
 	}
@@ -1545,38 +1215,6 @@ type LocationWhereInput struct {
 	IDLTE          *string  `json:"idLTE,omitempty"`
 	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
 	IDContainsFold *string  `json:"idContainsFold,omitempty"`
-
-	// "created_at" field predicates.
-	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
-	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
-	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
-	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
-	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
-	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
-	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
-	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
-
-	// "updated_at" field predicates.
-	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
-	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
-	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
-	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
-	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
-	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
-	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
-	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
-
-	// "deleted_at" field predicates.
-	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
-	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
-	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
-	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
-	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
-	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
-	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
-	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
-	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
-	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
 	// "name" field predicates.
 	Name             *string  `json:"name,omitempty"`
@@ -1698,84 +1336,6 @@ func (i *LocationWhereInput) P() (predicate.Location, error) {
 	}
 	if i.IDContainsFold != nil {
 		predicates = append(predicates, location.IDContainsFold(*i.IDContainsFold))
-	}
-	if i.CreatedAt != nil {
-		predicates = append(predicates, location.CreatedAtEQ(*i.CreatedAt))
-	}
-	if i.CreatedAtNEQ != nil {
-		predicates = append(predicates, location.CreatedAtNEQ(*i.CreatedAtNEQ))
-	}
-	if len(i.CreatedAtIn) > 0 {
-		predicates = append(predicates, location.CreatedAtIn(i.CreatedAtIn...))
-	}
-	if len(i.CreatedAtNotIn) > 0 {
-		predicates = append(predicates, location.CreatedAtNotIn(i.CreatedAtNotIn...))
-	}
-	if i.CreatedAtGT != nil {
-		predicates = append(predicates, location.CreatedAtGT(*i.CreatedAtGT))
-	}
-	if i.CreatedAtGTE != nil {
-		predicates = append(predicates, location.CreatedAtGTE(*i.CreatedAtGTE))
-	}
-	if i.CreatedAtLT != nil {
-		predicates = append(predicates, location.CreatedAtLT(*i.CreatedAtLT))
-	}
-	if i.CreatedAtLTE != nil {
-		predicates = append(predicates, location.CreatedAtLTE(*i.CreatedAtLTE))
-	}
-	if i.UpdatedAt != nil {
-		predicates = append(predicates, location.UpdatedAtEQ(*i.UpdatedAt))
-	}
-	if i.UpdatedAtNEQ != nil {
-		predicates = append(predicates, location.UpdatedAtNEQ(*i.UpdatedAtNEQ))
-	}
-	if len(i.UpdatedAtIn) > 0 {
-		predicates = append(predicates, location.UpdatedAtIn(i.UpdatedAtIn...))
-	}
-	if len(i.UpdatedAtNotIn) > 0 {
-		predicates = append(predicates, location.UpdatedAtNotIn(i.UpdatedAtNotIn...))
-	}
-	if i.UpdatedAtGT != nil {
-		predicates = append(predicates, location.UpdatedAtGT(*i.UpdatedAtGT))
-	}
-	if i.UpdatedAtGTE != nil {
-		predicates = append(predicates, location.UpdatedAtGTE(*i.UpdatedAtGTE))
-	}
-	if i.UpdatedAtLT != nil {
-		predicates = append(predicates, location.UpdatedAtLT(*i.UpdatedAtLT))
-	}
-	if i.UpdatedAtLTE != nil {
-		predicates = append(predicates, location.UpdatedAtLTE(*i.UpdatedAtLTE))
-	}
-	if i.DeletedAt != nil {
-		predicates = append(predicates, location.DeletedAtEQ(*i.DeletedAt))
-	}
-	if i.DeletedAtNEQ != nil {
-		predicates = append(predicates, location.DeletedAtNEQ(*i.DeletedAtNEQ))
-	}
-	if len(i.DeletedAtIn) > 0 {
-		predicates = append(predicates, location.DeletedAtIn(i.DeletedAtIn...))
-	}
-	if len(i.DeletedAtNotIn) > 0 {
-		predicates = append(predicates, location.DeletedAtNotIn(i.DeletedAtNotIn...))
-	}
-	if i.DeletedAtGT != nil {
-		predicates = append(predicates, location.DeletedAtGT(*i.DeletedAtGT))
-	}
-	if i.DeletedAtGTE != nil {
-		predicates = append(predicates, location.DeletedAtGTE(*i.DeletedAtGTE))
-	}
-	if i.DeletedAtLT != nil {
-		predicates = append(predicates, location.DeletedAtLT(*i.DeletedAtLT))
-	}
-	if i.DeletedAtLTE != nil {
-		predicates = append(predicates, location.DeletedAtLTE(*i.DeletedAtLTE))
-	}
-	if i.DeletedAtIsNil {
-		predicates = append(predicates, location.DeletedAtIsNil())
-	}
-	if i.DeletedAtNotNil {
-		predicates = append(predicates, location.DeletedAtNotNil())
 	}
 	if i.Name != nil {
 		predicates = append(predicates, location.NameEQ(*i.Name))

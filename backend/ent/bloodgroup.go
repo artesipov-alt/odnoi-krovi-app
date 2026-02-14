@@ -5,7 +5,6 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -17,12 +16,6 @@ type BloodGroup struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
 	// PetType holds the value of the "pet_type" field.
 	PetType bloodgroup.PetType `json:"petType"`
 	// BloodGroup holds the value of the "blood_group" field.
@@ -64,8 +57,6 @@ func (*BloodGroup) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bloodgroup.FieldID, bloodgroup.FieldPetType, bloodgroup.FieldBloodGroup, bloodgroup.FieldDescription:
 			values[i] = new(sql.NullString)
-		case bloodgroup.FieldCreatedAt, bloodgroup.FieldUpdatedAt, bloodgroup.FieldDeletedAt:
-			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -86,25 +77,6 @@ func (_m *BloodGroup) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
-			}
-		case bloodgroup.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				_m.CreatedAt = value.Time
-			}
-		case bloodgroup.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				_m.UpdatedAt = value.Time
-			}
-		case bloodgroup.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				_m.DeletedAt = new(time.Time)
-				*_m.DeletedAt = value.Time
 			}
 		case bloodgroup.FieldPetType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -165,17 +137,6 @@ func (_m *BloodGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("BloodGroup(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("created_at=")
-	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := _m.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
 	builder.WriteString("pet_type=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PetType))
 	builder.WriteString(", ")

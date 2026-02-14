@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -26,32 +25,6 @@ type BloodGroupUpdate struct {
 // Where appends a list predicates to the BloodGroupUpdate builder.
 func (_u *BloodGroupUpdate) Where(ps ...predicate.BloodGroup) *BloodGroupUpdate {
 	_u.mutation.Where(ps...)
-	return _u
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *BloodGroupUpdate) SetUpdatedAt(v time.Time) *BloodGroupUpdate {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *BloodGroupUpdate) SetDeletedAt(v time.Time) *BloodGroupUpdate {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *BloodGroupUpdate) SetNillableDeletedAt(v *time.Time) *BloodGroupUpdate {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *BloodGroupUpdate) ClearDeletedAt() *BloodGroupUpdate {
-	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -146,7 +119,6 @@ func (_u *BloodGroupUpdate) RemovePets(v ...*Pet) *BloodGroupUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *BloodGroupUpdate) Save(ctx context.Context) (int, error) {
-	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -169,14 +141,6 @@ func (_u *BloodGroupUpdate) Exec(ctx context.Context) error {
 func (_u *BloodGroupUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_u *BloodGroupUpdate) defaults() {
-	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := bloodgroup.UpdateDefaultUpdatedAt()
-		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -206,15 +170,6 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(bloodgroup.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.PetType(); ok {
 		_spec.SetField(bloodgroup.FieldPetType, field.TypeEnum, value)
@@ -291,32 +246,6 @@ type BloodGroupUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *BloodGroupMutation
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (_u *BloodGroupUpdateOne) SetUpdatedAt(v time.Time) *BloodGroupUpdateOne {
-	_u.mutation.SetUpdatedAt(v)
-	return _u
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (_u *BloodGroupUpdateOne) SetDeletedAt(v time.Time) *BloodGroupUpdateOne {
-	_u.mutation.SetDeletedAt(v)
-	return _u
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (_u *BloodGroupUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodGroupUpdateOne {
-	if v != nil {
-		_u.SetDeletedAt(*v)
-	}
-	return _u
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (_u *BloodGroupUpdateOne) ClearDeletedAt() *BloodGroupUpdateOne {
-	_u.mutation.ClearDeletedAt()
-	return _u
 }
 
 // SetPetType sets the "pet_type" field.
@@ -423,7 +352,6 @@ func (_u *BloodGroupUpdateOne) Select(field string, fields ...string) *BloodGrou
 
 // Save executes the query and returns the updated BloodGroup entity.
 func (_u *BloodGroupUpdateOne) Save(ctx context.Context) (*BloodGroup, error) {
-	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -446,14 +374,6 @@ func (_u *BloodGroupUpdateOne) Exec(ctx context.Context) error {
 func (_u *BloodGroupUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_u *BloodGroupUpdateOne) defaults() {
-	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := bloodgroup.UpdateDefaultUpdatedAt()
-		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -500,15 +420,6 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := _u.mutation.DeletedAt(); ok {
-		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
-	}
-	if _u.mutation.DeletedAtCleared() {
-		_spec.ClearField(bloodgroup.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.PetType(); ok {
 		_spec.SetField(bloodgroup.FieldPetType, field.TypeEnum, value)

@@ -402,8 +402,7 @@ func (c *BloodComponentClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodComponentClient) Interceptors() []Interceptor {
-	inters := c.inters.BloodComponent
-	return append(inters[:len(inters):len(inters)], bloodcomponent.Interceptors[:]...)
+	return c.inters.BloodComponent
 }
 
 func (c *BloodComponentClient) mutate(ctx context.Context, m *BloodComponentMutation) (Value, error) {
@@ -552,8 +551,7 @@ func (c *BloodGroupClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodGroupClient) Interceptors() []Interceptor {
-	inters := c.inters.BloodGroup
-	return append(inters[:len(inters):len(inters)], bloodgroup.Interceptors[:]...)
+	return c.inters.BloodGroup
 }
 
 func (c *BloodGroupClient) mutate(ctx context.Context, m *BloodGroupMutation) (Value, error) {
@@ -852,8 +850,7 @@ func (c *BreedClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BreedClient) Interceptors() []Interceptor {
-	inters := c.inters.Breed
-	return append(inters[:len(inters):len(inters)], breed.Interceptors[:]...)
+	return c.inters.Breed
 }
 
 func (c *BreedClient) mutate(ctx context.Context, m *BreedMutation) (Value, error) {
@@ -1002,8 +999,7 @@ func (c *LocationClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *LocationClient) Interceptors() []Interceptor {
-	inters := c.inters.Location
-	return append(inters[:len(inters):len(inters)], location.Interceptors[:]...)
+	return c.inters.Location
 }
 
 func (c *LocationClient) mutate(ctx context.Context, m *LocationMutation) (Value, error) {

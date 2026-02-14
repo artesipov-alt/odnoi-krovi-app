@@ -23,25 +23,10 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	bloodcomponentMixin := schema.BloodComponent{}.Mixin()
-	bloodcomponentMixinInters0 := bloodcomponentMixin[0].Interceptors()
-	bloodcomponent.Interceptors[0] = bloodcomponentMixinInters0[0]
-	bloodcomponentMixinFields0 := bloodcomponentMixin[0].Fields()
-	_ = bloodcomponentMixinFields0
 	bloodcomponentFields := schema.BloodComponent{}.Fields()
 	_ = bloodcomponentFields
-	// bloodcomponentDescCreatedAt is the schema descriptor for created_at field.
-	bloodcomponentDescCreatedAt := bloodcomponentMixinFields0[1].Descriptor()
-	// bloodcomponent.DefaultCreatedAt holds the default value on creation for the created_at field.
-	bloodcomponent.DefaultCreatedAt = bloodcomponentDescCreatedAt.Default.(func() time.Time)
-	// bloodcomponentDescUpdatedAt is the schema descriptor for updated_at field.
-	bloodcomponentDescUpdatedAt := bloodcomponentMixinFields0[2].Descriptor()
-	// bloodcomponent.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	bloodcomponent.DefaultUpdatedAt = bloodcomponentDescUpdatedAt.Default.(func() time.Time)
-	// bloodcomponent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	bloodcomponent.UpdateDefaultUpdatedAt = bloodcomponentDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bloodcomponentDescName is the schema descriptor for name field.
-	bloodcomponentDescName := bloodcomponentFields[0].Descriptor()
+	bloodcomponentDescName := bloodcomponentFields[1].Descriptor()
 	// bloodcomponent.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	bloodcomponent.NameValidator = func() func(string) error {
 		validators := bloodcomponentDescName.Validators
@@ -58,29 +43,10 @@ func init() {
 			return nil
 		}
 	}()
-	// bloodcomponentDescID is the schema descriptor for id field.
-	bloodcomponentDescID := bloodcomponentMixinFields0[0].Descriptor()
-	// bloodcomponent.DefaultID holds the default value on creation for the id field.
-	bloodcomponent.DefaultID = bloodcomponentDescID.Default.(func() string)
-	bloodgroupMixin := schema.BloodGroup{}.Mixin()
-	bloodgroupMixinInters0 := bloodgroupMixin[0].Interceptors()
-	bloodgroup.Interceptors[0] = bloodgroupMixinInters0[0]
-	bloodgroupMixinFields0 := bloodgroupMixin[0].Fields()
-	_ = bloodgroupMixinFields0
 	bloodgroupFields := schema.BloodGroup{}.Fields()
 	_ = bloodgroupFields
-	// bloodgroupDescCreatedAt is the schema descriptor for created_at field.
-	bloodgroupDescCreatedAt := bloodgroupMixinFields0[1].Descriptor()
-	// bloodgroup.DefaultCreatedAt holds the default value on creation for the created_at field.
-	bloodgroup.DefaultCreatedAt = bloodgroupDescCreatedAt.Default.(func() time.Time)
-	// bloodgroupDescUpdatedAt is the schema descriptor for updated_at field.
-	bloodgroupDescUpdatedAt := bloodgroupMixinFields0[2].Descriptor()
-	// bloodgroup.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	bloodgroup.DefaultUpdatedAt = bloodgroupDescUpdatedAt.Default.(func() time.Time)
-	// bloodgroup.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	bloodgroup.UpdateDefaultUpdatedAt = bloodgroupDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bloodgroupDescBloodGroup is the schema descriptor for blood_group field.
-	bloodgroupDescBloodGroup := bloodgroupFields[1].Descriptor()
+	bloodgroupDescBloodGroup := bloodgroupFields[2].Descriptor()
 	// bloodgroup.BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
 	bloodgroup.BloodGroupValidator = func() func(string) error {
 		validators := bloodgroupDescBloodGroup.Validators
@@ -97,10 +63,6 @@ func init() {
 			return nil
 		}
 	}()
-	// bloodgroupDescID is the schema descriptor for id field.
-	bloodgroupDescID := bloodgroupMixinFields0[0].Descriptor()
-	// bloodgroup.DefaultID holds the default value on creation for the id field.
-	bloodgroup.DefaultID = bloodgroupDescID.Default.(func() string)
 	bloodsearchrequestMixin := schema.BloodSearchRequest{}.Mixin()
 	bloodsearchrequestMixinInters0 := bloodsearchrequestMixin[0].Interceptors()
 	bloodsearchrequest.Interceptors[0] = bloodsearchrequestMixinInters0[0]
@@ -130,25 +92,10 @@ func init() {
 	bloodsearchrequestDescID := bloodsearchrequestMixinFields0[0].Descriptor()
 	// bloodsearchrequest.DefaultID holds the default value on creation for the id field.
 	bloodsearchrequest.DefaultID = bloodsearchrequestDescID.Default.(func() string)
-	breedMixin := schema.Breed{}.Mixin()
-	breedMixinInters0 := breedMixin[0].Interceptors()
-	breed.Interceptors[0] = breedMixinInters0[0]
-	breedMixinFields0 := breedMixin[0].Fields()
-	_ = breedMixinFields0
 	breedFields := schema.Breed{}.Fields()
 	_ = breedFields
-	// breedDescCreatedAt is the schema descriptor for created_at field.
-	breedDescCreatedAt := breedMixinFields0[1].Descriptor()
-	// breed.DefaultCreatedAt holds the default value on creation for the created_at field.
-	breed.DefaultCreatedAt = breedDescCreatedAt.Default.(func() time.Time)
-	// breedDescUpdatedAt is the schema descriptor for updated_at field.
-	breedDescUpdatedAt := breedMixinFields0[2].Descriptor()
-	// breed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	breed.DefaultUpdatedAt = breedDescUpdatedAt.Default.(func() time.Time)
-	// breed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	breed.UpdateDefaultUpdatedAt = breedDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// breedDescName is the schema descriptor for name field.
-	breedDescName := breedFields[0].Descriptor()
+	breedDescName := breedFields[1].Descriptor()
 	// breed.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	breed.NameValidator = func() func(string) error {
 		validators := breedDescName.Validators
@@ -165,29 +112,10 @@ func init() {
 			return nil
 		}
 	}()
-	// breedDescID is the schema descriptor for id field.
-	breedDescID := breedMixinFields0[0].Descriptor()
-	// breed.DefaultID holds the default value on creation for the id field.
-	breed.DefaultID = breedDescID.Default.(func() string)
-	locationMixin := schema.Location{}.Mixin()
-	locationMixinInters0 := locationMixin[0].Interceptors()
-	location.Interceptors[0] = locationMixinInters0[0]
-	locationMixinFields0 := locationMixin[0].Fields()
-	_ = locationMixinFields0
 	locationFields := schema.Location{}.Fields()
 	_ = locationFields
-	// locationDescCreatedAt is the schema descriptor for created_at field.
-	locationDescCreatedAt := locationMixinFields0[1].Descriptor()
-	// location.DefaultCreatedAt holds the default value on creation for the created_at field.
-	location.DefaultCreatedAt = locationDescCreatedAt.Default.(func() time.Time)
-	// locationDescUpdatedAt is the schema descriptor for updated_at field.
-	locationDescUpdatedAt := locationMixinFields0[2].Descriptor()
-	// location.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	location.DefaultUpdatedAt = locationDescUpdatedAt.Default.(func() time.Time)
-	// location.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	location.UpdateDefaultUpdatedAt = locationDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// locationDescName is the schema descriptor for name field.
-	locationDescName := locationFields[0].Descriptor()
+	locationDescName := locationFields[1].Descriptor()
 	// location.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	location.NameValidator = func() func(string) error {
 		validators := locationDescName.Validators
@@ -204,10 +132,6 @@ func init() {
 			return nil
 		}
 	}()
-	// locationDescID is the schema descriptor for id field.
-	locationDescID := locationMixinFields0[0].Descriptor()
-	// location.DefaultID holds the default value on creation for the id field.
-	location.DefaultID = locationDescID.Default.(func() string)
 	petMixin := schema.Pet{}.Mixin()
 	petMixinInters0 := petMixin[0].Interceptors()
 	pet.Interceptors[0] = petMixinInters0[0]

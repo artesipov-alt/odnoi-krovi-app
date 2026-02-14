@@ -40,21 +40,6 @@ func (_q *BloodComponentQuery) collectField(ctx context.Context, oneNode bool, o
 	)
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
-		case "createdAt":
-			if _, ok := fieldSeen[bloodcomponent.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, bloodcomponent.FieldCreatedAt)
-				fieldSeen[bloodcomponent.FieldCreatedAt] = struct{}{}
-			}
-		case "updatedAt":
-			if _, ok := fieldSeen[bloodcomponent.FieldUpdatedAt]; !ok {
-				selectedFields = append(selectedFields, bloodcomponent.FieldUpdatedAt)
-				fieldSeen[bloodcomponent.FieldUpdatedAt] = struct{}{}
-			}
-		case "deletedAt":
-			if _, ok := fieldSeen[bloodcomponent.FieldDeletedAt]; !ok {
-				selectedFields = append(selectedFields, bloodcomponent.FieldDeletedAt)
-				fieldSeen[bloodcomponent.FieldDeletedAt] = struct{}{}
-			}
 		case "name":
 			if _, ok := fieldSeen[bloodcomponent.FieldName]; !ok {
 				selectedFields = append(selectedFields, bloodcomponent.FieldName)
@@ -135,21 +120,6 @@ func (_q *BloodGroupQuery) collectField(ctx context.Context, oneNode bool, opCtx
 			_q.WithNamedPets(alias, func(wq *PetQuery) {
 				*wq = *query
 			})
-		case "createdAt":
-			if _, ok := fieldSeen[bloodgroup.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, bloodgroup.FieldCreatedAt)
-				fieldSeen[bloodgroup.FieldCreatedAt] = struct{}{}
-			}
-		case "updatedAt":
-			if _, ok := fieldSeen[bloodgroup.FieldUpdatedAt]; !ok {
-				selectedFields = append(selectedFields, bloodgroup.FieldUpdatedAt)
-				fieldSeen[bloodgroup.FieldUpdatedAt] = struct{}{}
-			}
-		case "deletedAt":
-			if _, ok := fieldSeen[bloodgroup.FieldDeletedAt]; !ok {
-				selectedFields = append(selectedFields, bloodgroup.FieldDeletedAt)
-				fieldSeen[bloodgroup.FieldDeletedAt] = struct{}{}
-			}
 		case "petType":
 			if _, ok := fieldSeen[bloodgroup.FieldPetType]; !ok {
 				selectedFields = append(selectedFields, bloodgroup.FieldPetType)
@@ -382,21 +352,6 @@ func (_q *BreedQuery) collectField(ctx context.Context, oneNode bool, opCtx *gra
 			_q.WithNamedPets(alias, func(wq *PetQuery) {
 				*wq = *query
 			})
-		case "createdAt":
-			if _, ok := fieldSeen[breed.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, breed.FieldCreatedAt)
-				fieldSeen[breed.FieldCreatedAt] = struct{}{}
-			}
-		case "updatedAt":
-			if _, ok := fieldSeen[breed.FieldUpdatedAt]; !ok {
-				selectedFields = append(selectedFields, breed.FieldUpdatedAt)
-				fieldSeen[breed.FieldUpdatedAt] = struct{}{}
-			}
-		case "deletedAt":
-			if _, ok := fieldSeen[breed.FieldDeletedAt]; !ok {
-				selectedFields = append(selectedFields, breed.FieldDeletedAt)
-				fieldSeen[breed.FieldDeletedAt] = struct{}{}
-			}
 		case "name":
 			if _, ok := fieldSeen[breed.FieldName]; !ok {
 				selectedFields = append(selectedFields, breed.FieldName)
@@ -482,21 +437,6 @@ func (_q *LocationQuery) collectField(ctx context.Context, oneNode bool, opCtx *
 			_q.WithNamedUsers(alias, func(wq *UserQuery) {
 				*wq = *query
 			})
-		case "createdAt":
-			if _, ok := fieldSeen[location.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, location.FieldCreatedAt)
-				fieldSeen[location.FieldCreatedAt] = struct{}{}
-			}
-		case "updatedAt":
-			if _, ok := fieldSeen[location.FieldUpdatedAt]; !ok {
-				selectedFields = append(selectedFields, location.FieldUpdatedAt)
-				fieldSeen[location.FieldUpdatedAt] = struct{}{}
-			}
-		case "deletedAt":
-			if _, ok := fieldSeen[location.FieldDeletedAt]; !ok {
-				selectedFields = append(selectedFields, location.FieldDeletedAt)
-				fieldSeen[location.FieldDeletedAt] = struct{}{}
-			}
 		case "name":
 			if _, ok := fieldSeen[location.FieldName]; !ok {
 				selectedFields = append(selectedFields, location.FieldName)

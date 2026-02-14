@@ -113,7 +113,7 @@ const (
 	BreedRefTable = "pets"
 	// BreedRefInverseTable is the table name for the Breed entity.
 	// It exists in this package in order to avoid circular dependency with the "breed" package.
-	BreedRefInverseTable = "breeds"
+	BreedRefInverseTable = "ref_breeds"
 	// BreedRefColumn is the table column denoting the breed_ref relation/edge.
 	BreedRefColumn = "breed_id"
 	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge.

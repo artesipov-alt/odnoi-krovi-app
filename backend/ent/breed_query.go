@@ -302,12 +302,12 @@ func (_q *BreedQuery) WithPets(opts ...func(*PetQuery)) *BreedQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"createdAt"`
+//		Name string `json:"name"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Breed.Query().
-//		GroupBy(breed.FieldCreatedAt).
+//		GroupBy(breed.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *BreedQuery) GroupBy(field string, fields ...string) *BreedGroupBy {
@@ -325,11 +325,11 @@ func (_q *BreedQuery) GroupBy(field string, fields ...string) *BreedGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"createdAt"`
+//		Name string `json:"name"`
 //	}
 //
 //	client.Breed.Query().
-//		Select(breed.FieldCreatedAt).
+//		Select(breed.FieldName).
 //		Scan(ctx, &v)
 func (_q *BreedQuery) Select(fields ...string) *BreedSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

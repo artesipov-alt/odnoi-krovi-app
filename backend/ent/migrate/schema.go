@@ -9,35 +9,29 @@ import (
 )
 
 var (
-	// BloodComponentsColumns holds the columns for the "blood_components" table.
-	BloodComponentsColumns = []*schema.Column{
+	// RefBloodcColumns holds the columns for the "ref_bloodc" table.
+	RefBloodcColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 	}
-	// BloodComponentsTable holds the schema information for the "blood_components" table.
-	BloodComponentsTable = &schema.Table{
-		Name:       "blood_components",
-		Columns:    BloodComponentsColumns,
-		PrimaryKey: []*schema.Column{BloodComponentsColumns[0]},
+	// RefBloodcTable holds the schema information for the "ref_bloodc" table.
+	RefBloodcTable = &schema.Table{
+		Name:       "ref_bloodc",
+		Columns:    RefBloodcColumns,
+		PrimaryKey: []*schema.Column{RefBloodcColumns[0]},
 	}
-	// BloodGroupsColumns holds the columns for the "blood_groups" table.
-	BloodGroupsColumns = []*schema.Column{
+	// RefBloodgColumns holds the columns for the "ref_bloodg" table.
+	RefBloodgColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "pet_type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
 		{Name: "blood_group", Type: field.TypeString, Size: 50},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 	}
-	// BloodGroupsTable holds the schema information for the "blood_groups" table.
-	BloodGroupsTable = &schema.Table{
-		Name:       "blood_groups",
-		Columns:    BloodGroupsColumns,
-		PrimaryKey: []*schema.Column{BloodGroupsColumns[0]},
+	// RefBloodgTable holds the schema information for the "ref_bloodg" table.
+	RefBloodgTable = &schema.Table{
+		Name:       "ref_bloodg",
+		Columns:    RefBloodgColumns,
+		PrimaryKey: []*schema.Column{RefBloodgColumns[0]},
 	}
 	// BloodRequestsColumns holds the columns for the "blood_requests" table.
 	BloodRequestsColumns = []*schema.Column{
@@ -70,34 +64,28 @@ var (
 			},
 		},
 	}
-	// BreedsColumns holds the columns for the "breeds" table.
-	BreedsColumns = []*schema.Column{
+	// RefBreedsColumns holds the columns for the "ref_breeds" table.
+	RefBreedsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
 	}
-	// BreedsTable holds the schema information for the "breeds" table.
-	BreedsTable = &schema.Table{
-		Name:       "breeds",
-		Columns:    BreedsColumns,
-		PrimaryKey: []*schema.Column{BreedsColumns[0]},
+	// RefBreedsTable holds the schema information for the "ref_breeds" table.
+	RefBreedsTable = &schema.Table{
+		Name:       "ref_breeds",
+		Columns:    RefBreedsColumns,
+		PrimaryKey: []*schema.Column{RefBreedsColumns[0]},
 	}
-	// LocationsColumns holds the columns for the "locations" table.
-	LocationsColumns = []*schema.Column{
+	// RefLocationsColumns holds the columns for the "ref_locations" table.
+	RefLocationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 	}
-	// LocationsTable holds the schema information for the "locations" table.
-	LocationsTable = &schema.Table{
-		Name:       "locations",
-		Columns:    LocationsColumns,
-		PrimaryKey: []*schema.Column{LocationsColumns[0]},
+	// RefLocationsTable holds the schema information for the "ref_locations" table.
+	RefLocationsTable = &schema.Table{
+		Name:       "ref_locations",
+		Columns:    RefLocationsColumns,
+		PrimaryKey: []*schema.Column{RefLocationsColumns[0]},
 	}
 	// PetsColumns holds the columns for the "pets" table.
 	PetsColumns = []*schema.Column{
@@ -131,15 +119,15 @@ var (
 		PrimaryKey: []*schema.Column{PetsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "pets_blood_groups_pets",
+				Symbol:     "pets_ref_bloodg_pets",
 				Columns:    []*schema.Column{PetsColumns[16]},
-				RefColumns: []*schema.Column{BloodGroupsColumns[0]},
+				RefColumns: []*schema.Column{RefBloodgColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "pets_breeds_pets",
+				Symbol:     "pets_ref_breeds_pets",
 				Columns:    []*schema.Column{PetsColumns[17]},
-				RefColumns: []*schema.Column{BreedsColumns[0]},
+				RefColumns: []*schema.Column{RefBreedsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
@@ -270,20 +258,20 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_locations_users",
+				Symbol:     "users_ref_locations_users",
 				Columns:    []*schema.Column{UsersColumns[14]},
-				RefColumns: []*schema.Column{LocationsColumns[0]},
+				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		BloodComponentsTable,
-		BloodGroupsTable,
+		RefBloodcTable,
+		RefBloodgTable,
 		BloodRequestsTable,
-		BreedsTable,
-		LocationsTable,
+		RefBreedsTable,
+		RefLocationsTable,
 		PetsTable,
 		PetAnalysesTable,
 		PetBonusesTable,
@@ -294,24 +282,24 @@ var (
 )
 
 func init() {
-	BloodComponentsTable.Annotation = &entsql.Annotation{
-		Table: "blood_components",
+	RefBloodcTable.Annotation = &entsql.Annotation{
+		Table: "ref_bloodc",
 	}
-	BloodGroupsTable.Annotation = &entsql.Annotation{
-		Table: "blood_groups",
+	RefBloodgTable.Annotation = &entsql.Annotation{
+		Table: "ref_bloodg",
 	}
 	BloodRequestsTable.ForeignKeys[0].RefTable = PetsTable
 	BloodRequestsTable.Annotation = &entsql.Annotation{
 		Table: "blood_requests",
 	}
-	BreedsTable.Annotation = &entsql.Annotation{
-		Table: "breeds",
+	RefBreedsTable.Annotation = &entsql.Annotation{
+		Table: "ref_breeds",
 	}
-	LocationsTable.Annotation = &entsql.Annotation{
-		Table: "locations",
+	RefLocationsTable.Annotation = &entsql.Annotation{
+		Table: "ref_locations",
 	}
-	PetsTable.ForeignKeys[0].RefTable = BloodGroupsTable
-	PetsTable.ForeignKeys[1].RefTable = BreedsTable
+	PetsTable.ForeignKeys[0].RefTable = RefBloodgTable
+	PetsTable.ForeignKeys[1].RefTable = RefBreedsTable
 	PetsTable.ForeignKeys[2].RefTable = PetBonusesTable
 	PetsTable.ForeignKeys[3].RefTable = PetHealthsTable
 	PetsTable.ForeignKeys[4].RefTable = PetTreatmentsTable
@@ -332,7 +320,7 @@ func init() {
 	PetTreatmentsTable.Annotation = &entsql.Annotation{
 		Table: "pet_treatments",
 	}
-	UsersTable.ForeignKeys[0].RefTable = LocationsTable
+	UsersTable.ForeignKeys[0].RefTable = RefLocationsTable
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
 	}

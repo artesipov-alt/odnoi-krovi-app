@@ -63,7 +63,7 @@ const (
 	LocationTable = "users"
 	// LocationInverseTable is the table name for the Location entity.
 	// It exists in this package in order to avoid circular dependency with the "location" package.
-	LocationInverseTable = "locations"
+	LocationInverseTable = "ref_locations"
 	// LocationColumn is the table column denoting the location relation/edge.
 	LocationColumn = "location_id"
 )

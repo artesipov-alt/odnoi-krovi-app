@@ -302,12 +302,12 @@ func (_q *LocationQuery) WithUsers(opts ...func(*UserQuery)) *LocationQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"createdAt"`
+//		Name string `json:"name"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Location.Query().
-//		GroupBy(location.FieldCreatedAt).
+//		GroupBy(location.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *LocationQuery) GroupBy(field string, fields ...string) *LocationGroupBy {
@@ -325,11 +325,11 @@ func (_q *LocationQuery) GroupBy(field string, fields ...string) *LocationGroupB
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"createdAt"`
+//		Name string `json:"name"`
 //	}
 //
 //	client.Location.Query().
-//		Select(location.FieldCreatedAt).
+//		Select(location.FieldName).
 //		Scan(ctx, &v)
 func (_q *LocationQuery) Select(fields ...string) *LocationSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

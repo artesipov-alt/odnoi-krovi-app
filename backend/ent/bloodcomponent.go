@@ -5,7 +5,6 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -17,12 +16,6 @@ type BloodComponent struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"createdAt"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updatedAt"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deletedAt"`
 	// Name holds the value of the "name" field.
 	Name         string `json:"name"`
 	selectValues sql.SelectValues
@@ -35,8 +28,6 @@ func (*BloodComponent) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bloodcomponent.FieldID, bloodcomponent.FieldName:
 			values[i] = new(sql.NullString)
-		case bloodcomponent.FieldCreatedAt, bloodcomponent.FieldUpdatedAt, bloodcomponent.FieldDeletedAt:
-			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -57,25 +48,6 @@ func (_m *BloodComponent) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
-			}
-		case bloodcomponent.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				_m.CreatedAt = value.Time
-			}
-		case bloodcomponent.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				_m.UpdatedAt = value.Time
-			}
-		case bloodcomponent.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				_m.DeletedAt = new(time.Time)
-				*_m.DeletedAt = value.Time
 			}
 		case bloodcomponent.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -119,17 +91,6 @@ func (_m *BloodComponent) String() string {
 	var builder strings.Builder
 	builder.WriteString("BloodComponent(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("created_at=")
-	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := _m.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteByte(')')

@@ -19,6 +19,10 @@ type Location struct {
 // Fields of the Location.
 func (Location) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").
+			Unique().
+			Immutable().
+			StructTag(`json:"id"`),
 		field.String("name").
 			MaxLen(255).
 			NotEmpty().
@@ -33,18 +37,11 @@ func (Location) Edges() []ent.Edge {
 	}
 }
 
-// Mixin of the Location.
-func (Location) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		StandardMixin{Prefix: LocationPrefix},
-	}
-}
-
 // Annotations of the Location.
 func (Location) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{
-			Table: "locations",
+			Table: "ref_locations",
 		},
 	}
 }

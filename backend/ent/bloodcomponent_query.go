@@ -264,12 +264,12 @@ func (_q *BloodComponentQuery) Clone() *BloodComponentQuery {
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"createdAt"`
+//		Name string `json:"name"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.BloodComponent.Query().
-//		GroupBy(bloodcomponent.FieldCreatedAt).
+//		GroupBy(bloodcomponent.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *BloodComponentQuery) GroupBy(field string, fields ...string) *BloodComponentGroupBy {
@@ -287,11 +287,11 @@ func (_q *BloodComponentQuery) GroupBy(field string, fields ...string) *BloodCom
 // Example:
 //
 //	var v []struct {
-//		CreatedAt time.Time `json:"createdAt"`
+//		Name string `json:"name"`
 //	}
 //
 //	client.BloodComponent.Query().
-//		Select(bloodcomponent.FieldCreatedAt).
+//		Select(bloodcomponent.FieldName).
 //		Scan(ctx, &v)
 func (_q *BloodComponentQuery) Select(fields ...string) *BloodComponentSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
