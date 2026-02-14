@@ -41,6 +41,7 @@ import {
 } from '../models/index';
 
 export interface AddPetToBloodRequestPoolRequest {
+    userId: string;
     bloodSearchPetRequest: Omit<BloodSearchPetRequest, '$schema'>;
 }
 
@@ -78,6 +79,13 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Добавить питомца в пул поиска крови
      */
     async addPetToBloodRequestPoolRaw(requestParameters: AddPetToBloodRequestPoolRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchPetResponse>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling addPetToBloodRequestPool().'
+            );
+        }
+
         if (requestParameters['bloodSearchPetRequest'] == null) {
             throw new runtime.RequiredError(
                 'bloodSearchPetRequest',
@@ -93,6 +101,7 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
 
 
         let urlPath = `/v1/blood-request/pool`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,

@@ -236,10 +236,10 @@ func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*d
 }
 
 func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+	slog.DebugContext(ctx, "getting all breeds")
 	breeds, err := h.breedRepo.GetAll(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get all breeds", "error", err.Error())
-		return nil, apperrors.Internal(err, "Ошибка сервера при получении пород")
+		return nil, err
 	}
 
 	items := make([]dto.ReferenceItem, len(breeds))
@@ -254,10 +254,10 @@ func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto
 }
 
 func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+	slog.DebugContext(ctx, "getting all locations")
 	locations, err := h.locationRepo.GetAll(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get all locations", "error", err.Error())
-		return nil, apperrors.Internal(err, "Ошибка сервера при получении локаций")
+		return nil, err
 	}
 
 	items := make([]dto.ReferenceItem, len(locations))
@@ -272,9 +272,9 @@ func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*
 }
 
 func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTypeQuery) (*dto.ReferenceResponse, error) {
+	slog.DebugContext(ctx, "getting breeds by type", "pet_type", input.PetType)
 	petTypeStr := input.PetType
 	if petTypeStr == "" {
-		slog.DebugContext(ctx, "pet type not specified for GetBreedsByType")
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")
 	}
 
@@ -286,14 +286,12 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTy
 		}
 	}
 	if !isValid {
-		slog.DebugContext(ctx, "invalid pet type for GetBreedsByType", "pet_type", petTypeStr)
 		return nil, apperrors.BadRequest("Неверный тип животного")
 	}
 
 	breeds, err := h.breedRepo.GetByPetType(ctx, breed.Type(petTypeStr))
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get breeds by pet type", "pet_type", petTypeStr, "error", err.Error())
-		return nil, apperrors.Internal(err, "Ошибка сервера при получении пород по типу животного")
+		return nil, err
 	}
 
 	items := make([]dto.ReferenceItem, len(breeds))
@@ -308,10 +306,10 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTy
 }
 
 func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+	slog.DebugContext(ctx, "getting blood components")
 	bloodComponents, err := h.bloodRepo.AllComponents(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get all blood components", "error", err.Error())
-		return nil, apperrors.Internal(err, "Ошибка сервера при получении компонентов крови")
+		return nil, err
 	}
 
 	items := make([]dto.ReferenceItem, len(bloodComponents))
@@ -326,16 +324,15 @@ func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct
 }
 
 func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTypePath) (*dto.ReferenceResponse, error) {
+	slog.DebugContext(ctx, "getting blood groups", "pet_type", input.PetType)
 	petType := input.PetType
 	if petType == "" {
-		slog.DebugContext(ctx, "pet type not specified for GetBloodGroups")
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")
 	}
 
 	bloodGroups, err := h.bloodRepo.BloodGroupsByPetType(ctx, bloodgroup.PetType(petType))
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get blood groups by pet type", "pet_type", petType, "error", err.Error())
-		return nil, apperrors.Internal(err, "Ошибка сервера при получении групп крови по типу животного")
+		return nil, err
 	}
 
 	items := make([]dto.ReferenceItem, len(bloodGroups))

@@ -121,16 +121,14 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 	dto.IDPathStr
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
+	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
 	usr, err := h.userService.GetUserByID(ctx, input.ID, services.UserOptions{
 		WithPets: input.WithPets,
 	})
 
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrUserNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get user")
+		return nil, err
 	}
 
 	return &dto.UserResponse{Body: h.toDTO(usr)}, nil
@@ -139,6 +137,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 	Body dto.UserRegistrationSimple
 }) (*dto.UserResponse, error) {
+	slog.DebugContext(ctx, "registering user simple", "telegram_id", input.Body.TelegramID)
 
 	var userData ent.CreateUserInput
 
@@ -148,12 +147,10 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 
 	u, err := h.userService.RegisterUserSimple(ctx, &userData)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to register user simple", "telegram_id", input.Body.TelegramID, "error", err.Error())
 		return nil, err
 	}
 
 	if u == nil {
-		slog.ErrorContext(ctx, "registration returned nil user", "telegram_id", input.Body.TelegramID)
 		return nil, apperrors.Internal(errors.New("registration returned nil user"), "ошибка при создании пользователя")
 	}
 
@@ -164,25 +161,21 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	dto.IDPathStr
 	Body dto.UserUpdate
 }) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "updating user", "user_id", input.ID)
 
 	var user ent.UpdateUserInput
 
 	if err := copier.Copy(&user, &input.Body); err != nil {
-		slog.ErrorContext(ctx, "failed to copy user update data", "error", err.Error())
 		return nil, apperrors.Internal(err, "failed to copy user update data")
 	}
 
 	if err := h.userService.Update(ctx, input.ID, &user); err != nil {
-		// Проверяем специфичные ошибки и возвращаем соответствующие коды
-		if err == apperrors.ErrUserNotFound || err == apperrors.ErrLocationNotFound {
-			return nil, err
-		}
-		return nil, apperrors.Internal(err, "failed to update user")
+		return nil, err
 	}
 
 	return &dto.MessageResponse{
 		Body: dto.MessageBody{
-			Message: "Пользователь успешно обновлен",
+			Message: "Пользователь обновлен",
 		},
 	}, nil
 }
@@ -191,64 +184,62 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 	dto.IDPathInt
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
+	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
 	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, services.UserOptions{
 		WithPets: input.WithPets,
 	})
 
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrUserNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get user by telegram ID")
+		return nil, err
 	}
 
 	return &dto.UserResponse{Body: h.toDTO(usr)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "deleting user", "user_id", input.ID)
 	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "failed to delete user", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
 	return &dto.MessageResponse{
 		Body: dto.MessageBody{
-			Message: "Пользователь успешно удален",
+			Message: "Пользователь удален",
 		},
 	}, nil
 }
 
 func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "resetting user", "user_id", input.ID)
 	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "failed to reset user", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
 	return &dto.MessageResponse{
 		Body: dto.MessageBody{
-			Message: "Пользователь успешно сброшен к заводским настройкам",
+			Message: "Пользователь сброшен к заводским настройкам",
 		},
 	}, nil
 }
 
 func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "restoring user", "user_id", input.ID)
 	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
-		slog.ErrorContext(ctx, "failed to restore user", "user_id", input.ID, "error", err.Error())
 		return nil, err
 	}
 
 	return &dto.MessageResponse{
 		Body: dto.MessageBody{
-			Message: "Пользователь успешно восстановлен",
+			Message: "Пользователь восстановлен",
 		},
 	}, nil
 }
 
 func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
+	slog.DebugContext(ctx, "getting deleted users")
 	users, err := h.userService.GetDeletedUsers(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to get deleted users", "error", err.Error())
 		return nil, err
 	}
 
@@ -259,7 +250,7 @@ func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.U
 
 	return &dto.UsersDeletedResponse{
 		Body: dto.UsersDeletedBody{
-			Message: "Удаленные пользователи успешно получены",
+			Message: "Удаленные пользователи получены",
 			Users:   userDTOs,
 		},
 	}, nil

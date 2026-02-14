@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -50,6 +51,7 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 	dto.IDPathStr
 	dto.PhotoPreloadQuery
 }) (*dto.UploadURLResponse, error) {
+	slog.DebugContext(ctx, "getting presign URL", "entity_id", input.ID)
 	var preloads []string
 	if input.ForPetAvatar {
 		preloads = append(preloads, "pet_avatar")
@@ -62,14 +64,14 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 	}
 
 	if len(preloads) != 1 {
-		return nil, huma.Error400BadRequest("Неверный запрос, Выбрать можно только один query запрос.")
+		return nil, apperrors.BadRequest("Неверный запрос, Выбрать можно только один query запрос.")
 	}
 	// Если количество фотографий не передано, устанавливаем дефолтное значение 1
 	if input.PhotosCount == 0 {
 		input.PhotosCount = 1
 	}
 	if input.PhotosCount > 5 {
-		return nil, huma.Error400BadRequest("Максимальное количество фотографий - 5")
+		return nil, apperrors.BadRequest("Максимальное количество фотографий - 5")
 	}
 
 	uploadInfos, err := h.fileService.GetPresignURLs(ctx, input.ID, input.PhotosCount, preloads...)
@@ -78,7 +80,7 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 	}
 
 	if len(uploadInfos) == 0 {
-		return nil, huma.Error500InternalServerError("Не удалось получить ссылки для загрузки.")
+		return nil, apperrors.Internal(nil, "Не удалось получить ссылки для загрузки.")
 	}
 
 	items := make([]dto.UploadItem, len(uploadInfos))
@@ -115,9 +117,10 @@ func getEntityType(id string) string {
 func (h *FileHandler) ConfirmUpload(ctx context.Context, input *struct {
 	Body dto.ConfirmUploadRequest
 }) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "confirming upload", "entity_id", input.Body.EntityID)
 	entityType := getEntityType(input.Body.EntityID)
 	if entityType == "" {
-		return nil, huma.Error400BadRequest("Неверный ID сущности")
+		return nil, apperrors.BadRequest("Неверный ID сущности")
 	}
 
 	var preload string
@@ -132,13 +135,12 @@ func (h *FileHandler) ConfirmUpload(ctx context.Context, input *struct {
 
 	err := h.fileService.ConfirmUploads(ctx, input.Body.EntityID, input.Body.Paths, preload)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to confirm uploads", "entity_id", input.Body.EntityID, "type", entityType, "error", err.Error())
 		return nil, err
 	}
 
 	return &dto.MessageResponse{
 		Body: dto.MessageBody{
-			Message: "Фото успешно подтверждены и добавлены",
+			Message: "Фото подтверждены и добавлены",
 		},
 	}, nil
 }

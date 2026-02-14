@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -106,6 +105,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	Body dto.PetCreate
 }) (*dto.PetResponse, error) {
+	slog.DebugContext(ctx, "creating pet", "user_id", input.ID)
 	// Рассчитываем BirthDate, если нужно
 	body := input.Body
 	if body.BirthDate == nil && (body.AgeYears > 0 || body.AgeMonths > 0) {
@@ -117,8 +117,12 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	// Копируем в CreatePetInput
 	var petInput ent.CreatePetInput
 	if err := copier.Copy(&petInput, &body); err != nil {
-		slog.ErrorContext(ctx, "failed to copy pet create data", "error", err.Error())
 		return nil, apperrors.Internal(err, "failed to copy pet create data")
+	}
+
+	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
+	if body.BreedID != "" {
+		petInput.BreedRefID = &body.BreedID
 	}
 
 	// Копируем health
@@ -140,7 +144,6 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	if body.Treatments != nil {
 		treatmentsInput = &ent.CreatePetTreatmentInput{}
 		if err := copier.Copy(treatmentsInput, body.Treatments); err != nil {
-			slog.ErrorContext(ctx, "failed to copy treatments data", "error", err.Error())
 			return nil, apperrors.Internal(err, "failed to copy treatments data")
 		}
 	}
@@ -177,28 +180,122 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	if body.Bonuses != nil {
 		bonusesInput = &ent.CreatePetBonusInput{}
 		if err := copier.Copy(bonusesInput, body.Bonuses); err != nil {
-			slog.ErrorContext(ctx, "failed to copy bonuses data", "error", err.Error())
 			return nil, apperrors.Internal(err, "failed to copy bonuses data")
 		}
 	}
 
 	pet, err := h.petService.CreatePet(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrUserNotFound) {
-			slog.DebugContext(ctx, "user not found for pet creation", "user_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Пользователь не найден")
-		}
-		slog.ErrorContext(ctx, "failed to create pet", "user_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+		return nil, err
 	}
 
 	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
+}
+
+func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
+	dto.IDPathStr
+	Body dto.PetUpdate
+}) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "updating pet", "pet_id", input.ID)
+	// Рассчитываем BirthDate, если нужно
+	body := input.Body
+	if body.BirthDate == nil && (body.AgeYears != nil || body.AgeMonths != nil) {
+		ageYears := 0
+		if body.AgeYears != nil {
+			ageYears = *body.AgeYears
+		}
+		ageMonths := 0
+		if body.AgeMonths != nil {
+			ageMonths = *body.AgeMonths
+		}
+		birthDate := time.Now().AddDate(-ageYears, -ageMonths, 0)
+		birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+		body.BirthDate = &birthDate
+	}
+
+	// Копируем в UpdatePetInput
+	var petInput ent.UpdatePetInput
+	if err := copier.Copy(&petInput, &body); err != nil {
+		return nil, apperrors.Internal(err, "failed to copy pet update data")
+	}
+
+	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
+	if body.BreedID != nil {
+		petInput.BreedRefID = body.BreedID
+	}
+
+	// Копируем health
+	var healthInput *ent.UpdatePetHealthInput
+	if body.Health != nil {
+		healthInput = &ent.UpdatePetHealthInput{}
+		if body.Health.HealthStatus != nil {
+			status := pethealth.HealthStatus(*body.Health.HealthStatus)
+			healthInput.HealthStatus = &status
+		}
+		healthInput.LastDonation = body.Health.LastDonation
+		healthInput.Transfused = body.Health.Transfused
+		healthInput.Medications = body.Health.Medications
+		healthInput.SurgicalInterventions = body.Health.SurgicalInterventions
+	}
+
+	// Копируем treatments
+	var treatmentsInput *ent.UpdatePetTreatmentInput
+	if body.Treatments != nil {
+		treatmentsInput = &ent.UpdatePetTreatmentInput{}
+		if err := copier.Copy(treatmentsInput, body.Treatments); err != nil {
+			return nil, apperrors.Internal(err, "failed to copy treatments update data")
+		}
+	}
+
+	// Копируем analyses
+	var analysesInput []*ent.UpdatePetAnalysisInput
+	if body.Analyses != nil {
+		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
+			for _, a := range group {
+				var ai ent.UpdatePetAnalysisInput
+				ai.AnalysisName = &name
+				if a.AnalysisDate != nil {
+					ai.AnalysisDate = a.AnalysisDate
+				}
+				if a.AnalysisType != nil {
+					at := petanalysis.AnalysisType(*a.AnalysisType)
+					ai.AnalysisType = &at
+				}
+				analysesInput = append(analysesInput, &ai)
+			}
+		}
+		processGroup(body.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
+		processGroup(body.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
+		processGroup(body.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
+		processGroup(body.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
+		processGroup(body.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
+		processGroup(body.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
+		processGroup(body.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
+		processGroup(body.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
+	}
+
+	// Копируем bonuses
+	var bonusesInput *ent.UpdatePetBonusInput
+	if body.Bonuses != nil {
+		bonusesInput = &ent.UpdatePetBonusInput{}
+		if err := copier.Copy(bonusesInput, body.Bonuses); err != nil {
+			return nil, apperrors.Internal(err, "failed to copy bonuses update data")
+		}
+	}
+
+	_, err := h.petService.Update(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.MessageResponse{Body: dto.MessageBody{Message: "Питомец обновлен"}}, nil
 }
 
 func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	dto.IDPathStr
 	dto.PetPreloadQuery
 }) (*dto.PetResponse, error) {
+	slog.DebugContext(ctx, "getting pet", "pet_id", input.ID)
 	opts := services.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
@@ -219,6 +316,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	dto.PetPreloadQuery
 }) (*dto.PetsResponse, error) {
+	slog.DebugContext(ctx, "getting user pets", "user_id", input.ID)
 	opts := services.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
@@ -235,140 +333,33 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	return &dto.PetsResponse{Body: h.toPetsDTO(pets)}, nil
 }
 
-func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.PetUpdate
-}) (*dto.MessageResponse, error) {
-	// Рассчитываем BirthDate, если нужно
-	if input.Body.BirthDate == nil && (input.Body.AgeYears != nil || input.Body.AgeMonths != nil) {
-		ageYears := 0
-		if input.Body.AgeYears != nil {
-			ageYears = *input.Body.AgeYears
-		}
-		ageMonths := 0
-		if input.Body.AgeMonths != nil {
-			ageMonths = *input.Body.AgeMonths
-		}
-		if ageYears > 0 || ageMonths > 0 {
-			birthDate := time.Now().AddDate(-ageYears, -ageMonths, 0)
-			birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
-			input.Body.BirthDate = &birthDate
-		}
-	}
-
-	// Копируем данные в UpdatePetInput
-	var petInput ent.UpdatePetInput
-	if err := copier.Copy(&petInput, &input.Body); err != nil {
-		slog.ErrorContext(ctx, "failed to copy pet update data", "error", err.Error())
-		return nil, apperrors.Internal(err, "failed to copy pet update data")
-	}
-
-	// Подготавливаем связанные данные
-	var health *ent.UpdatePetHealthInput
-	if input.Body.Health != nil {
-		health = &ent.UpdatePetHealthInput{}
-		if err := copier.Copy(health, &input.Body.Health); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy pet health data")
-		}
-	}
-
-	var treatments *ent.UpdatePetTreatmentInput
-	if input.Body.Treatments != nil {
-		treatments = &ent.UpdatePetTreatmentInput{}
-		if err := copier.Copy(treatments, &input.Body.Treatments); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy treatments data")
-		}
-	}
-
-	var analyses []*ent.UpdatePetAnalysisInput
-	if input.Body.Analyses != nil {
-		analyses = []*ent.UpdatePetAnalysisInput{}
-		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
-			for _, a := range group {
-				entA := &ent.UpdatePetAnalysisInput{
-					AnalysisName: &name,
-					AnalysisDate: a.AnalysisDate,
-				}
-				if a.AnalysisType != nil {
-					at := petanalysis.AnalysisType(*a.AnalysisType)
-					entA.AnalysisType = &at
-				}
-				analyses = append(analyses, entA)
-			}
-		}
-
-		processGroup(input.Body.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
-		processGroup(input.Body.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
-		processGroup(input.Body.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
-		processGroup(input.Body.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
-		processGroup(input.Body.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
-		processGroup(input.Body.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
-		processGroup(input.Body.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
-		processGroup(input.Body.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
-	}
-
-	var bonuses *ent.UpdatePetBonusInput
-	if input.Body.Bonuses != nil {
-		bonuses = &ent.UpdatePetBonusInput{}
-		if err := copier.Copy(bonuses, &input.Body.Bonuses); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy bonuses data")
-		}
-	}
-
-	// Обновляем питомца и все связанные данные одним вызовом
-	_, err := h.petService.Update(ctx, input.ID, &petInput, health, treatments, analyses, bonuses)
-	if err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for update", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to update pet", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
-	}
-
-	resp := &dto.MessageResponse{}
-	resp.Body.Message = "Питомец успешно обновлен"
-	return resp, nil
-}
-
 func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "deleting pet", "pet_id", input.ID)
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for deletion", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to delete pet", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+		return nil, err
 	}
 
 	resp := &dto.MessageResponse{}
-	resp.Body.Message = "Питомец успешно удален"
+	resp.Body.Message = "Питомец удален"
 	return resp, nil
 }
 
 func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
+	slog.DebugContext(ctx, "validating donor", "pet_id", input.ID)
 	// Загружаем все связанные данные для полной валидации
-	p, err := h.petService.GetPetQuery(ctx, input.ID).WithHealth().WithTreatments().WithAnalyses().WithBonuses().Only(ctx)
+	p, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{WithAll: true})
 	if err != nil {
-		if errors.Is(err, apperrors.ErrPetNotFound) {
-			slog.DebugContext(ctx, "pet not found for donor validation", "pet_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Питомец не найден")
-		}
-		slog.ErrorContext(ctx, "failed to get pet for donor validation", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Внутренняя ошибка сервера")
+		return nil, err
 	}
 
 	// Применяем валидацию: пересчитываем и сохраняем факторы
 	_, _, err = h.petService.ApplyValidation(ctx, p.ID)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to apply validation", "pet_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Ошибка валидации")
+		return nil, err
 	}
 
 	// Возвращаем обновлённый DTO (факторы теперь сохранены и будут включены)
-	resp := &dto.PetResponse{}
-	resp.Body = h.toDTO(p)
-	return resp, nil
+	return &dto.PetResponse{Body: h.toDTO(p)}, nil
 }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа

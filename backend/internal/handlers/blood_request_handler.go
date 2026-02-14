@@ -2,13 +2,11 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"log/slog" // Import slog
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
@@ -107,18 +105,15 @@ func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
+	dto.PetUserIDPath
 	Body dto.BloodSearchPetRequest
 }) (*dto.BloodRequestCreateResponse, error) {
+	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
 	bloodReq := mapDTOToBloodRequest(input.Body)
 
 	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrBloodRequestAlreadyExists) {
-			slog.DebugContext(ctx, "blood request already exists for pet", "pet_id", input.Body.PetID, "error", err.Error())
-			return nil, huma.Error409Conflict("Заявка на поиск крови для этого питомца уже существует")
-		}
-		slog.ErrorContext(ctx, "failed to create blood request", "pet_id", input.Body.PetID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
+		return nil, err
 	}
 
 	return &dto.BloodRequestCreateResponse{Body: dto.BloodSearchPetResponse{
@@ -131,6 +126,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
 	Body dto.BloodSearchFilterRequest
 }) (*dto.BloodRequestsResponse, error) {
+	slog.DebugContext(ctx, "getting pets from blood request pool", "filters", input.Body)
 	filters := make(map[string]any)
 	if input.Body.PetID != "" {
 		filters["pet_id"] = input.Body.PetID
@@ -141,8 +137,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 
 	requests, err := h.service.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to list blood requests", "filters", filters, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
+		return nil, err
 	}
 
 	dtos := make([]dto.BloodSearchPetRequest, len(requests))
@@ -154,30 +149,22 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
-	result, err := h.service.GetRequestByID(ctx, input.ID)
+	slog.DebugContext(ctx, "getting blood request by ID", "request_id", input.ID)
+	bloodReq, err := h.service.GetRequestByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-			slog.DebugContext(ctx, "blood request not found", "request_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Заявка не найдена")
-		}
-		slog.ErrorContext(ctx, "failed to get blood request by ID", "request_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
+		return nil, err
 	}
 
-	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(result)}, nil
+	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq)}, nil
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
 	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
-		if errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-			slog.DebugContext(ctx, "blood request not found for deletion", "request_id", input.ID, "error", err.Error())
-			return nil, huma.Error404NotFound("Заявка не найдена")
-		}
-		slog.ErrorContext(ctx, "failed to delete blood request", "request_id", input.ID, "error", err.Error())
-		return nil, huma.Error500InternalServerError("Ошибка сервера")
+		return nil, err
 	}
 
 	resp := &dto.MessageResponse{}
-	resp.Body.Message = "Заявка успешно удалена"
+	resp.Body.Message = "Заявка удалена"
 	return resp, nil
 }

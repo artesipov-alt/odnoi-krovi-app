@@ -95,6 +95,12 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 	if input.ReproductiveStatus != nil && string(*input.ReproductiveStatus) == "" {
 		input.ReproductiveStatus = nil
 	}
+	if input.BloodGroup != nil && *input.BloodGroup == "" {
+		input.BloodGroup = nil
+	}
+	if input.ChipNumber != nil && *input.ChipNumber == "" {
+		input.ChipNumber = nil
+	}
 
 	// Валидируем тип животного
 	if err := pet.TypeValidator(input.Type); err != nil {
@@ -249,7 +255,6 @@ func (s *PetServiceImpl) GetPet(ctx context.Context, petID string, opts PetPrelo
 }
 
 // GetUserPets получает всех питомцев пользователя с preload связей
-// GetUserPets получает всех питомцев пользователя с preload связей
 func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
 	uquery := s.userRepo.GetQueryByID(ctx, userID)
@@ -296,6 +301,28 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts Pe
 
 // Update обновляет питомца и его связанные сущности
 func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error) {
+	// Нормализуем опциональные поля: конвертируем пустые строки в nil
+	if petInput != nil {
+		if petInput.Name != nil && *petInput.Name == "" {
+			petInput.Name = nil
+		}
+		if petInput.Gender != nil && string(*petInput.Gender) == "" {
+			petInput.Gender = nil
+		}
+		if petInput.LivingCondition != nil && string(*petInput.LivingCondition) == "" {
+			petInput.LivingCondition = nil
+		}
+		if petInput.ReproductiveStatus != nil && string(*petInput.ReproductiveStatus) == "" {
+			petInput.ReproductiveStatus = nil
+		}
+		if petInput.BloodGroup != nil && *petInput.BloodGroup == "" {
+			petInput.BloodGroup = nil
+		}
+		if petInput.ChipNumber != nil && *petInput.ChipNumber == "" {
+			petInput.ChipNumber = nil
+		}
+	}
+
 	// Валидируем основные данные питомца
 	if petInput != nil {
 		if petInput.Type != nil && *petInput.Type != "" {
@@ -320,10 +347,9 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 		}
 		if petInput.ReproductiveStatus != nil && string(*petInput.ReproductiveStatus) != "" {
 			if err := pet.ReproductiveStatusValidator(*petInput.ReproductiveStatus); err != nil {
-				return nil, apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
+				return nil, apperrors.Validation("неверный статус репродукции", nil).WithInternal(err)
 			}
 		}
-
 	}
 
 	// Валидируем связанные данные
