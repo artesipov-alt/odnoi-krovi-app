@@ -374,8 +374,7 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.
 
 func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
 	// Загружаем все связанные данные для полной валидации
-	preloads := []string{"Health", "Treatments", "Analyses", "Bonuses"}
-	p, err := h.petService.GetPetByID(ctx, input.ID, preloads...)
+	p, err := h.petService.GetPetQuery(ctx, input.ID).WithHealth().WithTreatments().WithAnalyses().WithBonuses().Only(ctx)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrPetNotFound) {
 			slog.DebugContext(ctx, "pet not found for donor validation", "pet_id", input.ID, "error", err.Error())

@@ -26,39 +26,6 @@ func NewEntPetRepository(client *ent.Client) *EntPetRepository {
 	}
 }
 
-// nillable возвращает указатель на значение, если оно не является нулевым для своего типа, иначе nil.
-func nillable[T comparable](v T) *T {
-	var zero T
-	if v == zero {
-		return nil
-	}
-	return &v
-}
-
-// hasDataForHealth проверяет, содержит ли UpdatePetHealthInput хоть одно непустое поле
-func hasDataForHealth(input *ent.UpdatePetHealthInput) bool {
-	if input == nil {
-		return false
-	}
-	return input.HealthStatus != nil || input.Transfused != nil || input.Medications != nil || input.SurgicalInterventions != nil
-}
-
-// hasDataForTreatments проверяет, содержит ли UpdatePetTreatmentInput хоть одно непустое поле
-func hasDataForTreatments(input *ent.UpdatePetTreatmentInput) bool {
-	if input == nil {
-		return false
-	}
-	return input.RabiesVaccinationDate != nil || input.InfectionVaccinationDate != nil || input.EctoparasiteTreatmentDate != nil || input.DewormingDate != nil
-}
-
-// hasDataForBonuses проверяет, содержит ли UpdatePetBonusInput хоть одно непустое поле
-func hasDataForBonuses(input *ent.UpdatePetBonusInput) bool {
-	if input == nil {
-		return false
-	}
-	return input.IsArtist != nil || input.IsTherapist != nil || input.IsFormerDonor != nil || input.IsGuideDog != nil
-}
-
 // Create creates a new pet in the database along with its related entities in a transaction
 func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error) {
 	if input == nil {
@@ -135,42 +102,6 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 	return query.Only(ctx)
 }
 
-// GetByID retrieves a pet by their ID with related entities based on preloads
-func (r *EntPetRepository) GetByID(ctx context.Context, id string, preloads ...string) (*ent.Pet, error) {
-	if id == "" {
-		return nil, errors.New("invalid pet ID")
-	}
-
-	query := r.client.Pet.Query().
-		Where(pet.ID(id)).
-		WithBreedRef().
-		WithOwner()
-
-	for _, preload := range preloads {
-		switch preload {
-		case "Health":
-			query = query.WithHealth()
-		case "Treatments":
-			query = query.WithTreatments()
-		case "Analyses":
-			query = query.WithAnalyses()
-		case "Bonuses":
-			query = query.WithBonuses()
-		}
-	}
-
-	p, err := query.Only(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("pet with id %s not found: %w", id, err)
-		}
-		return nil, fmt.Errorf("failed to get pet by id %s: %w", id, err)
-	}
-
-	return p, nil
-}
-
 // GetPetQuery returns a query for eager loading
 func (r *EntPetRepository) GetPetQuery(ctx context.Context, id string) *ent.PetQuery {
 	return r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithOwner()
@@ -179,38 +110,6 @@ func (r *EntPetRepository) GetPetQuery(ctx context.Context, id string) *ent.PetQ
 // GetPetsQueryByUser returns a query for eager loading pets by user ID
 func (r *EntPetRepository) GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery {
 	return r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef()
-}
-
-// GetByUserID retrieves all pets for a specific user with related entities based on preloads
-func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error) {
-	if userID == "" {
-		return nil, errors.New("invalid user ID")
-	}
-
-	query := r.client.Pet.Query().
-		Where(pet.UserID(userID)).
-		WithBreedRef()
-
-	for _, preload := range preloads {
-		switch preload {
-		case "Health":
-			query = query.WithHealth()
-		case "Treatments":
-			query = query.WithTreatments()
-		case "Analyses":
-			query = query.WithAnalyses()
-		case "Bonuses":
-			query = query.WithBonuses()
-		}
-	}
-
-	pets, err := query.All(ctx)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to get pets for user %s: %w", userID, err)
-	}
-
-	return pets, nil
 }
 
 // Update updates an existing pet and its related entities in a transaction

@@ -11,14 +11,8 @@ type PetRepository interface {
 	// Create создает нового питомца в базе данных
 	Create(ctx context.Context, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
 
-	// GetByID получает питомца по ID со связями
-	GetByID(ctx context.Context, id string, preloads ...string) (*ent.Pet, error)
-
 	// GetPetQuery возвращает query для eager loading
 	GetPetQuery(ctx context.Context, id string) *ent.PetQuery
-
-	// GetByUserID получает всех питомцев конкретного пользователя
-	GetByUserID(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
 	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery

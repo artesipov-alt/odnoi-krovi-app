@@ -19,14 +19,8 @@ type PetService interface {
 	// CreatePet создает нового питомца для пользователя
 	CreatePet(ctx context.Context, userID string, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
 
-	// GetPetByID получает питомца по ID с preload связей
-	GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error)
-
 	// GetPetQuery возвращает query для eager loading
 	GetPetQuery(ctx context.Context, petID string) *ent.PetQuery
-
-	// GetUserPets получает всех питомцев пользователя с preload связей
-	GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error)
 
 	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
 	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
@@ -204,10 +198,10 @@ func (s *PetServiceImpl) GetPetsQueryByUser(ctx context.Context, userID string) 
 }
 
 // GetUserPets получает всех питомцев пользователя с preload связей
-func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preloads ...string) ([]*ent.Pet, error) {
+func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opt UserOptions) ([]*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
-	query := s.userRepo.GetQueryByID(ctx, userID)
-	_, err := query.Only(ctx)
+	uquery := s.userRepo.GetQueryByID(ctx, userID)
+	_, err := uquery.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound
@@ -215,9 +209,15 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, preload
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	pets, err := s.petRepo.GetByUserID(ctx, userID, preloads...)
+	pquery := s.petRepo.GetPetsQueryByUser(ctx, userID)
+	if opt.WithPets {
+		pquery = pquery.WithOwner()
+	}
+
+	pets, err := pquery.All(ctx)
+
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get user pets")
+		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
 	// Преобразуем пути к фото в полные URL
