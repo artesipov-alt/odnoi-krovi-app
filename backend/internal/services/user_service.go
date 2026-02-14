@@ -12,22 +12,19 @@ import (
 // UserService определяет интерфейс для бизнес-логики пользователей
 type UserService interface {
 	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, user *ent.User) (*ent.User, error)
+	RegisterUser(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
 	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-	RegisterUserSimple(ctx context.Context, user *ent.User) (*ent.User, error)
+	RegisterUserSimple(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
 	// GetUserByID получает пользователя по его внутреннему ID
-	GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error)
-
-	// GetUserQuery возвращает query для eager loading
-	GetUserQueryByID(ctx context.Context, userID string) *ent.UserQuery
-
-	// GetUserQueryByTelegram возвращает query для eager loading по Telegram ID
-	GetUserQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
+	GetUserByID(ctx context.Context, userID string, opt UserOptions) (*ent.User, error)
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
-	GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error)
+	GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserOptions) (*ent.User, error)
+
+	// Update обновляет информацию о пользователе
+	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
 
 	// DeleteUser удаляет пользователя по ID (soft delete)
 	DeleteUser(ctx context.Context, userID string) error
@@ -52,6 +49,10 @@ type UserServiceImpl struct {
 	storage      repositories.FileStorage
 }
 
+type UserOptions struct {
+	WithPets bool
+}
+
 // NewUserService создает новый сервис пользователей
 // NewUserService создает новый экземпляр UserService
 func NewUserService(userRepo repositories.UserRepository, locationRepo repositories.LocationRepository, storage repositories.FileStorage) *UserServiceImpl {
@@ -63,9 +64,9 @@ func NewUserService(userRepo repositories.UserRepository, locationRepo repositor
 }
 
 // RegisterUser регистрирует нового пользователя в системе
-func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUser(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
-	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
+	exists, err := s.userRepo.ExistsByTelegramID(ctx, input.TelegramID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check user existence")
 	}
@@ -75,12 +76,12 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 	}
 
 	// Валидируем роль пользователя через ENT-валидатор
-	if err := userval.RoleValidator(user.Role); err != nil {
+	if err := userval.RoleValidator(*input.Role); err != nil {
 		return nil, apperrors.ErrUserInvalidRole.WithInternal(err)
 	}
 
 	// Проверяем существование локации
-	_, err = s.locationRepo.GetByID(ctx, user.LocationID)
+	_, err = s.locationRepo.GetByID(ctx, *input.LocationID)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrLocationNotFound
@@ -88,7 +89,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 		return nil, apperrors.Internal(err, "failed to get location")
 	}
 
-	newUser, err := s.userRepo.Create(ctx, user)
+	newUser, err := s.userRepo.Create(ctx, input)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create user")
 	}
@@ -97,9 +98,9 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, user *ent.User) (*en
 }
 
 // RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User) (*ent.User, error) {
+func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
-	exists, err := s.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
+	exists, err := s.userRepo.ExistsByTelegramID(ctx, input.TelegramID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check user existence")
 	}
@@ -108,7 +109,15 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, user *ent.User
 		return nil, apperrors.ErrUserAlreadyExists
 	}
 
-	newUser, err := s.userRepo.Create(ctx, user)
+	// 2. Установка дефолтов (Бизнес-логика)
+	if input.FullName == nil || *input.FullName == "" {
+		input.FullName = new(`Пользователь Telegram`)
+	}
+	// 3. Установка роли (тоже в сервисе!)
+	role := userval.RoleUser
+	input.Role = &role
+
+	newUser, err := s.userRepo.Create(ctx, input)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create user").WithDetails(map[string]any{
 			"err": err.Error(),
@@ -137,9 +146,52 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	return nil
 }
 
+func (s *UserServiceImpl) Update(ctx context.Context, id string, input *ent.UpdateUserInput) error {
+	// 1. Если пришел LocationID, проверяем его прямо здесь (или в репо)
+	if input.LocationID != nil {
+		exists, err := s.locationRepo.Exists(ctx, *input.LocationID)
+		if err != nil || !exists {
+			return apperrors.ErrLocationNotFound
+		}
+	}
+
+	// 2. Просто обновляем. SetInput сам проигнорирует nil поля.
+	err := s.userRepo.Update(ctx, id, input)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetUserByID получает пользователя по ID
-func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloads ...string) (*ent.User, error) {
-	u, err := s.userRepo.GetByID(ctx, userID, preloads...)
+func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, opts UserOptions) (*ent.User, error) {
+	query := s.userRepo.GetQueryByID(ctx, userID)
+
+	if opts.WithPets {
+		query = query.WithPets()
+	}
+
+	u, err := query.Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Преобразуем пути к фото в полные URL
+	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls)
+
+	return u, nil
+}
+
+// GetUserByTelegramID получает пользователя по Telegram ID
+func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserOptions) (*ent.User, error) {
+	query := s.userRepo.GetQueryByTelegram(ctx, telegramID)
+
+	if opts.WithPets {
+		query = query.WithPets()
+	}
+
+	u, err := query.First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound
@@ -149,29 +201,6 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, preloa
 
 	// Преобразуем пути к фото в полные URL
 	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls)
-
-	return u, nil
-}
-
-// GetUserQuery возвращает query для eager loading
-func (s *UserServiceImpl) GetUserQueryByID(ctx context.Context, userID string) *ent.UserQuery {
-	return s.userRepo.GetQueryByID(ctx, userID)
-}
-
-// GetUserQueryByTelegram возвращает query для eager loading по Telegram ID
-func (s *UserServiceImpl) GetUserQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery {
-	return s.userRepo.GetQueryByTelegram(ctx, telegramID)
-}
-
-// GetUserByTelegramID получает пользователя по Telegram ID
-func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error) {
-	u, err := s.userRepo.GetByTelegramID(ctx, telegramID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrUserNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get user")
-	}
 
 	return u, nil
 }

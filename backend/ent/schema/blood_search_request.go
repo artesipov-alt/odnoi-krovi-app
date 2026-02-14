@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -24,6 +25,7 @@ func (BloodSearchRequest) Fields() []ent.Field {
 			Default(0).
 			StructTag(`json:"bloodVolumeReserved"`),
 		field.JSON("regions", []int32{}).
+			Annotations(entgql.Type("Int")).
 			StructTag(`json:"regions"`),
 		field.Bool("small_pets_notify_allowed").
 			Default(true).
@@ -36,12 +38,15 @@ func (BloodSearchRequest) Fields() []ent.Field {
 			Optional().
 			StructTag(`json:"description"`),
 		field.JSON("photo_urls", []string{}).
+			Annotations(entgql.Type("String")).
 			Optional().
 			StructTag(`json:"photoUrls"`),
 		field.JSON("blood_group_names", []string{}).
+			Annotations(entgql.Type("String")).
 			Optional().
 			StructTag(`json:"bloodGroupNames"`),
 		field.JSON("blood_component_ids", []int{}).
+			Annotations(entgql.Type("Int")).
 			Optional().
 			StructTag(`json:"bloodComponentIds"`),
 	}

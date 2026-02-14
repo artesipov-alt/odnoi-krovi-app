@@ -4,8 +4,13 @@ package bloodgroup
 
 import (
 	"fmt"
+	"io"
+	"strconv"
+	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -13,19 +18,37 @@ const (
 	Label = "blood_group"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldPetType holds the string denoting the pet_type field in the database.
 	FieldPetType = "pet_type"
 	// FieldBloodGroup holds the string denoting the blood_group field in the database.
 	FieldBloodGroup = "blood_group"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// EdgePets holds the string denoting the pets edge name in mutations.
+	EdgePets = "pets"
 	// Table holds the table name of the bloodgroup in the database.
 	Table = "blood_groups"
+	// PetsTable is the table that holds the pets relation/edge.
+	PetsTable = "pets"
+	// PetsInverseTable is the table name for the Pet entity.
+	// It exists in this package in order to avoid circular dependency with the "pet" package.
+	PetsInverseTable = "pets"
+	// PetsColumn is the table column denoting the pets relation/edge.
+	PetsColumn = "blood_group_pets"
 )
 
 // Columns holds all SQL columns for bloodgroup fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 	FieldPetType,
 	FieldBloodGroup,
 	FieldDescription,
@@ -41,9 +64,23 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
 var (
+	Interceptors [1]ent.Interceptor
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
 	BloodGroupValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
 )
 
 // PetType defines the type for the "pet_type" enum field.
@@ -77,6 +114,21 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
 // ByPetType orders the results by the pet_type field.
 func ByPetType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPetType, opts...).ToFunc()
@@ -90,4 +142,43 @@ func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByPetsCount orders the results by pets count.
+func ByPetsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPetsStep(), opts...)
+	}
+}
+
+// ByPets orders the results by pets terms.
+func ByPets(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPetsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newPetsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PetsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PetsTable, PetsColumn),
+	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e PetType) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *PetType) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = PetType(str)
+	if err := PetTypeValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid PetType", str)
+	}
+	return nil
 }

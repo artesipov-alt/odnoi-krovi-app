@@ -164,13 +164,13 @@ func (_c *PetCreate) SetPhotoUrls(v []string) *PetCreate {
 }
 
 // SetBreedID sets the "breed_id" field.
-func (_c *PetCreate) SetBreedID(v int) *PetCreate {
+func (_c *PetCreate) SetBreedID(v string) *PetCreate {
 	_c.mutation.SetBreedID(v)
 	return _c
 }
 
 // SetNillableBreedID sets the "breed_id" field if the given value is not nil.
-func (_c *PetCreate) SetNillableBreedID(v *int) *PetCreate {
+func (_c *PetCreate) SetNillableBreedID(v *string) *PetCreate {
 	if v != nil {
 		_c.SetBreedID(*v)
 	}
@@ -359,13 +359,13 @@ func (_c *PetCreate) SetBonuses(v *PetBonus) *PetCreate {
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by ID.
-func (_c *PetCreate) SetBreedRefID(id int) *PetCreate {
+func (_c *PetCreate) SetBreedRefID(id string) *PetCreate {
 	_c.mutation.SetBreedRefID(id)
 	return _c
 }
 
 // SetNillableBreedRefID sets the "breed_ref" edge to the Breed entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableBreedRefID(id *int) *PetCreate {
+func (_c *PetCreate) SetNillableBreedRefID(id *string) *PetCreate {
 	if id != nil {
 		_c = _c.SetBreedRefID(*id)
 	}
@@ -684,7 +684,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 			Columns: []string{pet.BreedRefColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

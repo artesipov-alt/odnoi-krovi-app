@@ -4,8 +4,12 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
+
+// BloodGroupPrefix is the prefix for BloodGroup IDs
+const BloodGroupPrefix = "BLG"
 
 // BloodGroup holds the schema definition for the BloodGroup entity.
 type BloodGroup struct {
@@ -15,7 +19,6 @@ type BloodGroup struct {
 // Fields of the BloodGroup.
 func (BloodGroup) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").StructTag(`json:"id"`),
 		field.Enum("pet_type").
 			Values("dog", "cat").
 			StructTag(`json:"petType"`),
@@ -31,7 +34,16 @@ func (BloodGroup) Fields() []ent.Field {
 
 // Edges of the BloodGroup.
 func (BloodGroup) Edges() []ent.Edge {
-	return []ent.Edge{}
+	return []ent.Edge{
+		edge.To("pets", Pet.Type),
+	}
+}
+
+// Mixin of the BloodGroup.
+func (BloodGroup) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		StandardMixin{Prefix: BloodGroupPrefix},
+	}
 }
 
 // Annotations of the BloodGroup.
@@ -43,6 +55,9 @@ func (BloodGroup) Annotations() []schema.Annotation {
 	}
 }
 
+// BloodComponentPrefix is the prefix for BloodComponent IDs
+const BloodComponentPrefix = "BLC"
+
 // BloodComponent holds the schema definition for the BloodComponent entity.
 type BloodComponent struct {
 	ent.Schema
@@ -51,9 +66,6 @@ type BloodComponent struct {
 // Fields of the BloodComponent.
 func (BloodComponent) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").
-			Unique().
-			StructTag(`json:"id"`),
 		field.String("name").
 			MaxLen(255).
 			NotEmpty().
@@ -64,6 +76,13 @@ func (BloodComponent) Fields() []ent.Field {
 // Edges of the BloodComponent.
 func (BloodComponent) Edges() []ent.Edge {
 	return []ent.Edge{}
+}
+
+// Mixin of the BloodComponent.
+func (BloodComponent) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		StandardMixin{Prefix: BloodComponentPrefix},
+	}
 }
 
 // Annotations of the BloodComponent.

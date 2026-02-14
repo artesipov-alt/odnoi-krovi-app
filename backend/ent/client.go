@@ -348,7 +348,7 @@ func (c *BloodComponentClient) UpdateOne(_m *BloodComponent) *BloodComponentUpda
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BloodComponentClient) UpdateOneID(id int) *BloodComponentUpdateOne {
+func (c *BloodComponentClient) UpdateOneID(id string) *BloodComponentUpdateOne {
 	mutation := newBloodComponentMutation(c.config, OpUpdateOne, withBloodComponentID(id))
 	return &BloodComponentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -365,7 +365,7 @@ func (c *BloodComponentClient) DeleteOne(_m *BloodComponent) *BloodComponentDele
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BloodComponentClient) DeleteOneID(id int) *BloodComponentDeleteOne {
+func (c *BloodComponentClient) DeleteOneID(id string) *BloodComponentDeleteOne {
 	builder := c.Delete().Where(bloodcomponent.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -382,12 +382,12 @@ func (c *BloodComponentClient) Query() *BloodComponentQuery {
 }
 
 // Get returns a BloodComponent entity by its id.
-func (c *BloodComponentClient) Get(ctx context.Context, id int) (*BloodComponent, error) {
+func (c *BloodComponentClient) Get(ctx context.Context, id string) (*BloodComponent, error) {
 	return c.Query().Where(bloodcomponent.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BloodComponentClient) GetX(ctx context.Context, id int) *BloodComponent {
+func (c *BloodComponentClient) GetX(ctx context.Context, id string) *BloodComponent {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -402,7 +402,8 @@ func (c *BloodComponentClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodComponentClient) Interceptors() []Interceptor {
-	return c.inters.BloodComponent
+	inters := c.inters.BloodComponent
+	return append(inters[:len(inters):len(inters)], bloodcomponent.Interceptors[:]...)
 }
 
 func (c *BloodComponentClient) mutate(ctx context.Context, m *BloodComponentMutation) (Value, error) {
@@ -481,7 +482,7 @@ func (c *BloodGroupClient) UpdateOne(_m *BloodGroup) *BloodGroupUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BloodGroupClient) UpdateOneID(id int) *BloodGroupUpdateOne {
+func (c *BloodGroupClient) UpdateOneID(id string) *BloodGroupUpdateOne {
 	mutation := newBloodGroupMutation(c.config, OpUpdateOne, withBloodGroupID(id))
 	return &BloodGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -498,7 +499,7 @@ func (c *BloodGroupClient) DeleteOne(_m *BloodGroup) *BloodGroupDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BloodGroupClient) DeleteOneID(id int) *BloodGroupDeleteOne {
+func (c *BloodGroupClient) DeleteOneID(id string) *BloodGroupDeleteOne {
 	builder := c.Delete().Where(bloodgroup.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -515,17 +516,33 @@ func (c *BloodGroupClient) Query() *BloodGroupQuery {
 }
 
 // Get returns a BloodGroup entity by its id.
-func (c *BloodGroupClient) Get(ctx context.Context, id int) (*BloodGroup, error) {
+func (c *BloodGroupClient) Get(ctx context.Context, id string) (*BloodGroup, error) {
 	return c.Query().Where(bloodgroup.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BloodGroupClient) GetX(ctx context.Context, id int) *BloodGroup {
+func (c *BloodGroupClient) GetX(ctx context.Context, id string) *BloodGroup {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryPets queries the pets edge of a BloodGroup.
+func (c *BloodGroupClient) QueryPets(_m *BloodGroup) *PetQuery {
+	query := (&PetClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bloodgroup.Table, bloodgroup.FieldID, id),
+			sqlgraph.To(pet.Table, pet.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, bloodgroup.PetsTable, bloodgroup.PetsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -535,7 +552,8 @@ func (c *BloodGroupClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodGroupClient) Interceptors() []Interceptor {
-	return c.inters.BloodGroup
+	inters := c.inters.BloodGroup
+	return append(inters[:len(inters):len(inters)], bloodgroup.Interceptors[:]...)
 }
 
 func (c *BloodGroupClient) mutate(ctx context.Context, m *BloodGroupMutation) (Value, error) {
@@ -764,7 +782,7 @@ func (c *BreedClient) UpdateOne(_m *Breed) *BreedUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BreedClient) UpdateOneID(id int) *BreedUpdateOne {
+func (c *BreedClient) UpdateOneID(id string) *BreedUpdateOne {
 	mutation := newBreedMutation(c.config, OpUpdateOne, withBreedID(id))
 	return &BreedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -781,7 +799,7 @@ func (c *BreedClient) DeleteOne(_m *Breed) *BreedDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BreedClient) DeleteOneID(id int) *BreedDeleteOne {
+func (c *BreedClient) DeleteOneID(id string) *BreedDeleteOne {
 	builder := c.Delete().Where(breed.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -798,12 +816,12 @@ func (c *BreedClient) Query() *BreedQuery {
 }
 
 // Get returns a Breed entity by its id.
-func (c *BreedClient) Get(ctx context.Context, id int) (*Breed, error) {
+func (c *BreedClient) Get(ctx context.Context, id string) (*Breed, error) {
 	return c.Query().Where(breed.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BreedClient) GetX(ctx context.Context, id int) *Breed {
+func (c *BreedClient) GetX(ctx context.Context, id string) *Breed {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -834,7 +852,8 @@ func (c *BreedClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BreedClient) Interceptors() []Interceptor {
-	return c.inters.Breed
+	inters := c.inters.Breed
+	return append(inters[:len(inters):len(inters)], breed.Interceptors[:]...)
 }
 
 func (c *BreedClient) mutate(ctx context.Context, m *BreedMutation) (Value, error) {
@@ -913,7 +932,7 @@ func (c *LocationClient) UpdateOne(_m *Location) *LocationUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *LocationClient) UpdateOneID(id int) *LocationUpdateOne {
+func (c *LocationClient) UpdateOneID(id string) *LocationUpdateOne {
 	mutation := newLocationMutation(c.config, OpUpdateOne, withLocationID(id))
 	return &LocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -930,7 +949,7 @@ func (c *LocationClient) DeleteOne(_m *Location) *LocationDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *LocationClient) DeleteOneID(id int) *LocationDeleteOne {
+func (c *LocationClient) DeleteOneID(id string) *LocationDeleteOne {
 	builder := c.Delete().Where(location.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -947,12 +966,12 @@ func (c *LocationClient) Query() *LocationQuery {
 }
 
 // Get returns a Location entity by its id.
-func (c *LocationClient) Get(ctx context.Context, id int) (*Location, error) {
+func (c *LocationClient) Get(ctx context.Context, id string) (*Location, error) {
 	return c.Query().Where(location.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *LocationClient) GetX(ctx context.Context, id int) *Location {
+func (c *LocationClient) GetX(ctx context.Context, id string) *Location {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -983,7 +1002,8 @@ func (c *LocationClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *LocationClient) Interceptors() []Interceptor {
-	return c.inters.Location
+	inters := c.inters.Location
+	return append(inters[:len(inters):len(inters)], location.Interceptors[:]...)
 }
 
 func (c *LocationClient) mutate(ctx context.Context, m *LocationMutation) (Value, error) {

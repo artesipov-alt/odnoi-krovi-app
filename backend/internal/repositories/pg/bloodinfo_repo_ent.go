@@ -30,13 +30,13 @@ func (r *EntBloodInfoRepository) AllComponents(ctx context.Context) ([]*ent.Bloo
 }
 
 // ComponentByID returns a blood component by ID
-func (r *EntBloodInfoRepository) ComponentByID(ctx context.Context, id int) (*ent.BloodComponent, error) {
+func (r *EntBloodInfoRepository) ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error) {
 	component, err := r.client.BloodComponent.Get(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("blood component with id %d not found: %w", id, err)
+			return nil, fmt.Errorf("blood component with id %s not found: %w", id, err)
 		}
-		return nil, fmt.Errorf("failed to get blood component by id %d: %w", id, err)
+		return nil, fmt.Errorf("failed to get blood component by id %s: %w", id, err)
 	}
 	return component, nil
 }

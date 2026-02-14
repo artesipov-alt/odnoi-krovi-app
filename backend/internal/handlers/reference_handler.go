@@ -155,123 +155,123 @@ func (h *ReferenceHandler) Register(api huma.API) {
 
 // Handlers
 
-func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	petTypes := enums.GetAllEntPetTypes()
-	items := make([]dto.ReferenceItemCode, len(petTypes))
+	items := make([]dto.ReferenceItem, len(petTypes))
 
 	for i, petType := range petTypes {
 		ruValue := enums.LocalizeEntPetType(petType)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(petType),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	genders := enums.GetAllEntGenders()
-	items := make([]dto.ReferenceItemCode, len(genders))
+	items := make([]dto.ReferenceItem, len(genders))
 
 	for i, gender := range genders {
 		ruValue := enums.LocalizeEntGender(gender)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(gender),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	conditions := enums.GetAllEntLivingConditions()
-	items := make([]dto.ReferenceItemCode, len(conditions))
+	items := make([]dto.ReferenceItem, len(conditions))
 
 	for i, condition := range conditions {
 		ruValue := enums.LocalizeEntLivingCondition(condition)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(condition),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	roles := enums.GetAllEntUserRoles()
-	items := make([]dto.ReferenceItemCode, len(roles))
+	items := make([]dto.ReferenceItem, len(roles))
 
 	for i, role := range roles {
 		ruValue := enums.LocalizeEntUserRole(role)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(role),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	roles := enums.GetAllEntPetStatuses()
-	items := make([]dto.ReferenceItemCode, len(roles))
+	items := make([]dto.ReferenceItem, len(roles))
 
 	for i, role := range roles {
 		ruValue := enums.LocalizeEntPetStatus(role)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(role),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto.ReferenceDBResponse, error) {
+func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	breeds, err := h.breedRepo.GetAll(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get all breeds", "error", err.Error())
 		return nil, apperrors.Internal(err, "Ошибка сервера при получении пород")
 	}
 
-	items := make([]dto.ReferenceItemDB, len(breeds))
+	items := make([]dto.ReferenceItem, len(breeds))
 	for i, breed := range breeds {
-		items[i] = dto.ReferenceItemDB{
+		items[i] = dto.ReferenceItem{
 			Value: breed.ID,
 			Label: breed.Name,
 		}
 	}
 
-	return &dto.ReferenceDBResponse{Body: dto.ReferenceDataDB{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*dto.ReferenceDBResponse, error) {
+func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	locations, err := h.locationRepo.GetAll(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get all locations", "error", err.Error())
 		return nil, apperrors.Internal(err, "Ошибка сервера при получении локаций")
 	}
 
-	items := make([]dto.ReferenceItemDB, len(locations))
+	items := make([]dto.ReferenceItem, len(locations))
 	for i, location := range locations {
-		items[i] = dto.ReferenceItemDB{
+		items[i] = dto.ReferenceItem{
 			Value: location.ID,
 			Label: location.Name,
 		}
 	}
 
-	return &dto.ReferenceDBResponse{Body: dto.ReferenceDataDB{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTypeQuery) (*dto.ReferenceDBResponse, error) {
+func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTypeQuery) (*dto.ReferenceResponse, error) {
 	petTypeStr := input.PetType
 	if petTypeStr == "" {
 		slog.DebugContext(ctx, "pet type not specified for GetBreedsByType")
@@ -296,36 +296,36 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTy
 		return nil, apperrors.Internal(err, "Ошибка сервера при получении пород по типу животного")
 	}
 
-	items := make([]dto.ReferenceItemDB, len(breeds))
+	items := make([]dto.ReferenceItem, len(breeds))
 	for i, breed := range breeds {
-		items[i] = dto.ReferenceItemDB{
+		items[i] = dto.ReferenceItem{
 			Value: breed.ID,
 			Label: breed.Name,
 		}
 	}
 
-	return &dto.ReferenceDBResponse{Body: dto.ReferenceDataDB{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*dto.ReferenceDBResponse, error) {
+func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	bloodComponents, err := h.bloodRepo.AllComponents(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to get all blood components", "error", err.Error())
 		return nil, apperrors.Internal(err, "Ошибка сервера при получении компонентов крови")
 	}
 
-	items := make([]dto.ReferenceItemDB, len(bloodComponents))
+	items := make([]dto.ReferenceItem, len(bloodComponents))
 	for i, bloodType := range bloodComponents {
-		items[i] = dto.ReferenceItemDB{
+		items[i] = dto.ReferenceItem{
 			Value: bloodType.ID,
 			Label: bloodType.Name,
 		}
 	}
 
-	return &dto.ReferenceDBResponse{Body: dto.ReferenceDataDB{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTypePath) (*dto.ReferenceDBResponse, error) {
+func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTypePath) (*dto.ReferenceResponse, error) {
 	petType := input.PetType
 	if petType == "" {
 		slog.DebugContext(ctx, "pet type not specified for GetBloodGroups")
@@ -338,45 +338,45 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTyp
 		return nil, apperrors.Internal(err, "Ошибка сервера при получении групп крови по типу животного")
 	}
 
-	items := make([]dto.ReferenceItemDB, len(bloodGroups))
+	items := make([]dto.ReferenceItem, len(bloodGroups))
 	for i, bloodGroup := range bloodGroups {
-		items[i] = dto.ReferenceItemDB{
+		items[i] = dto.ReferenceItem{
 			Value: bloodGroup.ID,
 			Label: bloodGroup.BloodGroup,
 		}
 	}
 
-	return &dto.ReferenceDBResponse{Body: dto.ReferenceDataDB{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	statuses := enums.GetAllEntHealthStatuses()
-	items := make([]dto.ReferenceItemCode, len(statuses))
+	items := make([]dto.ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
 		ruValue := enums.LocalizeEntHealthStatus(status)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(status),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *struct{}) (*dto.ReferenceCodeResponse, error) {
+func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	statuses := enums.GetAllEntReproductiveStatuses()
-	items := make([]dto.ReferenceItemCode, len(statuses))
+	items := make([]dto.ReferenceItem, len(statuses))
 
 	for i, status := range statuses {
 		ruValue := enums.LocalizeEntReproductiveStatus(status)
 
-		items[i] = dto.ReferenceItemCode{
+		items[i] = dto.ReferenceItem{
 			Value: string(status),
 			Label: ruValue,
 		}
 	}
 
-	return &dto.ReferenceCodeResponse{Body: dto.ReferenceDataCode{Data: items}}, nil
+	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }

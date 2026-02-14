@@ -29,7 +29,7 @@ const (
 	BloodTypesListKey = "blood_types:list"
 
 	// Blood component keys
-	BloodComponentByIDKey = "blood_component:id:%d"
+	BloodComponentByIDKey = "blood_component:id:%s"
 
 	// Blood group keys
 	BloodGroupsByPetTypeKey = "blood_groups:pet_type:%s"

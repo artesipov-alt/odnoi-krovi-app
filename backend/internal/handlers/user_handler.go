@@ -13,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/jinzhu/copier"
 )
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
@@ -120,42 +121,32 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 	dto.IDPathStr
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
-	query := h.userService.GetUserQueryByID(ctx, input.ID)
-	if input.WithPets {
-		query = query.WithPets()
-	}
 
-	u, err := query.Only(ctx)
+	usr, err := h.userService.GetUserByID(ctx, input.ID, services.UserOptions{
+		WithPets: input.WithPets,
+	})
+
 	if err != nil {
 		if ent.IsNotFound(err) {
-			slog.DebugContext(ctx, "user not found", "user_id", input.ID)
 			return nil, apperrors.ErrUserNotFound
 		}
-		slog.ErrorContext(ctx, "failed to get user", "user_id", input.ID, "error", err.Error())
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	// Преобразуем пути к фото в полные URL (как в сервисе)
-	u.PhotoUrls = h.userService.BuildFullPhotoURLs(u.PhotoUrls)
-
-	return &dto.UserResponse{Body: h.toDTO(u)}, nil
+	return &dto.UserResponse{Body: h.toDTO(usr)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 	Body dto.UserRegistrationSimple
 }) (*dto.UserResponse, error) {
-	fullName := input.Body.FullName
-	if fullName == "" {
-		fullName = "Пользователь Telegram"
+
+	var userData ent.CreateUserInput
+
+	if copier.Copy(userData, input.Body) != nil {
+		return nil, apperrors.Internal(errors.New("failed to copy user data"), "ошибка при копировании данных пользователя")
 	}
 
-	userData := &ent.User{
-		TelegramID: input.Body.TelegramID,
-		FullName:   fullName,
-		Role:       "user",
-	}
-
-	u, err := h.userService.RegisterUserSimple(ctx, userData)
+	u, err := h.userService.RegisterUserSimple(ctx, &userData)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to register user simple", "telegram_id", input.Body.TelegramID, "error", err.Error())
 		return nil, err
@@ -173,50 +164,16 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 	dto.IDPathStr
 	Body dto.UserUpdate
 }) (*dto.MessageResponse, error) {
-	u, err := h.userService.GetUserByID(ctx, input.ID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrUserNotFound
-		}
-		slog.ErrorContext(ctx, "failed to get user", "user_id", input.ID, "error", err.Error())
-		return nil, apperrors.Internal(err, "failed to get user")
+
+	var user *ent.UpdateUserInput
+
+	if err := copier.Copy(&user, &input.Body); err != nil {
+		slog.ErrorContext(ctx, "failed to copy user update data", "error", err.Error())
+		return nil, apperrors.Internal(err, "failed to copy user update data")
 	}
 
-	mutation := u.Update()
-
-	if input.Body.FullName != nil {
-		mutation = mutation.SetFullName(*input.Body.FullName)
-	}
-	if input.Body.Phone != nil {
-		mutation = mutation.SetPhone(*input.Body.Phone)
-	}
-	if input.Body.Email != nil {
-		mutation = mutation.SetEmail(*input.Body.Email)
-	}
-	if input.Body.PhotoURLs != nil {
-		mutation = mutation.SetPhotoUrls(input.Body.PhotoURLs)
-	}
-	if input.Body.AllowGeo != nil {
-		mutation = mutation.SetAllowGeo(*input.Body.AllowGeo)
-	}
-	if input.Body.OnBoarding != nil {
-		mutation = mutation.SetOnBoarding(*input.Body.OnBoarding)
-	}
-	if input.Body.LocationID != nil {
-		_, err := h.locationRepo.GetByID(ctx, *input.Body.LocationID)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return nil, apperrors.ErrLocationNotFound
-			}
-			slog.ErrorContext(ctx, "failed to get location", "location_id", *input.Body.LocationID, "error", err.Error())
-			return nil, apperrors.Internal(err, "failed to get location")
-		}
-		mutation = mutation.SetLocationID(*input.Body.LocationID)
-	}
-
-	err = mutation.Exec(ctx)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to update user", "user_id", input.ID, "error", err.Error())
+	if err := h.userService.Update(ctx, input.ID, user); err != nil {
+		slog.ErrorContext(ctx, "failed to update user", "error", err.Error())
 		return nil, apperrors.Internal(err, "failed to update user")
 	}
 
@@ -231,25 +188,19 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 	dto.IDPathInt
 	dto.UserPreloadQuery
 }) (*dto.UserResponse, error) {
-	query := h.userService.GetUserQueryByTelegram(ctx, input.ID)
-	if input.WithPets {
-		query = query.WithPets()
-	}
 
-	u, err := query.Only(ctx)
+	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, services.UserOptions{
+		WithPets: input.WithPets,
+	})
+
 	if err != nil {
 		if ent.IsNotFound(err) {
-			slog.DebugContext(ctx, "user not found", "telegram_id", input.ID)
 			return nil, apperrors.ErrUserNotFound
 		}
-		slog.ErrorContext(ctx, "failed to get user", "telegram_id", input.ID, "error", err.Error())
-		return nil, apperrors.Internal(err, "failed to get user")
+		return nil, apperrors.Internal(err, "failed to get user by telegram ID")
 	}
 
-	// Преобразуем пути к фото в полные URL
-	u.PhotoUrls = h.userService.BuildFullPhotoURLs(u.PhotoUrls)
-
-	return &dto.UserResponse{Body: h.toDTO(u)}, nil
+	return &dto.UserResponse{Body: h.toDTO(usr)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
@@ -310,8 +261,6 @@ func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.U
 		},
 	}, nil
 }
-
-// Helpers
 
 // toDTO преобразует ENT модель пользователя в DTO для ответа
 func (h *UserHandler) toDTO(u *ent.User) dto.User {

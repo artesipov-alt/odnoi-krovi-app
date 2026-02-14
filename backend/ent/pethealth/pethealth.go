@@ -4,6 +4,8 @@ package pethealth
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -169,4 +171,22 @@ func newOwnerStep() *sqlgraph.Step {
 		sqlgraph.To(OwnerInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, OwnerTable, OwnerColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e HealthStatus) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *HealthStatus) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = HealthStatus(str)
+	if err := HealthStatusValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid HealthStatus", str)
+	}
+	return nil
 }

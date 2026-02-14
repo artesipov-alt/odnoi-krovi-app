@@ -6,10 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 )
 
 // BloodGroupCreate is the builder for creating a BloodGroup entity.
@@ -17,6 +19,48 @@ type BloodGroupCreate struct {
 	config
 	mutation *BloodGroupMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (_c *BloodGroupCreate) SetCreatedAt(v time.Time) *BloodGroupCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableCreatedAt(v *time.Time) *BloodGroupCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *BloodGroupCreate) SetUpdatedAt(v time.Time) *BloodGroupCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableUpdatedAt(v *time.Time) *BloodGroupCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *BloodGroupCreate) SetDeletedAt(v time.Time) *BloodGroupCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableDeletedAt(v *time.Time) *BloodGroupCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
 }
 
 // SetPetType sets the "pet_type" field.
@@ -46,9 +90,32 @@ func (_c *BloodGroupCreate) SetNillableDescription(v *string) *BloodGroupCreate 
 }
 
 // SetID sets the "id" field.
-func (_c *BloodGroupCreate) SetID(v int) *BloodGroupCreate {
+func (_c *BloodGroupCreate) SetID(v string) *BloodGroupCreate {
 	_c.mutation.SetID(v)
 	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *BloodGroupCreate) SetNillableID(v *string) *BloodGroupCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddPetIDs adds the "pets" edge to the Pet entity by IDs.
+func (_c *BloodGroupCreate) AddPetIDs(ids ...string) *BloodGroupCreate {
+	_c.mutation.AddPetIDs(ids...)
+	return _c
+}
+
+// AddPets adds the "pets" edges to the Pet entity.
+func (_c *BloodGroupCreate) AddPets(v ...*Pet) *BloodGroupCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddPetIDs(ids...)
 }
 
 // Mutation returns the BloodGroupMutation object of the builder.
@@ -58,6 +125,7 @@ func (_c *BloodGroupCreate) Mutation() *BloodGroupMutation {
 
 // Save creates the BloodGroup in the database.
 func (_c *BloodGroupCreate) Save(ctx context.Context) (*BloodGroup, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -83,8 +151,30 @@ func (_c *BloodGroupCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *BloodGroupCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := bloodgroup.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := bloodgroup.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := bloodgroup.DefaultID()
+		_c.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *BloodGroupCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "BloodGroup.created_at"`)}
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "BloodGroup.updated_at"`)}
+	}
 	if _, ok := _c.mutation.PetType(); !ok {
 		return &ValidationError{Name: "pet_type", err: errors.New(`ent: missing required field "BloodGroup.pet_type"`)}
 	}
@@ -115,9 +205,12 @@ func (_c *BloodGroupCreate) sqlSave(ctx context.Context) (*BloodGroup, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected BloodGroup.ID type: %T", _spec.ID.Value)
+		}
 	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
@@ -127,11 +220,23 @@ func (_c *BloodGroupCreate) sqlSave(ctx context.Context) (*BloodGroup, error) {
 func (_c *BloodGroupCreate) createSpec() (*BloodGroup, *sqlgraph.CreateSpec) {
 	var (
 		_node = &BloodGroup{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(bloodgroup.Table, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(bloodgroup.Table, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString))
 	)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(bloodgroup.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.PetType(); ok {
 		_spec.SetField(bloodgroup.FieldPetType, field.TypeEnum, value)
@@ -144,6 +249,22 @@ func (_c *BloodGroupCreate) createSpec() (*BloodGroup, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(bloodgroup.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -166,6 +287,7 @@ func (_c *BloodGroupCreateBulk) Save(ctx context.Context) ([]*BloodGroup, error)
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BloodGroupMutation)
 				if !ok {
@@ -192,10 +314,6 @@ func (_c *BloodGroupCreateBulk) Save(ctx context.Context) ([]*BloodGroup, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

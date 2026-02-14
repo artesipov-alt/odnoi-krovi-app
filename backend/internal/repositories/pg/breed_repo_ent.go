@@ -35,17 +35,17 @@ func (r *EntBreedRepository) GetAll(ctx context.Context) ([]*ent.Breed, error) {
 }
 
 // GetByID retrieves a breed by its ID
-func (r *EntBreedRepository) GetByID(ctx context.Context, id int) (*ent.Breed, error) {
-	if id <= 0 {
+func (r *EntBreedRepository) GetByID(ctx context.Context, id string) (*ent.Breed, error) {
+	if id == "" {
 		return nil, errors.New("invalid breed ID")
 	}
 
 	b, err := r.client.Breed.Get(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("breed with id %d not found: %w", id, err)
+			return nil, fmt.Errorf("breed with id %s not found: %w", id, err)
 		}
-		return nil, fmt.Errorf("failed to get breed by id %d: %w", id, err)
+		return nil, fmt.Errorf("failed to get breed by id %s: %w", id, err)
 	}
 
 	return b, nil
@@ -93,7 +93,7 @@ func (r *EntBreedRepository) Update(ctx context.Context, b *ent.Breed) (*ent.Bre
 		return nil, errors.New("breed cannot be nil")
 	}
 
-	if b.ID <= 0 {
+	if b.ID == "" {
 		return nil, errors.New("invalid breed ID")
 	}
 
@@ -104,7 +104,7 @@ func (r *EntBreedRepository) Update(ctx context.Context, b *ent.Breed) (*ent.Bre
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("breed with id %d not found", b.ID)
+			return nil, fmt.Errorf("breed with id %s not found", b.ID)
 		}
 		return nil, fmt.Errorf("failed to update breed: %w", err)
 	}
@@ -113,15 +113,15 @@ func (r *EntBreedRepository) Update(ctx context.Context, b *ent.Breed) (*ent.Bre
 }
 
 // Delete deletes a breed by its ID
-func (r *EntBreedRepository) Delete(ctx context.Context, id int) error {
-	if id <= 0 {
+func (r *EntBreedRepository) Delete(ctx context.Context, id string) error {
+	if id == "" {
 		return errors.New("invalid breed ID")
 	}
 
 	err := r.client.Breed.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return fmt.Errorf("breed with id %d not found", id)
+			return fmt.Errorf("breed with id %s not found", id)
 		}
 		return fmt.Errorf("failed to delete breed: %w", err)
 	}

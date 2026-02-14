@@ -8,6 +8,9 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
+// BreedPrefix is the prefix for Breed IDs
+const BreedPrefix = "BRD"
+
 // Breed holds the schema definition for the Breed entity.
 type Breed struct {
 	ent.Schema
@@ -16,9 +19,6 @@ type Breed struct {
 // Fields of the Breed.
 func (Breed) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").
-			Unique().
-			Immutable(),
 		field.String("name").
 			MaxLen(100).
 			NotEmpty().
@@ -42,5 +42,12 @@ func (Breed) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "breeds",
 		},
+	}
+}
+
+// Mixin of the Breed.
+func (Breed) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		StandardMixin{Prefix: BreedPrefix},
 	}
 }

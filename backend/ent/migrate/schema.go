@@ -11,7 +11,10 @@ import (
 var (
 	// BloodComponentsColumns holds the columns for the "blood_components" table.
 	BloodComponentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 	}
 	// BloodComponentsTable holds the schema information for the "blood_components" table.
@@ -22,7 +25,10 @@ var (
 	}
 	// BloodGroupsColumns holds the columns for the "blood_groups" table.
 	BloodGroupsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "pet_type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
 		{Name: "blood_group", Type: field.TypeString, Size: 50},
 		{Name: "description", Type: field.TypeString, Nullable: true},
@@ -66,7 +72,10 @@ var (
 	}
 	// BreedsColumns holds the columns for the "breeds" table.
 	BreedsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
 	}
@@ -78,7 +87,10 @@ var (
 	}
 	// LocationsColumns holds the columns for the "locations" table.
 	LocationsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString, Size: 255},
 	}
 	// LocationsTable holds the schema information for the "locations" table.
@@ -105,7 +117,8 @@ var (
 		{Name: "living_condition", Type: field.TypeEnum, Nullable: true, Enums: []string{"indoor", "leash_walking", "self_outdoor"}},
 		{Name: "reproductive_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"pregnancy", "lactation", "estrus"}},
 		{Name: "donor_restrictions", Type: field.TypeJSON, Nullable: true},
-		{Name: "breed_id", Type: field.TypeInt, Nullable: true},
+		{Name: "blood_group_pets", Type: field.TypeString, Nullable: true},
+		{Name: "breed_id", Type: field.TypeString, Nullable: true},
 		{Name: "bonus_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "treatment_id", Type: field.TypeString, Unique: true, Nullable: true},
@@ -118,32 +131,38 @@ var (
 		PrimaryKey: []*schema.Column{PetsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "pets_breeds_pets",
+				Symbol:     "pets_blood_groups_pets",
 				Columns:    []*schema.Column{PetsColumns[16]},
+				RefColumns: []*schema.Column{BloodGroupsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "pets_breeds_pets",
+				Columns:    []*schema.Column{PetsColumns[17]},
 				RefColumns: []*schema.Column{BreedsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_bonuses_owner",
-				Columns:    []*schema.Column{PetsColumns[17]},
+				Columns:    []*schema.Column{PetsColumns[18]},
 				RefColumns: []*schema.Column{PetBonusesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_healths_owner",
-				Columns:    []*schema.Column{PetsColumns[18]},
+				Columns:    []*schema.Column{PetsColumns[19]},
 				RefColumns: []*schema.Column{PetHealthsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_treatments_owner",
-				Columns:    []*schema.Column{PetsColumns[19]},
+				Columns:    []*schema.Column{PetsColumns[20]},
 				RefColumns: []*schema.Column{PetTreatmentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_users_pets",
-				Columns:    []*schema.Column{PetsColumns[20]},
+				Columns:    []*schema.Column{PetsColumns[21]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -242,7 +261,7 @@ var (
 		{Name: "allow_geo", Type: field.TypeBool},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},
-		{Name: "location_id", Type: field.TypeInt, Nullable: true},
+		{Name: "location_id", Type: field.TypeString, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -291,11 +310,12 @@ func init() {
 	LocationsTable.Annotation = &entsql.Annotation{
 		Table: "locations",
 	}
-	PetsTable.ForeignKeys[0].RefTable = BreedsTable
-	PetsTable.ForeignKeys[1].RefTable = PetBonusesTable
-	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
-	PetsTable.ForeignKeys[3].RefTable = PetTreatmentsTable
-	PetsTable.ForeignKeys[4].RefTable = UsersTable
+	PetsTable.ForeignKeys[0].RefTable = BloodGroupsTable
+	PetsTable.ForeignKeys[1].RefTable = BreedsTable
+	PetsTable.ForeignKeys[2].RefTable = PetBonusesTable
+	PetsTable.ForeignKeys[3].RefTable = PetHealthsTable
+	PetsTable.ForeignKeys[4].RefTable = PetTreatmentsTable
+	PetsTable.ForeignKeys[5].RefTable = UsersTable
 	PetsTable.Annotation = &entsql.Annotation{
 		Table: "pets",
 	}

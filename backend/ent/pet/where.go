@@ -106,7 +106,7 @@ func ChipNumber(v string) predicate.Pet {
 }
 
 // BreedID applies equality check predicate on the "breed_id" field. It's identical to BreedIDEQ.
-func BreedID(v int) predicate.Pet {
+func BreedID(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBreedID, v))
 }
 
@@ -656,23 +656,58 @@ func PhotoUrlsNotNil() predicate.Pet {
 }
 
 // BreedIDEQ applies the EQ predicate on the "breed_id" field.
-func BreedIDEQ(v int) predicate.Pet {
+func BreedIDEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBreedID, v))
 }
 
 // BreedIDNEQ applies the NEQ predicate on the "breed_id" field.
-func BreedIDNEQ(v int) predicate.Pet {
+func BreedIDNEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldNEQ(FieldBreedID, v))
 }
 
 // BreedIDIn applies the In predicate on the "breed_id" field.
-func BreedIDIn(vs ...int) predicate.Pet {
+func BreedIDIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldIn(FieldBreedID, vs...))
 }
 
 // BreedIDNotIn applies the NotIn predicate on the "breed_id" field.
-func BreedIDNotIn(vs ...int) predicate.Pet {
+func BreedIDNotIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldNotIn(FieldBreedID, vs...))
+}
+
+// BreedIDGT applies the GT predicate on the "breed_id" field.
+func BreedIDGT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGT(FieldBreedID, v))
+}
+
+// BreedIDGTE applies the GTE predicate on the "breed_id" field.
+func BreedIDGTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGTE(FieldBreedID, v))
+}
+
+// BreedIDLT applies the LT predicate on the "breed_id" field.
+func BreedIDLT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLT(FieldBreedID, v))
+}
+
+// BreedIDLTE applies the LTE predicate on the "breed_id" field.
+func BreedIDLTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLTE(FieldBreedID, v))
+}
+
+// BreedIDContains applies the Contains predicate on the "breed_id" field.
+func BreedIDContains(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContains(FieldBreedID, v))
+}
+
+// BreedIDHasPrefix applies the HasPrefix predicate on the "breed_id" field.
+func BreedIDHasPrefix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasPrefix(FieldBreedID, v))
+}
+
+// BreedIDHasSuffix applies the HasSuffix predicate on the "breed_id" field.
+func BreedIDHasSuffix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasSuffix(FieldBreedID, v))
 }
 
 // BreedIDIsNil applies the IsNil predicate on the "breed_id" field.
@@ -683,6 +718,16 @@ func BreedIDIsNil() predicate.Pet {
 // BreedIDNotNil applies the NotNil predicate on the "breed_id" field.
 func BreedIDNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldBreedID))
+}
+
+// BreedIDEqualFold applies the EqualFold predicate on the "breed_id" field.
+func BreedIDEqualFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEqualFold(FieldBreedID, v))
+}
+
+// BreedIDContainsFold applies the ContainsFold predicate on the "breed_id" field.
+func BreedIDContainsFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContainsFold(FieldBreedID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.

@@ -49,7 +49,7 @@ type Pet struct {
 	// PhotoUrls holds the value of the "photo_urls" field.
 	PhotoUrls []string `json:"photoUrls"`
 	// BreedID holds the value of the "breed_id" field.
-	BreedID int `json:"breedId"`
+	BreedID string `json:"breedId"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"userId"`
 	// HealthID holds the value of the "health_id" field.
@@ -66,8 +66,9 @@ type Pet struct {
 	DonorRestrictions []string `json:"donorRestrictions"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
-	Edges        PetEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges            PetEdges `json:"edges"`
+	blood_group_pets *string
+	selectValues     sql.SelectValues
 }
 
 // PetEdges holds the relations/edges for other nodes in the graph.
@@ -89,6 +90,10 @@ type PetEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [7]bool
+	// totalCount holds the count of the edges above.
+	totalCount [7]map[string]int
+
+	namedAnalyses map[string][]*PetAnalysis
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
@@ -175,12 +180,12 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
-		case pet.FieldBreedID:
-			values[i] = new(sql.NullInt64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition, pet.FieldReproductiveStatus:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldBloodGroup, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition, pet.FieldReproductiveStatus:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
+		case pet.ForeignKeys[0]: // blood_group_pets
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -279,10 +284,10 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 				}
 			}
 		case pet.FieldBreedID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field breed_id", values[i])
 			} else if value.Valid {
-				_m.BreedID = int(value.Int64)
+				_m.BreedID = value.String
 			}
 		case pet.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -327,6 +332,13 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &_m.DonorRestrictions); err != nil {
 					return fmt.Errorf("unmarshal field donor_restrictions: %w", err)
 				}
+			}
+		case pet.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field blood_group_pets", values[i])
+			} else if value.Valid {
+				_m.blood_group_pets = new(string)
+				*_m.blood_group_pets = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -440,7 +452,7 @@ func (_m *Pet) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
 	builder.WriteString(", ")
 	builder.WriteString("breed_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BreedID))
+	builder.WriteString(_m.BreedID)
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(_m.UserID)
@@ -464,6 +476,30 @@ func (_m *Pet) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.DonorRestrictions))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedAnalyses returns the Analyses named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *Pet) NamedAnalyses(name string) ([]*PetAnalysis, error) {
+	if _m.Edges.namedAnalyses == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedAnalyses[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *Pet) appendNamedAnalyses(name string, edges ...*PetAnalysis) {
+	if _m.Edges.namedAnalyses == nil {
+		_m.Edges.namedAnalyses = make(map[string][]*PetAnalysis)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedAnalyses[name] = []*PetAnalysis{}
+	} else {
+		_m.Edges.namedAnalyses[name] = append(_m.Edges.namedAnalyses[name], edges...)
+	}
 }
 
 // Pets is a parsable slice of Pet.

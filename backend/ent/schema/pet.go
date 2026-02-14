@@ -41,7 +41,7 @@ func (Pet) Fields() []ent.Field {
 			Optional().MaxLen(15).StructTag(`json:"chipNumber"`),
 		field.JSON("photo_urls", []string{}).
 			Optional().StructTag(`json:"photoUrls"`),
-		field.Int("breed_id").
+		field.String("breed_id").
 			Optional().StructTag(`json:"breedId"`),
 		field.String("user_id").
 			Optional().StructTag(`json:"userId"`),

@@ -47,7 +47,7 @@ func (r *CachedBloodInfoRepository) AllComponents(ctx context.Context) ([]*ent.B
 }
 
 // ComponentByID возвращает компонент крови по ID с кешированием
-func (r *CachedBloodInfoRepository) ComponentByID(ctx context.Context, id int) (*ent.BloodComponent, error) {
+func (r *CachedBloodInfoRepository) ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error) {
 	cacheKey := fmt.Sprintf(cache.BloodComponentByIDKey, id)
 
 	// Пытаемся получить из кэша

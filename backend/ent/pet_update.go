@@ -230,13 +230,13 @@ func (_u *PetUpdate) ClearPhotoUrls() *PetUpdate {
 }
 
 // SetBreedID sets the "breed_id" field.
-func (_u *PetUpdate) SetBreedID(v int) *PetUpdate {
+func (_u *PetUpdate) SetBreedID(v string) *PetUpdate {
 	_u.mutation.SetBreedID(v)
 	return _u
 }
 
 // SetNillableBreedID sets the "breed_id" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableBreedID(v *int) *PetUpdate {
+func (_u *PetUpdate) SetNillableBreedID(v *string) *PetUpdate {
 	if v != nil {
 		_u.SetBreedID(*v)
 	}
@@ -465,13 +465,13 @@ func (_u *PetUpdate) SetBonuses(v *PetBonus) *PetUpdate {
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by ID.
-func (_u *PetUpdate) SetBreedRefID(id int) *PetUpdate {
+func (_u *PetUpdate) SetBreedRefID(id string) *PetUpdate {
 	_u.mutation.SetBreedRefID(id)
 	return _u
 }
 
 // SetNillableBreedRefID sets the "breed_ref" edge to the Breed entity by ID if the given value is not nil.
-func (_u *PetUpdate) SetNillableBreedRefID(id *int) *PetUpdate {
+func (_u *PetUpdate) SetNillableBreedRefID(id *string) *PetUpdate {
 	if id != nil {
 		_u = _u.SetBreedRefID(*id)
 	}
@@ -906,7 +906,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{pet.BreedRefColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -919,7 +919,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{pet.BreedRefColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -1170,13 +1170,13 @@ func (_u *PetUpdateOne) ClearPhotoUrls() *PetUpdateOne {
 }
 
 // SetBreedID sets the "breed_id" field.
-func (_u *PetUpdateOne) SetBreedID(v int) *PetUpdateOne {
+func (_u *PetUpdateOne) SetBreedID(v string) *PetUpdateOne {
 	_u.mutation.SetBreedID(v)
 	return _u
 }
 
 // SetNillableBreedID sets the "breed_id" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableBreedID(v *int) *PetUpdateOne {
+func (_u *PetUpdateOne) SetNillableBreedID(v *string) *PetUpdateOne {
 	if v != nil {
 		_u.SetBreedID(*v)
 	}
@@ -1405,13 +1405,13 @@ func (_u *PetUpdateOne) SetBonuses(v *PetBonus) *PetUpdateOne {
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by ID.
-func (_u *PetUpdateOne) SetBreedRefID(id int) *PetUpdateOne {
+func (_u *PetUpdateOne) SetBreedRefID(id string) *PetUpdateOne {
 	_u.mutation.SetBreedRefID(id)
 	return _u
 }
 
 // SetNillableBreedRefID sets the "breed_ref" edge to the Breed entity by ID if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableBreedRefID(id *int) *PetUpdateOne {
+func (_u *PetUpdateOne) SetNillableBreedRefID(id *string) *PetUpdateOne {
 	if id != nil {
 		_u = _u.SetBreedRefID(*id)
 	}
@@ -1876,7 +1876,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Columns: []string{pet.BreedRefColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1889,7 +1889,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Columns: []string{pet.BreedRefColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

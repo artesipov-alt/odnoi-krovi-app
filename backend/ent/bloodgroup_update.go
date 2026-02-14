@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
 
@@ -24,6 +26,32 @@ type BloodGroupUpdate struct {
 // Where appends a list predicates to the BloodGroupUpdate builder.
 func (_u *BloodGroupUpdate) Where(ps ...predicate.BloodGroup) *BloodGroupUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodGroupUpdate) SetUpdatedAt(v time.Time) *BloodGroupUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodGroupUpdate) SetDeletedAt(v time.Time) *BloodGroupUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodGroupUpdate) SetNillableDeletedAt(v *time.Time) *BloodGroupUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodGroupUpdate) ClearDeletedAt() *BloodGroupUpdate {
+	_u.mutation.ClearDeletedAt()
 	return _u
 }
 
@@ -75,13 +103,50 @@ func (_u *BloodGroupUpdate) ClearDescription() *BloodGroupUpdate {
 	return _u
 }
 
+// AddPetIDs adds the "pets" edge to the Pet entity by IDs.
+func (_u *BloodGroupUpdate) AddPetIDs(ids ...string) *BloodGroupUpdate {
+	_u.mutation.AddPetIDs(ids...)
+	return _u
+}
+
+// AddPets adds the "pets" edges to the Pet entity.
+func (_u *BloodGroupUpdate) AddPets(v ...*Pet) *BloodGroupUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPetIDs(ids...)
+}
+
 // Mutation returns the BloodGroupMutation object of the builder.
 func (_u *BloodGroupUpdate) Mutation() *BloodGroupMutation {
 	return _u.mutation
 }
 
+// ClearPets clears all "pets" edges to the Pet entity.
+func (_u *BloodGroupUpdate) ClearPets() *BloodGroupUpdate {
+	_u.mutation.ClearPets()
+	return _u
+}
+
+// RemovePetIDs removes the "pets" edge to Pet entities by IDs.
+func (_u *BloodGroupUpdate) RemovePetIDs(ids ...string) *BloodGroupUpdate {
+	_u.mutation.RemovePetIDs(ids...)
+	return _u
+}
+
+// RemovePets removes "pets" edges to Pet entities.
+func (_u *BloodGroupUpdate) RemovePets(v ...*Pet) *BloodGroupUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePetIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *BloodGroupUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -107,6 +172,14 @@ func (_u *BloodGroupUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *BloodGroupUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := bloodgroup.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *BloodGroupUpdate) check() error {
 	if v, ok := _u.mutation.PetType(); ok {
@@ -126,13 +199,22 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(bloodgroup.Table, bloodgroup.Columns, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(bloodgroup.Table, bloodgroup.Columns, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodgroup.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.PetType(); ok {
 		_spec.SetField(bloodgroup.FieldPetType, field.TypeEnum, value)
@@ -145,6 +227,51 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(bloodgroup.FieldDescription, field.TypeString)
+	}
+	if _u.mutation.PetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPetsIDs(); len(nodes) > 0 && !_u.mutation.PetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PetsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -164,6 +291,32 @@ type BloodGroupUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *BloodGroupMutation
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *BloodGroupUpdateOne) SetUpdatedAt(v time.Time) *BloodGroupUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *BloodGroupUpdateOne) SetDeletedAt(v time.Time) *BloodGroupUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *BloodGroupUpdateOne) SetNillableDeletedAt(v *time.Time) *BloodGroupUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *BloodGroupUpdateOne) ClearDeletedAt() *BloodGroupUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetPetType sets the "pet_type" field.
@@ -214,9 +367,45 @@ func (_u *BloodGroupUpdateOne) ClearDescription() *BloodGroupUpdateOne {
 	return _u
 }
 
+// AddPetIDs adds the "pets" edge to the Pet entity by IDs.
+func (_u *BloodGroupUpdateOne) AddPetIDs(ids ...string) *BloodGroupUpdateOne {
+	_u.mutation.AddPetIDs(ids...)
+	return _u
+}
+
+// AddPets adds the "pets" edges to the Pet entity.
+func (_u *BloodGroupUpdateOne) AddPets(v ...*Pet) *BloodGroupUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPetIDs(ids...)
+}
+
 // Mutation returns the BloodGroupMutation object of the builder.
 func (_u *BloodGroupUpdateOne) Mutation() *BloodGroupMutation {
 	return _u.mutation
+}
+
+// ClearPets clears all "pets" edges to the Pet entity.
+func (_u *BloodGroupUpdateOne) ClearPets() *BloodGroupUpdateOne {
+	_u.mutation.ClearPets()
+	return _u
+}
+
+// RemovePetIDs removes the "pets" edge to Pet entities by IDs.
+func (_u *BloodGroupUpdateOne) RemovePetIDs(ids ...string) *BloodGroupUpdateOne {
+	_u.mutation.RemovePetIDs(ids...)
+	return _u
+}
+
+// RemovePets removes "pets" edges to Pet entities.
+func (_u *BloodGroupUpdateOne) RemovePets(v ...*Pet) *BloodGroupUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePetIDs(ids...)
 }
 
 // Where appends a list predicates to the BloodGroupUpdate builder.
@@ -234,6 +423,7 @@ func (_u *BloodGroupUpdateOne) Select(field string, fields ...string) *BloodGrou
 
 // Save executes the query and returns the updated BloodGroup entity.
 func (_u *BloodGroupUpdateOne) Save(ctx context.Context) (*BloodGroup, error) {
+	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -259,6 +449,14 @@ func (_u *BloodGroupUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_u *BloodGroupUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		v := bloodgroup.UpdateDefaultUpdatedAt()
+		_u.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_u *BloodGroupUpdateOne) check() error {
 	if v, ok := _u.mutation.PetType(); ok {
@@ -278,7 +476,7 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(bloodgroup.Table, bloodgroup.Columns, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(bloodgroup.Table, bloodgroup.Columns, sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "BloodGroup.id" for update`)}
@@ -303,6 +501,15 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 			}
 		}
 	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(bloodgroup.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(bloodgroup.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(bloodgroup.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.PetType(); ok {
 		_spec.SetField(bloodgroup.FieldPetType, field.TypeEnum, value)
 	}
@@ -314,6 +521,51 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 	}
 	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(bloodgroup.FieldDescription, field.TypeString)
+	}
+	if _u.mutation.PetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPetsIDs(); len(nodes) > 0 && !_u.mutation.PetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PetsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &BloodGroup{config: _u.config}
 	_spec.Assign = _node.assignValues

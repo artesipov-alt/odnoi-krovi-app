@@ -4,6 +4,8 @@ package pet
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -148,10 +150,21 @@ var Columns = []string{
 	FieldDonorRestrictions,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "pets"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"blood_group_pets",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -498,4 +511,94 @@ func newBloodSearchRequestStep() *sqlgraph.Step {
 		sqlgraph.To(BloodSearchRequestInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, BloodSearchRequestTable, BloodSearchRequestColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e Type) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *Type) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = Type(str)
+	if err := TypeValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid Type", str)
+	}
+	return nil
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e PetStatus) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *PetStatus) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = PetStatus(str)
+	if err := PetStatusValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid PetStatus", str)
+	}
+	return nil
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e Gender) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *Gender) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = Gender(str)
+	if err := GenderValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid Gender", str)
+	}
+	return nil
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e LivingCondition) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *LivingCondition) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = LivingCondition(str)
+	if err := LivingConditionValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid LivingCondition", str)
+	}
+	return nil
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e ReproductiveStatus) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *ReproductiveStatus) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = ReproductiveStatus(str)
+	if err := ReproductiveStatusValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid ReproductiveStatus", str)
+	}
+	return nil
 }

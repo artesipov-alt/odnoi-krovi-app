@@ -116,7 +116,7 @@ func AllowGeo(v bool) predicate.User {
 }
 
 // LocationID applies equality check predicate on the "location_id" field. It's identical to LocationIDEQ.
-func LocationID(v int) predicate.User {
+func LocationID(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldLocationID, v))
 }
 
@@ -621,23 +621,58 @@ func AllowGeoNEQ(v bool) predicate.User {
 }
 
 // LocationIDEQ applies the EQ predicate on the "location_id" field.
-func LocationIDEQ(v int) predicate.User {
+func LocationIDEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldLocationID, v))
 }
 
 // LocationIDNEQ applies the NEQ predicate on the "location_id" field.
-func LocationIDNEQ(v int) predicate.User {
+func LocationIDNEQ(v string) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldLocationID, v))
 }
 
 // LocationIDIn applies the In predicate on the "location_id" field.
-func LocationIDIn(vs ...int) predicate.User {
+func LocationIDIn(vs ...string) predicate.User {
 	return predicate.User(sql.FieldIn(FieldLocationID, vs...))
 }
 
 // LocationIDNotIn applies the NotIn predicate on the "location_id" field.
-func LocationIDNotIn(vs ...int) predicate.User {
+func LocationIDNotIn(vs ...string) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldLocationID, vs...))
+}
+
+// LocationIDGT applies the GT predicate on the "location_id" field.
+func LocationIDGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldLocationID, v))
+}
+
+// LocationIDGTE applies the GTE predicate on the "location_id" field.
+func LocationIDGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldLocationID, v))
+}
+
+// LocationIDLT applies the LT predicate on the "location_id" field.
+func LocationIDLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldLocationID, v))
+}
+
+// LocationIDLTE applies the LTE predicate on the "location_id" field.
+func LocationIDLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldLocationID, v))
+}
+
+// LocationIDContains applies the Contains predicate on the "location_id" field.
+func LocationIDContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldLocationID, v))
+}
+
+// LocationIDHasPrefix applies the HasPrefix predicate on the "location_id" field.
+func LocationIDHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldLocationID, v))
+}
+
+// LocationIDHasSuffix applies the HasSuffix predicate on the "location_id" field.
+func LocationIDHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldLocationID, v))
 }
 
 // LocationIDIsNil applies the IsNil predicate on the "location_id" field.
@@ -648,6 +683,16 @@ func LocationIDIsNil() predicate.User {
 // LocationIDNotNil applies the NotNil predicate on the "location_id" field.
 func LocationIDNotNil() predicate.User {
 	return predicate.User(sql.FieldNotNull(FieldLocationID))
+}
+
+// LocationIDEqualFold applies the EqualFold predicate on the "location_id" field.
+func LocationIDEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldLocationID, v))
+}
+
+// LocationIDContainsFold applies the ContainsFold predicate on the "location_id" field.
+func LocationIDContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldLocationID, v))
 }
 
 // PhotoUrlsIsNil applies the IsNil predicate on the "photo_urls" field.

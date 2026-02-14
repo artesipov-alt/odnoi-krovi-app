@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -15,7 +16,13 @@ import (
 type Location struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id"`
+	ID string `json:"id"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deletedAt"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -31,6 +38,10 @@ type LocationEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
+	// totalCount holds the count of the edges above.
+	totalCount [1]map[string]int
+
+	namedUsers map[string][]*User
 }
 
 // UsersOrErr returns the Users value or an error if the edge
@@ -47,10 +58,10 @@ func (*Location) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case location.FieldID:
-			values[i] = new(sql.NullInt64)
-		case location.FieldName:
+		case location.FieldID, location.FieldName:
 			values[i] = new(sql.NullString)
+		case location.FieldCreatedAt, location.FieldUpdatedAt, location.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -67,11 +78,30 @@ func (_m *Location) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case location.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				_m.ID = value.String
 			}
-			_m.ID = int(value.Int64)
+		case location.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case location.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case location.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
 		case location.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -119,10 +149,45 @@ func (_m *Location) String() string {
 	var builder strings.Builder
 	builder.WriteString("Location(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedUsers returns the Users named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *Location) NamedUsers(name string) ([]*User, error) {
+	if _m.Edges.namedUsers == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedUsers[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *Location) appendNamedUsers(name string, edges ...*User) {
+	if _m.Edges.namedUsers == nil {
+		_m.Edges.namedUsers = make(map[string][]*User)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedUsers[name] = []*User{}
+	} else {
+		_m.Edges.namedUsers[name] = append(_m.Edges.namedUsers[name], edges...)
+	}
 }
 
 // Locations is a parsable slice of Location.

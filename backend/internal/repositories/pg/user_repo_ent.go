@@ -23,28 +23,10 @@ func NewEntUserRepository(client *ent.Client) *EntUserRepository {
 }
 
 // Create creates a new user in the database
-func (r *EntUserRepository) Create(ctx context.Context, u *ent.User) (*ent.User, error) {
-	if u == nil {
-		return nil, errors.New("user cannot be nil")
-	}
-
-	newUser, err := r.client.User.Create().
-		SetTelegramID(u.TelegramID).
-		SetNillableFullName(&u.FullName).
-		SetNillablePhone(&u.Phone).
-		SetNillableEmail(&u.Email).
-		SetNillableOrganizationName(&u.OrganizationName).
-		SetConsentPd(u.ConsentPd).
-		SetOnBoarding(u.OnBoarding).
-		SetAllowGeo(u.AllowGeo).
-		SetNillableLocationID(func() *int {
-			if u.LocationID > 0 {
-				return &u.LocationID
-			}
-			return nil
-		}()).
-		SetPhotoUrls(u.PhotoUrls).
-		SetRole(u.Role).
+func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
+	newUser, err := r.client.User.
+		Create().
+		SetInput(*input). // МАГИЯ! Ent сам вызовет все нужные Set-методы
 		Save(ctx)
 
 	if err != nil {
@@ -130,38 +112,24 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 }
 
 // Update updates an existing user in the database
-func (r *EntUserRepository) Update(ctx context.Context, u *ent.User) (*ent.User, error) {
-	if u == nil {
-		return nil, errors.New("user cannot be nil")
+func (r *EntUserRepository) Update(ctx context.Context, id string, input *ent.UpdateUserInput) error {
+	if input == nil {
+		return errors.New("user cannot be nil")
 	}
 
-	if u.ID == "" {
-		return nil, errors.New("invalid user ID")
+	if id == "" {
+		return errors.New("invalid user ID")
 	}
 
-	updatedUser, err := r.client.User.UpdateOneID(u.ID).
-		SetFullName(u.FullName).
-		SetPhone(u.Phone).
-		SetEmail(u.Email).
-		SetOrganizationName(u.OrganizationName).
-		SetConsentPd(u.ConsentPd).
-		SetOnBoarding(u.OnBoarding).
-		SetAllowGeo(u.AllowGeo).
-		SetNillableLocationID(func() *int {
-			if u.LocationID > 0 {
-				return &u.LocationID
-			}
-			return nil
-		}()).
-		SetPhotoUrls(u.PhotoUrls).
-		SetRole(u.Role).
+	_, err := r.client.User.UpdateOneID(id).
+		SetInput(*input).
 		Save(ctx)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to update user: %w", err)
+		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	return updatedUser, nil
+	return nil
 }
 
 // Delete deletes a user by their ID (soft delete via SoftDeleteMixin)

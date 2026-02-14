@@ -1,0 +1,9 @@
+# gqlgen.yml
+schema:
+  - ent.graphql # Он создастся сам
+
+models:
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.StringID

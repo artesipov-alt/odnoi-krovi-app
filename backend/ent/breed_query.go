@@ -20,11 +20,14 @@ import (
 // BreedQuery is the builder for querying Breed entities.
 type BreedQuery struct {
 	config
-	ctx        *QueryContext
-	order      []breed.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Breed
-	withPets   *PetQuery
+	ctx           *QueryContext
+	order         []breed.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Breed
+	withPets      *PetQuery
+	modifiers     []func(*sql.Selector)
+	loadTotal     []func(context.Context, []*Breed) error
+	withNamedPets map[string]*PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -107,8 +110,8 @@ func (_q *BreedQuery) FirstX(ctx context.Context) *Breed {
 
 // FirstID returns the first Breed ID from the query.
 // Returns a *NotFoundError when no Breed ID was found.
-func (_q *BreedQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *BreedQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -120,7 +123,7 @@ func (_q *BreedQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *BreedQuery) FirstIDX(ctx context.Context) int {
+func (_q *BreedQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -158,8 +161,8 @@ func (_q *BreedQuery) OnlyX(ctx context.Context) *Breed {
 // OnlyID is like Only, but returns the only Breed ID in the query.
 // Returns a *NotSingularError when more than one Breed ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *BreedQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *BreedQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -175,7 +178,7 @@ func (_q *BreedQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *BreedQuery) OnlyIDX(ctx context.Context) int {
+func (_q *BreedQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -203,7 +206,7 @@ func (_q *BreedQuery) AllX(ctx context.Context) []*Breed {
 }
 
 // IDs executes the query and returns a list of Breed IDs.
-func (_q *BreedQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *BreedQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -215,7 +218,7 @@ func (_q *BreedQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *BreedQuery) IDsX(ctx context.Context) []int {
+func (_q *BreedQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -299,12 +302,12 @@ func (_q *BreedQuery) WithPets(opts ...func(*PetQuery)) *BreedQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Breed.Query().
-//		GroupBy(breed.FieldName).
+//		GroupBy(breed.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *BreedQuery) GroupBy(field string, fields ...string) *BreedGroupBy {
@@ -322,11 +325,11 @@ func (_q *BreedQuery) GroupBy(field string, fields ...string) *BreedGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.Breed.Query().
-//		Select(breed.FieldName).
+//		Select(breed.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *BreedQuery) Select(fields ...string) *BreedSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -384,6 +387,9 @@ func (_q *BreedQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Breed,
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -400,12 +406,24 @@ func (_q *BreedQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Breed,
 			return nil, err
 		}
 	}
+	for name, query := range _q.withNamedPets {
+		if err := _q.loadPets(ctx, query, nodes,
+			func(n *Breed) { n.appendNamedPets(name) },
+			func(n *Breed, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *BreedQuery) loadPets(ctx context.Context, query *PetQuery, nodes []*Breed, init func(*Breed), assign func(*Breed, *Pet)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Breed)
+	nodeids := make(map[string]*Breed)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -413,6 +431,7 @@ func (_q *BreedQuery) loadPets(ctx context.Context, query *PetQuery, nodes []*Br
 			init(nodes[i])
 		}
 	}
+	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(pet.FieldBreedID)
 	}
@@ -436,6 +455,9 @@ func (_q *BreedQuery) loadPets(ctx context.Context, query *PetQuery, nodes []*Br
 
 func (_q *BreedQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -444,7 +466,7 @@ func (_q *BreedQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *BreedQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(breed.Table, breed.Columns, sqlgraph.NewFieldSpec(breed.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(breed.Table, breed.Columns, sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -513,6 +535,20 @@ func (_q *BreedQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedPets tells the query-builder to eager-load the nodes that are connected to the "pets"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *BreedQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *BreedQuery {
+	query := (&PetClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedPets == nil {
+		_q.withNamedPets = make(map[string]*PetQuery)
+	}
+	_q.withNamedPets[name] = query
+	return _q
 }
 
 // BreedGroupBy is the group-by builder for Breed entities.

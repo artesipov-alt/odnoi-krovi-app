@@ -37,6 +37,10 @@ type PetQuery struct {
 	withBonuses            *PetBonusQuery
 	withBreedRef           *BreedQuery
 	withBloodSearchRequest *BloodSearchRequestQuery
+	withFKs                bool
+	modifiers              []func(*sql.Selector)
+	loadTotal              []func(context.Context, []*Pet) error
+	withNamedAnalyses      map[string]*PetAnalysisQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -586,6 +590,7 @@ func (_q *PetQuery) prepareQuery(ctx context.Context) error {
 func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, error) {
 	var (
 		nodes       = []*Pet{}
+		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [7]bool{
 			_q.withOwner != nil,
@@ -597,6 +602,9 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 			_q.withBloodSearchRequest != nil,
 		}
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Pet).scanValues(nil, columns)
 	}
@@ -605,6 +613,9 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
+	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
@@ -655,6 +666,18 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 	if query := _q.withBloodSearchRequest; query != nil {
 		if err := _q.loadBloodSearchRequest(ctx, query, nodes, nil,
 			func(n *Pet, e *BloodSearchRequest) { n.Edges.BloodSearchRequest = e }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedAnalyses {
+		if err := _q.loadAnalyses(ctx, query, nodes,
+			func(n *Pet) { n.appendNamedAnalyses(name) },
+			func(n *Pet, e *PetAnalysis) { n.appendNamedAnalyses(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -808,8 +831,8 @@ func (_q *PetQuery) loadBonuses(ctx context.Context, query *PetBonusQuery, nodes
 	return nil
 }
 func (_q *PetQuery) loadBreedRef(ctx context.Context, query *BreedQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *Breed)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Pet)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Pet)
 	for i := range nodes {
 		fk := nodes[i].BreedID
 		if _, ok := nodeids[fk]; !ok {
@@ -866,6 +889,9 @@ func (_q *PetQuery) loadBloodSearchRequest(ctx context.Context, query *BloodSear
 
 func (_q *PetQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -958,6 +984,20 @@ func (_q *PetQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedAnalyses tells the query-builder to eager-load the nodes that are connected to the "analyses"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *PetQuery) WithNamedAnalyses(name string, opts ...func(*PetAnalysisQuery)) *PetQuery {
+	query := (&PetAnalysisClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedAnalyses == nil {
+		_q.withNamedAnalyses = make(map[string]*PetAnalysisQuery)
+	}
+	_q.withNamedAnalyses[name] = query
+	return _q
 }
 
 // PetGroupBy is the group-by builder for Pet entities.

@@ -21,7 +21,7 @@ type UserUpdate struct {
 	PhotoURLs  []string  `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
 	AllowGeo   *bool     `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
 	OnBoarding *[]string `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"DONOR,RECIPIENT"`
-	LocationID *int      `json:"locationId,omitempty" doc:"ID локации" minimum:"1"`
+	LocationID *string   `json:"locationId,omitempty" doc:"ID локации" minimum:"1"`
 }
 
 // User представляет данные пользователя для ответа API
@@ -36,7 +36,7 @@ type User struct {
 	ConsentPd        bool       `json:"consentPd" doc:"Согласие на ПД"`
 	OnBoarding       []string   `json:"onBoarding" doc:"Статусы онбординга"`
 	AllowGeo         bool       `json:"allowGeo" doc:"Разрешение использовать геоданные"`
-	LocationID       int        `json:"locationId,omitempty" doc:"ID локации"`
+	LocationID       string     `json:"locationId,omitempty" doc:"ID локации"`
 	Role             string     `json:"role" doc:"Роль"`
 	Pets             []Pet      `json:"pets,omitempty" doc:"Список питомцев"`
 	CreatedAt        *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`

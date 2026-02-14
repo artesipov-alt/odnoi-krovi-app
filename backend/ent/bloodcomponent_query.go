@@ -22,6 +22,8 @@ type BloodComponentQuery struct {
 	order      []bloodcomponent.OrderOption
 	inters     []Interceptor
 	predicates []predicate.BloodComponent
+	modifiers  []func(*sql.Selector)
+	loadTotal  []func(context.Context, []*BloodComponent) error
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -82,8 +84,8 @@ func (_q *BloodComponentQuery) FirstX(ctx context.Context) *BloodComponent {
 
 // FirstID returns the first BloodComponent ID from the query.
 // Returns a *NotFoundError when no BloodComponent ID was found.
-func (_q *BloodComponentQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *BloodComponentQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +97,7 @@ func (_q *BloodComponentQuery) FirstID(ctx context.Context) (id int, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *BloodComponentQuery) FirstIDX(ctx context.Context) int {
+func (_q *BloodComponentQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +135,8 @@ func (_q *BloodComponentQuery) OnlyX(ctx context.Context) *BloodComponent {
 // OnlyID is like Only, but returns the only BloodComponent ID in the query.
 // Returns a *NotSingularError when more than one BloodComponent ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *BloodComponentQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *BloodComponentQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +152,7 @@ func (_q *BloodComponentQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *BloodComponentQuery) OnlyIDX(ctx context.Context) int {
+func (_q *BloodComponentQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +180,7 @@ func (_q *BloodComponentQuery) AllX(ctx context.Context) []*BloodComponent {
 }
 
 // IDs executes the query and returns a list of BloodComponent IDs.
-func (_q *BloodComponentQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *BloodComponentQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -190,7 +192,7 @@ func (_q *BloodComponentQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *BloodComponentQuery) IDsX(ctx context.Context) []int {
+func (_q *BloodComponentQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -262,12 +264,12 @@ func (_q *BloodComponentQuery) Clone() *BloodComponentQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.BloodComponent.Query().
-//		GroupBy(bloodcomponent.FieldName).
+//		GroupBy(bloodcomponent.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *BloodComponentQuery) GroupBy(field string, fields ...string) *BloodComponentGroupBy {
@@ -285,11 +287,11 @@ func (_q *BloodComponentQuery) GroupBy(field string, fields ...string) *BloodCom
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.BloodComponent.Query().
-//		Select(bloodcomponent.FieldName).
+//		Select(bloodcomponent.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *BloodComponentQuery) Select(fields ...string) *BloodComponentSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -343,6 +345,9 @@ func (_q *BloodComponentQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -352,11 +357,19 @@ func (_q *BloodComponentQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *BloodComponentQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -365,7 +378,7 @@ func (_q *BloodComponentQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *BloodComponentQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(bloodcomponent.Table, bloodcomponent.Columns, sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(bloodcomponent.Table, bloodcomponent.Columns, sqlgraph.NewFieldSpec(bloodcomponent.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

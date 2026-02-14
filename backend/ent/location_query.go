@@ -20,11 +20,14 @@ import (
 // LocationQuery is the builder for querying Location entities.
 type LocationQuery struct {
 	config
-	ctx        *QueryContext
-	order      []location.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Location
-	withUsers  *UserQuery
+	ctx            *QueryContext
+	order          []location.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.Location
+	withUsers      *UserQuery
+	modifiers      []func(*sql.Selector)
+	loadTotal      []func(context.Context, []*Location) error
+	withNamedUsers map[string]*UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -107,8 +110,8 @@ func (_q *LocationQuery) FirstX(ctx context.Context) *Location {
 
 // FirstID returns the first Location ID from the query.
 // Returns a *NotFoundError when no Location ID was found.
-func (_q *LocationQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *LocationQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -120,7 +123,7 @@ func (_q *LocationQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *LocationQuery) FirstIDX(ctx context.Context) int {
+func (_q *LocationQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -158,8 +161,8 @@ func (_q *LocationQuery) OnlyX(ctx context.Context) *Location {
 // OnlyID is like Only, but returns the only Location ID in the query.
 // Returns a *NotSingularError when more than one Location ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *LocationQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (_q *LocationQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -175,7 +178,7 @@ func (_q *LocationQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *LocationQuery) OnlyIDX(ctx context.Context) int {
+func (_q *LocationQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -203,7 +206,7 @@ func (_q *LocationQuery) AllX(ctx context.Context) []*Location {
 }
 
 // IDs executes the query and returns a list of Location IDs.
-func (_q *LocationQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (_q *LocationQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
@@ -215,7 +218,7 @@ func (_q *LocationQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *LocationQuery) IDsX(ctx context.Context) []int {
+func (_q *LocationQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -299,12 +302,12 @@ func (_q *LocationQuery) WithUsers(opts ...func(*UserQuery)) *LocationQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name"`
+//		CreatedAt time.Time `json:"createdAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Location.Query().
-//		GroupBy(location.FieldName).
+//		GroupBy(location.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *LocationQuery) GroupBy(field string, fields ...string) *LocationGroupBy {
@@ -322,11 +325,11 @@ func (_q *LocationQuery) GroupBy(field string, fields ...string) *LocationGroupB
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name"`
+//		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
 //	client.Location.Query().
-//		Select(location.FieldName).
+//		Select(location.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (_q *LocationQuery) Select(fields ...string) *LocationSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -384,6 +387,9 @@ func (_q *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -400,12 +406,24 @@ func (_q *LocationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Loc
 			return nil, err
 		}
 	}
+	for name, query := range _q.withNamedUsers {
+		if err := _q.loadUsers(ctx, query, nodes,
+			func(n *Location) { n.appendNamedUsers(name) },
+			func(n *Location, e *User) { n.appendNamedUsers(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
 func (_q *LocationQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Location, init func(*Location), assign func(*Location, *User)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Location)
+	nodeids := make(map[string]*Location)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -436,6 +454,9 @@ func (_q *LocationQuery) loadUsers(ctx context.Context, query *UserQuery, nodes 
 
 func (_q *LocationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -444,7 +465,7 @@ func (_q *LocationQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (_q *LocationQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(location.Table, location.Columns, sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(location.Table, location.Columns, sqlgraph.NewFieldSpec(location.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -513,6 +534,20 @@ func (_q *LocationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedUsers tells the query-builder to eager-load the nodes that are connected to the "users"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *LocationQuery) WithNamedUsers(name string, opts ...func(*UserQuery)) *LocationQuery {
+	query := (&UserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedUsers == nil {
+		_q.withNamedUsers = make(map[string]*UserQuery)
+	}
+	_q.withNamedUsers[name] = query
+	return _q
 }
 
 // LocationGroupBy is the group-by builder for Location entities.

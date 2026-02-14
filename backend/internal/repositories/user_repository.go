@@ -9,7 +9,7 @@ import (
 // UserRepository определяет интерфейс для операций с данными пользователей
 type UserRepository interface {
 	// Create создает нового пользователя в базе данных
-	Create(ctx context.Context, user *ent.User) (*ent.User, error)
+	Create(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
 	// GetByID получает пользователя по его ID
 	GetByID(ctx context.Context, id string, preloads ...string) (*ent.User, error)
@@ -24,7 +24,7 @@ type UserRepository interface {
 	GetQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
 
 	// Update обновляет существующего пользователя в базе данных
-	Update(ctx context.Context, user *ent.User) (*ent.User, error)
+	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
 
 	// Delete удаляет пользователя по его ID
 	Delete(ctx context.Context, id string) error

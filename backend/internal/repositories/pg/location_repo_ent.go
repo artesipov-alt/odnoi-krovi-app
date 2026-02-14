@@ -2,7 +2,6 @@ package pg
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -22,17 +21,13 @@ func NewEntLocationRepository(client *ent.Client) *EntLocationRepository {
 }
 
 // GetByID retrieves a location by its ID
-func (r *EntLocationRepository) GetByID(ctx context.Context, id int) (*ent.Location, error) {
-	if id <= 0 {
-		return nil, errors.New("invalid location ID")
-	}
-
+func (r *EntLocationRepository) GetByID(ctx context.Context, id string) (*ent.Location, error) {
 	l, err := r.client.Location.Get(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("location with id %d not found: %w", id, err)
+			return nil, fmt.Errorf("location with id %s not found: %w", id, err)
 		}
-		return nil, fmt.Errorf("failed to get location by id %d: %w", id, err)
+		return nil, fmt.Errorf("failed to get location by id %s: %w", id, err)
 	}
 
 	return l, nil
@@ -49,4 +44,13 @@ func (r *EntLocationRepository) GetAll(ctx context.Context) ([]*ent.Location, er
 	}
 
 	return locations, nil
+}
+
+// Exists checks if a location with the given ID exists
+func (r *EntLocationRepository) Exists(ctx context.Context, id string) (bool, error) {
+	exists, err := r.client.Location.Query().Where(location.ID(id)).Exist(ctx)
+	if err != nil {
+		return false, fmt.Errorf("failed to check if location with id %s exists: %w", id, err)
+	}
+	return exists, nil
 }

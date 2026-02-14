@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -15,14 +16,45 @@ import (
 type BloodGroup struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id"`
+	ID string `json:"id"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updatedAt"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deletedAt"`
 	// PetType holds the value of the "pet_type" field.
 	PetType bloodgroup.PetType `json:"petType"`
 	// BloodGroup holds the value of the "blood_group" field.
 	BloodGroup string `json:"bloodGroup"`
 	// Description holds the value of the "description" field.
-	Description  string `json:"description"`
+	Description string `json:"description"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the BloodGroupQuery when eager-loading is set.
+	Edges        BloodGroupEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// BloodGroupEdges holds the relations/edges for other nodes in the graph.
+type BloodGroupEdges struct {
+	// Pets holds the value of the pets edge.
+	Pets []*Pet `json:"pets,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+	// totalCount holds the count of the edges above.
+	totalCount [1]map[string]int
+
+	namedPets map[string][]*Pet
+}
+
+// PetsOrErr returns the Pets value or an error if the edge
+// was not loaded in eager-loading.
+func (e BloodGroupEdges) PetsOrErr() ([]*Pet, error) {
+	if e.loadedTypes[0] {
+		return e.Pets, nil
+	}
+	return nil, &NotLoadedError{edge: "pets"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -30,10 +62,10 @@ func (*BloodGroup) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bloodgroup.FieldID:
-			values[i] = new(sql.NullInt64)
-		case bloodgroup.FieldPetType, bloodgroup.FieldBloodGroup, bloodgroup.FieldDescription:
+		case bloodgroup.FieldID, bloodgroup.FieldPetType, bloodgroup.FieldBloodGroup, bloodgroup.FieldDescription:
 			values[i] = new(sql.NullString)
+		case bloodgroup.FieldCreatedAt, bloodgroup.FieldUpdatedAt, bloodgroup.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -50,11 +82,30 @@ func (_m *BloodGroup) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case bloodgroup.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				_m.ID = value.String
 			}
-			_m.ID = int(value.Int64)
+		case bloodgroup.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				_m.CreatedAt = value.Time
+			}
+		case bloodgroup.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = value.Time
+			}
+		case bloodgroup.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
+			}
 		case bloodgroup.FieldPetType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field pet_type", values[i])
@@ -86,6 +137,11 @@ func (_m *BloodGroup) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
+// QueryPets queries the "pets" edge of the BloodGroup entity.
+func (_m *BloodGroup) QueryPets() *PetQuery {
+	return NewBloodGroupClient(_m.config).QueryPets(_m)
+}
+
 // Update returns a builder for updating this BloodGroup.
 // Note that you need to call BloodGroup.Unwrap() before calling this method if this BloodGroup
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -109,6 +165,17 @@ func (_m *BloodGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("BloodGroup(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("created_at=")
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
 	builder.WriteString("pet_type=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PetType))
 	builder.WriteString(", ")
@@ -119,6 +186,30 @@ func (_m *BloodGroup) String() string {
 	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedPets returns the Pets named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *BloodGroup) NamedPets(name string) ([]*Pet, error) {
+	if _m.Edges.namedPets == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedPets[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *BloodGroup) appendNamedPets(name string, edges ...*Pet) {
+	if _m.Edges.namedPets == nil {
+		_m.Edges.namedPets = make(map[string][]*Pet)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedPets[name] = []*Pet{}
+	} else {
+		_m.Edges.namedPets[name] = append(_m.Edges.namedPets[name], edges...)
+	}
 }
 
 // BloodGroups is a parsable slice of BloodGroup.

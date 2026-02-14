@@ -205,13 +205,13 @@ func (_u *UserUpdate) SetNillableAllowGeo(v *bool) *UserUpdate {
 }
 
 // SetLocationID sets the "location_id" field.
-func (_u *UserUpdate) SetLocationID(v int) *UserUpdate {
+func (_u *UserUpdate) SetLocationID(v string) *UserUpdate {
 	_u.mutation.SetLocationID(v)
 	return _u
 }
 
 // SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableLocationID(v *int) *UserUpdate {
+func (_u *UserUpdate) SetNillableLocationID(v *string) *UserUpdate {
 	if v != nil {
 		_u.SetLocationID(*v)
 	}
@@ -509,7 +509,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -522,7 +522,7 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{user.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -724,13 +724,13 @@ func (_u *UserUpdateOne) SetNillableAllowGeo(v *bool) *UserUpdateOne {
 }
 
 // SetLocationID sets the "location_id" field.
-func (_u *UserUpdateOne) SetLocationID(v int) *UserUpdateOne {
+func (_u *UserUpdateOne) SetLocationID(v string) *UserUpdateOne {
 	_u.mutation.SetLocationID(v)
 	return _u
 }
 
 // SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableLocationID(v *int) *UserUpdateOne {
+func (_u *UserUpdateOne) SetNillableLocationID(v *string) *UserUpdateOne {
 	if v != nil {
 		_u.SetLocationID(*v)
 	}
@@ -1058,7 +1058,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1071,7 +1071,7 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Columns: []string{user.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

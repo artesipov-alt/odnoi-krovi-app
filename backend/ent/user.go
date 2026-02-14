@@ -42,7 +42,7 @@ type User struct {
 	// AllowGeo holds the value of the "allow_geo" field.
 	AllowGeo bool `json:"allowGeo"`
 	// LocationID holds the value of the "location_id" field.
-	LocationID int `json:"locationId"`
+	LocationID string `json:"locationId"`
 	// PhotoUrls holds the value of the "photo_urls" field.
 	PhotoUrls []string `json:"photoUrls"`
 	// Role holds the value of the "role" field.
@@ -62,6 +62,10 @@ type UserEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
+	// totalCount holds the count of the edges above.
+	totalCount [2]map[string]int
+
+	namedPets map[string][]*Pet
 }
 
 // PetsOrErr returns the Pets value or an error if the edge
@@ -93,9 +97,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case user.FieldConsentPd, user.FieldAllowGeo:
 			values[i] = new(sql.NullBool)
-		case user.FieldTelegramID, user.FieldLocationID:
+		case user.FieldTelegramID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldID, user.FieldFullName, user.FieldPhone, user.FieldEmail, user.FieldOrganizationName, user.FieldRole:
+		case user.FieldID, user.FieldFullName, user.FieldPhone, user.FieldEmail, user.FieldOrganizationName, user.FieldLocationID, user.FieldRole:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -190,10 +194,10 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				_m.AllowGeo = value.Bool
 			}
 		case user.FieldLocationID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field location_id", values[i])
 			} else if value.Valid {
-				_m.LocationID = int(value.Int64)
+				_m.LocationID = value.String
 			}
 		case user.FieldPhotoUrls:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -291,7 +295,7 @@ func (_m *User) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.AllowGeo))
 	builder.WriteString(", ")
 	builder.WriteString("location_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.LocationID))
+	builder.WriteString(_m.LocationID)
 	builder.WriteString(", ")
 	builder.WriteString("photo_urls=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
@@ -300,6 +304,30 @@ func (_m *User) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.Role))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedPets returns the Pets named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *User) NamedPets(name string) ([]*Pet, error) {
+	if _m.Edges.namedPets == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedPets[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *User) appendNamedPets(name string, edges ...*Pet) {
+	if _m.Edges.namedPets == nil {
+		_m.Edges.namedPets = make(map[string][]*Pet)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedPets[name] = []*Pet{}
+	} else {
+		_m.Edges.namedPets[name] = append(_m.Edges.namedPets[name], edges...)
+	}
 }
 
 // Users is a parsable slice of User.

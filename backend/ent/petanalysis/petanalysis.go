@@ -4,6 +4,8 @@ package petanalysis
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -192,4 +194,40 @@ func newOwnerStep() *sqlgraph.Step {
 		sqlgraph.To(OwnerInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, OwnerTable, OwnerColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e AnalysisName) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *AnalysisName) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = AnalysisName(str)
+	if err := AnalysisNameValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid AnalysisName", str)
+	}
+	return nil
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e AnalysisType) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *AnalysisType) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = AnalysisType(str)
+	if err := AnalysisTypeValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid AnalysisType", str)
+	}
+	return nil
 }

@@ -145,13 +145,13 @@ func (_c *UserCreate) SetAllowGeo(v bool) *UserCreate {
 }
 
 // SetLocationID sets the "location_id" field.
-func (_c *UserCreate) SetLocationID(v int) *UserCreate {
+func (_c *UserCreate) SetLocationID(v string) *UserCreate {
 	_c.mutation.SetLocationID(v)
 	return _c
 }
 
 // SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (_c *UserCreate) SetNillableLocationID(v *int) *UserCreate {
+func (_c *UserCreate) SetNillableLocationID(v *string) *UserCreate {
 	if v != nil {
 		_c.SetLocationID(*v)
 	}
@@ -421,7 +421,7 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.LocationColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

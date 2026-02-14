@@ -10,6 +10,6 @@ import (
 // BloodInfoRepository определяет интерфейс для работы с типами крови
 type BloodInfoRepository interface {
 	AllComponents(ctx context.Context) ([]*ent.BloodComponent, error)
-	ComponentByID(ctx context.Context, id int) (*ent.BloodComponent, error)
+	ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error)
 	BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error)
 }

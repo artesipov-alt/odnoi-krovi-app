@@ -13,7 +13,7 @@ type BreedRepository interface {
 	GetAll(ctx context.Context) ([]*ent.Breed, error)
 
 	// GetByID получает породу по её ID
-	GetByID(ctx context.Context, id int) (*ent.Breed, error)
+	GetByID(ctx context.Context, id string) (*ent.Breed, error)
 
 	// GetByPetType получает породы по типу животного
 	GetByPetType(ctx context.Context, petType breed.Type) ([]*ent.Breed, error)
@@ -25,7 +25,7 @@ type BreedRepository interface {
 	Update(ctx context.Context, b *ent.Breed) (*ent.Breed, error)
 
 	// Delete удаляет породу по её ID
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id string) error
 
 	// ExistsByName проверяет, существует ли порода с заданным названием
 	ExistsByName(ctx context.Context, name string) (bool, error)

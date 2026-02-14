@@ -21,12 +21,15 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx          *QueryContext
-	order        []user.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.User
-	withPets     *PetQuery
-	withLocation *LocationQuery
+	ctx           *QueryContext
+	order         []user.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.User
+	withPets      *PetQuery
+	withLocation  *LocationQuery
+	modifiers     []func(*sql.Selector)
+	loadTotal     []func(context.Context, []*User) error
+	withNamedPets map[string]*PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -421,6 +424,9 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -443,6 +449,18 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	for name, query := range _q.withNamedPets {
+		if err := _q.loadPets(ctx, query, nodes,
+			func(n *User) { n.appendNamedPets(name) },
+			func(n *User, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -456,6 +474,7 @@ func (_q *UserQuery) loadPets(ctx context.Context, query *PetQuery, nodes []*Use
 			init(nodes[i])
 		}
 	}
+	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(pet.FieldUserID)
 	}
@@ -477,8 +496,8 @@ func (_q *UserQuery) loadPets(ctx context.Context, query *PetQuery, nodes []*Use
 	return nil
 }
 func (_q *UserQuery) loadLocation(ctx context.Context, query *LocationQuery, nodes []*User, init func(*User), assign func(*User, *Location)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*User)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*User)
 	for i := range nodes {
 		fk := nodes[i].LocationID
 		if _, ok := nodeids[fk]; !ok {
@@ -508,6 +527,9 @@ func (_q *UserQuery) loadLocation(ctx context.Context, query *LocationQuery, nod
 
 func (_q *UserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -588,6 +610,20 @@ func (_q *UserQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedPets tells the query-builder to eager-load the nodes that are connected to the "pets"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *UserQuery {
+	query := (&PetClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedPets == nil {
+		_q.withNamedPets = make(map[string]*PetQuery)
+	}
+	_q.withNamedPets[name] = query
+	return _q
 }
 
 // UserGroupBy is the group-by builder for User entities.

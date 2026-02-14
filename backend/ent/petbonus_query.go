@@ -25,6 +25,8 @@ type PetBonusQuery struct {
 	inters     []Interceptor
 	predicates []predicate.PetBonus
 	withOwner  *PetQuery
+	modifiers  []func(*sql.Selector)
+	loadTotal  []func(context.Context, []*PetBonus) error
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -384,6 +386,9 @@ func (_q *PetBonusQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -399,6 +404,11 @@ func (_q *PetBonusQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet
 			return nil, err
 		}
 	}
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -409,6 +419,7 @@ func (_q *PetBonusQuery) loadOwner(ctx context.Context, query *PetQuery, nodes [
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
+	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(pet.FieldBonusID)
 	}
@@ -432,6 +443,9 @@ func (_q *PetBonusQuery) loadOwner(ctx context.Context, query *PetQuery, nodes [
 
 func (_q *PetBonusQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique

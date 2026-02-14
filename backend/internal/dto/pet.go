@@ -64,7 +64,7 @@ type RestrictionFactor struct {
 type PetUpdate struct {
 	Name               *string           `json:"name,omitempty" validate:"omitempty,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber         *string           `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
-	BreedID            *int              `json:"breedId,omitempty" validate:"omitempty,min=1" doc:"ID породы" example:"1"`
+	BreedID            *string           `json:"breedId,omitempty" validate:"omitempty,min=1" doc:"ID породы" example:"1"`
 	WeightKg           *float64          `json:"weightKg,omitempty" validate:"omitempty,min=0" doc:"Вес в килограммах" example:"15.5"`
 	AgeYears           *int              `json:"ageYears,omitempty" validate:"omitempty,min=0" doc:"Возраст в годах" example:"3"`
 	AgeMonths          *int              `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах" example:"6"`
@@ -86,7 +86,7 @@ type PetUpdate struct {
 type PetCreate struct {
 	Name               string            `json:"name" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber         string            `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
-	BreedID            int               `json:"breedId,omitempty" doc:"ID породы" example:"1"`
+	BreedID            string            `json:"breedId,omitempty" doc:"ID породы" example:"1"`
 	WeightKg           float64           `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
 	AgeYears           int               `json:"ageYears,omitempty" doc:"Возраст в годах" example:"3"`
 	AgeMonths          int               `json:"ageMonths,omitempty" doc:"Возраст в месяцах" example:"6"`
@@ -108,7 +108,7 @@ type Pet struct {
 	Name               string             `json:"name" doc:"Имя питомца" example:"Шарик"`
 	ChipNumber         string             `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
 	PhotoURLs          []string           `json:"photoUrls,omitempty" doc:"URLs фотографий питомца" example:"https://example.com/photo.jpg"`
-	BreedID            int                `json:"breedId,omitempty" doc:"ID породы" example:"1"`
+	BreedID            string             `json:"breedId,omitempty" doc:"ID породы" example:"1"`
 	WeightKg           float64            `json:"weightKg,omitempty" doc:"Вес в килограммах" example:"15.5"`
 	BirthDate          *time.Time         `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
 	LivingCondition    string             `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
