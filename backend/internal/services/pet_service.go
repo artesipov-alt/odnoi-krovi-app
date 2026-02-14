@@ -14,6 +14,15 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 )
 
+// PetPreloadOptions определяет опции для preload связанных данных питомца
+type PetPreloadOptions struct {
+	WithHealth     bool
+	WithTreatments bool
+	WithAnalyses   bool
+	WithBonuses    bool
+	WithAll        bool
+}
+
 // PetService определяет интерфейс для бизнес-логики питомцев
 type PetService interface {
 	// CreatePet создает нового питомца для пользователя
@@ -24,6 +33,12 @@ type PetService interface {
 
 	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
 	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
+
+	// GetPet получает питомца с preload связанных данных
+	GetPet(ctx context.Context, petID string, opts PetPreloadOptions) (*ent.Pet, error)
+
+	// GetUserPets получает всех питомцев пользователя с preload связанных данных
+	GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*ent.Pet, error)
 
 	// Update обновляет питомца и его связанные сущности (здоровье, лечения, анализы, бонусы)
 	// Все параметры могут быть nil - тогда соответствующие данные не обновляются
@@ -197,8 +212,45 @@ func (s *PetServiceImpl) GetPetsQueryByUser(ctx context.Context, userID string) 
 	return s.petRepo.GetPetsQueryByUser(ctx, userID)
 }
 
+// GetPet получает питомца с preload связанных данных
+func (s *PetServiceImpl) GetPet(ctx context.Context, petID string, opts PetPreloadOptions) (*ent.Pet, error) {
+	pquery := s.petRepo.GetPetQuery(ctx, petID)
+
+	// Применяем preload опции
+	if opts.WithAll {
+		pquery = pquery.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	} else {
+		if opts.WithHealth {
+			pquery = pquery.WithHealth()
+		}
+		if opts.WithTreatments {
+			pquery = pquery.WithTreatments()
+		}
+		if opts.WithAnalyses {
+			pquery = pquery.WithAnalyses()
+		}
+		if opts.WithBonuses {
+			pquery = pquery.WithBonuses()
+		}
+	}
+
+	pet, err := pquery.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrPetNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to get pet")
+	}
+
+	// Преобразуем пути к фото в полные URL
+	s.BuildFullPhotoURLs(pet)
+
+	return pet, nil
+}
+
 // GetUserPets получает всех питомцев пользователя с preload связей
-func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opt UserOptions) ([]*ent.Pet, error) {
+// GetUserPets получает всех питомцев пользователя с preload связей
+func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
 	uquery := s.userRepo.GetQueryByID(ctx, userID)
 	_, err := uquery.Only(ctx)
@@ -210,12 +262,26 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opt Use
 	}
 
 	pquery := s.petRepo.GetPetsQueryByUser(ctx, userID)
-	if opt.WithPets {
-		pquery = pquery.WithOwner()
+
+	// Применяем preload опции
+	if opts.WithAll {
+		pquery = pquery.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	} else {
+		if opts.WithHealth {
+			pquery = pquery.WithHealth()
+		}
+		if opts.WithTreatments {
+			pquery = pquery.WithTreatments()
+		}
+		if opts.WithAnalyses {
+			pquery = pquery.WithAnalyses()
+		}
+		if opts.WithBonuses {
+			pquery = pquery.WithBonuses()
+		}
 	}
 
 	pets, err := pquery.All(ctx)
-
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
@@ -337,17 +403,9 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 // ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
 func (s *PetServiceImpl) ApplyValidation(ctx context.Context, petID string) ([]validator.FactorCode, []validator.FactorCode, error) {
 	// Получаем питомца для валидации
-	p, err := s.petRepo.GetPetQuery(ctx, petID).
-		WithHealth().
-		WithTreatments().
-		WithAnalyses().
-		WithBonuses().
-		Only(ctx)
+	p, err := s.GetPet(ctx, petID, PetPreloadOptions{WithAll: true})
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, nil, apperrors.ErrPetNotFound
-		}
-		return nil, nil, apperrors.Internal(err, "failed to get pet for validation")
+		return nil, nil, err
 	}
 
 	stopFactors := s.validator.GetStopFactors(p)

@@ -199,29 +199,17 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	dto.IDPathStr
 	dto.PetPreloadQuery
 }) (*dto.PetResponse, error) {
-	query := h.petService.GetPetQuery(ctx, input.ID)
-	if input.WithHealth {
-		query = query.WithHealth()
-	}
-	if input.WithTreatments {
-		query = query.WithTreatments()
-	}
-	if input.WithAnalysis {
-		query = query.WithAnalyses()
-	}
-	if input.WithBonuses {
-		query = query.WithBonuses()
-	}
-	if input.WithAll {
-		query = query.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	opts := services.PetPreloadOptions{
+		WithHealth:     input.WithHealth,
+		WithTreatments: input.WithTreatments,
+		WithAnalyses:   input.WithAnalysis,
+		WithBonuses:    input.WithBonuses,
+		WithAll:        input.WithAll,
 	}
 
-	pet, err := query.Only(ctx)
+	pet, err := h.petService.GetPet(ctx, input.ID, opts)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrPetNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get pet")
+		return nil, err
 	}
 
 	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
@@ -231,31 +219,17 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	dto.PetPreloadQuery
 }) (*dto.PetsResponse, error) {
-	query := h.petService.GetPetsQueryByUser(ctx, input.ID)
-	if input.WithHealth {
-		query = query.WithHealth()
-	}
-	if input.WithTreatments {
-		query = query.WithTreatments()
-	}
-	if input.WithAnalysis {
-		query = query.WithAnalyses()
-	}
-	if input.WithBonuses {
-		query = query.WithBonuses()
-	}
-	if input.WithAll {
-		query = query.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	opts := services.PetPreloadOptions{
+		WithHealth:     input.WithHealth,
+		WithTreatments: input.WithTreatments,
+		WithAnalyses:   input.WithAnalysis,
+		WithBonuses:    input.WithBonuses,
+		WithAll:        input.WithAll,
 	}
 
-	pets, err := query.All(ctx)
+	pets, err := h.petService.GetUserPets(ctx, input.ID, opts)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get user pets")
-	}
-
-	// Преобразуем пути к фото в полные URL для каждого питомца
-	for _, pet := range pets {
-		h.petService.BuildFullPhotoURLs(pet)
+		return nil, err
 	}
 
 	return &dto.PetsResponse{Body: h.toPetsDTO(pets)}, nil
