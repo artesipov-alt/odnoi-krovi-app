@@ -64,7 +64,18 @@
                 "jsx-a11y/label-has-associated-control": "off",
                 "jsx-a11y/no-noninteractive-element-interactions": "off",
                 "class-methods-use-this": "off",
-                "simple-import-sort/imports": "off",
+                "simple-import-sort/imports": [
+                    "error",
+                    {
+                        "groups": [
+                            ["^\\u0000"],
+                            ["^@?\\w"],
+                            ["^(config|modules|api|store|components|designSystemm)"],
+                            ["^"],
+                            ["^\\."]
+                        ]
+                    }
+                ],
                 "testing-library/prefer-screen-queries": "off",
                 "arrow-body-style": ["error", "as-needed"],
                 "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": false }]
