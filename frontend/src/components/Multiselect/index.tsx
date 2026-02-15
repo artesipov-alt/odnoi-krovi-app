@@ -9,7 +9,7 @@ import { FC, ReactElement } from 'react';
 import styles from './Multiselect.module.less';
 
 type Dict = {
-    value: number;
+    value: string;
     label: string;
 }[];
 
@@ -83,7 +83,7 @@ const Multiselect: FC<Props> = ({ selectValue, onChange, dict }) => (
                             classes={{
                                 root: styles.chip,
                             }}
-                            label={dict.filter((el) => Number(el.value) === Number(value))[0].label}
+                            label={dict.filter((el) => el.value === value)[0].label}
                         />
                     ))}
                 </Box>

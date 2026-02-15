@@ -14,14 +14,11 @@ export type PetGenderDict = {
 };
 
 export type Dict = {
-    value: number;
-    label: string;
-};
-
-export type StringDict = {
     value: string;
     label: string;
 };
+
+export type StringDict = Dict;
 
 export type GetPetsTypesResponse = {
     data: PetTypeDict[];
@@ -48,15 +45,15 @@ export type GetBreedsByTypeResponse = {
 };
 
 export type GetLivingConditionsResponse = {
-    data: StringDict[];
+    data: Dict[];
 };
 
 export type GetHealthStatusesResponse = {
-    data: StringDict[];
+    data: Dict[];
 };
 
 export type GetReproductiveStatusesResponse = {
-    data: StringDict[];
+    data: Dict[];
 };
 
 export interface IReferenceApi {

@@ -6,7 +6,7 @@ import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { regexReal } from 'utils/regexps';
 
-import { Dict, StringDict } from 'api/reference';
+import { Dict } from 'api/reference';
 import { PetGender, PetType } from 'api/types';
 import Alert from 'components/Alert';
 import TextField from 'components/TextField';
@@ -21,9 +21,9 @@ type Props = {
     bloodGroup: string;
     livingCondition: string;
     reproductiveStatus: string;
-    livingConditionsDict: StringDict[];
+    livingConditionsDict: Dict[];
     breedsDict: BloodAndBreedGroupsDict;
-    reproductiveStatusesDict: StringDict[];
+    reproductiveStatusesDict: Dict[];
     bloodGroupDict: BloodAndBreedGroupsDict;
     onChangeWeight: (weight: string) => void;
     onChangeBreed: (breed: Dict | null) => void;

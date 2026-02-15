@@ -13,7 +13,7 @@ import { getCorrectDeclension, Variants } from 'utils/utils';
 
 import { updatePet } from 'api/apiServices/updatePet';
 import { Pet } from 'api/pets';
-import { Dict, PetGenderDict, PetTypeDict, StringDict } from 'api/reference';
+import { Dict, PetGenderDict, PetTypeDict } from 'api/reference';
 import { PetGender, PetType } from 'api/types';
 import Alert from 'components/Alert';
 import DatePicker from 'components/DatePicker';
@@ -29,7 +29,7 @@ type Props = {
     type: string;
     gender?: string;
     weightKg: number;
-    breedId?: number;
+    breedId?: string;
     birthDate?: Date;
     bloodGroup: string;
     onClose: () => void;
@@ -41,9 +41,9 @@ type Props = {
     reproductiveStatus?: string;
     petGenders: PetGenderDict[];
     onSuccessUpdate: () => void;
-    livingConditionsDict: StringDict[];
+    livingConditionsDict: Dict[];
     breedsDict: BloodAndBreedGroupsDict;
-    reproductiveStatusesDict: StringDict[];
+    reproductiveStatusesDict: Dict[];
     bloodGroupDict: BloodAndBreedGroupsDict;
 };
 

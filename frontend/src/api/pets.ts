@@ -49,7 +49,7 @@ export type Pet = {
     type: PetType;
     health?: Health;
     petStatus: Role;
-    breedId?: number;
+    breedId?: string;
     weightKg: number;
     birthDate?: Date;
     bonuses?: Bonuses;

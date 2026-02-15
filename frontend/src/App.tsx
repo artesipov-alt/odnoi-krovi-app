@@ -3,6 +3,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ru } from 'date-fns/locale/ru';
 
 import Adding from './pages/adding';
 import Owner from './pages/owner';
@@ -17,7 +20,7 @@ const App: FC = () => {
     }
 
     return (
-        <>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
             <Routes>
                 <Route path='/owner' element={<Owner user={user} />} />
                 <Route path='/adding' element={<Adding user={user} />} />
@@ -33,7 +36,7 @@ const App: FC = () => {
                 position='top-right'
                 closeOnClick={false}
             />
-        </>
+        </LocalizationProvider>
     );
 };
 

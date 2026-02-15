@@ -6,7 +6,7 @@ import { ChangeEvent, FC, useEffect, useState } from 'react';
 
 import { updatePet } from 'api/apiServices/updatePet';
 import { Pet } from 'api/pets';
-import { StringDict } from 'api/reference';
+import { Dict } from 'api/reference';
 import Alert, { View } from 'components/Alert';
 import TextField from 'components/TextField';
 
@@ -24,7 +24,7 @@ type Props = {
     onErrorUpdate: () => void;
     onSuccessUpdate: () => void;
     surgicalInterventions?: string;
-    healthStatusesDict: StringDict[];
+    healthStatusesDict: Dict[];
 };
 
 const MAX_LETTERS = 250;

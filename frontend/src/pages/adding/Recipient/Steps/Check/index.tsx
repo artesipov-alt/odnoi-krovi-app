@@ -78,9 +78,7 @@ const Check: FC<Props> = ({
                         weight={weight}
                         petType={petType}
                         serverSrc={photoUrl}
-                        bloodGroup={
-                            bloodGroupDict[petType].filter(({ value }) => value === Number(bloodGroup))[0].label
-                        }
+                        bloodGroup={bloodGroupDict[petType]?.filter(({ value }) => value === bloodGroup)?.[0]?.label}
                     />
                 </div>
                 <div className={styles.titleWrapper}>
@@ -105,7 +103,7 @@ const Check: FC<Props> = ({
                         <div className={styles.bloodGroupWrapper}>
                             {desiredBloodGroups.map((group) => (
                                 <div key={group} className={styles.bloodGroup}>
-                                    {bloodGroupDict[petType].filter(({ value }) => value === Number(group))[0].label}
+                                    {bloodGroupDict[petType]?.filter(({ value }) => value === group)?.[0]?.label}
                                 </div>
                             ))}
                         </div>
@@ -121,7 +119,7 @@ const Check: FC<Props> = ({
                     <div className={styles.bloodComponents}>
                         {bloodComponents.map((comp) => (
                             <div key={comp} className={styles.itemText}>
-                                {bloodComponentsDict.filter(({ value }) => value === Number(comp))[0].label}
+                                {bloodComponentsDict.filter(({ value }) => value === comp)[0].label}
                             </div>
                         ))}
                     </div>
@@ -133,7 +131,7 @@ const Check: FC<Props> = ({
                         </div>
                         <div className={styles.text}>
                             {locations
-                                .map((lock) => locationsDict.filter(({ value }) => value === Number(lock))[0].label)
+                                .map((lock) => locationsDict.filter(({ value }) => value === lock)[0].label)
                                 .join(', ')}
                         </div>
                     </div>

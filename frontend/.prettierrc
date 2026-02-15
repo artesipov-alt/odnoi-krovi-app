@@ -4,5 +4,8 @@
   "jsxSingleQuote": true,
   "bracketSpacing": true,
   "trailingComma": "all",
-  "semi": true
+  "semi": true,
+  "endOfLine": "lf",
+  "tabWidth": 4,
+  "useTabs": false
 }

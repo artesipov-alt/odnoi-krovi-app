@@ -3,7 +3,7 @@ import cn from 'classnames';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 
-import { StringDict } from 'api/reference';
+import { Dict } from 'api/reference';
 import Alert, { View } from 'components/Alert';
 import DatePicker from 'components/DatePicker';
 import TextField from 'components/TextField';
@@ -16,7 +16,7 @@ type Props = {
     medicationsList: string;
     lastDonation: Date | null;
     isNoLastDonation: boolean;
-    healthStatusesDict: StringDict[];
+    healthStatusesDict: Dict[];
     wasBloodTransfusion: boolean | null;
     isTakingMedications: boolean | null;
     wasSurgicalInterventions: boolean | null;

@@ -1,15 +1,7 @@
 {
   "parser": "babel-eslint",
-  "extends": [
-    "airbnb",
-    "prettier",
-    "plugin:prettier/recommended"
-  ],
-  "plugins": [
-    "prettier",
-    "simple-import-sort",
-    "react-hooks"
-  ],
+  "extends": ["airbnb", "prettier", "plugin:prettier/recommended"],
+  "plugins": ["prettier", "simple-import-sort", "react-hooks"],
   "env": {
     "browser": true
   },
@@ -21,7 +13,7 @@
         "parser": "@typescript-eslint/parser",
         "project": ["./tsconfig.json"]
       },
-      "rules":  {
+      "rules": {
         "no-param-reassign": "off"
       }
     },
@@ -35,10 +27,7 @@
         "react/jsx-key": "warn",
         "react-hooks/rules-of-hooks": "error",
         "react-hooks/exhaustive-deps": "warn",
-        "linebreak-style": [
-          "warn",
-          "windows"
-        ],
+        "linebreak-style": ["warn", "unix"],
         "padding-line-between-statements": [
           "error",
           {
@@ -65,10 +54,7 @@
         "jsx-a11y/no-static-element-interactions": "off",
         "jsx-a11y/interactive-supports-focus": "off",
         "jsx-a11y/control-has-associated-label": "off",
-        "jsx-quotes": [
-          "error",
-          "prefer-single"
-        ],
+        "jsx-quotes": ["error", "prefer-single"],
         "import/extensions": "off",
         "import/no-cycle": "warn",
         "import/no-extraneous-dependencies": "warn",
@@ -78,15 +64,18 @@
         "jsx-a11y/label-has-associated-control": "off",
         "jsx-a11y/no-noninteractive-element-interactions": "off",
         "class-methods-use-this": "off",
-        "simple-import-sort/imports": ["error", {
-          "groups": [
-            ["^\\u0000"],
-            ["^@?\\w"],
-            ["^(config|modules|api|store|components|designSystemm)"],
-            ["^"],
-            ["^\\."]
-          ]
-        }],
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              ["^\\u0000"],
+              ["^@?\\w"],
+              ["^(config|modules|api|store|components|designSystemm)"],
+              ["^"],
+              ["^\\."]
+            ]
+          }
+        ],
         "testing-library/prefer-screen-queries": "off",
         "arrow-body-style": ["error", "as-needed"],
         "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": false }]
