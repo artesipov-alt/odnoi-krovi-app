@@ -52,23 +52,19 @@ func (_c *BloodGroupCreate) SetID(v string) *BloodGroupCreate {
 	return _c
 }
 
-// SetPetsID sets the "pets" edge to the Pet entity by ID.
-func (_c *BloodGroupCreate) SetPetsID(id string) *BloodGroupCreate {
-	_c.mutation.SetPetsID(id)
+// AddPetIDs adds the "pets" edge to the Pet entity by IDs.
+func (_c *BloodGroupCreate) AddPetIDs(ids ...string) *BloodGroupCreate {
+	_c.mutation.AddPetIDs(ids...)
 	return _c
 }
 
-// SetNillablePetsID sets the "pets" edge to the Pet entity by ID if the given value is not nil.
-func (_c *BloodGroupCreate) SetNillablePetsID(id *string) *BloodGroupCreate {
-	if id != nil {
-		_c = _c.SetPetsID(*id)
+// AddPets adds the "pets" edges to the Pet entity.
+func (_c *BloodGroupCreate) AddPets(v ...*Pet) *BloodGroupCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _c
-}
-
-// SetPets sets the "pets" edge to the Pet entity.
-func (_c *BloodGroupCreate) SetPets(v *Pet) *BloodGroupCreate {
-	return _c.SetPetsID(v.ID)
+	return _c.AddPetIDs(ids...)
 }
 
 // Mutation returns the BloodGroupMutation object of the builder.
@@ -170,7 +166,7 @@ func (_c *BloodGroupCreate) createSpec() (*BloodGroup, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   bloodgroup.PetsTable,
 			Columns: []string{bloodgroup.PetsColumn},

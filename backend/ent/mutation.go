@@ -389,7 +389,8 @@ type BloodGroupMutation struct {
 	blood_group   *string
 	description   *string
 	clearedFields map[string]struct{}
-	pets          *string
+	pets          map[string]struct{}
+	removedpets   map[string]struct{}
 	clearedpets   bool
 	done          bool
 	oldValue      func(context.Context) (*BloodGroup, error)
@@ -621,9 +622,14 @@ func (m *BloodGroupMutation) ResetDescription() {
 	delete(m.clearedFields, bloodgroup.FieldDescription)
 }
 
-// SetPetsID sets the "pets" edge to the Pet entity by id.
-func (m *BloodGroupMutation) SetPetsID(id string) {
-	m.pets = &id
+// AddPetIDs adds the "pets" edge to the Pet entity by ids.
+func (m *BloodGroupMutation) AddPetIDs(ids ...string) {
+	if m.pets == nil {
+		m.pets = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.pets[ids[i]] = struct{}{}
+	}
 }
 
 // ClearPets clears the "pets" edge to the Pet entity.
@@ -636,20 +642,29 @@ func (m *BloodGroupMutation) PetsCleared() bool {
 	return m.clearedpets
 }
 
-// PetsID returns the "pets" edge ID in the mutation.
-func (m *BloodGroupMutation) PetsID() (id string, exists bool) {
-	if m.pets != nil {
-		return *m.pets, true
+// RemovePetIDs removes the "pets" edge to the Pet entity by IDs.
+func (m *BloodGroupMutation) RemovePetIDs(ids ...string) {
+	if m.removedpets == nil {
+		m.removedpets = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.pets, ids[i])
+		m.removedpets[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPets returns the removed IDs of the "pets" edge to the Pet entity.
+func (m *BloodGroupMutation) RemovedPetsIDs() (ids []string) {
+	for id := range m.removedpets {
+		ids = append(ids, id)
 	}
 	return
 }
 
 // PetsIDs returns the "pets" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// PetsID instead. It exists only for internal usage by the builders.
 func (m *BloodGroupMutation) PetsIDs() (ids []string) {
-	if id := m.pets; id != nil {
-		ids = append(ids, *id)
+	for id := range m.pets {
+		ids = append(ids, id)
 	}
 	return
 }
@@ -658,6 +673,7 @@ func (m *BloodGroupMutation) PetsIDs() (ids []string) {
 func (m *BloodGroupMutation) ResetPets() {
 	m.pets = nil
 	m.clearedpets = false
+	m.removedpets = nil
 }
 
 // Where appends a list predicates to the BloodGroupMutation builder.
@@ -848,9 +864,11 @@ func (m *BloodGroupMutation) AddedEdges() []string {
 func (m *BloodGroupMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case bloodgroup.EdgePets:
-		if id := m.pets; id != nil {
-			return []ent.Value{*id}
+		ids := make([]ent.Value, 0, len(m.pets))
+		for id := range m.pets {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -858,12 +876,23 @@ func (m *BloodGroupMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodGroupMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
+	if m.removedpets != nil {
+		edges = append(edges, bloodgroup.EdgePets)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BloodGroupMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case bloodgroup.EdgePets:
+		ids := make([]ent.Value, 0, len(m.removedpets))
+		for id := range m.removedpets {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
@@ -890,9 +919,6 @@ func (m *BloodGroupMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *BloodGroupMutation) ClearEdge(name string) error {
 	switch name {
-	case bloodgroup.EdgePets:
-		m.ClearPets()
-		return nil
 	}
 	return fmt.Errorf("unknown BloodGroup unique edge %s", name)
 }

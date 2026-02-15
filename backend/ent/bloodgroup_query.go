@@ -20,13 +20,14 @@ import (
 // BloodGroupQuery is the builder for querying BloodGroup entities.
 type BloodGroupQuery struct {
 	config
-	ctx        *QueryContext
-	order      []bloodgroup.OrderOption
-	inters     []Interceptor
-	predicates []predicate.BloodGroup
-	withPets   *PetQuery
-	modifiers  []func(*sql.Selector)
-	loadTotal  []func(context.Context, []*BloodGroup) error
+	ctx           *QueryContext
+	order         []bloodgroup.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.BloodGroup
+	withPets      *PetQuery
+	modifiers     []func(*sql.Selector)
+	loadTotal     []func(context.Context, []*BloodGroup) error
+	withNamedPets map[string]*PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,7 +78,7 @@ func (_q *BloodGroupQuery) QueryPets() *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(bloodgroup.Table, bloodgroup.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, bloodgroup.PetsTable, bloodgroup.PetsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, bloodgroup.PetsTable, bloodgroup.PetsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -399,8 +400,16 @@ func (_q *BloodGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*B
 		return nodes, nil
 	}
 	if query := _q.withPets; query != nil {
-		if err := _q.loadPets(ctx, query, nodes, nil,
-			func(n *BloodGroup, e *Pet) { n.Edges.Pets = e }); err != nil {
+		if err := _q.loadPets(ctx, query, nodes,
+			func(n *BloodGroup) { n.Edges.Pets = []*Pet{} },
+			func(n *BloodGroup, e *Pet) { n.Edges.Pets = append(n.Edges.Pets, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedPets {
+		if err := _q.loadPets(ctx, query, nodes,
+			func(n *BloodGroup) { n.appendNamedPets(name) },
+			func(n *BloodGroup, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -418,6 +427,9 @@ func (_q *BloodGroupQuery) loadPets(ctx context.Context, query *PetQuery, nodes 
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
 	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(pet.FieldBloodGroupID)
@@ -522,6 +534,20 @@ func (_q *BloodGroupQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedPets tells the query-builder to eager-load the nodes that are connected to the "pets"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *BloodGroupQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *BloodGroupQuery {
+	query := (&PetClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedPets == nil {
+		_q.withNamedPets = make(map[string]*PetQuery)
+	}
+	_q.withNamedPets[name] = query
+	return _q
 }
 
 // BloodGroupGroupBy is the group-by builder for BloodGroup entities.

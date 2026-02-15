@@ -238,7 +238,7 @@ func HasPets() predicate.BloodGroup {
 	return predicate.BloodGroup(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, PetsTable, PetsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, PetsTable, PetsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

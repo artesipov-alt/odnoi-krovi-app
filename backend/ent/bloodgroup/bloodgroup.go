@@ -104,17 +104,24 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByPetsField orders the results by pets field.
-func ByPetsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByPetsCount orders the results by pets count.
+func ByPetsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPetsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newPetsStep(), opts...)
+	}
+}
+
+// ByPets orders the results by pets terms.
+func ByPets(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPetsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newPetsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PetsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, PetsTable, PetsColumn),
+		sqlgraph.Edge(sqlgraph.O2M, false, PetsTable, PetsColumn),
 	)
 }
 

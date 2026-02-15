@@ -949,7 +949,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.BloodGroupRefCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   pet.BloodGroupRefTable,
 			Columns: []string{pet.BloodGroupRefColumn},
@@ -962,7 +962,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if nodes := _u.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   pet.BloodGroupRefTable,
 			Columns: []string{pet.BloodGroupRefColumn},
@@ -1967,7 +1967,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.BloodGroupRefCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   pet.BloodGroupRefTable,
 			Columns: []string{pet.BloodGroupRefColumn},
@@ -1980,7 +1980,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if nodes := _u.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   pet.BloodGroupRefTable,
 			Columns: []string{pet.BloodGroupRefColumn},

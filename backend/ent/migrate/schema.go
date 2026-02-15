@@ -104,7 +104,7 @@ var (
 		{Name: "living_condition", Type: field.TypeEnum, Nullable: true, Enums: []string{"indoor", "leash_walking", "self_outdoor"}},
 		{Name: "reproductive_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"pregnancy", "lactation", "estrus"}},
 		{Name: "donor_restrictions", Type: field.TypeJSON, Nullable: true},
-		{Name: "blood_group_id", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "blood_group_id", Type: field.TypeString, Nullable: true},
 		{Name: "breed_id", Type: field.TypeString, Nullable: true},
 		{Name: "bonus_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},

@@ -114,10 +114,12 @@ func (_q *BloodGroupQuery) collectField(ctx context.Context, oneNode bool, opCtx
 				path  = append(path, alias)
 				query = (&PetClient{config: _q.config}).Query()
 			)
-			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, petImplementors)...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, petImplementors)...); err != nil {
 				return err
 			}
-			_q.withPets = query
+			_q.WithNamedPets(alias, func(wq *PetQuery) {
+				*wq = *query
+			})
 		case "petType":
 			if _, ok := fieldSeen[bloodgroup.FieldPetType]; !ok {
 				selectedFields = append(selectedFields, bloodgroup.FieldPetType)

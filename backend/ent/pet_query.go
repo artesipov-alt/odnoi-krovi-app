@@ -224,7 +224,7 @@ func (_q *PetQuery) QueryBloodGroupRef() *BloodGroupQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(bloodgroup.Table, bloodgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, pet.BloodGroupRefTable, pet.BloodGroupRefColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, pet.BloodGroupRefTable, pet.BloodGroupRefColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil

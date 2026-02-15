@@ -1243,7 +1243,7 @@ func HasBloodGroupRef() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, BloodGroupRefTable, BloodGroupRefColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, BloodGroupRefTable, BloodGroupRefColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

@@ -711,7 +711,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   pet.BloodGroupRefTable,
 			Columns: []string{pet.BloodGroupRefColumn},

@@ -76,23 +76,19 @@ func (_u *BloodGroupUpdate) ClearDescription() *BloodGroupUpdate {
 	return _u
 }
 
-// SetPetsID sets the "pets" edge to the Pet entity by ID.
-func (_u *BloodGroupUpdate) SetPetsID(id string) *BloodGroupUpdate {
-	_u.mutation.SetPetsID(id)
+// AddPetIDs adds the "pets" edge to the Pet entity by IDs.
+func (_u *BloodGroupUpdate) AddPetIDs(ids ...string) *BloodGroupUpdate {
+	_u.mutation.AddPetIDs(ids...)
 	return _u
 }
 
-// SetNillablePetsID sets the "pets" edge to the Pet entity by ID if the given value is not nil.
-func (_u *BloodGroupUpdate) SetNillablePetsID(id *string) *BloodGroupUpdate {
-	if id != nil {
-		_u = _u.SetPetsID(*id)
+// AddPets adds the "pets" edges to the Pet entity.
+func (_u *BloodGroupUpdate) AddPets(v ...*Pet) *BloodGroupUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetPets sets the "pets" edge to the Pet entity.
-func (_u *BloodGroupUpdate) SetPets(v *Pet) *BloodGroupUpdate {
-	return _u.SetPetsID(v.ID)
+	return _u.AddPetIDs(ids...)
 }
 
 // Mutation returns the BloodGroupMutation object of the builder.
@@ -100,10 +96,25 @@ func (_u *BloodGroupUpdate) Mutation() *BloodGroupMutation {
 	return _u.mutation
 }
 
-// ClearPets clears the "pets" edge to the Pet entity.
+// ClearPets clears all "pets" edges to the Pet entity.
 func (_u *BloodGroupUpdate) ClearPets() *BloodGroupUpdate {
 	_u.mutation.ClearPets()
 	return _u
+}
+
+// RemovePetIDs removes the "pets" edge to Pet entities by IDs.
+func (_u *BloodGroupUpdate) RemovePetIDs(ids ...string) *BloodGroupUpdate {
+	_u.mutation.RemovePetIDs(ids...)
+	return _u
+}
+
+// RemovePets removes "pets" edges to Pet entities.
+func (_u *BloodGroupUpdate) RemovePets(v ...*Pet) *BloodGroupUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePetIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -174,7 +185,7 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   bloodgroup.PetsTable,
 			Columns: []string{bloodgroup.PetsColumn},
@@ -185,9 +196,25 @@ func (_u *BloodGroupUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := _u.mutation.RemovedPetsIDs(); len(nodes) > 0 && !_u.mutation.PetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := _u.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   bloodgroup.PetsTable,
 			Columns: []string{bloodgroup.PetsColumn},
@@ -269,23 +296,19 @@ func (_u *BloodGroupUpdateOne) ClearDescription() *BloodGroupUpdateOne {
 	return _u
 }
 
-// SetPetsID sets the "pets" edge to the Pet entity by ID.
-func (_u *BloodGroupUpdateOne) SetPetsID(id string) *BloodGroupUpdateOne {
-	_u.mutation.SetPetsID(id)
+// AddPetIDs adds the "pets" edge to the Pet entity by IDs.
+func (_u *BloodGroupUpdateOne) AddPetIDs(ids ...string) *BloodGroupUpdateOne {
+	_u.mutation.AddPetIDs(ids...)
 	return _u
 }
 
-// SetNillablePetsID sets the "pets" edge to the Pet entity by ID if the given value is not nil.
-func (_u *BloodGroupUpdateOne) SetNillablePetsID(id *string) *BloodGroupUpdateOne {
-	if id != nil {
-		_u = _u.SetPetsID(*id)
+// AddPets adds the "pets" edges to the Pet entity.
+func (_u *BloodGroupUpdateOne) AddPets(v ...*Pet) *BloodGroupUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetPets sets the "pets" edge to the Pet entity.
-func (_u *BloodGroupUpdateOne) SetPets(v *Pet) *BloodGroupUpdateOne {
-	return _u.SetPetsID(v.ID)
+	return _u.AddPetIDs(ids...)
 }
 
 // Mutation returns the BloodGroupMutation object of the builder.
@@ -293,10 +316,25 @@ func (_u *BloodGroupUpdateOne) Mutation() *BloodGroupMutation {
 	return _u.mutation
 }
 
-// ClearPets clears the "pets" edge to the Pet entity.
+// ClearPets clears all "pets" edges to the Pet entity.
 func (_u *BloodGroupUpdateOne) ClearPets() *BloodGroupUpdateOne {
 	_u.mutation.ClearPets()
 	return _u
+}
+
+// RemovePetIDs removes the "pets" edge to Pet entities by IDs.
+func (_u *BloodGroupUpdateOne) RemovePetIDs(ids ...string) *BloodGroupUpdateOne {
+	_u.mutation.RemovePetIDs(ids...)
+	return _u
+}
+
+// RemovePets removes "pets" edges to Pet entities.
+func (_u *BloodGroupUpdateOne) RemovePets(v ...*Pet) *BloodGroupUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePetIDs(ids...)
 }
 
 // Where appends a list predicates to the BloodGroupUpdate builder.
@@ -397,7 +435,7 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   bloodgroup.PetsTable,
 			Columns: []string{bloodgroup.PetsColumn},
@@ -408,9 +446,25 @@ func (_u *BloodGroupUpdateOne) sqlSave(ctx context.Context) (_node *BloodGroup, 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := _u.mutation.RemovedPetsIDs(); len(nodes) > 0 && !_u.mutation.PetsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodgroup.PetsTable,
+			Columns: []string{bloodgroup.PetsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := _u.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   bloodgroup.PetsTable,
 			Columns: []string{bloodgroup.PetsColumn},

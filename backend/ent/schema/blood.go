@@ -42,7 +42,7 @@ func (BloodGroup) Fields() []ent.Field {
 // Edges of the BloodGroup.
 func (BloodGroup) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("pets", Pet.Type).Unique(),
+		edge.To("pets", Pet.Type),
 	}
 }
 

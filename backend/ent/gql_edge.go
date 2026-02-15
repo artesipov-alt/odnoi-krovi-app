@@ -8,12 +8,16 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-func (_m *BloodGroup) Pets(ctx context.Context) (*Pet, error) {
-	result, err := _m.Edges.PetsOrErr()
-	if IsNotLoaded(err) {
-		result, err = _m.QueryPets().Only(ctx)
+func (_m *BloodGroup) Pets(ctx context.Context) (result []*Pet, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = _m.NamedPets(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = _m.Edges.PetsOrErr()
 	}
-	return result, MaskNotFound(err)
+	if IsNotLoaded(err) {
+		result, err = _m.QueryPets().All(ctx)
+	}
+	return result, err
 }
 
 func (_m *BloodSearchRequest) Pet(ctx context.Context) (*Pet, error) {
