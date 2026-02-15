@@ -74,7 +74,7 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 	for _, a := range analysesInput {
 		builder := tx.PetAnalysis.Create().
 			SetInput(*a).
-			SetOwnerID(newPet.ID)
+			SetPetID(newPet.ID)
 
 		_, err = builder.Save(ctx)
 		if err != nil {
@@ -241,7 +241,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.
 	// For analyses, delete existing ones and create new ones if provided
 	if analysesInput != nil {
 		// Delete existing analyses for this pet (hard delete)
-		_, err = tx.PetAnalysis.Delete().Where(petanalysis.HasOwnerWith(pet.ID(id))).Exec(schema.SkipSoftDelete(ctx))
+		_, err = tx.PetAnalysis.Delete().Where(petanalysis.PetID(id)).Exec(schema.SkipSoftDelete(ctx))
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to delete existing pet analyses: %w", err)
@@ -250,7 +250,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.
 		// Create new analyses
 		for _, a := range analysesInput {
 			builder := tx.PetAnalysis.Create().
-				SetOwnerID(id)
+				SetPetID(id)
 
 			if a.AnalysisName != nil {
 				builder.SetAnalysisName(*a.AnalysisName)

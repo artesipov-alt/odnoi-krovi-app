@@ -250,6 +250,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	// Копируем analyses
 	var analysesInput []*ent.UpdatePetAnalysisInput
 	if body.Analyses != nil {
+		analysesInput = []*ent.UpdatePetAnalysisInput{}
 		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
 			for _, a := range group {
 				var ai ent.UpdatePetAnalysisInput
