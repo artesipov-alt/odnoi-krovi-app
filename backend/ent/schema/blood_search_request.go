@@ -24,7 +24,7 @@ func (BloodSearchRequest) Fields() []ent.Field {
 		field.Int32("blood_volume_reserved").
 			Default(0).
 			StructTag(`json:"bloodVolumeReserved"`),
-		field.JSON("regions", []int32{}).
+		field.JSON("regions", []string{}).
 			Annotations(entgql.Type("Int")).
 			StructTag(`json:"regions"`),
 		field.Bool("small_pets_notify_allowed").
@@ -45,8 +45,8 @@ func (BloodSearchRequest) Fields() []ent.Field {
 			Annotations(entgql.Type("String")).
 			Optional().
 			StructTag(`json:"bloodGroupNames"`),
-		field.JSON("blood_component_ids", []int{}).
-			Annotations(entgql.Type("Int")).
+		field.JSON("blood_component_ids", []string{}).
+			Annotations(entgql.Type("String")).
 			Optional().
 			StructTag(`json:"bloodComponentIds"`),
 	}

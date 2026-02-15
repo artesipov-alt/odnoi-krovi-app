@@ -15,12 +15,12 @@ type BloodSearchPetRequest struct {
 	PetID                  string                   `json:"petId" validate:"required" doc:"ID питомца" example:"PET-aBcDeF1234"`
 	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded" validate:"required,gt=0" doc:"Необходимый объем крови в мл" example:"100"`
 	BloodVolumeReserved    int32                    `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" example:"0"`
-	Regions                []int32                  `json:"regions" validate:"required,min=1" doc:"Список ID регионов, где требуется кровь" example:"[1, 2]"`
+	Regions                []string                 `json:"regions" validate:"required" doc:"Список ID регионов, где требуется кровь"`
 	SmallPetsNotifyAllowed bool                     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
 	Description            string                   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
 	PhotoUrls              []string                 `json:"photoUrls,omitempty" doc:"Список URL фотографий питомца" example:"[\"https://example.com/pet_photo1.jpg\", \"https://example.com/pet_photo2.jpg\"]"`
 	BloodGroupNames        []string                 `json:"bloodGroupNames" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
-	BloodComponentIds      []int                    `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются" example:"[1, 2]"`
+	BloodComponentIds      []string                 `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются"`
 	Status                 BloodSearchRequestStatus `json:"status,omitempty" doc:"Статус запроса" enum:"active,closed,draft" example:"active"`
 }
 

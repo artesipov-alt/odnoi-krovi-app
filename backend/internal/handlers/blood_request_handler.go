@@ -105,7 +105,6 @@ func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
-	dto.PetUserIDPath
 	Body dto.BloodSearchPetRequest
 }) (*dto.BloodRequestCreateResponse, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)

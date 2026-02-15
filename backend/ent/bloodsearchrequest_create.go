@@ -90,7 +90,7 @@ func (_c *BloodSearchRequestCreate) SetNillableBloodVolumeReserved(v *int32) *Bl
 }
 
 // SetRegions sets the "regions" field.
-func (_c *BloodSearchRequestCreate) SetRegions(v []int32) *BloodSearchRequestCreate {
+func (_c *BloodSearchRequestCreate) SetRegions(v []string) *BloodSearchRequestCreate {
 	_c.mutation.SetRegions(v)
 	return _c
 }
@@ -150,7 +150,7 @@ func (_c *BloodSearchRequestCreate) SetBloodGroupNames(v []string) *BloodSearchR
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []int) *BloodSearchRequestCreate {
+func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []string) *BloodSearchRequestCreate {
 	_c.mutation.SetBloodComponentIds(v)
 	return _c
 }

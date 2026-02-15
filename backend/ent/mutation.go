@@ -947,8 +947,8 @@ type BloodSearchRequestMutation struct {
 	addblood_volume_needed    *int32
 	blood_volume_reserved     *int32
 	addblood_volume_reserved  *int32
-	regions                   *[]int32
-	appendregions             []int32
+	regions                   *[]string
+	appendregions             []string
 	small_pets_notify_allowed *bool
 	status                    *bloodsearchrequest.Status
 	description               *string
@@ -956,8 +956,8 @@ type BloodSearchRequestMutation struct {
 	appendphoto_urls          []string
 	blood_group_names         *[]string
 	appendblood_group_names   []string
-	blood_component_ids       *[]int
-	appendblood_component_ids []int
+	blood_component_ids       *[]string
+	appendblood_component_ids []string
 	clearedFields             map[string]struct{}
 	pet                       *string
 	clearedpet                bool
@@ -1340,13 +1340,13 @@ func (m *BloodSearchRequestMutation) ResetBloodVolumeReserved() {
 }
 
 // SetRegions sets the "regions" field.
-func (m *BloodSearchRequestMutation) SetRegions(i []int32) {
-	m.regions = &i
+func (m *BloodSearchRequestMutation) SetRegions(s []string) {
+	m.regions = &s
 	m.appendregions = nil
 }
 
 // Regions returns the value of the "regions" field in the mutation.
-func (m *BloodSearchRequestMutation) Regions() (r []int32, exists bool) {
+func (m *BloodSearchRequestMutation) Regions() (r []string, exists bool) {
 	v := m.regions
 	if v == nil {
 		return
@@ -1357,7 +1357,7 @@ func (m *BloodSearchRequestMutation) Regions() (r []int32, exists bool) {
 // OldRegions returns the old "regions" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldRegions(ctx context.Context) (v []int32, err error) {
+func (m *BloodSearchRequestMutation) OldRegions(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRegions is only allowed on UpdateOne operations")
 	}
@@ -1371,13 +1371,13 @@ func (m *BloodSearchRequestMutation) OldRegions(ctx context.Context) (v []int32,
 	return oldValue.Regions, nil
 }
 
-// AppendRegions adds i to the "regions" field.
-func (m *BloodSearchRequestMutation) AppendRegions(i []int32) {
-	m.appendregions = append(m.appendregions, i...)
+// AppendRegions adds s to the "regions" field.
+func (m *BloodSearchRequestMutation) AppendRegions(s []string) {
+	m.appendregions = append(m.appendregions, s...)
 }
 
 // AppendedRegions returns the list of values that were appended to the "regions" field in this mutation.
-func (m *BloodSearchRequestMutation) AppendedRegions() ([]int32, bool) {
+func (m *BloodSearchRequestMutation) AppendedRegions() ([]string, bool) {
 	if len(m.appendregions) == 0 {
 		return nil, false
 	}
@@ -1642,13 +1642,13 @@ func (m *BloodSearchRequestMutation) ResetBloodGroupNames() {
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (m *BloodSearchRequestMutation) SetBloodComponentIds(i []int) {
-	m.blood_component_ids = &i
+func (m *BloodSearchRequestMutation) SetBloodComponentIds(s []string) {
+	m.blood_component_ids = &s
 	m.appendblood_component_ids = nil
 }
 
 // BloodComponentIds returns the value of the "blood_component_ids" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodComponentIds() (r []int, exists bool) {
+func (m *BloodSearchRequestMutation) BloodComponentIds() (r []string, exists bool) {
 	v := m.blood_component_ids
 	if v == nil {
 		return
@@ -1659,7 +1659,7 @@ func (m *BloodSearchRequestMutation) BloodComponentIds() (r []int, exists bool) 
 // OldBloodComponentIds returns the old "blood_component_ids" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (v []int, err error) {
+func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBloodComponentIds is only allowed on UpdateOne operations")
 	}
@@ -1673,13 +1673,13 @@ func (m *BloodSearchRequestMutation) OldBloodComponentIds(ctx context.Context) (
 	return oldValue.BloodComponentIds, nil
 }
 
-// AppendBloodComponentIds adds i to the "blood_component_ids" field.
-func (m *BloodSearchRequestMutation) AppendBloodComponentIds(i []int) {
-	m.appendblood_component_ids = append(m.appendblood_component_ids, i...)
+// AppendBloodComponentIds adds s to the "blood_component_ids" field.
+func (m *BloodSearchRequestMutation) AppendBloodComponentIds(s []string) {
+	m.appendblood_component_ids = append(m.appendblood_component_ids, s...)
 }
 
 // AppendedBloodComponentIds returns the list of values that were appended to the "blood_component_ids" field in this mutation.
-func (m *BloodSearchRequestMutation) AppendedBloodComponentIds() ([]int, bool) {
+func (m *BloodSearchRequestMutation) AppendedBloodComponentIds() ([]string, bool) {
 	if len(m.appendblood_component_ids) == 0 {
 		return nil, false
 	}
@@ -1928,7 +1928,7 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		m.SetBloodVolumeReserved(v)
 		return nil
 	case bloodsearchrequest.FieldRegions:
-		v, ok := value.([]int32)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1970,7 +1970,7 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		m.SetBloodGroupNames(v)
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
-		v, ok := value.([]int)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

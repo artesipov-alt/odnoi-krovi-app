@@ -113,13 +113,13 @@ func (_u *BloodSearchRequestUpdate) AddBloodVolumeReserved(v int32) *BloodSearch
 }
 
 // SetRegions sets the "regions" field.
-func (_u *BloodSearchRequestUpdate) SetRegions(v []int32) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) SetRegions(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.SetRegions(v)
 	return _u
 }
 
 // AppendRegions appends value to the "regions" field.
-func (_u *BloodSearchRequestUpdate) AppendRegions(v []int32) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) AppendRegions(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.AppendRegions(v)
 	return _u
 }
@@ -209,13 +209,13 @@ func (_u *BloodSearchRequestUpdate) ClearBloodGroupNames() *BloodSearchRequestUp
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdate) SetBloodComponentIds(v []int) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) SetBloodComponentIds(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.SetBloodComponentIds(v)
 	return _u
 }
 
 // AppendBloodComponentIds appends value to the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdate) AppendBloodComponentIds(v []int) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) AppendBloodComponentIds(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.AppendBloodComponentIds(v)
 	return _u
 }
@@ -509,13 +509,13 @@ func (_u *BloodSearchRequestUpdateOne) AddBloodVolumeReserved(v int32) *BloodSea
 }
 
 // SetRegions sets the "regions" field.
-func (_u *BloodSearchRequestUpdateOne) SetRegions(v []int32) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) SetRegions(v []string) *BloodSearchRequestUpdateOne {
 	_u.mutation.SetRegions(v)
 	return _u
 }
 
 // AppendRegions appends value to the "regions" field.
-func (_u *BloodSearchRequestUpdateOne) AppendRegions(v []int32) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) AppendRegions(v []string) *BloodSearchRequestUpdateOne {
 	_u.mutation.AppendRegions(v)
 	return _u
 }
@@ -605,13 +605,13 @@ func (_u *BloodSearchRequestUpdateOne) ClearBloodGroupNames() *BloodSearchReques
 }
 
 // SetBloodComponentIds sets the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodComponentIds(v []int) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) SetBloodComponentIds(v []string) *BloodSearchRequestUpdateOne {
 	_u.mutation.SetBloodComponentIds(v)
 	return _u
 }
 
 // AppendBloodComponentIds appends value to the "blood_component_ids" field.
-func (_u *BloodSearchRequestUpdateOne) AppendBloodComponentIds(v []int) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) AppendBloodComponentIds(v []string) *BloodSearchRequestUpdateOne {
 	_u.mutation.AppendBloodComponentIds(v)
 	return _u
 }

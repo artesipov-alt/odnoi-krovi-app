@@ -32,7 +32,7 @@ type BloodSearchRequest struct {
 	// BloodVolumeReserved holds the value of the "blood_volume_reserved" field.
 	BloodVolumeReserved int32 `json:"bloodVolumeReserved"`
 	// Regions holds the value of the "regions" field.
-	Regions []int32 `json:"regions"`
+	Regions []string `json:"regions"`
 	// SmallPetsNotifyAllowed holds the value of the "small_pets_notify_allowed" field.
 	SmallPetsNotifyAllowed bool `json:"smallPetsNotifyAllowed"`
 	// Status holds the value of the "status" field.
@@ -44,7 +44,7 @@ type BloodSearchRequest struct {
 	// BloodGroupNames holds the value of the "blood_group_names" field.
 	BloodGroupNames []string `json:"bloodGroupNames"`
 	// BloodComponentIds holds the value of the "blood_component_ids" field.
-	BloodComponentIds []int `json:"bloodComponentIds"`
+	BloodComponentIds []string `json:"bloodComponentIds"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BloodSearchRequestQuery when eager-loading is set.
 	Edges        BloodSearchRequestEdges `json:"edges"`
