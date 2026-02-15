@@ -568,8 +568,8 @@ const ParamsStep: FC<Props> = ({
     const renderView = () => (
         <>
             <ViewString name='Кличка' value={name.toUpperCase()} />
-            <ViewString name='Вид' value={petTypes.filter(({ value }) => value === type)[0].label} />
-            {gender && <ViewString name='Пол' value={petGenders.filter(({ value }) => value === gender)[0].label} />}
+            <ViewString name='Вид' value={petTypes.filter(({ value }) => value === type)[0]?.label} />
+            {gender && <ViewString name='Пол' value={petGenders.filter(({ value }) => value === gender)[0]?.label} />}
             {chipNumber && <ViewString name='Чип' value={chipNumber} />}
             <ViewString name='Вес' value={`${weightKg} кг`} />
             {birthDate && <ViewString name='Возраст' value={calculateAge(birthDate)} />}
@@ -583,13 +583,13 @@ const ParamsStep: FC<Props> = ({
             {livingCondition && (
                 <ViewString
                     name='Условия содержания'
-                    value={livingConditionsDict.filter(({ value }) => value === livingCondition)[0].label}
+                    value={livingConditionsDict.filter(({ value }) => value === livingCondition)[0]?.label}
                 />
             )}
             {reproductiveStatus && (
                 <ViewString
                     name='Состояние питомца'
-                    value={reproductiveStatusesDict.filter(({ value }) => value === reproductiveStatus)[0].label}
+                    value={reproductiveStatusesDict.filter(({ value }) => value === reproductiveStatus)[0]?.label}
                 />
             )}
         </>
