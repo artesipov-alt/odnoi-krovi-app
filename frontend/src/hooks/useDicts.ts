@@ -109,6 +109,12 @@ export const usePetTypesAndBloodGroupsQuery = () =>
                 throw new Error('Не удалось загрузить данные о группах крови или породах');
             }
 
+            // Ensure all pet types have entries in the dicts, even if empty
+            petTypesDict.forEach(({ value }) => {
+                if (!bloodGroupDict[value]) bloodGroupDict[value] = [];
+                if (!breedsDict[value]) breedsDict[value] = [];
+            });
+
             return { petTypesDict, bloodGroupDict, breedsDict };
         },
     });

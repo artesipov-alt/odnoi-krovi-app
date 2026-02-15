@@ -103,7 +103,7 @@ const ParamsStep: FC<Props> = ({
     const [newName, setNewName] = useState<string>(name);
     const [newPetType, setNewPetType] = useState<string>(type);
     const [newBreed, setNewBreed] = useState<Dict | null>(
-        breedsDict[type].filter(({ value }) => value === breedId)?.[0] || null,
+        (breedsDict[type] || []).filter(({ value }) => value === breedId)?.[0] || null,
     );
     const [newGender, setNewGender] = useState<string | undefined>(gender);
     const [newBloodGroup, setNewBloodGroup] = useState<string>(bloodGroup);
@@ -575,7 +575,10 @@ const ParamsStep: FC<Props> = ({
             {birthDate && <ViewString name='Возраст' value={calculateAge(birthDate)} />}
             <ViewString name='Группа крови' value={bloodGroup === 'none' ? 'Не указано' : bloodGroup} />
             {breedId && (
-                <ViewString name='Порода' value={breedsDict[type].filter(({ value }) => value === breedId)[0]?.label} />
+                <ViewString
+                    name='Порода'
+                    value={(breedsDict[type] || []).filter(({ value }) => value === breedId)[0]?.label}
+                />
             )}
             {livingCondition && (
                 <ViewString

@@ -760,8 +760,8 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
                     ectoparasitesTreatmentDate={ectoparasitesTreatmentDate}
                     petType={petTypesDict.filter(({ value }) => value === petType)[0].label}
                     petGender={petGendersDict.filter(({ value }) => value === petGender)[0].label}
-                    breed={breedsDict[petType].filter(({ value }) => value === breed?.value)[0].label}
-                    bloodGroup={bloodGroupDict[petType].filter(({ value }) => value === bloodGroup)[0]?.label}
+                    breed={(breedsDict[petType] || []).filter(({ value }) => value === breed?.value)[0].label}
+                    bloodGroup={(bloodGroupDict[petType] || []).filter(({ value }) => value === bloodGroup)[0]?.label}
                     livingCondition={livingConditionsDict.filter(({ value }) => value === livingCondition)[0].label}
                     healthStatus={healthStatusesDict.filter(({ value }) => value === healthStatus)[0].label}
                     reproductiveStatus={

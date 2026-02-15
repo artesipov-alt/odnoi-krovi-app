@@ -314,7 +314,6 @@ var Breeds = []BreedData{
 	{ID: "YPN_SHP", Name: "ЯПОНСКИЙ ШПИЦ", Type: breed.TypeDog},
 	{ID: "MIX_CAT", Name: "МЕТИС", Type: breed.TypeCat},
 	{ID: "ABY", Name: "АБИССИНСКАЯ", Type: breed.TypeCat},
-	{ID: "MIX_CAT_2", Name: "МЕТИС", Type: breed.TypeCat},
 	{ID: "AUS_DMC", Name: "АВСТРАЛИЙСКАЯ ДЫМЧАТАЯ (МИСТ)", Type: breed.TypeCat},
 	{ID: "AZI_TBB", Name: "АЗИАТСКАЯ (ТАББИ/ДЫМЧАТАЯ)", Type: breed.TypeCat},
 	{ID: "AME_ZHS", Name: "АМЕРИКАНСКАЯ ЖЕСТКОШЕРСТНАЯ", Type: breed.TypeCat},

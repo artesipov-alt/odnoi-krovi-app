@@ -138,15 +138,17 @@ const Second: FC<Props> = ({
             <FormItem title='Группа крови питомца'>
                 <>
                     <div className={cn(styles.buttonsRow, { [styles.dogGroup]: petType === PetType.DOG })}>
-                        {[...bloodGroupDict[petType], { value: 'none', label: 'Не знаю' }].map(({ label, value }) => (
-                            <Button
-                                key={value}
-                                onClick={onChangeBloodGroupHandler(value)}
-                                className={cn(styles.buttonsRowItem, { [styles.checked]: bloodGroup === value })}
-                            >
-                                {label}
-                            </Button>
-                        ))}
+                        {[...(bloodGroupDict[petType] || []), { value: 'none', label: 'Не знаю' }].map(
+                            ({ label, value }) => (
+                                <Button
+                                    key={value}
+                                    onClick={onChangeBloodGroupHandler(value)}
+                                    className={cn(styles.buttonsRowItem, { [styles.checked]: bloodGroup === value })}
+                                >
+                                    {label}
+                                </Button>
+                            ),
+                        )}
                     </div>
                     {petType === PetType.DOG && (
                         <Alert
