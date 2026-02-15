@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -130,7 +129,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 
 	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
 	if body.BloodGroup != "" {
-		bg, err := h.bloodInfoRepo.FindByTypeAndBloodGroup(ctx, bloodgroup.PetType(body.Type), body.BloodGroup)
+		bg, err := h.bloodInfoRepo.FindByBloodGroup(ctx, body.BloodGroup)
 		if err != nil {
 			return nil, apperrors.Internal(err, "failed to find blood group")
 		}
@@ -238,18 +237,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 
 	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
 	if body.BloodGroup != nil && *body.BloodGroup != "" {
-		var petType bloodgroup.PetType
-		if body.Type != nil && *body.Type != "" {
-			petType = bloodgroup.PetType(string(*body.Type))
-		} else {
-			// Если тип не указан, получить из существующего питомца
-			existingPet, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{})
-			if err != nil {
-				return nil, apperrors.Internal(err, "failed to get existing pet for type")
-			}
-			petType = bloodgroup.PetType(string(existingPet.Type))
-		}
-		bg, err := h.bloodInfoRepo.FindByTypeAndBloodGroup(ctx, petType, *body.BloodGroup)
+		bg, err := h.bloodInfoRepo.FindByBloodGroup(ctx, *body.BloodGroup)
 		if err != nil {
 			return nil, apperrors.Internal(err, "failed to find blood group")
 		}

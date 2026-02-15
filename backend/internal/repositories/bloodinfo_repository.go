@@ -13,4 +13,5 @@ type BloodInfoRepository interface {
 	ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error)
 	BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error)
 	FindByTypeAndBloodGroup(ctx context.Context, petType bloodgroup.PetType, bloodGroup string) (*ent.BloodGroup, error)
+	FindByBloodGroup(ctx context.Context, bloodGroup string) (*ent.BloodGroup, error)
 }
