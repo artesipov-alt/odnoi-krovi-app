@@ -1495,23 +1495,6 @@ type PetWhereInput struct {
 	WeightKgIsNil  bool      `json:"weightKgIsNil,omitempty"`
 	WeightKgNotNil bool      `json:"weightKgNotNil,omitempty"`
 
-	// "blood_group" field predicates.
-	BloodGroup             *string  `json:"bloodGroup,omitempty"`
-	BloodGroupNEQ          *string  `json:"bloodGroupNEQ,omitempty"`
-	BloodGroupIn           []string `json:"bloodGroupIn,omitempty"`
-	BloodGroupNotIn        []string `json:"bloodGroupNotIn,omitempty"`
-	BloodGroupGT           *string  `json:"bloodGroupGT,omitempty"`
-	BloodGroupGTE          *string  `json:"bloodGroupGTE,omitempty"`
-	BloodGroupLT           *string  `json:"bloodGroupLT,omitempty"`
-	BloodGroupLTE          *string  `json:"bloodGroupLTE,omitempty"`
-	BloodGroupContains     *string  `json:"bloodGroupContains,omitempty"`
-	BloodGroupHasPrefix    *string  `json:"bloodGroupHasPrefix,omitempty"`
-	BloodGroupHasSuffix    *string  `json:"bloodGroupHasSuffix,omitempty"`
-	BloodGroupIsNil        bool     `json:"bloodGroupIsNil,omitempty"`
-	BloodGroupNotNil       bool     `json:"bloodGroupNotNil,omitempty"`
-	BloodGroupEqualFold    *string  `json:"bloodGroupEqualFold,omitempty"`
-	BloodGroupContainsFold *string  `json:"bloodGroupContainsFold,omitempty"`
-
 	// "gender" field predicates.
 	Gender       *pet.Gender  `json:"gender,omitempty"`
 	GenderNEQ    *pet.Gender  `json:"genderNEQ,omitempty"`
@@ -1650,6 +1633,23 @@ type PetWhereInput struct {
 	ReproductiveStatusIsNil  bool                     `json:"reproductiveStatusIsNil,omitempty"`
 	ReproductiveStatusNotNil bool                     `json:"reproductiveStatusNotNil,omitempty"`
 
+	// "blood_group_id" field predicates.
+	BloodGroupID             *string  `json:"bloodGroupID,omitempty"`
+	BloodGroupIDNEQ          *string  `json:"bloodGroupIDNEQ,omitempty"`
+	BloodGroupIDIn           []string `json:"bloodGroupIDIn,omitempty"`
+	BloodGroupIDNotIn        []string `json:"bloodGroupIDNotIn,omitempty"`
+	BloodGroupIDGT           *string  `json:"bloodGroupIDGT,omitempty"`
+	BloodGroupIDGTE          *string  `json:"bloodGroupIDGTE,omitempty"`
+	BloodGroupIDLT           *string  `json:"bloodGroupIDLT,omitempty"`
+	BloodGroupIDLTE          *string  `json:"bloodGroupIDLTE,omitempty"`
+	BloodGroupIDContains     *string  `json:"bloodGroupIDContains,omitempty"`
+	BloodGroupIDHasPrefix    *string  `json:"bloodGroupIDHasPrefix,omitempty"`
+	BloodGroupIDHasSuffix    *string  `json:"bloodGroupIDHasSuffix,omitempty"`
+	BloodGroupIDIsNil        bool     `json:"bloodGroupIDIsNil,omitempty"`
+	BloodGroupIDNotNil       bool     `json:"bloodGroupIDNotNil,omitempty"`
+	BloodGroupIDEqualFold    *string  `json:"bloodGroupIDEqualFold,omitempty"`
+	BloodGroupIDContainsFold *string  `json:"bloodGroupIDContainsFold,omitempty"`
+
 	// "owner" edge predicates.
 	HasOwner     *bool             `json:"hasOwner,omitempty"`
 	HasOwnerWith []*UserWhereInput `json:"hasOwnerWith,omitempty"`
@@ -1673,6 +1673,10 @@ type PetWhereInput struct {
 	// "breed_ref" edge predicates.
 	HasBreedRef     *bool              `json:"hasBreedRef,omitempty"`
 	HasBreedRefWith []*BreedWhereInput `json:"hasBreedRefWith,omitempty"`
+
+	// "blood_group_ref" edge predicates.
+	HasBloodGroupRef     *bool                   `json:"hasBloodGroupRef,omitempty"`
+	HasBloodGroupRefWith []*BloodGroupWhereInput `json:"hasBloodGroupRefWith,omitempty"`
 
 	// "blood_search_request" edge predicates.
 	HasBloodSearchRequest     *bool                           `json:"hasBloodSearchRequest,omitempty"`
@@ -1950,51 +1954,6 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	}
 	if i.WeightKgNotNil {
 		predicates = append(predicates, pet.WeightKgNotNil())
-	}
-	if i.BloodGroup != nil {
-		predicates = append(predicates, pet.BloodGroupEQ(*i.BloodGroup))
-	}
-	if i.BloodGroupNEQ != nil {
-		predicates = append(predicates, pet.BloodGroupNEQ(*i.BloodGroupNEQ))
-	}
-	if len(i.BloodGroupIn) > 0 {
-		predicates = append(predicates, pet.BloodGroupIn(i.BloodGroupIn...))
-	}
-	if len(i.BloodGroupNotIn) > 0 {
-		predicates = append(predicates, pet.BloodGroupNotIn(i.BloodGroupNotIn...))
-	}
-	if i.BloodGroupGT != nil {
-		predicates = append(predicates, pet.BloodGroupGT(*i.BloodGroupGT))
-	}
-	if i.BloodGroupGTE != nil {
-		predicates = append(predicates, pet.BloodGroupGTE(*i.BloodGroupGTE))
-	}
-	if i.BloodGroupLT != nil {
-		predicates = append(predicates, pet.BloodGroupLT(*i.BloodGroupLT))
-	}
-	if i.BloodGroupLTE != nil {
-		predicates = append(predicates, pet.BloodGroupLTE(*i.BloodGroupLTE))
-	}
-	if i.BloodGroupContains != nil {
-		predicates = append(predicates, pet.BloodGroupContains(*i.BloodGroupContains))
-	}
-	if i.BloodGroupHasPrefix != nil {
-		predicates = append(predicates, pet.BloodGroupHasPrefix(*i.BloodGroupHasPrefix))
-	}
-	if i.BloodGroupHasSuffix != nil {
-		predicates = append(predicates, pet.BloodGroupHasSuffix(*i.BloodGroupHasSuffix))
-	}
-	if i.BloodGroupIsNil {
-		predicates = append(predicates, pet.BloodGroupIsNil())
-	}
-	if i.BloodGroupNotNil {
-		predicates = append(predicates, pet.BloodGroupNotNil())
-	}
-	if i.BloodGroupEqualFold != nil {
-		predicates = append(predicates, pet.BloodGroupEqualFold(*i.BloodGroupEqualFold))
-	}
-	if i.BloodGroupContainsFold != nil {
-		predicates = append(predicates, pet.BloodGroupContainsFold(*i.BloodGroupContainsFold))
 	}
 	if i.Gender != nil {
 		predicates = append(predicates, pet.GenderEQ(*i.Gender))
@@ -2350,6 +2309,51 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	if i.ReproductiveStatusNotNil {
 		predicates = append(predicates, pet.ReproductiveStatusNotNil())
 	}
+	if i.BloodGroupID != nil {
+		predicates = append(predicates, pet.BloodGroupIDEQ(*i.BloodGroupID))
+	}
+	if i.BloodGroupIDNEQ != nil {
+		predicates = append(predicates, pet.BloodGroupIDNEQ(*i.BloodGroupIDNEQ))
+	}
+	if len(i.BloodGroupIDIn) > 0 {
+		predicates = append(predicates, pet.BloodGroupIDIn(i.BloodGroupIDIn...))
+	}
+	if len(i.BloodGroupIDNotIn) > 0 {
+		predicates = append(predicates, pet.BloodGroupIDNotIn(i.BloodGroupIDNotIn...))
+	}
+	if i.BloodGroupIDGT != nil {
+		predicates = append(predicates, pet.BloodGroupIDGT(*i.BloodGroupIDGT))
+	}
+	if i.BloodGroupIDGTE != nil {
+		predicates = append(predicates, pet.BloodGroupIDGTE(*i.BloodGroupIDGTE))
+	}
+	if i.BloodGroupIDLT != nil {
+		predicates = append(predicates, pet.BloodGroupIDLT(*i.BloodGroupIDLT))
+	}
+	if i.BloodGroupIDLTE != nil {
+		predicates = append(predicates, pet.BloodGroupIDLTE(*i.BloodGroupIDLTE))
+	}
+	if i.BloodGroupIDContains != nil {
+		predicates = append(predicates, pet.BloodGroupIDContains(*i.BloodGroupIDContains))
+	}
+	if i.BloodGroupIDHasPrefix != nil {
+		predicates = append(predicates, pet.BloodGroupIDHasPrefix(*i.BloodGroupIDHasPrefix))
+	}
+	if i.BloodGroupIDHasSuffix != nil {
+		predicates = append(predicates, pet.BloodGroupIDHasSuffix(*i.BloodGroupIDHasSuffix))
+	}
+	if i.BloodGroupIDIsNil {
+		predicates = append(predicates, pet.BloodGroupIDIsNil())
+	}
+	if i.BloodGroupIDNotNil {
+		predicates = append(predicates, pet.BloodGroupIDNotNil())
+	}
+	if i.BloodGroupIDEqualFold != nil {
+		predicates = append(predicates, pet.BloodGroupIDEqualFold(*i.BloodGroupIDEqualFold))
+	}
+	if i.BloodGroupIDContainsFold != nil {
+		predicates = append(predicates, pet.BloodGroupIDContainsFold(*i.BloodGroupIDContainsFold))
+	}
 
 	if i.HasOwner != nil {
 		p := pet.HasOwner()
@@ -2458,6 +2462,24 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, pet.HasBreedRefWith(with...))
+	}
+	if i.HasBloodGroupRef != nil {
+		p := pet.HasBloodGroupRef()
+		if !*i.HasBloodGroupRef {
+			p = pet.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasBloodGroupRefWith) > 0 {
+		with := make([]predicate.BloodGroup, 0, len(i.HasBloodGroupRefWith))
+		for _, w := range i.HasBloodGroupRefWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasBloodGroupRefWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, pet.HasBloodGroupRefWith(with...))
 	}
 	if i.HasBloodSearchRequest != nil {
 		p := pet.HasBloodSearchRequest()

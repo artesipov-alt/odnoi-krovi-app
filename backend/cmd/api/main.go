@@ -114,7 +114,7 @@ func main() {
 		// Инициализация обработчиков
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 		userHandler := handlers.NewUserHandler(userService, locationRepo)
-		petHandler := handlers.NewPetHandler(petService, donorValidator)
+		petHandler := handlers.NewPetHandler(petService, donorValidator, bloodInfoRepo)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 		fileHandler := handlers.NewFileHandler(fileService)
 

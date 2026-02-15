@@ -8,16 +8,12 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-func (_m *BloodGroup) Pets(ctx context.Context) (result []*Pet, err error) {
-	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
-		result, err = _m.NamedPets(graphql.GetFieldContext(ctx).Field.Alias)
-	} else {
-		result, err = _m.Edges.PetsOrErr()
-	}
+func (_m *BloodGroup) Pets(ctx context.Context) (*Pet, error) {
+	result, err := _m.Edges.PetsOrErr()
 	if IsNotLoaded(err) {
-		result, err = _m.QueryPets().All(ctx)
+		result, err = _m.QueryPets().Only(ctx)
 	}
-	return result, err
+	return result, MaskNotFound(err)
 }
 
 func (_m *BloodSearchRequest) Pet(ctx context.Context) (*Pet, error) {
@@ -100,6 +96,14 @@ func (_m *Pet) BreedRef(ctx context.Context) (*Breed, error) {
 	result, err := _m.Edges.BreedRefOrErr()
 	if IsNotLoaded(err) {
 		result, err = _m.QueryBreedRef().Only(ctx)
+	}
+	return result, MaskNotFound(err)
+}
+
+func (_m *Pet) BloodGroupRef(ctx context.Context) (*BloodGroup, error) {
+	result, err := _m.Edges.BloodGroupRefOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryBloodGroupRef().Only(ctx)
 	}
 	return result, MaskNotFound(err)
 }

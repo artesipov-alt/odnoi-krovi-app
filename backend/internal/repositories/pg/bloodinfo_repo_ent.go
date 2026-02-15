@@ -52,3 +52,19 @@ func (r *EntBloodInfoRepository) BloodGroupsByPetType(ctx context.Context, petTy
 	}
 	return groups, nil
 }
+
+// FindByTypeAndBloodGroup returns a blood group by pet type and blood group value
+func (r *EntBloodInfoRepository) FindByTypeAndBloodGroup(ctx context.Context, petType bloodgroup.PetType, bloodGroup string) (*ent.BloodGroup, error) {
+	group, err := r.client.BloodGroup.Query().
+		Where(bloodgroup.PetTypeEQ(petType)).
+		Where(bloodgroup.BloodGroupEQ(bloodGroup)).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("blood group %s for pet type %s not found: %w", bloodGroup, petType, err)
+		}
+		return nil, fmt.Errorf("failed to get blood group %s for pet type %s: %w", bloodGroup, petType, err)
+	}
+	return group, nil
+}

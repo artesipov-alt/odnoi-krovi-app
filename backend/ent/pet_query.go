@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -36,8 +37,8 @@ type PetQuery struct {
 	withAnalyses           *PetAnalysisQuery
 	withBonuses            *PetBonusQuery
 	withBreedRef           *BreedQuery
+	withBloodGroupRef      *BloodGroupQuery
 	withBloodSearchRequest *BloodSearchRequestQuery
-	withFKs                bool
 	modifiers              []func(*sql.Selector)
 	loadTotal              []func(context.Context, []*Pet) error
 	withNamedAnalyses      map[string]*PetAnalysisQuery
@@ -202,6 +203,28 @@ func (_q *PetQuery) QueryBreedRef() *BreedQuery {
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(breed.Table, breed.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, pet.BreedRefTable, pet.BreedRefColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryBloodGroupRef chains the current query on the "blood_group_ref" edge.
+func (_q *PetQuery) QueryBloodGroupRef() *BloodGroupQuery {
+	query := (&BloodGroupClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pet.Table, pet.FieldID, selector),
+			sqlgraph.To(bloodgroup.Table, bloodgroup.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, pet.BloodGroupRefTable, pet.BloodGroupRefColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -429,6 +452,7 @@ func (_q *PetQuery) Clone() *PetQuery {
 		withAnalyses:           _q.withAnalyses.Clone(),
 		withBonuses:            _q.withBonuses.Clone(),
 		withBreedRef:           _q.withBreedRef.Clone(),
+		withBloodGroupRef:      _q.withBloodGroupRef.Clone(),
 		withBloodSearchRequest: _q.withBloodSearchRequest.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
@@ -499,6 +523,17 @@ func (_q *PetQuery) WithBreedRef(opts ...func(*BreedQuery)) *PetQuery {
 		opt(query)
 	}
 	_q.withBreedRef = query
+	return _q
+}
+
+// WithBloodGroupRef tells the query-builder to eager-load the nodes that are connected to
+// the "blood_group_ref" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PetQuery) WithBloodGroupRef(opts ...func(*BloodGroupQuery)) *PetQuery {
+	query := (&BloodGroupClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withBloodGroupRef = query
 	return _q
 }
 
@@ -590,21 +625,18 @@ func (_q *PetQuery) prepareQuery(ctx context.Context) error {
 func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, error) {
 	var (
 		nodes       = []*Pet{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [7]bool{
+		loadedTypes = [8]bool{
 			_q.withOwner != nil,
 			_q.withHealth != nil,
 			_q.withTreatments != nil,
 			_q.withAnalyses != nil,
 			_q.withBonuses != nil,
 			_q.withBreedRef != nil,
+			_q.withBloodGroupRef != nil,
 			_q.withBloodSearchRequest != nil,
 		}
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Pet).scanValues(nil, columns)
 	}
@@ -660,6 +692,12 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 	if query := _q.withBreedRef; query != nil {
 		if err := _q.loadBreedRef(ctx, query, nodes, nil,
 			func(n *Pet, e *Breed) { n.Edges.BreedRef = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withBloodGroupRef; query != nil {
+		if err := _q.loadBloodGroupRef(ctx, query, nodes, nil,
+			func(n *Pet, e *BloodGroup) { n.Edges.BloodGroupRef = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -859,6 +897,35 @@ func (_q *PetQuery) loadBreedRef(ctx context.Context, query *BreedQuery, nodes [
 	}
 	return nil
 }
+func (_q *PetQuery) loadBloodGroupRef(ctx context.Context, query *BloodGroupQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *BloodGroup)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Pet)
+	for i := range nodes {
+		fk := nodes[i].BloodGroupID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(bloodgroup.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "blood_group_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (_q *PetQuery) loadBloodSearchRequest(ctx context.Context, query *BloodSearchRequestQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *BloodSearchRequest)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*Pet)
@@ -929,6 +996,9 @@ func (_q *PetQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withBreedRef != nil {
 			_spec.Node.AddColumnOnce(pet.FieldBreedID)
+		}
+		if _q.withBloodGroupRef != nil {
+			_spec.Node.AddColumnOnce(pet.FieldBloodGroupID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

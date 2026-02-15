@@ -389,8 +389,7 @@ type BloodGroupMutation struct {
 	blood_group   *string
 	description   *string
 	clearedFields map[string]struct{}
-	pets          map[string]struct{}
-	removedpets   map[string]struct{}
+	pets          *string
 	clearedpets   bool
 	done          bool
 	oldValue      func(context.Context) (*BloodGroup, error)
@@ -622,14 +621,9 @@ func (m *BloodGroupMutation) ResetDescription() {
 	delete(m.clearedFields, bloodgroup.FieldDescription)
 }
 
-// AddPetIDs adds the "pets" edge to the Pet entity by ids.
-func (m *BloodGroupMutation) AddPetIDs(ids ...string) {
-	if m.pets == nil {
-		m.pets = make(map[string]struct{})
-	}
-	for i := range ids {
-		m.pets[ids[i]] = struct{}{}
-	}
+// SetPetsID sets the "pets" edge to the Pet entity by id.
+func (m *BloodGroupMutation) SetPetsID(id string) {
+	m.pets = &id
 }
 
 // ClearPets clears the "pets" edge to the Pet entity.
@@ -642,29 +636,20 @@ func (m *BloodGroupMutation) PetsCleared() bool {
 	return m.clearedpets
 }
 
-// RemovePetIDs removes the "pets" edge to the Pet entity by IDs.
-func (m *BloodGroupMutation) RemovePetIDs(ids ...string) {
-	if m.removedpets == nil {
-		m.removedpets = make(map[string]struct{})
-	}
-	for i := range ids {
-		delete(m.pets, ids[i])
-		m.removedpets[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedPets returns the removed IDs of the "pets" edge to the Pet entity.
-func (m *BloodGroupMutation) RemovedPetsIDs() (ids []string) {
-	for id := range m.removedpets {
-		ids = append(ids, id)
+// PetsID returns the "pets" edge ID in the mutation.
+func (m *BloodGroupMutation) PetsID() (id string, exists bool) {
+	if m.pets != nil {
+		return *m.pets, true
 	}
 	return
 }
 
 // PetsIDs returns the "pets" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// PetsID instead. It exists only for internal usage by the builders.
 func (m *BloodGroupMutation) PetsIDs() (ids []string) {
-	for id := range m.pets {
-		ids = append(ids, id)
+	if id := m.pets; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -673,7 +658,6 @@ func (m *BloodGroupMutation) PetsIDs() (ids []string) {
 func (m *BloodGroupMutation) ResetPets() {
 	m.pets = nil
 	m.clearedpets = false
-	m.removedpets = nil
 }
 
 // Where appends a list predicates to the BloodGroupMutation builder.
@@ -864,11 +848,9 @@ func (m *BloodGroupMutation) AddedEdges() []string {
 func (m *BloodGroupMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case bloodgroup.EdgePets:
-		ids := make([]ent.Value, 0, len(m.pets))
-		for id := range m.pets {
-			ids = append(ids, id)
+		if id := m.pets; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -876,23 +858,12 @@ func (m *BloodGroupMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodGroupMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedpets != nil {
-		edges = append(edges, bloodgroup.EdgePets)
-	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BloodGroupMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case bloodgroup.EdgePets:
-		ids := make([]ent.Value, 0, len(m.removedpets))
-		for id := range m.removedpets {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
@@ -919,6 +890,9 @@ func (m *BloodGroupMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *BloodGroupMutation) ClearEdge(name string) error {
 	switch name {
+	case bloodgroup.EdgePets:
+		m.ClearPets()
+		return nil
 	}
 	return fmt.Errorf("unknown BloodGroup unique edge %s", name)
 }
@@ -3120,7 +3094,6 @@ type PetMutation struct {
 	pet_status                  *pet.PetStatus
 	weight_kg                   *float64
 	addweight_kg                *float64
-	blood_group                 *string
 	gender                      *pet.Gender
 	birth_date                  *time.Time
 	chip_number                 *string
@@ -3144,6 +3117,8 @@ type PetMutation struct {
 	clearedbonuses              bool
 	breed_ref                   *string
 	clearedbreed_ref            bool
+	blood_group_ref             *string
+	clearedblood_group_ref      bool
 	blood_search_request        *string
 	clearedblood_search_request bool
 	done                        bool
@@ -3552,55 +3527,6 @@ func (m *PetMutation) ResetWeightKg() {
 	m.weight_kg = nil
 	m.addweight_kg = nil
 	delete(m.clearedFields, pet.FieldWeightKg)
-}
-
-// SetBloodGroup sets the "blood_group" field.
-func (m *PetMutation) SetBloodGroup(s string) {
-	m.blood_group = &s
-}
-
-// BloodGroup returns the value of the "blood_group" field in the mutation.
-func (m *PetMutation) BloodGroup() (r string, exists bool) {
-	v := m.blood_group
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBloodGroup returns the old "blood_group" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldBloodGroup(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodGroup is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodGroup requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodGroup: %w", err)
-	}
-	return oldValue.BloodGroup, nil
-}
-
-// ClearBloodGroup clears the value of the "blood_group" field.
-func (m *PetMutation) ClearBloodGroup() {
-	m.blood_group = nil
-	m.clearedFields[pet.FieldBloodGroup] = struct{}{}
-}
-
-// BloodGroupCleared returns if the "blood_group" field was cleared in this mutation.
-func (m *PetMutation) BloodGroupCleared() bool {
-	_, ok := m.clearedFields[pet.FieldBloodGroup]
-	return ok
-}
-
-// ResetBloodGroup resets all changes to the "blood_group" field.
-func (m *PetMutation) ResetBloodGroup() {
-	m.blood_group = nil
-	delete(m.clearedFields, pet.FieldBloodGroup)
 }
 
 // SetGender sets the "gender" field.
@@ -4223,6 +4149,55 @@ func (m *PetMutation) ResetDonorRestrictions() {
 	delete(m.clearedFields, pet.FieldDonorRestrictions)
 }
 
+// SetBloodGroupID sets the "blood_group_id" field.
+func (m *PetMutation) SetBloodGroupID(s string) {
+	m.blood_group_ref = &s
+}
+
+// BloodGroupID returns the value of the "blood_group_id" field in the mutation.
+func (m *PetMutation) BloodGroupID() (r string, exists bool) {
+	v := m.blood_group_ref
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBloodGroupID returns the old "blood_group_id" field's value of the Pet entity.
+// If the Pet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetMutation) OldBloodGroupID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBloodGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBloodGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBloodGroupID: %w", err)
+	}
+	return oldValue.BloodGroupID, nil
+}
+
+// ClearBloodGroupID clears the value of the "blood_group_id" field.
+func (m *PetMutation) ClearBloodGroupID() {
+	m.blood_group_ref = nil
+	m.clearedFields[pet.FieldBloodGroupID] = struct{}{}
+}
+
+// BloodGroupIDCleared returns if the "blood_group_id" field was cleared in this mutation.
+func (m *PetMutation) BloodGroupIDCleared() bool {
+	_, ok := m.clearedFields[pet.FieldBloodGroupID]
+	return ok
+}
+
+// ResetBloodGroupID resets all changes to the "blood_group_id" field.
+func (m *PetMutation) ResetBloodGroupID() {
+	m.blood_group_ref = nil
+	delete(m.clearedFields, pet.FieldBloodGroupID)
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by id.
 func (m *PetMutation) SetOwnerID(id string) {
 	m.owner = &id
@@ -4464,6 +4439,46 @@ func (m *PetMutation) ResetBreedRef() {
 	m.clearedbreed_ref = false
 }
 
+// SetBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by id.
+func (m *PetMutation) SetBloodGroupRefID(id string) {
+	m.blood_group_ref = &id
+}
+
+// ClearBloodGroupRef clears the "blood_group_ref" edge to the BloodGroup entity.
+func (m *PetMutation) ClearBloodGroupRef() {
+	m.clearedblood_group_ref = true
+	m.clearedFields[pet.FieldBloodGroupID] = struct{}{}
+}
+
+// BloodGroupRefCleared reports if the "blood_group_ref" edge to the BloodGroup entity was cleared.
+func (m *PetMutation) BloodGroupRefCleared() bool {
+	return m.BloodGroupIDCleared() || m.clearedblood_group_ref
+}
+
+// BloodGroupRefID returns the "blood_group_ref" edge ID in the mutation.
+func (m *PetMutation) BloodGroupRefID() (id string, exists bool) {
+	if m.blood_group_ref != nil {
+		return *m.blood_group_ref, true
+	}
+	return
+}
+
+// BloodGroupRefIDs returns the "blood_group_ref" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BloodGroupRefID instead. It exists only for internal usage by the builders.
+func (m *PetMutation) BloodGroupRefIDs() (ids []string) {
+	if id := m.blood_group_ref; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBloodGroupRef resets all changes to the "blood_group_ref" edge.
+func (m *PetMutation) ResetBloodGroupRef() {
+	m.blood_group_ref = nil
+	m.clearedblood_group_ref = false
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by id.
 func (m *PetMutation) SetBloodSearchRequestID(id string) {
 	m.blood_search_request = &id
@@ -4559,9 +4574,6 @@ func (m *PetMutation) Fields() []string {
 	if m.weight_kg != nil {
 		fields = append(fields, pet.FieldWeightKg)
 	}
-	if m.blood_group != nil {
-		fields = append(fields, pet.FieldBloodGroup)
-	}
 	if m.gender != nil {
 		fields = append(fields, pet.FieldGender)
 	}
@@ -4598,6 +4610,9 @@ func (m *PetMutation) Fields() []string {
 	if m.donor_restrictions != nil {
 		fields = append(fields, pet.FieldDonorRestrictions)
 	}
+	if m.blood_group_ref != nil {
+		fields = append(fields, pet.FieldBloodGroupID)
+	}
 	return fields
 }
 
@@ -4620,8 +4635,6 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.PetStatus()
 	case pet.FieldWeightKg:
 		return m.WeightKg()
-	case pet.FieldBloodGroup:
-		return m.BloodGroup()
 	case pet.FieldGender:
 		return m.Gender()
 	case pet.FieldBirthDate:
@@ -4646,6 +4659,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.ReproductiveStatus()
 	case pet.FieldDonorRestrictions:
 		return m.DonorRestrictions()
+	case pet.FieldBloodGroupID:
+		return m.BloodGroupID()
 	}
 	return nil, false
 }
@@ -4669,8 +4684,6 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldPetStatus(ctx)
 	case pet.FieldWeightKg:
 		return m.OldWeightKg(ctx)
-	case pet.FieldBloodGroup:
-		return m.OldBloodGroup(ctx)
 	case pet.FieldGender:
 		return m.OldGender(ctx)
 	case pet.FieldBirthDate:
@@ -4695,6 +4708,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldReproductiveStatus(ctx)
 	case pet.FieldDonorRestrictions:
 		return m.OldDonorRestrictions(ctx)
+	case pet.FieldBloodGroupID:
+		return m.OldBloodGroupID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
@@ -4752,13 +4767,6 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetWeightKg(v)
-		return nil
-	case pet.FieldBloodGroup:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBloodGroup(v)
 		return nil
 	case pet.FieldGender:
 		v, ok := value.(pet.Gender)
@@ -4844,6 +4852,13 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDonorRestrictions(v)
 		return nil
+	case pet.FieldBloodGroupID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBloodGroupID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
@@ -4895,9 +4910,6 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldWeightKg) {
 		fields = append(fields, pet.FieldWeightKg)
 	}
-	if m.FieldCleared(pet.FieldBloodGroup) {
-		fields = append(fields, pet.FieldBloodGroup)
-	}
 	if m.FieldCleared(pet.FieldGender) {
 		fields = append(fields, pet.FieldGender)
 	}
@@ -4934,6 +4946,9 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldDonorRestrictions) {
 		fields = append(fields, pet.FieldDonorRestrictions)
 	}
+	if m.FieldCleared(pet.FieldBloodGroupID) {
+		fields = append(fields, pet.FieldBloodGroupID)
+	}
 	return fields
 }
 
@@ -4953,9 +4968,6 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldWeightKg:
 		m.ClearWeightKg()
-		return nil
-	case pet.FieldBloodGroup:
-		m.ClearBloodGroup()
 		return nil
 	case pet.FieldGender:
 		m.ClearGender()
@@ -4993,6 +5005,9 @@ func (m *PetMutation) ClearField(name string) error {
 	case pet.FieldDonorRestrictions:
 		m.ClearDonorRestrictions()
 		return nil
+	case pet.FieldBloodGroupID:
+		m.ClearBloodGroupID()
+		return nil
 	}
 	return fmt.Errorf("unknown Pet nullable field %s", name)
 }
@@ -5021,9 +5036,6 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldWeightKg:
 		m.ResetWeightKg()
-		return nil
-	case pet.FieldBloodGroup:
-		m.ResetBloodGroup()
 		return nil
 	case pet.FieldGender:
 		m.ResetGender()
@@ -5061,13 +5073,16 @@ func (m *PetMutation) ResetField(name string) error {
 	case pet.FieldDonorRestrictions:
 		m.ResetDonorRestrictions()
 		return nil
+	case pet.FieldBloodGroupID:
+		m.ResetBloodGroupID()
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PetMutation) AddedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 8)
 	if m.owner != nil {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -5085,6 +5100,9 @@ func (m *PetMutation) AddedEdges() []string {
 	}
 	if m.breed_ref != nil {
 		edges = append(edges, pet.EdgeBreedRef)
+	}
+	if m.blood_group_ref != nil {
+		edges = append(edges, pet.EdgeBloodGroupRef)
 	}
 	if m.blood_search_request != nil {
 		edges = append(edges, pet.EdgeBloodSearchRequest)
@@ -5122,6 +5140,10 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 		if id := m.breed_ref; id != nil {
 			return []ent.Value{*id}
 		}
+	case pet.EdgeBloodGroupRef:
+		if id := m.blood_group_ref; id != nil {
+			return []ent.Value{*id}
+		}
 	case pet.EdgeBloodSearchRequest:
 		if id := m.blood_search_request; id != nil {
 			return []ent.Value{*id}
@@ -5132,7 +5154,7 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PetMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 8)
 	if m.removedanalyses != nil {
 		edges = append(edges, pet.EdgeAnalyses)
 	}
@@ -5155,7 +5177,7 @@ func (m *PetMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PetMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 8)
 	if m.clearedowner {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -5173,6 +5195,9 @@ func (m *PetMutation) ClearedEdges() []string {
 	}
 	if m.clearedbreed_ref {
 		edges = append(edges, pet.EdgeBreedRef)
+	}
+	if m.clearedblood_group_ref {
+		edges = append(edges, pet.EdgeBloodGroupRef)
 	}
 	if m.clearedblood_search_request {
 		edges = append(edges, pet.EdgeBloodSearchRequest)
@@ -5196,6 +5221,8 @@ func (m *PetMutation) EdgeCleared(name string) bool {
 		return m.clearedbonuses
 	case pet.EdgeBreedRef:
 		return m.clearedbreed_ref
+	case pet.EdgeBloodGroupRef:
+		return m.clearedblood_group_ref
 	case pet.EdgeBloodSearchRequest:
 		return m.clearedblood_search_request
 	}
@@ -5220,6 +5247,9 @@ func (m *PetMutation) ClearEdge(name string) error {
 		return nil
 	case pet.EdgeBreedRef:
 		m.ClearBreedRef()
+		return nil
+	case pet.EdgeBloodGroupRef:
+		m.ClearBloodGroupRef()
 		return nil
 	case pet.EdgeBloodSearchRequest:
 		m.ClearBloodSearchRequest()
@@ -5249,6 +5279,9 @@ func (m *PetMutation) ResetEdge(name string) error {
 		return nil
 	case pet.EdgeBreedRef:
 		m.ResetBreedRef()
+		return nil
+	case pet.EdgeBloodGroupRef:
+		m.ResetBloodGroupRef()
 		return nil
 	case pet.EdgeBloodSearchRequest:
 		m.ResetBloodSearchRequest()

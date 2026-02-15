@@ -20,7 +20,6 @@ type CreatePetInput struct {
 	Type                 pet.Type
 	PetStatus            pet.PetStatus
 	WeightKg             *float64
-	BloodGroup           *string
 	Gender               *pet.Gender
 	BirthDate            *time.Time
 	ChipNumber           *string
@@ -34,6 +33,7 @@ type CreatePetInput struct {
 	AnalysisIDs          []string
 	BonusesID            *string
 	BreedRefID           *string
+	BloodGroupRefID      *string
 	BloodSearchRequestID *string
 }
 
@@ -53,9 +53,6 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	m.SetPetStatus(i.PetStatus)
 	if v := i.WeightKg; v != nil {
 		m.SetWeightKg(*v)
-	}
-	if v := i.BloodGroup; v != nil {
-		m.SetBloodGroup(*v)
 	}
 	if v := i.Gender; v != nil {
 		m.SetGender(*v)
@@ -96,6 +93,9 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	if v := i.BreedRefID; v != nil {
 		m.SetBreedRefID(*v)
 	}
+	if v := i.BloodGroupRefID; v != nil {
+		m.SetBloodGroupRefID(*v)
+	}
 	if v := i.BloodSearchRequestID; v != nil {
 		m.SetBloodSearchRequestID(*v)
 	}
@@ -117,8 +117,6 @@ type UpdatePetInput struct {
 	PetStatus               *pet.PetStatus
 	ClearWeightKg           bool
 	WeightKg                *float64
-	ClearBloodGroup         bool
-	BloodGroup              *string
 	ClearGender             bool
 	Gender                  *pet.Gender
 	ClearBirthDate          bool
@@ -148,6 +146,8 @@ type UpdatePetInput struct {
 	BonusesID               *string
 	ClearBreedRef           bool
 	BreedRefID              *string
+	ClearBloodGroupRef      bool
+	BloodGroupRefID         *string
 	ClearBloodSearchRequest bool
 	BloodSearchRequestID    *string
 }
@@ -177,12 +177,6 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	}
 	if v := i.WeightKg; v != nil {
 		m.SetWeightKg(*v)
-	}
-	if i.ClearBloodGroup {
-		m.ClearBloodGroup()
-	}
-	if v := i.BloodGroup; v != nil {
-		m.SetBloodGroup(*v)
 	}
 	if i.ClearGender {
 		m.ClearGender()
@@ -270,6 +264,12 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	}
 	if v := i.BreedRefID; v != nil {
 		m.SetBreedRefID(*v)
+	}
+	if i.ClearBloodGroupRef {
+		m.ClearBloodGroupRef()
+	}
+	if v := i.BloodGroupRefID; v != nil {
+		m.SetBloodGroupRefID(*v)
 	}
 	if i.ClearBloodSearchRequest {
 		m.ClearBloodSearchRequest()

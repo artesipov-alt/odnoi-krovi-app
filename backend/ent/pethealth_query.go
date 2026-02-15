@@ -419,7 +419,6 @@ func (_q *PetHealthQuery) loadOwner(ctx context.Context, query *PetQuery, nodes 
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
-	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(pet.FieldHealthID)
 	}

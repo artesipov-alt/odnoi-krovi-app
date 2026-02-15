@@ -90,11 +90,6 @@ func WeightKg(v float64) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldWeightKg, v))
 }
 
-// BloodGroup applies equality check predicate on the "blood_group" field. It's identical to BloodGroupEQ.
-func BloodGroup(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldBloodGroup, v))
-}
-
 // BirthDate applies equality check predicate on the "birth_date" field. It's identical to BirthDateEQ.
 func BirthDate(v time.Time) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBirthDate, v))
@@ -128,6 +123,11 @@ func TreatmentID(v string) predicate.Pet {
 // BonusID applies equality check predicate on the "bonus_id" field. It's identical to BonusIDEQ.
 func BonusID(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBonusID, v))
+}
+
+// BloodGroupID applies equality check predicate on the "blood_group_id" field. It's identical to BloodGroupIDEQ.
+func BloodGroupID(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldBloodGroupID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -413,81 +413,6 @@ func WeightKgIsNil() predicate.Pet {
 // WeightKgNotNil applies the NotNil predicate on the "weight_kg" field.
 func WeightKgNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldWeightKg))
-}
-
-// BloodGroupEQ applies the EQ predicate on the "blood_group" field.
-func BloodGroupEQ(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldBloodGroup, v))
-}
-
-// BloodGroupNEQ applies the NEQ predicate on the "blood_group" field.
-func BloodGroupNEQ(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldNEQ(FieldBloodGroup, v))
-}
-
-// BloodGroupIn applies the In predicate on the "blood_group" field.
-func BloodGroupIn(vs ...string) predicate.Pet {
-	return predicate.Pet(sql.FieldIn(FieldBloodGroup, vs...))
-}
-
-// BloodGroupNotIn applies the NotIn predicate on the "blood_group" field.
-func BloodGroupNotIn(vs ...string) predicate.Pet {
-	return predicate.Pet(sql.FieldNotIn(FieldBloodGroup, vs...))
-}
-
-// BloodGroupGT applies the GT predicate on the "blood_group" field.
-func BloodGroupGT(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldGT(FieldBloodGroup, v))
-}
-
-// BloodGroupGTE applies the GTE predicate on the "blood_group" field.
-func BloodGroupGTE(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldGTE(FieldBloodGroup, v))
-}
-
-// BloodGroupLT applies the LT predicate on the "blood_group" field.
-func BloodGroupLT(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldLT(FieldBloodGroup, v))
-}
-
-// BloodGroupLTE applies the LTE predicate on the "blood_group" field.
-func BloodGroupLTE(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldLTE(FieldBloodGroup, v))
-}
-
-// BloodGroupContains applies the Contains predicate on the "blood_group" field.
-func BloodGroupContains(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldContains(FieldBloodGroup, v))
-}
-
-// BloodGroupHasPrefix applies the HasPrefix predicate on the "blood_group" field.
-func BloodGroupHasPrefix(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldHasPrefix(FieldBloodGroup, v))
-}
-
-// BloodGroupHasSuffix applies the HasSuffix predicate on the "blood_group" field.
-func BloodGroupHasSuffix(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldHasSuffix(FieldBloodGroup, v))
-}
-
-// BloodGroupIsNil applies the IsNil predicate on the "blood_group" field.
-func BloodGroupIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldBloodGroup))
-}
-
-// BloodGroupNotNil applies the NotNil predicate on the "blood_group" field.
-func BloodGroupNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldBloodGroup))
-}
-
-// BloodGroupEqualFold applies the EqualFold predicate on the "blood_group" field.
-func BloodGroupEqualFold(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEqualFold(FieldBloodGroup, v))
-}
-
-// BloodGroupContainsFold applies the ContainsFold predicate on the "blood_group" field.
-func BloodGroupContainsFold(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldContainsFold(FieldBloodGroup, v))
 }
 
 // GenderEQ applies the EQ predicate on the "gender" field.
@@ -1100,6 +1025,81 @@ func DonorRestrictionsNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldDonorRestrictions))
 }
 
+// BloodGroupIDEQ applies the EQ predicate on the "blood_group_id" field.
+func BloodGroupIDEQ(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDNEQ applies the NEQ predicate on the "blood_group_id" field.
+func BloodGroupIDNEQ(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldNEQ(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDIn applies the In predicate on the "blood_group_id" field.
+func BloodGroupIDIn(vs ...string) predicate.Pet {
+	return predicate.Pet(sql.FieldIn(FieldBloodGroupID, vs...))
+}
+
+// BloodGroupIDNotIn applies the NotIn predicate on the "blood_group_id" field.
+func BloodGroupIDNotIn(vs ...string) predicate.Pet {
+	return predicate.Pet(sql.FieldNotIn(FieldBloodGroupID, vs...))
+}
+
+// BloodGroupIDGT applies the GT predicate on the "blood_group_id" field.
+func BloodGroupIDGT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGT(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDGTE applies the GTE predicate on the "blood_group_id" field.
+func BloodGroupIDGTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGTE(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDLT applies the LT predicate on the "blood_group_id" field.
+func BloodGroupIDLT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLT(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDLTE applies the LTE predicate on the "blood_group_id" field.
+func BloodGroupIDLTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLTE(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDContains applies the Contains predicate on the "blood_group_id" field.
+func BloodGroupIDContains(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContains(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDHasPrefix applies the HasPrefix predicate on the "blood_group_id" field.
+func BloodGroupIDHasPrefix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasPrefix(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDHasSuffix applies the HasSuffix predicate on the "blood_group_id" field.
+func BloodGroupIDHasSuffix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasSuffix(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDIsNil applies the IsNil predicate on the "blood_group_id" field.
+func BloodGroupIDIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldBloodGroupID))
+}
+
+// BloodGroupIDNotNil applies the NotNil predicate on the "blood_group_id" field.
+func BloodGroupIDNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldBloodGroupID))
+}
+
+// BloodGroupIDEqualFold applies the EqualFold predicate on the "blood_group_id" field.
+func BloodGroupIDEqualFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEqualFold(FieldBloodGroupID, v))
+}
+
+// BloodGroupIDContainsFold applies the ContainsFold predicate on the "blood_group_id" field.
+func BloodGroupIDContainsFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContainsFold(FieldBloodGroupID, v))
+}
+
 // HasOwner applies the HasEdge predicate on the "owner" edge.
 func HasOwner() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
@@ -1230,6 +1230,29 @@ func HasBreedRef() predicate.Pet {
 func HasBreedRefWith(preds ...predicate.Breed) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newBreedRefStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasBloodGroupRef applies the HasEdge predicate on the "blood_group_ref" edge.
+func HasBloodGroupRef() predicate.Pet {
+	return predicate.Pet(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, BloodGroupRefTable, BloodGroupRefColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBloodGroupRefWith applies the HasEdge predicate on the "blood_group_ref" edge with a given conditions (other predicates).
+func HasBloodGroupRefWith(preds ...predicate.BloodGroup) predicate.Pet {
+	return predicate.Pet(func(s *sql.Selector) {
+		step := newBloodGroupRefStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

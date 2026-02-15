@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -97,20 +98,6 @@ func (_c *PetCreate) SetWeightKg(v float64) *PetCreate {
 func (_c *PetCreate) SetNillableWeightKg(v *float64) *PetCreate {
 	if v != nil {
 		_c.SetWeightKg(*v)
-	}
-	return _c
-}
-
-// SetBloodGroup sets the "blood_group" field.
-func (_c *PetCreate) SetBloodGroup(v string) *PetCreate {
-	_c.mutation.SetBloodGroup(v)
-	return _c
-}
-
-// SetNillableBloodGroup sets the "blood_group" field if the given value is not nil.
-func (_c *PetCreate) SetNillableBloodGroup(v *string) *PetCreate {
-	if v != nil {
-		_c.SetBloodGroup(*v)
 	}
 	return _c
 }
@@ -267,6 +254,20 @@ func (_c *PetCreate) SetDonorRestrictions(v []string) *PetCreate {
 	return _c
 }
 
+// SetBloodGroupID sets the "blood_group_id" field.
+func (_c *PetCreate) SetBloodGroupID(v string) *PetCreate {
+	_c.mutation.SetBloodGroupID(v)
+	return _c
+}
+
+// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
+func (_c *PetCreate) SetNillableBloodGroupID(v *string) *PetCreate {
+	if v != nil {
+		_c.SetBloodGroupID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PetCreate) SetID(v string) *PetCreate {
 	_c.mutation.SetID(v)
@@ -375,6 +376,25 @@ func (_c *PetCreate) SetNillableBreedRefID(id *string) *PetCreate {
 // SetBreedRef sets the "breed_ref" edge to the Breed entity.
 func (_c *PetCreate) SetBreedRef(v *Breed) *PetCreate {
 	return _c.SetBreedRefID(v.ID)
+}
+
+// SetBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID.
+func (_c *PetCreate) SetBloodGroupRefID(id string) *PetCreate {
+	_c.mutation.SetBloodGroupRefID(id)
+	return _c
+}
+
+// SetNillableBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID if the given value is not nil.
+func (_c *PetCreate) SetNillableBloodGroupRefID(id *string) *PetCreate {
+	if id != nil {
+		_c = _c.SetBloodGroupRefID(*id)
+	}
+	return _c
+}
+
+// SetBloodGroupRef sets the "blood_group_ref" edge to the BloodGroup entity.
+func (_c *PetCreate) SetBloodGroupRef(v *BloodGroup) *PetCreate {
+	return _c.SetBloodGroupRefID(v.ID)
 }
 
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
@@ -560,10 +580,6 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_spec.SetField(pet.FieldWeightKg, field.TypeFloat64, value)
 		_node.WeightKg = value
 	}
-	if value, ok := _c.mutation.BloodGroup(); ok {
-		_spec.SetField(pet.FieldBloodGroup, field.TypeString, value)
-		_node.BloodGroup = value
-	}
 	if value, ok := _c.mutation.Gender(); ok {
 		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
 		_node.Gender = value
@@ -691,6 +707,23 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BreedID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   pet.BloodGroupRefTable,
+			Columns: []string{pet.BloodGroupRefColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.BloodGroupID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.BloodSearchRequestIDs(); len(nodes) > 0 {

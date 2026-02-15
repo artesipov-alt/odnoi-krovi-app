@@ -8,11 +8,12 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/danielgtaylor/huma/v2"
@@ -21,15 +22,17 @@ import (
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService services.PetService
-	validator  validator.DonorValidator
+	petService    services.PetService
+	validator     validator.DonorValidator
+	bloodInfoRepo repositories.BloodInfoRepository
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService services.PetService, validator validator.DonorValidator) *PetHandler {
+func NewPetHandler(petService services.PetService, validator validator.DonorValidator, bloodInfoRepo repositories.BloodInfoRepository) *PetHandler {
 	return &PetHandler{
-		petService: petService,
-		validator:  validator,
+		petService:    petService,
+		validator:     validator,
+		bloodInfoRepo: bloodInfoRepo,
 	}
 }
 
@@ -123,6 +126,15 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
 	if body.BreedID != "" {
 		petInput.BreedRefID = &body.BreedID
+	}
+
+	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
+	if body.BloodGroup != "" {
+		bg, err := h.bloodInfoRepo.FindByTypeAndBloodGroup(ctx, bloodgroup.PetType(body.Type), body.BloodGroup)
+		if err != nil {
+			return nil, apperrors.Internal(err, "failed to find blood group")
+		}
+		petInput.BloodGroupRefID = &bg.ID
 	}
 
 	// Копируем health
@@ -222,6 +234,26 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
 	if body.BreedID != nil {
 		petInput.BreedRefID = body.BreedID
+	}
+
+	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
+	if body.BloodGroup != nil && *body.BloodGroup != "" {
+		var petType bloodgroup.PetType
+		if body.Type != nil && *body.Type != "" {
+			petType = bloodgroup.PetType(string(*body.Type))
+		} else {
+			// Если тип не указан, получить из существующего питомца
+			existingPet, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{})
+			if err != nil {
+				return nil, apperrors.Internal(err, "failed to get existing pet for type")
+			}
+			petType = bloodgroup.PetType(string(existingPet.Type))
+		}
+		bg, err := h.bloodInfoRepo.FindByTypeAndBloodGroup(ctx, petType, *body.BloodGroup)
+		if err != nil {
+			return nil, apperrors.Internal(err, "failed to find blood group")
+		}
+		petInput.BloodGroupRefID = &bg.ID
 	}
 
 	// Копируем health
@@ -376,12 +408,15 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 		LivingCondition:    string(p.LivingCondition),
 		Gender:             string(p.Gender),
 		Type:               string(p.Type),
-		BloodGroup:         p.BloodGroup,
+		BloodGroup:         "",
 		ReproductiveStatus: string(p.ReproductiveStatus),
 		PetStatus:          string(p.PetStatus),
 		CreatedAt:          &p.CreatedAt,
 		UpdatedAt:          &p.UpdatedAt,
 		DeletedAt:          p.DeletedAt,
+	}
+	if p.Edges.BloodGroupRef != nil {
+		petDTO.BloodGroup = p.Edges.BloodGroupRef.BloodGroup
 	}
 	if p.Edges.Health != nil {
 		healthStatus := string(p.Edges.Health.HealthStatus)

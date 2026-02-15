@@ -32,8 +32,6 @@ const (
 	FieldPetStatus = "pet_status"
 	// FieldWeightKg holds the string denoting the weight_kg field in the database.
 	FieldWeightKg = "weight_kg"
-	// FieldBloodGroup holds the string denoting the blood_group field in the database.
-	FieldBloodGroup = "blood_group"
 	// FieldGender holds the string denoting the gender field in the database.
 	FieldGender = "gender"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
@@ -58,6 +56,8 @@ const (
 	FieldReproductiveStatus = "reproductive_status"
 	// FieldDonorRestrictions holds the string denoting the donor_restrictions field in the database.
 	FieldDonorRestrictions = "donor_restrictions"
+	// FieldBloodGroupID holds the string denoting the blood_group_id field in the database.
+	FieldBloodGroupID = "blood_group_id"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeHealth holds the string denoting the health edge name in mutations.
@@ -70,6 +70,8 @@ const (
 	EdgeBonuses = "bonuses"
 	// EdgeBreedRef holds the string denoting the breed_ref edge name in mutations.
 	EdgeBreedRef = "breed_ref"
+	// EdgeBloodGroupRef holds the string denoting the blood_group_ref edge name in mutations.
+	EdgeBloodGroupRef = "blood_group_ref"
 	// EdgeBloodSearchRequest holds the string denoting the blood_search_request edge name in mutations.
 	EdgeBloodSearchRequest = "blood_search_request"
 	// Table holds the table name of the pet in the database.
@@ -116,6 +118,13 @@ const (
 	BreedRefInverseTable = "ref_breeds"
 	// BreedRefColumn is the table column denoting the breed_ref relation/edge.
 	BreedRefColumn = "breed_id"
+	// BloodGroupRefTable is the table that holds the blood_group_ref relation/edge.
+	BloodGroupRefTable = "pets"
+	// BloodGroupRefInverseTable is the table name for the BloodGroup entity.
+	// It exists in this package in order to avoid circular dependency with the "bloodgroup" package.
+	BloodGroupRefInverseTable = "ref_bloodg"
+	// BloodGroupRefColumn is the table column denoting the blood_group_ref relation/edge.
+	BloodGroupRefColumn = "blood_group_id"
 	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge.
 	BloodSearchRequestTable = "blood_requests"
 	// BloodSearchRequestInverseTable is the table name for the BloodSearchRequest entity.
@@ -135,7 +144,6 @@ var Columns = []string{
 	FieldType,
 	FieldPetStatus,
 	FieldWeightKg,
-	FieldBloodGroup,
 	FieldGender,
 	FieldBirthDate,
 	FieldChipNumber,
@@ -148,23 +156,13 @@ var Columns = []string{
 	FieldLivingCondition,
 	FieldReproductiveStatus,
 	FieldDonorRestrictions,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "pets"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"blood_group_pets",
+	FieldBloodGroupID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -353,11 +351,6 @@ func ByWeightKg(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWeightKg, opts...).ToFunc()
 }
 
-// ByBloodGroup orders the results by the blood_group field.
-func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBloodGroup, opts...).ToFunc()
-}
-
 // ByGender orders the results by the gender field.
 func ByGender(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGender, opts...).ToFunc()
@@ -406,6 +399,11 @@ func ByLivingCondition(opts ...sql.OrderTermOption) OrderOption {
 // ByReproductiveStatus orders the results by the reproductive_status field.
 func ByReproductiveStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReproductiveStatus, opts...).ToFunc()
+}
+
+// ByBloodGroupID orders the results by the blood_group_id field.
+func ByBloodGroupID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBloodGroupID, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.
@@ -457,6 +455,13 @@ func ByBreedRefField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByBloodGroupRefField orders the results by blood_group_ref field.
+func ByBloodGroupRefField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBloodGroupRefStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByBloodSearchRequestField orders the results by blood_search_request field.
 func ByBloodSearchRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -503,6 +508,13 @@ func newBreedRefStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BreedRefInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, BreedRefTable, BreedRefColumn),
+	)
+}
+func newBloodGroupRefStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BloodGroupRefInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, BloodGroupRefTable, BloodGroupRefColumn),
 	)
 }
 func newBloodSearchRequestStep() *sqlgraph.Step {

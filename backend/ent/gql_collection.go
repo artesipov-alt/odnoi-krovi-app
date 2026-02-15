@@ -114,12 +114,10 @@ func (_q *BloodGroupQuery) collectField(ctx context.Context, oneNode bool, opCtx
 				path  = append(path, alias)
 				query = (&PetClient{config: _q.config}).Query()
 			)
-			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, petImplementors)...); err != nil {
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, petImplementors)...); err != nil {
 				return err
 			}
-			_q.WithNamedPets(alias, func(wq *PetQuery) {
-				*wq = *query
-			})
+			_q.withPets = query
 		case "petType":
 			if _, ok := fieldSeen[bloodgroup.FieldPetType]; !ok {
 				selectedFields = append(selectedFields, bloodgroup.FieldPetType)
@@ -593,6 +591,21 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				fieldSeen[pet.FieldBreedID] = struct{}{}
 			}
 
+		case "bloodGroupRef":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&BloodGroupClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, bloodgroupImplementors)...); err != nil {
+				return err
+			}
+			_q.withBloodGroupRef = query
+			if _, ok := fieldSeen[pet.FieldBloodGroupID]; !ok {
+				selectedFields = append(selectedFields, pet.FieldBloodGroupID)
+				fieldSeen[pet.FieldBloodGroupID] = struct{}{}
+			}
+
 		case "bloodSearchRequest":
 			var (
 				alias = field.Alias
@@ -637,11 +650,6 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 			if _, ok := fieldSeen[pet.FieldWeightKg]; !ok {
 				selectedFields = append(selectedFields, pet.FieldWeightKg)
 				fieldSeen[pet.FieldWeightKg] = struct{}{}
-			}
-		case "bloodGroup":
-			if _, ok := fieldSeen[pet.FieldBloodGroup]; !ok {
-				selectedFields = append(selectedFields, pet.FieldBloodGroup)
-				fieldSeen[pet.FieldBloodGroup] = struct{}{}
 			}
 		case "gender":
 			if _, ok := fieldSeen[pet.FieldGender]; !ok {
@@ -702,6 +710,11 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 			if _, ok := fieldSeen[pet.FieldDonorRestrictions]; !ok {
 				selectedFields = append(selectedFields, pet.FieldDonorRestrictions)
 				fieldSeen[pet.FieldDonorRestrictions] = struct{}{}
+			}
+		case "bloodGroupID":
+			if _, ok := fieldSeen[pet.FieldBloodGroupID]; !ok {
+				selectedFields = append(selectedFields, pet.FieldBloodGroupID)
+				fieldSeen[pet.FieldBloodGroupID] = struct{}{}
 			}
 		case "id":
 		case "__typename":

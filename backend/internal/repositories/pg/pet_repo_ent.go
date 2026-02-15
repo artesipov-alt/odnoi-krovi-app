@@ -104,12 +104,12 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 
 // GetPetQuery returns a query for eager loading
 func (r *EntPetRepository) GetPetQuery(ctx context.Context, id string) *ent.PetQuery {
-	return r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithOwner()
+	return r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithOwner().WithBloodGroupRef()
 }
 
 // GetPetsQueryByUser returns a query for eager loading pets by user ID
 func (r *EntPetRepository) GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery {
-	return r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef()
+	return r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
 }
 
 // Update updates an existing pet and its related entities in a transaction

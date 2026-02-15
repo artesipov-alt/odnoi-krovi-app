@@ -95,8 +95,8 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 	if input.ReproductiveStatus != nil && string(*input.ReproductiveStatus) == "" {
 		input.ReproductiveStatus = nil
 	}
-	if input.BloodGroup != nil && *input.BloodGroup == "" {
-		input.BloodGroup = nil
+	if input.BloodGroupRefID != nil && *input.BloodGroupRefID == "" {
+		input.BloodGroupRefID = nil
 	}
 	if input.ChipNumber != nil && *input.ChipNumber == "" {
 		input.ChipNumber = nil
@@ -315,8 +315,8 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 		if petInput.ReproductiveStatus != nil && string(*petInput.ReproductiveStatus) == "" {
 			petInput.ReproductiveStatus = nil
 		}
-		if petInput.BloodGroup != nil && *petInput.BloodGroup == "" {
-			petInput.BloodGroup = nil
+		if petInput.BloodGroupRefID != nil && *petInput.BloodGroupRefID == "" {
+			petInput.BloodGroupRefID = nil
 		}
 		if petInput.ChipNumber != nil && *petInput.ChipNumber == "" {
 			petInput.ChipNumber = nil

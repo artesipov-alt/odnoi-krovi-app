@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -128,26 +129,6 @@ func (_u *PetUpdate) AddWeightKg(v float64) *PetUpdate {
 // ClearWeightKg clears the value of the "weight_kg" field.
 func (_u *PetUpdate) ClearWeightKg() *PetUpdate {
 	_u.mutation.ClearWeightKg()
-	return _u
-}
-
-// SetBloodGroup sets the "blood_group" field.
-func (_u *PetUpdate) SetBloodGroup(v string) *PetUpdate {
-	_u.mutation.SetBloodGroup(v)
-	return _u
-}
-
-// SetNillableBloodGroup sets the "blood_group" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableBloodGroup(v *string) *PetUpdate {
-	if v != nil {
-		_u.SetBloodGroup(*v)
-	}
-	return _u
-}
-
-// ClearBloodGroup clears the value of the "blood_group" field.
-func (_u *PetUpdate) ClearBloodGroup() *PetUpdate {
-	_u.mutation.ClearBloodGroup()
 	return _u
 }
 
@@ -387,6 +368,26 @@ func (_u *PetUpdate) ClearDonorRestrictions() *PetUpdate {
 	return _u
 }
 
+// SetBloodGroupID sets the "blood_group_id" field.
+func (_u *PetUpdate) SetBloodGroupID(v string) *PetUpdate {
+	_u.mutation.SetBloodGroupID(v)
+	return _u
+}
+
+// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableBloodGroupID(v *string) *PetUpdate {
+	if v != nil {
+		_u.SetBloodGroupID(*v)
+	}
+	return _u
+}
+
+// ClearBloodGroupID clears the value of the "blood_group_id" field.
+func (_u *PetUpdate) ClearBloodGroupID() *PetUpdate {
+	_u.mutation.ClearBloodGroupID()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdate) SetOwnerID(id string) *PetUpdate {
 	_u.mutation.SetOwnerID(id)
@@ -483,6 +484,25 @@ func (_u *PetUpdate) SetBreedRef(v *Breed) *PetUpdate {
 	return _u.SetBreedRefID(v.ID)
 }
 
+// SetBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID.
+func (_u *PetUpdate) SetBloodGroupRefID(id string) *PetUpdate {
+	_u.mutation.SetBloodGroupRefID(id)
+	return _u
+}
+
+// SetNillableBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID if the given value is not nil.
+func (_u *PetUpdate) SetNillableBloodGroupRefID(id *string) *PetUpdate {
+	if id != nil {
+		_u = _u.SetBloodGroupRefID(*id)
+	}
+	return _u
+}
+
+// SetBloodGroupRef sets the "blood_group_ref" edge to the BloodGroup entity.
+func (_u *PetUpdate) SetBloodGroupRef(v *BloodGroup) *PetUpdate {
+	return _u.SetBloodGroupRefID(v.ID)
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
 func (_u *PetUpdate) SetBloodSearchRequestID(id string) *PetUpdate {
 	_u.mutation.SetBloodSearchRequestID(id)
@@ -555,6 +575,12 @@ func (_u *PetUpdate) ClearBonuses() *PetUpdate {
 // ClearBreedRef clears the "breed_ref" edge to the Breed entity.
 func (_u *PetUpdate) ClearBreedRef() *PetUpdate {
 	_u.mutation.ClearBreedRef()
+	return _u
+}
+
+// ClearBloodGroupRef clears the "blood_group_ref" edge to the BloodGroup entity.
+func (_u *PetUpdate) ClearBloodGroupRef() *PetUpdate {
+	_u.mutation.ClearBloodGroupRef()
 	return _u
 }
 
@@ -678,12 +704,6 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.WeightKgCleared() {
 		_spec.ClearField(pet.FieldWeightKg, field.TypeFloat64)
-	}
-	if value, ok := _u.mutation.BloodGroup(); ok {
-		_spec.SetField(pet.FieldBloodGroup, field.TypeString, value)
-	}
-	if _u.mutation.BloodGroupCleared() {
-		_spec.ClearField(pet.FieldBloodGroup, field.TypeString)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
 		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
@@ -927,6 +947,35 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.BloodGroupRefCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   pet.BloodGroupRefTable,
+			Columns: []string{pet.BloodGroupRefColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   pet.BloodGroupRefTable,
+			Columns: []string{pet.BloodGroupRefColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _u.mutation.BloodSearchRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -1068,26 +1117,6 @@ func (_u *PetUpdateOne) AddWeightKg(v float64) *PetUpdateOne {
 // ClearWeightKg clears the value of the "weight_kg" field.
 func (_u *PetUpdateOne) ClearWeightKg() *PetUpdateOne {
 	_u.mutation.ClearWeightKg()
-	return _u
-}
-
-// SetBloodGroup sets the "blood_group" field.
-func (_u *PetUpdateOne) SetBloodGroup(v string) *PetUpdateOne {
-	_u.mutation.SetBloodGroup(v)
-	return _u
-}
-
-// SetNillableBloodGroup sets the "blood_group" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableBloodGroup(v *string) *PetUpdateOne {
-	if v != nil {
-		_u.SetBloodGroup(*v)
-	}
-	return _u
-}
-
-// ClearBloodGroup clears the value of the "blood_group" field.
-func (_u *PetUpdateOne) ClearBloodGroup() *PetUpdateOne {
-	_u.mutation.ClearBloodGroup()
 	return _u
 }
 
@@ -1327,6 +1356,26 @@ func (_u *PetUpdateOne) ClearDonorRestrictions() *PetUpdateOne {
 	return _u
 }
 
+// SetBloodGroupID sets the "blood_group_id" field.
+func (_u *PetUpdateOne) SetBloodGroupID(v string) *PetUpdateOne {
+	_u.mutation.SetBloodGroupID(v)
+	return _u
+}
+
+// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableBloodGroupID(v *string) *PetUpdateOne {
+	if v != nil {
+		_u.SetBloodGroupID(*v)
+	}
+	return _u
+}
+
+// ClearBloodGroupID clears the value of the "blood_group_id" field.
+func (_u *PetUpdateOne) ClearBloodGroupID() *PetUpdateOne {
+	_u.mutation.ClearBloodGroupID()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdateOne) SetOwnerID(id string) *PetUpdateOne {
 	_u.mutation.SetOwnerID(id)
@@ -1423,6 +1472,25 @@ func (_u *PetUpdateOne) SetBreedRef(v *Breed) *PetUpdateOne {
 	return _u.SetBreedRefID(v.ID)
 }
 
+// SetBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID.
+func (_u *PetUpdateOne) SetBloodGroupRefID(id string) *PetUpdateOne {
+	_u.mutation.SetBloodGroupRefID(id)
+	return _u
+}
+
+// SetNillableBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableBloodGroupRefID(id *string) *PetUpdateOne {
+	if id != nil {
+		_u = _u.SetBloodGroupRefID(*id)
+	}
+	return _u
+}
+
+// SetBloodGroupRef sets the "blood_group_ref" edge to the BloodGroup entity.
+func (_u *PetUpdateOne) SetBloodGroupRef(v *BloodGroup) *PetUpdateOne {
+	return _u.SetBloodGroupRefID(v.ID)
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
 func (_u *PetUpdateOne) SetBloodSearchRequestID(id string) *PetUpdateOne {
 	_u.mutation.SetBloodSearchRequestID(id)
@@ -1495,6 +1563,12 @@ func (_u *PetUpdateOne) ClearBonuses() *PetUpdateOne {
 // ClearBreedRef clears the "breed_ref" edge to the Breed entity.
 func (_u *PetUpdateOne) ClearBreedRef() *PetUpdateOne {
 	_u.mutation.ClearBreedRef()
+	return _u
+}
+
+// ClearBloodGroupRef clears the "blood_group_ref" edge to the BloodGroup entity.
+func (_u *PetUpdateOne) ClearBloodGroupRef() *PetUpdateOne {
+	_u.mutation.ClearBloodGroupRef()
 	return _u
 }
 
@@ -1648,12 +1722,6 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.WeightKgCleared() {
 		_spec.ClearField(pet.FieldWeightKg, field.TypeFloat64)
-	}
-	if value, ok := _u.mutation.BloodGroup(); ok {
-		_spec.SetField(pet.FieldBloodGroup, field.TypeString, value)
-	}
-	if _u.mutation.BloodGroupCleared() {
-		_spec.ClearField(pet.FieldBloodGroup, field.TypeString)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
 		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
@@ -1890,6 +1958,35 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(breed.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.BloodGroupRefCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   pet.BloodGroupRefTable,
+			Columns: []string{pet.BloodGroupRefColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   pet.BloodGroupRefTable,
+			Columns: []string{pet.BloodGroupRefColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

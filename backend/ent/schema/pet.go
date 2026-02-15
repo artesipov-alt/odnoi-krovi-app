@@ -32,8 +32,6 @@ func (Pet) Fields() []ent.Field {
 			Values("donor", "recipient", "none").StructTag(`json:"petStatus"`),
 		field.Float("weight_kg").
 			Optional().StructTag(`json:"weightKg"`),
-		field.String("blood_group").
-			Optional().StructTag(`json:"bloodGroup"`),
 		field.Enum("gender").
 			Values("male", "female").Optional().StructTag(`json:"gender"`),
 		field.Time("birth_date").
@@ -58,6 +56,8 @@ func (Pet) Fields() []ent.Field {
 			Values("pregnancy", "lactation", "estrus").Optional().StructTag(`json:"reproductiveStatus"`),
 		field.JSON("donor_restrictions", []string{}).
 			Optional().StructTag(`json:"donorRestrictions"`),
+		field.String("blood_group_id").
+			Optional().StructTag(`json:"bloodGroupId"`),
 	}
 }
 
@@ -76,6 +76,10 @@ func (Pet) Edges() []ent.Edge {
 			Ref("pets").
 			Unique().
 			Field("breed_id"),
+		edge.From("blood_group_ref", BloodGroup.Type).
+			Ref("pets").
+			Unique().
+			Field("blood_group_id"),
 		edge.To("blood_search_request", BloodSearchRequest.Type).Unique(),
 	}
 }
