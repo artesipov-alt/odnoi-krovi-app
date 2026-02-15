@@ -1,16 +1,20 @@
 import 'react-toastify/dist/ReactToastify.css';
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { ruRU } from '@mui/x-date-pickers/locales';
+import { ru } from 'date-fns/locale/ru';
 import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { ru } from 'date-fns/locale/ru';
 
 import Adding from './pages/adding';
 import Owner from './pages/owner';
 import Registration from './pages/registration';
 import { useTelegram } from './TelegramProvider';
+
+const theme = createTheme({}, ruRU);
 
 const App: FC = () => {
     const { isRegistered, user } = useTelegram();
@@ -21,21 +25,23 @@ const App: FC = () => {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-            <Routes>
-                <Route path='/owner' element={<Owner user={user} />} />
-                <Route path='/adding' element={<Adding user={user} />} />
-                <Route path='/registration' element={<Registration user={user} />} />
-                <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <Registration user={user} />} />
-            </Routes>
-            <ToastContainer
-                draggable
-                theme='colored'
-                hideProgressBar
-                autoClose={3000}
-                transition={Slide}
-                position='top-right'
-                closeOnClick={false}
-            />
+            <ThemeProvider theme={theme}>
+                <Routes>
+                    <Route path='/owner' element={<Owner user={user} />} />
+                    <Route path='/adding' element={<Adding user={user} />} />
+                    <Route path='/registration' element={<Registration user={user} />} />
+                    <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <Registration user={user} />} />
+                </Routes>
+                <ToastContainer
+                    draggable
+                    theme='colored'
+                    hideProgressBar
+                    autoClose={3000}
+                    transition={Slide}
+                    position='top-right'
+                    closeOnClick={false}
+                />
+            </ThemeProvider>
         </LocalizationProvider>
     );
 };
