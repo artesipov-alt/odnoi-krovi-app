@@ -20,7 +20,7 @@ type UserUpdate struct {
 	Email      *string   `json:"email,omitempty" doc:"Email адрес" format:"email"`
 	PhotoURLs  []string  `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
 	AllowGeo   *bool     `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
-	OnBoarding *[]string `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"DONOR,RECIPIENT"`
+	OnBoarding *[]string `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
 	LocationID *string   `json:"locationId,omitempty" doc:"ID локации" minimum:"1"`
 }
 
@@ -34,7 +34,7 @@ type User struct {
 	PhotoURLs        []string   `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" example:"https://example.com/photo.jpg"`
 	OrganizationName string     `json:"organizationName,omitempty" doc:"Название организации"`
 	ConsentPd        bool       `json:"consentPd" doc:"Согласие на ПД"`
-	OnBoarding       []string   `json:"onBoarding" doc:"Статусы онбординга"`
+	OnBoarding       []string   `json:"onBoarding" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
 	AllowGeo         bool       `json:"allowGeo" doc:"Разрешение использовать геоданные"`
 	LocationID       string     `json:"locationId,omitempty" doc:"ID локации"`
 	Role             string     `json:"role" doc:"Роль"`
