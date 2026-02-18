@@ -958,6 +958,8 @@ type BloodSearchRequestMutation struct {
 	appendblood_group_names   []string
 	blood_component_ids       *[]string
 	appendblood_component_ids []string
+	on_boarding               *[]string
+	appendon_boarding         []string
 	clearedFields             map[string]struct{}
 	pet                       *string
 	clearedpet                bool
@@ -1706,6 +1708,71 @@ func (m *BloodSearchRequestMutation) ResetBloodComponentIds() {
 	delete(m.clearedFields, bloodsearchrequest.FieldBloodComponentIds)
 }
 
+// SetOnBoarding sets the "on_boarding" field.
+func (m *BloodSearchRequestMutation) SetOnBoarding(s []string) {
+	m.on_boarding = &s
+	m.appendon_boarding = nil
+}
+
+// OnBoarding returns the value of the "on_boarding" field in the mutation.
+func (m *BloodSearchRequestMutation) OnBoarding() (r []string, exists bool) {
+	v := m.on_boarding
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOnBoarding returns the old "on_boarding" field's value of the BloodSearchRequest entity.
+// If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BloodSearchRequestMutation) OldOnBoarding(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOnBoarding is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOnBoarding requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOnBoarding: %w", err)
+	}
+	return oldValue.OnBoarding, nil
+}
+
+// AppendOnBoarding adds s to the "on_boarding" field.
+func (m *BloodSearchRequestMutation) AppendOnBoarding(s []string) {
+	m.appendon_boarding = append(m.appendon_boarding, s...)
+}
+
+// AppendedOnBoarding returns the list of values that were appended to the "on_boarding" field in this mutation.
+func (m *BloodSearchRequestMutation) AppendedOnBoarding() ([]string, bool) {
+	if len(m.appendon_boarding) == 0 {
+		return nil, false
+	}
+	return m.appendon_boarding, true
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (m *BloodSearchRequestMutation) ClearOnBoarding() {
+	m.on_boarding = nil
+	m.appendon_boarding = nil
+	m.clearedFields[bloodsearchrequest.FieldOnBoarding] = struct{}{}
+}
+
+// OnBoardingCleared returns if the "on_boarding" field was cleared in this mutation.
+func (m *BloodSearchRequestMutation) OnBoardingCleared() bool {
+	_, ok := m.clearedFields[bloodsearchrequest.FieldOnBoarding]
+	return ok
+}
+
+// ResetOnBoarding resets all changes to the "on_boarding" field.
+func (m *BloodSearchRequestMutation) ResetOnBoarding() {
+	m.on_boarding = nil
+	m.appendon_boarding = nil
+	delete(m.clearedFields, bloodsearchrequest.FieldOnBoarding)
+}
+
 // ClearPet clears the "pet" edge to the Pet entity.
 func (m *BloodSearchRequestMutation) ClearPet() {
 	m.clearedpet = true
@@ -1767,7 +1834,7 @@ func (m *BloodSearchRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BloodSearchRequestMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, bloodsearchrequest.FieldCreatedAt)
 	}
@@ -1807,6 +1874,9 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	if m.blood_component_ids != nil {
 		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
 	}
+	if m.on_boarding != nil {
+		fields = append(fields, bloodsearchrequest.FieldOnBoarding)
+	}
 	return fields
 }
 
@@ -1841,6 +1911,8 @@ func (m *BloodSearchRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.BloodGroupNames()
 	case bloodsearchrequest.FieldBloodComponentIds:
 		return m.BloodComponentIds()
+	case bloodsearchrequest.FieldOnBoarding:
+		return m.OnBoarding()
 	}
 	return nil, false
 }
@@ -1876,6 +1948,8 @@ func (m *BloodSearchRequestMutation) OldField(ctx context.Context, name string) 
 		return m.OldBloodGroupNames(ctx)
 	case bloodsearchrequest.FieldBloodComponentIds:
 		return m.OldBloodComponentIds(ctx)
+	case bloodsearchrequest.FieldOnBoarding:
+		return m.OldOnBoarding(ctx)
 	}
 	return nil, fmt.Errorf("unknown BloodSearchRequest field %s", name)
 }
@@ -1976,6 +2050,13 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetBloodComponentIds(v)
 		return nil
+	case bloodsearchrequest.FieldOnBoarding:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOnBoarding(v)
+		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest field %s", name)
 }
@@ -2048,6 +2129,9 @@ func (m *BloodSearchRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(bloodsearchrequest.FieldBloodComponentIds) {
 		fields = append(fields, bloodsearchrequest.FieldBloodComponentIds)
 	}
+	if m.FieldCleared(bloodsearchrequest.FieldOnBoarding) {
+		fields = append(fields, bloodsearchrequest.FieldOnBoarding)
+	}
 	return fields
 }
 
@@ -2076,6 +2160,9 @@ func (m *BloodSearchRequestMutation) ClearField(name string) error {
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		m.ClearBloodComponentIds()
+		return nil
+	case bloodsearchrequest.FieldOnBoarding:
+		m.ClearOnBoarding()
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest nullable field %s", name)
@@ -2123,6 +2210,9 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 		return nil
 	case bloodsearchrequest.FieldBloodComponentIds:
 		m.ResetBloodComponentIds()
+		return nil
+	case bloodsearchrequest.FieldOnBoarding:
+		m.ResetOnBoarding()
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest field %s", name)

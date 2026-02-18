@@ -44,6 +44,8 @@ const (
 	FieldBloodGroupNames = "blood_group_names"
 	// FieldBloodComponentIds holds the string denoting the blood_component_ids field in the database.
 	FieldBloodComponentIds = "blood_component_ids"
+	// FieldOnBoarding holds the string denoting the on_boarding field in the database.
+	FieldOnBoarding = "on_boarding"
 	// EdgePet holds the string denoting the pet edge name in mutations.
 	EdgePet = "pet"
 	// Table holds the table name of the bloodsearchrequest in the database.
@@ -73,6 +75,7 @@ var Columns = []string{
 	FieldPhotoUrls,
 	FieldBloodGroupNames,
 	FieldBloodComponentIds,
+	FieldOnBoarding,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

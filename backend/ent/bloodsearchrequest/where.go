@@ -515,6 +515,16 @@ func BloodComponentIdsNotNil() predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldBloodComponentIds))
 }
 
+// OnBoardingIsNil applies the IsNil predicate on the "on_boarding" field.
+func OnBoardingIsNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldIsNull(FieldOnBoarding))
+}
+
+// OnBoardingNotNil applies the NotNil predicate on the "on_boarding" field.
+func OnBoardingNotNil() predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldOnBoarding))
+}
+
 // HasPet applies the HasEdge predicate on the "pet" edge.
 func HasPet() predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(func(s *sql.Selector) {

@@ -155,6 +155,12 @@ func (_c *BloodSearchRequestCreate) SetBloodComponentIds(v []string) *BloodSearc
 	return _c
 }
 
+// SetOnBoarding sets the "on_boarding" field.
+func (_c *BloodSearchRequestCreate) SetOnBoarding(v []string) *BloodSearchRequestCreate {
+	_c.mutation.SetOnBoarding(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *BloodSearchRequestCreate) SetID(v string) *BloodSearchRequestCreate {
 	_c.mutation.SetID(v)
@@ -351,6 +357,10 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	if value, ok := _c.mutation.BloodComponentIds(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON, value)
 		_node.BloodComponentIds = value
+	}
+	if value, ok := _c.mutation.OnBoarding(); ok {
+		_spec.SetField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON, value)
+		_node.OnBoarding = value
 	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

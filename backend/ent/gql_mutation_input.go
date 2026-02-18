@@ -5,11 +5,194 @@ package ent
 import (
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 )
+
+// CreateBloodSearchRequestInput represents a mutation input for creating bloodsearchrequests.
+type CreateBloodSearchRequestInput struct {
+	CreatedAt              *time.Time
+	UpdatedAt              *time.Time
+	DeletedAt              *time.Time
+	BloodVolumeNeeded      int32
+	BloodVolumeReserved    *int32
+	Regions                []string
+	SmallPetsNotifyAllowed *bool
+	Status                 *bloodsearchrequest.Status
+	Description            *string
+	PhotoUrls              []string
+	BloodGroupNames        []string
+	BloodComponentIds      []string
+	OnBoarding             []string
+	PetID                  string
+}
+
+// Mutate applies the CreateBloodSearchRequestInput on the BloodSearchRequestMutation builder.
+func (i *CreateBloodSearchRequestInput) Mutate(m *BloodSearchRequestMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	m.SetBloodVolumeNeeded(i.BloodVolumeNeeded)
+	if v := i.BloodVolumeReserved; v != nil {
+		m.SetBloodVolumeReserved(*v)
+	}
+	if v := i.Regions; v != nil {
+		m.SetRegions(v)
+	}
+	if v := i.SmallPetsNotifyAllowed; v != nil {
+		m.SetSmallPetsNotifyAllowed(*v)
+	}
+	if v := i.Status; v != nil {
+		m.SetStatus(*v)
+	}
+	if v := i.Description; v != nil {
+		m.SetDescription(*v)
+	}
+	if v := i.PhotoUrls; v != nil {
+		m.SetPhotoUrls(v)
+	}
+	if v := i.BloodGroupNames; v != nil {
+		m.SetBloodGroupNames(v)
+	}
+	if v := i.BloodComponentIds; v != nil {
+		m.SetBloodComponentIds(v)
+	}
+	if v := i.OnBoarding; v != nil {
+		m.SetOnBoarding(v)
+	}
+	m.SetPetID(i.PetID)
+}
+
+// SetInput applies the change-set in the CreateBloodSearchRequestInput on the BloodSearchRequestCreate builder.
+func (c *BloodSearchRequestCreate) SetInput(i CreateBloodSearchRequestInput) *BloodSearchRequestCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdateBloodSearchRequestInput represents a mutation input for updating bloodsearchrequests.
+type UpdateBloodSearchRequestInput struct {
+	UpdatedAt               *time.Time
+	ClearDeletedAt          bool
+	DeletedAt               *time.Time
+	BloodVolumeNeeded       *int32
+	BloodVolumeReserved     *int32
+	Regions                 []string
+	AppendRegions           []string
+	SmallPetsNotifyAllowed  *bool
+	Status                  *bloodsearchrequest.Status
+	ClearDescription        bool
+	Description             *string
+	ClearPhotoUrls          bool
+	PhotoUrls               []string
+	AppendPhotoUrls         []string
+	ClearBloodGroupNames    bool
+	BloodGroupNames         []string
+	AppendBloodGroupNames   []string
+	ClearBloodComponentIds  bool
+	BloodComponentIds       []string
+	AppendBloodComponentIds []string
+	ClearOnBoarding         bool
+	OnBoarding              []string
+	AppendOnBoarding        []string
+	PetID                   *string
+}
+
+// Mutate applies the UpdateBloodSearchRequestInput on the BloodSearchRequestMutation builder.
+func (i *UpdateBloodSearchRequestInput) Mutate(m *BloodSearchRequestMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.BloodVolumeNeeded; v != nil {
+		m.SetBloodVolumeNeeded(*v)
+	}
+	if v := i.BloodVolumeReserved; v != nil {
+		m.SetBloodVolumeReserved(*v)
+	}
+	if v := i.Regions; v != nil {
+		m.SetRegions(v)
+	}
+	if i.AppendRegions != nil {
+		m.AppendRegions(i.Regions)
+	}
+	if v := i.SmallPetsNotifyAllowed; v != nil {
+		m.SetSmallPetsNotifyAllowed(*v)
+	}
+	if v := i.Status; v != nil {
+		m.SetStatus(*v)
+	}
+	if i.ClearDescription {
+		m.ClearDescription()
+	}
+	if v := i.Description; v != nil {
+		m.SetDescription(*v)
+	}
+	if i.ClearPhotoUrls {
+		m.ClearPhotoUrls()
+	}
+	if v := i.PhotoUrls; v != nil {
+		m.SetPhotoUrls(v)
+	}
+	if i.AppendPhotoUrls != nil {
+		m.AppendPhotoUrls(i.PhotoUrls)
+	}
+	if i.ClearBloodGroupNames {
+		m.ClearBloodGroupNames()
+	}
+	if v := i.BloodGroupNames; v != nil {
+		m.SetBloodGroupNames(v)
+	}
+	if i.AppendBloodGroupNames != nil {
+		m.AppendBloodGroupNames(i.BloodGroupNames)
+	}
+	if i.ClearBloodComponentIds {
+		m.ClearBloodComponentIds()
+	}
+	if v := i.BloodComponentIds; v != nil {
+		m.SetBloodComponentIds(v)
+	}
+	if i.AppendBloodComponentIds != nil {
+		m.AppendBloodComponentIds(i.BloodComponentIds)
+	}
+	if i.ClearOnBoarding {
+		m.ClearOnBoarding()
+	}
+	if v := i.OnBoarding; v != nil {
+		m.SetOnBoarding(v)
+	}
+	if i.AppendOnBoarding != nil {
+		m.AppendOnBoarding(i.OnBoarding)
+	}
+	if v := i.PetID; v != nil {
+		m.SetPetID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdateBloodSearchRequestInput on the BloodSearchRequestUpdate builder.
+func (c *BloodSearchRequestUpdate) SetInput(i UpdateBloodSearchRequestInput) *BloodSearchRequestUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdateBloodSearchRequestInput on the BloodSearchRequestUpdateOne builder.
+func (c *BloodSearchRequestUpdateOne) SetInput(i UpdateBloodSearchRequestInput) *BloodSearchRequestUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
 
 // CreatePetInput represents a mutation input for creating pets.
 type CreatePetInput struct {

@@ -48,6 +48,7 @@ var (
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_group_names", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_component_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "on_boarding", Type: field.TypeJSON, Nullable: true},
 		{Name: "pet_id", Type: field.TypeString, Unique: true},
 	}
 	// BloodRequestsTable holds the schema information for the "blood_requests" table.
@@ -58,7 +59,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "blood_requests_pets_blood_search_request",
-				Columns:    []*schema.Column{BloodRequestsColumns[13]},
+				Columns:    []*schema.Column{BloodRequestsColumns[14]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

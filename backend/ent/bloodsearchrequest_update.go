@@ -226,6 +226,24 @@ func (_u *BloodSearchRequestUpdate) ClearBloodComponentIds() *BloodSearchRequest
 	return _u
 }
 
+// SetOnBoarding sets the "on_boarding" field.
+func (_u *BloodSearchRequestUpdate) SetOnBoarding(v []string) *BloodSearchRequestUpdate {
+	_u.mutation.SetOnBoarding(v)
+	return _u
+}
+
+// AppendOnBoarding appends value to the "on_boarding" field.
+func (_u *BloodSearchRequestUpdate) AppendOnBoarding(v []string) *BloodSearchRequestUpdate {
+	_u.mutation.AppendOnBoarding(v)
+	return _u
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (_u *BloodSearchRequestUpdate) ClearOnBoarding() *BloodSearchRequestUpdate {
+	_u.mutation.ClearOnBoarding()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdate) SetPet(v *Pet) *BloodSearchRequestUpdate {
 	return _u.SetPetID(v.ID)
@@ -376,6 +394,17 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.BloodComponentIdsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.OnBoarding(); ok {
+		_spec.SetField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedOnBoarding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, bloodsearchrequest.FieldOnBoarding, value)
+		})
+	}
+	if _u.mutation.OnBoardingCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -622,6 +651,24 @@ func (_u *BloodSearchRequestUpdateOne) ClearBloodComponentIds() *BloodSearchRequ
 	return _u
 }
 
+// SetOnBoarding sets the "on_boarding" field.
+func (_u *BloodSearchRequestUpdateOne) SetOnBoarding(v []string) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetOnBoarding(v)
+	return _u
+}
+
+// AppendOnBoarding appends value to the "on_boarding" field.
+func (_u *BloodSearchRequestUpdateOne) AppendOnBoarding(v []string) *BloodSearchRequestUpdateOne {
+	_u.mutation.AppendOnBoarding(v)
+	return _u
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (_u *BloodSearchRequestUpdateOne) ClearOnBoarding() *BloodSearchRequestUpdateOne {
+	_u.mutation.ClearOnBoarding()
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdateOne) SetPet(v *Pet) *BloodSearchRequestUpdateOne {
 	return _u.SetPetID(v.ID)
@@ -802,6 +849,17 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.BloodComponentIdsCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldBloodComponentIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.OnBoarding(); ok {
+		_spec.SetField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedOnBoarding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, bloodsearchrequest.FieldOnBoarding, value)
+		})
+	}
+	if _u.mutation.OnBoardingCleared() {
+		_spec.ClearField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{

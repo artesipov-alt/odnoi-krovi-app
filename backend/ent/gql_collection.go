@@ -277,6 +277,11 @@ func (_q *BloodSearchRequestQuery) collectField(ctx context.Context, oneNode boo
 				selectedFields = append(selectedFields, bloodsearchrequest.FieldBloodComponentIds)
 				fieldSeen[bloodsearchrequest.FieldBloodComponentIds] = struct{}{}
 			}
+		case "onBoarding":
+			if _, ok := fieldSeen[bloodsearchrequest.FieldOnBoarding]; !ok {
+				selectedFields = append(selectedFields, bloodsearchrequest.FieldOnBoarding)
+				fieldSeen[bloodsearchrequest.FieldOnBoarding] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

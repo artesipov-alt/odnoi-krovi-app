@@ -45,6 +45,8 @@ type BloodSearchRequest struct {
 	BloodGroupNames []string `json:"bloodGroupNames"`
 	// BloodComponentIds holds the value of the "blood_component_ids" field.
 	BloodComponentIds []string `json:"bloodComponentIds"`
+	// OnBoarding holds the value of the "on_boarding" field.
+	OnBoarding []string `json:"onBoarding"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BloodSearchRequestQuery when eager-loading is set.
 	Edges        BloodSearchRequestEdges `json:"edges"`
@@ -78,7 +80,7 @@ func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls, bloodsearchrequest.FieldBloodGroupNames, bloodsearchrequest.FieldBloodComponentIds:
+		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls, bloodsearchrequest.FieldBloodGroupNames, bloodsearchrequest.FieldBloodComponentIds, bloodsearchrequest.FieldOnBoarding:
 			values[i] = new([]byte)
 		case bloodsearchrequest.FieldSmallPetsNotifyAllowed:
 			values[i] = new(sql.NullBool)
@@ -196,6 +198,14 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 					return fmt.Errorf("unmarshal field blood_component_ids: %w", err)
 				}
 			}
+		case bloodsearchrequest.FieldOnBoarding:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field on_boarding", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.OnBoarding); err != nil {
+					return fmt.Errorf("unmarshal field on_boarding: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -277,6 +287,9 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("blood_component_ids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.BloodComponentIds))
+	builder.WriteString(", ")
+	builder.WriteString("on_boarding=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OnBoarding))
 	builder.WriteByte(')')
 	return builder.String()
 }
