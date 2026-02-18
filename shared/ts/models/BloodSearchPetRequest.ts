@@ -78,7 +78,7 @@ export interface BloodSearchPetRequest {
      * @type {Array<string>}
      * @memberof BloodSearchPetRequest
      */
-    onBoarding: Array<BloodSearchPetRequestOnBoardingEnum>;
+    onBoarding?: Array<BloodSearchPetRequestOnBoardingEnum>;
     /**
      * ID питомца
      * @type {string}
@@ -157,7 +157,6 @@ export function instanceOfBloodSearchPetRequest(value: object): value is BloodSe
     if (!('bloodComponentIds' in value) || value['bloodComponentIds'] === undefined) return false;
     if (!('bloodGroupNames' in value) || value['bloodGroupNames'] === undefined) return false;
     if (!('bloodVolumeNeeded' in value) || value['bloodVolumeNeeded'] === undefined) return false;
-    if (!('onBoarding' in value) || value['onBoarding'] === undefined) return false;
     if (!('petId' in value) || value['petId'] === undefined) return false;
     if (!('regions' in value) || value['regions'] === undefined) return false;
     if (!('smallPetsNotifyAllowed' in value) || value['smallPetsNotifyAllowed'] === undefined) return false;
@@ -183,7 +182,7 @@ export function BloodSearchPetRequestFromJSONTyped(json: any, ignoreDiscriminato
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'description': json['description'] == null ? undefined : json['description'],
         'id': json['id'] == null ? undefined : json['id'],
-        'onBoarding': json['onBoarding'],
+        'onBoarding': json['onBoarding'] == null ? undefined : json['onBoarding'],
         'petId': json['petId'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'regions': json['regions'],
