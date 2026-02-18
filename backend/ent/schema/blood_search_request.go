@@ -49,6 +49,9 @@ func (BloodSearchRequest) Fields() []ent.Field {
 			Annotations(entgql.Type("String")).
 			Optional().
 			StructTag(`json:"bloodComponentIds"`),
+		field.JSON("on_boarding", []string{}).
+			Optional().
+			StructTag(`json:"onBoarding"`),
 	}
 }
 
@@ -75,6 +78,10 @@ func (BloodSearchRequest) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "blood_requests",
 		},
+		entgql.Mutations(
+			entgql.MutationCreate(),
+			entgql.MutationUpdate(),
+		),
 	}
 
 }

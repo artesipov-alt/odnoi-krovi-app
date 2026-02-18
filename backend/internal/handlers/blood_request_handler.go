@@ -10,6 +10,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/jinzhu/copier"
 )
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
@@ -108,7 +109,11 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	Body dto.BloodSearchPetRequest
 }) (*dto.BloodRequestCreateResponse, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
-	bloodReq := mapDTOToBloodRequest(input.Body)
+
+	bloodReq := new(ent.CreateBloodSearchRequestInput)
+	if err := copier.Copy(bloodReq, input.Body); err != nil {
+		return nil, err
+	}
 
 	result, err := h.service.CreateRequest(ctx, bloodReq)
 	if err != nil {

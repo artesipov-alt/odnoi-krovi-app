@@ -22,34 +22,36 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 }
 
 // Create создает новую заявку на поиск крови
-func (r *EntBloodRequestRepository) Create(ctx context.Context, req *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) Create(ctx context.Context, req *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	return r.client.BloodSearchRequest.Create().
 		SetPetID(req.PetID).
 		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(req.BloodVolumeReserved).
+		SetBloodVolumeReserved(*req.BloodVolumeReserved).
 		SetRegions(req.Regions).
-		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
-		SetStatus(bloodsearchrequest.Status(req.Status)).
-		SetNillableDescription(&req.Description).
+		SetSmallPetsNotifyAllowed(*req.SmallPetsNotifyAllowed).
+		SetStatus(bloodsearchrequest.Status(*req.Status)).
+		SetNillableDescription(req.Description).
 		SetPhotoUrls(req.PhotoUrls).
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIds).
+		SetOnBoarding(req.OnBoarding).
 		Save(ctx)
 }
 
 // CreateWithTx создает новую заявку на поиск крови в рамках транзакции
-func (r *EntBloodRequestRepository) CreateWithTx(ctx context.Context, tx *ent.Tx, req *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) CreateWithTx(ctx context.Context, tx *ent.Tx, req *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	return tx.BloodSearchRequest.Create().
 		SetPetID(req.PetID).
 		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(req.BloodVolumeReserved).
+		SetBloodVolumeReserved(*req.BloodVolumeReserved).
 		SetRegions(req.Regions).
-		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
-		SetStatus(bloodsearchrequest.Status(req.Status)).
-		SetNillableDescription(&req.Description).
+		SetSmallPetsNotifyAllowed(*req.SmallPetsNotifyAllowed).
+		SetStatus(bloodsearchrequest.Status(*req.Status)).
+		SetNillableDescription(req.Description).
 		SetPhotoUrls(req.PhotoUrls).
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIds).
+		SetOnBoarding(req.OnBoarding).
 		Save(ctx)
 }
 
@@ -66,17 +68,18 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 }
 
 // Update обновляет информацию о заявке
-func (r *EntBloodRequestRepository) Update(ctx context.Context, req *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
-	return r.client.BloodSearchRequest.UpdateOneID(req.ID).
-		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(req.BloodVolumeReserved).
+func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
+	return r.client.BloodSearchRequest.UpdateOneID(id).
+		SetBloodVolumeNeeded(*req.BloodVolumeNeeded).
+		SetBloodVolumeReserved(*req.BloodVolumeReserved).
 		SetRegions(req.Regions).
-		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
-		SetStatus(bloodsearchrequest.Status(req.Status)).
-		SetDescription(req.Description).
+		SetSmallPetsNotifyAllowed(*req.SmallPetsNotifyAllowed).
+		SetStatus(bloodsearchrequest.Status(*req.Status)).
+		SetDescription(*req.Description).
 		SetPhotoUrls(req.PhotoUrls).
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIds).
+		SetOnBoarding(req.OnBoarding).
 		Save(ctx)
 }
 

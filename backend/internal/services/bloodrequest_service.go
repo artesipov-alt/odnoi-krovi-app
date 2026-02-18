@@ -12,7 +12,7 @@ import (
 // BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
 type BloodSearchService interface {
 	// CreateRequest создает новую заявку на поиск крови
-	CreateRequest(ctx context.Context, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
+	CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// GetRequestByID получает заявку по её ID
 	GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
@@ -21,7 +21,7 @@ type BloodSearchService interface {
 	GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
 
 	// UpdateRequest обновляет информацию о заявке
-	UpdateRequest(ctx context.Context, id string, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
+	UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
@@ -58,7 +58,7 @@ func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo rep
 }
 
 // CreateRequest создает новую заявку на поиск крови
-func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование питомца
 	exists, err := s.petRepo.ExistsByID(ctx, bloodReq.PetID)
 	if err != nil {
@@ -78,7 +78,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 	}
 
 	// Устанавливаем статус по умолчанию
-	bloodReq.Status = bloodsearchrequest.StatusActive
+	bloodReq.Status = new(bloodsearchrequest.StatusActive)
 
 	// Создаем транзакцию
 	tx, err := s.client.Tx(ctx)
@@ -138,7 +138,7 @@ func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID st
 }
 
 // UpdateRequest обновляет информацию о заявке
-func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, bloodReq *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование
 	existing, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
@@ -148,14 +148,12 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 		return nil, apperrors.Internal(err, "failed to get blood request")
 	}
 
-	// Убеждаемся, что ID совпадает
-	bloodReq.ID = id
 	// Сохраняем текущий статус, если он не передан
-	if bloodReq.Status == "" {
-		bloodReq.Status = existing.Status
+	if bloodReq.Status == nil {
+		bloodReq.Status = &existing.Status
 	}
 
-	updated, err := s.bloodRepo.Update(ctx, bloodReq)
+	updated, err := s.bloodRepo.Update(ctx, id, bloodReq)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}

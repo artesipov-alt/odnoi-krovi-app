@@ -9,10 +9,10 @@ import (
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
 type BloodRequestRepository interface {
 	// Create создает новую заявку на поиск крови
-	Create(ctx context.Context, request *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
+	Create(ctx context.Context, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// CreateWithTx создает новую заявку на поиск крови в рамках транзакции
-	CreateWithTx(ctx context.Context, tx *ent.Tx, request *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
+	CreateWithTx(ctx context.Context, tx *ent.Tx, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// GetByID возвращает заявку по её идентификатору
 	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
@@ -21,7 +21,7 @@ type BloodRequestRepository interface {
 	GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
 
 	// Update обновляет информацию о заявке
-	Update(ctx context.Context, request *ent.BloodSearchRequest) (*ent.BloodSearchRequest, error)
+	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
