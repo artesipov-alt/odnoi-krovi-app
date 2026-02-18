@@ -14,6 +14,7 @@ const (
 
 // BloodSearchPetRequest представляет запрос на добавление питомца в систему поиска крови
 type BloodSearchPetRequest struct {
+	ID                     string                   `json:"id" validate:"required" doc:"ID заявки" example:"BLS-aBcDeF1234"`
 	PetID                  string                   `json:"petId" validate:"required" doc:"ID питомца" example:"PET-aBcDeF1234"`
 	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded" validate:"required,gt=0" doc:"Необходимый объем крови в мл" example:"100"`
 	BloodVolumeReserved    int32                    `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" example:"0"`

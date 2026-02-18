@@ -95,6 +95,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
 func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest {
 	return dto.BloodSearchPetRequest{
+		ID:                     req.ID,
 		PetID:                  req.PetID,
 		BloodVolumeNeeded:      req.BloodVolumeNeeded,
 		BloodVolumeReserved:    req.BloodVolumeReserved,
