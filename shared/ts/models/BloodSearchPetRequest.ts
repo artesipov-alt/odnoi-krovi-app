@@ -50,11 +50,29 @@ export interface BloodSearchPetRequest {
      */
     bloodVolumeReserved?: number;
     /**
+     * Дата создания записи
+     * @type {Date}
+     * @memberof BloodSearchPetRequest
+     */
+    readonly createdAt?: Date;
+    /**
+     * Дата удаления записи
+     * @type {Date}
+     * @memberof BloodSearchPetRequest
+     */
+    readonly deletedAt?: Date;
+    /**
      * Дополнительное описание запроса
      * @type {string}
      * @memberof BloodSearchPetRequest
      */
     description?: string;
+    /**
+     * Список пройденых онбордингов
+     * @type {Array<string>}
+     * @memberof BloodSearchPetRequest
+     */
+    onBoarding: Array<BloodSearchPetRequestOnBoardingEnum>;
     /**
      * ID питомца
      * @type {string}
@@ -85,6 +103,12 @@ export interface BloodSearchPetRequest {
      * @memberof BloodSearchPetRequest
      */
     status?: BloodSearchPetRequestStatusEnum;
+    /**
+     * Дата последнего обновления
+     * @type {Date}
+     * @memberof BloodSearchPetRequest
+     */
+    readonly updatedAt?: Date;
 }
 
 
@@ -99,6 +123,14 @@ export const BloodSearchPetRequestBloodGroupNamesEnum = {
     Ab: 'AB'
 } as const;
 export type BloodSearchPetRequestBloodGroupNamesEnum = typeof BloodSearchPetRequestBloodGroupNamesEnum[keyof typeof BloodSearchPetRequestBloodGroupNamesEnum];
+
+/**
+ * @export
+ */
+export const BloodSearchPetRequestOnBoardingEnum = {
+    Recipient: 'RECIPIENT'
+} as const;
+export type BloodSearchPetRequestOnBoardingEnum = typeof BloodSearchPetRequestOnBoardingEnum[keyof typeof BloodSearchPetRequestOnBoardingEnum];
 
 /**
  * @export
@@ -118,6 +150,7 @@ export function instanceOfBloodSearchPetRequest(value: object): value is BloodSe
     if (!('bloodComponentIds' in value) || value['bloodComponentIds'] === undefined) return false;
     if (!('bloodGroupNames' in value) || value['bloodGroupNames'] === undefined) return false;
     if (!('bloodVolumeNeeded' in value) || value['bloodVolumeNeeded'] === undefined) return false;
+    if (!('onBoarding' in value) || value['onBoarding'] === undefined) return false;
     if (!('petId' in value) || value['petId'] === undefined) return false;
     if (!('regions' in value) || value['regions'] === undefined) return false;
     if (!('smallPetsNotifyAllowed' in value) || value['smallPetsNotifyAllowed'] === undefined) return false;
@@ -139,12 +172,16 @@ export function BloodSearchPetRequestFromJSONTyped(json: any, ignoreDiscriminato
         'bloodGroupNames': json['bloodGroupNames'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
         'bloodVolumeReserved': json['bloodVolumeReserved'] == null ? undefined : json['bloodVolumeReserved'],
+        'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
+        'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'description': json['description'] == null ? undefined : json['description'],
+        'onBoarding': json['onBoarding'],
         'petId': json['petId'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'regions': json['regions'],
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
         'status': json['status'] == null ? undefined : json['status'],
+        'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
     };
 }
 
@@ -152,7 +189,7 @@ export function BloodSearchPetRequestToJSON(json: any): BloodSearchPetRequest {
     return BloodSearchPetRequestToJSONTyped(json, false);
 }
 
-export function BloodSearchPetRequestToJSONTyped(value?: Omit<BloodSearchPetRequest, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function BloodSearchPetRequestToJSONTyped(value?: Omit<BloodSearchPetRequest, '$schema'|'createdAt'|'deletedAt'|'updatedAt'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -164,6 +201,7 @@ export function BloodSearchPetRequestToJSONTyped(value?: Omit<BloodSearchPetRequ
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],
         'bloodVolumeReserved': value['bloodVolumeReserved'],
         'description': value['description'],
+        'onBoarding': value['onBoarding'],
         'petId': value['petId'],
         'photoUrls': value['photoUrls'],
         'regions': value['regions'],

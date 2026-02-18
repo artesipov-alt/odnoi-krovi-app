@@ -41,7 +41,7 @@ import {
 } from '../models/index';
 
 export interface AddPetToBloodRequestPoolRequest {
-    bloodSearchPetRequest: Omit<BloodSearchPetRequest, '$schema'>;
+    bloodSearchPetRequest: Omit<BloodSearchPetRequest, '$schema'|'createdAt'|'deletedAt'|'updatedAt'>;
 }
 
 export interface ConfirmUploadOperationRequest {
@@ -53,6 +53,10 @@ export interface DeleteBloodRequestRequest {
 }
 
 export interface GetBloodRequestByIdRequest {
+    id: string;
+}
+
+export interface GetBloodRequestByPetIdRequest {
     id: string;
 }
 
@@ -230,6 +234,45 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      */
     async getBloodRequestById(requestParameters: GetBloodRequestByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetRequest> {
         const response = await this.getBloodRequestByIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Возвращает информацию о конкретной заявке
+     * Получить заявку по ID питомца
+     */
+    async getBloodRequestByPetIdRaw(requestParameters: GetBloodRequestByPetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchPetRequest>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling getBloodRequestByPetId().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/blood-request/pet/{id}`;
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => BloodSearchPetRequestFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает информацию о конкретной заявке
+     * Получить заявку по ID питомца
+     */
+    async getBloodRequestByPetId(requestParameters: GetBloodRequestByPetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetRequest> {
+        const response = await this.getBloodRequestByPetIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
