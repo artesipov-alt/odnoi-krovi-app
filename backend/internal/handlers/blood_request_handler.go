@@ -58,6 +58,16 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByID)
 
+	// Получить заявку по ID питомца
+	huma.Register(api, huma.Operation{
+		OperationID: "get-blood-request-by-pet-id",
+		Method:      http.MethodGet,
+		Path:        "/v1/blood-request/pet/{id}",
+		Summary:     "Получить заявку по ID питомца",
+		Description: "Возвращает информацию о конкретной заявке",
+		Tags:        []string{"blood-request-v1"},
+	}, h.GetBloodRequestByID)
+
 	// Удалить заявку
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-blood-request",
@@ -155,6 +165,15 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
 	slog.DebugContext(ctx, "getting blood request by ID", "request_id", input.ID)
 	bloodReq, err := h.service.GetRequestByID(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq)}, nil
+}
+
+func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
+	bloodReq, err := h.service.GetRequestByPetID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
