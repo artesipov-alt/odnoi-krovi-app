@@ -11,19 +11,27 @@ import (
 
 // EntBloodRequestRepository implements BloodRequestRepository using ENT
 type EntBloodRequestRepository struct {
-	client *ent.Client
+	db *ent.Client
+}
+
+// Внутренний хелпер для выбора клиента
+func (r *EntBloodRequestRepository) client(ctx context.Context) *ent.Client {
+	if tx := ent.TxFromContext(ctx); tx != nil {
+		return tx.Client()
+	}
+	return r.db
 }
 
 // NewEntBloodRequestRepository creates a new ENT blood request repository
 func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository {
 	return &EntBloodRequestRepository{
-		client: client,
+		db: client,
 	}
 }
 
 // Create создает новую заявку на поиск крови
 func (r *EntBloodRequestRepository) Create(ctx context.Context, req *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
-	return r.client.BloodSearchRequest.Create().
+	return r.client(ctx).BloodSearchRequest.Create().
 		SetPetID(req.PetID).
 		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
 		SetBloodVolumeReserved(*req.BloodVolumeReserved).
@@ -57,19 +65,19 @@ func (r *EntBloodRequestRepository) CreateWithTx(ctx context.Context, tx *ent.Tx
 
 // GetByID возвращает заявку по её идентификатору
 func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
-	return r.client.BloodSearchRequest.Get(ctx, id)
+	return r.client(ctx).BloodSearchRequest.Get(ctx, id)
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
 func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
-	return r.client.BloodSearchRequest.Query().
+	return r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.PetID(petID)).
 		Only(ctx)
 }
 
 // Update обновляет информацию о заявке
 func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
-	return r.client.BloodSearchRequest.UpdateOneID(id).
+	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetBloodVolumeNeeded(*req.BloodVolumeNeeded).
 		SetBloodVolumeReserved(*req.BloodVolumeReserved).
 		SetRegions(req.Regions).
@@ -85,7 +93,7 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 
 // UpdateStatus обновляет статус заявки
 func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string, status string) error {
-	return r.client.BloodSearchRequest.UpdateOneID(id).
+	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetStatus(bloodsearchrequest.Status(status)).
 		Exec(ctx)
 }
@@ -99,7 +107,7 @@ func (r *EntBloodRequestRepository) UpdateStatusWithTx(ctx context.Context, tx *
 
 // Delete удаляет заявку из хранилища (soft delete)
 func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error {
-	return r.client.BloodSearchRequest.DeleteOneID(id).Exec(ctx)
+	return r.client(ctx).BloodSearchRequest.DeleteOneID(id).Exec(ctx)
 }
 
 // DeleteWithTx удаляет заявку из хранилища в рамках транзакции (soft delete)
@@ -109,7 +117,7 @@ func (r *EntBloodRequestRepository) DeleteWithTx(ctx context.Context, tx *ent.Tx
 
 // List возвращает список заявок с фильтрацией и пагинацией
 func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error) {
-	query := r.client.BloodSearchRequest.Query()
+	query := r.client(ctx).BloodSearchRequest.Query()
 
 	if status, ok := filters["status"].(string); ok {
 		query = query.Where(bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(status)))
@@ -131,7 +139,7 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int,
 
 // ExistsByPetID проверяет существование активной заявки для питомца
 func (r *EntBloodRequestRepository) ExistsByPetID(ctx context.Context, petID string) (bool, error) {
-	return r.client.BloodSearchRequest.Query().
+	return r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.PetID(petID),
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
@@ -141,14 +149,14 @@ func (r *EntBloodRequestRepository) ExistsByPetID(ctx context.Context, petID str
 
 // ExistsByID проверяет существование заявки по её идентификатору
 func (r *EntBloodRequestRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
-	return r.client.BloodSearchRequest.Query().
+	return r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.ID(id)).
 		Exist(ctx)
 }
 
 // Count возвращает общее количество заявок в хранилище
 func (r *EntBloodRequestRepository) Count(ctx context.Context) (int, error) {
-	return r.client.BloodSearchRequest.Query().Count(ctx)
+	return r.client(ctx).BloodSearchRequest.Query().Count(ctx)
 }
 
 // AddPhotoURLs adds new photo paths to the blood request's PhotoUrls array
@@ -158,7 +166,7 @@ func (r *EntBloodRequestRepository) AddPhotoURLs(ctx context.Context, id string,
 	}
 
 	// Fetch current photo URLs
-	req, err := r.client.BloodSearchRequest.Get(ctx, id)
+	req, err := r.client(ctx).BloodSearchRequest.Get(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to get blood request for photo update: %w", err)
 	}
@@ -167,7 +175,7 @@ func (r *EntBloodRequestRepository) AddPhotoURLs(ctx context.Context, id string,
 	newPhotoUrls := append(req.PhotoUrls, paths...)
 
 	// Update blood request
-	err = r.client.BloodSearchRequest.UpdateOneID(id).
+	err = r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetPhotoUrls(newPhotoUrls).
 		Exec(ctx)
 

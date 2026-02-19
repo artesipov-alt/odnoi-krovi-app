@@ -14,9 +14,6 @@ type BloodRequestRepository interface {
 	// Create создает новую заявку на поиск крови
 	Create(ctx context.Context, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
-	// CreateWithTx создает новую заявку на поиск крови в рамках транзакции
-	CreateWithTx(ctx context.Context, tx *ent.Tx, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
-
 	// GetByID возвращает заявку по её идентификатору
 	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
 
@@ -29,14 +26,8 @@ type BloodRequestRepository interface {
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
 
-	// UpdateStatusWithTx обновляет статус заявки в рамках транзакции
-	UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error
-
 	// Delete удаляет заявку из хранилища
 	Delete(ctx context.Context, id string) error
-
-	// DeleteWithTx удаляет заявку из хранилища в рамках транзакции
-	DeleteWithTx(ctx context.Context, tx *ent.Tx, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
 	List(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
@@ -56,19 +47,19 @@ type BloodRequestRepository interface {
 
 // BloodSearchService реализует BloodSearchService
 type BloodSearchService struct {
+	txManager repositories.TxManager
 	bloodRepo BloodRequestRepository
 	petRepo   repositories.PetRepository
 	storage   repositories.FileStorage
-	client    *ent.Client
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(repo BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage, client *ent.Client) *BloodSearchService {
+func NewBloodSearchService(txManager repositories.TxManager, repo BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage) *BloodSearchService {
 	return &BloodSearchService{
+		txManager: txManager,
 		bloodRepo: repo,
 		petRepo:   petRepo,
 		storage:   storage,
-		client:    client,
 	}
 }
 
@@ -92,32 +83,29 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 		return nil, apperrors.ErrBloodRequestAlreadyExists
 	}
 
-	// Устанавливаем статус по умолчанию
 	bloodReq.Status = new(bloodsearchrequest.StatusActive)
 
-	// Создаем транзакцию
-	tx, err := s.client.Tx(ctx)
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to start transaction")
-	}
+	var newReq *ent.BloodSearchRequest
+	err = s.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		entTx := ent.TxFromContext(txCtx)
+		if entTx == nil {
+			return apperrors.Internal(nil, "ent.TxFromContext returned nil")
+		}
 
-	// Создаем заявку в рамках транзакции
-	newReq, err := s.bloodRepo.CreateWithTx(ctx, tx, bloodReq)
-	if err != nil {
-		tx.Rollback()
-		return nil, apperrors.Internal(err, "failed to create blood request")
-	}
+		newReq, err = s.bloodRepo.Create(txCtx, bloodReq)
+		if err != nil {
+			return apperrors.Internal(err, "failed to create blood request")
+		}
 
-	// Обновляем статус питомца на "recipient"
-	err = s.petRepo.UpdateStatusWithTx(ctx, tx, bloodReq.PetID, "recipient")
-	if err != nil {
-		tx.Rollback()
-		return nil, apperrors.Internal(err, "failed to update pet status")
-	}
+		err = s.petRepo.UpdateStatus(txCtx, bloodReq.PetID, "recipient")
+		if err != nil {
+			return apperrors.Internal(err, "failed to update pet status")
+		}
+		return nil
+	})
 
-	// Коммитим транзакцию
-	if err := tx.Commit(); err != nil {
-		return nil, apperrors.Internal(err, "failed to commit transaction")
+	if err != nil {
+		return nil, err
 	}
 
 	return newReq, nil
@@ -191,34 +179,32 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 		return apperrors.Internal(err, "failed to get blood request")
 	}
 
-	// Создаем транзакцию
-	tx, err := s.client.Tx(ctx)
-	if err != nil {
-		return apperrors.Internal(err, "failed to start transaction")
-	}
-
-	// Обновляем статус заявки
-	err = s.bloodRepo.UpdateStatusWithTx(ctx, tx, id, status)
-	if err != nil {
-		tx.Rollback()
-		if ent.IsNotFound(err) {
-			return apperrors.ErrBloodRequestNotFound
+	err = s.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		entTx := ent.TxFromContext(txCtx)
+		if entTx == nil {
+			return apperrors.Internal(nil, "ent.TxFromContext returned nil")
 		}
-		return apperrors.Internal(err, "failed to update status")
-	}
 
-	// Если статус закрыт, сбрасываем статус питомца на "none"
-	if status == "closed" {
-		err = s.petRepo.UpdateStatusWithTx(ctx, tx, req.PetID, "none")
+		// Обновляем статус заявки
+		err = s.bloodRepo.UpdateStatus(txCtx, id, status)
 		if err != nil {
-			tx.Rollback()
-			return apperrors.Internal(err, "failed to update pet status")
+			if ent.IsNotFound(err) {
+				return apperrors.ErrBloodRequestNotFound
+			}
+			return apperrors.Internal(err, "failed to update status")
 		}
-	}
 
-	// Коммитим транзакцию
-	if err := tx.Commit(); err != nil {
-		return apperrors.Internal(err, "failed to commit transaction")
+		// Если статус закрыт, сбрасываем статус питомца на "none"
+		if status == "closed" {
+			err = s.petRepo.UpdateStatus(txCtx, req.PetID, "none")
+			if err != nil {
+				return apperrors.Internal(err, "failed to update pet status")
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -235,32 +221,31 @@ func (s *BloodSearchService) DeleteRequest(ctx context.Context, id string) error
 		return apperrors.Internal(err, "failed to get blood request")
 	}
 
-	// Создаем транзакцию
-	tx, err := s.client.Tx(ctx)
-	if err != nil {
-		return apperrors.Internal(err, "failed to start transaction")
-	}
-
-	// Обновляем статус питомца на "none"
-	err = s.petRepo.UpdateStatusWithTx(ctx, tx, req.PetID, "none")
-	if err != nil {
-		tx.Rollback()
-		return apperrors.Internal(err, "failed to update pet status")
-	}
-
-	// Удаляем заявку
-	err = s.bloodRepo.DeleteWithTx(ctx, tx, id)
-	if err != nil {
-		tx.Rollback()
-		if ent.IsNotFound(err) {
-			return apperrors.ErrBloodRequestNotFound
+	err = s.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		entTx := ent.TxFromContext(txCtx)
+		if entTx == nil {
+			return apperrors.Internal(nil, "ent.TxFromContext returned nil")
 		}
-		return apperrors.Internal(err, "failed to delete blood request")
-	}
 
-	// Коммитим транзакцию
-	if err := tx.Commit(); err != nil {
-		return apperrors.Internal(err, "failed to commit transaction")
+		// Обновляем статус питомца на "none"
+		err = s.petRepo.UpdateStatus(txCtx, req.PetID, "none")
+		if err != nil {
+			return apperrors.Internal(err, "failed to update pet status")
+		}
+
+		// Удаляем заявку
+		err = s.bloodRepo.Delete(txCtx, id)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return apperrors.ErrBloodRequestNotFound
+			}
+			return apperrors.Internal(err, "failed to delete blood request")
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
 	}
 
 	return nil

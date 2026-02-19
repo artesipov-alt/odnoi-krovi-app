@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
@@ -102,13 +103,14 @@ func main() {
 		petRepo := pg.NewEntPetRepository(db)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
+		txManager := repositories.NewTxManager(db)
 
 		donorValidator := validator.NewDonorValidator(validator.DefaultStopChecks, validator.DefaultWarnChecks)
 
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
 		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage, donorValidator)
-		bloodSearchService := services.NewBloodSearchService(bloodRequestRepo, petRepo, fileStorage, db)
+		bloodSearchService := services.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, fileStorage)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация обработчиков
