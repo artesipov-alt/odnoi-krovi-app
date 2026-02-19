@@ -281,8 +281,7 @@ func (s *PetServiceImpl) GetPet(ctx context.Context, petID string, opts PetPrelo
 // GetUserPets получает всех питомцев пользователя с preload связей
 func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*ent.Pet, error) {
 	// Проверяем, существует ли пользователь
-	uquery := s.userRepo.GetQueryByID(ctx, userID)
-	_, err := uquery.Only(ctx)
+	_, err := s.userRepo.GetByID(ctx, userID).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound
