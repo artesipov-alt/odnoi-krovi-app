@@ -70,6 +70,12 @@ func (_c *DonorResponseCreate) SetAmountMl(v int32) *DonorResponseCreate {
 	return _c
 }
 
+// SetStatus sets the "status" field.
+func (_c *DonorResponseCreate) SetStatus(v string) *DonorResponseCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DonorResponseCreate) SetID(v string) *DonorResponseCreate {
 	_c.mutation.SetID(v)
@@ -166,6 +172,9 @@ func (_c *DonorResponseCreate) check() error {
 	if _, ok := _c.mutation.AmountMl(); !ok {
 		return &ValidationError{Name: "amount_ml", err: errors.New(`ent: missing required field "DonorResponse.amount_ml"`)}
 	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DonorResponse.status"`)}
+	}
 	if len(_c.mutation.RequestIDs()) == 0 {
 		return &ValidationError{Name: "request", err: errors.New(`ent: missing required edge "DonorResponse.request"`)}
 	}
@@ -222,6 +231,10 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.AmountMl(); ok {
 		_spec.SetField(donorresponse.FieldAmountMl, field.TypeInt32, value)
 		_node.AmountMl = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
+		_node.Status = value
 	}
 	if nodes := _c.mutation.RequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

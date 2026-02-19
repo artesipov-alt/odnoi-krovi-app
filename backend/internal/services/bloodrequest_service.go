@@ -9,47 +9,62 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
-// BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
-type BloodSearchService interface {
-	// CreateRequest создает новую заявку на поиск крови
-	CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+// BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
+type BloodRequestRepository interface {
+	// Create создает новую заявку на поиск крови
+	Create(ctx context.Context, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
-	// GetRequestByID получает заявку по её ID
-	GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
+	// CreateWithTx создает новую заявку на поиск крови в рамках транзакции
+	CreateWithTx(ctx context.Context, tx *ent.Tx, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
-	// GetRequestByPetID получает активную заявку для конкретного питомца
-	GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
+	// GetByID возвращает заявку по её идентификатору
+	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
 
-	// UpdateRequest обновляет информацию о заявке
-	UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+	// GetByPetID возвращает заявку по идентификатору питомца
+	GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
+
+	// Update обновляет информацию о заявке
+	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
 
-	// ExistsByID проверяет существование заявки по её ID
+	// UpdateStatusWithTx обновляет статус заявки в рамках транзакции
+	UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error
+
+	// Delete удаляет заявку из хранилища
+	Delete(ctx context.Context, id string) error
+
+	// DeleteWithTx удаляет заявку из хранилища в рамках транзакции
+	DeleteWithTx(ctx context.Context, tx *ent.Tx, id string) error
+
+	// List возвращает список заявок с фильтрацией и пагинацией
+	List(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
+
+	// ExistsByPetID проверяет существование активной заявки для питомца
+	ExistsByPetID(ctx context.Context, petID string) (bool, error)
+
+	// ExistsByID проверяет существование заявки по её идентификатору
 	ExistsByID(ctx context.Context, id string) (bool, error)
 
-	// DeleteRequest удаляет заявку (soft delete)
-	DeleteRequest(ctx context.Context, id string) error
+	// Count возвращает общее количество заявок в хранилище
+	Count(ctx context.Context) (int, error)
 
-	// ListRequests возвращает список заявок с фильтрацией
-	ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
-
-	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	buildFullPhotoURLs(paths []string) []string
+	// AddPhotoURLs добавляет новые пути к фотографиям заявки
+	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }
 
-// BloodSearchServiceImpl реализует BloodSearchService
-type BloodSearchServiceImpl struct {
-	bloodRepo repositories.BloodRequestRepository
+// BloodSearchService реализует BloodSearchService
+type BloodSearchService struct {
+	bloodRepo BloodRequestRepository
 	petRepo   repositories.PetRepository
 	storage   repositories.FileStorage
 	client    *ent.Client
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage, client *ent.Client) *BloodSearchServiceImpl {
-	return &BloodSearchServiceImpl{
+func NewBloodSearchService(repo BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage, client *ent.Client) *BloodSearchService {
+	return &BloodSearchService{
 		bloodRepo: repo,
 		petRepo:   petRepo,
 		storage:   storage,
@@ -58,7 +73,7 @@ func NewBloodSearchService(repo repositories.BloodRequestRepository, petRepo rep
 }
 
 // CreateRequest создает новую заявку на поиск крови
-func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование питомца
 	exists, err := s.petRepo.ExistsByID(ctx, bloodReq.PetID)
 	if err != nil {
@@ -109,7 +124,7 @@ func (s *BloodSearchServiceImpl) CreateRequest(ctx context.Context, bloodReq *en
 }
 
 // GetRequestByID получает заявку по её ID
-func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
 	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -119,13 +134,13 @@ func (s *BloodSearchServiceImpl) GetRequestByID(ctx context.Context, id string) 
 	}
 
 	// Преобразуем пути к фото в полные URL
-	req.PhotoUrls = s.buildFullPhotoURLs(req.PhotoUrls)
+	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls)
 
 	return req, nil
 }
 
 // GetRequestByPetID получает активную заявку для конкретного питомца
-func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
 	req, err := s.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -138,7 +153,7 @@ func (s *BloodSearchServiceImpl) GetRequestByPetID(ctx context.Context, petID st
 }
 
 // UpdateRequest обновляет информацию о заявке
-func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование
 	existing, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
@@ -162,7 +177,7 @@ func (s *BloodSearchServiceImpl) UpdateRequest(ctx context.Context, id string, b
 }
 
 // UpdateStatus обновляет статус заявки
-func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, status string) error {
+func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status string) error {
 	if err := bloodsearchrequest.StatusValidator(bloodsearchrequest.Status(status)); err != nil {
 		return apperrors.ErrInvalidBloodRequestStatus.WithInternal(err)
 	}
@@ -210,7 +225,7 @@ func (s *BloodSearchServiceImpl) UpdateStatus(ctx context.Context, id string, st
 }
 
 // DeleteRequest удаляет заявку (soft delete)
-func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) error {
+func (s *BloodSearchService) DeleteRequest(ctx context.Context, id string) error {
 	// Получаем заявку, чтобы узнать PetID
 	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
@@ -252,7 +267,7 @@ func (s *BloodSearchServiceImpl) DeleteRequest(ctx context.Context, id string) e
 }
 
 // ListRequests возвращает список заявок с фильтрацией
-func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
 	requests, err := s.bloodRepo.List(ctx, limit, offset, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")
@@ -262,12 +277,12 @@ func (s *BloodSearchServiceImpl) ListRequests(ctx context.Context, limit, offset
 }
 
 // ExistsByID проверяет существование заявки по её ID
-func (s *BloodSearchServiceImpl) ExistsByID(ctx context.Context, id string) (bool, error) {
+func (s *BloodSearchService) ExistsByID(ctx context.Context, id string) (bool, error) {
 	return s.bloodRepo.ExistsByID(ctx, id)
 }
 
 // buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *BloodSearchServiceImpl) buildFullPhotoURLs(paths []string) []string {
+func (s *BloodSearchService) BuildFullPhotoURLs(paths []string) []string {
 	if len(paths) == 0 {
 		return []string{}
 	}

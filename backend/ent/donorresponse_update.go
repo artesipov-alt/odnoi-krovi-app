@@ -77,6 +77,20 @@ func (_u *DonorResponseUpdate) AddAmountMl(v int32) *DonorResponseUpdate {
 	return _u
 }
 
+// SetStatus sets the "status" field.
+func (_u *DonorResponseUpdate) SetStatus(v string) *DonorResponseUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableStatus(v *string) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
 func (_u *DonorResponseUpdate) SetRequestID(id string) *DonorResponseUpdate {
 	_u.mutation.SetRequestID(id)
@@ -189,6 +203,9 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if value, ok := _u.mutation.AddedAmountMl(); ok {
 		_spec.AddField(donorresponse.FieldAmountMl, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -312,6 +329,20 @@ func (_u *DonorResponseUpdateOne) SetNillableAmountMl(v *int32) *DonorResponseUp
 // AddAmountMl adds value to the "amount_ml" field.
 func (_u *DonorResponseUpdateOne) AddAmountMl(v int32) *DonorResponseUpdateOne {
 	_u.mutation.AddAmountMl(v)
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *DonorResponseUpdateOne) SetStatus(v string) *DonorResponseUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableStatus(v *string) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
 	return _u
 }
 
@@ -457,6 +488,9 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 	}
 	if value, ok := _u.mutation.AddedAmountMl(); ok {
 		_spec.AddField(donorresponse.FieldAmountMl, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{

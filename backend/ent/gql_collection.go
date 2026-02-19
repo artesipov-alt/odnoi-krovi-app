@@ -485,6 +485,11 @@ func (_q *DonorResponseQuery) collectField(ctx context.Context, oneNode bool, op
 				selectedFields = append(selectedFields, donorresponse.FieldAmountMl)
 				fieldSeen[donorresponse.FieldAmountMl] = struct{}{}
 			}
+		case "status":
+			if _, ok := fieldSeen[donorresponse.FieldStatus]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldStatus)
+				fieldSeen[donorresponse.FieldStatus] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

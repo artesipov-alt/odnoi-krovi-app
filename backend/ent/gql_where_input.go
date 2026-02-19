@@ -1281,6 +1281,21 @@ type DonorResponseWhereInput struct {
 	AmountMlLT    *int32  `json:"amountMlLT,omitempty"`
 	AmountMlLTE   *int32  `json:"amountMlLTE,omitempty"`
 
+	// "status" field predicates.
+	Status             *string  `json:"status,omitempty"`
+	StatusNEQ          *string  `json:"statusNEQ,omitempty"`
+	StatusIn           []string `json:"statusIn,omitempty"`
+	StatusNotIn        []string `json:"statusNotIn,omitempty"`
+	StatusGT           *string  `json:"statusGT,omitempty"`
+	StatusGTE          *string  `json:"statusGTE,omitempty"`
+	StatusLT           *string  `json:"statusLT,omitempty"`
+	StatusLTE          *string  `json:"statusLTE,omitempty"`
+	StatusContains     *string  `json:"statusContains,omitempty"`
+	StatusHasPrefix    *string  `json:"statusHasPrefix,omitempty"`
+	StatusHasSuffix    *string  `json:"statusHasSuffix,omitempty"`
+	StatusEqualFold    *string  `json:"statusEqualFold,omitempty"`
+	StatusContainsFold *string  `json:"statusContainsFold,omitempty"`
+
 	// "request" edge predicates.
 	HasRequest     *bool                           `json:"hasRequest,omitempty"`
 	HasRequestWith []*BloodSearchRequestWhereInput `json:"hasRequestWith,omitempty"`
@@ -1492,6 +1507,45 @@ func (i *DonorResponseWhereInput) P() (predicate.DonorResponse, error) {
 	}
 	if i.AmountMlLTE != nil {
 		predicates = append(predicates, donorresponse.AmountMlLTE(*i.AmountMlLTE))
+	}
+	if i.Status != nil {
+		predicates = append(predicates, donorresponse.StatusEQ(*i.Status))
+	}
+	if i.StatusNEQ != nil {
+		predicates = append(predicates, donorresponse.StatusNEQ(*i.StatusNEQ))
+	}
+	if len(i.StatusIn) > 0 {
+		predicates = append(predicates, donorresponse.StatusIn(i.StatusIn...))
+	}
+	if len(i.StatusNotIn) > 0 {
+		predicates = append(predicates, donorresponse.StatusNotIn(i.StatusNotIn...))
+	}
+	if i.StatusGT != nil {
+		predicates = append(predicates, donorresponse.StatusGT(*i.StatusGT))
+	}
+	if i.StatusGTE != nil {
+		predicates = append(predicates, donorresponse.StatusGTE(*i.StatusGTE))
+	}
+	if i.StatusLT != nil {
+		predicates = append(predicates, donorresponse.StatusLT(*i.StatusLT))
+	}
+	if i.StatusLTE != nil {
+		predicates = append(predicates, donorresponse.StatusLTE(*i.StatusLTE))
+	}
+	if i.StatusContains != nil {
+		predicates = append(predicates, donorresponse.StatusContains(*i.StatusContains))
+	}
+	if i.StatusHasPrefix != nil {
+		predicates = append(predicates, donorresponse.StatusHasPrefix(*i.StatusHasPrefix))
+	}
+	if i.StatusHasSuffix != nil {
+		predicates = append(predicates, donorresponse.StatusHasSuffix(*i.StatusHasSuffix))
+	}
+	if i.StatusEqualFold != nil {
+		predicates = append(predicates, donorresponse.StatusEqualFold(*i.StatusEqualFold))
+	}
+	if i.StatusContainsFold != nil {
+		predicates = append(predicates, donorresponse.StatusContainsFold(*i.StatusContainsFold))
 	}
 
 	if i.HasRequest != nil {

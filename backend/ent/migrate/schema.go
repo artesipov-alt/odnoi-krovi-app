@@ -84,6 +84,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "amount_ml", Type: field.TypeInt32},
+		{Name: "status", Type: field.TypeString},
 		{Name: "blood_search_request_responses", Type: field.TypeString},
 		{Name: "donor_response_donor", Type: field.TypeString},
 	}
@@ -95,13 +96,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "donor_responses_blood_requests_responses",
-				Columns:    []*schema.Column{DonorResponsesColumns[5]},
+				Columns:    []*schema.Column{DonorResponsesColumns[6]},
 				RefColumns: []*schema.Column{BloodRequestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "donor_responses_pets_donor",
-				Columns:    []*schema.Column{DonorResponsesColumns[6]},
+				Columns:    []*schema.Column{DonorResponsesColumns[7]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

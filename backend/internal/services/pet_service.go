@@ -59,12 +59,12 @@ type PetServiceImpl struct {
 	petRepo   repositories.PetRepository
 	userRepo  repositories.UserRepository
 	storage   repositories.FileStorage
-	bloodRepo repositories.BloodRequestRepository
+	bloodRepo BloodRequestRepository
 	validator validator.DonorValidator
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo repositories.BloodRequestRepository, storage repositories.FileStorage, validator validator.DonorValidator) *PetServiceImpl {
+func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo BloodRequestRepository, storage repositories.FileStorage, validator validator.DonorValidator) *PetServiceImpl {
 	return &PetServiceImpl{
 		petRepo:   petRepo,
 		userRepo:  userRepo,

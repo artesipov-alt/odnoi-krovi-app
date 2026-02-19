@@ -27,6 +27,8 @@ type DonorResponse struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	// AmountMl holds the value of the "amount_ml" field.
 	AmountMl int32 `json:"amount_ml,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorResponseQuery when eager-loading is set.
 	Edges                          DonorResponseEdges `json:"edges"`
@@ -77,7 +79,7 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case donorresponse.FieldAmountMl:
 			values[i] = new(sql.NullInt64)
-		case donorresponse.FieldID:
+		case donorresponse.FieldID, donorresponse.FieldStatus:
 			values[i] = new(sql.NullString)
 		case donorresponse.FieldCreatedAt, donorresponse.FieldUpdatedAt, donorresponse.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -130,6 +132,12 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field amount_ml", values[i])
 			} else if value.Valid {
 				_m.AmountMl = int32(value.Int64)
+			}
+		case donorresponse.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				_m.Status = value.String
 			}
 		case donorresponse.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -204,6 +212,9 @@ func (_m *DonorResponse) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("amount_ml=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AmountMl))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(_m.Status)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -2869,6 +2869,7 @@ type DonorResponseMutation struct {
 	deleted_at     *time.Time
 	amount_ml      *int32
 	addamount_ml   *int32
+	status         *string
 	clearedFields  map[string]struct{}
 	request        *string
 	clearedrequest bool
@@ -3160,6 +3161,42 @@ func (m *DonorResponseMutation) ResetAmountMl() {
 	m.addamount_ml = nil
 }
 
+// SetStatus sets the "status" field.
+func (m *DonorResponseMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DonorResponseMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DonorResponseMutation) ResetStatus() {
+	m.status = nil
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by id.
 func (m *DonorResponseMutation) SetRequestID(id string) {
 	m.request = &id
@@ -3272,7 +3309,7 @@ func (m *DonorResponseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorResponseMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, donorresponse.FieldCreatedAt)
 	}
@@ -3284,6 +3321,9 @@ func (m *DonorResponseMutation) Fields() []string {
 	}
 	if m.amount_ml != nil {
 		fields = append(fields, donorresponse.FieldAmountMl)
+	}
+	if m.status != nil {
+		fields = append(fields, donorresponse.FieldStatus)
 	}
 	return fields
 }
@@ -3301,6 +3341,8 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case donorresponse.FieldAmountMl:
 		return m.AmountMl()
+	case donorresponse.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -3318,6 +3360,8 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldDeletedAt(ctx)
 	case donorresponse.FieldAmountMl:
 		return m.OldAmountMl(ctx)
+	case donorresponse.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown DonorResponse field %s", name)
 }
@@ -3354,6 +3398,13 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAmountMl(v)
+		return nil
+	case donorresponse.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse field %s", name)
@@ -3439,6 +3490,9 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 		return nil
 	case donorresponse.FieldAmountMl:
 		m.ResetAmountMl()
+		return nil
+	case donorresponse.FieldStatus:
+		m.ResetStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse field %s", name)

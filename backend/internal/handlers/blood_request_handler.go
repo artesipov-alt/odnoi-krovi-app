@@ -9,18 +9,47 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/mocks"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
 
+// BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
+type BloodSearchService interface {
+	// CreateRequest создает новую заявку на поиск крови
+	CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+
+	// GetRequestByID получает заявку по её ID
+	GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
+
+	// GetRequestByPetID получает активную заявку для конкретного питомца
+	GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
+
+	// UpdateRequest обновляет информацию о заявке
+	UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+
+	// UpdateStatus обновляет статус заявки
+	UpdateStatus(ctx context.Context, id string, status string) error
+
+	// ExistsByID проверяет существование заявки по её ID
+	ExistsByID(ctx context.Context, id string) (bool, error)
+
+	// DeleteRequest удаляет заявку (soft delete)
+	DeleteRequest(ctx context.Context, id string) error
+
+	// ListRequests возвращает список заявок с фильтрацией
+	ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
+
+	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	BuildFullPhotoURLs(paths []string) []string
+}
+
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	service services.BloodSearchService
+	service BloodSearchService
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
-func NewBloodRequestHandler(service services.BloodSearchService) *BloodRequestHandler {
+func NewBloodRequestHandler(service BloodSearchService) *BloodRequestHandler {
 	return &BloodRequestHandler{
 		service: service,
 	}

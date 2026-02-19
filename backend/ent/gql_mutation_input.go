@@ -216,6 +216,7 @@ type CreateDonorResponseInput struct {
 	UpdatedAt *time.Time
 	DeletedAt *time.Time
 	AmountMl  int32
+	Status    string
 	RequestID string
 	DonorID   string
 }
@@ -232,6 +233,7 @@ func (i *CreateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 		m.SetDeletedAt(*v)
 	}
 	m.SetAmountMl(i.AmountMl)
+	m.SetStatus(i.Status)
 	m.SetRequestID(i.RequestID)
 	m.SetDonorID(i.DonorID)
 }
@@ -248,6 +250,7 @@ type UpdateDonorResponseInput struct {
 	ClearDeletedAt bool
 	DeletedAt      *time.Time
 	AmountMl       *int32
+	Status         *string
 	RequestID      *string
 	DonorID        *string
 }
@@ -265,6 +268,9 @@ func (i *UpdateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	}
 	if v := i.AmountMl; v != nil {
 		m.SetAmountMl(*v)
+	}
+	if v := i.Status; v != nil {
+		m.SetStatus(*v)
 	}
 	if v := i.RequestID; v != nil {
 		m.SetRequestID(*v)

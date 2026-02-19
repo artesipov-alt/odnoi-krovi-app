@@ -18,12 +18,12 @@ type FileService interface {
 type FileServiceImpl struct {
 	PetRepo   repositories.PetRepository
 	UserRepo  repositories.UserRepository
-	BloodRepo repositories.BloodRequestRepository
+	BloodRepo BloodRequestRepository
 	storage   repositories.FileStorage
 }
 
 // NewFileService создает новый FileServiceImpl
-func NewFileService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo repositories.BloodRequestRepository, storage repositories.FileStorage) *FileServiceImpl {
+func NewFileService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo BloodRequestRepository, storage repositories.FileStorage) *FileServiceImpl {
 	return &FileServiceImpl{
 		PetRepo:   petRepo,
 		UserRepo:  userRepo,
