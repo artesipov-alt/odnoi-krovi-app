@@ -72,6 +72,8 @@ const (
 	EdgeBreedRef = "breed_ref"
 	// EdgeBloodGroupRef holds the string denoting the blood_group_ref edge name in mutations.
 	EdgeBloodGroupRef = "blood_group_ref"
+	// EdgeDonations holds the string denoting the donations edge name in mutations.
+	EdgeDonations = "donations"
 	// EdgeBloodSearchRequest holds the string denoting the blood_search_request edge name in mutations.
 	EdgeBloodSearchRequest = "blood_search_request"
 	// Table holds the table name of the pet in the database.
@@ -125,6 +127,13 @@ const (
 	BloodGroupRefInverseTable = "ref_bloodg"
 	// BloodGroupRefColumn is the table column denoting the blood_group_ref relation/edge.
 	BloodGroupRefColumn = "blood_group_id"
+	// DonationsTable is the table that holds the donations relation/edge.
+	DonationsTable = "donor_responses"
+	// DonationsInverseTable is the table name for the DonorResponse entity.
+	// It exists in this package in order to avoid circular dependency with the "donorresponse" package.
+	DonationsInverseTable = "donor_responses"
+	// DonationsColumn is the table column denoting the donations relation/edge.
+	DonationsColumn = "donor_response_donor"
 	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge.
 	BloodSearchRequestTable = "blood_requests"
 	// BloodSearchRequestInverseTable is the table name for the BloodSearchRequest entity.
@@ -462,6 +471,20 @@ func ByBloodGroupRefField(field string, opts ...sql.OrderTermOption) OrderOption
 	}
 }
 
+// ByDonationsCount orders the results by donations count.
+func ByDonationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDonationsStep(), opts...)
+	}
+}
+
+// ByDonations orders the results by donations terms.
+func ByDonations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDonationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByBloodSearchRequestField orders the results by blood_search_request field.
 func ByBloodSearchRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -515,6 +538,13 @@ func newBloodGroupRefStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BloodGroupRefInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, BloodGroupRefTable, BloodGroupRefColumn),
+	)
+}
+func newDonationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DonationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, DonationsTable, DonationsColumn),
 	)
 }
 func newBloodSearchRequestStep() *sqlgraph.Step {

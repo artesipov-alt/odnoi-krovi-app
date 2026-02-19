@@ -77,6 +77,36 @@ var (
 		Columns:    RefBreedsColumns,
 		PrimaryKey: []*schema.Column{RefBreedsColumns[0]},
 	}
+	// DonorResponsesColumns holds the columns for the "donor_responses" table.
+	DonorResponsesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "amount_ml", Type: field.TypeInt32},
+		{Name: "blood_search_request_responses", Type: field.TypeString},
+		{Name: "donor_response_donor", Type: field.TypeString},
+	}
+	// DonorResponsesTable holds the schema information for the "donor_responses" table.
+	DonorResponsesTable = &schema.Table{
+		Name:       "donor_responses",
+		Columns:    DonorResponsesColumns,
+		PrimaryKey: []*schema.Column{DonorResponsesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "donor_responses_blood_requests_responses",
+				Columns:    []*schema.Column{DonorResponsesColumns[5]},
+				RefColumns: []*schema.Column{BloodRequestsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "donor_responses_pets_donor",
+				Columns:    []*schema.Column{DonorResponsesColumns[6]},
+				RefColumns: []*schema.Column{PetsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// RefLocationsColumns holds the columns for the "ref_locations" table.
 	RefLocationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -271,6 +301,7 @@ var (
 		RefBloodgTable,
 		BloodRequestsTable,
 		RefBreedsTable,
+		DonorResponsesTable,
 		RefLocationsTable,
 		PetsTable,
 		PetAnalysesTable,
@@ -294,6 +325,11 @@ func init() {
 	}
 	RefBreedsTable.Annotation = &entsql.Annotation{
 		Table: "ref_breeds",
+	}
+	DonorResponsesTable.ForeignKeys[0].RefTable = BloodRequestsTable
+	DonorResponsesTable.ForeignKeys[1].RefTable = PetsTable
+	DonorResponsesTable.Annotation = &entsql.Annotation{
+		Table: "donor_responses",
 	}
 	RefLocationsTable.Annotation = &entsql.Annotation{
 		Table: "ref_locations",

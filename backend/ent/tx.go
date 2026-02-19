@@ -20,6 +20,8 @@ type Tx struct {
 	BloodSearchRequest *BloodSearchRequestClient
 	// Breed is the client for interacting with the Breed builders.
 	Breed *BreedClient
+	// DonorResponse is the client for interacting with the DonorResponse builders.
+	DonorResponse *DonorResponseClient
 	// Location is the client for interacting with the Location builders.
 	Location *LocationClient
 	// Pet is the client for interacting with the Pet builders.
@@ -169,6 +171,7 @@ func (tx *Tx) init() {
 	tx.BloodGroup = NewBloodGroupClient(tx.config)
 	tx.BloodSearchRequest = NewBloodSearchRequestClient(tx.config)
 	tx.Breed = NewBreedClient(tx.config)
+	tx.DonorResponse = NewDonorResponseClient(tx.config)
 	tx.Location = NewLocationClient(tx.config)
 	tx.Pet = NewPetClient(tx.config)
 	tx.PetAnalysis = NewPetAnalysisClient(tx.config)

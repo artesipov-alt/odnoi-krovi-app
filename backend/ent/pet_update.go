@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
@@ -503,6 +504,21 @@ func (_u *PetUpdate) SetBloodGroupRef(v *BloodGroup) *PetUpdate {
 	return _u.SetBloodGroupRefID(v.ID)
 }
 
+// AddDonationIDs adds the "donations" edge to the DonorResponse entity by IDs.
+func (_u *PetUpdate) AddDonationIDs(ids ...string) *PetUpdate {
+	_u.mutation.AddDonationIDs(ids...)
+	return _u
+}
+
+// AddDonations adds the "donations" edges to the DonorResponse entity.
+func (_u *PetUpdate) AddDonations(v ...*DonorResponse) *PetUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDonationIDs(ids...)
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
 func (_u *PetUpdate) SetBloodSearchRequestID(id string) *PetUpdate {
 	_u.mutation.SetBloodSearchRequestID(id)
@@ -582,6 +598,27 @@ func (_u *PetUpdate) ClearBreedRef() *PetUpdate {
 func (_u *PetUpdate) ClearBloodGroupRef() *PetUpdate {
 	_u.mutation.ClearBloodGroupRef()
 	return _u
+}
+
+// ClearDonations clears all "donations" edges to the DonorResponse entity.
+func (_u *PetUpdate) ClearDonations() *PetUpdate {
+	_u.mutation.ClearDonations()
+	return _u
+}
+
+// RemoveDonationIDs removes the "donations" edge to DonorResponse entities by IDs.
+func (_u *PetUpdate) RemoveDonationIDs(ids ...string) *PetUpdate {
+	_u.mutation.RemoveDonationIDs(ids...)
+	return _u
+}
+
+// RemoveDonations removes "donations" edges to DonorResponse entities.
+func (_u *PetUpdate) RemoveDonations(v ...*DonorResponse) *PetUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDonationIDs(ids...)
 }
 
 // ClearBloodSearchRequest clears the "blood_search_request" edge to the BloodSearchRequest entity.
@@ -969,6 +1006,51 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DonationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDonationsIDs(); len(nodes) > 0 && !_u.mutation.DonationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DonationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -1491,6 +1573,21 @@ func (_u *PetUpdateOne) SetBloodGroupRef(v *BloodGroup) *PetUpdateOne {
 	return _u.SetBloodGroupRefID(v.ID)
 }
 
+// AddDonationIDs adds the "donations" edge to the DonorResponse entity by IDs.
+func (_u *PetUpdateOne) AddDonationIDs(ids ...string) *PetUpdateOne {
+	_u.mutation.AddDonationIDs(ids...)
+	return _u
+}
+
+// AddDonations adds the "donations" edges to the DonorResponse entity.
+func (_u *PetUpdateOne) AddDonations(v ...*DonorResponse) *PetUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddDonationIDs(ids...)
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
 func (_u *PetUpdateOne) SetBloodSearchRequestID(id string) *PetUpdateOne {
 	_u.mutation.SetBloodSearchRequestID(id)
@@ -1570,6 +1667,27 @@ func (_u *PetUpdateOne) ClearBreedRef() *PetUpdateOne {
 func (_u *PetUpdateOne) ClearBloodGroupRef() *PetUpdateOne {
 	_u.mutation.ClearBloodGroupRef()
 	return _u
+}
+
+// ClearDonations clears all "donations" edges to the DonorResponse entity.
+func (_u *PetUpdateOne) ClearDonations() *PetUpdateOne {
+	_u.mutation.ClearDonations()
+	return _u
+}
+
+// RemoveDonationIDs removes the "donations" edge to DonorResponse entities by IDs.
+func (_u *PetUpdateOne) RemoveDonationIDs(ids ...string) *PetUpdateOne {
+	_u.mutation.RemoveDonationIDs(ids...)
+	return _u
+}
+
+// RemoveDonations removes "donations" edges to DonorResponse entities.
+func (_u *PetUpdateOne) RemoveDonations(v ...*DonorResponse) *PetUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveDonationIDs(ids...)
 }
 
 // ClearBloodSearchRequest clears the "blood_search_request" edge to the BloodSearchRequest entity.
@@ -1987,6 +2105,51 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DonationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedDonationsIDs(); len(nodes) > 0 && !_u.mutation.DonationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DonationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

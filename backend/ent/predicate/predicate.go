@@ -18,6 +18,9 @@ type BloodSearchRequest func(*sql.Selector)
 // Breed is the predicate function for breed builders.
 type Breed func(*sql.Selector)
 
+// DonorResponse is the predicate function for donorresponse builders.
+type DonorResponse func(*sql.Selector)
+
 // Location is the predicate function for location builders.
 type Location func(*sql.Selector)
 

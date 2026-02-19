@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
 )
@@ -19,13 +21,15 @@ import (
 // BloodSearchRequestQuery is the builder for querying BloodSearchRequest entities.
 type BloodSearchRequestQuery struct {
 	config
-	ctx        *QueryContext
-	order      []bloodsearchrequest.OrderOption
-	inters     []Interceptor
-	predicates []predicate.BloodSearchRequest
-	withPet    *PetQuery
-	modifiers  []func(*sql.Selector)
-	loadTotal  []func(context.Context, []*BloodSearchRequest) error
+	ctx                *QueryContext
+	order              []bloodsearchrequest.OrderOption
+	inters             []Interceptor
+	predicates         []predicate.BloodSearchRequest
+	withPet            *PetQuery
+	withResponses      *DonorResponseQuery
+	modifiers          []func(*sql.Selector)
+	loadTotal          []func(context.Context, []*BloodSearchRequest) error
+	withNamedResponses map[string]*DonorResponseQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +81,28 @@ func (_q *BloodSearchRequestQuery) QueryPet() *PetQuery {
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryResponses chains the current query on the "responses" edge.
+func (_q *BloodSearchRequestQuery) QueryResponses() *DonorResponseQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
+			sqlgraph.To(donorresponse.Table, donorresponse.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, bloodsearchrequest.ResponsesTable, bloodsearchrequest.ResponsesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -271,12 +297,13 @@ func (_q *BloodSearchRequestQuery) Clone() *BloodSearchRequestQuery {
 		return nil
 	}
 	return &BloodSearchRequestQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]bloodsearchrequest.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.BloodSearchRequest{}, _q.predicates...),
-		withPet:    _q.withPet.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]bloodsearchrequest.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.BloodSearchRequest{}, _q.predicates...),
+		withPet:       _q.withPet.Clone(),
+		withResponses: _q.withResponses.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -291,6 +318,17 @@ func (_q *BloodSearchRequestQuery) WithPet(opts ...func(*PetQuery)) *BloodSearch
 		opt(query)
 	}
 	_q.withPet = query
+	return _q
+}
+
+// WithResponses tells the query-builder to eager-load the nodes that are connected to
+// the "responses" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *BloodSearchRequestQuery) WithResponses(opts ...func(*DonorResponseQuery)) *BloodSearchRequestQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withResponses = query
 	return _q
 }
 
@@ -372,8 +410,9 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 	var (
 		nodes       = []*BloodSearchRequest{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withPet != nil,
+			_q.withResponses != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -400,6 +439,20 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 	if query := _q.withPet; query != nil {
 		if err := _q.loadPet(ctx, query, nodes, nil,
 			func(n *BloodSearchRequest, e *Pet) { n.Edges.Pet = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withResponses; query != nil {
+		if err := _q.loadResponses(ctx, query, nodes,
+			func(n *BloodSearchRequest) { n.Edges.Responses = []*DonorResponse{} },
+			func(n *BloodSearchRequest, e *DonorResponse) { n.Edges.Responses = append(n.Edges.Responses, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedResponses {
+		if err := _q.loadResponses(ctx, query, nodes,
+			func(n *BloodSearchRequest) { n.appendNamedResponses(name) },
+			func(n *BloodSearchRequest, e *DonorResponse) { n.appendNamedResponses(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -437,6 +490,37 @@ func (_q *BloodSearchRequestQuery) loadPet(ctx context.Context, query *PetQuery,
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (_q *BloodSearchRequestQuery) loadResponses(ctx context.Context, query *DonorResponseQuery, nodes []*BloodSearchRequest, init func(*BloodSearchRequest), assign func(*BloodSearchRequest, *DonorResponse)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*BloodSearchRequest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.DonorResponse(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(bloodsearchrequest.ResponsesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.blood_search_request_responses
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "blood_search_request_responses" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "blood_search_request_responses" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -526,6 +610,20 @@ func (_q *BloodSearchRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedResponses tells the query-builder to eager-load the nodes that are connected to the "responses"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *BloodSearchRequestQuery) WithNamedResponses(name string, opts ...func(*DonorResponseQuery)) *BloodSearchRequestQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedResponses == nil {
+		_q.withNamedResponses = make(map[string]*DonorResponseQuery)
+	}
+	_q.withNamedResponses[name] = query
+	return _q
 }
 
 // BloodSearchRequestGroupBy is the group-by builder for BloodSearchRequest entities.

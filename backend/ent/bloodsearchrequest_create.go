@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 )
 
@@ -178,6 +179,21 @@ func (_c *BloodSearchRequestCreate) SetNillableID(v *string) *BloodSearchRequest
 // SetPet sets the "pet" edge to the Pet entity.
 func (_c *BloodSearchRequestCreate) SetPet(v *Pet) *BloodSearchRequestCreate {
 	return _c.SetPetID(v.ID)
+}
+
+// AddResponseIDs adds the "responses" edge to the DonorResponse entity by IDs.
+func (_c *BloodSearchRequestCreate) AddResponseIDs(ids ...string) *BloodSearchRequestCreate {
+	_c.mutation.AddResponseIDs(ids...)
+	return _c
+}
+
+// AddResponses adds the "responses" edges to the DonorResponse entity.
+func (_c *BloodSearchRequestCreate) AddResponses(v ...*DonorResponse) *BloodSearchRequestCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddResponseIDs(ids...)
 }
 
 // Mutation returns the BloodSearchRequestMutation object of the builder.
@@ -377,6 +393,22 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.PetID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ResponsesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   bloodsearchrequest.ResponsesTable,
+			Columns: []string{bloodsearchrequest.ResponsesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

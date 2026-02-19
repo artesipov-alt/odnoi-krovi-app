@@ -10,6 +10,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
@@ -212,6 +213,19 @@ func (_q *BloodSearchRequestQuery) collectField(ctx context.Context, oneNode boo
 				selectedFields = append(selectedFields, bloodsearchrequest.FieldPetID)
 				fieldSeen[bloodsearchrequest.FieldPetID] = struct{}{}
 			}
+
+		case "responses":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&DonorResponseClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, donorresponseImplementors)...); err != nil {
+				return err
+			}
+			_q.WithNamedResponses(alias, func(wq *DonorResponseQuery) {
+				*wq = *query
+			})
 		case "createdAt":
 			if _, ok := fieldSeen[bloodsearchrequest.FieldCreatedAt]; !ok {
 				selectedFields = append(selectedFields, bloodsearchrequest.FieldCreatedAt)
@@ -404,6 +418,110 @@ func newBreedPaginateArgs(rv map[string]any) *breedPaginateArgs {
 	}
 	if v, ok := rv[whereField].(*BreedWhereInput); ok {
 		args.opts = append(args.opts, WithBreedFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (_q *DonorResponseQuery) CollectFields(ctx context.Context, satisfies ...string) (*DonorResponseQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return _q, nil
+	}
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return _q, nil
+}
+
+func (_q *DonorResponseQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(donorresponse.Columns))
+		selectedFields = []string{donorresponse.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "request":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&BloodSearchRequestClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, bloodsearchrequestImplementors)...); err != nil {
+				return err
+			}
+			_q.withRequest = query
+
+		case "donor":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&PetClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, petImplementors)...); err != nil {
+				return err
+			}
+			_q.withDonor = query
+		case "createdAt":
+			if _, ok := fieldSeen[donorresponse.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldCreatedAt)
+				fieldSeen[donorresponse.FieldCreatedAt] = struct{}{}
+			}
+		case "updatedAt":
+			if _, ok := fieldSeen[donorresponse.FieldUpdatedAt]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldUpdatedAt)
+				fieldSeen[donorresponse.FieldUpdatedAt] = struct{}{}
+			}
+		case "deletedAt":
+			if _, ok := fieldSeen[donorresponse.FieldDeletedAt]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldDeletedAt)
+				fieldSeen[donorresponse.FieldDeletedAt] = struct{}{}
+			}
+		case "amountMl":
+			if _, ok := fieldSeen[donorresponse.FieldAmountMl]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldAmountMl)
+				fieldSeen[donorresponse.FieldAmountMl] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		_q.Select(selectedFields...)
+	}
+	return nil
+}
+
+type donorresponsePaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []DonorResponsePaginateOption
+}
+
+func newDonorResponsePaginateArgs(rv map[string]any) *donorresponsePaginateArgs {
+	args := &donorresponsePaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*DonorResponseWhereInput); ok {
+		args.opts = append(args.opts, WithDonorResponseFilter(v.Filter))
 	}
 	return args
 }
@@ -612,6 +730,19 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, pet.FieldBloodGroupID)
 				fieldSeen[pet.FieldBloodGroupID] = struct{}{}
 			}
+
+		case "donations":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&DonorResponseClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, donorresponseImplementors)...); err != nil {
+				return err
+			}
+			_q.WithNamedDonations(alias, func(wq *DonorResponseQuery) {
+				*wq = *query
+			})
 
 		case "bloodSearchRequest":
 			var (

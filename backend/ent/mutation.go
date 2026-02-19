@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
@@ -38,6 +39,7 @@ const (
 	TypeBloodGroup         = "BloodGroup"
 	TypeBloodSearchRequest = "BloodSearchRequest"
 	TypeBreed              = "Breed"
+	TypeDonorResponse      = "DonorResponse"
 	TypeLocation           = "Location"
 	TypePet                = "Pet"
 	TypePetAnalysis        = "PetAnalysis"
@@ -963,6 +965,9 @@ type BloodSearchRequestMutation struct {
 	clearedFields             map[string]struct{}
 	pet                       *string
 	clearedpet                bool
+	responses                 map[string]struct{}
+	removedresponses          map[string]struct{}
+	clearedresponses          bool
 	done                      bool
 	oldValue                  func(context.Context) (*BloodSearchRequest, error)
 	predicates                []predicate.BloodSearchRequest
@@ -1800,6 +1805,60 @@ func (m *BloodSearchRequestMutation) ResetPet() {
 	m.clearedpet = false
 }
 
+// AddResponseIDs adds the "responses" edge to the DonorResponse entity by ids.
+func (m *BloodSearchRequestMutation) AddResponseIDs(ids ...string) {
+	if m.responses == nil {
+		m.responses = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.responses[ids[i]] = struct{}{}
+	}
+}
+
+// ClearResponses clears the "responses" edge to the DonorResponse entity.
+func (m *BloodSearchRequestMutation) ClearResponses() {
+	m.clearedresponses = true
+}
+
+// ResponsesCleared reports if the "responses" edge to the DonorResponse entity was cleared.
+func (m *BloodSearchRequestMutation) ResponsesCleared() bool {
+	return m.clearedresponses
+}
+
+// RemoveResponseIDs removes the "responses" edge to the DonorResponse entity by IDs.
+func (m *BloodSearchRequestMutation) RemoveResponseIDs(ids ...string) {
+	if m.removedresponses == nil {
+		m.removedresponses = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.responses, ids[i])
+		m.removedresponses[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedResponses returns the removed IDs of the "responses" edge to the DonorResponse entity.
+func (m *BloodSearchRequestMutation) RemovedResponsesIDs() (ids []string) {
+	for id := range m.removedresponses {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResponsesIDs returns the "responses" edge IDs in the mutation.
+func (m *BloodSearchRequestMutation) ResponsesIDs() (ids []string) {
+	for id := range m.responses {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetResponses resets all changes to the "responses" edge.
+func (m *BloodSearchRequestMutation) ResetResponses() {
+	m.responses = nil
+	m.clearedresponses = false
+	m.removedresponses = nil
+}
+
 // Where appends a list predicates to the BloodSearchRequestMutation builder.
 func (m *BloodSearchRequestMutation) Where(ps ...predicate.BloodSearchRequest) {
 	m.predicates = append(m.predicates, ps...)
@@ -2220,9 +2279,12 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BloodSearchRequestMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.pet != nil {
 		edges = append(edges, bloodsearchrequest.EdgePet)
+	}
+	if m.responses != nil {
+		edges = append(edges, bloodsearchrequest.EdgeResponses)
 	}
 	return edges
 }
@@ -2235,27 +2297,47 @@ func (m *BloodSearchRequestMutation) AddedIDs(name string) []ent.Value {
 		if id := m.pet; id != nil {
 			return []ent.Value{*id}
 		}
+	case bloodsearchrequest.EdgeResponses:
+		ids := make([]ent.Value, 0, len(m.responses))
+		for id := range m.responses {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodSearchRequestMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.removedresponses != nil {
+		edges = append(edges, bloodsearchrequest.EdgeResponses)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BloodSearchRequestMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case bloodsearchrequest.EdgeResponses:
+		ids := make([]ent.Value, 0, len(m.removedresponses))
+		for id := range m.removedresponses {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BloodSearchRequestMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedpet {
 		edges = append(edges, bloodsearchrequest.EdgePet)
+	}
+	if m.clearedresponses {
+		edges = append(edges, bloodsearchrequest.EdgeResponses)
 	}
 	return edges
 }
@@ -2266,6 +2348,8 @@ func (m *BloodSearchRequestMutation) EdgeCleared(name string) bool {
 	switch name {
 	case bloodsearchrequest.EdgePet:
 		return m.clearedpet
+	case bloodsearchrequest.EdgeResponses:
+		return m.clearedresponses
 	}
 	return false
 }
@@ -2287,6 +2371,9 @@ func (m *BloodSearchRequestMutation) ResetEdge(name string) error {
 	switch name {
 	case bloodsearchrequest.EdgePet:
 		m.ResetPet()
+		return nil
+	case bloodsearchrequest.EdgeResponses:
+		m.ResetResponses()
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest edge %s", name)
@@ -2771,6 +2858,684 @@ func (m *BreedMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Breed edge %s", name)
 }
 
+// DonorResponseMutation represents an operation that mutates the DonorResponse nodes in the graph.
+type DonorResponseMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *string
+	created_at     *time.Time
+	updated_at     *time.Time
+	deleted_at     *time.Time
+	amount_ml      *int32
+	addamount_ml   *int32
+	clearedFields  map[string]struct{}
+	request        *string
+	clearedrequest bool
+	donor          *string
+	cleareddonor   bool
+	done           bool
+	oldValue       func(context.Context) (*DonorResponse, error)
+	predicates     []predicate.DonorResponse
+}
+
+var _ ent.Mutation = (*DonorResponseMutation)(nil)
+
+// donorresponseOption allows management of the mutation configuration using functional options.
+type donorresponseOption func(*DonorResponseMutation)
+
+// newDonorResponseMutation creates new mutation for the DonorResponse entity.
+func newDonorResponseMutation(c config, op Op, opts ...donorresponseOption) *DonorResponseMutation {
+	m := &DonorResponseMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDonorResponse,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDonorResponseID sets the ID field of the mutation.
+func withDonorResponseID(id string) donorresponseOption {
+	return func(m *DonorResponseMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DonorResponse
+		)
+		m.oldValue = func(ctx context.Context) (*DonorResponse, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DonorResponse.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDonorResponse sets the old DonorResponse of the mutation.
+func withDonorResponse(node *DonorResponse) donorresponseOption {
+	return func(m *DonorResponseMutation) {
+		m.oldValue = func(context.Context) (*DonorResponse, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DonorResponseMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DonorResponseMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DonorResponse entities.
+func (m *DonorResponseMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DonorResponseMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DonorResponseMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DonorResponse.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DonorResponseMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DonorResponseMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DonorResponseMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DonorResponseMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DonorResponseMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DonorResponseMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *DonorResponseMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *DonorResponseMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *DonorResponseMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[donorresponse.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *DonorResponseMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *DonorResponseMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, donorresponse.FieldDeletedAt)
+}
+
+// SetAmountMl sets the "amount_ml" field.
+func (m *DonorResponseMutation) SetAmountMl(i int32) {
+	m.amount_ml = &i
+	m.addamount_ml = nil
+}
+
+// AmountMl returns the value of the "amount_ml" field in the mutation.
+func (m *DonorResponseMutation) AmountMl() (r int32, exists bool) {
+	v := m.amount_ml
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAmountMl returns the old "amount_ml" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldAmountMl(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAmountMl is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAmountMl requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAmountMl: %w", err)
+	}
+	return oldValue.AmountMl, nil
+}
+
+// AddAmountMl adds i to the "amount_ml" field.
+func (m *DonorResponseMutation) AddAmountMl(i int32) {
+	if m.addamount_ml != nil {
+		*m.addamount_ml += i
+	} else {
+		m.addamount_ml = &i
+	}
+}
+
+// AddedAmountMl returns the value that was added to the "amount_ml" field in this mutation.
+func (m *DonorResponseMutation) AddedAmountMl() (r int32, exists bool) {
+	v := m.addamount_ml
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAmountMl resets all changes to the "amount_ml" field.
+func (m *DonorResponseMutation) ResetAmountMl() {
+	m.amount_ml = nil
+	m.addamount_ml = nil
+}
+
+// SetRequestID sets the "request" edge to the BloodSearchRequest entity by id.
+func (m *DonorResponseMutation) SetRequestID(id string) {
+	m.request = &id
+}
+
+// ClearRequest clears the "request" edge to the BloodSearchRequest entity.
+func (m *DonorResponseMutation) ClearRequest() {
+	m.clearedrequest = true
+}
+
+// RequestCleared reports if the "request" edge to the BloodSearchRequest entity was cleared.
+func (m *DonorResponseMutation) RequestCleared() bool {
+	return m.clearedrequest
+}
+
+// RequestID returns the "request" edge ID in the mutation.
+func (m *DonorResponseMutation) RequestID() (id string, exists bool) {
+	if m.request != nil {
+		return *m.request, true
+	}
+	return
+}
+
+// RequestIDs returns the "request" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RequestID instead. It exists only for internal usage by the builders.
+func (m *DonorResponseMutation) RequestIDs() (ids []string) {
+	if id := m.request; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRequest resets all changes to the "request" edge.
+func (m *DonorResponseMutation) ResetRequest() {
+	m.request = nil
+	m.clearedrequest = false
+}
+
+// SetDonorID sets the "donor" edge to the Pet entity by id.
+func (m *DonorResponseMutation) SetDonorID(id string) {
+	m.donor = &id
+}
+
+// ClearDonor clears the "donor" edge to the Pet entity.
+func (m *DonorResponseMutation) ClearDonor() {
+	m.cleareddonor = true
+}
+
+// DonorCleared reports if the "donor" edge to the Pet entity was cleared.
+func (m *DonorResponseMutation) DonorCleared() bool {
+	return m.cleareddonor
+}
+
+// DonorID returns the "donor" edge ID in the mutation.
+func (m *DonorResponseMutation) DonorID() (id string, exists bool) {
+	if m.donor != nil {
+		return *m.donor, true
+	}
+	return
+}
+
+// DonorIDs returns the "donor" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DonorID instead. It exists only for internal usage by the builders.
+func (m *DonorResponseMutation) DonorIDs() (ids []string) {
+	if id := m.donor; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDonor resets all changes to the "donor" edge.
+func (m *DonorResponseMutation) ResetDonor() {
+	m.donor = nil
+	m.cleareddonor = false
+}
+
+// Where appends a list predicates to the DonorResponseMutation builder.
+func (m *DonorResponseMutation) Where(ps ...predicate.DonorResponse) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DonorResponseMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DonorResponseMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DonorResponse, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DonorResponseMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DonorResponseMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DonorResponse).
+func (m *DonorResponseMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DonorResponseMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.created_at != nil {
+		fields = append(fields, donorresponse.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, donorresponse.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, donorresponse.FieldDeletedAt)
+	}
+	if m.amount_ml != nil {
+		fields = append(fields, donorresponse.FieldAmountMl)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case donorresponse.FieldCreatedAt:
+		return m.CreatedAt()
+	case donorresponse.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case donorresponse.FieldDeletedAt:
+		return m.DeletedAt()
+	case donorresponse.FieldAmountMl:
+		return m.AmountMl()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case donorresponse.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case donorresponse.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case donorresponse.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case donorresponse.FieldAmountMl:
+		return m.OldAmountMl(ctx)
+	}
+	return nil, fmt.Errorf("unknown DonorResponse field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case donorresponse.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case donorresponse.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case donorresponse.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case donorresponse.FieldAmountMl:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAmountMl(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DonorResponse field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DonorResponseMutation) AddedFields() []string {
+	var fields []string
+	if m.addamount_ml != nil {
+		fields = append(fields, donorresponse.FieldAmountMl)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DonorResponseMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case donorresponse.FieldAmountMl:
+		return m.AddedAmountMl()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DonorResponseMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case donorresponse.FieldAmountMl:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAmountMl(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DonorResponse numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DonorResponseMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(donorresponse.FieldDeletedAt) {
+		fields = append(fields, donorresponse.FieldDeletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DonorResponseMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DonorResponseMutation) ClearField(name string) error {
+	switch name {
+	case donorresponse.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DonorResponse nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DonorResponseMutation) ResetField(name string) error {
+	switch name {
+	case donorresponse.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case donorresponse.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case donorresponse.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case donorresponse.FieldAmountMl:
+		m.ResetAmountMl()
+		return nil
+	}
+	return fmt.Errorf("unknown DonorResponse field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DonorResponseMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.request != nil {
+		edges = append(edges, donorresponse.EdgeRequest)
+	}
+	if m.donor != nil {
+		edges = append(edges, donorresponse.EdgeDonor)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DonorResponseMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case donorresponse.EdgeRequest:
+		if id := m.request; id != nil {
+			return []ent.Value{*id}
+		}
+	case donorresponse.EdgeDonor:
+		if id := m.donor; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DonorResponseMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DonorResponseMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DonorResponseMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedrequest {
+		edges = append(edges, donorresponse.EdgeRequest)
+	}
+	if m.cleareddonor {
+		edges = append(edges, donorresponse.EdgeDonor)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DonorResponseMutation) EdgeCleared(name string) bool {
+	switch name {
+	case donorresponse.EdgeRequest:
+		return m.clearedrequest
+	case donorresponse.EdgeDonor:
+		return m.cleareddonor
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DonorResponseMutation) ClearEdge(name string) error {
+	switch name {
+	case donorresponse.EdgeRequest:
+		m.ClearRequest()
+		return nil
+	case donorresponse.EdgeDonor:
+		m.ClearDonor()
+		return nil
+	}
+	return fmt.Errorf("unknown DonorResponse unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DonorResponseMutation) ResetEdge(name string) error {
+	switch name {
+	case donorresponse.EdgeRequest:
+		m.ResetRequest()
+		return nil
+	case donorresponse.EdgeDonor:
+		m.ResetDonor()
+		return nil
+	}
+	return fmt.Errorf("unknown DonorResponse edge %s", name)
+}
+
 // LocationMutation represents an operation that mutates the Location nodes in the graph.
 type LocationMutation struct {
 	config
@@ -3235,6 +4000,9 @@ type PetMutation struct {
 	clearedbreed_ref            bool
 	blood_group_ref             *string
 	clearedblood_group_ref      bool
+	donations                   map[string]struct{}
+	removeddonations            map[string]struct{}
+	cleareddonations            bool
 	blood_search_request        *string
 	clearedblood_search_request bool
 	done                        bool
@@ -4595,6 +5363,60 @@ func (m *PetMutation) ResetBloodGroupRef() {
 	m.clearedblood_group_ref = false
 }
 
+// AddDonationIDs adds the "donations" edge to the DonorResponse entity by ids.
+func (m *PetMutation) AddDonationIDs(ids ...string) {
+	if m.donations == nil {
+		m.donations = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.donations[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDonations clears the "donations" edge to the DonorResponse entity.
+func (m *PetMutation) ClearDonations() {
+	m.cleareddonations = true
+}
+
+// DonationsCleared reports if the "donations" edge to the DonorResponse entity was cleared.
+func (m *PetMutation) DonationsCleared() bool {
+	return m.cleareddonations
+}
+
+// RemoveDonationIDs removes the "donations" edge to the DonorResponse entity by IDs.
+func (m *PetMutation) RemoveDonationIDs(ids ...string) {
+	if m.removeddonations == nil {
+		m.removeddonations = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.donations, ids[i])
+		m.removeddonations[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDonations returns the removed IDs of the "donations" edge to the DonorResponse entity.
+func (m *PetMutation) RemovedDonationsIDs() (ids []string) {
+	for id := range m.removeddonations {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DonationsIDs returns the "donations" edge IDs in the mutation.
+func (m *PetMutation) DonationsIDs() (ids []string) {
+	for id := range m.donations {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDonations resets all changes to the "donations" edge.
+func (m *PetMutation) ResetDonations() {
+	m.donations = nil
+	m.cleareddonations = false
+	m.removeddonations = nil
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by id.
 func (m *PetMutation) SetBloodSearchRequestID(id string) {
 	m.blood_search_request = &id
@@ -5198,7 +6020,7 @@ func (m *PetMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PetMutation) AddedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 9)
 	if m.owner != nil {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -5219,6 +6041,9 @@ func (m *PetMutation) AddedEdges() []string {
 	}
 	if m.blood_group_ref != nil {
 		edges = append(edges, pet.EdgeBloodGroupRef)
+	}
+	if m.donations != nil {
+		edges = append(edges, pet.EdgeDonations)
 	}
 	if m.blood_search_request != nil {
 		edges = append(edges, pet.EdgeBloodSearchRequest)
@@ -5260,6 +6085,12 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 		if id := m.blood_group_ref; id != nil {
 			return []ent.Value{*id}
 		}
+	case pet.EdgeDonations:
+		ids := make([]ent.Value, 0, len(m.donations))
+		for id := range m.donations {
+			ids = append(ids, id)
+		}
+		return ids
 	case pet.EdgeBloodSearchRequest:
 		if id := m.blood_search_request; id != nil {
 			return []ent.Value{*id}
@@ -5270,9 +6101,12 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PetMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 9)
 	if m.removedanalyses != nil {
 		edges = append(edges, pet.EdgeAnalyses)
+	}
+	if m.removeddonations != nil {
+		edges = append(edges, pet.EdgeDonations)
 	}
 	return edges
 }
@@ -5287,13 +6121,19 @@ func (m *PetMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case pet.EdgeDonations:
+		ids := make([]ent.Value, 0, len(m.removeddonations))
+		for id := range m.removeddonations {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PetMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 9)
 	if m.clearedowner {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -5314,6 +6154,9 @@ func (m *PetMutation) ClearedEdges() []string {
 	}
 	if m.clearedblood_group_ref {
 		edges = append(edges, pet.EdgeBloodGroupRef)
+	}
+	if m.cleareddonations {
+		edges = append(edges, pet.EdgeDonations)
 	}
 	if m.clearedblood_search_request {
 		edges = append(edges, pet.EdgeBloodSearchRequest)
@@ -5339,6 +6182,8 @@ func (m *PetMutation) EdgeCleared(name string) bool {
 		return m.clearedbreed_ref
 	case pet.EdgeBloodGroupRef:
 		return m.clearedblood_group_ref
+	case pet.EdgeDonations:
+		return m.cleareddonations
 	case pet.EdgeBloodSearchRequest:
 		return m.clearedblood_search_request
 	}
@@ -5398,6 +6243,9 @@ func (m *PetMutation) ResetEdge(name string) error {
 		return nil
 	case pet.EdgeBloodGroupRef:
 		m.ResetBloodGroupRef()
+		return nil
+	case pet.EdgeDonations:
+		m.ResetDonations()
 		return nil
 	case pet.EdgeBloodSearchRequest:
 		m.ResetBloodSearchRequest()

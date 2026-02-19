@@ -28,6 +28,18 @@ func (_m *BloodSearchRequest) Pet(ctx context.Context) (*Pet, error) {
 	return result, err
 }
 
+func (_m *BloodSearchRequest) Responses(ctx context.Context) (result []*DonorResponse, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = _m.NamedResponses(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = _m.Edges.ResponsesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = _m.QueryResponses().All(ctx)
+	}
+	return result, err
+}
+
 func (_m *Breed) Pets(ctx context.Context) (result []*Pet, err error) {
 	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
 		result, err = _m.NamedPets(graphql.GetFieldContext(ctx).Field.Alias)
@@ -36,6 +48,22 @@ func (_m *Breed) Pets(ctx context.Context) (result []*Pet, err error) {
 	}
 	if IsNotLoaded(err) {
 		result, err = _m.QueryPets().All(ctx)
+	}
+	return result, err
+}
+
+func (_m *DonorResponse) Request(ctx context.Context) (*BloodSearchRequest, error) {
+	result, err := _m.Edges.RequestOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryRequest().Only(ctx)
+	}
+	return result, err
+}
+
+func (_m *DonorResponse) Donor(ctx context.Context) (*Pet, error) {
+	result, err := _m.Edges.DonorOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryDonor().Only(ctx)
 	}
 	return result, err
 }
@@ -110,6 +138,18 @@ func (_m *Pet) BloodGroupRef(ctx context.Context) (*BloodGroup, error) {
 		result, err = _m.QueryBloodGroupRef().Only(ctx)
 	}
 	return result, MaskNotFound(err)
+}
+
+func (_m *Pet) Donations(ctx context.Context) (result []*DonorResponse, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = _m.NamedDonations(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = _m.Edges.DonationsOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = _m.QueryDonations().All(ctx)
+	}
+	return result, err
 }
 
 func (_m *Pet) BloodSearchRequest(ctx context.Context) (*BloodSearchRequest, error) {

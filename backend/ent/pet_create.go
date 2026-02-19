@@ -13,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
@@ -397,6 +398,21 @@ func (_c *PetCreate) SetBloodGroupRef(v *BloodGroup) *PetCreate {
 	return _c.SetBloodGroupRefID(v.ID)
 }
 
+// AddDonationIDs adds the "donations" edge to the DonorResponse entity by IDs.
+func (_c *PetCreate) AddDonationIDs(ids ...string) *PetCreate {
+	_c.mutation.AddDonationIDs(ids...)
+	return _c
+}
+
+// AddDonations adds the "donations" edges to the DonorResponse entity.
+func (_c *PetCreate) AddDonations(v ...*DonorResponse) *PetCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddDonationIDs(ids...)
+}
+
 // SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
 func (_c *PetCreate) SetBloodSearchRequestID(id string) *PetCreate {
 	_c.mutation.SetBloodSearchRequestID(id)
@@ -724,6 +740,22 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BloodGroupID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DonationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   pet.DonationsTable,
+			Columns: []string{pet.DonationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.BloodSearchRequestIDs(); len(nodes) > 0 {

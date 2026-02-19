@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
@@ -1096,6 +1097,255 @@ func (_m *Breed) ToEdge(order *BreedOrder) *BreedEdge {
 		order = DefaultBreedOrder
 	}
 	return &BreedEdge{
+		Node:   _m,
+		Cursor: order.Field.toCursor(_m),
+	}
+}
+
+// DonorResponseEdge is the edge representation of DonorResponse.
+type DonorResponseEdge struct {
+	Node   *DonorResponse `json:"node"`
+	Cursor Cursor         `json:"cursor"`
+}
+
+// DonorResponseConnection is the connection containing edges to DonorResponse.
+type DonorResponseConnection struct {
+	Edges      []*DonorResponseEdge `json:"edges"`
+	PageInfo   PageInfo             `json:"pageInfo"`
+	TotalCount int                  `json:"totalCount"`
+}
+
+func (c *DonorResponseConnection) build(nodes []*DonorResponse, pager *donorresponsePager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *DonorResponse
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *DonorResponse {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *DonorResponse {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*DonorResponseEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &DonorResponseEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// DonorResponsePaginateOption enables pagination customization.
+type DonorResponsePaginateOption func(*donorresponsePager) error
+
+// WithDonorResponseOrder configures pagination ordering.
+func WithDonorResponseOrder(order *DonorResponseOrder) DonorResponsePaginateOption {
+	if order == nil {
+		order = DefaultDonorResponseOrder
+	}
+	o := *order
+	return func(pager *donorresponsePager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultDonorResponseOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithDonorResponseFilter configures pagination filter.
+func WithDonorResponseFilter(filter func(*DonorResponseQuery) (*DonorResponseQuery, error)) DonorResponsePaginateOption {
+	return func(pager *donorresponsePager) error {
+		if filter == nil {
+			return errors.New("DonorResponseQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type donorresponsePager struct {
+	reverse bool
+	order   *DonorResponseOrder
+	filter  func(*DonorResponseQuery) (*DonorResponseQuery, error)
+}
+
+func newDonorResponsePager(opts []DonorResponsePaginateOption, reverse bool) (*donorresponsePager, error) {
+	pager := &donorresponsePager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultDonorResponseOrder
+	}
+	return pager, nil
+}
+
+func (p *donorresponsePager) applyFilter(query *DonorResponseQuery) (*DonorResponseQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *donorresponsePager) toCursor(_m *DonorResponse) Cursor {
+	return p.order.Field.toCursor(_m)
+}
+
+func (p *donorresponsePager) applyCursors(query *DonorResponseQuery, after, before *Cursor) (*DonorResponseQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultDonorResponseOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *donorresponsePager) applyOrder(query *DonorResponseQuery) *DonorResponseQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultDonorResponseOrder.Field {
+		query = query.Order(DefaultDonorResponseOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *donorresponsePager) orderExpr(query *DonorResponseQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultDonorResponseOrder.Field {
+			b.Comma().Ident(DefaultDonorResponseOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to DonorResponse.
+func (_m *DonorResponseQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...DonorResponsePaginateOption,
+) (*DonorResponseConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newDonorResponsePager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if _m, err = pager.applyFilter(_m); err != nil {
+		return nil, err
+	}
+	conn := &DonorResponseConnection{Edges: []*DonorResponseEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := _m.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if _m, err = pager.applyCursors(_m, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		_m.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := _m.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	_m = pager.applyOrder(_m)
+	nodes, err := _m.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// DonorResponseOrderField defines the ordering field of DonorResponse.
+type DonorResponseOrderField struct {
+	// Value extracts the ordering value from the given DonorResponse.
+	Value    func(*DonorResponse) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) donorresponse.OrderOption
+	toCursor func(*DonorResponse) Cursor
+}
+
+// DonorResponseOrder defines the ordering of DonorResponse.
+type DonorResponseOrder struct {
+	Direction OrderDirection           `json:"direction"`
+	Field     *DonorResponseOrderField `json:"field"`
+}
+
+// DefaultDonorResponseOrder is the default ordering of DonorResponse.
+var DefaultDonorResponseOrder = &DonorResponseOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &DonorResponseOrderField{
+		Value: func(_m *DonorResponse) (ent.Value, error) {
+			return _m.ID, nil
+		},
+		column: donorresponse.FieldID,
+		toTerm: donorresponse.ByID,
+		toCursor: func(_m *DonorResponse) Cursor {
+			return Cursor{ID: _m.ID}
+		},
+	},
+}
+
+// ToEdge converts DonorResponse into DonorResponseEdge.
+func (_m *DonorResponse) ToEdge(order *DonorResponseOrder) *DonorResponseEdge {
+	if order == nil {
+		order = DefaultDonorResponseOrder
+	}
+	return &DonorResponseEdge{
 		Node:   _m,
 		Cursor: order.Field.toCursor(_m),
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
@@ -112,6 +113,27 @@ func init() {
 			return nil
 		}
 	}()
+	donorresponseMixin := schema.DonorResponse{}.Mixin()
+	donorresponseMixinInters0 := donorresponseMixin[0].Interceptors()
+	donorresponse.Interceptors[0] = donorresponseMixinInters0[0]
+	donorresponseMixinFields0 := donorresponseMixin[0].Fields()
+	_ = donorresponseMixinFields0
+	donorresponseFields := schema.DonorResponse{}.Fields()
+	_ = donorresponseFields
+	// donorresponseDescCreatedAt is the schema descriptor for created_at field.
+	donorresponseDescCreatedAt := donorresponseMixinFields0[1].Descriptor()
+	// donorresponse.DefaultCreatedAt holds the default value on creation for the created_at field.
+	donorresponse.DefaultCreatedAt = donorresponseDescCreatedAt.Default.(func() time.Time)
+	// donorresponseDescUpdatedAt is the schema descriptor for updated_at field.
+	donorresponseDescUpdatedAt := donorresponseMixinFields0[2].Descriptor()
+	// donorresponse.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	donorresponse.DefaultUpdatedAt = donorresponseDescUpdatedAt.Default.(func() time.Time)
+	// donorresponse.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	donorresponse.UpdateDefaultUpdatedAt = donorresponseDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// donorresponseDescID is the schema descriptor for id field.
+	donorresponseDescID := donorresponseMixinFields0[0].Descriptor()
+	// donorresponse.DefaultID holds the default value on creation for the id field.
+	donorresponse.DefaultID = donorresponseDescID.Default.(func() string)
 	locationFields := schema.Location{}.Fields()
 	_ = locationFields
 	// locationDescName is the schema descriptor for name field.

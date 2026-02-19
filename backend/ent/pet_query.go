@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
@@ -38,10 +39,12 @@ type PetQuery struct {
 	withBonuses            *PetBonusQuery
 	withBreedRef           *BreedQuery
 	withBloodGroupRef      *BloodGroupQuery
+	withDonations          *DonorResponseQuery
 	withBloodSearchRequest *BloodSearchRequestQuery
 	modifiers              []func(*sql.Selector)
 	loadTotal              []func(context.Context, []*Pet) error
 	withNamedAnalyses      map[string]*PetAnalysisQuery
+	withNamedDonations     map[string]*DonorResponseQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -225,6 +228,28 @@ func (_q *PetQuery) QueryBloodGroupRef() *BloodGroupQuery {
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(bloodgroup.Table, bloodgroup.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, pet.BloodGroupRefTable, pet.BloodGroupRefColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDonations chains the current query on the "donations" edge.
+func (_q *PetQuery) QueryDonations() *DonorResponseQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pet.Table, pet.FieldID, selector),
+			sqlgraph.To(donorresponse.Table, donorresponse.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, pet.DonationsTable, pet.DonationsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -453,6 +478,7 @@ func (_q *PetQuery) Clone() *PetQuery {
 		withBonuses:            _q.withBonuses.Clone(),
 		withBreedRef:           _q.withBreedRef.Clone(),
 		withBloodGroupRef:      _q.withBloodGroupRef.Clone(),
+		withDonations:          _q.withDonations.Clone(),
 		withBloodSearchRequest: _q.withBloodSearchRequest.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
@@ -534,6 +560,17 @@ func (_q *PetQuery) WithBloodGroupRef(opts ...func(*BloodGroupQuery)) *PetQuery 
 		opt(query)
 	}
 	_q.withBloodGroupRef = query
+	return _q
+}
+
+// WithDonations tells the query-builder to eager-load the nodes that are connected to
+// the "donations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PetQuery) WithDonations(opts ...func(*DonorResponseQuery)) *PetQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDonations = query
 	return _q
 }
 
@@ -626,7 +663,7 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 	var (
 		nodes       = []*Pet{}
 		_spec       = _q.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [9]bool{
 			_q.withOwner != nil,
 			_q.withHealth != nil,
 			_q.withTreatments != nil,
@@ -634,6 +671,7 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 			_q.withBonuses != nil,
 			_q.withBreedRef != nil,
 			_q.withBloodGroupRef != nil,
+			_q.withDonations != nil,
 			_q.withBloodSearchRequest != nil,
 		}
 	)
@@ -701,6 +739,13 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 			return nil, err
 		}
 	}
+	if query := _q.withDonations; query != nil {
+		if err := _q.loadDonations(ctx, query, nodes,
+			func(n *Pet) { n.Edges.Donations = []*DonorResponse{} },
+			func(n *Pet, e *DonorResponse) { n.Edges.Donations = append(n.Edges.Donations, e) }); err != nil {
+			return nil, err
+		}
+	}
 	if query := _q.withBloodSearchRequest; query != nil {
 		if err := _q.loadBloodSearchRequest(ctx, query, nodes, nil,
 			func(n *Pet, e *BloodSearchRequest) { n.Edges.BloodSearchRequest = e }); err != nil {
@@ -711,6 +756,13 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 		if err := _q.loadAnalyses(ctx, query, nodes,
 			func(n *Pet) { n.appendNamedAnalyses(name) },
 			func(n *Pet, e *PetAnalysis) { n.appendNamedAnalyses(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedDonations {
+		if err := _q.loadDonations(ctx, query, nodes,
+			func(n *Pet) { n.appendNamedDonations(name) },
+			func(n *Pet, e *DonorResponse) { n.appendNamedDonations(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -926,6 +978,37 @@ func (_q *PetQuery) loadBloodGroupRef(ctx context.Context, query *BloodGroupQuer
 	}
 	return nil
 }
+func (_q *PetQuery) loadDonations(ctx context.Context, query *DonorResponseQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *DonorResponse)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Pet)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.DonorResponse(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(pet.DonationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.donor_response_donor
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "donor_response_donor" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "donor_response_donor" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (_q *PetQuery) loadBloodSearchRequest(ctx context.Context, query *BloodSearchRequestQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *BloodSearchRequest)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*Pet)
@@ -1067,6 +1150,20 @@ func (_q *PetQuery) WithNamedAnalyses(name string, opts ...func(*PetAnalysisQuer
 		_q.withNamedAnalyses = make(map[string]*PetAnalysisQuery)
 	}
 	_q.withNamedAnalyses[name] = query
+	return _q
+}
+
+// WithNamedDonations tells the query-builder to eager-load the nodes that are connected to the "donations"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *PetQuery) WithNamedDonations(name string, opts ...func(*DonorResponseQuery)) *PetQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedDonations == nil {
+		_q.withNamedDonations = make(map[string]*DonorResponseQuery)
+	}
+	_q.withNamedDonations[name] = query
 	return _q
 }
 

@@ -11,6 +11,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
@@ -611,6 +612,10 @@ type BloodSearchRequestWhereInput struct {
 	// "pet" edge predicates.
 	HasPet     *bool            `json:"hasPet,omitempty"`
 	HasPetWith []*PetWhereInput `json:"hasPetWith,omitempty"`
+
+	// "responses" edge predicates.
+	HasResponses     *bool                      `json:"hasResponses,omitempty"`
+	HasResponsesWith []*DonorResponseWhereInput `json:"hasResponsesWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -961,6 +966,24 @@ func (i *BloodSearchRequestWhereInput) P() (predicate.BloodSearchRequest, error)
 		}
 		predicates = append(predicates, bloodsearchrequest.HasPetWith(with...))
 	}
+	if i.HasResponses != nil {
+		p := bloodsearchrequest.HasResponses()
+		if !*i.HasResponses {
+			p = bloodsearchrequest.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasResponsesWith) > 0 {
+		with := make([]predicate.DonorResponse, 0, len(i.HasResponsesWith))
+		for _, w := range i.HasResponsesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasResponsesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, bloodsearchrequest.HasResponsesWith(with...))
+	}
 	switch len(predicates) {
 	case 0:
 		return nil, ErrEmptyBloodSearchRequestWhereInput
@@ -1194,6 +1217,326 @@ func (i *BreedWhereInput) P() (predicate.Breed, error) {
 		return predicates[0], nil
 	default:
 		return breed.And(predicates...), nil
+	}
+}
+
+// DonorResponseWhereInput represents a where input for filtering DonorResponse queries.
+type DonorResponseWhereInput struct {
+	Predicates []predicate.DonorResponse  `json:"-"`
+	Not        *DonorResponseWhereInput   `json:"not,omitempty"`
+	Or         []*DonorResponseWhereInput `json:"or,omitempty"`
+	And        []*DonorResponseWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID             *string  `json:"id,omitempty"`
+	IDNEQ          *string  `json:"idNEQ,omitempty"`
+	IDIn           []string `json:"idIn,omitempty"`
+	IDNotIn        []string `json:"idNotIn,omitempty"`
+	IDGT           *string  `json:"idGT,omitempty"`
+	IDGTE          *string  `json:"idGTE,omitempty"`
+	IDLT           *string  `json:"idLT,omitempty"`
+	IDLTE          *string  `json:"idLTE,omitempty"`
+	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
+	IDContainsFold *string  `json:"idContainsFold,omitempty"`
+
+	// "created_at" field predicates.
+	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
+	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
+	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
+	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
+	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
+	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
+	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
+	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
+
+	// "updated_at" field predicates.
+	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
+	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
+	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
+	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
+	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
+	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
+	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
+
+	// "deleted_at" field predicates.
+	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
+	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
+	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
+	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
+	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
+	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
+	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
+	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
+	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
+	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
+
+	// "amount_ml" field predicates.
+	AmountMl      *int32  `json:"amountMl,omitempty"`
+	AmountMlNEQ   *int32  `json:"amountMlNEQ,omitempty"`
+	AmountMlIn    []int32 `json:"amountMlIn,omitempty"`
+	AmountMlNotIn []int32 `json:"amountMlNotIn,omitempty"`
+	AmountMlGT    *int32  `json:"amountMlGT,omitempty"`
+	AmountMlGTE   *int32  `json:"amountMlGTE,omitempty"`
+	AmountMlLT    *int32  `json:"amountMlLT,omitempty"`
+	AmountMlLTE   *int32  `json:"amountMlLTE,omitempty"`
+
+	// "request" edge predicates.
+	HasRequest     *bool                           `json:"hasRequest,omitempty"`
+	HasRequestWith []*BloodSearchRequestWhereInput `json:"hasRequestWith,omitempty"`
+
+	// "donor" edge predicates.
+	HasDonor     *bool            `json:"hasDonor,omitempty"`
+	HasDonorWith []*PetWhereInput `json:"hasDonorWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *DonorResponseWhereInput) AddPredicates(predicates ...predicate.DonorResponse) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the DonorResponseWhereInput filter on the DonorResponseQuery builder.
+func (i *DonorResponseWhereInput) Filter(q *DonorResponseQuery) (*DonorResponseQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyDonorResponseWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyDonorResponseWhereInput is returned in case the DonorResponseWhereInput is empty.
+var ErrEmptyDonorResponseWhereInput = errors.New("ent: empty predicate DonorResponseWhereInput")
+
+// P returns a predicate for filtering donorresponses.
+// An error is returned if the input is empty or invalid.
+func (i *DonorResponseWhereInput) P() (predicate.DonorResponse, error) {
+	var predicates []predicate.DonorResponse
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, donorresponse.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.DonorResponse, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, donorresponse.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.DonorResponse, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, donorresponse.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, donorresponse.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, donorresponse.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, donorresponse.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, donorresponse.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, donorresponse.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, donorresponse.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, donorresponse.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, donorresponse.IDLTE(*i.IDLTE))
+	}
+	if i.IDEqualFold != nil {
+		predicates = append(predicates, donorresponse.IDEqualFold(*i.IDEqualFold))
+	}
+	if i.IDContainsFold != nil {
+		predicates = append(predicates, donorresponse.IDContainsFold(*i.IDContainsFold))
+	}
+	if i.CreatedAt != nil {
+		predicates = append(predicates, donorresponse.CreatedAtEQ(*i.CreatedAt))
+	}
+	if i.CreatedAtNEQ != nil {
+		predicates = append(predicates, donorresponse.CreatedAtNEQ(*i.CreatedAtNEQ))
+	}
+	if len(i.CreatedAtIn) > 0 {
+		predicates = append(predicates, donorresponse.CreatedAtIn(i.CreatedAtIn...))
+	}
+	if len(i.CreatedAtNotIn) > 0 {
+		predicates = append(predicates, donorresponse.CreatedAtNotIn(i.CreatedAtNotIn...))
+	}
+	if i.CreatedAtGT != nil {
+		predicates = append(predicates, donorresponse.CreatedAtGT(*i.CreatedAtGT))
+	}
+	if i.CreatedAtGTE != nil {
+		predicates = append(predicates, donorresponse.CreatedAtGTE(*i.CreatedAtGTE))
+	}
+	if i.CreatedAtLT != nil {
+		predicates = append(predicates, donorresponse.CreatedAtLT(*i.CreatedAtLT))
+	}
+	if i.CreatedAtLTE != nil {
+		predicates = append(predicates, donorresponse.CreatedAtLTE(*i.CreatedAtLTE))
+	}
+	if i.UpdatedAt != nil {
+		predicates = append(predicates, donorresponse.UpdatedAtEQ(*i.UpdatedAt))
+	}
+	if i.UpdatedAtNEQ != nil {
+		predicates = append(predicates, donorresponse.UpdatedAtNEQ(*i.UpdatedAtNEQ))
+	}
+	if len(i.UpdatedAtIn) > 0 {
+		predicates = append(predicates, donorresponse.UpdatedAtIn(i.UpdatedAtIn...))
+	}
+	if len(i.UpdatedAtNotIn) > 0 {
+		predicates = append(predicates, donorresponse.UpdatedAtNotIn(i.UpdatedAtNotIn...))
+	}
+	if i.UpdatedAtGT != nil {
+		predicates = append(predicates, donorresponse.UpdatedAtGT(*i.UpdatedAtGT))
+	}
+	if i.UpdatedAtGTE != nil {
+		predicates = append(predicates, donorresponse.UpdatedAtGTE(*i.UpdatedAtGTE))
+	}
+	if i.UpdatedAtLT != nil {
+		predicates = append(predicates, donorresponse.UpdatedAtLT(*i.UpdatedAtLT))
+	}
+	if i.UpdatedAtLTE != nil {
+		predicates = append(predicates, donorresponse.UpdatedAtLTE(*i.UpdatedAtLTE))
+	}
+	if i.DeletedAt != nil {
+		predicates = append(predicates, donorresponse.DeletedAtEQ(*i.DeletedAt))
+	}
+	if i.DeletedAtNEQ != nil {
+		predicates = append(predicates, donorresponse.DeletedAtNEQ(*i.DeletedAtNEQ))
+	}
+	if len(i.DeletedAtIn) > 0 {
+		predicates = append(predicates, donorresponse.DeletedAtIn(i.DeletedAtIn...))
+	}
+	if len(i.DeletedAtNotIn) > 0 {
+		predicates = append(predicates, donorresponse.DeletedAtNotIn(i.DeletedAtNotIn...))
+	}
+	if i.DeletedAtGT != nil {
+		predicates = append(predicates, donorresponse.DeletedAtGT(*i.DeletedAtGT))
+	}
+	if i.DeletedAtGTE != nil {
+		predicates = append(predicates, donorresponse.DeletedAtGTE(*i.DeletedAtGTE))
+	}
+	if i.DeletedAtLT != nil {
+		predicates = append(predicates, donorresponse.DeletedAtLT(*i.DeletedAtLT))
+	}
+	if i.DeletedAtLTE != nil {
+		predicates = append(predicates, donorresponse.DeletedAtLTE(*i.DeletedAtLTE))
+	}
+	if i.DeletedAtIsNil {
+		predicates = append(predicates, donorresponse.DeletedAtIsNil())
+	}
+	if i.DeletedAtNotNil {
+		predicates = append(predicates, donorresponse.DeletedAtNotNil())
+	}
+	if i.AmountMl != nil {
+		predicates = append(predicates, donorresponse.AmountMlEQ(*i.AmountMl))
+	}
+	if i.AmountMlNEQ != nil {
+		predicates = append(predicates, donorresponse.AmountMlNEQ(*i.AmountMlNEQ))
+	}
+	if len(i.AmountMlIn) > 0 {
+		predicates = append(predicates, donorresponse.AmountMlIn(i.AmountMlIn...))
+	}
+	if len(i.AmountMlNotIn) > 0 {
+		predicates = append(predicates, donorresponse.AmountMlNotIn(i.AmountMlNotIn...))
+	}
+	if i.AmountMlGT != nil {
+		predicates = append(predicates, donorresponse.AmountMlGT(*i.AmountMlGT))
+	}
+	if i.AmountMlGTE != nil {
+		predicates = append(predicates, donorresponse.AmountMlGTE(*i.AmountMlGTE))
+	}
+	if i.AmountMlLT != nil {
+		predicates = append(predicates, donorresponse.AmountMlLT(*i.AmountMlLT))
+	}
+	if i.AmountMlLTE != nil {
+		predicates = append(predicates, donorresponse.AmountMlLTE(*i.AmountMlLTE))
+	}
+
+	if i.HasRequest != nil {
+		p := donorresponse.HasRequest()
+		if !*i.HasRequest {
+			p = donorresponse.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasRequestWith) > 0 {
+		with := make([]predicate.BloodSearchRequest, 0, len(i.HasRequestWith))
+		for _, w := range i.HasRequestWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasRequestWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, donorresponse.HasRequestWith(with...))
+	}
+	if i.HasDonor != nil {
+		p := donorresponse.HasDonor()
+		if !*i.HasDonor {
+			p = donorresponse.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasDonorWith) > 0 {
+		with := make([]predicate.Pet, 0, len(i.HasDonorWith))
+		for _, w := range i.HasDonorWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasDonorWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, donorresponse.HasDonorWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyDonorResponseWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return donorresponse.And(predicates...), nil
 	}
 }
 
@@ -1677,6 +2020,10 @@ type PetWhereInput struct {
 	// "blood_group_ref" edge predicates.
 	HasBloodGroupRef     *bool                   `json:"hasBloodGroupRef,omitempty"`
 	HasBloodGroupRefWith []*BloodGroupWhereInput `json:"hasBloodGroupRefWith,omitempty"`
+
+	// "donations" edge predicates.
+	HasDonations     *bool                      `json:"hasDonations,omitempty"`
+	HasDonationsWith []*DonorResponseWhereInput `json:"hasDonationsWith,omitempty"`
 
 	// "blood_search_request" edge predicates.
 	HasBloodSearchRequest     *bool                           `json:"hasBloodSearchRequest,omitempty"`
@@ -2480,6 +2827,24 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, pet.HasBloodGroupRefWith(with...))
+	}
+	if i.HasDonations != nil {
+		p := pet.HasDonations()
+		if !*i.HasDonations {
+			p = pet.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasDonationsWith) > 0 {
+		with := make([]predicate.DonorResponse, 0, len(i.HasDonationsWith))
+		for _, w := range i.HasDonationsWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasDonationsWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, pet.HasDonationsWith(with...))
 	}
 	if i.HasBloodSearchRequest != nil {
 		p := pet.HasBloodSearchRequest()

@@ -28,6 +28,7 @@ type CreateBloodSearchRequestInput struct {
 	BloodComponentIds      []string
 	OnBoarding             []string
 	PetID                  string
+	ResponseIDs            []string
 }
 
 // Mutate applies the CreateBloodSearchRequestInput on the BloodSearchRequestMutation builder.
@@ -70,6 +71,9 @@ func (i *CreateBloodSearchRequestInput) Mutate(m *BloodSearchRequestMutation) {
 		m.SetOnBoarding(v)
 	}
 	m.SetPetID(i.PetID)
+	if v := i.ResponseIDs; len(v) > 0 {
+		m.AddResponseIDs(v...)
+	}
 }
 
 // SetInput applies the change-set in the CreateBloodSearchRequestInput on the BloodSearchRequestCreate builder.
@@ -104,6 +108,9 @@ type UpdateBloodSearchRequestInput struct {
 	OnBoarding              []string
 	AppendOnBoarding        []string
 	PetID                   *string
+	ClearResponses          bool
+	AddResponseIDs          []string
+	RemoveResponseIDs       []string
 }
 
 // Mutate applies the UpdateBloodSearchRequestInput on the BloodSearchRequestMutation builder.
@@ -180,6 +187,15 @@ func (i *UpdateBloodSearchRequestInput) Mutate(m *BloodSearchRequestMutation) {
 	if v := i.PetID; v != nil {
 		m.SetPetID(*v)
 	}
+	if i.ClearResponses {
+		m.ClearResponses()
+	}
+	if v := i.AddResponseIDs; len(v) > 0 {
+		m.AddResponseIDs(v...)
+	}
+	if v := i.RemoveResponseIDs; len(v) > 0 {
+		m.RemoveResponseIDs(v...)
+	}
 }
 
 // SetInput applies the change-set in the UpdateBloodSearchRequestInput on the BloodSearchRequestUpdate builder.
@@ -190,6 +206,82 @@ func (c *BloodSearchRequestUpdate) SetInput(i UpdateBloodSearchRequestInput) *Bl
 
 // SetInput applies the change-set in the UpdateBloodSearchRequestInput on the BloodSearchRequestUpdateOne builder.
 func (c *BloodSearchRequestUpdateOne) SetInput(i UpdateBloodSearchRequestInput) *BloodSearchRequestUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreateDonorResponseInput represents a mutation input for creating donorresponses.
+type CreateDonorResponseInput struct {
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+	DeletedAt *time.Time
+	AmountMl  int32
+	RequestID string
+	DonorID   string
+}
+
+// Mutate applies the CreateDonorResponseInput on the DonorResponseMutation builder.
+func (i *CreateDonorResponseInput) Mutate(m *DonorResponseMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	m.SetAmountMl(i.AmountMl)
+	m.SetRequestID(i.RequestID)
+	m.SetDonorID(i.DonorID)
+}
+
+// SetInput applies the change-set in the CreateDonorResponseInput on the DonorResponseCreate builder.
+func (c *DonorResponseCreate) SetInput(i CreateDonorResponseInput) *DonorResponseCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdateDonorResponseInput represents a mutation input for updating donorresponses.
+type UpdateDonorResponseInput struct {
+	UpdatedAt      *time.Time
+	ClearDeletedAt bool
+	DeletedAt      *time.Time
+	AmountMl       *int32
+	RequestID      *string
+	DonorID        *string
+}
+
+// Mutate applies the UpdateDonorResponseInput on the DonorResponseMutation builder.
+func (i *UpdateDonorResponseInput) Mutate(m *DonorResponseMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.AmountMl; v != nil {
+		m.SetAmountMl(*v)
+	}
+	if v := i.RequestID; v != nil {
+		m.SetRequestID(*v)
+	}
+	if v := i.DonorID; v != nil {
+		m.SetDonorID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdateDonorResponseInput on the DonorResponseUpdate builder.
+func (c *DonorResponseUpdate) SetInput(i UpdateDonorResponseInput) *DonorResponseUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdateDonorResponseInput on the DonorResponseUpdateOne builder.
+func (c *DonorResponseUpdateOne) SetInput(i UpdateDonorResponseInput) *DonorResponseUpdateOne {
 	i.Mutate(c.Mutation())
 	return c
 }
@@ -217,6 +309,7 @@ type CreatePetInput struct {
 	BonusesID            *string
 	BreedRefID           *string
 	BloodGroupRefID      *string
+	DonationIDs          []string
 	BloodSearchRequestID *string
 }
 
@@ -279,6 +372,9 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	if v := i.BloodGroupRefID; v != nil {
 		m.SetBloodGroupRefID(*v)
 	}
+	if v := i.DonationIDs; len(v) > 0 {
+		m.AddDonationIDs(v...)
+	}
 	if v := i.BloodSearchRequestID; v != nil {
 		m.SetBloodSearchRequestID(*v)
 	}
@@ -331,6 +427,9 @@ type UpdatePetInput struct {
 	BreedRefID              *string
 	ClearBloodGroupRef      bool
 	BloodGroupRefID         *string
+	ClearDonations          bool
+	AddDonationIDs          []string
+	RemoveDonationIDs       []string
 	ClearBloodSearchRequest bool
 	BloodSearchRequestID    *string
 }
@@ -453,6 +552,15 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	}
 	if v := i.BloodGroupRefID; v != nil {
 		m.SetBloodGroupRefID(*v)
+	}
+	if i.ClearDonations {
+		m.ClearDonations()
+	}
+	if v := i.AddDonationIDs; len(v) > 0 {
+		m.AddDonationIDs(v...)
+	}
+	if v := i.RemoveDonationIDs; len(v) > 0 {
+		m.RemoveDonationIDs(v...)
 	}
 	if i.ClearBloodSearchRequest {
 		m.ClearBloodSearchRequest()

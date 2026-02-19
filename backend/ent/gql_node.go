@@ -12,6 +12,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
@@ -46,6 +47,11 @@ var breedImplementors = []string{"Breed", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*Breed) IsNode() {}
+
+var donorresponseImplementors = []string{"DonorResponse", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*DonorResponse) IsNode() {}
 
 var locationImplementors = []string{"Location", "Node"}
 
@@ -172,6 +178,15 @@ func (c *Client) noder(ctx context.Context, table string, id string) (Noder, err
 			Where(breed.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, breedImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case donorresponse.Table:
+		query := c.DonorResponse.Query().
+			Where(donorresponse.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, donorresponseImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -364,6 +379,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []string) ([]Node
 		query := c.Breed.Query().
 			Where(breed.IDIn(ids...))
 		query, err := query.CollectFields(ctx, breedImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case donorresponse.Table:
+		query := c.DonorResponse.Query().
+			Where(donorresponse.IDIn(ids...))
+		query, err := query.CollectFields(ctx, donorresponseImplementors...)
 		if err != nil {
 			return nil, err
 		}

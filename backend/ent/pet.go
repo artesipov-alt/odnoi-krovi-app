@@ -87,15 +87,18 @@ type PetEdges struct {
 	BreedRef *Breed `json:"breed_ref,omitempty"`
 	// BloodGroupRef holds the value of the blood_group_ref edge.
 	BloodGroupRef *BloodGroup `json:"blood_group_ref,omitempty"`
+	// Donations holds the value of the donations edge.
+	Donations []*DonorResponse `json:"donations,omitempty"`
 	// BloodSearchRequest holds the value of the blood_search_request edge.
 	BloodSearchRequest *BloodSearchRequest `json:"blood_search_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [9]bool
 	// totalCount holds the count of the edges above.
-	totalCount [8]map[string]int
+	totalCount [9]map[string]int
 
-	namedAnalyses map[string][]*PetAnalysis
+	namedAnalyses  map[string][]*PetAnalysis
+	namedDonations map[string][]*DonorResponse
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
@@ -173,12 +176,21 @@ func (e PetEdges) BloodGroupRefOrErr() (*BloodGroup, error) {
 	return nil, &NotLoadedError{edge: "blood_group_ref"}
 }
 
+// DonationsOrErr returns the Donations value or an error if the edge
+// was not loaded in eager-loading.
+func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
+	if e.loadedTypes[7] {
+		return e.Donations, nil
+	}
+	return nil, &NotLoadedError{edge: "donations"}
+}
+
 // BloodSearchRequestOrErr returns the BloodSearchRequest value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e PetEdges) BloodSearchRequestOrErr() (*BloodSearchRequest, error) {
 	if e.BloodSearchRequest != nil {
 		return e.BloodSearchRequest, nil
-	} else if e.loadedTypes[7] {
+	} else if e.loadedTypes[8] {
 		return nil, &NotFoundError{label: bloodsearchrequest.Label}
 	}
 	return nil, &NotLoadedError{edge: "blood_search_request"}
@@ -392,6 +404,11 @@ func (_m *Pet) QueryBloodGroupRef() *BloodGroupQuery {
 	return NewPetClient(_m.config).QueryBloodGroupRef(_m)
 }
 
+// QueryDonations queries the "donations" edge of the Pet entity.
+func (_m *Pet) QueryDonations() *DonorResponseQuery {
+	return NewPetClient(_m.config).QueryDonations(_m)
+}
+
 // QueryBloodSearchRequest queries the "blood_search_request" edge of the Pet entity.
 func (_m *Pet) QueryBloodSearchRequest() *BloodSearchRequestQuery {
 	return NewPetClient(_m.config).QueryBloodSearchRequest(_m)
@@ -508,6 +525,30 @@ func (_m *Pet) appendNamedAnalyses(name string, edges ...*PetAnalysis) {
 		_m.Edges.namedAnalyses[name] = []*PetAnalysis{}
 	} else {
 		_m.Edges.namedAnalyses[name] = append(_m.Edges.namedAnalyses[name], edges...)
+	}
+}
+
+// NamedDonations returns the Donations named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *Pet) NamedDonations(name string) ([]*DonorResponse, error) {
+	if _m.Edges.namedDonations == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedDonations[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *Pet) appendNamedDonations(name string, edges ...*DonorResponse) {
+	if _m.Edges.namedDonations == nil {
+		_m.Edges.namedDonations = make(map[string][]*DonorResponse)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedDonations[name] = []*DonorResponse{}
+	} else {
+		_m.Edges.namedDonations[name] = append(_m.Edges.namedDonations[name], edges...)
 	}
 }
 

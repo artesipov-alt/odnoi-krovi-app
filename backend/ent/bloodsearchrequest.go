@@ -57,11 +57,15 @@ type BloodSearchRequest struct {
 type BloodSearchRequestEdges struct {
 	// Pet holds the value of the pet edge.
 	Pet *Pet `json:"pet,omitempty"`
+	// Responses holds the value of the responses edge.
+	Responses []*DonorResponse `json:"responses,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 	// totalCount holds the count of the edges above.
-	totalCount [1]map[string]int
+	totalCount [2]map[string]int
+
+	namedResponses map[string][]*DonorResponse
 }
 
 // PetOrErr returns the Pet value or an error if the edge
@@ -73,6 +77,15 @@ func (e BloodSearchRequestEdges) PetOrErr() (*Pet, error) {
 		return nil, &NotFoundError{label: pet.Label}
 	}
 	return nil, &NotLoadedError{edge: "pet"}
+}
+
+// ResponsesOrErr returns the Responses value or an error if the edge
+// was not loaded in eager-loading.
+func (e BloodSearchRequestEdges) ResponsesOrErr() ([]*DonorResponse, error) {
+	if e.loadedTypes[1] {
+		return e.Responses, nil
+	}
+	return nil, &NotLoadedError{edge: "responses"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -224,6 +237,11 @@ func (_m *BloodSearchRequest) QueryPet() *PetQuery {
 	return NewBloodSearchRequestClient(_m.config).QueryPet(_m)
 }
 
+// QueryResponses queries the "responses" edge of the BloodSearchRequest entity.
+func (_m *BloodSearchRequest) QueryResponses() *DonorResponseQuery {
+	return NewBloodSearchRequestClient(_m.config).QueryResponses(_m)
+}
+
 // Update returns a builder for updating this BloodSearchRequest.
 // Note that you need to call BloodSearchRequest.Unwrap() before calling this method if this BloodSearchRequest
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -292,6 +310,30 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.OnBoarding))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedResponses returns the Responses named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *BloodSearchRequest) NamedResponses(name string) ([]*DonorResponse, error) {
+	if _m.Edges.namedResponses == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedResponses[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *BloodSearchRequest) appendNamedResponses(name string, edges ...*DonorResponse) {
+	if _m.Edges.namedResponses == nil {
+		_m.Edges.namedResponses = make(map[string][]*DonorResponse)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedResponses[name] = []*DonorResponse{}
+	} else {
+		_m.Edges.namedResponses[name] = append(_m.Edges.namedResponses[name], edges...)
+	}
 }
 
 // BloodSearchRequests is a parsable slice of BloodSearchRequest.

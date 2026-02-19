@@ -48,6 +48,8 @@ const (
 	FieldOnBoarding = "on_boarding"
 	// EdgePet holds the string denoting the pet edge name in mutations.
 	EdgePet = "pet"
+	// EdgeResponses holds the string denoting the responses edge name in mutations.
+	EdgeResponses = "responses"
 	// Table holds the table name of the bloodsearchrequest in the database.
 	Table = "blood_requests"
 	// PetTable is the table that holds the pet relation/edge.
@@ -57,6 +59,13 @@ const (
 	PetInverseTable = "pets"
 	// PetColumn is the table column denoting the pet relation/edge.
 	PetColumn = "pet_id"
+	// ResponsesTable is the table that holds the responses relation/edge.
+	ResponsesTable = "donor_responses"
+	// ResponsesInverseTable is the table name for the DonorResponse entity.
+	// It exists in this package in order to avoid circular dependency with the "donorresponse" package.
+	ResponsesInverseTable = "donor_responses"
+	// ResponsesColumn is the table column denoting the responses relation/edge.
+	ResponsesColumn = "blood_search_request_responses"
 )
 
 // Columns holds all SQL columns for bloodsearchrequest fields.
@@ -195,11 +204,32 @@ func ByPetField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newPetStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByResponsesCount orders the results by responses count.
+func ByResponsesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newResponsesStep(), opts...)
+	}
+}
+
+// ByResponses orders the results by responses terms.
+func ByResponses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newResponsesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPetStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PetInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+	)
+}
+func newResponsesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ResponsesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ResponsesTable, ResponsesColumn),
 	)
 }
 

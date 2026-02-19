@@ -1261,6 +1261,29 @@ func HasBloodGroupRefWith(preds ...predicate.BloodGroup) predicate.Pet {
 	})
 }
 
+// HasDonations applies the HasEdge predicate on the "donations" edge.
+func HasDonations() predicate.Pet {
+	return predicate.Pet(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, DonationsTable, DonationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDonationsWith applies the HasEdge predicate on the "donations" edge with a given conditions (other predicates).
+func HasDonationsWith(preds ...predicate.DonorResponse) predicate.Pet {
+	return predicate.Pet(func(s *sql.Selector) {
+		step := newDonationsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasBloodSearchRequest applies the HasEdge predicate on the "blood_search_request" edge.
 func HasBloodSearchRequest() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
