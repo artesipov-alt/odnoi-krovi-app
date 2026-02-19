@@ -45,13 +45,13 @@ type BloodSearchService interface {
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	service BloodSearchService
+	svc BloodSearchService
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
 func NewBloodRequestHandler(service BloodSearchService) *BloodRequestHandler {
 	return &BloodRequestHandler{
-		service: service,
+		svc: service,
 	}
 }
 
@@ -170,7 +170,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		return nil, err
 	}
 
-	result, err := h.service.CreateRequest(ctx, bloodReq)
+	result, err := h.svc.CreateRequest(ctx, bloodReq)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 		filters["status"] = input.Body.Status
 	}
 
-	requests, err := h.service.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
+	requests, err := h.svc.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -208,8 +208,7 @@ func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, i
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
-	slog.DebugContext(ctx, "getting blood request by ID", "request_id", input.ID)
-	bloodReq, err := h.service.GetRequestByID(ctx, input.ID)
+	bloodReq, err := h.svc.GetRequestByID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +218,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
 	slog.DebugContext(ctx, "getting blood request by PET ID", "pet_id", input.ID)
-	bloodReq, err := h.service.GetRequestByPetID(ctx, input.ID)
+	bloodReq, err := h.svc.GetRequestByPetID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +237,7 @@ func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPa
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
-	if err := h.service.DeleteRequest(ctx, input.ID); err != nil {
+	if err := h.svc.DeleteRequest(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
