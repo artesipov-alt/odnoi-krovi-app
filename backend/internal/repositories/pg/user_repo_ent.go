@@ -37,33 +37,13 @@ func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInp
 }
 
 // GetQuery returns a query for eager loading
-func (r *EntUserRepository) GetQueryByID(ctx context.Context, id string) *ent.UserQuery {
+func (r *EntUserRepository) GetByID(ctx context.Context, id string) *ent.UserQuery {
 	return r.client.User.Query().Where(user.ID(id))
 }
 
 // GetQueryByTelegram returns a query for eager loading by Telegram ID
-func (r *EntUserRepository) GetQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery {
+func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery {
 	return r.client.User.Query().Where(user.TelegramID(telegramID))
-}
-
-// GetByTelegramID retrieves a user by their Telegram ID
-func (r *EntUserRepository) GetByTelegramID(ctx context.Context, telegramID int64) (*ent.User, error) {
-	if telegramID <= 0 {
-		return nil, errors.New("invalid telegram ID")
-	}
-
-	u, err := r.client.User.Query().
-		Where(user.TelegramID(telegramID)).
-		Only(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("user with telegram id %d not found: %w", telegramID, err)
-		}
-		return nil, fmt.Errorf("failed to get user by telegram id %d: %w", telegramID, err)
-	}
-
-	return u, nil
 }
 
 // ExistsByID checks if a user with the given ID exists

@@ -14,10 +14,10 @@ type UserRepository interface {
 	Create(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
 	// GetQuery возвращает query для eager loading
-	GetQueryByID(ctx context.Context, id string) *ent.UserQuery
+	GetByID(ctx context.Context, id string) *ent.UserQuery
 
 	// GetQueryByTelegram возвращает query для eager loading по Telegram ID
-	GetQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
+	GetByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
 
 	// Update обновляет существующего пользователя в базе данных
 	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
@@ -46,7 +46,6 @@ type UserRepository interface {
 
 // LocationRepository определяет интерфейс для операций с данными локаций
 type LocationRepository interface {
-
 	// GetByID получает локацию по её ID
 	GetByID(ctx context.Context, id string) (*ent.Location, error)
 
@@ -61,17 +60,15 @@ type UserOptions struct {
 	WithPets bool
 }
 
-// UserServiceImpl реализует UserService
-type UserServiceImpl struct {
+type UserService struct {
 	userRepo     UserRepository
 	locationRepo LocationRepository
 	storage      FileStorage
 }
 
-// NewUserService создает новый сервис пользователей
 // NewUserService создает новый экземпляр UserService
-func NewUserService(userRepo UserRepository, locationRepo LocationRepository, storage FileStorage) *UserServiceImpl {
-	return &UserServiceImpl{
+func NewUserService(userRepo UserRepository, locationRepo LocationRepository, storage FileStorage) *UserService {
+	return &UserService{
 		userRepo:     userRepo,
 		locationRepo: locationRepo,
 		storage:      storage,
@@ -79,7 +76,7 @@ func NewUserService(userRepo UserRepository, locationRepo LocationRepository, st
 }
 
 // RegisterUser регистрирует нового пользователя в системе
-func (s *UserServiceImpl) RegisterUser(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
+func (s *UserService) RegisterUser(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, input.TelegramID)
 	if err != nil {
@@ -113,7 +110,7 @@ func (s *UserServiceImpl) RegisterUser(ctx context.Context, input *ent.CreateUse
 }
 
 // RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
+func (s *UserService) RegisterUserSimple(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
 	// Проверяем, существует ли пользователь уже
 	exists, err := s.userRepo.ExistsByTelegramID(ctx, input.TelegramID)
 	if err != nil {
@@ -143,9 +140,9 @@ func (s *UserServiceImpl) RegisterUserSimple(ctx context.Context, input *ent.Cre
 }
 
 // DeleteUser удаляет пользователя по ID (soft delete)
-func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
+func (s *UserService) DeleteUser(ctx context.Context, userID string) error {
 	// Проверяем, существует ли пользователь
-	query := s.userRepo.GetQueryByID(ctx, userID)
+	query := s.userRepo.GetByID(ctx, userID)
 	_, err := query.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -162,7 +159,7 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, userID string) error {
 	return nil
 }
 
-func (s *UserServiceImpl) Update(ctx context.Context, id string, input *ent.UpdateUserInput) error {
+func (s *UserService) Update(ctx context.Context, id string, input *ent.UpdateUserInput) error {
 	// 1. Если пришел LocationID, проверяем его прямо здесь (или в репо)
 	if input.LocationID != nil {
 		exists, err := s.locationRepo.Exists(ctx, *input.LocationID)
@@ -185,8 +182,8 @@ func (s *UserServiceImpl) Update(ctx context.Context, id string, input *ent.Upda
 }
 
 // GetUserByID получает пользователя по ID
-func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, opts UserOptions) (*ent.User, error) {
-	query := s.userRepo.GetQueryByID(ctx, userID)
+func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserOptions) (*ent.User, error) {
+	query := s.userRepo.GetByID(ctx, userID)
 
 	if opts.WithPets {
 		query = query.WithPets()
@@ -204,8 +201,8 @@ func (s *UserServiceImpl) GetUserByID(ctx context.Context, userID string, opts U
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
-func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserOptions) (*ent.User, error) {
-	query := s.userRepo.GetQueryByTelegram(ctx, telegramID)
+func (s *UserService) GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserOptions) (*ent.User, error) {
+	query := s.userRepo.GetByTelegram(ctx, telegramID)
 
 	if opts.WithPets {
 		query = query.WithPets()
@@ -226,7 +223,7 @@ func (s *UserServiceImpl) GetUserByTelegramID(ctx context.Context, telegramID in
 }
 
 // ResetUser сбрасывает пользователя к начальным настройкам
-func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
+func (s *UserService) ResetUser(ctx context.Context, userID string) error {
 	if err := s.userRepo.ResetUser(ctx, userID); err != nil {
 		return apperrors.Internal(err, "failed to reset user")
 	}
@@ -234,7 +231,7 @@ func (s *UserServiceImpl) ResetUser(ctx context.Context, userID string) error {
 }
 
 // RestoreUser восстанавливает удаленного пользователя
-func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error {
+func (s *UserService) RestoreUser(ctx context.Context, userID string) error {
 	if err := s.userRepo.RestoreUser(ctx, userID); err != nil {
 		return apperrors.Internal(err, "failed to restore user")
 	}
@@ -242,7 +239,7 @@ func (s *UserServiceImpl) RestoreUser(ctx context.Context, userID string) error 
 }
 
 // GetDeletedUsers получает всех удаленных пользователей
-func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) {
+func (s *UserService) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) {
 	users, err := s.userRepo.GetDeletedUsers(ctx)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get deleted users")
@@ -251,7 +248,7 @@ func (s *UserServiceImpl) GetDeletedUsers(ctx context.Context) ([]*ent.User, err
 }
 
 // BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *UserServiceImpl) BuildFullPhotoURLs(paths []string) []string {
+func (s *UserService) BuildFullPhotoURLs(paths []string) []string {
 	if len(paths) == 0 {
 		return []string{}
 	}
