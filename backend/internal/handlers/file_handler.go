@@ -12,13 +12,18 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+type FileService interface {
+	GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]services.UploadInfo, error)
+	ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error
+}
+
 // FileHandler обрабатывает HTTP запросы для загрузки и подтверждения файлов
 type FileHandler struct {
-	fileService services.FileService
+	fileService FileService
 }
 
 // NewFileHandler создает новый обработчик файлов
-func NewFileHandler(fileService services.FileService) *FileHandler {
+func NewFileHandler(fileService FileService) *FileHandler {
 	return &FileHandler{
 		fileService: fileService,
 	}

@@ -12,22 +12,52 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
 
+// PetService определяет интерфейс для бизнес-логики питомцев
+type PetService interface {
+	// CreatePet создает нового питомца для пользователя
+	CreatePet(ctx context.Context, userID string, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
+
+	// GetPetQuery возвращает query для eager loading
+	GetPetQuery(ctx context.Context, petID string) *ent.PetQuery
+
+	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
+	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
+
+	// GetPet получает питомца с preload связанных данных
+	GetPet(ctx context.Context, petID string, opts services.PetPreloadOptions) (*ent.Pet, error)
+
+	// GetUserPets получает всех питомцев пользователя с preload связанных данных
+	GetUserPets(ctx context.Context, userID string, opts services.PetPreloadOptions) ([]*ent.Pet, error)
+
+	// Update обновляет питомца и его связанные сущности (здоровье, лечения, анализы, бонусы)
+	// Все параметры могут быть nil - тогда соответствующие данные не обновляются
+	Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error)
+
+	// DeletePet удаляет питомца по ID
+	DeletePet(ctx context.Context, petID string) error
+
+	// ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
+	ApplyValidation(ctx context.Context, petID string) ([]validator.FactorCode, []validator.FactorCode, error)
+
+	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	BuildFullPhotoURLs(pet *ent.Pet)
+}
+
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService    services.PetService
+	petService    PetService
 	validator     validator.DonorValidator
-	bloodInfoRepo repositories.BloodInfoRepository
+	bloodInfoRepo services.BloodInfoRepository
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService services.PetService, validator validator.DonorValidator, bloodInfoRepo repositories.BloodInfoRepository) *PetHandler {
+func NewPetHandler(petService PetService, validator validator.DonorValidator, bloodInfoRepo services.BloodInfoRepository) *PetHandler {
 	return &PetHandler{
 		petService:    petService,
 		validator:     validator,

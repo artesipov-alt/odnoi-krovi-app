@@ -6,56 +6,71 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
-// UserService определяет интерфейс для бизнес-логики пользователей
-type UserService interface {
-	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
+// UserRepository определяет интерфейс для операций с данными пользователей
+type UserRepository interface {
+	// Create создает нового пользователя в базе данных
+	Create(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
-	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-	RegisterUserSimple(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
+	// GetQuery возвращает query для eager loading
+	GetQueryByID(ctx context.Context, id string) *ent.UserQuery
 
-	// GetUserByID получает пользователя по его внутреннему ID
-	GetUserByID(ctx context.Context, userID string, opt UserOptions) (*ent.User, error)
+	// GetQueryByTelegram возвращает query для eager loading по Telegram ID
+	GetQueryByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
 
-	// GetUserByTelegramID получает пользователя по Telegram ID
-	GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserOptions) (*ent.User, error)
-
-	// Update обновляет информацию о пользователе
+	// Update обновляет существующего пользователя в базе данных
 	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
 
-	// DeleteUser удаляет пользователя по ID (soft delete)
-	DeleteUser(ctx context.Context, userID string) error
+	// Delete удаляет пользователя по его ID
+	Delete(ctx context.Context, id string) error
 
-	// ResetUser сбрасывает пользователя к начальным настройкам
-	ResetUser(ctx context.Context, userID string) error
+	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
+	ExistsByTelegramID(ctx context.Context, telegramID int64) (bool, error)
 
-	// RestoreUser восстанавливает удаленного пользователя
-	RestoreUser(ctx context.Context, userID string) error
+	// ExistsByID проверяет, существует ли пользователь с заданным ID
+	ExistsByID(ctx context.Context, id string) (bool, error)
+
+	// ResetUser сбрасывает email и номер телефона пользователя по ID
+	ResetUser(ctx context.Context, id string) error
+
+	// RestoreUser восстанавливает пользователя по его ID
+	RestoreUser(ctx context.Context, id string) error
 
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
 
-	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(paths []string) []string
+	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
+	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }
 
-// UserServiceImpl реализует UserService
-type UserServiceImpl struct {
-	userRepo     repositories.UserRepository
-	locationRepo repositories.LocationRepository
-	storage      repositories.FileStorage
+// LocationRepository определяет интерфейс для операций с данными локаций
+type LocationRepository interface {
+
+	// GetByID получает локацию по её ID
+	GetByID(ctx context.Context, id string) (*ent.Location, error)
+
+	// GetAll получает все локации из базы данных
+	GetAll(ctx context.Context) ([]*ent.Location, error)
+
+	// Exists проверяет, существует ли локация с заданным ID
+	Exists(ctx context.Context, id string) (bool, error)
 }
 
 type UserOptions struct {
 	WithPets bool
 }
 
+// UserServiceImpl реализует UserService
+type UserServiceImpl struct {
+	userRepo     UserRepository
+	locationRepo LocationRepository
+	storage      FileStorage
+}
+
 // NewUserService создает новый сервис пользователей
 // NewUserService создает новый экземпляр UserService
-func NewUserService(userRepo repositories.UserRepository, locationRepo repositories.LocationRepository, storage repositories.FileStorage) *UserServiceImpl {
+func NewUserService(userRepo UserRepository, locationRepo LocationRepository, storage FileStorage) *UserServiceImpl {
 	return &UserServiceImpl{
 		userRepo:     userRepo,
 		locationRepo: locationRepo,

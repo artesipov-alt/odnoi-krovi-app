@@ -25,7 +25,7 @@ type BloodSearchService interface {
 	GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
 
 	// UpdateRequest обновляет информацию о заявке
-	UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+	UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) error
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error

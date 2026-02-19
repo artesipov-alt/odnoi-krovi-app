@@ -7,17 +7,17 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 )
 
 // CachedBloodInfoRepository реализует кеширующий репозиторий для работы с группами крови
 type CachedBloodInfoRepository struct {
-	repo  repositories.BloodInfoRepository
+	repo  services.BloodInfoRepository
 	cache cache.ICache
 }
 
 // NewCachedBloodInfoRepository создает новый экземпляр кеширующего репозитория
-func NewCachedBloodInfoRepository(repo repositories.BloodInfoRepository, cache cache.ICache) *CachedBloodInfoRepository {
+func NewCachedBloodInfoRepository(repo services.BloodInfoRepository, cache cache.ICache) *CachedBloodInfoRepository {
 	return &CachedBloodInfoRepository{
 		repo:  repo,
 		cache: cache,

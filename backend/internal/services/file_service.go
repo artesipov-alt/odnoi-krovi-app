@@ -6,24 +6,37 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 )
 
-type FileService interface {
-	GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]repositories.UploadInfo, error)
-	ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error
+type FileStorage interface {
+	GetPresignedURLs(ctx context.Context, count int64, id string) ([]UploadInfo, error)
+	CheckObjectExists(ctx context.Context, objectPath string) (bool, error)
+	GetAvatarPublicURL(id string) string
+	GetPublicURLFromPath(path string) string
+	SetObjectPublicACL(ctx context.Context, objectPath string) error
+	ConfirmUploads(ctx context.Context, paths []string) error
+}
+
+type MediaService interface {
+	Compress(ctx context.Context, path string) error
+}
+
+// UploadInfo содержит информацию для загрузки файла: подписанную ссылку и путь в S3
+type UploadInfo struct {
+	UploadURL  string
+	ObjectPath string
 }
 
 // FileServiceImpl реализует FileService
 type FileServiceImpl struct {
-	PetRepo   repositories.PetRepository
-	UserRepo  repositories.UserRepository
+	PetRepo   PetRepository
+	UserRepo  UserRepository
 	BloodRepo BloodRequestRepository
-	storage   repositories.FileStorage
+	storage   FileStorage
 }
 
 // NewFileService создает новый FileServiceImpl
-func NewFileService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo BloodRequestRepository, storage repositories.FileStorage) *FileServiceImpl {
+func NewFileService(petRepo PetRepository, userRepo UserRepository, bloodRepo BloodRequestRepository, storage FileStorage) *FileServiceImpl {
 	return &FileServiceImpl{
 		PetRepo:   petRepo,
 		UserRepo:  userRepo,
@@ -33,12 +46,12 @@ func NewFileService(petRepo repositories.PetRepository, userRepo repositories.Us
 }
 
 // GetPresignURLs Возвращает ссылки для загрузки фотографий.
-func (s *FileServiceImpl) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]repositories.UploadInfo, error) {
+func (s *FileServiceImpl) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]UploadInfo, error) {
 	if len(preloads) == 0 {
 		return nil, apperrors.BadRequest("preload type is required")
 	}
 
-	var uploadInfos []repositories.UploadInfo
+	var uploadInfos []UploadInfo
 
 	switch preloads[0] {
 	case "pet_avatar":

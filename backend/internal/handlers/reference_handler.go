@@ -9,20 +9,20 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/enums"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
-	breedRepo    repositories.BreedRepository
-	bloodRepo    repositories.BloodInfoRepository
-	locationRepo repositories.LocationRepository
+	breedRepo    services.BreedRepository
+	bloodRepo    services.BloodInfoRepository
+	locationRepo services.LocationRepository
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(breedRepo repositories.BreedRepository, bloodTypeRepo repositories.BloodInfoRepository, locationRepo repositories.LocationRepository) *ReferenceHandler {
+func NewReferenceHandler(breedRepo services.BreedRepository, bloodTypeRepo services.BloodInfoRepository, locationRepo services.LocationRepository) *ReferenceHandler {
 	return &ReferenceHandler{
 		breedRepo:    breedRepo,
 		bloodRepo:    bloodTypeRepo,

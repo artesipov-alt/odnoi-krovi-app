@@ -30,20 +30,15 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 }
 
 // Create создает новую заявку на поиск крови
-func (r *EntBloodRequestRepository) Create(ctx context.Context, req *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
-	return r.client(ctx).BloodSearchRequest.Create().
-		SetPetID(req.PetID).
-		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(*req.BloodVolumeReserved).
-		SetRegions(req.Regions).
-		SetSmallPetsNotifyAllowed(*req.SmallPetsNotifyAllowed).
-		SetStatus(bloodsearchrequest.Status(*req.Status)).
-		SetNillableDescription(req.Description).
-		SetPhotoUrls(req.PhotoUrls).
-		SetBloodGroupNames(req.BloodGroupNames).
-		SetBloodComponentIds(req.BloodComponentIds).
-		SetOnBoarding(req.OnBoarding).
+func (r *EntBloodRequestRepository) Create(ctx context.Context, input *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
+	newBloodReq, err := r.client(ctx).BloodSearchRequest.
+		Create().
+		SetInput(*input).
 		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return newBloodReq, nil
 }
 
 // GetByID возвращает заявку по её идентификатору
@@ -59,19 +54,24 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 }
 
 // Update обновляет информацию о заявке
-func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
-	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
-		SetBloodVolumeNeeded(*req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(*req.BloodVolumeReserved).
-		SetRegions(req.Regions).
-		SetSmallPetsNotifyAllowed(*req.SmallPetsNotifyAllowed).
-		SetStatus(bloodsearchrequest.Status(*req.Status)).
-		SetDescription(*req.Description).
-		SetPhotoUrls(req.PhotoUrls).
-		SetBloodGroupNames(req.BloodGroupNames).
-		SetBloodComponentIds(req.BloodComponentIds).
-		SetOnBoarding(req.OnBoarding).
+func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, input *ent.UpdateBloodSearchRequestInput) error {
+	if input == nil {
+		return errors.New("blood request cannot be nil")
+	}
+
+	if id == "" {
+		return errors.New("invalid blood request ID")
+	}
+
+	_, err := r.db.BloodSearchRequest.UpdateOneID(id).
+		SetInput(*input).
 		Save(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
 }
 
 // UpdateStatus обновляет статус заявки
@@ -87,7 +87,7 @@ func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
 	query := r.client(ctx).BloodSearchRequest.Query()
 
 	if status, ok := filters["status"].(string); ok {

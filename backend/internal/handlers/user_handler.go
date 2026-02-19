@@ -10,23 +10,53 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
 
+// UserService определяет интерфейс для бизнес-логики пользователей
+type UserService interface {
+	// RegisterUser регистрирует нового пользователя в системе
+	RegisterUser(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
+
+	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
+	RegisterUserSimple(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
+
+	// GetUserByID получает пользователя по его внутреннему ID
+	GetUserByID(ctx context.Context, userID string, opt services.UserOptions) (*ent.User, error)
+
+	// GetUserByTelegramID получает пользователя по Telegram ID
+	GetUserByTelegramID(ctx context.Context, telegramID int64, opts services.UserOptions) (*ent.User, error)
+
+	// Update обновляет информацию о пользователе
+	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
+
+	// DeleteUser удаляет пользователя по ID (soft delete)
+	DeleteUser(ctx context.Context, userID string) error
+
+	// ResetUser сбрасывает пользователя к начальным настройкам
+	ResetUser(ctx context.Context, userID string) error
+
+	// RestoreUser восстанавливает удаленного пользователя
+	RestoreUser(ctx context.Context, userID string) error
+
+	// GetDeletedUsers получает всех удаленных пользователей
+	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
+
+	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
+	BuildFullPhotoURLs(paths []string) []string
+}
+
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	userService  services.UserService
-	locationRepo repositories.LocationRepository
+	userService UserService
 }
 
 // NewUserHandler создает новый обработчик пользователей
-func NewUserHandler(userService services.UserService, locationRepo repositories.LocationRepository) *UserHandler {
+func NewUserHandler(userService UserService) *UserHandler {
 	return &UserHandler{
-		userService:  userService,
-		locationRepo: locationRepo,
+		userService: userService,
 	}
 }
 

@@ -6,13 +6,68 @@ import (
 	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	repositories "github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 )
+
+// PetRepository определяет интерфейс для операций с данными питомцев
+type PetRepository interface {
+	// Create создает нового питомца в базе данных
+	Create(ctx context.Context, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
+
+	// GetPetQuery возвращает query для eager loading
+	GetPetQuery(ctx context.Context, id string) *ent.PetQuery
+
+	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
+	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
+
+	// Update обновляет питомца и его связанные сущности в одной транзакции
+	// Все параметры (кроме id и pet) могут быть nil - тогда соответствующие данные не обновляются
+	Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error)
+
+	// Delete удаляет питомца по его ID
+	Delete(ctx context.Context, id string) error
+
+	// ExistsByID проверяет, существует ли питомец с заданным ID
+	ExistsByID(ctx context.Context, id string) (bool, error)
+
+	// UpdateStatus обновляет статус питомца по его ID
+	UpdateStatus(ctx context.Context, id string, status string) error
+
+	// UpdateStatusWithTx обновляет статус питомца по его ID в рамках транзакции
+	UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error
+
+	// AddPhotoURLs добавляет новые пути к фотографиям питомца
+	AddPhotoURLs(ctx context.Context, id string, paths []string) error
+}
+
+// BreedRepository определяет интерфейс для операций с данными пород
+type BreedRepository interface {
+	// GetAll возвращает все породы из базы данных
+	GetAll(ctx context.Context) ([]*ent.Breed, error)
+
+	// GetByID получает породу по её ID
+	GetByID(ctx context.Context, id string) (*ent.Breed, error)
+
+	// GetByPetType получает породы по типу животного
+	GetByPetType(ctx context.Context, petType breed.Type) ([]*ent.Breed, error)
+
+	// Create создает новую породу в базе данных
+	Create(ctx context.Context, b *ent.Breed) (*ent.Breed, error)
+
+	// Update обновляет существующую породу в базе данных
+	Update(ctx context.Context, b *ent.Breed) (*ent.Breed, error)
+
+	// Delete удаляет породу по её ID
+	Delete(ctx context.Context, id string) error
+
+	// ExistsByName проверяет, существует ли порода с заданным названием
+	ExistsByName(ctx context.Context, name string) (bool, error)
+}
 
 // PetPreloadOptions определяет опции для preload связанных данных питомца
 type PetPreloadOptions struct {
@@ -23,48 +78,17 @@ type PetPreloadOptions struct {
 	WithAll        bool
 }
 
-// PetService определяет интерфейс для бизнес-логики питомцев
-type PetService interface {
-	// CreatePet создает нового питомца для пользователя
-	CreatePet(ctx context.Context, userID string, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
-
-	// GetPetQuery возвращает query для eager loading
-	GetPetQuery(ctx context.Context, petID string) *ent.PetQuery
-
-	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
-	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
-
-	// GetPet получает питомца с preload связанных данных
-	GetPet(ctx context.Context, petID string, opts PetPreloadOptions) (*ent.Pet, error)
-
-	// GetUserPets получает всех питомцев пользователя с preload связанных данных
-	GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*ent.Pet, error)
-
-	// Update обновляет питомца и его связанные сущности (здоровье, лечения, анализы, бонусы)
-	// Все параметры могут быть nil - тогда соответствующие данные не обновляются
-	Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error)
-
-	// DeletePet удаляет питомца по ID
-	DeletePet(ctx context.Context, petID string) error
-
-	// ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
-	ApplyValidation(ctx context.Context, petID string) ([]validator.FactorCode, []validator.FactorCode, error)
-
-	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(pet *ent.Pet)
-}
-
 // PetServiceImpl реализует PetService
 type PetServiceImpl struct {
-	petRepo   repositories.PetRepository
-	userRepo  repositories.UserRepository
-	storage   repositories.FileStorage
+	petRepo   PetRepository
+	userRepo  UserRepository
+	storage   FileStorage
 	bloodRepo BloodRequestRepository
 	validator validator.DonorValidator
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo repositories.PetRepository, userRepo repositories.UserRepository, bloodRepo BloodRequestRepository, storage repositories.FileStorage, validator validator.DonorValidator) *PetServiceImpl {
+func NewPetService(petRepo PetRepository, userRepo UserRepository, bloodRepo BloodRequestRepository, storage FileStorage, validator validator.DonorValidator) *PetServiceImpl {
 	return &PetServiceImpl{
 		petRepo:   petRepo,
 		userRepo:  userRepo,

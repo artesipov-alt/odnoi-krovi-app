@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
@@ -21,7 +22,7 @@ type BloodRequestRepository interface {
 	GetByPetID(ctx context.Context, petID string) *ent.BloodSearchRequestQuery
 
 	// Update обновляет информацию о заявке
-	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) error
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
@@ -45,16 +46,25 @@ type BloodRequestRepository interface {
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }
 
+// BloodInfoRepository определяет интерфейс для работы с типами крови
+type BloodInfoRepository interface {
+	AllComponents(ctx context.Context) ([]*ent.BloodComponent, error)
+	ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error)
+	BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error)
+	FindByTypeAndBloodGroup(ctx context.Context, petType bloodgroup.PetType, bloodGroup string) (*ent.BloodGroup, error)
+	FindByBloodGroup(ctx context.Context, bloodGroup string) (*ent.BloodGroup, error)
+}
+
 // BloodSearchService реализует BloodSearchService
 type BloodSearchService struct {
 	txManager repositories.TxManager
 	bloodRepo BloodRequestRepository
-	petRepo   repositories.PetRepository
-	storage   repositories.FileStorage
+	petRepo   PetRepository
+	storage   FileStorage
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(txManager repositories.TxManager, repo BloodRequestRepository, petRepo repositories.PetRepository, storage repositories.FileStorage) *BloodSearchService {
+func NewBloodSearchService(txManager repositories.TxManager, repo BloodRequestRepository, petRepo PetRepository, storage FileStorage) *BloodSearchService {
 	return &BloodSearchService{
 		txManager: txManager,
 		bloodRepo: repo,
@@ -146,14 +156,14 @@ func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string
 }
 
 // UpdateRequest обновляет информацию о заявке
-func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) error {
 	// Проверяем существование
 	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrBloodRequestNotFound
+			return apperrors.ErrBloodRequestNotFound
 		}
-		return nil, apperrors.Internal(err, "failed to get blood request")
+		return apperrors.Internal(err, "failed to get blood request")
 	}
 
 	// Сохраняем текущий статус, если он не передан
@@ -161,12 +171,11 @@ func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, blood
 		bloodReq.Status = &req.Status
 	}
 
-	updated, err := s.bloodRepo.Update(ctx, id, bloodReq)
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to update blood request")
+	if err := s.bloodRepo.Update(ctx, id, bloodReq); err != nil {
+		return apperrors.Internal(err, "failed to update blood request")
 	}
 
-	return updated, nil
+	return nil
 }
 
 // UpdateStatus обновляет статус заявки
