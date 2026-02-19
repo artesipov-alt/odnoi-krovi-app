@@ -27,17 +27,17 @@ type UploadInfo struct {
 	ObjectPath string
 }
 
-// FileServiceImpl реализует FileService
-type FileServiceImpl struct {
+// FileService реализует FileStorage
+type FileService struct {
 	PetRepo   PetRepository
 	UserRepo  UserRepository
 	BloodRepo BloodRequestRepository
 	storage   FileStorage
 }
 
-// NewFileService создает новый FileServiceImpl
-func NewFileService(petRepo PetRepository, userRepo UserRepository, bloodRepo BloodRequestRepository, storage FileStorage) *FileServiceImpl {
-	return &FileServiceImpl{
+// NewFileService создает новый FileService
+func NewFileService(petRepo PetRepository, userRepo UserRepository, bloodRepo BloodRequestRepository, storage FileStorage) *FileService {
+	return &FileService{
 		PetRepo:   petRepo,
 		UserRepo:  userRepo,
 		BloodRepo: bloodRepo,
@@ -46,7 +46,7 @@ func NewFileService(petRepo PetRepository, userRepo UserRepository, bloodRepo Bl
 }
 
 // GetPresignURLs Возвращает ссылки для загрузки фотографий.
-func (s *FileServiceImpl) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]UploadInfo, error) {
+func (s *FileService) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]UploadInfo, error) {
 	if len(preloads) == 0 {
 		return nil, apperrors.BadRequest("preload type is required")
 	}
@@ -102,7 +102,7 @@ func (s *FileServiceImpl) GetPresignURLs(ctx context.Context, ID string, count i
 }
 
 // ConfirmUploads подтверждает загрузку фото для сущности
-func (s *FileServiceImpl) ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error {
+func (s *FileService) ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error {
 	switch preload {
 	case "pet_avatar":
 		exists, err := s.PetRepo.ExistsByID(ctx, ID)
