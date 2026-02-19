@@ -46,33 +46,16 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *ent.CreateB
 		Save(ctx)
 }
 
-// CreateWithTx создает новую заявку на поиск крови в рамках транзакции
-func (r *EntBloodRequestRepository) CreateWithTx(ctx context.Context, tx *ent.Tx, req *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
-	return tx.BloodSearchRequest.Create().
-		SetPetID(req.PetID).
-		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(*req.BloodVolumeReserved).
-		SetRegions(req.Regions).
-		SetSmallPetsNotifyAllowed(*req.SmallPetsNotifyAllowed).
-		SetStatus(bloodsearchrequest.Status(*req.Status)).
-		SetNillableDescription(req.Description).
-		SetPhotoUrls(req.PhotoUrls).
-		SetBloodGroupNames(req.BloodGroupNames).
-		SetBloodComponentIds(req.BloodComponentIds).
-		SetOnBoarding(req.OnBoarding).
-		Save(ctx)
-}
-
 // GetByID возвращает заявку по её идентификатору
-func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
-	return r.client(ctx).BloodSearchRequest.Get(ctx, id)
+func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) *ent.BloodSearchRequestQuery {
+	return r.client(ctx).BloodSearchRequest.Query().
+		Where(bloodsearchrequest.ID(id))
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
-func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) *ent.BloodSearchRequestQuery {
 	return r.client(ctx).BloodSearchRequest.Query().
-		Where(bloodsearchrequest.PetID(petID)).
-		Only(ctx)
+		Where(bloodsearchrequest.PetID(petID))
 }
 
 // Update обновляет информацию о заявке
@@ -98,21 +81,9 @@ func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string,
 		Exec(ctx)
 }
 
-// UpdateStatusWithTx обновляет статус заявки в рамках транзакции
-func (r *EntBloodRequestRepository) UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error {
-	return tx.BloodSearchRequest.UpdateOneID(id).
-		SetStatus(bloodsearchrequest.Status(status)).
-		Exec(ctx)
-}
-
 // Delete удаляет заявку из хранилища (soft delete)
 func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error {
 	return r.client(ctx).BloodSearchRequest.DeleteOneID(id).Exec(ctx)
-}
-
-// DeleteWithTx удаляет заявку из хранилища в рамках транзакции (soft delete)
-func (r *EntBloodRequestRepository) DeleteWithTx(ctx context.Context, tx *ent.Tx, id string) error {
-	return tx.BloodSearchRequest.DeleteOneID(id).Exec(ctx)
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией

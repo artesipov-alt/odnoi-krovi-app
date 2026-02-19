@@ -15,10 +15,10 @@ type BloodRequestRepository interface {
 	Create(ctx context.Context, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// GetByID возвращает заявку по её идентификатору
-	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
+	GetByID(ctx context.Context, id string) *ent.BloodSearchRequestQuery
 
 	// GetByPetID возвращает заявку по идентификатору питомца
-	GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
+	GetByPetID(ctx context.Context, petID string) *ent.BloodSearchRequestQuery
 
 	// Update обновляет информацию о заявке
 	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
@@ -113,12 +113,14 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 
 // GetRequestByID получает заявку по её ID
 func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
-	req, err := s.bloodRepo.GetByID(ctx, id)
+	reqQuery := s.bloodRepo.GetByID(ctx, id)
+
+	req, err := reqQuery.Only(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) {
+		if ent.IsNotFound(err) { // This case should ideally be caught by the initial GetByID, but good for defensive programming
 			return nil, apperrors.ErrBloodRequestNotFound
 		}
-		return nil, apperrors.Internal(err, "failed to get blood request")
+		return nil, apperrors.Internal(err, "failed to execute blood request query")
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -129,7 +131,7 @@ func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*en
 
 // GetRequestByPetID получает активную заявку для конкретного питомца
 func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
-	req, err := s.bloodRepo.GetByPetID(ctx, petID)
+	req, err := s.bloodRepo.GetByPetID(ctx, petID).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
@@ -137,13 +139,16 @@ func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string
 		return nil, apperrors.Internal(err, "failed to get blood request by pet ID")
 	}
 
+	// Преобразуем пути к фото в полные URL
+	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls)
+
 	return req, nil
 }
 
 // UpdateRequest обновляет информацию о заявке
 func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование
-	existing, err := s.bloodRepo.GetByID(ctx, id)
+	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
@@ -153,7 +158,7 @@ func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, blood
 
 	// Сохраняем текущий статус, если он не передан
 	if bloodReq.Status == nil {
-		bloodReq.Status = &existing.Status
+		bloodReq.Status = &req.Status
 	}
 
 	updated, err := s.bloodRepo.Update(ctx, id, bloodReq)
@@ -171,7 +176,7 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 	}
 
 	// Получаем заявку, чтобы узнать PetID
-	req, err := s.bloodRepo.GetByID(ctx, id)
+	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrBloodRequestNotFound
@@ -213,7 +218,7 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 // DeleteRequest удаляет заявку (soft delete)
 func (s *BloodSearchService) DeleteRequest(ctx context.Context, id string) error {
 	// Получаем заявку, чтобы узнать PetID
-	req, err := s.bloodRepo.GetByID(ctx, id)
+	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrBloodRequestNotFound
