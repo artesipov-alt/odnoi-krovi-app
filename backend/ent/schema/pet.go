@@ -80,6 +80,8 @@ func (Pet) Edges() []ent.Edge {
 			Ref("pets").
 			Unique().
 			Field("blood_group_id"),
+		edge.From("donations", DonorResponse.Type).
+			Ref("donor"),
 		edge.To("blood_search_request", BloodSearchRequest.Type).Unique(),
 	}
 }

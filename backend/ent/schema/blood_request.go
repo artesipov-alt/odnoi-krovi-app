@@ -63,6 +63,7 @@ func (BloodSearchRequest) Edges() []ent.Edge {
 			Field("pet_id").
 			Unique().
 			Required(),
+		edge.To("responses", DonorResponse.Type),
 	}
 }
 
