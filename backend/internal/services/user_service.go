@@ -13,11 +13,11 @@ type UserRepository interface {
 	// Create создает нового пользователя в базе данных
 	Create(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
-	// GetQuery возвращает query для eager loading
-	GetByID(ctx context.Context, id string) *ent.UserQuery
+	// GetByID возвращает пользователя по ID
+	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*ent.User, error)
 
-	// GetQueryByTelegram возвращает query для eager loading по Telegram ID
-	GetByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery
+	// GetByTelegram возвращает пользователя по Telegram ID
+	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*ent.User, error)
 
 	// Update обновляет существующего пользователя в базе данных
 	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
@@ -56,7 +56,7 @@ type LocationRepository interface {
 	Exists(ctx context.Context, id string) (bool, error)
 }
 
-type UserOptions struct {
+type UserPreloadOptions struct {
 	WithPets bool
 }
 
@@ -142,8 +142,7 @@ func (s *UserService) RegisterUserSimple(ctx context.Context, input *ent.CreateU
 // DeleteUser удаляет пользователя по ID (soft delete)
 func (s *UserService) DeleteUser(ctx context.Context, userID string) error {
 	// Проверяем, существует ли пользователь
-	query := s.userRepo.GetByID(ctx, userID)
-	_, err := query.Only(ctx)
+	_, err := s.userRepo.GetByID(ctx, userID, UserPreloadOptions{})
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrUserNotFound
@@ -182,16 +181,13 @@ func (s *UserService) Update(ctx context.Context, id string, input *ent.UpdateUs
 }
 
 // GetUserByID получает пользователя по ID
-func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserOptions) (*ent.User, error) {
-	query := s.userRepo.GetByID(ctx, userID)
-
-	if opts.WithPets {
-		query = query.WithPets()
-	}
-
-	u, err := query.Only(ctx)
+func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserPreloadOptions) (*ent.User, error) {
+	u, err := s.userRepo.GetByID(ctx, userID, opts)
 	if err != nil {
-		return nil, err
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrUserNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -201,14 +197,8 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserO
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
-func (s *UserService) GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserOptions) (*ent.User, error) {
-	query := s.userRepo.GetByTelegram(ctx, telegramID)
-
-	if opts.WithPets {
-		query = query.WithPets()
-	}
-
-	u, err := query.First(ctx)
+func (s *UserService) GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*ent.User, error) {
+	u, err := s.userRepo.GetByTelegram(ctx, telegramID, opts)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound

@@ -24,10 +24,10 @@ type UserService interface {
 	RegisterUserSimple(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
 
 	// GetUserByID получает пользователя по его внутреннему ID
-	GetUserByID(ctx context.Context, userID string, opt services.UserOptions) (*ent.User, error)
+	GetUserByID(ctx context.Context, userID string, opt services.UserPreloadOptions) (*ent.User, error)
 
 	// GetUserByTelegramID получает пользователя по Telegram ID
-	GetUserByTelegramID(ctx context.Context, telegramID int64, opts services.UserOptions) (*ent.User, error)
+	GetUserByTelegramID(ctx context.Context, telegramID int64, opts services.UserPreloadOptions) (*ent.User, error)
 
 	// Update обновляет информацию о пользователе
 	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
@@ -153,7 +153,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 }) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
-	usr, err := h.userService.GetUserByID(ctx, input.ID, services.UserOptions{
+	usr, err := h.userService.GetUserByID(ctx, input.ID, services.UserPreloadOptions{
 		WithPets: input.WithPets,
 	})
 
@@ -216,7 +216,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 }) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
-	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, services.UserOptions{
+	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, services.UserPreloadOptions{
 		WithPets: input.WithPets,
 	})
 

@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 )
 
 // EntUserRepository implements UserRepository using ENT
@@ -37,13 +38,35 @@ func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInp
 }
 
 // GetQuery returns a query for eager loading
-func (r *EntUserRepository) GetByID(ctx context.Context, id string) *ent.UserQuery {
-	return r.client.User.Query().Where(user.ID(id))
+func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts services.UserPreloadOptions) (*ent.User, error) {
+	quser := r.client.User.Query().Where(user.ID(id))
+
+	if opts.WithPets {
+		quser = quser.WithPets()
+	}
+
+	user, err := quser.Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
-// GetQueryByTelegram returns a query for eager loading by Telegram ID
-func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64) *ent.UserQuery {
-	return r.client.User.Query().Where(user.TelegramID(telegramID))
+// GetByTelegram returns a user by Telegram ID
+func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts services.UserPreloadOptions) (*ent.User, error) {
+	quser := r.client.User.Query().Where(user.TelegramID(telegramID))
+
+	if opts.WithPets {
+		quser = quser.WithPets()
+	}
+
+	user, err := quser.Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // ExistsByID checks if a user with the given ID exists
