@@ -4,7 +4,6 @@ package services
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 )
 
@@ -103,9 +102,15 @@ func (s *FileService) GetPresignURLs(ctx context.Context, ID string, count int64
 
 // ConfirmUploads подтверждает загрузку фото для сущности
 func (s *FileService) ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error {
+
+	var (
+		exists bool
+		err    error
+	)
+
 	switch preload {
 	case "pet_avatar":
-		exists, err := s.PetRepo.ExistsByID(ctx, ID)
+		exists, err = s.PetRepo.ExistsByID(ctx, ID)
 		if err != nil {
 			return apperrors.Internal(err, "failed to check pet existence")
 		}
@@ -117,22 +122,12 @@ func (s *FileService) ConfirmUploads(ctx context.Context, ID string, paths []str
 			return apperrors.Internal(err, "failed to confirm uploads for pet")
 		}
 		// Обновить PhotoUrls в питомце через репозиторий (замена на новые)
-		// Сначала проверяем, существует ли питомец
-		_, err = s.PetRepo.GetPetQuery(ctx, ID).Only(ctx)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return apperrors.ErrPetNotFound
-			}
-			return apperrors.Internal(err, "failed to get pet for update")
-		}
-		_, err = s.PetRepo.Update(ctx, ID, &ent.UpdatePetInput{
-			PhotoUrls: paths,
-		}, nil, nil, nil, nil)
+		err = s.PetRepo.AddPhotoURLs(ctx, ID, paths)
 		if err != nil {
 			return apperrors.Internal(err, "failed to update pet photos")
 		}
 	case "user_avatar":
-		exists, err := s.UserRepo.ExistsByID(ctx, ID)
+		exists, err = s.UserRepo.ExistsByID(ctx, ID)
 		if err != nil {
 			return apperrors.Internal(err, "failed to check user existence")
 		}
@@ -148,7 +143,7 @@ func (s *FileService) ConfirmUploads(ctx context.Context, ID string, paths []str
 			return apperrors.Internal(err, "failed to update user photos")
 		}
 	case "blood_req":
-		exists, err := s.BloodRepo.ExistsByID(ctx, ID)
+		exists, err = s.BloodRepo.ExistsByID(ctx, ID)
 		if err != nil {
 			return apperrors.Internal(err, "failed to check blood request existence")
 		}

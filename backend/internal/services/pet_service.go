@@ -19,10 +19,10 @@ type PetRepository interface {
 	Create(ctx context.Context, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
 
 	// GetPetQuery возвращает query для eager loading
-	GetPetQuery(ctx context.Context, id string) *ent.PetQuery
+	GetPet(ctx context.Context, id string, opts PetPreloadOptions) (*ent.Pet, error)
 
 	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
-	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
+	GetPetsByUser(ctx context.Context, userID string, opts PetPreloadOptions) ([]*ent.Pet, error)
 
 	// Update обновляет питомца и его связанные сущности в одной транзакции
 	// Все параметры (кроме id и pet) могут быть nil - тогда соответствующие данные не обновляются
@@ -36,9 +36,6 @@ type PetRepository interface {
 
 	// UpdateStatus обновляет статус питомца по его ID
 	UpdateStatus(ctx context.Context, id string, status string) error
-
-	// UpdateStatusWithTx обновляет статус питомца по его ID в рамках транзакции
-	UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error
 
 	// AddPhotoURLs добавляет новые пути к фотографиям питомца
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
@@ -108,6 +105,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 		return nil, apperrors.ErrUserNotFound
 	}
 
+	// Set the owner ID for the pet
+	input.OwnerID = &userID
+
 	// Нормализуем опциональные поля: конвертируем пустые строки в nil
 	if input.Gender != nil && string(*input.Gender) == "" {
 		input.Gender = nil
@@ -151,7 +151,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 
 	if input.ReproductiveStatus != nil && string(*input.ReproductiveStatus) != "" {
 		if err := pet.ReproductiveStatusValidator(*input.ReproductiveStatus); err != nil {
-			return nil, apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
+			return nil, apperrors.Validation("неверный репродуктивный статус", nil).WithInternal(err)
 		}
 	}
 
@@ -185,9 +185,6 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 		}
 	}
 
-	// Set the owner ID for the pet
-	input.OwnerID = &userID
-
 	newPet, err := s.petRepo.Create(ctx, input, healthInput, treatmentsInput, analysesInput, bonusesInput)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create pet")
@@ -200,7 +197,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 	}
 
 	// Получаем обновленного питомца
-	updatedPet, err := s.petRepo.GetPetQuery(ctx, newPet.ID).Only(ctx)
+	updatedPet, err := s.petRepo.GetPet(ctx, newPet.ID, PetPreloadOptions{})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get updated pet")
 	}
@@ -211,66 +208,12 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 	return updatedPet, nil
 }
 
-// GetPetByID получает питомца по ID с preload связей
-func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads ...string) (*ent.Pet, error) {
-	if petID == "" {
-		return nil, apperrors.BadRequest("неверный ID питомца")
-	}
-
-	p, err := s.petRepo.GetPetQuery(ctx, petID).Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrPetNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get pet")
-	}
-
-	// Преобразуем пути к фото в полные URL
-	p.PhotoUrls = s.BuildFullPhotoURLs(p.PhotoUrls)
-
-	return p, nil
-}
-
-// GetPetQuery возвращает query для eager loading
-func (s *PetServiceImpl) GetPetQuery(ctx context.Context, petID string) *ent.PetQuery {
-	return s.petRepo.GetPetQuery(ctx, petID)
-}
-
-// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
-func (s *PetServiceImpl) GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery {
-	return s.petRepo.GetPetsQueryByUser(ctx, userID)
-}
-
 // GetPet получает питомца с preload связанных данных
 func (s *PetServiceImpl) GetPet(ctx context.Context, petID string, opts PetPreloadOptions) (*ent.Pet, error) {
-	pquery := s.petRepo.GetPetQuery(ctx, petID)
-
-	// Применяем preload опции
-	if opts.WithAll {
-		pquery = pquery.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
-	} else {
-		if opts.WithHealth {
-			pquery = pquery.WithHealth()
-		}
-		if opts.WithTreatments {
-			pquery = pquery.WithTreatments()
-		}
-		if opts.WithAnalyses {
-			pquery = pquery.WithAnalyses()
-		}
-		if opts.WithBonuses {
-			pquery = pquery.WithBonuses()
-		}
-	}
-
-	pet, err := pquery.Only(ctx)
+	pet, err := s.petRepo.GetPet(ctx, petID, opts)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrPetNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get pet")
+		return nil, err
 	}
-
 	// Преобразуем пути к фото в полные URL
 	pet.PhotoUrls = s.BuildFullPhotoURLs(pet.PhotoUrls)
 
@@ -288,29 +231,9 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts Pe
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	pquery := s.petRepo.GetPetsQueryByUser(ctx, userID)
-
-	// Применяем preload опции
-	if opts.WithAll {
-		pquery = pquery.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
-	} else {
-		if opts.WithHealth {
-			pquery = pquery.WithHealth()
-		}
-		if opts.WithTreatments {
-			pquery = pquery.WithTreatments()
-		}
-		if opts.WithAnalyses {
-			pquery = pquery.WithAnalyses()
-		}
-		if opts.WithBonuses {
-			pquery = pquery.WithBonuses()
-		}
-	}
-
-	pets, err := pquery.All(ctx)
+	pets, err := s.petRepo.GetPetsByUser(ctx, userID, opts)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get pets")
+		return nil, err
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -322,7 +245,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts Pe
 }
 
 // Update обновляет питомца и его связанные сущности
-func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error) {
+func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) error {
 	// Нормализуем опциональные поля: конвертируем пустые строки в nil
 	if petInput != nil {
 		if petInput.Name != nil && *petInput.Name == "" {
@@ -349,27 +272,27 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 	if petInput != nil {
 		if petInput.Type != nil && *petInput.Type != "" {
 			if err := pet.TypeValidator(*petInput.Type); err != nil {
-				return nil, apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
+				return apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
 			}
 		}
 		if petInput.PetStatus != nil && *petInput.PetStatus != "" {
 			if err := pet.PetStatusValidator(*petInput.PetStatus); err != nil {
-				return nil, apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
+				return apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
 			}
 		}
 		if petInput.Gender != nil && string(*petInput.Gender) != "" {
 			if err := pet.GenderValidator(*petInput.Gender); err != nil {
-				return nil, apperrors.Validation("неверный пол животного", nil).WithInternal(err)
+				return apperrors.Validation("неверный пол животного", nil).WithInternal(err)
 			}
 		}
 		if petInput.LivingCondition != nil && string(*petInput.LivingCondition) != "" {
 			if err := pet.LivingConditionValidator(*petInput.LivingCondition); err != nil {
-				return nil, apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
+				return apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
 			}
 		}
 		if petInput.ReproductiveStatus != nil && string(*petInput.ReproductiveStatus) != "" {
 			if err := pet.ReproductiveStatusValidator(*petInput.ReproductiveStatus); err != nil {
-				return nil, apperrors.Validation("неверный статус репродукции", nil).WithInternal(err)
+				return apperrors.Validation("неверный статус репродукции", nil).WithInternal(err)
 			}
 		}
 	}
@@ -378,7 +301,7 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 	if healthInput != nil {
 		if healthInput.HealthStatus != nil && string(*healthInput.HealthStatus) != "" {
 			if err := pethealth.HealthStatusValidator(*healthInput.HealthStatus); err != nil {
-				return nil, apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
+				return apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
 			}
 		}
 	}
@@ -386,7 +309,7 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 	for _, a := range analysesInput {
 		if a.AnalysisName != nil && *a.AnalysisName != petanalysis.AnalysisName("") {
 			if err := petanalysis.AnalysisNameValidator(*a.AnalysisName); err != nil {
-				return nil, apperrors.Validation("неверный тип анализа", nil).WithInternal(err)
+				return apperrors.Validation("неверный тип анализа", nil).WithInternal(err)
 			}
 		}
 	}
@@ -395,27 +318,18 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 	_, err := s.petRepo.Update(ctx, id, petInput, healthInput, treatmentsInput, analysesInput, bonusesInput)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrPetNotFound
+			return apperrors.ErrPetNotFound
 		}
-		return nil, apperrors.Internal(err, "failed to update pet")
+		return apperrors.Internal(err, "failed to update pet")
 	}
 
 	// Применяем валидацию
 	_, _, err = s.ApplyValidation(ctx, id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// Получаем обновленного питомца
-	updatedPet, err := s.petRepo.GetPetQuery(ctx, id).Only(ctx)
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get updated pet")
-	}
-
-	// Преобразуем пути к фото в полные URL
-	updatedPet.PhotoUrls = s.BuildFullPhotoURLs(updatedPet.PhotoUrls)
-
-	return updatedPet, nil
+	return nil
 }
 
 // DeletePet удаляет питомца по ID
@@ -448,6 +362,7 @@ func (s *PetServiceImpl) DeletePet(ctx context.Context, petID string) error {
 	return nil
 }
 
+// TODO Продумать как сделать валидацию более правильно
 // ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
 func (s *PetServiceImpl) ApplyValidation(ctx context.Context, petID string) ([]validator.FactorCode, []validator.FactorCode, error) {
 	// Получаем питомца для валидации

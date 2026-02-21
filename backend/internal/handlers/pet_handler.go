@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -23,12 +22,6 @@ type PetService interface {
 	// CreatePet создает нового питомца для пользователя
 	CreatePet(ctx context.Context, userID string, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
 
-	// GetPetQuery возвращает query для eager loading
-	GetPetQuery(ctx context.Context, petID string) *ent.PetQuery
-
-	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
-	GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery
-
 	// GetPet получает питомца с preload связанных данных
 	GetPet(ctx context.Context, petID string, opts services.PetPreloadOptions) (*ent.Pet, error)
 
@@ -37,7 +30,7 @@ type PetService interface {
 
 	// Update обновляет питомца и его связанные сущности (здоровье, лечения, анализы, бонусы)
 	// Все параметры могут быть nil - тогда соответствующие данные не обновляются
-	Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error)
+	Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) error
 
 	// DeletePet удаляет питомца по ID
 	DeletePet(ctx context.Context, petID string) error
@@ -137,14 +130,10 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	Body dto.PetCreate
 }) (*dto.PetResponse, error) {
-	slog.DebugContext(ctx, "creating pet", "user_id", input.ID)
+
 	// Рассчитываем BirthDate, если нужно
 	body := input.Body
-	if body.BirthDate == nil && (body.AgeYears > 0 || body.AgeMonths > 0) {
-		birthDate := time.Now().AddDate(-body.AgeYears, -body.AgeMonths, 0)
-		birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
-		body.BirthDate = &birthDate
-	}
+	body.BirthDate = calculateBirthDateFromAge(&body.AgeYears, &body.AgeMonths)
 
 	// Копируем в CreatePetInput
 	var petInput ent.CreatePetInput
@@ -169,7 +158,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	// Копируем health
 	var healthInput *ent.CreatePetHealthInput
 	if body.Health != nil {
-		healthInput = &ent.CreatePetHealthInput{}
+		healthInput = new(ent.CreatePetHealthInput)
 		if body.Health.HealthStatus != nil {
 			status := pethealth.HealthStatus(*body.Health.HealthStatus)
 			healthInput.HealthStatus = &status
@@ -183,7 +172,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	// Копируем treatments
 	var treatmentsInput *ent.CreatePetTreatmentInput
 	if body.Treatments != nil {
-		treatmentsInput = &ent.CreatePetTreatmentInput{}
+		treatmentsInput = new(ent.CreatePetTreatmentInput)
 		if err := copier.Copy(treatmentsInput, body.Treatments); err != nil {
 			return nil, apperrors.Internal(err, "failed to copy treatments data")
 		}
@@ -237,22 +226,9 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	dto.IDPathStr
 	Body dto.PetUpdate
 }) (*dto.MessageResponse, error) {
-	slog.DebugContext(ctx, "updating pet", "pet_id", input.ID)
-	// Рассчитываем BirthDate, если нужно
+
 	body := input.Body
-	if body.BirthDate == nil && (body.AgeYears != nil || body.AgeMonths != nil) {
-		ageYears := 0
-		if body.AgeYears != nil {
-			ageYears = *body.AgeYears
-		}
-		ageMonths := 0
-		if body.AgeMonths != nil {
-			ageMonths = *body.AgeMonths
-		}
-		birthDate := time.Now().AddDate(-ageYears, -ageMonths, 0)
-		birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
-		body.BirthDate = &birthDate
-	}
+	body.BirthDate = calculateBirthDateFromAge(body.AgeYears, body.AgeMonths)
 
 	// Копируем в UpdatePetInput
 	var petInput ent.UpdatePetInput
@@ -334,19 +310,19 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 		}
 	}
 
-	_, err := h.petService.Update(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput)
-	if err != nil {
+	if err := h.petService.Update(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput); err != nil {
 		return nil, err
 	}
 
 	return &dto.MessageResponse{Body: dto.MessageBody{Message: "Питомец обновлен"}}, nil
 }
 
-func (h *PetHandler) GetPet(ctx context.Context, input *struct {
-	dto.IDPathStr
-	dto.PetPreloadQuery
-}) (*dto.PetResponse, error) {
-	slog.DebugContext(ctx, "getting pet", "pet_id", input.ID)
+func (h *PetHandler) GetPet(ctx context.Context,
+	input *struct {
+		dto.IDPathStr
+		dto.PetPreloadQuery
+	}) (*dto.PetResponse, error) {
+	// Добавляем опции к запросу.
 	opts := services.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
@@ -363,11 +339,12 @@ func (h *PetHandler) GetPet(ctx context.Context, input *struct {
 	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
 }
 
-func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
-	dto.PetUserIDPath
-	dto.PetPreloadQuery
-}) (*dto.PetsResponse, error) {
-	slog.DebugContext(ctx, "getting user pets", "user_id", input.ID)
+func (h *PetHandler) GetUserPets(ctx context.Context,
+	input *struct {
+		dto.PetUserIDPath
+		dto.PetPreloadQuery
+	}) (*dto.PetsResponse, error) {
+
 	opts := services.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
@@ -385,7 +362,6 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *struct {
 }
 
 func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
-	slog.DebugContext(ctx, "deleting pet", "pet_id", input.ID)
 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
 		return nil, err
 	}
@@ -396,7 +372,6 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.
 }
 
 func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
-	slog.DebugContext(ctx, "validating donor", "pet_id", input.ID)
 	// Загружаем все связанные данные для полной валидации
 	p, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{WithAll: true})
 	if err != nil {
@@ -542,6 +517,30 @@ func (h *PetHandler) toPetsDTO(pets []*ent.Pet) []dto.Pet {
 		petDTOs[i] = h.toDTO(p)
 	}
 	return petDTOs
+}
+
+// calculateBirthDateFromAge вычисляет дату рождения на основе возраста в годах и месяцах
+func calculateBirthDateFromAge(ageYears, ageMonths *int) *time.Time {
+	if ageYears == nil && ageMonths == nil {
+		return nil
+	}
+
+	years := 0
+	if ageYears != nil {
+		years = *ageYears
+	}
+
+	months := 0
+	if ageMonths != nil {
+		months = *ageMonths
+	}
+
+	if years > 0 || months > 0 {
+		birthDate := time.Now().AddDate(-years, -months, 0)
+		birthDate = time.Date(birthDate.Year(), birthDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+		return &birthDate
+	}
+	return nil
 }
 
 // // mapDTOToPet преобразует DTO создания питомца в ENT модель

@@ -12,43 +12,45 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 )
 
-// EntPetRepository implements PetRepository using ENT
+// EntPetRepository реализует PetRepository с использованием ENT
 type EntPetRepository struct {
 	client *ent.Client
 }
 
-// NewEntPetRepository creates a new ENT pet repository
+// NewEntPetRepository создает новый репозиторий питомцев ENT
 func NewEntPetRepository(client *ent.Client) *EntPetRepository {
 	return &EntPetRepository{
 		client: client,
 	}
 }
 
-// Create creates a new pet in the database along with its related entities in a transaction
+// Create создает нового питомца в базе данных вместе с его связанными сущностями в транзакции
 func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error) {
 	if input == nil {
-		return nil, errors.New("pet input cannot be nil")
+		return nil, errors.New("входные данные питомца не могут быть nil")
 	}
 
-	// Start transaction
+	// Начать транзакцию
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to start transaction: %w", err)
+		return nil, fmt.Errorf("не удалось начать транзакцию: %w", err)
 	}
 
-	// 1. Create Pet
+	// 1. Создать питомца
 	petCreate := tx.Pet.Create().
 		SetInput(*input)
 
 	newPet, err := petCreate.Save(ctx)
 	if err != nil {
 		tx.Rollback()
-		return nil, fmt.Errorf("failed to create pet: %w", err)
+		return nil, fmt.Errorf("не удалось создать питомца: %w", err)
 	}
 
-	// 2. Create related entities if provided
+	// 2. Создать связанные сущности, если они предоставлены
 	if healthInput != nil {
 		_, err = tx.PetHealth.Create().
 			SetInput(*healthInput).
@@ -56,7 +58,7 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to create pet health: %w", err)
+			return nil, fmt.Errorf("не удалось создать данные о здоровье питомца: %w", err)
 		}
 	}
 
@@ -67,7 +69,7 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to create pet treatment: %w", err)
+			return nil, fmt.Errorf("не удалось создать данные о лечении питомца: %w", err)
 		}
 	}
 
@@ -79,7 +81,7 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 		_, err = builder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to create pet analysis: %w", err)
+			return nil, fmt.Errorf("не удалось создать анализ питомца: %w", err)
 		}
 	}
 
@@ -90,51 +92,101 @@ func (r *EntPetRepository) Create(ctx context.Context, input *ent.CreatePetInput
 			Save(ctx)
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to create pet bonus: %w", err)
+			return nil, fmt.Errorf("не удалось создать бонусы питомца: %w", err)
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
 	query := r.client.Pet.Query().Where(pet.ID(newPet.ID)).WithBreedRef().WithOwner()
 	return query.Only(ctx)
 }
 
-// GetPetQuery returns a query for eager loading
-func (r *EntPetRepository) GetPetQuery(ctx context.Context, id string) *ent.PetQuery {
-	return r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithOwner().WithBloodGroupRef()
+// GetPet возвращает питомца по его ID с возможностью предварительной загрузки связанных данных
+func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.PetPreloadOptions) (*ent.Pet, error) {
+	pquery := r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithBloodGroupRef()
+
+	// Применяем опции предварительной загрузки
+	if opts.WithAll {
+		pquery = pquery.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	} else {
+		if opts.WithHealth {
+			pquery = pquery.WithHealth()
+		}
+		if opts.WithTreatments {
+			pquery = pquery.WithTreatments()
+		}
+		if opts.WithAnalyses {
+			pquery = pquery.WithAnalyses()
+		}
+		if opts.WithBonuses {
+			pquery = pquery.WithBonuses()
+		}
+	}
+
+	pet, err := pquery.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrPetNotFound
+		}
+		return nil, apperrors.Internal(err, "не удалось получить питомца")
+	}
+	return pet, nil
 }
 
-// GetPetsQueryByUser returns a query for eager loading pets by user ID
-func (r *EntPetRepository) GetPetsQueryByUser(ctx context.Context, userID string) *ent.PetQuery {
-	return r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
+// GetPetsByUser возвращает запрос для предварительной загрузки питомцев по ID пользователя
+func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts services.PetPreloadOptions) ([]*ent.Pet, error) {
+	pquery := r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
+
+	// Применяем опции предварительной загрузки
+	if opts.WithAll {
+		pquery = pquery.WithHealth().WithTreatments().WithAnalyses().WithBonuses()
+	} else {
+		if opts.WithHealth {
+			pquery = pquery.WithHealth()
+		}
+		if opts.WithTreatments {
+			pquery = pquery.WithTreatments()
+		}
+		if opts.WithAnalyses {
+			pquery = pquery.WithAnalyses()
+		}
+		if opts.WithBonuses {
+			pquery = pquery.WithBonuses()
+		}
+	}
+	pets, err := pquery.All(ctx)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get pets")
+	}
+	return pets, nil
 }
 
-// Update updates an existing pet and its related entities in a transaction
+// Update обновляет существующего питомца и его связанные сущности в транзакции
 func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) (*ent.Pet, error) {
 	if id == "" {
-		return nil, errors.New("invalid pet ID")
+		return nil, errors.New("неверный ID питомца")
 	}
 
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to start transaction: %w", err)
+		return nil, fmt.Errorf("не удалось начать транзакцию: %w", err)
 	}
 
-	// 1. Update Pet
+	// 1. Обновить питомца
 	if petInput != nil {
 		err = tx.Pet.UpdateOneID(id).
 			SetInput(*petInput).
 			Exec(ctx)
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to update pet: %w", err)
+			return nil, fmt.Errorf("не удалось обновить питомца: %w", err)
 		}
 	}
 
-	// 2. Update health
+	// 2. Обновить данные о здоровье
 	if healthInput != nil {
 		existingHealth, err := tx.PetHealth.Query().Where(pethealth.HasOwnerWith(pet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
@@ -182,11 +234,11 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.
 		}
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to update pet health: %w", err)
+			return nil, fmt.Errorf("не удалось обновить данные о здоровье питомца: %w", err)
 		}
 	}
 
-	// 3. Update treatments
+	// 3. Обновить данные о лечении
 	if treatmentsInput != nil {
 		existingTreatment, err := tx.PetTreatment.Query().Where(pettreatment.HasOwnerWith(pet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
@@ -234,20 +286,20 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.
 		}
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to update pet treatment: %w", err)
+			return nil, fmt.Errorf("не удалось обновить данные о лечении питомца: %w", err)
 		}
 	}
 
-	// For analyses, delete existing ones and create new ones if provided
+	// Для анализов, удалить существующие и создать новые, если предоставлены
 	if analysesInput != nil {
-		// Delete existing analyses for this pet (hard delete)
+		// Удалить существующие анализы для этого питомца (жесткое удаление)
 		_, err = tx.PetAnalysis.Delete().Where(petanalysis.PetID(id)).Exec(schema.SkipSoftDelete(ctx))
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to delete existing pet analyses: %w", err)
+			return nil, fmt.Errorf("не удалось удалить существующие анализы питомца: %w", err)
 		}
 
-		// Create new analyses
+		// Создать новые анализы
 		for _, a := range analysesInput {
 			builder := tx.PetAnalysis.Create().
 				SetPetID(id)
@@ -265,12 +317,12 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.
 			_, err = builder.Save(ctx)
 			if err != nil {
 				tx.Rollback()
-				return nil, fmt.Errorf("failed to create pet analysis: %w", err)
+				return nil, fmt.Errorf("не удалось создать анализ питомца: %w", err)
 			}
 		}
 	}
 
-	// 5. Update bonuses
+	// 5. Обновить бонусы
 	if bonusesInput != nil {
 		existingBonus, err := tx.PetBonus.Query().Where(petbonus.HasOwnerWith(pet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
@@ -318,41 +370,41 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petInput *ent.
 		}
 		if err != nil {
 			tx.Rollback()
-			return nil, fmt.Errorf("failed to update pet bonus: %w", err)
+			return nil, fmt.Errorf("не удалось обновить бонусы питомца: %w", err)
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
 	query := r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithOwner()
 	return query.Only(ctx)
 }
 
-// Delete deletes a pet by their ID (soft delete)
+// Delete удаляет питомца по его ID (мягкое удаление)
 func (r *EntPetRepository) Delete(ctx context.Context, id string) error {
 	if id == "" {
-		return errors.New("invalid pet ID")
+		return errors.New("неверный ID питомца")
 	}
 
-	// Soft delete via SoftDeleteMixin hook
+	// Мягкое удаление через хук SoftDeleteMixin
 	err := r.client.Pet.DeleteOneID(id).Exec(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return fmt.Errorf("pet with id %s not found", id)
+			return fmt.Errorf("питомец с ID %s не найден", id)
 		}
-		return fmt.Errorf("failed to delete pet: %w", err)
+		return fmt.Errorf("не удалось удалить питомца: %w", err)
 	}
 
 	return nil
 }
 
-// ExistsByID checks if a pet with the given ID exists
+// ExistsByID проверяет, существует ли питомец с заданным ID
 func (r *EntPetRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
 	if id == "" {
-		return false, errors.New("invalid pet ID")
+		return false, errors.New("неверный ID питомца")
 	}
 
 	exists, err := r.client.Pet.Query().
@@ -360,19 +412,19 @@ func (r *EntPetRepository) ExistsByID(ctx context.Context, id string) (bool, err
 		Exist(ctx)
 
 	if err != nil {
-		return false, fmt.Errorf("failed to check pet existence by id %s: %w", id, err)
+		return false, fmt.Errorf("не удалось проверить существование питомца по ID %s: %w", id, err)
 	}
 
 	return exists, nil
 }
 
-// RestorePet restores a soft-deleted pet by setting deleted_at to NULL
+// RestorePet восстанавливает мягко удаленного питомца, устанавливая deleted_at в NULL
 func (r *EntPetRepository) RestorePet(ctx context.Context, id string) error {
 	if id == "" {
-		return errors.New("invalid pet ID")
+		return errors.New("неверный ID питомца")
 	}
 
-	// Use SkipSoftDelete context to find the deleted record
+	// Используйте контекст SkipSoftDelete для поиска удаленной записи
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
 	err := r.client.Pet.UpdateOneID(id).
@@ -381,17 +433,17 @@ func (r *EntPetRepository) RestorePet(ctx context.Context, id string) error {
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return fmt.Errorf("pet with id %s not found", id)
+			return fmt.Errorf("питомец с ID %s не найден", id)
 		}
-		return fmt.Errorf("failed to restore pet: %w", err)
+		return fmt.Errorf("не удалось восстановить питомца: %w", err)
 	}
 
 	return nil
 }
 
-// GetDeletedPets retrieves all soft-deleted pets
+// GetDeletedPets извлекает всех мягко удаленных питомцев
 func (r *EntPetRepository) GetDeletedPets(ctx context.Context) ([]*ent.Pet, error) {
-	// Use SkipSoftDelete context to see deleted records
+	// Используйте контекст SkipSoftDelete для просмотра удаленных записей
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
 	pets, err := r.client.Pet.Query().
@@ -403,34 +455,34 @@ func (r *EntPetRepository) GetDeletedPets(ctx context.Context) ([]*ent.Pet, erro
 		All(ctxWithSkip)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to get deleted pets: %w", err)
+		return nil, fmt.Errorf("не удалось получить удаленных питомцев: %w", err)
 	}
 
 	return pets, nil
 }
 
-// AddPhotoURLs adds new photo paths to the pet's PhotoUrls array
+// AddPhotoURLs добавляет новые пути к фотографиям в массив PhotoUrls питомца
 func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []string) error {
 	if id == "" {
-		return errors.New("invalid pet ID")
+		return errors.New("неверный ID питомца")
 	}
 
-	// Fetch current photo URLs
+	// Получить текущие URL-адреса фотографий
 	p, err := r.client.Pet.Get(ctx, id)
 	if err != nil {
-		return fmt.Errorf("failed to get pet for photo update: %w", err)
+		return fmt.Errorf("не удалось получить питомца для обновления фото: %w", err)
 	}
 
-	// Append new paths
+	// Добавить новые пути
 	newPhotoUrls := append(p.PhotoUrls, paths...)
 
-	// Update pet
+	// Обновить питомца
 	err = r.client.Pet.UpdateOneID(id).
 		SetPhotoUrls(newPhotoUrls).
 		Exec(ctx)
 
 	if err != nil {
-		return fmt.Errorf("failed to update pet photo URLs: %w", err)
+		return fmt.Errorf("не удалось обновить URL-адреса фотографий питомца: %w", err)
 	}
 
 	return nil
@@ -439,7 +491,7 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 // UpdateStatus обновляет статус питомца по его ID
 func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {
 	if id == "" {
-		return errors.New("invalid pet ID")
+		return errors.New("неверный ID питомца")
 	}
 
 	err := r.client.Pet.UpdateOneID(id).
@@ -448,29 +500,9 @@ func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status s
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return fmt.Errorf("pet with id %s not found", id)
+			return fmt.Errorf("питомец с ID %s не найден", id)
 		}
-		return fmt.Errorf("failed to update pet status: %w", err)
-	}
-
-	return nil
-}
-
-// UpdateStatusWithTx обновляет статус питомца по его ID в рамках транзакции
-func (r *EntPetRepository) UpdateStatusWithTx(ctx context.Context, tx *ent.Tx, id string, status string) error {
-	if id == "" {
-		return errors.New("invalid pet ID")
-	}
-
-	err := tx.Pet.UpdateOneID(id).
-		SetPetStatus(pet.PetStatus(status)).
-		Exec(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("pet with id %s not found", id)
-		}
-		return fmt.Errorf("failed to update pet status: %w", err)
+		return fmt.Errorf("не удалось обновить статус питомца: %w", err)
 	}
 
 	return nil
