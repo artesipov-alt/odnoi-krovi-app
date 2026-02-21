@@ -46,7 +46,7 @@ type PetService interface {
 	ApplyValidation(ctx context.Context, petID string) ([]validator.FactorCode, []validator.FactorCode, error)
 
 	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(pet *ent.Pet)
+	BuildFullPhotoURLs(paths []string) []string
 }
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами

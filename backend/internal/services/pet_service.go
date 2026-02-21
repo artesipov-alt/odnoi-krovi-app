@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -207,7 +206,7 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 	}
 
 	// Преобразуем пути к фото в полные URL
-	s.BuildFullPhotoURLs(updatedPet)
+	updatedPet.PhotoUrls = s.BuildFullPhotoURLs(updatedPet.PhotoUrls)
 
 	return updatedPet, nil
 }
@@ -227,7 +226,7 @@ func (s *PetServiceImpl) GetPetByID(ctx context.Context, petID string, preloads 
 	}
 
 	// Преобразуем пути к фото в полные URL
-	s.BuildFullPhotoURLs(p)
+	p.PhotoUrls = s.BuildFullPhotoURLs(p.PhotoUrls)
 
 	return p, nil
 }
@@ -273,7 +272,7 @@ func (s *PetServiceImpl) GetPet(ctx context.Context, petID string, opts PetPrelo
 	}
 
 	// Преобразуем пути к фото в полные URL
-	s.BuildFullPhotoURLs(pet)
+	pet.PhotoUrls = s.BuildFullPhotoURLs(pet.PhotoUrls)
 
 	return pet, nil
 }
@@ -316,7 +315,7 @@ func (s *PetServiceImpl) GetUserPets(ctx context.Context, userID string, opts Pe
 
 	// Преобразуем пути к фото в полные URL
 	for _, p := range pets {
-		s.BuildFullPhotoURLs(p)
+		p.PhotoUrls = s.BuildFullPhotoURLs(p.PhotoUrls)
 	}
 
 	return pets, nil
@@ -414,7 +413,7 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 	}
 
 	// Преобразуем пути к фото в полные URL
-	s.BuildFullPhotoURLs(updatedPet)
+	updatedPet.PhotoUrls = s.BuildFullPhotoURLs(updatedPet.PhotoUrls)
 
 	return updatedPet, nil
 }
@@ -504,16 +503,17 @@ func (s *PetServiceImpl) ApplyValidation(ctx context.Context, petID string) ([]v
 //===================HELPERS===============================================
 
 // BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *PetServiceImpl) BuildFullPhotoURLs(pet *ent.Pet) {
-	if len(pet.PhotoUrls) == 0 {
-		return
+func (s *PetServiceImpl) BuildFullPhotoURLs(paths []string) []string {
+	if len(paths) == 0 {
+		return []string{}
 	}
-	for i, path := range pet.PhotoUrls {
+	result := make([]string, len(paths))
+	for i, path := range paths {
 		if path == "" {
-			continue
+			result[i] = ""
+		} else {
+			result[i] = s.storage.GetPublicURLFromPath(path)
 		}
-		url := s.storage.GetPublicURLFromPath(path)
-		timestamp := pet.UpdatedAt.Unix()
-		pet.PhotoUrls[i] = fmt.Sprintf("%s?t=%d", url, timestamp)
 	}
+	return result
 }
