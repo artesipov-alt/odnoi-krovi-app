@@ -175,6 +175,12 @@ func (e *AppError) WithDetails(details map[string]interface{}) *AppError {
 	return e
 }
 
+// WithMessage изменяет сообщение ошибки
+func (e *AppError) WithMessage(message string) *AppError {
+	e.Message = message
+	return e
+}
+
 // WithInternal добавляет внутреннюю ошибку
 func (e *AppError) WithInternal(err error) *AppError {
 	e.Internal = err

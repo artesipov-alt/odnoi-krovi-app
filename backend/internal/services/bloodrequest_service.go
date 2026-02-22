@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
@@ -55,20 +56,36 @@ type BloodInfoRepository interface {
 	FindByBloodGroup(ctx context.Context, bloodGroup string) (*ent.BloodGroup, error)
 }
 
+// DonorResponseRepository определяет интерфейс для работы с откликами доноров
+type DonorResponseRepository interface {
+	CreateDonorResponse(ctx context.Context, reqID, donorID string, amountML int32) error
+	GetDonorResponseByID(ctx context.Context, id string) (*ent.DonorResponse, error)
+	UpdateDonorResponseStatus(ctx context.Context, id, status string) error
+	DeleteDonorResponse(ctx context.Context, id string) error
+	GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*ent.DonorResponse, error)
+	GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*ent.DonorResponse, error)
+	ExistsByID(ctx context.Context, id string) (bool, error)
+	ExistsByRequestID(ctx context.Context, reqID string) (bool, error)
+	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
+	Count(ctx context.Context) (int, error)
+}
+
 // BloodSearchService реализует BloodSearchService
 type BloodSearchService struct {
 	txManager repositories.TxManager
 	bloodRepo BloodRequestRepository
 	petRepo   PetRepository
+	donorRepo DonorResponseRepository
 	storage   FileStorage
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(txManager repositories.TxManager, repo BloodRequestRepository, petRepo PetRepository, storage FileStorage) *BloodSearchService {
+func NewBloodSearchService(txManager repositories.TxManager, repo BloodRequestRepository, petRepo PetRepository, donorRepo DonorResponseRepository, storage FileStorage) *BloodSearchService {
 	return &BloodSearchService{
 		txManager: txManager,
 		bloodRepo: repo,
 		petRepo:   petRepo,
+		donorRepo: donorRepo,
 		storage:   storage,
 	}
 }
@@ -145,6 +162,53 @@ func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string
 	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls)
 
 	return req, nil
+}
+
+func (s *BloodSearchService) ApplyForBloodRequest(ctx context.Context, reqID, donorID string, amountML int32) error {
+	// Проверяем существование и статус заявки
+	req, err := s.bloodRepo.GetByID(ctx, reqID)
+	if err != nil {
+		return err
+	}
+	if req.Status != bloodsearchrequest.StatusActive {
+		return apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
+	}
+
+	// Проверяем существование донора
+	donorExists, err := s.petRepo.ExistsByID(ctx, donorID)
+	if err != nil {
+		return apperrors.Internal(err, "failed to check donor existence")
+	}
+	if !donorExists {
+		return apperrors.ErrPetNotFound
+	}
+
+	// Проверяем статус донора
+	donor, err := s.petRepo.GetPet(ctx, donorID, PetPreloadOptions{})
+	if err != nil {
+		return err
+	}
+	if len(donor.DonorRestrictions) > 0 {
+		for _, restriction := range donor.DonorRestrictions {
+			if strings.HasPrefix(restriction, "STOP") {
+				return apperrors.ErrInvalidPetStatus.WithMessage("pet is not a donor")
+			}
+		}
+	}
+
+	// Проверяем, нет ли уже отклика от этого донора на эту заявку
+	responses, err := s.donorRepo.GetDonorResponsesByDonorID(ctx, donorID)
+	if err != nil {
+		return apperrors.Internal(err, "failed to check existing responses")
+	}
+	for _, resp := range responses {
+		if resp.Edges.Request.ID == reqID {
+			return apperrors.ErrDonorResponseAlreadyExists
+		}
+	}
+
+	// Создаем отклик
+	return s.donorRepo.CreateDonorResponse(ctx, reqID, donorID, amountML)
 }
 
 // UpdateRequest обновляет информацию о заявке

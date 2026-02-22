@@ -102,6 +102,7 @@ func main() {
 		bloodInfoRepo := pg.NewEntBloodInfoRepository(db)
 		petRepo := pg.NewEntPetRepository(db)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
+		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := repositories.NewTxManager(db)
 
@@ -110,7 +111,7 @@ func main() {
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
 		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage, donorValidator)
-		bloodSearchService := services.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, fileStorage)
+		bloodSearchService := services.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация обработчиков

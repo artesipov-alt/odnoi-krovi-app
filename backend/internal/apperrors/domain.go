@@ -25,6 +25,7 @@ var (
 	ErrInvalidWeight          = BadRequest("вес должен быть положительным числом")
 	ErrInvalidAge             = BadRequest("возраст должен быть положительным числом")
 	ErrInvalidAgeMonths       = BadRequest("месяцы должны быть от 0 до 11")
+	ErrInvalidPetStatus       = BadRequest("неверный статус питомца")
 )
 
 // BloodType domain errors
@@ -45,6 +46,11 @@ var (
 	ErrBloodRequestNotFound      = NotFound("заявка на поиск крови не найдена")
 	ErrBloodRequestAlreadyExists = AlreadyExists("заявка на поиск крови уже существует для этого питомца")
 	ErrInvalidBloodRequestStatus = BadRequest("неверный статус заявки")
+)
+
+// DonorResponse domain errors
+var (
+	ErrDonorResponseAlreadyExists = AlreadyExists("отклик донора уже существует")
 )
 
 // ==========Helper functions для создания ошибок с контекстом=============
