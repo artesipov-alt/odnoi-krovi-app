@@ -25,13 +25,13 @@ type PetAnalysis struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// PetID holds the value of the "pet_id" field.
-	PetID string `json:"petId"`
+	PetID string `json:"pet_id,omitempty"`
 	// AnalysisName holds the value of the "analysis_name" field.
-	AnalysisName petanalysis.AnalysisName `json:"analysisName"`
+	AnalysisName petanalysis.AnalysisName `json:"analysis_name,omitempty"`
 	// AnalysisType holds the value of the "analysis_type" field.
-	AnalysisType petanalysis.AnalysisType `json:"analysisType"`
+	AnalysisType petanalysis.AnalysisType `json:"analysis_type,omitempty"`
 	// AnalysisDate holds the value of the "analysis_date" field.
-	AnalysisDate *time.Time `json:"analysisDate"`
+	AnalysisDate *time.Time `json:"analysis_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetAnalysisQuery when eager-loading is set.
 	Edges        PetAnalysisEdges `json:"edges"`

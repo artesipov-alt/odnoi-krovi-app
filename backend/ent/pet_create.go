@@ -16,7 +16,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -78,7 +77,7 @@ func (_c *PetCreate) SetName(v string) *PetCreate {
 }
 
 // SetType sets the "type" field.
-func (_c *PetCreate) SetType(v pet.Type) *PetCreate {
+func (_c *PetCreate) SetType(v string) *PetCreate {
 	_c.mutation.SetType(v)
 	return _c
 }
@@ -98,13 +97,13 @@ func (_c *PetCreate) SetNillableWeightKg(v *float64) *PetCreate {
 }
 
 // SetGender sets the "gender" field.
-func (_c *PetCreate) SetGender(v pet.Gender) *PetCreate {
+func (_c *PetCreate) SetGender(v string) *PetCreate {
 	_c.mutation.SetGender(v)
 	return _c
 }
 
 // SetNillableGender sets the "gender" field if the given value is not nil.
-func (_c *PetCreate) SetNillableGender(v *pet.Gender) *PetCreate {
+func (_c *PetCreate) SetNillableGender(v *string) *PetCreate {
 	if v != nil {
 		_c.SetGender(*v)
 	}
@@ -201,28 +200,14 @@ func (_c *PetCreate) SetNillableTreatmentID(v *string) *PetCreate {
 	return _c
 }
 
-// SetBonusID sets the "bonus_id" field.
-func (_c *PetCreate) SetBonusID(v string) *PetCreate {
-	_c.mutation.SetBonusID(v)
-	return _c
-}
-
-// SetNillableBonusID sets the "bonus_id" field if the given value is not nil.
-func (_c *PetCreate) SetNillableBonusID(v *string) *PetCreate {
-	if v != nil {
-		_c.SetBonusID(*v)
-	}
-	return _c
-}
-
 // SetLivingCondition sets the "living_condition" field.
-func (_c *PetCreate) SetLivingCondition(v pet.LivingCondition) *PetCreate {
+func (_c *PetCreate) SetLivingCondition(v string) *PetCreate {
 	_c.mutation.SetLivingCondition(v)
 	return _c
 }
 
 // SetNillableLivingCondition sets the "living_condition" field if the given value is not nil.
-func (_c *PetCreate) SetNillableLivingCondition(v *pet.LivingCondition) *PetCreate {
+func (_c *PetCreate) SetNillableLivingCondition(v *string) *PetCreate {
 	if v != nil {
 		_c.SetLivingCondition(*v)
 	}
@@ -230,13 +215,13 @@ func (_c *PetCreate) SetNillableLivingCondition(v *pet.LivingCondition) *PetCrea
 }
 
 // SetReproductiveStatus sets the "reproductive_status" field.
-func (_c *PetCreate) SetReproductiveStatus(v pet.ReproductiveStatus) *PetCreate {
+func (_c *PetCreate) SetReproductiveStatus(v string) *PetCreate {
 	_c.mutation.SetReproductiveStatus(v)
 	return _c
 }
 
 // SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
-func (_c *PetCreate) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *PetCreate {
+func (_c *PetCreate) SetNillableReproductiveStatus(v *string) *PetCreate {
 	if v != nil {
 		_c.SetReproductiveStatus(*v)
 	}
@@ -260,6 +245,12 @@ func (_c *PetCreate) SetNillableBloodGroupID(v *string) *PetCreate {
 	if v != nil {
 		_c.SetBloodGroupID(*v)
 	}
+	return _c
+}
+
+// SetBonuses sets the "bonuses" field.
+func (_c *PetCreate) SetBonuses(v []string) *PetCreate {
+	_c.mutation.SetBonuses(v)
 	return _c
 }
 
@@ -333,25 +324,6 @@ func (_c *PetCreate) AddAnalyses(v ...*PetAnalysis) *PetCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddAnalysisIDs(ids...)
-}
-
-// SetBonusesID sets the "bonuses" edge to the PetBonus entity by ID.
-func (_c *PetCreate) SetBonusesID(id string) *PetCreate {
-	_c.mutation.SetBonusesID(id)
-	return _c
-}
-
-// SetNillableBonusesID sets the "bonuses" edge to the PetBonus entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableBonusesID(id *string) *PetCreate {
-	if id != nil {
-		_c = _c.SetBonusesID(*id)
-	}
-	return _c
-}
-
-// SetBonuses sets the "bonuses" edge to the PetBonus entity.
-func (_c *PetCreate) SetBonuses(v *PetBonus) *PetCreate {
-	return _c.SetBonusesID(v.ID)
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by ID.
@@ -486,37 +458,12 @@ func (_c *PetCreate) check() error {
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Pet.name"`)}
 	}
-	if v, ok := _c.mutation.Name(); ok {
-		if err := pet.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Pet.name": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Pet.type"`)}
-	}
-	if v, ok := _c.mutation.GetType(); ok {
-		if err := pet.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Pet.type": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.Gender(); ok {
-		if err := pet.GenderValidator(v); err != nil {
-			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Pet.gender": %w`, err)}
-		}
 	}
 	if v, ok := _c.mutation.ChipNumber(); ok {
 		if err := pet.ChipNumberValidator(v); err != nil {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.LivingCondition(); ok {
-		if err := pet.LivingConditionValidator(v); err != nil {
-			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
-		}
-	}
-	if v, ok := _c.mutation.ReproductiveStatus(); ok {
-		if err := pet.ReproductiveStatusValidator(v); err != nil {
-			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "Pet.reproductive_status": %w`, err)}
 		}
 	}
 	return nil
@@ -571,7 +518,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_node.Name = value
 	}
 	if value, ok := _c.mutation.GetType(); ok {
-		_spec.SetField(pet.FieldType, field.TypeEnum, value)
+		_spec.SetField(pet.FieldType, field.TypeString, value)
 		_node.Type = value
 	}
 	if value, ok := _c.mutation.WeightKg(); ok {
@@ -579,7 +526,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_node.WeightKg = value
 	}
 	if value, ok := _c.mutation.Gender(); ok {
-		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
+		_spec.SetField(pet.FieldGender, field.TypeString, value)
 		_node.Gender = value
 	}
 	if value, ok := _c.mutation.BirthDate(); ok {
@@ -595,16 +542,20 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_node.PhotoUrls = value
 	}
 	if value, ok := _c.mutation.LivingCondition(); ok {
-		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)
+		_spec.SetField(pet.FieldLivingCondition, field.TypeString, value)
 		_node.LivingCondition = value
 	}
 	if value, ok := _c.mutation.ReproductiveStatus(); ok {
-		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
+		_spec.SetField(pet.FieldReproductiveStatus, field.TypeString, value)
 		_node.ReproductiveStatus = value
 	}
 	if value, ok := _c.mutation.DonorRestrictions(); ok {
 		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
 		_node.DonorRestrictions = value
+	}
+	if value, ok := _c.mutation.Bonuses(); ok {
+		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
+		_node.Bonuses = value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -671,23 +622,6 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.BonusesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pet.BonusesTable,
-			Columns: []string{pet.BonusesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.BonusID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.BreedRefIDs(); len(nodes) > 0 {

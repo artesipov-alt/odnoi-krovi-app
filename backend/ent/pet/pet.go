@@ -3,9 +3,6 @@
 package pet
 
 import (
-	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -46,8 +43,6 @@ const (
 	FieldHealthID = "health_id"
 	// FieldTreatmentID holds the string denoting the treatment_id field in the database.
 	FieldTreatmentID = "treatment_id"
-	// FieldBonusID holds the string denoting the bonus_id field in the database.
-	FieldBonusID = "bonus_id"
 	// FieldLivingCondition holds the string denoting the living_condition field in the database.
 	FieldLivingCondition = "living_condition"
 	// FieldReproductiveStatus holds the string denoting the reproductive_status field in the database.
@@ -56,6 +51,8 @@ const (
 	FieldDonorRestrictions = "donor_restrictions"
 	// FieldBloodGroupID holds the string denoting the blood_group_id field in the database.
 	FieldBloodGroupID = "blood_group_id"
+	// FieldBonuses holds the string denoting the bonuses field in the database.
+	FieldBonuses = "bonuses"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeHealth holds the string denoting the health edge name in mutations.
@@ -64,8 +61,6 @@ const (
 	EdgeTreatments = "treatments"
 	// EdgeAnalyses holds the string denoting the analyses edge name in mutations.
 	EdgeAnalyses = "analyses"
-	// EdgeBonuses holds the string denoting the bonuses edge name in mutations.
-	EdgeBonuses = "bonuses"
 	// EdgeBreedRef holds the string denoting the breed_ref edge name in mutations.
 	EdgeBreedRef = "breed_ref"
 	// EdgeBloodGroupRef holds the string denoting the blood_group_ref edge name in mutations.
@@ -104,13 +99,6 @@ const (
 	AnalysesInverseTable = "pet_analyses"
 	// AnalysesColumn is the table column denoting the analyses relation/edge.
 	AnalysesColumn = "pet_id"
-	// BonusesTable is the table that holds the bonuses relation/edge.
-	BonusesTable = "pets"
-	// BonusesInverseTable is the table name for the PetBonus entity.
-	// It exists in this package in order to avoid circular dependency with the "petbonus" package.
-	BonusesInverseTable = "pet_bonuses"
-	// BonusesColumn is the table column denoting the bonuses relation/edge.
-	BonusesColumn = "bonus_id"
 	// BreedRefTable is the table that holds the breed_ref relation/edge.
 	BreedRefTable = "pets"
 	// BreedRefInverseTable is the table name for the Breed entity.
@@ -158,11 +146,11 @@ var Columns = []string{
 	FieldUserID,
 	FieldHealthID,
 	FieldTreatmentID,
-	FieldBonusID,
 	FieldLivingCondition,
 	FieldReproductiveStatus,
 	FieldDonorRestrictions,
 	FieldBloodGroupID,
+	FieldBonuses,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -188,107 +176,11 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// NameValidator is a validator for the "name" field. It is called by the builders before save.
-	NameValidator func(string) error
 	// ChipNumberValidator is a validator for the "chip_number" field. It is called by the builders before save.
 	ChipNumberValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
-
-// Type defines the type for the "type" enum field.
-type Type string
-
-// Type values.
-const (
-	TypeDog Type = "dog"
-	TypeCat Type = "cat"
-)
-
-func (_type Type) String() string {
-	return string(_type)
-}
-
-// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
-func TypeValidator(_type Type) error {
-	switch _type {
-	case TypeDog, TypeCat:
-		return nil
-	default:
-		return fmt.Errorf("pet: invalid enum value for type field: %q", _type)
-	}
-}
-
-// Gender defines the type for the "gender" enum field.
-type Gender string
-
-// Gender values.
-const (
-	GenderMale   Gender = "male"
-	GenderFemale Gender = "female"
-)
-
-func (ge Gender) String() string {
-	return string(ge)
-}
-
-// GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
-func GenderValidator(ge Gender) error {
-	switch ge {
-	case GenderMale, GenderFemale:
-		return nil
-	default:
-		return fmt.Errorf("pet: invalid enum value for gender field: %q", ge)
-	}
-}
-
-// LivingCondition defines the type for the "living_condition" enum field.
-type LivingCondition string
-
-// LivingCondition values.
-const (
-	LivingConditionIndoor       LivingCondition = "indoor"
-	LivingConditionLeashWalking LivingCondition = "leash_walking"
-	LivingConditionSelfOutdoor  LivingCondition = "self_outdoor"
-)
-
-func (lc LivingCondition) String() string {
-	return string(lc)
-}
-
-// LivingConditionValidator is a validator for the "living_condition" field enum values. It is called by the builders before save.
-func LivingConditionValidator(lc LivingCondition) error {
-	switch lc {
-	case LivingConditionIndoor, LivingConditionLeashWalking, LivingConditionSelfOutdoor:
-		return nil
-	default:
-		return fmt.Errorf("pet: invalid enum value for living_condition field: %q", lc)
-	}
-}
-
-// ReproductiveStatus defines the type for the "reproductive_status" enum field.
-type ReproductiveStatus string
-
-// ReproductiveStatus values.
-const (
-	ReproductiveStatusPregnancy ReproductiveStatus = "pregnancy"
-	ReproductiveStatusLactation ReproductiveStatus = "lactation"
-	ReproductiveStatusEstrus    ReproductiveStatus = "estrus"
-)
-
-func (rs ReproductiveStatus) String() string {
-	return string(rs)
-}
-
-// ReproductiveStatusValidator is a validator for the "reproductive_status" field enum values. It is called by the builders before save.
-func ReproductiveStatusValidator(rs ReproductiveStatus) error {
-	switch rs {
-	case ReproductiveStatusPregnancy, ReproductiveStatusLactation, ReproductiveStatusEstrus:
-		return nil
-	default:
-		return fmt.Errorf("pet: invalid enum value for reproductive_status field: %q", rs)
-	}
-}
 
 // OrderOption defines the ordering options for the Pet queries.
 type OrderOption func(*sql.Selector)
@@ -363,11 +255,6 @@ func ByTreatmentID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTreatmentID, opts...).ToFunc()
 }
 
-// ByBonusID orders the results by the bonus_id field.
-func ByBonusID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBonusID, opts...).ToFunc()
-}
-
 // ByLivingCondition orders the results by the living_condition field.
 func ByLivingCondition(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLivingCondition, opts...).ToFunc()
@@ -415,13 +302,6 @@ func ByAnalysesCount(opts ...sql.OrderTermOption) OrderOption {
 func ByAnalyses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newAnalysesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByBonusesField orders the results by bonuses field.
-func ByBonusesField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBonusesStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -487,13 +367,6 @@ func newAnalysesStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, true, AnalysesTable, AnalysesColumn),
 	)
 }
-func newBonusesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(BonusesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, BonusesTable, BonusesColumn),
-	)
-}
 func newBreedRefStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -521,76 +394,4 @@ func newBloodSearchRequestStep() *sqlgraph.Step {
 		sqlgraph.To(BloodSearchRequestInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, BloodSearchRequestTable, BloodSearchRequestColumn),
 	)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e Type) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *Type) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = Type(str)
-	if err := TypeValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid Type", str)
-	}
-	return nil
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e Gender) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *Gender) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = Gender(str)
-	if err := GenderValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid Gender", str)
-	}
-	return nil
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e LivingCondition) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *LivingCondition) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = LivingCondition(str)
-	if err := LivingConditionValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid LivingCondition", str)
-	}
-	return nil
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e ReproductiveStatus) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *ReproductiveStatus) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = ReproductiveStatus(str)
-	if err := ReproductiveStatusValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid ReproductiveStatus", str)
-	}
-	return nil
 }

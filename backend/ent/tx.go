@@ -28,8 +28,6 @@ type Tx struct {
 	Pet *PetClient
 	// PetAnalysis is the client for interacting with the PetAnalysis builders.
 	PetAnalysis *PetAnalysisClient
-	// PetBonus is the client for interacting with the PetBonus builders.
-	PetBonus *PetBonusClient
 	// PetHealth is the client for interacting with the PetHealth builders.
 	PetHealth *PetHealthClient
 	// PetTreatment is the client for interacting with the PetTreatment builders.
@@ -175,7 +173,6 @@ func (tx *Tx) init() {
 	tx.Location = NewLocationClient(tx.config)
 	tx.Pet = NewPetClient(tx.config)
 	tx.PetAnalysis = NewPetAnalysisClient(tx.config)
-	tx.PetBonus = NewPetBonusClient(tx.config)
 	tx.PetHealth = NewPetHealthClient(tx.config)
 	tx.PetTreatment = NewPetTreatmentClient(tx.config)
 	tx.User = NewUserClient(tx.config)

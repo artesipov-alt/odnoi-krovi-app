@@ -21,7 +21,6 @@ import type {
   BloodSearchPetResponse,
   ConfirmUploadRequest,
   MessageBody,
-  Pet,
   UploadURLResponseBody,
 } from '../models/index';
 import {
@@ -37,8 +36,6 @@ import {
     ConfirmUploadRequestToJSON,
     MessageBodyFromJSON,
     MessageBodyToJSON,
-    PetFromJSON,
-    PetToJSON,
     UploadURLResponseBodyFromJSON,
     UploadURLResponseBodyToJSON,
 } from '../models/index';
@@ -60,10 +57,6 @@ export interface GetBloodRequestByIdRequest {
 }
 
 export interface GetBloodRequestByPetIdRequest {
-    id: string;
-}
-
-export interface GetDonorsByReqIdRequest {
     id: string;
 }
 
@@ -280,45 +273,6 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      */
     async getBloodRequestByPetId(requestParameters: GetBloodRequestByPetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetRequest> {
         const response = await this.getBloodRequestByPetIdRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает список доноров откликнувшихся на заявку
-     * Получить список доноров по ID заявки
-     */
-    async getDonorsByReqIdRaw(requestParameters: GetDonorsByReqIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Pet>>> {
-        if (requestParameters['id'] == null) {
-            throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getDonorsByReqId().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/blood-request/donors/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(PetFromJSON));
-    }
-
-    /**
-     * Возвращает список доноров откликнувшихся на заявку
-     * Получить список доноров по ID заявки
-     */
-    async getDonorsByReqId(requestParameters: GetDonorsByReqIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Pet>> {
-        const response = await this.getDonorsByReqIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

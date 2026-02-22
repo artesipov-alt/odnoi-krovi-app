@@ -23,7 +23,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -50,8 +49,6 @@ type Client struct {
 	Pet *PetClient
 	// PetAnalysis is the client for interacting with the PetAnalysis builders.
 	PetAnalysis *PetAnalysisClient
-	// PetBonus is the client for interacting with the PetBonus builders.
-	PetBonus *PetBonusClient
 	// PetHealth is the client for interacting with the PetHealth builders.
 	PetHealth *PetHealthClient
 	// PetTreatment is the client for interacting with the PetTreatment builders.
@@ -77,7 +74,6 @@ func (c *Client) init() {
 	c.Location = NewLocationClient(c.config)
 	c.Pet = NewPetClient(c.config)
 	c.PetAnalysis = NewPetAnalysisClient(c.config)
-	c.PetBonus = NewPetBonusClient(c.config)
 	c.PetHealth = NewPetHealthClient(c.config)
 	c.PetTreatment = NewPetTreatmentClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -181,7 +177,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Location:           NewLocationClient(cfg),
 		Pet:                NewPetClient(cfg),
 		PetAnalysis:        NewPetAnalysisClient(cfg),
-		PetBonus:           NewPetBonusClient(cfg),
 		PetHealth:          NewPetHealthClient(cfg),
 		PetTreatment:       NewPetTreatmentClient(cfg),
 		User:               NewUserClient(cfg),
@@ -212,7 +207,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Location:           NewLocationClient(cfg),
 		Pet:                NewPetClient(cfg),
 		PetAnalysis:        NewPetAnalysisClient(cfg),
-		PetBonus:           NewPetBonusClient(cfg),
 		PetHealth:          NewPetHealthClient(cfg),
 		PetTreatment:       NewPetTreatmentClient(cfg),
 		User:               NewUserClient(cfg),
@@ -246,8 +240,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed, c.DonorResponse,
-		c.Location, c.Pet, c.PetAnalysis, c.PetBonus, c.PetHealth, c.PetTreatment,
-		c.User,
+		c.Location, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -258,8 +251,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed, c.DonorResponse,
-		c.Location, c.Pet, c.PetAnalysis, c.PetBonus, c.PetHealth, c.PetTreatment,
-		c.User,
+		c.Location, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -284,8 +276,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Pet.mutate(ctx, m)
 	case *PetAnalysisMutation:
 		return c.PetAnalysis.mutate(ctx, m)
-	case *PetBonusMutation:
-		return c.PetBonus.mutate(ctx, m)
 	case *PetHealthMutation:
 		return c.PetHealth.mutate(ctx, m)
 	case *PetTreatmentMutation:
@@ -1381,22 +1371,6 @@ func (c *PetClient) QueryAnalyses(_m *Pet) *PetAnalysisQuery {
 	return query
 }
 
-// QueryBonuses queries the bonuses edge of a Pet.
-func (c *PetClient) QueryBonuses(_m *Pet) *PetBonusQuery {
-	query := (&PetBonusClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(pet.Table, pet.FieldID, id),
-			sqlgraph.To(petbonus.Table, petbonus.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, pet.BonusesTable, pet.BonusesColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryBreedRef queries the breed_ref edge of a Pet.
 func (c *PetClient) QueryBreedRef(_m *Pet) *BreedQuery {
 	query := (&BreedClient{config: c.config}).Query()
@@ -1634,156 +1608,6 @@ func (c *PetAnalysisClient) mutate(ctx context.Context, m *PetAnalysisMutation) 
 		return (&PetAnalysisDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown PetAnalysis mutation op: %q", m.Op())
-	}
-}
-
-// PetBonusClient is a client for the PetBonus schema.
-type PetBonusClient struct {
-	config
-}
-
-// NewPetBonusClient returns a client for the PetBonus from the given config.
-func NewPetBonusClient(c config) *PetBonusClient {
-	return &PetBonusClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `petbonus.Hooks(f(g(h())))`.
-func (c *PetBonusClient) Use(hooks ...Hook) {
-	c.hooks.PetBonus = append(c.hooks.PetBonus, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `petbonus.Intercept(f(g(h())))`.
-func (c *PetBonusClient) Intercept(interceptors ...Interceptor) {
-	c.inters.PetBonus = append(c.inters.PetBonus, interceptors...)
-}
-
-// Create returns a builder for creating a PetBonus entity.
-func (c *PetBonusClient) Create() *PetBonusCreate {
-	mutation := newPetBonusMutation(c.config, OpCreate)
-	return &PetBonusCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of PetBonus entities.
-func (c *PetBonusClient) CreateBulk(builders ...*PetBonusCreate) *PetBonusCreateBulk {
-	return &PetBonusCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *PetBonusClient) MapCreateBulk(slice any, setFunc func(*PetBonusCreate, int)) *PetBonusCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &PetBonusCreateBulk{err: fmt.Errorf("calling to PetBonusClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*PetBonusCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &PetBonusCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for PetBonus.
-func (c *PetBonusClient) Update() *PetBonusUpdate {
-	mutation := newPetBonusMutation(c.config, OpUpdate)
-	return &PetBonusUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *PetBonusClient) UpdateOne(_m *PetBonus) *PetBonusUpdateOne {
-	mutation := newPetBonusMutation(c.config, OpUpdateOne, withPetBonus(_m))
-	return &PetBonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *PetBonusClient) UpdateOneID(id string) *PetBonusUpdateOne {
-	mutation := newPetBonusMutation(c.config, OpUpdateOne, withPetBonusID(id))
-	return &PetBonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for PetBonus.
-func (c *PetBonusClient) Delete() *PetBonusDelete {
-	mutation := newPetBonusMutation(c.config, OpDelete)
-	return &PetBonusDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *PetBonusClient) DeleteOne(_m *PetBonus) *PetBonusDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PetBonusClient) DeleteOneID(id string) *PetBonusDeleteOne {
-	builder := c.Delete().Where(petbonus.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &PetBonusDeleteOne{builder}
-}
-
-// Query returns a query builder for PetBonus.
-func (c *PetBonusClient) Query() *PetBonusQuery {
-	return &PetBonusQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypePetBonus},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a PetBonus entity by its id.
-func (c *PetBonusClient) Get(ctx context.Context, id string) (*PetBonus, error) {
-	return c.Query().Where(petbonus.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *PetBonusClient) GetX(ctx context.Context, id string) *PetBonus {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryOwner queries the owner edge of a PetBonus.
-func (c *PetBonusClient) QueryOwner(_m *PetBonus) *PetQuery {
-	query := (&PetClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(petbonus.Table, petbonus.FieldID, id),
-			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, petbonus.OwnerTable, petbonus.OwnerColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *PetBonusClient) Hooks() []Hook {
-	return c.hooks.PetBonus
-}
-
-// Interceptors returns the client interceptors.
-func (c *PetBonusClient) Interceptors() []Interceptor {
-	inters := c.inters.PetBonus
-	return append(inters[:len(inters):len(inters)], petbonus.Interceptors[:]...)
-}
-
-func (c *PetBonusClient) mutate(ctx context.Context, m *PetBonusMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&PetBonusCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&PetBonusUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&PetBonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&PetBonusDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown PetBonus mutation op: %q", m.Op())
 	}
 }
 
@@ -2257,10 +2081,10 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 type (
 	hooks struct {
 		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorResponse, Location,
-		Pet, PetAnalysis, PetBonus, PetHealth, PetTreatment, User []ent.Hook
+		Pet, PetAnalysis, PetHealth, PetTreatment, User []ent.Hook
 	}
 	inters struct {
 		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorResponse, Location,
-		Pet, PetAnalysis, PetBonus, PetHealth, PetTreatment, User []ent.Interceptor
+		Pet, PetAnalysis, PetHealth, PetTreatment, User []ent.Interceptor
 	}
 )

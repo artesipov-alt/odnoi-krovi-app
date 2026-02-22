@@ -54,6 +54,7 @@ type BloodInfoRepository interface {
 	BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error)
 	FindByTypeAndBloodGroup(ctx context.Context, petType bloodgroup.PetType, bloodGroup string) (*ent.BloodGroup, error)
 	FindByBloodGroup(ctx context.Context, bloodGroup string) (*ent.BloodGroup, error)
+	FindByName(ctx context.Context, name string) (*ent.BloodGroup, error)
 }
 
 // DonorResponseRepository определяет интерфейс для работы с откликами доноров

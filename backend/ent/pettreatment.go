@@ -25,13 +25,13 @@ type PetTreatment struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// RabiesVaccinationDate holds the value of the "rabies_vaccination_date" field.
-	RabiesVaccinationDate *time.Time `json:"rabiesVaccinationDate"`
+	RabiesVaccinationDate *time.Time `json:"rabies_vaccination_date,omitempty"`
 	// InfectionVaccinationDate holds the value of the "infection_vaccination_date" field.
-	InfectionVaccinationDate *time.Time `json:"infectionVaccinationDate"`
+	InfectionVaccinationDate *time.Time `json:"infection_vaccination_date,omitempty"`
 	// EctoparasiteTreatmentDate holds the value of the "ectoparasite_treatment_date" field.
-	EctoparasiteTreatmentDate *time.Time `json:"ectoparasiteTreatmentDate"`
+	EctoparasiteTreatmentDate *time.Time `json:"ectoparasite_treatment_date,omitempty"`
 	// DewormingDate holds the value of the "deworming_date" field.
-	DewormingDate *time.Time `json:"dewormingDate"`
+	DewormingDate *time.Time `json:"deworming_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetTreatmentQuery when eager-loading is set.
 	Edges        PetTreatmentEdges `json:"edges"`

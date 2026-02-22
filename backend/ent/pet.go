@@ -14,7 +14,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -32,37 +31,37 @@ type Pet struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// Name holds the value of the "name" field.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// Type holds the value of the "type" field.
-	Type pet.Type `json:"type"`
+	Type string `json:"type,omitempty"`
 	// WeightKg holds the value of the "weight_kg" field.
-	WeightKg float64 `json:"weightKg"`
+	WeightKg float64 `json:"weight_kg,omitempty"`
 	// Gender holds the value of the "gender" field.
-	Gender pet.Gender `json:"gender"`
+	Gender string `json:"gender,omitempty"`
 	// BirthDate holds the value of the "birth_date" field.
-	BirthDate *time.Time `json:"birthDate"`
+	BirthDate *time.Time `json:"birth_date,omitempty"`
 	// ChipNumber holds the value of the "chip_number" field.
-	ChipNumber string `json:"chipNumber"`
+	ChipNumber string `json:"chip_number,omitempty"`
 	// PhotoUrls holds the value of the "photo_urls" field.
-	PhotoUrls []string `json:"photoUrls"`
+	PhotoUrls []string `json:"photo_urls,omitempty"`
 	// BreedID holds the value of the "breed_id" field.
-	BreedID string `json:"breedId"`
+	BreedID string `json:"breed_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID string `json:"userId"`
+	UserID string `json:"user_id,omitempty"`
 	// HealthID holds the value of the "health_id" field.
-	HealthID string `json:"healthId"`
+	HealthID string `json:"health_id,omitempty"`
 	// TreatmentID holds the value of the "treatment_id" field.
-	TreatmentID string `json:"treatmentId"`
-	// BonusID holds the value of the "bonus_id" field.
-	BonusID string `json:"bonusId"`
+	TreatmentID string `json:"treatment_id,omitempty"`
 	// LivingCondition holds the value of the "living_condition" field.
-	LivingCondition pet.LivingCondition `json:"livingCondition"`
+	LivingCondition string `json:"living_condition,omitempty"`
 	// ReproductiveStatus holds the value of the "reproductive_status" field.
-	ReproductiveStatus pet.ReproductiveStatus `json:"reproductiveStatus"`
+	ReproductiveStatus string `json:"reproductive_status,omitempty"`
 	// DonorRestrictions holds the value of the "donor_restrictions" field.
-	DonorRestrictions []string `json:"donorRestrictions"`
+	DonorRestrictions []string `json:"donor_restrictions,omitempty"`
 	// BloodGroupID holds the value of the "blood_group_id" field.
-	BloodGroupID string `json:"bloodGroupId"`
+	BloodGroupID string `json:"blood_group_id,omitempty"`
+	// Bonuses holds the value of the "bonuses" field.
+	Bonuses []string `json:"bonuses,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
 	Edges        PetEdges `json:"edges"`
@@ -79,8 +78,6 @@ type PetEdges struct {
 	Treatments *PetTreatment `json:"treatments,omitempty"`
 	// Analyses holds the value of the analyses edge.
 	Analyses []*PetAnalysis `json:"analyses,omitempty"`
-	// Bonuses holds the value of the bonuses edge.
-	Bonuses *PetBonus `json:"bonuses,omitempty"`
 	// BreedRef holds the value of the breed_ref edge.
 	BreedRef *Breed `json:"breed_ref,omitempty"`
 	// BloodGroupRef holds the value of the blood_group_ref edge.
@@ -91,9 +88,9 @@ type PetEdges struct {
 	BloodSearchRequest *BloodSearchRequest `json:"blood_search_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [8]bool
 	// totalCount holds the count of the edges above.
-	totalCount [9]map[string]int
+	totalCount [8]map[string]int
 
 	namedAnalyses  map[string][]*PetAnalysis
 	namedDonations map[string][]*DonorResponse
@@ -141,23 +138,12 @@ func (e PetEdges) AnalysesOrErr() ([]*PetAnalysis, error) {
 	return nil, &NotLoadedError{edge: "analyses"}
 }
 
-// BonusesOrErr returns the Bonuses value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PetEdges) BonusesOrErr() (*PetBonus, error) {
-	if e.Bonuses != nil {
-		return e.Bonuses, nil
-	} else if e.loadedTypes[4] {
-		return nil, &NotFoundError{label: petbonus.Label}
-	}
-	return nil, &NotLoadedError{edge: "bonuses"}
-}
-
 // BreedRefOrErr returns the BreedRef value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e PetEdges) BreedRefOrErr() (*Breed, error) {
 	if e.BreedRef != nil {
 		return e.BreedRef, nil
-	} else if e.loadedTypes[5] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: breed.Label}
 	}
 	return nil, &NotLoadedError{edge: "breed_ref"}
@@ -168,7 +154,7 @@ func (e PetEdges) BreedRefOrErr() (*Breed, error) {
 func (e PetEdges) BloodGroupRefOrErr() (*BloodGroup, error) {
 	if e.BloodGroupRef != nil {
 		return e.BloodGroupRef, nil
-	} else if e.loadedTypes[6] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: bloodgroup.Label}
 	}
 	return nil, &NotLoadedError{edge: "blood_group_ref"}
@@ -177,7 +163,7 @@ func (e PetEdges) BloodGroupRefOrErr() (*BloodGroup, error) {
 // DonationsOrErr returns the Donations value or an error if the edge
 // was not loaded in eager-loading.
 func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[6] {
 		return e.Donations, nil
 	}
 	return nil, &NotLoadedError{edge: "donations"}
@@ -188,7 +174,7 @@ func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
 func (e PetEdges) BloodSearchRequestOrErr() (*BloodSearchRequest, error) {
 	if e.BloodSearchRequest != nil {
 		return e.BloodSearchRequest, nil
-	} else if e.loadedTypes[8] {
+	} else if e.loadedTypes[7] {
 		return nil, &NotFoundError{label: bloodsearchrequest.Label}
 	}
 	return nil, &NotLoadedError{edge: "blood_search_request"}
@@ -199,11 +185,11 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case pet.FieldPhotoUrls, pet.FieldDonorRestrictions:
+		case pet.FieldPhotoUrls, pet.FieldDonorRestrictions, pet.FieldBonuses:
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroupID:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroupID:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
@@ -257,7 +243,7 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				_m.Type = pet.Type(value.String)
+				_m.Type = value.String
 			}
 		case pet.FieldWeightKg:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -269,7 +255,7 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field gender", values[i])
 			} else if value.Valid {
-				_m.Gender = pet.Gender(value.String)
+				_m.Gender = value.String
 			}
 		case pet.FieldBirthDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -316,23 +302,17 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.TreatmentID = value.String
 			}
-		case pet.FieldBonusID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field bonus_id", values[i])
-			} else if value.Valid {
-				_m.BonusID = value.String
-			}
 		case pet.FieldLivingCondition:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field living_condition", values[i])
 			} else if value.Valid {
-				_m.LivingCondition = pet.LivingCondition(value.String)
+				_m.LivingCondition = value.String
 			}
 		case pet.FieldReproductiveStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reproductive_status", values[i])
 			} else if value.Valid {
-				_m.ReproductiveStatus = pet.ReproductiveStatus(value.String)
+				_m.ReproductiveStatus = value.String
 			}
 		case pet.FieldDonorRestrictions:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -347,6 +327,14 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field blood_group_id", values[i])
 			} else if value.Valid {
 				_m.BloodGroupID = value.String
+			}
+		case pet.FieldBonuses:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field bonuses", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Bonuses); err != nil {
+					return fmt.Errorf("unmarshal field bonuses: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -379,11 +367,6 @@ func (_m *Pet) QueryTreatments() *PetTreatmentQuery {
 // QueryAnalyses queries the "analyses" edge of the Pet entity.
 func (_m *Pet) QueryAnalyses() *PetAnalysisQuery {
 	return NewPetClient(_m.config).QueryAnalyses(_m)
-}
-
-// QueryBonuses queries the "bonuses" edge of the Pet entity.
-func (_m *Pet) QueryBonuses() *PetBonusQuery {
-	return NewPetClient(_m.config).QueryBonuses(_m)
 }
 
 // QueryBreedRef queries the "breed_ref" edge of the Pet entity.
@@ -444,13 +427,13 @@ func (_m *Pet) String() string {
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Type))
+	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
 	builder.WriteString("weight_kg=")
 	builder.WriteString(fmt.Sprintf("%v", _m.WeightKg))
 	builder.WriteString(", ")
 	builder.WriteString("gender=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Gender))
+	builder.WriteString(_m.Gender)
 	builder.WriteString(", ")
 	if v := _m.BirthDate; v != nil {
 		builder.WriteString("birth_date=")
@@ -475,20 +458,20 @@ func (_m *Pet) String() string {
 	builder.WriteString("treatment_id=")
 	builder.WriteString(_m.TreatmentID)
 	builder.WriteString(", ")
-	builder.WriteString("bonus_id=")
-	builder.WriteString(_m.BonusID)
-	builder.WriteString(", ")
 	builder.WriteString("living_condition=")
-	builder.WriteString(fmt.Sprintf("%v", _m.LivingCondition))
+	builder.WriteString(_m.LivingCondition)
 	builder.WriteString(", ")
 	builder.WriteString("reproductive_status=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ReproductiveStatus))
+	builder.WriteString(_m.ReproductiveStatus)
 	builder.WriteString(", ")
 	builder.WriteString("donor_restrictions=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DonorRestrictions))
 	builder.WriteString(", ")
 	builder.WriteString("blood_group_id=")
 	builder.WriteString(_m.BloodGroupID)
+	builder.WriteString(", ")
+	builder.WriteString("bonuses=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Bonuses))
 	builder.WriteByte(')')
 	return builder.String()
 }

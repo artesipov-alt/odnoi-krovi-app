@@ -20,7 +20,6 @@ import type {
   MessageBody,
   Pet,
   PetCreate,
-  PetUpdate,
   UploadURLResponseBody,
 } from '../models/index';
 import {
@@ -34,8 +33,6 @@ import {
     PetToJSON,
     PetCreateFromJSON,
     PetCreateToJSON,
-    PetUpdateFromJSON,
-    PetUpdateToJSON,
     UploadURLResponseBodyFromJSON,
     UploadURLResponseBodyToJSON,
 } from '../models/index';
@@ -49,43 +46,12 @@ export interface CreatePetRequest {
     petCreate: Omit<PetCreate, '$schema'>;
 }
 
-export interface DeletePetRequest {
-    id: string;
-}
-
-export interface GetPetByIdRequest {
-    id: string;
-    withHealth?: boolean;
-    withTreatments?: boolean;
-    withAnalysis?: boolean;
-    withBonuses?: boolean;
-    withAll?: boolean;
-}
-
 export interface GetPresignedUrlRequest {
     id: string;
     photosCount?: number;
     forPetAvatar?: boolean;
     forUserAvatar?: boolean;
     forBloodReq?: boolean;
-}
-
-export interface GetUserPetsRequest {
-    userId: string;
-    withHealth?: boolean;
-    withTreatments?: boolean;
-    withAnalysis?: boolean;
-    withBonuses?: boolean;
-    withAll?: boolean;
-}
-
-export interface UpdatePetRequest {
-    id: string;
-    petUpdate: Omit<PetUpdate, '$schema'>;
-}
-
-export interface ValidateDonorRequest {
-    id: string;
 }
 
 /**
@@ -184,104 +150,6 @@ export class PetsV1Api extends runtime.BaseAPI {
     }
 
     /**
-     * Удаляет питомца из системы
-     * Удаление питомца по ID
-     */
-    async deletePetRaw(requestParameters: DeletePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageBody>> {
-        if (requestParameters['id'] == null) {
-            throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling deletePet().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'DELETE',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MessageBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * Удаляет питомца из системы
-     * Удаление питомца по ID
-     */
-    async deletePet(requestParameters: DeletePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageBody> {
-        const response = await this.deletePetRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает информацию о питомце по его идентификатору
-     * Получение питомца по ID
-     */
-    async getPetByIdRaw(requestParameters: GetPetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Pet>> {
-        if (requestParameters['id'] == null) {
-            throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getPetById().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters['withHealth'] != null) {
-            queryParameters['with_health'] = requestParameters['withHealth'];
-        }
-
-        if (requestParameters['withTreatments'] != null) {
-            queryParameters['with_treatments'] = requestParameters['withTreatments'];
-        }
-
-        if (requestParameters['withAnalysis'] != null) {
-            queryParameters['with_analysis'] = requestParameters['withAnalysis'];
-        }
-
-        if (requestParameters['withBonuses'] != null) {
-            queryParameters['with_bonuses'] = requestParameters['withBonuses'];
-        }
-
-        if (requestParameters['withAll'] != null) {
-            queryParameters['with_all'] = requestParameters['withAll'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PetFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает информацию о питомце по его идентификатору
-     * Получение питомца по ID
-     */
-    async getPetById(requestParameters: GetPetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Pet> {
-        const response = await this.getPetByIdRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Возвращает временную ссылку для загрузки фотографии по ID
      * Получить ссылку для загрузки фотографии
      */
@@ -333,153 +201,6 @@ export class PetsV1Api extends runtime.BaseAPI {
      */
     async getPresignedUrl(requestParameters: GetPresignedUrlRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadURLResponseBody> {
         const response = await this.getPresignedUrlRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает всех питомцев конкретного пользователя
-     * Получение питомцев пользователя
-     */
-    async getUserPetsRaw(requestParameters: GetUserPetsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Pet>>> {
-        if (requestParameters['userId'] == null) {
-            throw new runtime.RequiredError(
-                'userId',
-                'Required parameter "userId" was null or undefined when calling getUserPets().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        if (requestParameters['withHealth'] != null) {
-            queryParameters['with_health'] = requestParameters['withHealth'];
-        }
-
-        if (requestParameters['withTreatments'] != null) {
-            queryParameters['with_treatments'] = requestParameters['withTreatments'];
-        }
-
-        if (requestParameters['withAnalysis'] != null) {
-            queryParameters['with_analysis'] = requestParameters['withAnalysis'];
-        }
-
-        if (requestParameters['withBonuses'] != null) {
-            queryParameters['with_bonuses'] = requestParameters['withBonuses'];
-        }
-
-        if (requestParameters['withAll'] != null) {
-            queryParameters['with_all'] = requestParameters['withAll'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/pet/user/{user_id}`;
-        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(PetFromJSON));
-    }
-
-    /**
-     * Возвращает всех питомцев конкретного пользователя
-     * Получение питомцев пользователя
-     */
-    async getUserPets(requestParameters: GetUserPetsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Pet>> {
-        const response = await this.getUserPetsRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Обновляет информацию о питомце
-     * Обновление данных питомца
-     */
-    async updatePetRaw(requestParameters: UpdatePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageBody>> {
-        if (requestParameters['id'] == null) {
-            throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling updatePet().'
-            );
-        }
-
-        if (requestParameters['petUpdate'] == null) {
-            throw new runtime.RequiredError(
-                'petUpdate',
-                'Required parameter "petUpdate" was null or undefined when calling updatePet().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-
-        let urlPath = `/v1/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'PUT',
-            headers: headerParameters,
-            query: queryParameters,
-            body: PetUpdateToJSON(requestParameters['petUpdate']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => MessageBodyFromJSON(jsonValue));
-    }
-
-    /**
-     * Обновляет информацию о питомце
-     * Обновление данных питомца
-     */
-    async updatePet(requestParameters: UpdatePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageBody> {
-        const response = await this.updatePetRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Пересчитывает и сохраняет факторы валидации донора для питомца
-     * Валидация донора по ID
-     */
-    async validateDonorRaw(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Pet>> {
-        if (requestParameters['id'] == null) {
-            throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling validateDonor().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/pet/validate-donor/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => PetFromJSON(jsonValue));
-    }
-
-    /**
-     * Пересчитывает и сохраняет факторы валидации донора для питомца
-     * Валидация донора по ID
-     */
-    async validateDonor(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Pet> {
-        const response = await this.validateDonorRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

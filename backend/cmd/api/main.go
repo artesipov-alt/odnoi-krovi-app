@@ -110,14 +110,14 @@ func main() {
 
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage, donorValidator)
+		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, bloodInfoRepo, fileStorage, donorValidator)
 		bloodSearchService := services.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация обработчиков
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 		userHandler := handlers.NewUserHandler(userService)
-		petHandler := handlers.NewPetHandler(petService, donorValidator, bloodInfoRepo)
+		petHandler := handlers.NewPetHandler(*petService, donorValidator, bloodInfoRepo)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 		fileHandler := handlers.NewFileHandler(fileService)
 

@@ -29,10 +29,6 @@ export interface GetBloodGroupsRequest {
     petType: string;
 }
 
-export interface GetBreedsByTypeRequest {
-    petType?: string;
-}
-
 /**
  * 
  */
@@ -140,72 +136,6 @@ export class ReferenceV1Api extends runtime.BaseAPI {
     }
 
     /**
-     * Возвращает список пород животных для указанного типа животного для выбора на фронтенде
-     * Получение пород животных по типу
-     */
-    async getBreedsByTypeRaw(requestParameters: GetBreedsByTypeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
-        const queryParameters: any = {};
-
-        if (requestParameters['petType'] != null) {
-            queryParameters['petType'] = requestParameters['petType'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/reference/breeds-by-type`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает список пород животных для указанного типа животного для выбора на фронтенде
-     * Получение пород животных по типу
-     */
-    async getBreedsByType(requestParameters: GetBreedsByTypeRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
-        const response = await this.getBreedsByTypeRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает все доступные значения пола для выбора на фронтенде
-     * Получение всех значений пола
-     */
-    async getGendersRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/reference/genders`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает все доступные значения пола для выбора на фронтенде
-     * Получение всех значений пола
-     */
-    async getGenders(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
-        const response = await this.getGendersRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Возвращает все доступные статусы здоровья для выбора на фронтенде
      * Получение всех статусов здоровья
      */
@@ -237,37 +167,6 @@ export class ReferenceV1Api extends runtime.BaseAPI {
     }
 
     /**
-     * Возвращает все доступные условия проживания для выбора на фронтенде
-     * Получение всех условий проживания
-     */
-    async getLivingConditionsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/reference/living-conditions`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает все доступные условия проживания для выбора на фронтенде
-     * Получение всех условий проживания
-     */
-    async getLivingConditions(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
-        const response = await this.getLivingConditionsRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
      * Возвращает список всех локаций в системе для выбора на фронтенде
      * Получение всех локаций
      */
@@ -295,99 +194,6 @@ export class ReferenceV1Api extends runtime.BaseAPI {
      */
     async getLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
         const response = await this.getLocationsRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает все доступные роли питомцев для выбора на фронтенде
-     * Получение всех ролей питомцев
-     */
-    async getPetRolesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/reference/pet-roles`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает все доступные роли питомцев для выбора на фронтенде
-     * Получение всех ролей питомцев
-     */
-    async getPetRoles(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
-        const response = await this.getPetRolesRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает все доступные типы животных для выбора на фронтенде
-     * Получение всех типов животных
-     */
-    async getPetTypesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/reference/pet-types`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает все доступные типы животных для выбора на фронтенде
-     * Получение всех типов животных
-     */
-    async getPetTypes(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
-        const response = await this.getPetTypesRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Возвращает все доступные репродуктивные состояния для выбора на фронтенде
-     * Получение всех репродуктивных состояний
-     */
-    async getReproductiveStatusesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ReferenceData>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/reference/reproductive-statuses`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ReferenceDataFromJSON(jsonValue));
-    }
-
-    /**
-     * Возвращает все доступные репродуктивные состояния для выбора на фронтенде
-     * Получение всех репродуктивных состояний
-     */
-    async getReproductiveStatuses(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ReferenceData> {
-        const response = await this.getReproductiveStatusesRaw(initOverrides);
         return await response.value();
     }
 

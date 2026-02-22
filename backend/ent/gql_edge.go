@@ -116,14 +116,6 @@ func (_m *Pet) Analyses(ctx context.Context) (result []*PetAnalysis, err error) 
 	return result, err
 }
 
-func (_m *Pet) Bonuses(ctx context.Context) (*PetBonus, error) {
-	result, err := _m.Edges.BonusesOrErr()
-	if IsNotLoaded(err) {
-		result, err = _m.QueryBonuses().Only(ctx)
-	}
-	return result, MaskNotFound(err)
-}
-
 func (_m *Pet) BreedRef(ctx context.Context) (*Breed, error) {
 	result, err := _m.Edges.BreedRefOrErr()
 	if IsNotLoaded(err) {
@@ -161,14 +153,6 @@ func (_m *Pet) BloodSearchRequest(ctx context.Context) (*BloodSearchRequest, err
 }
 
 func (_m *PetAnalysis) Owner(ctx context.Context) (*Pet, error) {
-	result, err := _m.Edges.OwnerOrErr()
-	if IsNotLoaded(err) {
-		result, err = _m.QueryOwner().Only(ctx)
-	}
-	return result, err
-}
-
-func (_m *PetBonus) Owner(ctx context.Context) (*Pet, error) {
 	result, err := _m.Edges.OwnerOrErr()
 	if IsNotLoaded(err) {
 		result, err = _m.QueryOwner().Only(ctx)

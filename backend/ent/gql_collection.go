@@ -14,7 +14,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -691,21 +690,6 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				*wq = *query
 			})
 
-		case "bonuses":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&PetBonusClient{config: _q.config}).Query()
-			)
-			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, petbonusImplementors)...); err != nil {
-				return err
-			}
-			_q.withBonuses = query
-			if _, ok := fieldSeen[pet.FieldBonusID]; !ok {
-				selectedFields = append(selectedFields, pet.FieldBonusID)
-				fieldSeen[pet.FieldBonusID] = struct{}{}
-			}
-
 		case "breedRef":
 			var (
 				alias = field.Alias
@@ -829,11 +813,6 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, pet.FieldTreatmentID)
 				fieldSeen[pet.FieldTreatmentID] = struct{}{}
 			}
-		case "bonusID":
-			if _, ok := fieldSeen[pet.FieldBonusID]; !ok {
-				selectedFields = append(selectedFields, pet.FieldBonusID)
-				fieldSeen[pet.FieldBonusID] = struct{}{}
-			}
 		case "livingCondition":
 			if _, ok := fieldSeen[pet.FieldLivingCondition]; !ok {
 				selectedFields = append(selectedFields, pet.FieldLivingCondition)
@@ -853,6 +832,11 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 			if _, ok := fieldSeen[pet.FieldBloodGroupID]; !ok {
 				selectedFields = append(selectedFields, pet.FieldBloodGroupID)
 				fieldSeen[pet.FieldBloodGroupID] = struct{}{}
+			}
+		case "bonuses":
+			if _, ok := fieldSeen[pet.FieldBonuses]; !ok {
+				selectedFields = append(selectedFields, pet.FieldBonuses)
+				fieldSeen[pet.FieldBonuses] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -1003,114 +987,6 @@ func newPetAnalysisPaginateArgs(rv map[string]any) *petanalysisPaginateArgs {
 	}
 	if v, ok := rv[whereField].(*PetAnalysisWhereInput); ok {
 		args.opts = append(args.opts, WithPetAnalysisFilter(v.Filter))
-	}
-	return args
-}
-
-// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (_q *PetBonusQuery) CollectFields(ctx context.Context, satisfies ...string) (*PetBonusQuery, error) {
-	fc := graphql.GetFieldContext(ctx)
-	if fc == nil {
-		return _q, nil
-	}
-	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
-		return nil, err
-	}
-	return _q, nil
-}
-
-func (_q *PetBonusQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
-	path = append([]string(nil), path...)
-	var (
-		unknownSeen    bool
-		fieldSeen      = make(map[string]struct{}, len(petbonus.Columns))
-		selectedFields = []string{petbonus.FieldID}
-	)
-	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
-		switch field.Name {
-
-		case "owner":
-			var (
-				alias = field.Alias
-				path  = append(path, alias)
-				query = (&PetClient{config: _q.config}).Query()
-			)
-			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, petImplementors)...); err != nil {
-				return err
-			}
-			_q.withOwner = query
-		case "createdAt":
-			if _, ok := fieldSeen[petbonus.FieldCreatedAt]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldCreatedAt)
-				fieldSeen[petbonus.FieldCreatedAt] = struct{}{}
-			}
-		case "updatedAt":
-			if _, ok := fieldSeen[petbonus.FieldUpdatedAt]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldUpdatedAt)
-				fieldSeen[petbonus.FieldUpdatedAt] = struct{}{}
-			}
-		case "deletedAt":
-			if _, ok := fieldSeen[petbonus.FieldDeletedAt]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldDeletedAt)
-				fieldSeen[petbonus.FieldDeletedAt] = struct{}{}
-			}
-		case "isArtist":
-			if _, ok := fieldSeen[petbonus.FieldIsArtist]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldIsArtist)
-				fieldSeen[petbonus.FieldIsArtist] = struct{}{}
-			}
-		case "isTherapist":
-			if _, ok := fieldSeen[petbonus.FieldIsTherapist]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldIsTherapist)
-				fieldSeen[petbonus.FieldIsTherapist] = struct{}{}
-			}
-		case "isFormerDonor":
-			if _, ok := fieldSeen[petbonus.FieldIsFormerDonor]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldIsFormerDonor)
-				fieldSeen[petbonus.FieldIsFormerDonor] = struct{}{}
-			}
-		case "isGuideDog":
-			if _, ok := fieldSeen[petbonus.FieldIsGuideDog]; !ok {
-				selectedFields = append(selectedFields, petbonus.FieldIsGuideDog)
-				fieldSeen[petbonus.FieldIsGuideDog] = struct{}{}
-			}
-		case "id":
-		case "__typename":
-		default:
-			unknownSeen = true
-		}
-	}
-	if !unknownSeen {
-		_q.Select(selectedFields...)
-	}
-	return nil
-}
-
-type petbonusPaginateArgs struct {
-	first, last   *int
-	after, before *Cursor
-	opts          []PetBonusPaginateOption
-}
-
-func newPetBonusPaginateArgs(rv map[string]any) *petbonusPaginateArgs {
-	args := &petbonusPaginateArgs{}
-	if rv == nil {
-		return args
-	}
-	if v := rv[firstField]; v != nil {
-		args.first = v.(*int)
-	}
-	if v := rv[lastField]; v != nil {
-		args.last = v.(*int)
-	}
-	if v := rv[afterField]; v != nil {
-		args.after = v.(*Cursor)
-	}
-	if v := rv[beforeField]; v != nil {
-		args.before = v.(*Cursor)
-	}
-	if v, ok := rv[whereField].(*PetBonusWhereInput); ok {
-		args.opts = append(args.opts, WithPetBonusFilter(v.Filter))
 	}
 	return args
 }

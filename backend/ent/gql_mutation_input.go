@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -298,20 +297,20 @@ type CreatePetInput struct {
 	UpdatedAt            *time.Time
 	DeletedAt            *time.Time
 	Name                 string
-	Type                 pet.Type
+	Type                 string
 	WeightKg             *float64
-	Gender               *pet.Gender
+	Gender               *string
 	BirthDate            *time.Time
 	ChipNumber           *string
 	PhotoUrls            []string
-	LivingCondition      *pet.LivingCondition
-	ReproductiveStatus   *pet.ReproductiveStatus
+	LivingCondition      *string
+	ReproductiveStatus   *string
 	DonorRestrictions    []string
+	Bonuses              []string
 	OwnerID              *string
 	HealthID             *string
 	TreatmentsID         *string
 	AnalysisIDs          []string
-	BonusesID            *string
 	BreedRefID           *string
 	BloodGroupRefID      *string
 	DonationIDs          []string
@@ -355,6 +354,9 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	if v := i.DonorRestrictions; v != nil {
 		m.SetDonorRestrictions(v)
 	}
+	if v := i.Bonuses; v != nil {
+		m.SetBonuses(v)
+	}
 	if v := i.OwnerID; v != nil {
 		m.SetOwnerID(*v)
 	}
@@ -366,9 +368,6 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	}
 	if v := i.AnalysisIDs; len(v) > 0 {
 		m.AddAnalysisIDs(v...)
-	}
-	if v := i.BonusesID; v != nil {
-		m.SetBonusesID(*v)
 	}
 	if v := i.BreedRefID; v != nil {
 		m.SetBreedRefID(*v)
@@ -396,11 +395,11 @@ type UpdatePetInput struct {
 	ClearDeletedAt          bool
 	DeletedAt               *time.Time
 	Name                    *string
-	Type                    *pet.Type
+	Type                    *string
 	ClearWeightKg           bool
 	WeightKg                *float64
 	ClearGender             bool
-	Gender                  *pet.Gender
+	Gender                  *string
 	ClearBirthDate          bool
 	BirthDate               *time.Time
 	ClearChipNumber         bool
@@ -409,12 +408,15 @@ type UpdatePetInput struct {
 	PhotoUrls               []string
 	AppendPhotoUrls         []string
 	ClearLivingCondition    bool
-	LivingCondition         *pet.LivingCondition
+	LivingCondition         *string
 	ClearReproductiveStatus bool
-	ReproductiveStatus      *pet.ReproductiveStatus
+	ReproductiveStatus      *string
 	ClearDonorRestrictions  bool
 	DonorRestrictions       []string
 	AppendDonorRestrictions []string
+	ClearBonuses            bool
+	Bonuses                 []string
+	AppendBonuses           []string
 	ClearOwner              bool
 	OwnerID                 *string
 	ClearHealth             bool
@@ -424,8 +426,6 @@ type UpdatePetInput struct {
 	ClearAnalyses           bool
 	AddAnalysisIDs          []string
 	RemoveAnalysisIDs       []string
-	ClearBonuses            bool
-	BonusesID               *string
 	ClearBreedRef           bool
 	BreedRefID              *string
 	ClearBloodGroupRef      bool
@@ -508,6 +508,15 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	if i.AppendDonorRestrictions != nil {
 		m.AppendDonorRestrictions(i.DonorRestrictions)
 	}
+	if i.ClearBonuses {
+		m.ClearBonuses()
+	}
+	if v := i.Bonuses; v != nil {
+		m.SetBonuses(v)
+	}
+	if i.AppendBonuses != nil {
+		m.AppendBonuses(i.Bonuses)
+	}
 	if i.ClearOwner {
 		m.ClearOwner()
 	}
@@ -534,12 +543,6 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	}
 	if v := i.RemoveAnalysisIDs; len(v) > 0 {
 		m.RemoveAnalysisIDs(v...)
-	}
-	if i.ClearBonuses {
-		m.ClearBonuses()
-	}
-	if v := i.BonusesID; v != nil {
-		m.SetBonusesID(*v)
 	}
 	if i.ClearBreedRef {
 		m.ClearBreedRef()
@@ -672,94 +675,6 @@ func (c *PetAnalysisUpdate) SetInput(i UpdatePetAnalysisInput) *PetAnalysisUpdat
 
 // SetInput applies the change-set in the UpdatePetAnalysisInput on the PetAnalysisUpdateOne builder.
 func (c *PetAnalysisUpdateOne) SetInput(i UpdatePetAnalysisInput) *PetAnalysisUpdateOne {
-	i.Mutate(c.Mutation())
-	return c
-}
-
-// CreatePetBonusInput represents a mutation input for creating petbonusslice.
-type CreatePetBonusInput struct {
-	CreatedAt     *time.Time
-	UpdatedAt     *time.Time
-	DeletedAt     *time.Time
-	IsArtist      bool
-	IsTherapist   bool
-	IsFormerDonor bool
-	IsGuideDog    bool
-	OwnerID       string
-}
-
-// Mutate applies the CreatePetBonusInput on the PetBonusMutation builder.
-func (i *CreatePetBonusInput) Mutate(m *PetBonusMutation) {
-	if v := i.CreatedAt; v != nil {
-		m.SetCreatedAt(*v)
-	}
-	if v := i.UpdatedAt; v != nil {
-		m.SetUpdatedAt(*v)
-	}
-	if v := i.DeletedAt; v != nil {
-		m.SetDeletedAt(*v)
-	}
-	m.SetIsArtist(i.IsArtist)
-	m.SetIsTherapist(i.IsTherapist)
-	m.SetIsFormerDonor(i.IsFormerDonor)
-	m.SetIsGuideDog(i.IsGuideDog)
-	m.SetOwnerID(i.OwnerID)
-}
-
-// SetInput applies the change-set in the CreatePetBonusInput on the PetBonusCreate builder.
-func (c *PetBonusCreate) SetInput(i CreatePetBonusInput) *PetBonusCreate {
-	i.Mutate(c.Mutation())
-	return c
-}
-
-// UpdatePetBonusInput represents a mutation input for updating petbonusslice.
-type UpdatePetBonusInput struct {
-	UpdatedAt      *time.Time
-	ClearDeletedAt bool
-	DeletedAt      *time.Time
-	IsArtist       *bool
-	IsTherapist    *bool
-	IsFormerDonor  *bool
-	IsGuideDog     *bool
-	OwnerID        *string
-}
-
-// Mutate applies the UpdatePetBonusInput on the PetBonusMutation builder.
-func (i *UpdatePetBonusInput) Mutate(m *PetBonusMutation) {
-	if v := i.UpdatedAt; v != nil {
-		m.SetUpdatedAt(*v)
-	}
-	if i.ClearDeletedAt {
-		m.ClearDeletedAt()
-	}
-	if v := i.DeletedAt; v != nil {
-		m.SetDeletedAt(*v)
-	}
-	if v := i.IsArtist; v != nil {
-		m.SetIsArtist(*v)
-	}
-	if v := i.IsTherapist; v != nil {
-		m.SetIsTherapist(*v)
-	}
-	if v := i.IsFormerDonor; v != nil {
-		m.SetIsFormerDonor(*v)
-	}
-	if v := i.IsGuideDog; v != nil {
-		m.SetIsGuideDog(*v)
-	}
-	if v := i.OwnerID; v != nil {
-		m.SetOwnerID(*v)
-	}
-}
-
-// SetInput applies the change-set in the UpdatePetBonusInput on the PetBonusUpdate builder.
-func (c *PetBonusUpdate) SetInput(i UpdatePetBonusInput) *PetBonusUpdate {
-	i.Mutate(c.Mutation())
-	return c
-}
-
-// SetInput applies the change-set in the UpdatePetBonusInput on the PetBonusUpdateOne builder.
-func (c *PetBonusUpdateOne) SetInput(i UpdatePetBonusInput) *PetBonusUpdateOne {
 	i.Mutate(c.Mutation())
 	return c
 }

@@ -18,7 +18,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -36,7 +35,6 @@ type PetQuery struct {
 	withHealth             *PetHealthQuery
 	withTreatments         *PetTreatmentQuery
 	withAnalyses           *PetAnalysisQuery
-	withBonuses            *PetBonusQuery
 	withBreedRef           *BreedQuery
 	withBloodGroupRef      *BloodGroupQuery
 	withDonations          *DonorResponseQuery
@@ -162,28 +160,6 @@ func (_q *PetQuery) QueryAnalyses() *PetAnalysisQuery {
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(petanalysis.Table, petanalysis.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, pet.AnalysesTable, pet.AnalysesColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryBonuses chains the current query on the "bonuses" edge.
-func (_q *PetQuery) QueryBonuses() *PetBonusQuery {
-	query := (&PetBonusClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(pet.Table, pet.FieldID, selector),
-			sqlgraph.To(petbonus.Table, petbonus.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, pet.BonusesTable, pet.BonusesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -475,7 +451,6 @@ func (_q *PetQuery) Clone() *PetQuery {
 		withHealth:             _q.withHealth.Clone(),
 		withTreatments:         _q.withTreatments.Clone(),
 		withAnalyses:           _q.withAnalyses.Clone(),
-		withBonuses:            _q.withBonuses.Clone(),
 		withBreedRef:           _q.withBreedRef.Clone(),
 		withBloodGroupRef:      _q.withBloodGroupRef.Clone(),
 		withDonations:          _q.withDonations.Clone(),
@@ -527,17 +502,6 @@ func (_q *PetQuery) WithAnalyses(opts ...func(*PetAnalysisQuery)) *PetQuery {
 		opt(query)
 	}
 	_q.withAnalyses = query
-	return _q
-}
-
-// WithBonuses tells the query-builder to eager-load the nodes that are connected to
-// the "bonuses" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *PetQuery) WithBonuses(opts ...func(*PetBonusQuery)) *PetQuery {
-	query := (&PetBonusClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withBonuses = query
 	return _q
 }
 
@@ -663,12 +627,11 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 	var (
 		nodes       = []*Pet{}
 		_spec       = _q.querySpec()
-		loadedTypes = [9]bool{
+		loadedTypes = [8]bool{
 			_q.withOwner != nil,
 			_q.withHealth != nil,
 			_q.withTreatments != nil,
 			_q.withAnalyses != nil,
-			_q.withBonuses != nil,
 			_q.withBreedRef != nil,
 			_q.withBloodGroupRef != nil,
 			_q.withDonations != nil,
@@ -718,12 +681,6 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 		if err := _q.loadAnalyses(ctx, query, nodes,
 			func(n *Pet) { n.Edges.Analyses = []*PetAnalysis{} },
 			func(n *Pet, e *PetAnalysis) { n.Edges.Analyses = append(n.Edges.Analyses, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withBonuses; query != nil {
-		if err := _q.loadBonuses(ctx, query, nodes, nil,
-			func(n *Pet, e *PetBonus) { n.Edges.Bonuses = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -891,35 +848,6 @@ func (_q *PetQuery) loadAnalyses(ctx context.Context, query *PetAnalysisQuery, n
 	}
 	return nil
 }
-func (_q *PetQuery) loadBonuses(ctx context.Context, query *PetBonusQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *PetBonus)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Pet)
-	for i := range nodes {
-		fk := nodes[i].BonusID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(petbonus.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "bonus_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (_q *PetQuery) loadBreedRef(ctx context.Context, query *BreedQuery, nodes []*Pet, init func(*Pet), assign func(*Pet, *Breed)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Pet)
@@ -1073,9 +1001,6 @@ func (_q *PetQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withTreatments != nil {
 			_spec.Node.AddColumnOnce(pet.FieldTreatmentID)
-		}
-		if _q.withBonuses != nil {
-			_spec.Node.AddColumnOnce(pet.FieldBonusID)
 		}
 		if _q.withBreedRef != nil {
 			_spec.Node.AddColumnOnce(pet.FieldBreedID)

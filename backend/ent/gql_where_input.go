@@ -15,7 +15,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -1869,10 +1868,19 @@ type PetWhereInput struct {
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
 
 	// "type" field predicates.
-	Type      *pet.Type  `json:"type,omitempty"`
-	TypeNEQ   *pet.Type  `json:"typeNEQ,omitempty"`
-	TypeIn    []pet.Type `json:"typeIn,omitempty"`
-	TypeNotIn []pet.Type `json:"typeNotIn,omitempty"`
+	Type             *string  `json:"type,omitempty"`
+	TypeNEQ          *string  `json:"typeNEQ,omitempty"`
+	TypeIn           []string `json:"typeIn,omitempty"`
+	TypeNotIn        []string `json:"typeNotIn,omitempty"`
+	TypeGT           *string  `json:"typeGT,omitempty"`
+	TypeGTE          *string  `json:"typeGTE,omitempty"`
+	TypeLT           *string  `json:"typeLT,omitempty"`
+	TypeLTE          *string  `json:"typeLTE,omitempty"`
+	TypeContains     *string  `json:"typeContains,omitempty"`
+	TypeHasPrefix    *string  `json:"typeHasPrefix,omitempty"`
+	TypeHasSuffix    *string  `json:"typeHasSuffix,omitempty"`
+	TypeEqualFold    *string  `json:"typeEqualFold,omitempty"`
+	TypeContainsFold *string  `json:"typeContainsFold,omitempty"`
 
 	// "weight_kg" field predicates.
 	WeightKg       *float64  `json:"weightKg,omitempty"`
@@ -1887,12 +1895,21 @@ type PetWhereInput struct {
 	WeightKgNotNil bool      `json:"weightKgNotNil,omitempty"`
 
 	// "gender" field predicates.
-	Gender       *pet.Gender  `json:"gender,omitempty"`
-	GenderNEQ    *pet.Gender  `json:"genderNEQ,omitempty"`
-	GenderIn     []pet.Gender `json:"genderIn,omitempty"`
-	GenderNotIn  []pet.Gender `json:"genderNotIn,omitempty"`
-	GenderIsNil  bool         `json:"genderIsNil,omitempty"`
-	GenderNotNil bool         `json:"genderNotNil,omitempty"`
+	Gender             *string  `json:"gender,omitempty"`
+	GenderNEQ          *string  `json:"genderNEQ,omitempty"`
+	GenderIn           []string `json:"genderIn,omitempty"`
+	GenderNotIn        []string `json:"genderNotIn,omitempty"`
+	GenderGT           *string  `json:"genderGT,omitempty"`
+	GenderGTE          *string  `json:"genderGTE,omitempty"`
+	GenderLT           *string  `json:"genderLT,omitempty"`
+	GenderLTE          *string  `json:"genderLTE,omitempty"`
+	GenderContains     *string  `json:"genderContains,omitempty"`
+	GenderHasPrefix    *string  `json:"genderHasPrefix,omitempty"`
+	GenderHasSuffix    *string  `json:"genderHasSuffix,omitempty"`
+	GenderIsNil        bool     `json:"genderIsNil,omitempty"`
+	GenderNotNil       bool     `json:"genderNotNil,omitempty"`
+	GenderEqualFold    *string  `json:"genderEqualFold,omitempty"`
+	GenderContainsFold *string  `json:"genderContainsFold,omitempty"`
 
 	// "birth_date" field predicates.
 	BirthDate       *time.Time  `json:"birthDate,omitempty"`
@@ -1991,38 +2008,39 @@ type PetWhereInput struct {
 	TreatmentIDEqualFold    *string  `json:"treatmentIDEqualFold,omitempty"`
 	TreatmentIDContainsFold *string  `json:"treatmentIDContainsFold,omitempty"`
 
-	// "bonus_id" field predicates.
-	BonusID             *string  `json:"bonusID,omitempty"`
-	BonusIDNEQ          *string  `json:"bonusIDNEQ,omitempty"`
-	BonusIDIn           []string `json:"bonusIDIn,omitempty"`
-	BonusIDNotIn        []string `json:"bonusIDNotIn,omitempty"`
-	BonusIDGT           *string  `json:"bonusIDGT,omitempty"`
-	BonusIDGTE          *string  `json:"bonusIDGTE,omitempty"`
-	BonusIDLT           *string  `json:"bonusIDLT,omitempty"`
-	BonusIDLTE          *string  `json:"bonusIDLTE,omitempty"`
-	BonusIDContains     *string  `json:"bonusIDContains,omitempty"`
-	BonusIDHasPrefix    *string  `json:"bonusIDHasPrefix,omitempty"`
-	BonusIDHasSuffix    *string  `json:"bonusIDHasSuffix,omitempty"`
-	BonusIDIsNil        bool     `json:"bonusIDIsNil,omitempty"`
-	BonusIDNotNil       bool     `json:"bonusIDNotNil,omitempty"`
-	BonusIDEqualFold    *string  `json:"bonusIDEqualFold,omitempty"`
-	BonusIDContainsFold *string  `json:"bonusIDContainsFold,omitempty"`
-
 	// "living_condition" field predicates.
-	LivingCondition       *pet.LivingCondition  `json:"livingCondition,omitempty"`
-	LivingConditionNEQ    *pet.LivingCondition  `json:"livingConditionNEQ,omitempty"`
-	LivingConditionIn     []pet.LivingCondition `json:"livingConditionIn,omitempty"`
-	LivingConditionNotIn  []pet.LivingCondition `json:"livingConditionNotIn,omitempty"`
-	LivingConditionIsNil  bool                  `json:"livingConditionIsNil,omitempty"`
-	LivingConditionNotNil bool                  `json:"livingConditionNotNil,omitempty"`
+	LivingCondition             *string  `json:"livingCondition,omitempty"`
+	LivingConditionNEQ          *string  `json:"livingConditionNEQ,omitempty"`
+	LivingConditionIn           []string `json:"livingConditionIn,omitempty"`
+	LivingConditionNotIn        []string `json:"livingConditionNotIn,omitempty"`
+	LivingConditionGT           *string  `json:"livingConditionGT,omitempty"`
+	LivingConditionGTE          *string  `json:"livingConditionGTE,omitempty"`
+	LivingConditionLT           *string  `json:"livingConditionLT,omitempty"`
+	LivingConditionLTE          *string  `json:"livingConditionLTE,omitempty"`
+	LivingConditionContains     *string  `json:"livingConditionContains,omitempty"`
+	LivingConditionHasPrefix    *string  `json:"livingConditionHasPrefix,omitempty"`
+	LivingConditionHasSuffix    *string  `json:"livingConditionHasSuffix,omitempty"`
+	LivingConditionIsNil        bool     `json:"livingConditionIsNil,omitempty"`
+	LivingConditionNotNil       bool     `json:"livingConditionNotNil,omitempty"`
+	LivingConditionEqualFold    *string  `json:"livingConditionEqualFold,omitempty"`
+	LivingConditionContainsFold *string  `json:"livingConditionContainsFold,omitempty"`
 
 	// "reproductive_status" field predicates.
-	ReproductiveStatus       *pet.ReproductiveStatus  `json:"reproductiveStatus,omitempty"`
-	ReproductiveStatusNEQ    *pet.ReproductiveStatus  `json:"reproductiveStatusNEQ,omitempty"`
-	ReproductiveStatusIn     []pet.ReproductiveStatus `json:"reproductiveStatusIn,omitempty"`
-	ReproductiveStatusNotIn  []pet.ReproductiveStatus `json:"reproductiveStatusNotIn,omitempty"`
-	ReproductiveStatusIsNil  bool                     `json:"reproductiveStatusIsNil,omitempty"`
-	ReproductiveStatusNotNil bool                     `json:"reproductiveStatusNotNil,omitempty"`
+	ReproductiveStatus             *string  `json:"reproductiveStatus,omitempty"`
+	ReproductiveStatusNEQ          *string  `json:"reproductiveStatusNEQ,omitempty"`
+	ReproductiveStatusIn           []string `json:"reproductiveStatusIn,omitempty"`
+	ReproductiveStatusNotIn        []string `json:"reproductiveStatusNotIn,omitempty"`
+	ReproductiveStatusGT           *string  `json:"reproductiveStatusGT,omitempty"`
+	ReproductiveStatusGTE          *string  `json:"reproductiveStatusGTE,omitempty"`
+	ReproductiveStatusLT           *string  `json:"reproductiveStatusLT,omitempty"`
+	ReproductiveStatusLTE          *string  `json:"reproductiveStatusLTE,omitempty"`
+	ReproductiveStatusContains     *string  `json:"reproductiveStatusContains,omitempty"`
+	ReproductiveStatusHasPrefix    *string  `json:"reproductiveStatusHasPrefix,omitempty"`
+	ReproductiveStatusHasSuffix    *string  `json:"reproductiveStatusHasSuffix,omitempty"`
+	ReproductiveStatusIsNil        bool     `json:"reproductiveStatusIsNil,omitempty"`
+	ReproductiveStatusNotNil       bool     `json:"reproductiveStatusNotNil,omitempty"`
+	ReproductiveStatusEqualFold    *string  `json:"reproductiveStatusEqualFold,omitempty"`
+	ReproductiveStatusContainsFold *string  `json:"reproductiveStatusContainsFold,omitempty"`
 
 	// "blood_group_id" field predicates.
 	BloodGroupID             *string  `json:"bloodGroupID,omitempty"`
@@ -2056,10 +2074,6 @@ type PetWhereInput struct {
 	// "analyses" edge predicates.
 	HasAnalyses     *bool                    `json:"hasAnalyses,omitempty"`
 	HasAnalysesWith []*PetAnalysisWhereInput `json:"hasAnalysesWith,omitempty"`
-
-	// "bonuses" edge predicates.
-	HasBonuses     *bool                 `json:"hasBonuses,omitempty"`
-	HasBonusesWith []*PetBonusWhereInput `json:"hasBonusesWith,omitempty"`
 
 	// "breed_ref" edge predicates.
 	HasBreedRef     *bool              `json:"hasBreedRef,omitempty"`
@@ -2308,6 +2322,33 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	if len(i.TypeNotIn) > 0 {
 		predicates = append(predicates, pet.TypeNotIn(i.TypeNotIn...))
 	}
+	if i.TypeGT != nil {
+		predicates = append(predicates, pet.TypeGT(*i.TypeGT))
+	}
+	if i.TypeGTE != nil {
+		predicates = append(predicates, pet.TypeGTE(*i.TypeGTE))
+	}
+	if i.TypeLT != nil {
+		predicates = append(predicates, pet.TypeLT(*i.TypeLT))
+	}
+	if i.TypeLTE != nil {
+		predicates = append(predicates, pet.TypeLTE(*i.TypeLTE))
+	}
+	if i.TypeContains != nil {
+		predicates = append(predicates, pet.TypeContains(*i.TypeContains))
+	}
+	if i.TypeHasPrefix != nil {
+		predicates = append(predicates, pet.TypeHasPrefix(*i.TypeHasPrefix))
+	}
+	if i.TypeHasSuffix != nil {
+		predicates = append(predicates, pet.TypeHasSuffix(*i.TypeHasSuffix))
+	}
+	if i.TypeEqualFold != nil {
+		predicates = append(predicates, pet.TypeEqualFold(*i.TypeEqualFold))
+	}
+	if i.TypeContainsFold != nil {
+		predicates = append(predicates, pet.TypeContainsFold(*i.TypeContainsFold))
+	}
 	if i.WeightKg != nil {
 		predicates = append(predicates, pet.WeightKgEQ(*i.WeightKg))
 	}
@@ -2350,11 +2391,38 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	if len(i.GenderNotIn) > 0 {
 		predicates = append(predicates, pet.GenderNotIn(i.GenderNotIn...))
 	}
+	if i.GenderGT != nil {
+		predicates = append(predicates, pet.GenderGT(*i.GenderGT))
+	}
+	if i.GenderGTE != nil {
+		predicates = append(predicates, pet.GenderGTE(*i.GenderGTE))
+	}
+	if i.GenderLT != nil {
+		predicates = append(predicates, pet.GenderLT(*i.GenderLT))
+	}
+	if i.GenderLTE != nil {
+		predicates = append(predicates, pet.GenderLTE(*i.GenderLTE))
+	}
+	if i.GenderContains != nil {
+		predicates = append(predicates, pet.GenderContains(*i.GenderContains))
+	}
+	if i.GenderHasPrefix != nil {
+		predicates = append(predicates, pet.GenderHasPrefix(*i.GenderHasPrefix))
+	}
+	if i.GenderHasSuffix != nil {
+		predicates = append(predicates, pet.GenderHasSuffix(*i.GenderHasSuffix))
+	}
 	if i.GenderIsNil {
 		predicates = append(predicates, pet.GenderIsNil())
 	}
 	if i.GenderNotNil {
 		predicates = append(predicates, pet.GenderNotNil())
+	}
+	if i.GenderEqualFold != nil {
+		predicates = append(predicates, pet.GenderEqualFold(*i.GenderEqualFold))
+	}
+	if i.GenderContainsFold != nil {
+		predicates = append(predicates, pet.GenderContainsFold(*i.GenderContainsFold))
 	}
 	if i.BirthDate != nil {
 		predicates = append(predicates, pet.BirthDateEQ(*i.BirthDate))
@@ -2611,51 +2679,6 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	if i.TreatmentIDContainsFold != nil {
 		predicates = append(predicates, pet.TreatmentIDContainsFold(*i.TreatmentIDContainsFold))
 	}
-	if i.BonusID != nil {
-		predicates = append(predicates, pet.BonusIDEQ(*i.BonusID))
-	}
-	if i.BonusIDNEQ != nil {
-		predicates = append(predicates, pet.BonusIDNEQ(*i.BonusIDNEQ))
-	}
-	if len(i.BonusIDIn) > 0 {
-		predicates = append(predicates, pet.BonusIDIn(i.BonusIDIn...))
-	}
-	if len(i.BonusIDNotIn) > 0 {
-		predicates = append(predicates, pet.BonusIDNotIn(i.BonusIDNotIn...))
-	}
-	if i.BonusIDGT != nil {
-		predicates = append(predicates, pet.BonusIDGT(*i.BonusIDGT))
-	}
-	if i.BonusIDGTE != nil {
-		predicates = append(predicates, pet.BonusIDGTE(*i.BonusIDGTE))
-	}
-	if i.BonusIDLT != nil {
-		predicates = append(predicates, pet.BonusIDLT(*i.BonusIDLT))
-	}
-	if i.BonusIDLTE != nil {
-		predicates = append(predicates, pet.BonusIDLTE(*i.BonusIDLTE))
-	}
-	if i.BonusIDContains != nil {
-		predicates = append(predicates, pet.BonusIDContains(*i.BonusIDContains))
-	}
-	if i.BonusIDHasPrefix != nil {
-		predicates = append(predicates, pet.BonusIDHasPrefix(*i.BonusIDHasPrefix))
-	}
-	if i.BonusIDHasSuffix != nil {
-		predicates = append(predicates, pet.BonusIDHasSuffix(*i.BonusIDHasSuffix))
-	}
-	if i.BonusIDIsNil {
-		predicates = append(predicates, pet.BonusIDIsNil())
-	}
-	if i.BonusIDNotNil {
-		predicates = append(predicates, pet.BonusIDNotNil())
-	}
-	if i.BonusIDEqualFold != nil {
-		predicates = append(predicates, pet.BonusIDEqualFold(*i.BonusIDEqualFold))
-	}
-	if i.BonusIDContainsFold != nil {
-		predicates = append(predicates, pet.BonusIDContainsFold(*i.BonusIDContainsFold))
-	}
 	if i.LivingCondition != nil {
 		predicates = append(predicates, pet.LivingConditionEQ(*i.LivingCondition))
 	}
@@ -2668,11 +2691,38 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	if len(i.LivingConditionNotIn) > 0 {
 		predicates = append(predicates, pet.LivingConditionNotIn(i.LivingConditionNotIn...))
 	}
+	if i.LivingConditionGT != nil {
+		predicates = append(predicates, pet.LivingConditionGT(*i.LivingConditionGT))
+	}
+	if i.LivingConditionGTE != nil {
+		predicates = append(predicates, pet.LivingConditionGTE(*i.LivingConditionGTE))
+	}
+	if i.LivingConditionLT != nil {
+		predicates = append(predicates, pet.LivingConditionLT(*i.LivingConditionLT))
+	}
+	if i.LivingConditionLTE != nil {
+		predicates = append(predicates, pet.LivingConditionLTE(*i.LivingConditionLTE))
+	}
+	if i.LivingConditionContains != nil {
+		predicates = append(predicates, pet.LivingConditionContains(*i.LivingConditionContains))
+	}
+	if i.LivingConditionHasPrefix != nil {
+		predicates = append(predicates, pet.LivingConditionHasPrefix(*i.LivingConditionHasPrefix))
+	}
+	if i.LivingConditionHasSuffix != nil {
+		predicates = append(predicates, pet.LivingConditionHasSuffix(*i.LivingConditionHasSuffix))
+	}
 	if i.LivingConditionIsNil {
 		predicates = append(predicates, pet.LivingConditionIsNil())
 	}
 	if i.LivingConditionNotNil {
 		predicates = append(predicates, pet.LivingConditionNotNil())
+	}
+	if i.LivingConditionEqualFold != nil {
+		predicates = append(predicates, pet.LivingConditionEqualFold(*i.LivingConditionEqualFold))
+	}
+	if i.LivingConditionContainsFold != nil {
+		predicates = append(predicates, pet.LivingConditionContainsFold(*i.LivingConditionContainsFold))
 	}
 	if i.ReproductiveStatus != nil {
 		predicates = append(predicates, pet.ReproductiveStatusEQ(*i.ReproductiveStatus))
@@ -2686,11 +2736,38 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	if len(i.ReproductiveStatusNotIn) > 0 {
 		predicates = append(predicates, pet.ReproductiveStatusNotIn(i.ReproductiveStatusNotIn...))
 	}
+	if i.ReproductiveStatusGT != nil {
+		predicates = append(predicates, pet.ReproductiveStatusGT(*i.ReproductiveStatusGT))
+	}
+	if i.ReproductiveStatusGTE != nil {
+		predicates = append(predicates, pet.ReproductiveStatusGTE(*i.ReproductiveStatusGTE))
+	}
+	if i.ReproductiveStatusLT != nil {
+		predicates = append(predicates, pet.ReproductiveStatusLT(*i.ReproductiveStatusLT))
+	}
+	if i.ReproductiveStatusLTE != nil {
+		predicates = append(predicates, pet.ReproductiveStatusLTE(*i.ReproductiveStatusLTE))
+	}
+	if i.ReproductiveStatusContains != nil {
+		predicates = append(predicates, pet.ReproductiveStatusContains(*i.ReproductiveStatusContains))
+	}
+	if i.ReproductiveStatusHasPrefix != nil {
+		predicates = append(predicates, pet.ReproductiveStatusHasPrefix(*i.ReproductiveStatusHasPrefix))
+	}
+	if i.ReproductiveStatusHasSuffix != nil {
+		predicates = append(predicates, pet.ReproductiveStatusHasSuffix(*i.ReproductiveStatusHasSuffix))
+	}
 	if i.ReproductiveStatusIsNil {
 		predicates = append(predicates, pet.ReproductiveStatusIsNil())
 	}
 	if i.ReproductiveStatusNotNil {
 		predicates = append(predicates, pet.ReproductiveStatusNotNil())
+	}
+	if i.ReproductiveStatusEqualFold != nil {
+		predicates = append(predicates, pet.ReproductiveStatusEqualFold(*i.ReproductiveStatusEqualFold))
+	}
+	if i.ReproductiveStatusContainsFold != nil {
+		predicates = append(predicates, pet.ReproductiveStatusContainsFold(*i.ReproductiveStatusContainsFold))
 	}
 	if i.BloodGroupID != nil {
 		predicates = append(predicates, pet.BloodGroupIDEQ(*i.BloodGroupID))
@@ -2809,24 +2886,6 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, pet.HasAnalysesWith(with...))
-	}
-	if i.HasBonuses != nil {
-		p := pet.HasBonuses()
-		if !*i.HasBonuses {
-			p = pet.Not(p)
-		}
-		predicates = append(predicates, p)
-	}
-	if len(i.HasBonusesWith) > 0 {
-		with := make([]predicate.PetBonus, 0, len(i.HasBonusesWith))
-		for _, w := range i.HasBonusesWith {
-			p, err := w.P()
-			if err != nil {
-				return nil, fmt.Errorf("%w: field 'HasBonusesWith'", err)
-			}
-			with = append(with, p)
-		}
-		predicates = append(predicates, pet.HasBonusesWith(with...))
 	}
 	if i.HasBreedRef != nil {
 		p := pet.HasBreedRef()
@@ -3311,310 +3370,6 @@ func (i *PetAnalysisWhereInput) P() (predicate.PetAnalysis, error) {
 		return predicates[0], nil
 	default:
 		return petanalysis.And(predicates...), nil
-	}
-}
-
-// PetBonusWhereInput represents a where input for filtering PetBonus queries.
-type PetBonusWhereInput struct {
-	Predicates []predicate.PetBonus  `json:"-"`
-	Not        *PetBonusWhereInput   `json:"not,omitempty"`
-	Or         []*PetBonusWhereInput `json:"or,omitempty"`
-	And        []*PetBonusWhereInput `json:"and,omitempty"`
-
-	// "id" field predicates.
-	ID             *string  `json:"id,omitempty"`
-	IDNEQ          *string  `json:"idNEQ,omitempty"`
-	IDIn           []string `json:"idIn,omitempty"`
-	IDNotIn        []string `json:"idNotIn,omitempty"`
-	IDGT           *string  `json:"idGT,omitempty"`
-	IDGTE          *string  `json:"idGTE,omitempty"`
-	IDLT           *string  `json:"idLT,omitempty"`
-	IDLTE          *string  `json:"idLTE,omitempty"`
-	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
-	IDContainsFold *string  `json:"idContainsFold,omitempty"`
-
-	// "created_at" field predicates.
-	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
-	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
-	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
-	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
-	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
-	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
-	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
-	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
-
-	// "updated_at" field predicates.
-	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
-	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
-	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
-	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
-	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
-	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
-	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
-	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
-
-	// "deleted_at" field predicates.
-	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
-	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
-	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
-	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
-	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
-	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
-	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
-	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
-	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
-	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
-
-	// "is_artist" field predicates.
-	IsArtist    *bool `json:"isArtist,omitempty"`
-	IsArtistNEQ *bool `json:"isArtistNEQ,omitempty"`
-
-	// "is_therapist" field predicates.
-	IsTherapist    *bool `json:"isTherapist,omitempty"`
-	IsTherapistNEQ *bool `json:"isTherapistNEQ,omitempty"`
-
-	// "is_former_donor" field predicates.
-	IsFormerDonor    *bool `json:"isFormerDonor,omitempty"`
-	IsFormerDonorNEQ *bool `json:"isFormerDonorNEQ,omitempty"`
-
-	// "is_guide_dog" field predicates.
-	IsGuideDog    *bool `json:"isGuideDog,omitempty"`
-	IsGuideDogNEQ *bool `json:"isGuideDogNEQ,omitempty"`
-
-	// "owner" edge predicates.
-	HasOwner     *bool            `json:"hasOwner,omitempty"`
-	HasOwnerWith []*PetWhereInput `json:"hasOwnerWith,omitempty"`
-}
-
-// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
-func (i *PetBonusWhereInput) AddPredicates(predicates ...predicate.PetBonus) {
-	i.Predicates = append(i.Predicates, predicates...)
-}
-
-// Filter applies the PetBonusWhereInput filter on the PetBonusQuery builder.
-func (i *PetBonusWhereInput) Filter(q *PetBonusQuery) (*PetBonusQuery, error) {
-	if i == nil {
-		return q, nil
-	}
-	p, err := i.P()
-	if err != nil {
-		if err == ErrEmptyPetBonusWhereInput {
-			return q, nil
-		}
-		return nil, err
-	}
-	return q.Where(p), nil
-}
-
-// ErrEmptyPetBonusWhereInput is returned in case the PetBonusWhereInput is empty.
-var ErrEmptyPetBonusWhereInput = errors.New("ent: empty predicate PetBonusWhereInput")
-
-// P returns a predicate for filtering petbonusslice.
-// An error is returned if the input is empty or invalid.
-func (i *PetBonusWhereInput) P() (predicate.PetBonus, error) {
-	var predicates []predicate.PetBonus
-	if i.Not != nil {
-		p, err := i.Not.P()
-		if err != nil {
-			return nil, fmt.Errorf("%w: field 'not'", err)
-		}
-		predicates = append(predicates, petbonus.Not(p))
-	}
-	switch n := len(i.Or); {
-	case n == 1:
-		p, err := i.Or[0].P()
-		if err != nil {
-			return nil, fmt.Errorf("%w: field 'or'", err)
-		}
-		predicates = append(predicates, p)
-	case n > 1:
-		or := make([]predicate.PetBonus, 0, n)
-		for _, w := range i.Or {
-			p, err := w.P()
-			if err != nil {
-				return nil, fmt.Errorf("%w: field 'or'", err)
-			}
-			or = append(or, p)
-		}
-		predicates = append(predicates, petbonus.Or(or...))
-	}
-	switch n := len(i.And); {
-	case n == 1:
-		p, err := i.And[0].P()
-		if err != nil {
-			return nil, fmt.Errorf("%w: field 'and'", err)
-		}
-		predicates = append(predicates, p)
-	case n > 1:
-		and := make([]predicate.PetBonus, 0, n)
-		for _, w := range i.And {
-			p, err := w.P()
-			if err != nil {
-				return nil, fmt.Errorf("%w: field 'and'", err)
-			}
-			and = append(and, p)
-		}
-		predicates = append(predicates, petbonus.And(and...))
-	}
-	predicates = append(predicates, i.Predicates...)
-	if i.ID != nil {
-		predicates = append(predicates, petbonus.IDEQ(*i.ID))
-	}
-	if i.IDNEQ != nil {
-		predicates = append(predicates, petbonus.IDNEQ(*i.IDNEQ))
-	}
-	if len(i.IDIn) > 0 {
-		predicates = append(predicates, petbonus.IDIn(i.IDIn...))
-	}
-	if len(i.IDNotIn) > 0 {
-		predicates = append(predicates, petbonus.IDNotIn(i.IDNotIn...))
-	}
-	if i.IDGT != nil {
-		predicates = append(predicates, petbonus.IDGT(*i.IDGT))
-	}
-	if i.IDGTE != nil {
-		predicates = append(predicates, petbonus.IDGTE(*i.IDGTE))
-	}
-	if i.IDLT != nil {
-		predicates = append(predicates, petbonus.IDLT(*i.IDLT))
-	}
-	if i.IDLTE != nil {
-		predicates = append(predicates, petbonus.IDLTE(*i.IDLTE))
-	}
-	if i.IDEqualFold != nil {
-		predicates = append(predicates, petbonus.IDEqualFold(*i.IDEqualFold))
-	}
-	if i.IDContainsFold != nil {
-		predicates = append(predicates, petbonus.IDContainsFold(*i.IDContainsFold))
-	}
-	if i.CreatedAt != nil {
-		predicates = append(predicates, petbonus.CreatedAtEQ(*i.CreatedAt))
-	}
-	if i.CreatedAtNEQ != nil {
-		predicates = append(predicates, petbonus.CreatedAtNEQ(*i.CreatedAtNEQ))
-	}
-	if len(i.CreatedAtIn) > 0 {
-		predicates = append(predicates, petbonus.CreatedAtIn(i.CreatedAtIn...))
-	}
-	if len(i.CreatedAtNotIn) > 0 {
-		predicates = append(predicates, petbonus.CreatedAtNotIn(i.CreatedAtNotIn...))
-	}
-	if i.CreatedAtGT != nil {
-		predicates = append(predicates, petbonus.CreatedAtGT(*i.CreatedAtGT))
-	}
-	if i.CreatedAtGTE != nil {
-		predicates = append(predicates, petbonus.CreatedAtGTE(*i.CreatedAtGTE))
-	}
-	if i.CreatedAtLT != nil {
-		predicates = append(predicates, petbonus.CreatedAtLT(*i.CreatedAtLT))
-	}
-	if i.CreatedAtLTE != nil {
-		predicates = append(predicates, petbonus.CreatedAtLTE(*i.CreatedAtLTE))
-	}
-	if i.UpdatedAt != nil {
-		predicates = append(predicates, petbonus.UpdatedAtEQ(*i.UpdatedAt))
-	}
-	if i.UpdatedAtNEQ != nil {
-		predicates = append(predicates, petbonus.UpdatedAtNEQ(*i.UpdatedAtNEQ))
-	}
-	if len(i.UpdatedAtIn) > 0 {
-		predicates = append(predicates, petbonus.UpdatedAtIn(i.UpdatedAtIn...))
-	}
-	if len(i.UpdatedAtNotIn) > 0 {
-		predicates = append(predicates, petbonus.UpdatedAtNotIn(i.UpdatedAtNotIn...))
-	}
-	if i.UpdatedAtGT != nil {
-		predicates = append(predicates, petbonus.UpdatedAtGT(*i.UpdatedAtGT))
-	}
-	if i.UpdatedAtGTE != nil {
-		predicates = append(predicates, petbonus.UpdatedAtGTE(*i.UpdatedAtGTE))
-	}
-	if i.UpdatedAtLT != nil {
-		predicates = append(predicates, petbonus.UpdatedAtLT(*i.UpdatedAtLT))
-	}
-	if i.UpdatedAtLTE != nil {
-		predicates = append(predicates, petbonus.UpdatedAtLTE(*i.UpdatedAtLTE))
-	}
-	if i.DeletedAt != nil {
-		predicates = append(predicates, petbonus.DeletedAtEQ(*i.DeletedAt))
-	}
-	if i.DeletedAtNEQ != nil {
-		predicates = append(predicates, petbonus.DeletedAtNEQ(*i.DeletedAtNEQ))
-	}
-	if len(i.DeletedAtIn) > 0 {
-		predicates = append(predicates, petbonus.DeletedAtIn(i.DeletedAtIn...))
-	}
-	if len(i.DeletedAtNotIn) > 0 {
-		predicates = append(predicates, petbonus.DeletedAtNotIn(i.DeletedAtNotIn...))
-	}
-	if i.DeletedAtGT != nil {
-		predicates = append(predicates, petbonus.DeletedAtGT(*i.DeletedAtGT))
-	}
-	if i.DeletedAtGTE != nil {
-		predicates = append(predicates, petbonus.DeletedAtGTE(*i.DeletedAtGTE))
-	}
-	if i.DeletedAtLT != nil {
-		predicates = append(predicates, petbonus.DeletedAtLT(*i.DeletedAtLT))
-	}
-	if i.DeletedAtLTE != nil {
-		predicates = append(predicates, petbonus.DeletedAtLTE(*i.DeletedAtLTE))
-	}
-	if i.DeletedAtIsNil {
-		predicates = append(predicates, petbonus.DeletedAtIsNil())
-	}
-	if i.DeletedAtNotNil {
-		predicates = append(predicates, petbonus.DeletedAtNotNil())
-	}
-	if i.IsArtist != nil {
-		predicates = append(predicates, petbonus.IsArtistEQ(*i.IsArtist))
-	}
-	if i.IsArtistNEQ != nil {
-		predicates = append(predicates, petbonus.IsArtistNEQ(*i.IsArtistNEQ))
-	}
-	if i.IsTherapist != nil {
-		predicates = append(predicates, petbonus.IsTherapistEQ(*i.IsTherapist))
-	}
-	if i.IsTherapistNEQ != nil {
-		predicates = append(predicates, petbonus.IsTherapistNEQ(*i.IsTherapistNEQ))
-	}
-	if i.IsFormerDonor != nil {
-		predicates = append(predicates, petbonus.IsFormerDonorEQ(*i.IsFormerDonor))
-	}
-	if i.IsFormerDonorNEQ != nil {
-		predicates = append(predicates, petbonus.IsFormerDonorNEQ(*i.IsFormerDonorNEQ))
-	}
-	if i.IsGuideDog != nil {
-		predicates = append(predicates, petbonus.IsGuideDogEQ(*i.IsGuideDog))
-	}
-	if i.IsGuideDogNEQ != nil {
-		predicates = append(predicates, petbonus.IsGuideDogNEQ(*i.IsGuideDogNEQ))
-	}
-
-	if i.HasOwner != nil {
-		p := petbonus.HasOwner()
-		if !*i.HasOwner {
-			p = petbonus.Not(p)
-		}
-		predicates = append(predicates, p)
-	}
-	if len(i.HasOwnerWith) > 0 {
-		with := make([]predicate.Pet, 0, len(i.HasOwnerWith))
-		for _, w := range i.HasOwnerWith {
-			p, err := w.P()
-			if err != nil {
-				return nil, fmt.Errorf("%w: field 'HasOwnerWith'", err)
-			}
-			with = append(with, p)
-		}
-		predicates = append(predicates, petbonus.HasOwnerWith(with...))
-	}
-	switch len(predicates) {
-	case 0:
-		return nil, ErrEmptyPetBonusWhereInput
-	case 1:
-		return predicates[0], nil
-	default:
-		return petbonus.And(predicates...), nil
 	}
 }
 

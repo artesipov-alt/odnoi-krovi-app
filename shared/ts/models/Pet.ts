@@ -27,13 +27,6 @@ import {
     PetTreatmentToJSON,
     PetTreatmentToJSONTyped,
 } from './PetTreatment';
-import type { PetBonus } from './PetBonus';
-import {
-    PetBonusFromJSON,
-    PetBonusFromJSONTyped,
-    PetBonusToJSON,
-    PetBonusToJSONTyped,
-} from './PetBonus';
 import type { PetHealth } from './PetHealth';
 import {
     PetHealthFromJSON,
@@ -81,10 +74,10 @@ export interface Pet {
     bloodGroup?: PetBloodGroupEnum;
     /**
      * Дополнительная информация
-     * @type {PetBonus}
+     * @type {Array<string>}
      * @memberof Pet
      */
-    bonuses?: PetBonus;
+    bonuses?: Array<string> | null;
     /**
      * ID породы
      * @type {string}
@@ -275,7 +268,7 @@ export function PetFromJSONTyped(json: any, ignoreDiscriminator: boolean): Pet {
         'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'birthDate': json['birthDate'] == null ? undefined : (new Date(json['birthDate'])),
         'bloodGroup': json['bloodGroup'] == null ? undefined : json['bloodGroup'],
-        'bonuses': json['bonuses'] == null ? undefined : PetBonusFromJSON(json['bonuses']),
+        'bonuses': json['bonuses'] == null ? undefined : json['bonuses'],
         'breedId': json['breedId'] == null ? undefined : json['breedId'],
         'chipNumber': json['chipNumber'] == null ? undefined : json['chipNumber'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
@@ -310,7 +303,7 @@ export function PetToJSONTyped(value?: Omit<Pet, '$schema'|'createdAt'|'deletedA
         'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),
         'bloodGroup': value['bloodGroup'],
-        'bonuses': PetBonusToJSON(value['bonuses']),
+        'bonuses': value['bonuses'],
         'breedId': value['breedId'],
         'chipNumber': value['chipNumber'],
         'donorRestrictions': DonorRestrictionsToJSON(value['donorRestrictions']),

@@ -16,7 +16,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -67,11 +66,6 @@ var petanalysisImplementors = []string{"PetAnalysis", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*PetAnalysis) IsNode() {}
-
-var petbonusImplementors = []string{"PetBonus", "Node"}
-
-// IsNode implements the Node interface check for GQLGen.
-func (*PetBonus) IsNode() {}
 
 var pethealthImplementors = []string{"PetHealth", "Node"}
 
@@ -214,15 +208,6 @@ func (c *Client) noder(ctx context.Context, table string, id string) (Noder, err
 			Where(petanalysis.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, petanalysisImplementors...); err != nil {
-				return nil, err
-			}
-		}
-		return query.Only(ctx)
-	case petbonus.Table:
-		query := c.PetBonus.Query().
-			Where(petbonus.ID(id))
-		if fc := graphql.GetFieldContext(ctx); fc != nil {
-			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, petbonusImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -443,22 +428,6 @@ func (c *Client) noders(ctx context.Context, table string, ids []string) ([]Node
 		query := c.PetAnalysis.Query().
 			Where(petanalysis.IDIn(ids...))
 		query, err := query.CollectFields(ctx, petanalysisImplementors...)
-		if err != nil {
-			return nil, err
-		}
-		nodes, err := query.All(ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, node := range nodes {
-			for _, noder := range idmap[node.ID] {
-				*noder = node
-			}
-		}
-	case petbonus.Table:
-		query := c.PetBonus.Query().
-			Where(petbonus.IDIn(ids...))
-		query, err := query.CollectFields(ctx, petbonusImplementors...)
 		if err != nil {
 			return nil, err
 		}

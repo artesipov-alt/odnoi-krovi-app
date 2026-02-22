@@ -5,51 +5,22 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/jinzhu/copier"
 )
-
-// PetService определяет интерфейс для бизнес-логики питомцев
-type PetService interface {
-	// CreatePet создает нового питомца для пользователя
-	CreatePet(ctx context.Context, userID string, input *ent.CreatePetInput, healthInput *ent.CreatePetHealthInput, treatmentsInput *ent.CreatePetTreatmentInput, analysesInput []*ent.CreatePetAnalysisInput, bonusesInput *ent.CreatePetBonusInput) (*ent.Pet, error)
-
-	// GetPet получает питомца с preload связанных данных
-	GetPet(ctx context.Context, petID string, opts services.PetPreloadOptions) (*ent.Pet, error)
-
-	// GetUserPets получает всех питомцев пользователя с preload связанных данных
-	GetUserPets(ctx context.Context, userID string, opts services.PetPreloadOptions) ([]*ent.Pet, error)
-
-	// Update обновляет питомца и его связанные сущности (здоровье, лечения, анализы, бонусы)
-	// Все параметры могут быть nil - тогда соответствующие данные не обновляются
-	Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) error
-
-	// DeletePet удаляет питомца по ID
-	DeletePet(ctx context.Context, petID string) error
-
-	// ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения
-	ApplyValidation(ctx context.Context, petID string) ([]validator.FactorCode, []validator.FactorCode, error)
-
-	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(paths []string) []string
-}
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService    PetService
+	petService    services.PetService
 	validator     validator.DonorValidator
 	bloodInfoRepo services.BloodInfoRepository
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService PetService, validator validator.DonorValidator, bloodInfoRepo services.BloodInfoRepository) *PetHandler {
+func NewPetHandler(petService services.PetService, validator validator.DonorValidator, bloodInfoRepo services.BloodInfoRepository) *PetHandler {
 	return &PetHandler{
 		petService:    petService,
 		validator:     validator,
@@ -70,56 +41,56 @@ func (h *PetHandler) Register(api huma.API) {
 		DefaultStatus: http.StatusCreated,
 	}, h.CreatePet)
 
-	// Получение питомца по ID
-	huma.Register(api, huma.Operation{
-		OperationID: "get-pet-by-id",
-		Method:      http.MethodGet,
-		Path:        "/v1/pet/{id}",
-		Summary:     "Получение питомца по ID",
-		Description: "Возвращает информацию о питомце по его идентификатору",
-		Tags:        []string{"pets-v1"},
-	}, h.GetPet)
+	// // Получение питомца по ID
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "get-pet-by-id",
+	// 	Method:      http.MethodGet,
+	// 	Path:        "/v1/pet/{id}",
+	// 	Summary:     "Получение питомца по ID",
+	// 	Description: "Возвращает информацию о питомце по его идентификатору",
+	// 	Tags:        []string{"pets-v1"},
+	// }, h.GetPet)
 
-	// Получение питомцев пользователя
-	huma.Register(api, huma.Operation{
-		OperationID: "get-user-pets",
-		Method:      http.MethodGet,
-		Path:        "/v1/pet/user/{user_id}",
-		Summary:     "Получение питомцев пользователя",
-		Description: "Возвращает всех питомцев конкретного пользователя",
-		Tags:        []string{"pets-v1"},
-	}, h.GetUserPets)
+	// // Получение питомцев пользователя
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "get-user-pets",
+	// 	Method:      http.MethodGet,
+	// 	Path:        "/v1/pet/user/{user_id}",
+	// 	Summary:     "Получение питомцев пользователя",
+	// 	Description: "Возвращает всех питомцев конкретного пользователя",
+	// 	Tags:        []string{"pets-v1"},
+	// }, h.GetUserPets)
 
-	// Обновление данных питомца
-	huma.Register(api, huma.Operation{
-		OperationID: "update-pet",
-		Method:      http.MethodPut,
-		Path:        "/v1/pet/{id}",
-		Summary:     "Обновление данных питомца",
-		Description: "Обновляет информацию о питомце",
-		Tags:        []string{"pets-v1"},
-	}, h.UpdatePet)
+	// // Обновление данных питомца
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "update-pet",
+	// 	Method:      http.MethodPut,
+	// 	Path:        "/v1/pet/{id}",
+	// 	Summary:     "Обновление данных питомца",
+	// 	Description: "Обновляет информацию о питомце",
+	// 	Tags:        []string{"pets-v1"},
+	// }, h.UpdatePet)
 
-	// Удаление питомца по ID
-	huma.Register(api, huma.Operation{
-		OperationID: "delete-pet",
-		Method:      http.MethodDelete,
-		Path:        "/v1/pet/{id}",
-		Summary:     "Удаление питомца по ID",
-		Description: "Удаляет питомца из системы",
-		Tags:        []string{"pets-v1"},
-	}, h.DeletePet)
+	// // Удаление питомца по ID
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "delete-pet",
+	// 	Method:      http.MethodDelete,
+	// 	Path:        "/v1/pet/{id}",
+	// 	Summary:     "Удаление питомца по ID",
+	// 	Description: "Удаляет питомца из системы",
+	// 	Tags:        []string{"pets-v1"},
+	// }, h.DeletePet)
 
-	// Валидация донора по ID (изменено на POST)
-	huma.Register(api, huma.Operation{
-		OperationID:   "validate-donor",
-		Method:        http.MethodPost,
-		Path:          "/v1/pet/validate-donor/{id}",
-		Summary:       "Валидация донора по ID",
-		Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
-		Tags:          []string{"pets-v1"},
-		DefaultStatus: http.StatusOK,
-	}, h.ValidateDonor)
+	// // Валидация донора по ID (изменено на POST)
+	// huma.Register(api, huma.Operation{
+	// 	OperationID:   "validate-donor",
+	// 	Method:        http.MethodPost,
+	// 	Path:          "/v1/pet/validate-donor/{id}",
+	// 	Summary:       "Валидация донора по ID",
+	// 	Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
+	// 	Tags:          []string{"pets-v1"},
+	// 	DefaultStatus: http.StatusOK,
+	// }, h.ValidateDonor)
 
 }
 
@@ -129,394 +100,315 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	Body dto.PetCreate
 }) (*dto.PetResponse, error) {
+	body := &input.Body
 
-	// Рассчитываем BirthDate, если нужно
-	body := input.Body
-	body.BirthDate = calculateBirthDateFromAge(&body.AgeYears, &body.AgeMonths)
+	petDomain := new(domain.Pet)
+	ToDomain(*body, petDomain)
 
-	// Копируем в CreatePetInput
-	var petInput ent.CreatePetInput
-	if err := copier.Copy(&petInput, &body); err != nil {
-		return nil, apperrors.Internal(err, "failed to copy pet create data")
-	}
-
-	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
-	if body.BreedID != "" {
-		petInput.BreedRefID = &body.BreedID
-	}
-
-	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
-	if body.BloodGroup != "" {
-		bg, err := h.bloodInfoRepo.FindByBloodGroup(ctx, body.BloodGroup)
-		if err != nil {
-			return nil, apperrors.Internal(err, "failed to find blood group")
-		}
-		petInput.BloodGroupRefID = &bg.ID
-	}
-
-	// Копируем health
-	var healthInput *ent.CreatePetHealthInput
-	if body.Health != nil {
-		healthInput = new(ent.CreatePetHealthInput)
-		if body.Health.HealthStatus != nil {
-			status := pethealth.HealthStatus(*body.Health.HealthStatus)
-			healthInput.HealthStatus = &status
-		}
-		healthInput.LastDonation = body.Health.LastDonation
-		healthInput.Transfused = body.Health.Transfused
-		healthInput.Medications = body.Health.Medications
-		healthInput.SurgicalInterventions = body.Health.SurgicalInterventions
-	}
-
-	// Копируем treatments
-	var treatmentsInput *ent.CreatePetTreatmentInput
-	if body.Treatments != nil {
-		treatmentsInput = new(ent.CreatePetTreatmentInput)
-		if err := copier.Copy(treatmentsInput, body.Treatments); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy treatments data")
-		}
-	}
-
-	// Копируем analyses
-	var analysesInput []*ent.CreatePetAnalysisInput
-	if body.Analyses != nil {
-		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
-			for _, a := range group {
-				var ai ent.CreatePetAnalysisInput
-				ai.AnalysisName = &name
-				if a.AnalysisDate != nil {
-					ai.AnalysisDate = *a.AnalysisDate
-				}
-				if a.AnalysisType != nil {
-					at := petanalysis.AnalysisType(*a.AnalysisType)
-					ai.AnalysisType = &at
-				}
-				analysesInput = append(analysesInput, &ai)
-			}
-		}
-		processGroup(body.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
-		processGroup(body.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
-		processGroup(body.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
-		processGroup(body.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
-		processGroup(body.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
-		processGroup(body.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
-		processGroup(body.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
-		processGroup(body.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
-	}
-
-	// Копируем bonuses
-	var bonusesInput *ent.CreatePetBonusInput
-	if body.Bonuses != nil {
-		bonusesInput = &ent.CreatePetBonusInput{}
-		if err := copier.Copy(bonusesInput, body.Bonuses); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy bonuses data")
-		}
-	}
-
-	pet, err := h.petService.CreatePet(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput)
+	createdPet, err := h.petService.CreatePet(ctx, input.ID, petDomain)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
+	return &dto.PetResponse{Body: ToDTO(*createdPet)}, nil
 }
 
-func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.PetUpdate
-}) (*dto.MessageResponse, error) {
+// func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
+// 	dto.IDPathStr
+// 	Body dto.PetUpdate
+// }) (*dto.MessageResponse, error) {
 
-	body := input.Body
-	body.BirthDate = calculateBirthDateFromAge(body.AgeYears, body.AgeMonths)
+// 	body := input.Body
+// 	body.BirthDate = calculateBirthDateFromAge(body.AgeYears, body.AgeMonths)
 
-	// Копируем в UpdatePetInput
-	var petInput ent.UpdatePetInput
-	if err := copier.Copy(&petInput, &body); err != nil {
-		return nil, apperrors.Internal(err, "failed to copy pet update data")
-	}
+// 	// Копируем в UpdatePetInput
+// 	var petInput ent.UpdatePetInput
+// 	if err := copier.Copy(&petInput, &body); err != nil {
+// 		return nil, apperrors.Internal(err, "failed to copy pet update data")
+// 	}
 
-	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
-	if body.BreedID != nil {
-		petInput.BreedRefID = body.BreedID
-	}
+// 	// Устанавливаем BreedRefID, так как copier не копирует поле с другим именем
+// 	if body.BreedID != nil {
+// 		petInput.BreedRefID = body.BreedID
+// 	}
 
-	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
-	if body.BloodGroup != nil && *body.BloodGroup != "" {
-		bg, err := h.bloodInfoRepo.FindByBloodGroup(ctx, *body.BloodGroup)
-		if err != nil {
-			return nil, apperrors.Internal(err, "failed to find blood group")
-		}
-		petInput.BloodGroupRefID = &bg.ID
-	}
+// 	// Устанавливаем BloodGroupRefID, так как copier не копирует поле с другим именем
+// 	if body.BloodGroup != nil && *body.BloodGroup != "" {
+// 		bg, err := h.bloodInfoRepo.FindByBloodGroup(ctx, *body.BloodGroup)
+// 		if err != nil {
+// 			return nil, apperrors.Internal(err, "failed to find blood group")
+// 		}
+// 		petInput.BloodGroupRefID = &bg.ID
+// 	}
 
-	// Копируем health
-	var healthInput *ent.UpdatePetHealthInput
-	if body.Health != nil {
-		healthInput = &ent.UpdatePetHealthInput{}
-		if body.Health.HealthStatus != nil {
-			status := pethealth.HealthStatus(*body.Health.HealthStatus)
-			healthInput.HealthStatus = &status
-		}
-		healthInput.LastDonation = body.Health.LastDonation
-		healthInput.Transfused = body.Health.Transfused
-		healthInput.Medications = body.Health.Medications
-		healthInput.SurgicalInterventions = body.Health.SurgicalInterventions
-	}
+// 	// Копируем health
+// 	var healthInput *ent.UpdatePetHealthInput
+// 	if body.Health != nil {
+// 		healthInput = &ent.UpdatePetHealthInput{}
+// 		if body.Health.HealthStatus != nil {
+// 			status := pethealth.HealthStatus(*body.Health.HealthStatus)
+// 			healthInput.HealthStatus = &status
+// 		}
+// 		healthInput.LastDonation = body.Health.LastDonation
+// 		healthInput.Transfused = body.Health.Transfused
+// 		healthInput.Medications = body.Health.Medications
+// 		healthInput.SurgicalInterventions = body.Health.SurgicalInterventions
+// 	}
 
-	// Копируем treatments
-	var treatmentsInput *ent.UpdatePetTreatmentInput
-	if body.Treatments != nil {
-		treatmentsInput = &ent.UpdatePetTreatmentInput{}
-		if err := copier.Copy(treatmentsInput, body.Treatments); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy treatments update data")
-		}
-	}
+// 	// Копируем treatments
+// 	var treatmentsInput *ent.UpdatePetTreatmentInput
+// 	if body.Treatments != nil {
+// 		treatmentsInput = &ent.UpdatePetTreatmentInput{}
+// 		if err := copier.Copy(treatmentsInput, body.Treatments); err != nil {
+// 			return nil, apperrors.Internal(err, "failed to copy treatments update data")
+// 		}
+// 	}
 
-	// Копируем analyses
-	var analysesInput []*ent.UpdatePetAnalysisInput
-	if body.Analyses != nil {
-		analysesInput = []*ent.UpdatePetAnalysisInput{}
-		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
-			for _, a := range group {
-				var ai ent.UpdatePetAnalysisInput
-				ai.AnalysisName = &name
-				if a.AnalysisDate != nil {
-					ai.AnalysisDate = a.AnalysisDate
-				}
-				if a.AnalysisType != nil {
-					at := petanalysis.AnalysisType(*a.AnalysisType)
-					ai.AnalysisType = &at
-				}
-				analysesInput = append(analysesInput, &ai)
-			}
-		}
-		processGroup(body.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
-		processGroup(body.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
-		processGroup(body.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
-		processGroup(body.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
-		processGroup(body.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
-		processGroup(body.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
-		processGroup(body.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
-		processGroup(body.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
-	}
+// 	// Копируем analyses
+// 	var analysesInput []*ent.UpdatePetAnalysisInput
+// 	if body.Analyses != nil {
+// 		analysesInput = []*ent.UpdatePetAnalysisInput{}
+// 		processGroup := func(group []*dto.PetAnalysis, name petanalysis.AnalysisName) {
+// 			for _, a := range group {
+// 				var ai ent.UpdatePetAnalysisInput
+// 				ai.AnalysisName = &name
+// 				if a.AnalysisDate != nil {
+// 					ai.AnalysisDate = a.AnalysisDate
+// 				}
+// 				if a.AnalysisType != nil {
+// 					at := petanalysis.AnalysisType(*a.AnalysisType)
+// 					ai.AnalysisType = &at
+// 				}
+// 				analysesInput = append(analysesInput, &ai)
+// 			}
+// 		}
+// 		processGroup(body.Analyses.Leukemia, petanalysis.AnalysisNameLeukemia)
+// 		processGroup(body.Analyses.Immunodeficiency, petanalysis.AnalysisNameImmunodeficiency)
+// 		processGroup(body.Analyses.Hemoplasmosis, petanalysis.AnalysisNameHemoplasmosis)
+// 		processGroup(body.Analyses.Bartonellosis, petanalysis.AnalysisNameBartonellosis)
+// 		processGroup(body.Analyses.Babesiosis, petanalysis.AnalysisNameBabesiosis)
+// 		processGroup(body.Analyses.Dirofilaria, petanalysis.AnalysisNameDirofilaria)
+// 		processGroup(body.Analyses.Ehrlichiosis, petanalysis.AnalysisNameEhrlichiosis)
+// 		processGroup(body.Analyses.Anaplasmosis, petanalysis.AnalysisNameAnaplasmosis)
+// 	}
 
-	// Копируем bonuses
-	var bonusesInput *ent.UpdatePetBonusInput
-	if body.Bonuses != nil {
-		bonusesInput = &ent.UpdatePetBonusInput{}
-		if err := copier.Copy(bonusesInput, body.Bonuses); err != nil {
-			return nil, apperrors.Internal(err, "failed to copy bonuses update data")
-		}
-	}
+// 	// Копируем bonuses
+// 	var bonusesInput *ent.UpdatePetBonusInput
+// 	if body.Bonuses != nil {
+// 		bonusesInput = &ent.UpdatePetBonusInput{}
+// 		if err := copier.Copy(bonusesInput, body.Bonuses); err != nil {
+// 			return nil, apperrors.Internal(err, "failed to copy bonuses update data")
+// 		}
+// 	}
 
-	if err := h.petService.Update(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput); err != nil {
-		return nil, err
-	}
+// 	if err := h.petService.Update(ctx, input.ID, &petInput, healthInput, treatmentsInput, analysesInput, bonusesInput); err != nil {
+// 		return nil, err
+// 	}
 
-	return &dto.MessageResponse{Body: dto.MessageBody{Message: "Питомец обновлен"}}, nil
-}
+// 	return &dto.MessageResponse{Body: dto.MessageBody{Message: "Питомец обновлен"}}, nil
+// }
 
-func (h *PetHandler) GetPet(ctx context.Context,
-	input *struct {
-		dto.IDPathStr
-		dto.PetPreloadQuery
-	}) (*dto.PetResponse, error) {
-	// Добавляем опции к запросу.
-	opts := services.PetPreloadOptions{
-		WithHealth:     input.WithHealth,
-		WithTreatments: input.WithTreatments,
-		WithAnalyses:   input.WithAnalysis,
-		WithBonuses:    input.WithBonuses,
-		WithAll:        input.WithAll,
-	}
+// func (h *PetHandler) GetPet(ctx context.Context,
+// 	input *struct {
+// 		dto.IDPathStr
+// 		dto.PetPreloadQuery
+// 	}) (*dto.PetResponse, error) {
+// 	// Добавляем опции к запросу.
+// 	opts := services.PetPreloadOptions{
+// 		WithHealth:     input.WithHealth,
+// 		WithTreatments: input.WithTreatments,
+// 		WithAnalyses:   input.WithAnalysis,
+// 		WithBonuses:    input.WithBonuses,
+// 		WithAll:        input.WithAll,
+// 	}
 
-	pet, err := h.petService.GetPet(ctx, input.ID, opts)
-	if err != nil {
-		return nil, err
-	}
+// 	pet, err := h.petService.GetPet(ctx, input.ID, opts)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
-}
+// 	return &dto.PetResponse{Body: h.toDTO(pet)}, nil
+// }
 
-func (h *PetHandler) GetUserPets(ctx context.Context,
-	input *struct {
-		dto.PetUserIDPath
-		dto.PetPreloadQuery
-	}) (*dto.PetsResponse, error) {
+// func (h *PetHandler) GetUserPets(ctx context.Context,
+// 	input *struct {
+// 		dto.PetUserIDPath
+// 		dto.PetPreloadQuery
+// 	}) (*dto.PetsResponse, error) {
 
-	opts := services.PetPreloadOptions{
-		WithHealth:     input.WithHealth,
-		WithTreatments: input.WithTreatments,
-		WithAnalyses:   input.WithAnalysis,
-		WithBonuses:    input.WithBonuses,
-		WithAll:        input.WithAll,
-	}
+// 	opts := services.PetPreloadOptions{
+// 		WithHealth:     input.WithHealth,
+// 		WithTreatments: input.WithTreatments,
+// 		WithAnalyses:   input.WithAnalysis,
+// 		WithBonuses:    input.WithBonuses,
+// 		WithAll:        input.WithAll,
+// 	}
 
-	pets, err := h.petService.GetUserPets(ctx, input.ID, opts)
-	if err != nil {
-		return nil, err
-	}
+// 	pets, err := h.petService.GetUserPets(ctx, input.ID, opts)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &dto.PetsResponse{Body: h.toPetsDTO(pets)}, nil
-}
+// 	return &dto.PetsResponse{Body: h.toPetsDTO(pets)}, nil
+// }
 
-func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
-	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
-		return nil, err
-	}
+// func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+// 	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
+// 		return nil, err
+// 	}
 
-	resp := &dto.MessageResponse{}
-	resp.Body.Message = "Питомец удален"
-	return resp, nil
-}
+// 	resp := &dto.MessageResponse{}
+// 	resp.Body.Message = "Питомец удален"
+// 	return resp, nil
+// }
 
-func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
-	// Загружаем все связанные данные для полной валидации
-	p, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{WithAll: true})
-	if err != nil {
-		return nil, err
-	}
+// func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
+// 	// Загружаем все связанные данные для полной валидации
+// 	p, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{WithAll: true})
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	// Применяем валидацию: пересчитываем и сохраняем факторы
-	_, _, err = h.petService.ApplyValidation(ctx, p.ID)
-	if err != nil {
-		return nil, err
-	}
+// 	// Применяем валидацию: пересчитываем и сохраняем факторы
+// 	_, _, err = h.petService.ApplyValidation(ctx, p.ID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	// Возвращаем обновлённый DTO (факторы теперь сохранены и будут включены)
-	return &dto.PetResponse{Body: h.toDTO(p)}, nil
-}
+// 	// Возвращаем обновлённый DTO (факторы теперь сохранены и будут включены)
+// 	return &dto.PetResponse{Body: h.toDTO(p)}, nil
+// }
 
 // mapPetToDTO преобразует ENT модель питомца в DTO для ответа
-func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
-	petDTO := dto.Pet{
-		ID:                 p.ID,
-		Name:               p.Name,
-		ChipNumber:         p.ChipNumber,
-		PhotoURLs:          p.PhotoUrls,
-		BreedID:            p.BreedID,
-		WeightKg:           p.WeightKg,
-		BirthDate:          p.BirthDate,
-		LivingCondition:    string(p.LivingCondition),
-		Gender:             string(p.Gender),
-		Type:               string(p.Type),
-		BloodGroup:         "",
-		ReproductiveStatus: string(p.ReproductiveStatus),
-		// PetStatus:          string(p.PetStatus),
-		CreatedAt: &p.CreatedAt,
-		UpdatedAt: &p.UpdatedAt,
-		DeletedAt: p.DeletedAt,
-	}
-	if p.Edges.BloodGroupRef != nil {
-		petDTO.BloodGroup = p.Edges.BloodGroupRef.BloodGroup
-	}
-	if p.Edges.Health != nil {
-		healthStatus := string(p.Edges.Health.HealthStatus)
-		medications := p.Edges.Health.Medications
-		surgical := p.Edges.Health.SurgicalInterventions
-		petDTO.Health = &dto.PetHealth{
-			HealthStatus:          &healthStatus,
-			LastDonation:          p.Edges.Health.LastDonation,
-			Transfused:            &p.Edges.Health.Transfused,
-			Medications:           &medications,
-			SurgicalInterventions: &surgical,
-		}
-	}
-	if p.Edges.Treatments != nil {
-		petDTO.Treatments = &dto.PetTreatment{
-			RabiesVaccinationDate:     p.Edges.Treatments.RabiesVaccinationDate,
-			InfectionVaccinationDate:  p.Edges.Treatments.InfectionVaccinationDate,
-			EctoparasiteTreatmentDate: p.Edges.Treatments.EctoparasiteTreatmentDate,
-			DewormingDate:             p.Edges.Treatments.DewormingDate,
-		}
-	}
-	if p.Edges.Analyses != nil {
-		petDTO.Analyses = &dto.PetAnalysisGroup{}
-		for _, a := range p.Edges.Analyses {
-			analysisName := string(a.AnalysisName)
-			analysisType := string(a.AnalysisType)
-			dtoAnalysis := &dto.PetAnalysis{
-				ID:           &a.ID,
-				AnalysisName: &analysisName,
-				AnalysisType: &analysisType,
-				AnalysisDate: a.AnalysisDate,
-			}
+// func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
+// 	petDTO := dto.Pet{
+// 		ID:                 p.ID,
+// 		Name:               p.Name,
+// 		ChipNumber:         p.ChipNumber,
+// 		PhotoURLs:          p.PhotoUrls,
+// 		BreedID:            p.BreedID,
+// 		WeightKg:           p.WeightKg,
+// 		BirthDate:          p.BirthDate,
+// 		LivingCondition:    string(p.LivingCondition),
+// 		Gender:             string(p.Gender),
+// 		Type:               string(p.Type),
+// 		BloodGroup:         "",
+// 		ReproductiveStatus: string(p.ReproductiveStatus),
+// 		// PetStatus:          string(p.PetStatus),
+// 		CreatedAt: &p.CreatedAt,
+// 		UpdatedAt: &p.UpdatedAt,
+// 		DeletedAt: p.DeletedAt,
+// 	}
+// 	if p.Edges.BloodGroupRef != nil {
+// 		petDTO.BloodGroup = p.Edges.BloodGroupRef.BloodGroup
+// 	}
+// 	if p.Edges.Health != nil {
+// 		healthStatus := string(p.Edges.Health.HealthStatus)
+// 		medications := p.Edges.Health.Medications
+// 		surgical := p.Edges.Health.SurgicalInterventions
+// 		petDTO.Health = &dto.PetHealth{
+// 			HealthStatus:          &healthStatus,
+// 			LastDonation:          p.Edges.Health.LastDonation,
+// 			Transfused:            &p.Edges.Health.Transfused,
+// 			Medications:           &medications,
+// 			SurgicalInterventions: &surgical,
+// 		}
+// 	}
+// 	if p.Edges.Treatments != nil {
+// 		petDTO.Treatments = &dto.PetTreatment{
+// 			RabiesVaccinationDate:     p.Edges.Treatments.RabiesVaccinationDate,
+// 			InfectionVaccinationDate:  p.Edges.Treatments.InfectionVaccinationDate,
+// 			EctoparasiteTreatmentDate: p.Edges.Treatments.EctoparasiteTreatmentDate,
+// 			DewormingDate:             p.Edges.Treatments.DewormingDate,
+// 		}
+// 	}
+// 	if p.Edges.Analyses != nil {
+// 		petDTO.Analyses = &dto.PetAnalysisGroup{}
+// 		for _, a := range p.Edges.Analyses {
+// 			analysisName := string(a.AnalysisName)
+// 			analysisType := string(a.AnalysisType)
+// 			dtoAnalysis := &dto.PetAnalysis{
+// 				ID:           &a.ID,
+// 				AnalysisName: &analysisName,
+// 				AnalysisType: &analysisType,
+// 				AnalysisDate: a.AnalysisDate,
+// 			}
 
-			switch a.AnalysisName {
-			case petanalysis.AnalysisNameLeukemia:
-				petDTO.Analyses.Leukemia = append(petDTO.Analyses.Leukemia, dtoAnalysis)
-			case petanalysis.AnalysisNameImmunodeficiency:
-				petDTO.Analyses.Immunodeficiency = append(petDTO.Analyses.Immunodeficiency, dtoAnalysis)
-			case petanalysis.AnalysisNameHemoplasmosis:
-				petDTO.Analyses.Hemoplasmosis = append(petDTO.Analyses.Hemoplasmosis, dtoAnalysis)
-			case petanalysis.AnalysisNameBartonellosis:
-				petDTO.Analyses.Bartonellosis = append(petDTO.Analyses.Bartonellosis, dtoAnalysis)
-			case petanalysis.AnalysisNameBabesiosis:
-				petDTO.Analyses.Babesiosis = append(petDTO.Analyses.Babesiosis, dtoAnalysis)
-			case petanalysis.AnalysisNameDirofilaria:
-				petDTO.Analyses.Dirofilaria = append(petDTO.Analyses.Dirofilaria, dtoAnalysis)
-			case petanalysis.AnalysisNameEhrlichiosis:
-				petDTO.Analyses.Ehrlichiosis = append(petDTO.Analyses.Ehrlichiosis, dtoAnalysis)
-			case petanalysis.AnalysisNameAnaplasmosis:
-				petDTO.Analyses.Anaplasmosis = append(petDTO.Analyses.Anaplasmosis, dtoAnalysis)
-			}
-		}
-	}
-	if p.Edges.Bonuses != nil {
-		petDTO.Bonuses = &dto.PetBonus{
-			IsArtist:      p.Edges.Bonuses.IsArtist,
-			IsTherapist:   p.Edges.Bonuses.IsTherapist,
-			IsFormerDonor: p.Edges.Bonuses.IsFormerDonor,
-			IsGuideDog:    p.Edges.Bonuses.IsGuideDog,
-		}
-	}
+// 			switch a.AnalysisName {
+// 			case petanalysis.AnalysisNameLeukemia:
+// 				petDTO.Analyses.Leukemia = append(petDTO.Analyses.Leukemia, dtoAnalysis)
+// 			case petanalysis.AnalysisNameImmunodeficiency:
+// 				petDTO.Analyses.Immunodeficiency = append(petDTO.Analyses.Immunodeficiency, dtoAnalysis)
+// 			case petanalysis.AnalysisNameHemoplasmosis:
+// 				petDTO.Analyses.Hemoplasmosis = append(petDTO.Analyses.Hemoplasmosis, dtoAnalysis)
+// 			case petanalysis.AnalysisNameBartonellosis:
+// 				petDTO.Analyses.Bartonellosis = append(petDTO.Analyses.Bartonellosis, dtoAnalysis)
+// 			case petanalysis.AnalysisNameBabesiosis:
+// 				petDTO.Analyses.Babesiosis = append(petDTO.Analyses.Babesiosis, dtoAnalysis)
+// 			case petanalysis.AnalysisNameDirofilaria:
+// 				petDTO.Analyses.Dirofilaria = append(petDTO.Analyses.Dirofilaria, dtoAnalysis)
+// 			case petanalysis.AnalysisNameEhrlichiosis:
+// 				petDTO.Analyses.Ehrlichiosis = append(petDTO.Analyses.Ehrlichiosis, dtoAnalysis)
+// 			case petanalysis.AnalysisNameAnaplasmosis:
+// 				petDTO.Analyses.Anaplasmosis = append(petDTO.Analyses.Anaplasmosis, dtoAnalysis)
+// 			}
+// 		}
+// 	}
+// 	if p.Edges.Bonuses != nil {
+// 		petDTO.Bonuses = &dto.PetBonus{
+// 			IsArtist:      p.Edges.Bonuses.IsArtist,
+// 			IsTherapist:   p.Edges.Bonuses.IsTherapist,
+// 			IsFormerDonor: p.Edges.Bonuses.IsFormerDonor,
+// 			IsGuideDog:    p.Edges.Bonuses.IsGuideDog,
+// 		}
+// 	}
 
-	// Заполняем DonorRestrictions из сохранённых данных
-	// if p.PetStatus != "" && len(p.DonorRestrictions) > 0 {
-	// 	var stopRestrictionFactors []dto.RestrictionFactor
-	// 	var warnRestrictionFactors []dto.RestrictionFactor
+// 	// Заполняем DonorRestrictions из сохранённых данных
+// 	// if p.PetStatus != "" && len(p.DonorRestrictions) > 0 {
+// 	// 	var stopRestrictionFactors []dto.RestrictionFactor
+// 	// 	var warnRestrictionFactors []dto.RestrictionFactor
 
-	// 	for _, codeStr := range p.DonorRestrictions {
-	// 		code := validator.FactorCode(codeStr)
-	// 		desc := validator.GetFactorDescription(code)
+// 	// 	for _, codeStr := range p.DonorRestrictions {
+// 	// 		code := validator.FactorCode(codeStr)
+// 	// 		desc := validator.GetFactorDescription(code)
 
-	// 		factor := dto.RestrictionFactor{
-	// 			Code:           codeStr,
-	// 			Description:    desc.Description,
-	// 			SubDescription: desc.SubDescription,
-	// 		}
+// 	// 		factor := dto.RestrictionFactor{
+// 	// 			Code:           codeStr,
+// 	// 			Description:    desc.Description,
+// 	// 			SubDescription: desc.SubDescription,
+// 	// 		}
 
-	// 		// Разделяем на стопы и предупреждения по префиксу
-	// 		if strings.HasPrefix(codeStr, "STOP_") {
-	// 			stopRestrictionFactors = append(stopRestrictionFactors, factor)
-	// 		} else if strings.HasPrefix(codeStr, "WARN_") {
-	// 			warnRestrictionFactors = append(warnRestrictionFactors, factor)
-	// 		}
-	// 	}
+// 	// 		// Разделяем на стопы и предупреждения по префиксу
+// 	// 		if strings.HasPrefix(codeStr, "STOP_") {
+// 	// 			stopRestrictionFactors = append(stopRestrictionFactors, factor)
+// 	// 		} else if strings.HasPrefix(codeStr, "WARN_") {
+// 	// 			warnRestrictionFactors = append(warnRestrictionFactors, factor)
+// 	// 		}
+// 	// 	}
 
-	// 	petDTO.DonorRestrictions = &dto.DonorRestrictions{
-	// 		StopFactors: stopRestrictionFactors,
-	// 		WarnFactors: warnRestrictionFactors,
-	// 	}
-	// } else if p.PetStatus != "" {
-	// 	// Если факторы ещё не рассчитаны, возвращаем пустые (не рассчитываем на лету)
-	// 	petDTO.DonorRestrictions = &dto.DonorRestrictions{
-	// 		StopFactors: []dto.RestrictionFactor{},
-	// 		WarnFactors: []dto.RestrictionFactor{},
-	// 	}
-	// }
+// 	// 	petDTO.DonorRestrictions = &dto.DonorRestrictions{
+// 	// 		StopFactors: stopRestrictionFactors,
+// 	// 		WarnFactors: warnRestrictionFactors,
+// 	// 	}
+// 	// } else if p.PetStatus != "" {
+// 	// 	// Если факторы ещё не рассчитаны, возвращаем пустые (не рассчитываем на лету)
+// 	// 	petDTO.DonorRestrictions = &dto.DonorRestrictions{
+// 	// 		StopFactors: []dto.RestrictionFactor{},
+// 	// 		WarnFactors: []dto.RestrictionFactor{},
+// 	// 	}
+// 	// }
 
-	return petDTO
-}
+// 	return petDTO
+// }
 
 // toPetsDTO преобразует слайс ENT питомцев в слайс DTO
-func (h *PetHandler) toPetsDTO(pets []*ent.Pet) []dto.Pet {
-	petDTOs := make([]dto.Pet, len(pets))
-	for i, p := range pets {
-		petDTOs[i] = h.toDTO(p)
-	}
-	return petDTOs
-}
+// func (h *PetHandler) toPetsDTO(pets []*ent.Pet) []dto.Pet {
+// 	petDTOs := make([]dto.Pet, len(pets))
+// 	for i, p := range pets {
+// 		petDTOs[i] = h.toDTO(p)
+// 	}
+// 	return petDTOs
+// }
 
 // calculateBirthDateFromAge вычисляет дату рождения на основе возраста в годах и месяцах
 func calculateBirthDateFromAge(ageYears, ageMonths *int) *time.Time {
@@ -630,3 +522,149 @@ func calculateBirthDateFromAge(ageYears, ageMonths *int) *time.Time {
 // }
 
 // mapDTOToPetUpdates преобразует DTO обновления питомца в аргументы для сервиса
+
+func ToDomain(dto dto.PetCreate, petDomain *domain.Pet) {
+	petDomain.Name = dto.Name
+	petDomain.Type = domain.PetType(dto.Type)
+	petDomain.WeightKg = dto.WeightKg
+	petDomain.Gender = domain.Gender(dto.Gender)
+	petDomain.ChipNumber = dto.ChipNumber
+	petDomain.LivingCondition = domain.LivingCondition(dto.LivingCondition)
+	petDomain.BreedRefID = dto.BreedID
+	petDomain.BloodGroupRefID = dto.BloodGroup
+
+	if dto.BirthDate != nil {
+		petDomain.BirthDate = dto.BirthDate
+	}
+
+	if dto.ReproductiveStatus != "" {
+		petDomain.ReproductiveStatus = domain.ReproductiveStatus(dto.ReproductiveStatus)
+	}
+
+	// Handle PetHealth
+	if dto.Health != nil {
+		healthDomain := &domain.PetHealth{}
+		healthDomain.HealthStatus = domain.HealthStatus(*dto.Health.HealthStatus)
+		healthDomain.LastDonation = *dto.Health.LastDonation
+		healthDomain.Transfused = *dto.Health.Transfused
+		healthDomain.Medications = *dto.Health.Medications
+		healthDomain.SurgicalInterventions = *dto.Health.SurgicalInterventions
+		petDomain.Health = healthDomain
+	}
+
+	// Handle PetTreatment
+	if dto.Treatments != nil {
+		treatmentDomain := &domain.PetTreatment{}
+		treatmentDomain.RabiesVaccinationDate = *dto.Treatments.RabiesVaccinationDate
+		treatmentDomain.InfectionVaccinationDate = *dto.Treatments.InfectionVaccinationDate
+		treatmentDomain.EctoparasiteTreatmentDate = *dto.Treatments.EctoparasiteTreatmentDate
+		treatmentDomain.DewormingDate = *dto.Treatments.DewormingDate
+		petDomain.Treatments = treatmentDomain
+	}
+
+	// Handle PetAnalysis
+	// var analysesDomain []*domain.PetAnalysis
+	// if dto.Analyses != nil {
+	// 	processGroup := func(group []*dto.PetAnalysis, name string) {
+	// 		for _, a := range group {
+	// 			if a != nil && a.AnalysisDate != nil {
+	// 				analysis := &domain.PetAnalysis{
+	// 					AnalysisName: name,
+	// 					AnalysisDate: *a.AnalysisDate,
+	// 				}
+	// 				if a.AnalysisType != nil {
+	// 					analysis.AnalysisType = *a.AnalysisType
+	// 				}
+	// 				analysesDomain = append(analysesDomain, analysis)
+	// 			}
+	// 		}
+	// 	}
+
+	// 	processGroup(dto.Analyses.Leukemia, "leukemia")
+	// 	processGroup(dto.Analyses.Immunodeficiency, "immunodeficiency")
+	// 	processGroup(dto.Analyses.Hemoplasmosis, "hemoplasmosis")
+	// 	processGroup(dto.Analyses.Bartonellosis, "bartonellosis")
+	// 	processGroup(dto.Analyses.Babesiosis, "babesiosis")
+	// 	processGroup(dto.Analyses.Dirofilaria, "dirofilaria")
+	// 	processGroup(dto.Analyses.Ehrlichiosis, "ehrlichiosis")
+	// 	processGroup(dto.Analyses.Anaplasmosis, "anaplasmosis")
+	// 	petDomain.Analyses = analysesDomain
+	// }
+
+}
+
+// ToDTO maps domain.Pet to dto.Pet
+func ToDTO(petDomain domain.Pet) dto.Pet {
+	petDTO := dto.Pet{
+		ID:                 petDomain.ID,
+		Name:               petDomain.Name,
+		ChipNumber:         petDomain.ChipNumber,
+		PhotoURLs:          petDomain.PhotoURLs,
+		BreedID:            petDomain.BreedRefID,
+		WeightKg:           petDomain.WeightKg,
+		BirthDate:          petDomain.BirthDate,
+		LivingCondition:    string(petDomain.LivingCondition),
+		Gender:             string(petDomain.Gender),
+		Type:               string(petDomain.Type),
+		BloodGroup:         petDomain.BloodGroupRefID,
+		ReproductiveStatus: string(petDomain.ReproductiveStatus),
+		CreatedAt:          petDomain.CreatedAt,
+		UpdatedAt:          petDomain.UpdatedAt,
+		DeletedAt:          petDomain.DeletedAt,
+	}
+
+	if petDomain.Health != nil {
+		healthStatus := string(petDomain.Health.HealthStatus)
+		petDTO.Health = &dto.PetHealth{
+			HealthStatus:          &healthStatus,
+			LastDonation:          nilable(petDomain.Health.LastDonation),
+			Transfused:            nilable(petDomain.Health.Transfused),
+			Medications:           nilable(petDomain.Health.Medications),
+			SurgicalInterventions: nilable(petDomain.Health.SurgicalInterventions),
+		}
+	}
+
+	if petDomain.Treatments != nil {
+		petDTO.Treatments = &dto.PetTreatment{
+			RabiesVaccinationDate:     nilable(petDomain.Treatments.RabiesVaccinationDate),
+			InfectionVaccinationDate:  nilable(petDomain.Treatments.InfectionVaccinationDate),
+			EctoparasiteTreatmentDate: nilable(petDomain.Treatments.EctoparasiteTreatmentDate),
+			DewormingDate:             nilable(petDomain.Treatments.DewormingDate),
+		}
+	}
+
+	// Analyses mapping if needed, but commented in original ToDomain
+	// if petDomain.Analyses != nil {
+	// 	petDTO.Analyses = &dto.PetAnalysisGroup{}
+	// 	for _, a := range petDomain.Analyses {
+	// 		analysisName := string(a.AnalysisName)
+	// 		analysisType := string(a.AnalysisType)
+	// 		dtoAnalysis := &dto.PetAnalysis{
+	// 			ID:           nilable(a.ID),
+	// 			AnalysisName: &analysisName,
+	// 			AnalysisType: &analysisType,
+	// 			AnalysisDate: nilable(a.AnalysisDate),
+	// 		}
+	// 		switch a.AnalysisName {
+	// 		case "leukemia":
+	// 			petDTO.Analyses.Leukemia = append(petDTO.Analyses.Leukemia, dtoAnalysis)
+	// 		// Add other cases similarly
+	// 		}
+	// 	}
+	// }
+
+	return petDTO
+}
+
+func nilable[T any](val T) *T {
+	// Проверяем, является ли значение "нулевым" для своего типа
+	// Это работает для большинства встроенных типов (числа, строки, булевы)
+	// и для структур, если все их поля нулевые.
+	// Для более сложных случаев (например, пользовательские типы с неэкспортированными полями)
+	// может потребоваться более сложная логика или использование reflect.
+	var zero T
+	if any(val) == any(zero) {
+		return nil
+	}
+	return &val
+}

@@ -134,8 +134,8 @@ export type BloodSearchPetRequestBloodGroupNamesEnum = typeof BloodSearchPetRequ
  * @export
  */
 export const BloodSearchPetRequestOnBoardingEnum = {
-    Recipient: 'RECIPIENT',
-    Donor: ' DONOR'
+    Search: 'SEARCH',
+    BloodCard: 'BLOOD_CARD'
 } as const;
 export type BloodSearchPetRequestOnBoardingEnum = typeof BloodSearchPetRequestOnBoardingEnum[keyof typeof BloodSearchPetRequestOnBoardingEnum];
 

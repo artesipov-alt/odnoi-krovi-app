@@ -30,9 +30,6 @@ type Pet func(*sql.Selector)
 // PetAnalysis is the predicate function for petanalysis builders.
 type PetAnalysis func(*sql.Selector)
 
-// PetBonus is the predicate function for petbonus builders.
-type PetBonus func(*sql.Selector)
-
 // PetHealth is the predicate function for pethealth builders.
 type PetHealth func(*sql.Selector)
 

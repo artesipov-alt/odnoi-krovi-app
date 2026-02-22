@@ -16,7 +16,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -295,33 +294,6 @@ func (f TraversePetAnalysis) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.PetAnalysisQuery", q)
 }
 
-// The PetBonusFunc type is an adapter to allow the use of ordinary function as a Querier.
-type PetBonusFunc func(context.Context, *ent.PetBonusQuery) (ent.Value, error)
-
-// Query calls f(ctx, q).
-func (f PetBonusFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
-	if q, ok := q.(*ent.PetBonusQuery); ok {
-		return f(ctx, q)
-	}
-	return nil, fmt.Errorf("unexpected query type %T. expect *ent.PetBonusQuery", q)
-}
-
-// The TraversePetBonus type is an adapter to allow the use of ordinary function as Traverser.
-type TraversePetBonus func(context.Context, *ent.PetBonusQuery) error
-
-// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
-func (f TraversePetBonus) Intercept(next ent.Querier) ent.Querier {
-	return next
-}
-
-// Traverse calls f(ctx, q).
-func (f TraversePetBonus) Traverse(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.PetBonusQuery); ok {
-		return f(ctx, q)
-	}
-	return fmt.Errorf("unexpected query type %T. expect *ent.PetBonusQuery", q)
-}
-
 // The PetHealthFunc type is an adapter to allow the use of ordinary function as a Querier.
 type PetHealthFunc func(context.Context, *ent.PetHealthQuery) (ent.Value, error)
 
@@ -422,8 +394,6 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.PetQuery, predicate.Pet, pet.OrderOption]{typ: ent.TypePet, tq: q}, nil
 	case *ent.PetAnalysisQuery:
 		return &query[*ent.PetAnalysisQuery, predicate.PetAnalysis, petanalysis.OrderOption]{typ: ent.TypePetAnalysis, tq: q}, nil
-	case *ent.PetBonusQuery:
-		return &query[*ent.PetBonusQuery, predicate.PetBonus, petbonus.OrderOption]{typ: ent.TypePetBonus, tq: q}, nil
 	case *ent.PetHealthQuery:
 		return &query[*ent.PetHealthQuery, predicate.PetHealth, pethealth.OrderOption]{typ: ent.TypePetHealth, tq: q}, nil
 	case *ent.PetTreatmentQuery:

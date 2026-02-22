@@ -97,6 +97,7 @@ func RunMigrations(client *ent.Client) error {
 	if err := client.Schema.Create(ctx,
 		schemaent.WithForeignKeys(true),
 		migrate.WithDropColumn(true),
+		migrate.WithDropIndex(true),
 	); err != nil {
 		return fmt.Errorf("failed creating schema resources: %w", err)
 	}

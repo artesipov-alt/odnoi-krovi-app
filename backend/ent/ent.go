@@ -20,7 +20,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -92,7 +91,6 @@ func checkColumn(t, c string) error {
 			location.Table:           location.ValidColumn,
 			pet.Table:                pet.ValidColumn,
 			petanalysis.Table:        petanalysis.ValidColumn,
-			petbonus.Table:           petbonus.ValidColumn,
 			pethealth.Table:          pethealth.ValidColumn,
 			pettreatment.Table:       pettreatment.ValidColumn,
 			user.Table:               user.ValidColumn,

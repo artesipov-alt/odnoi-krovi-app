@@ -83,3 +83,18 @@ func (r *EntBloodInfoRepository) FindByBloodGroup(ctx context.Context, bloodGrou
 	}
 	return group, nil
 }
+
+// FindByName returns a blood group by name
+func (r *EntBloodInfoRepository) FindByName(ctx context.Context, bloodGroup string) (*ent.BloodGroup, error) {
+	group, err := r.client.BloodGroup.Query().
+		Where(bloodgroup.BloodGroupEQ(bloodGroup)).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("blood group %s not found: %w", bloodGroup, err)
+		}
+		return nil, fmt.Errorf("failed to get blood group %s: %w", bloodGroup, err)
+	}
+	return group, nil
+}

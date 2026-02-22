@@ -8,7 +8,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/mocks"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
@@ -98,15 +97,15 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByPetID)
 
-	// Получить список доноров по ID заявки
-	huma.Register(api, huma.Operation{
-		OperationID: "get-donors-by-req-id",
-		Method:      http.MethodGet,
-		Path:        "/v1/blood-request/donors/{id}",
-		Summary:     "Получить список доноров по ID заявки",
-		Description: "Возвращает список доноров откликнувшихся на заявку",
-		Tags:        []string{"blood-request-v1"},
-	}, h.GetDonorsByID)
+	// // Получить список доноров по ID заявки
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "get-donors-by-req-id",
+	// 	Method:      http.MethodGet,
+	// 	Path:        "/v1/blood-request/donors/{id}",
+	// 	Summary:     "Получить список доноров по ID заявки",
+	// 	Description: "Возвращает список доноров откликнувшихся на заявку",
+	// 	Tags:        []string{"blood-request-v1"},
+	// }, h.GetDonorsByID)
 
 	// Удалить заявку
 	huma.Register(api, huma.Operation{
@@ -226,14 +225,14 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq)}, nil
 }
 
-func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {
-	slog.DebugContext(ctx, "getting donors by ID", "request_id", input.ID)
+// func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {
+// 	slog.DebugContext(ctx, "getting donors by ID", "request_id", input.ID)
 
-	// Create a slice of dto.Pet
-	pets := []dto.Pet{mocks.Pet1, mocks.Pet2}
+// 	// Create a slice of dto.Pet
+// 	pets := []dto.Pet{mocks.Pet1, mocks.Pet2}
 
-	return &dto.PetsResponse{Body: pets}, nil
-}
+// 	return &dto.PetsResponse{Body: pets}, nil
+// }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)

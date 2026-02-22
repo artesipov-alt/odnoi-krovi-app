@@ -105,18 +105,6 @@ func (f PetAnalysisFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PetAnalysisMutation", m)
 }
 
-// The PetBonusFunc type is an adapter to allow the use of ordinary
-// function as PetBonus mutator.
-type PetBonusFunc func(context.Context, *ent.PetBonusMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f PetBonusFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.PetBonusMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PetBonusMutation", m)
-}
-
 // The PetHealthFunc type is an adapter to allow the use of ordinary
 // function as PetHealth mutator.
 type PetHealthFunc func(context.Context, *ent.PetHealthMutation) (ent.Value, error)

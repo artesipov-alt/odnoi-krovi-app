@@ -14,7 +14,6 @@ export * from './PetBonus';
 export * from './PetCreate';
 export * from './PetHealth';
 export * from './PetTreatment';
-export * from './PetUpdate';
 export * from './ReferenceData';
 export * from './ReferenceItem';
 export * from './RestrictionFactor';

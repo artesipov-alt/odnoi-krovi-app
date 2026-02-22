@@ -85,9 +85,19 @@ func Name(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldName, v))
 }
 
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldType, v))
+}
+
 // WeightKg applies equality check predicate on the "weight_kg" field. It's identical to WeightKgEQ.
 func WeightKg(v float64) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldWeightKg, v))
+}
+
+// Gender applies equality check predicate on the "gender" field. It's identical to GenderEQ.
+func Gender(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldGender, v))
 }
 
 // BirthDate applies equality check predicate on the "birth_date" field. It's identical to BirthDateEQ.
@@ -120,9 +130,14 @@ func TreatmentID(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldTreatmentID, v))
 }
 
-// BonusID applies equality check predicate on the "bonus_id" field. It's identical to BonusIDEQ.
-func BonusID(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldBonusID, v))
+// LivingCondition applies equality check predicate on the "living_condition" field. It's identical to LivingConditionEQ.
+func LivingCondition(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldLivingCondition, v))
+}
+
+// ReproductiveStatus applies equality check predicate on the "reproductive_status" field. It's identical to ReproductiveStatusEQ.
+func ReproductiveStatus(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldReproductiveStatus, v))
 }
 
 // BloodGroupID applies equality check predicate on the "blood_group_id" field. It's identical to BloodGroupIDEQ.
@@ -326,23 +341,68 @@ func NameContainsFold(v string) predicate.Pet {
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v Type) predicate.Pet {
+func TypeEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldType, v))
 }
 
 // TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v Type) predicate.Pet {
+func TypeNEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldNEQ(FieldType, v))
 }
 
 // TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...Type) predicate.Pet {
+func TypeIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldIn(FieldType, vs...))
 }
 
 // TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...Type) predicate.Pet {
+func TypeNotIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldNotIn(FieldType, vs...))
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGT(FieldType, v))
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGTE(FieldType, v))
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLT(FieldType, v))
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLTE(FieldType, v))
+}
+
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContains(FieldType, v))
+}
+
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasPrefix(FieldType, v))
+}
+
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasSuffix(FieldType, v))
+}
+
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEqualFold(FieldType, v))
+}
+
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContainsFold(FieldType, v))
 }
 
 // WeightKgEQ applies the EQ predicate on the "weight_kg" field.
@@ -396,23 +456,58 @@ func WeightKgNotNil() predicate.Pet {
 }
 
 // GenderEQ applies the EQ predicate on the "gender" field.
-func GenderEQ(v Gender) predicate.Pet {
+func GenderEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldGender, v))
 }
 
 // GenderNEQ applies the NEQ predicate on the "gender" field.
-func GenderNEQ(v Gender) predicate.Pet {
+func GenderNEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldNEQ(FieldGender, v))
 }
 
 // GenderIn applies the In predicate on the "gender" field.
-func GenderIn(vs ...Gender) predicate.Pet {
+func GenderIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldIn(FieldGender, vs...))
 }
 
 // GenderNotIn applies the NotIn predicate on the "gender" field.
-func GenderNotIn(vs ...Gender) predicate.Pet {
+func GenderNotIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldNotIn(FieldGender, vs...))
+}
+
+// GenderGT applies the GT predicate on the "gender" field.
+func GenderGT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGT(FieldGender, v))
+}
+
+// GenderGTE applies the GTE predicate on the "gender" field.
+func GenderGTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGTE(FieldGender, v))
+}
+
+// GenderLT applies the LT predicate on the "gender" field.
+func GenderLT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLT(FieldGender, v))
+}
+
+// GenderLTE applies the LTE predicate on the "gender" field.
+func GenderLTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLTE(FieldGender, v))
+}
+
+// GenderContains applies the Contains predicate on the "gender" field.
+func GenderContains(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContains(FieldGender, v))
+}
+
+// GenderHasPrefix applies the HasPrefix predicate on the "gender" field.
+func GenderHasPrefix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasPrefix(FieldGender, v))
+}
+
+// GenderHasSuffix applies the HasSuffix predicate on the "gender" field.
+func GenderHasSuffix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasSuffix(FieldGender, v))
 }
 
 // GenderIsNil applies the IsNil predicate on the "gender" field.
@@ -423,6 +518,16 @@ func GenderIsNil() predicate.Pet {
 // GenderNotNil applies the NotNil predicate on the "gender" field.
 func GenderNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldGender))
+}
+
+// GenderEqualFold applies the EqualFold predicate on the "gender" field.
+func GenderEqualFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEqualFold(FieldGender, v))
+}
+
+// GenderContainsFold applies the ContainsFold predicate on the "gender" field.
+func GenderContainsFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContainsFold(FieldGender, v))
 }
 
 // BirthDateEQ applies the EQ predicate on the "birth_date" field.
@@ -860,99 +965,59 @@ func TreatmentIDContainsFold(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldContainsFold(FieldTreatmentID, v))
 }
 
-// BonusIDEQ applies the EQ predicate on the "bonus_id" field.
-func BonusIDEQ(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldBonusID, v))
-}
-
-// BonusIDNEQ applies the NEQ predicate on the "bonus_id" field.
-func BonusIDNEQ(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldNEQ(FieldBonusID, v))
-}
-
-// BonusIDIn applies the In predicate on the "bonus_id" field.
-func BonusIDIn(vs ...string) predicate.Pet {
-	return predicate.Pet(sql.FieldIn(FieldBonusID, vs...))
-}
-
-// BonusIDNotIn applies the NotIn predicate on the "bonus_id" field.
-func BonusIDNotIn(vs ...string) predicate.Pet {
-	return predicate.Pet(sql.FieldNotIn(FieldBonusID, vs...))
-}
-
-// BonusIDGT applies the GT predicate on the "bonus_id" field.
-func BonusIDGT(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldGT(FieldBonusID, v))
-}
-
-// BonusIDGTE applies the GTE predicate on the "bonus_id" field.
-func BonusIDGTE(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldGTE(FieldBonusID, v))
-}
-
-// BonusIDLT applies the LT predicate on the "bonus_id" field.
-func BonusIDLT(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldLT(FieldBonusID, v))
-}
-
-// BonusIDLTE applies the LTE predicate on the "bonus_id" field.
-func BonusIDLTE(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldLTE(FieldBonusID, v))
-}
-
-// BonusIDContains applies the Contains predicate on the "bonus_id" field.
-func BonusIDContains(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldContains(FieldBonusID, v))
-}
-
-// BonusIDHasPrefix applies the HasPrefix predicate on the "bonus_id" field.
-func BonusIDHasPrefix(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldHasPrefix(FieldBonusID, v))
-}
-
-// BonusIDHasSuffix applies the HasSuffix predicate on the "bonus_id" field.
-func BonusIDHasSuffix(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldHasSuffix(FieldBonusID, v))
-}
-
-// BonusIDIsNil applies the IsNil predicate on the "bonus_id" field.
-func BonusIDIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldBonusID))
-}
-
-// BonusIDNotNil applies the NotNil predicate on the "bonus_id" field.
-func BonusIDNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldBonusID))
-}
-
-// BonusIDEqualFold applies the EqualFold predicate on the "bonus_id" field.
-func BonusIDEqualFold(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldEqualFold(FieldBonusID, v))
-}
-
-// BonusIDContainsFold applies the ContainsFold predicate on the "bonus_id" field.
-func BonusIDContainsFold(v string) predicate.Pet {
-	return predicate.Pet(sql.FieldContainsFold(FieldBonusID, v))
-}
-
 // LivingConditionEQ applies the EQ predicate on the "living_condition" field.
-func LivingConditionEQ(v LivingCondition) predicate.Pet {
+func LivingConditionEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldLivingCondition, v))
 }
 
 // LivingConditionNEQ applies the NEQ predicate on the "living_condition" field.
-func LivingConditionNEQ(v LivingCondition) predicate.Pet {
+func LivingConditionNEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldNEQ(FieldLivingCondition, v))
 }
 
 // LivingConditionIn applies the In predicate on the "living_condition" field.
-func LivingConditionIn(vs ...LivingCondition) predicate.Pet {
+func LivingConditionIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldIn(FieldLivingCondition, vs...))
 }
 
 // LivingConditionNotIn applies the NotIn predicate on the "living_condition" field.
-func LivingConditionNotIn(vs ...LivingCondition) predicate.Pet {
+func LivingConditionNotIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldNotIn(FieldLivingCondition, vs...))
+}
+
+// LivingConditionGT applies the GT predicate on the "living_condition" field.
+func LivingConditionGT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGT(FieldLivingCondition, v))
+}
+
+// LivingConditionGTE applies the GTE predicate on the "living_condition" field.
+func LivingConditionGTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGTE(FieldLivingCondition, v))
+}
+
+// LivingConditionLT applies the LT predicate on the "living_condition" field.
+func LivingConditionLT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLT(FieldLivingCondition, v))
+}
+
+// LivingConditionLTE applies the LTE predicate on the "living_condition" field.
+func LivingConditionLTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLTE(FieldLivingCondition, v))
+}
+
+// LivingConditionContains applies the Contains predicate on the "living_condition" field.
+func LivingConditionContains(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContains(FieldLivingCondition, v))
+}
+
+// LivingConditionHasPrefix applies the HasPrefix predicate on the "living_condition" field.
+func LivingConditionHasPrefix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasPrefix(FieldLivingCondition, v))
+}
+
+// LivingConditionHasSuffix applies the HasSuffix predicate on the "living_condition" field.
+func LivingConditionHasSuffix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasSuffix(FieldLivingCondition, v))
 }
 
 // LivingConditionIsNil applies the IsNil predicate on the "living_condition" field.
@@ -965,24 +1030,69 @@ func LivingConditionNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldLivingCondition))
 }
 
+// LivingConditionEqualFold applies the EqualFold predicate on the "living_condition" field.
+func LivingConditionEqualFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEqualFold(FieldLivingCondition, v))
+}
+
+// LivingConditionContainsFold applies the ContainsFold predicate on the "living_condition" field.
+func LivingConditionContainsFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContainsFold(FieldLivingCondition, v))
+}
+
 // ReproductiveStatusEQ applies the EQ predicate on the "reproductive_status" field.
-func ReproductiveStatusEQ(v ReproductiveStatus) predicate.Pet {
+func ReproductiveStatusEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldReproductiveStatus, v))
 }
 
 // ReproductiveStatusNEQ applies the NEQ predicate on the "reproductive_status" field.
-func ReproductiveStatusNEQ(v ReproductiveStatus) predicate.Pet {
+func ReproductiveStatusNEQ(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldNEQ(FieldReproductiveStatus, v))
 }
 
 // ReproductiveStatusIn applies the In predicate on the "reproductive_status" field.
-func ReproductiveStatusIn(vs ...ReproductiveStatus) predicate.Pet {
+func ReproductiveStatusIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldIn(FieldReproductiveStatus, vs...))
 }
 
 // ReproductiveStatusNotIn applies the NotIn predicate on the "reproductive_status" field.
-func ReproductiveStatusNotIn(vs ...ReproductiveStatus) predicate.Pet {
+func ReproductiveStatusNotIn(vs ...string) predicate.Pet {
 	return predicate.Pet(sql.FieldNotIn(FieldReproductiveStatus, vs...))
+}
+
+// ReproductiveStatusGT applies the GT predicate on the "reproductive_status" field.
+func ReproductiveStatusGT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGT(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusGTE applies the GTE predicate on the "reproductive_status" field.
+func ReproductiveStatusGTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldGTE(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusLT applies the LT predicate on the "reproductive_status" field.
+func ReproductiveStatusLT(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLT(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusLTE applies the LTE predicate on the "reproductive_status" field.
+func ReproductiveStatusLTE(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldLTE(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusContains applies the Contains predicate on the "reproductive_status" field.
+func ReproductiveStatusContains(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContains(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusHasPrefix applies the HasPrefix predicate on the "reproductive_status" field.
+func ReproductiveStatusHasPrefix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasPrefix(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusHasSuffix applies the HasSuffix predicate on the "reproductive_status" field.
+func ReproductiveStatusHasSuffix(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldHasSuffix(FieldReproductiveStatus, v))
 }
 
 // ReproductiveStatusIsNil applies the IsNil predicate on the "reproductive_status" field.
@@ -993,6 +1103,16 @@ func ReproductiveStatusIsNil() predicate.Pet {
 // ReproductiveStatusNotNil applies the NotNil predicate on the "reproductive_status" field.
 func ReproductiveStatusNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldReproductiveStatus))
+}
+
+// ReproductiveStatusEqualFold applies the EqualFold predicate on the "reproductive_status" field.
+func ReproductiveStatusEqualFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldEqualFold(FieldReproductiveStatus, v))
+}
+
+// ReproductiveStatusContainsFold applies the ContainsFold predicate on the "reproductive_status" field.
+func ReproductiveStatusContainsFold(v string) predicate.Pet {
+	return predicate.Pet(sql.FieldContainsFold(FieldReproductiveStatus, v))
 }
 
 // DonorRestrictionsIsNil applies the IsNil predicate on the "donor_restrictions" field.
@@ -1080,6 +1200,16 @@ func BloodGroupIDContainsFold(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldContainsFold(FieldBloodGroupID, v))
 }
 
+// BonusesIsNil applies the IsNil predicate on the "bonuses" field.
+func BonusesIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldBonuses))
+}
+
+// BonusesNotNil applies the NotNil predicate on the "bonuses" field.
+func BonusesNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldBonuses))
+}
+
 // HasOwner applies the HasEdge predicate on the "owner" edge.
 func HasOwner() predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
@@ -1164,29 +1294,6 @@ func HasAnalyses() predicate.Pet {
 func HasAnalysesWith(preds ...predicate.PetAnalysis) predicate.Pet {
 	return predicate.Pet(func(s *sql.Selector) {
 		step := newAnalysesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasBonuses applies the HasEdge predicate on the "bonuses" edge.
-func HasBonuses() predicate.Pet {
-	return predicate.Pet(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, BonusesTable, BonusesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasBonusesWith applies the HasEdge predicate on the "bonuses" edge with a given conditions (other predicates).
-func HasBonusesWith(preds ...predicate.PetBonus) predicate.Pet {
-	return predicate.Pet(func(s *sql.Selector) {
-		step := newBonusesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

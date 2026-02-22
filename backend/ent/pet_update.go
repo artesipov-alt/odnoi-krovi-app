@@ -18,7 +18,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -79,13 +78,13 @@ func (_u *PetUpdate) SetNillableName(v *string) *PetUpdate {
 }
 
 // SetType sets the "type" field.
-func (_u *PetUpdate) SetType(v pet.Type) *PetUpdate {
+func (_u *PetUpdate) SetType(v string) *PetUpdate {
 	_u.mutation.SetType(v)
 	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableType(v *pet.Type) *PetUpdate {
+func (_u *PetUpdate) SetNillableType(v *string) *PetUpdate {
 	if v != nil {
 		_u.SetType(*v)
 	}
@@ -120,13 +119,13 @@ func (_u *PetUpdate) ClearWeightKg() *PetUpdate {
 }
 
 // SetGender sets the "gender" field.
-func (_u *PetUpdate) SetGender(v pet.Gender) *PetUpdate {
+func (_u *PetUpdate) SetGender(v string) *PetUpdate {
 	_u.mutation.SetGender(v)
 	return _u
 }
 
 // SetNillableGender sets the "gender" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableGender(v *pet.Gender) *PetUpdate {
+func (_u *PetUpdate) SetNillableGender(v *string) *PetUpdate {
 	if v != nil {
 		_u.SetGender(*v)
 	}
@@ -277,34 +276,14 @@ func (_u *PetUpdate) ClearTreatmentID() *PetUpdate {
 	return _u
 }
 
-// SetBonusID sets the "bonus_id" field.
-func (_u *PetUpdate) SetBonusID(v string) *PetUpdate {
-	_u.mutation.SetBonusID(v)
-	return _u
-}
-
-// SetNillableBonusID sets the "bonus_id" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableBonusID(v *string) *PetUpdate {
-	if v != nil {
-		_u.SetBonusID(*v)
-	}
-	return _u
-}
-
-// ClearBonusID clears the value of the "bonus_id" field.
-func (_u *PetUpdate) ClearBonusID() *PetUpdate {
-	_u.mutation.ClearBonusID()
-	return _u
-}
-
 // SetLivingCondition sets the "living_condition" field.
-func (_u *PetUpdate) SetLivingCondition(v pet.LivingCondition) *PetUpdate {
+func (_u *PetUpdate) SetLivingCondition(v string) *PetUpdate {
 	_u.mutation.SetLivingCondition(v)
 	return _u
 }
 
 // SetNillableLivingCondition sets the "living_condition" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableLivingCondition(v *pet.LivingCondition) *PetUpdate {
+func (_u *PetUpdate) SetNillableLivingCondition(v *string) *PetUpdate {
 	if v != nil {
 		_u.SetLivingCondition(*v)
 	}
@@ -318,13 +297,13 @@ func (_u *PetUpdate) ClearLivingCondition() *PetUpdate {
 }
 
 // SetReproductiveStatus sets the "reproductive_status" field.
-func (_u *PetUpdate) SetReproductiveStatus(v pet.ReproductiveStatus) *PetUpdate {
+func (_u *PetUpdate) SetReproductiveStatus(v string) *PetUpdate {
 	_u.mutation.SetReproductiveStatus(v)
 	return _u
 }
 
 // SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
-func (_u *PetUpdate) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *PetUpdate {
+func (_u *PetUpdate) SetNillableReproductiveStatus(v *string) *PetUpdate {
 	if v != nil {
 		_u.SetReproductiveStatus(*v)
 	}
@@ -372,6 +351,24 @@ func (_u *PetUpdate) SetNillableBloodGroupID(v *string) *PetUpdate {
 // ClearBloodGroupID clears the value of the "blood_group_id" field.
 func (_u *PetUpdate) ClearBloodGroupID() *PetUpdate {
 	_u.mutation.ClearBloodGroupID()
+	return _u
+}
+
+// SetBonuses sets the "bonuses" field.
+func (_u *PetUpdate) SetBonuses(v []string) *PetUpdate {
+	_u.mutation.SetBonuses(v)
+	return _u
+}
+
+// AppendBonuses appends value to the "bonuses" field.
+func (_u *PetUpdate) AppendBonuses(v []string) *PetUpdate {
+	_u.mutation.AppendBonuses(v)
+	return _u
+}
+
+// ClearBonuses clears the value of the "bonuses" field.
+func (_u *PetUpdate) ClearBonuses() *PetUpdate {
+	_u.mutation.ClearBonuses()
 	return _u
 }
 
@@ -431,25 +428,6 @@ func (_u *PetUpdate) AddAnalyses(v ...*PetAnalysis) *PetUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddAnalysisIDs(ids...)
-}
-
-// SetBonusesID sets the "bonuses" edge to the PetBonus entity by ID.
-func (_u *PetUpdate) SetBonusesID(id string) *PetUpdate {
-	_u.mutation.SetBonusesID(id)
-	return _u
-}
-
-// SetNillableBonusesID sets the "bonuses" edge to the PetBonus entity by ID if the given value is not nil.
-func (_u *PetUpdate) SetNillableBonusesID(id *string) *PetUpdate {
-	if id != nil {
-		_u = _u.SetBonusesID(*id)
-	}
-	return _u
-}
-
-// SetBonuses sets the "bonuses" edge to the PetBonus entity.
-func (_u *PetUpdate) SetBonuses(v *PetBonus) *PetUpdate {
-	return _u.SetBonusesID(v.ID)
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by ID.
@@ -568,12 +546,6 @@ func (_u *PetUpdate) RemoveAnalyses(v ...*PetAnalysis) *PetUpdate {
 	return _u.RemoveAnalysisIDs(ids...)
 }
 
-// ClearBonuses clears the "bonuses" edge to the PetBonus entity.
-func (_u *PetUpdate) ClearBonuses() *PetUpdate {
-	_u.mutation.ClearBonuses()
-	return _u
-}
-
 // ClearBreedRef clears the "breed_ref" edge to the Breed entity.
 func (_u *PetUpdate) ClearBreedRef() *PetUpdate {
 	_u.mutation.ClearBreedRef()
@@ -651,34 +623,9 @@ func (_u *PetUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PetUpdate) check() error {
-	if v, ok := _u.mutation.Name(); ok {
-		if err := pet.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Pet.name": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.GetType(); ok {
-		if err := pet.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Pet.type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Gender(); ok {
-		if err := pet.GenderValidator(v); err != nil {
-			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Pet.gender": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.ChipNumber(); ok {
 		if err := pet.ChipNumberValidator(v); err != nil {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.LivingCondition(); ok {
-		if err := pet.LivingConditionValidator(v); err != nil {
-			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ReproductiveStatus(); ok {
-		if err := pet.ReproductiveStatusValidator(v); err != nil {
-			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "Pet.reproductive_status": %w`, err)}
 		}
 	}
 	return nil
@@ -709,7 +656,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.SetField(pet.FieldName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
-		_spec.SetField(pet.FieldType, field.TypeEnum, value)
+		_spec.SetField(pet.FieldType, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.WeightKg(); ok {
 		_spec.SetField(pet.FieldWeightKg, field.TypeFloat64, value)
@@ -721,10 +668,10 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(pet.FieldWeightKg, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
-		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
+		_spec.SetField(pet.FieldGender, field.TypeString, value)
 	}
 	if _u.mutation.GenderCleared() {
-		_spec.ClearField(pet.FieldGender, field.TypeEnum)
+		_spec.ClearField(pet.FieldGender, field.TypeString)
 	}
 	if value, ok := _u.mutation.BirthDate(); ok {
 		_spec.SetField(pet.FieldBirthDate, field.TypeTime, value)
@@ -750,16 +697,16 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.ClearField(pet.FieldPhotoUrls, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.LivingCondition(); ok {
-		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)
+		_spec.SetField(pet.FieldLivingCondition, field.TypeString, value)
 	}
 	if _u.mutation.LivingConditionCleared() {
-		_spec.ClearField(pet.FieldLivingCondition, field.TypeEnum)
+		_spec.ClearField(pet.FieldLivingCondition, field.TypeString)
 	}
 	if value, ok := _u.mutation.ReproductiveStatus(); ok {
-		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
+		_spec.SetField(pet.FieldReproductiveStatus, field.TypeString, value)
 	}
 	if _u.mutation.ReproductiveStatusCleared() {
-		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeEnum)
+		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeString)
 	}
 	if value, ok := _u.mutation.DonorRestrictions(); ok {
 		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
@@ -771,6 +718,17 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DonorRestrictionsCleared() {
 		_spec.ClearField(pet.FieldDonorRestrictions, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Bonuses(); ok {
+		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedBonuses(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, pet.FieldBonuses, value)
+		})
+	}
+	if _u.mutation.BonusesCleared() {
+		_spec.ClearField(pet.FieldBonuses, field.TypeJSON)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -897,35 +855,6 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.BonusesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pet.BonusesTable,
-			Columns: []string{pet.BonusesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.BonusesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pet.BonusesTable,
-			Columns: []string{pet.BonusesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -1126,13 +1055,13 @@ func (_u *PetUpdateOne) SetNillableName(v *string) *PetUpdateOne {
 }
 
 // SetType sets the "type" field.
-func (_u *PetUpdateOne) SetType(v pet.Type) *PetUpdateOne {
+func (_u *PetUpdateOne) SetType(v string) *PetUpdateOne {
 	_u.mutation.SetType(v)
 	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableType(v *pet.Type) *PetUpdateOne {
+func (_u *PetUpdateOne) SetNillableType(v *string) *PetUpdateOne {
 	if v != nil {
 		_u.SetType(*v)
 	}
@@ -1167,13 +1096,13 @@ func (_u *PetUpdateOne) ClearWeightKg() *PetUpdateOne {
 }
 
 // SetGender sets the "gender" field.
-func (_u *PetUpdateOne) SetGender(v pet.Gender) *PetUpdateOne {
+func (_u *PetUpdateOne) SetGender(v string) *PetUpdateOne {
 	_u.mutation.SetGender(v)
 	return _u
 }
 
 // SetNillableGender sets the "gender" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableGender(v *pet.Gender) *PetUpdateOne {
+func (_u *PetUpdateOne) SetNillableGender(v *string) *PetUpdateOne {
 	if v != nil {
 		_u.SetGender(*v)
 	}
@@ -1324,34 +1253,14 @@ func (_u *PetUpdateOne) ClearTreatmentID() *PetUpdateOne {
 	return _u
 }
 
-// SetBonusID sets the "bonus_id" field.
-func (_u *PetUpdateOne) SetBonusID(v string) *PetUpdateOne {
-	_u.mutation.SetBonusID(v)
-	return _u
-}
-
-// SetNillableBonusID sets the "bonus_id" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableBonusID(v *string) *PetUpdateOne {
-	if v != nil {
-		_u.SetBonusID(*v)
-	}
-	return _u
-}
-
-// ClearBonusID clears the value of the "bonus_id" field.
-func (_u *PetUpdateOne) ClearBonusID() *PetUpdateOne {
-	_u.mutation.ClearBonusID()
-	return _u
-}
-
 // SetLivingCondition sets the "living_condition" field.
-func (_u *PetUpdateOne) SetLivingCondition(v pet.LivingCondition) *PetUpdateOne {
+func (_u *PetUpdateOne) SetLivingCondition(v string) *PetUpdateOne {
 	_u.mutation.SetLivingCondition(v)
 	return _u
 }
 
 // SetNillableLivingCondition sets the "living_condition" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableLivingCondition(v *pet.LivingCondition) *PetUpdateOne {
+func (_u *PetUpdateOne) SetNillableLivingCondition(v *string) *PetUpdateOne {
 	if v != nil {
 		_u.SetLivingCondition(*v)
 	}
@@ -1365,13 +1274,13 @@ func (_u *PetUpdateOne) ClearLivingCondition() *PetUpdateOne {
 }
 
 // SetReproductiveStatus sets the "reproductive_status" field.
-func (_u *PetUpdateOne) SetReproductiveStatus(v pet.ReproductiveStatus) *PetUpdateOne {
+func (_u *PetUpdateOne) SetReproductiveStatus(v string) *PetUpdateOne {
 	_u.mutation.SetReproductiveStatus(v)
 	return _u
 }
 
 // SetNillableReproductiveStatus sets the "reproductive_status" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableReproductiveStatus(v *pet.ReproductiveStatus) *PetUpdateOne {
+func (_u *PetUpdateOne) SetNillableReproductiveStatus(v *string) *PetUpdateOne {
 	if v != nil {
 		_u.SetReproductiveStatus(*v)
 	}
@@ -1419,6 +1328,24 @@ func (_u *PetUpdateOne) SetNillableBloodGroupID(v *string) *PetUpdateOne {
 // ClearBloodGroupID clears the value of the "blood_group_id" field.
 func (_u *PetUpdateOne) ClearBloodGroupID() *PetUpdateOne {
 	_u.mutation.ClearBloodGroupID()
+	return _u
+}
+
+// SetBonuses sets the "bonuses" field.
+func (_u *PetUpdateOne) SetBonuses(v []string) *PetUpdateOne {
+	_u.mutation.SetBonuses(v)
+	return _u
+}
+
+// AppendBonuses appends value to the "bonuses" field.
+func (_u *PetUpdateOne) AppendBonuses(v []string) *PetUpdateOne {
+	_u.mutation.AppendBonuses(v)
+	return _u
+}
+
+// ClearBonuses clears the value of the "bonuses" field.
+func (_u *PetUpdateOne) ClearBonuses() *PetUpdateOne {
+	_u.mutation.ClearBonuses()
 	return _u
 }
 
@@ -1478,25 +1405,6 @@ func (_u *PetUpdateOne) AddAnalyses(v ...*PetAnalysis) *PetUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.AddAnalysisIDs(ids...)
-}
-
-// SetBonusesID sets the "bonuses" edge to the PetBonus entity by ID.
-func (_u *PetUpdateOne) SetBonusesID(id string) *PetUpdateOne {
-	_u.mutation.SetBonusesID(id)
-	return _u
-}
-
-// SetNillableBonusesID sets the "bonuses" edge to the PetBonus entity by ID if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableBonusesID(id *string) *PetUpdateOne {
-	if id != nil {
-		_u = _u.SetBonusesID(*id)
-	}
-	return _u
-}
-
-// SetBonuses sets the "bonuses" edge to the PetBonus entity.
-func (_u *PetUpdateOne) SetBonuses(v *PetBonus) *PetUpdateOne {
-	return _u.SetBonusesID(v.ID)
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by ID.
@@ -1615,12 +1523,6 @@ func (_u *PetUpdateOne) RemoveAnalyses(v ...*PetAnalysis) *PetUpdateOne {
 	return _u.RemoveAnalysisIDs(ids...)
 }
 
-// ClearBonuses clears the "bonuses" edge to the PetBonus entity.
-func (_u *PetUpdateOne) ClearBonuses() *PetUpdateOne {
-	_u.mutation.ClearBonuses()
-	return _u
-}
-
 // ClearBreedRef clears the "breed_ref" edge to the Breed entity.
 func (_u *PetUpdateOne) ClearBreedRef() *PetUpdateOne {
 	_u.mutation.ClearBreedRef()
@@ -1711,34 +1613,9 @@ func (_u *PetUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PetUpdateOne) check() error {
-	if v, ok := _u.mutation.Name(); ok {
-		if err := pet.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Pet.name": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.GetType(); ok {
-		if err := pet.TypeValidator(v); err != nil {
-			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Pet.type": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Gender(); ok {
-		if err := pet.GenderValidator(v); err != nil {
-			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Pet.gender": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.ChipNumber(); ok {
 		if err := pet.ChipNumberValidator(v); err != nil {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.LivingCondition(); ok {
-		if err := pet.LivingConditionValidator(v); err != nil {
-			return &ValidationError{Name: "living_condition", err: fmt.Errorf(`ent: validator failed for field "Pet.living_condition": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ReproductiveStatus(); ok {
-		if err := pet.ReproductiveStatusValidator(v); err != nil {
-			return &ValidationError{Name: "reproductive_status", err: fmt.Errorf(`ent: validator failed for field "Pet.reproductive_status": %w`, err)}
 		}
 	}
 	return nil
@@ -1786,7 +1663,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 		_spec.SetField(pet.FieldName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
-		_spec.SetField(pet.FieldType, field.TypeEnum, value)
+		_spec.SetField(pet.FieldType, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.WeightKg(); ok {
 		_spec.SetField(pet.FieldWeightKg, field.TypeFloat64, value)
@@ -1798,10 +1675,10 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 		_spec.ClearField(pet.FieldWeightKg, field.TypeFloat64)
 	}
 	if value, ok := _u.mutation.Gender(); ok {
-		_spec.SetField(pet.FieldGender, field.TypeEnum, value)
+		_spec.SetField(pet.FieldGender, field.TypeString, value)
 	}
 	if _u.mutation.GenderCleared() {
-		_spec.ClearField(pet.FieldGender, field.TypeEnum)
+		_spec.ClearField(pet.FieldGender, field.TypeString)
 	}
 	if value, ok := _u.mutation.BirthDate(); ok {
 		_spec.SetField(pet.FieldBirthDate, field.TypeTime, value)
@@ -1827,16 +1704,16 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 		_spec.ClearField(pet.FieldPhotoUrls, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.LivingCondition(); ok {
-		_spec.SetField(pet.FieldLivingCondition, field.TypeEnum, value)
+		_spec.SetField(pet.FieldLivingCondition, field.TypeString, value)
 	}
 	if _u.mutation.LivingConditionCleared() {
-		_spec.ClearField(pet.FieldLivingCondition, field.TypeEnum)
+		_spec.ClearField(pet.FieldLivingCondition, field.TypeString)
 	}
 	if value, ok := _u.mutation.ReproductiveStatus(); ok {
-		_spec.SetField(pet.FieldReproductiveStatus, field.TypeEnum, value)
+		_spec.SetField(pet.FieldReproductiveStatus, field.TypeString, value)
 	}
 	if _u.mutation.ReproductiveStatusCleared() {
-		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeEnum)
+		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeString)
 	}
 	if value, ok := _u.mutation.DonorRestrictions(); ok {
 		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
@@ -1848,6 +1725,17 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.DonorRestrictionsCleared() {
 		_spec.ClearField(pet.FieldDonorRestrictions, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Bonuses(); ok {
+		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedBonuses(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, pet.FieldBonuses, value)
+		})
+	}
+	if _u.mutation.BonusesCleared() {
+		_spec.ClearField(pet.FieldBonuses, field.TypeJSON)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1974,35 +1862,6 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.BonusesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pet.BonusesTable,
-			Columns: []string{pet.BonusesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.BonusesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   pet.BonusesTable,
-			Columns: []string{pet.BonusesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(petbonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

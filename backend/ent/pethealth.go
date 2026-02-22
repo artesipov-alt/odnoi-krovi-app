@@ -25,15 +25,15 @@ type PetHealth struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// HealthStatus holds the value of the "health_status" field.
-	HealthStatus pethealth.HealthStatus `json:"healthStatus"`
+	HealthStatus pethealth.HealthStatus `json:"health_status,omitempty"`
 	// LastDonation holds the value of the "last_donation" field.
-	LastDonation *time.Time `json:"lastDonation"`
+	LastDonation *time.Time `json:"last_donation,omitempty"`
 	// Transfused holds the value of the "transfused" field.
-	Transfused bool `json:"transfused"`
+	Transfused bool `json:"transfused,omitempty"`
 	// Medications holds the value of the "medications" field.
-	Medications string `json:"medications"`
+	Medications string `json:"medications,omitempty"`
 	// SurgicalInterventions holds the value of the "surgical_interventions" field.
-	SurgicalInterventions string `json:"surgicalInterventions"`
+	SurgicalInterventions string `json:"surgical_interventions,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetHealthQuery when eager-loading is set.
 	Edges        PetHealthEdges `json:"edges"`

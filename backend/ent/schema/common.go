@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/intercept"
 	"github.com/jaevor/go-nanoid"

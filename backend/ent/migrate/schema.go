@@ -125,19 +125,19 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "name", Type: field.TypeString, Size: 100},
-		{Name: "type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
+		{Name: "name", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString},
 		{Name: "weight_kg", Type: field.TypeFloat64, Nullable: true},
-		{Name: "gender", Type: field.TypeEnum, Nullable: true, Enums: []string{"male", "female"}},
+		{Name: "gender", Type: field.TypeString, Nullable: true},
 		{Name: "birth_date", Type: field.TypeTime, Nullable: true},
 		{Name: "chip_number", Type: field.TypeString, Nullable: true, Size: 15},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
-		{Name: "living_condition", Type: field.TypeEnum, Nullable: true, Enums: []string{"indoor", "leash_walking", "self_outdoor"}},
-		{Name: "reproductive_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"pregnancy", "lactation", "estrus"}},
+		{Name: "living_condition", Type: field.TypeString, Nullable: true},
+		{Name: "reproductive_status", Type: field.TypeString, Nullable: true},
 		{Name: "donor_restrictions", Type: field.TypeJSON, Nullable: true},
+		{Name: "bonuses", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_group_id", Type: field.TypeString, Nullable: true},
 		{Name: "breed_id", Type: field.TypeString, Nullable: true},
-		{Name: "bonus_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "treatment_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "user_id", Type: field.TypeString, Nullable: true},
@@ -150,20 +150,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "pets_ref_bloodg_pets",
-				Columns:    []*schema.Column{PetsColumns[14]},
+				Columns:    []*schema.Column{PetsColumns[15]},
 				RefColumns: []*schema.Column{RefBloodgColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_ref_breeds_pets",
-				Columns:    []*schema.Column{PetsColumns[15]},
-				RefColumns: []*schema.Column{RefBreedsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "pets_pet_bonuses_owner",
 				Columns:    []*schema.Column{PetsColumns[16]},
-				RefColumns: []*schema.Column{PetBonusesColumns[0]},
+				RefColumns: []*schema.Column{RefBreedsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
@@ -210,23 +204,6 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
-	}
-	// PetBonusesColumns holds the columns for the "pet_bonuses" table.
-	PetBonusesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "is_artist", Type: field.TypeBool},
-		{Name: "is_therapist", Type: field.TypeBool},
-		{Name: "is_former_donor", Type: field.TypeBool},
-		{Name: "is_guide_dog", Type: field.TypeBool},
-	}
-	// PetBonusesTable holds the schema information for the "pet_bonuses" table.
-	PetBonusesTable = &schema.Table{
-		Name:       "pet_bonuses",
-		Columns:    PetBonusesColumns,
-		PrimaryKey: []*schema.Column{PetBonusesColumns[0]},
 	}
 	// PetHealthsColumns holds the columns for the "pet_healths" table.
 	PetHealthsColumns = []*schema.Column{
@@ -305,7 +282,6 @@ var (
 		RefLocationsTable,
 		PetsTable,
 		PetAnalysesTable,
-		PetBonusesTable,
 		PetHealthsTable,
 		PetTreatmentsTable,
 		UsersTable,
@@ -336,19 +312,15 @@ func init() {
 	}
 	PetsTable.ForeignKeys[0].RefTable = RefBloodgTable
 	PetsTable.ForeignKeys[1].RefTable = RefBreedsTable
-	PetsTable.ForeignKeys[2].RefTable = PetBonusesTable
-	PetsTable.ForeignKeys[3].RefTable = PetHealthsTable
-	PetsTable.ForeignKeys[4].RefTable = PetTreatmentsTable
-	PetsTable.ForeignKeys[5].RefTable = UsersTable
+	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
+	PetsTable.ForeignKeys[3].RefTable = PetTreatmentsTable
+	PetsTable.ForeignKeys[4].RefTable = UsersTable
 	PetsTable.Annotation = &entsql.Annotation{
 		Table: "pets",
 	}
 	PetAnalysesTable.ForeignKeys[0].RefTable = PetsTable
 	PetAnalysesTable.Annotation = &entsql.Annotation{
 		Table: "pet_analyses",
-	}
-	PetBonusesTable.Annotation = &entsql.Annotation{
-		Table: "pet_bonuses",
 	}
 	PetHealthsTable.Annotation = &entsql.Annotation{
 		Table: "pet_healths",

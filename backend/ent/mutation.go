@@ -19,7 +19,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petbonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/predicate"
@@ -43,7 +42,6 @@ const (
 	TypeLocation           = "Location"
 	TypePet                = "Pet"
 	TypePetAnalysis        = "PetAnalysis"
-	TypePetBonus           = "PetBonus"
 	TypePetHealth          = "PetHealth"
 	TypePetTreatment       = "PetTreatment"
 	TypeUser               = "User"
@@ -4025,18 +4023,20 @@ type PetMutation struct {
 	updated_at                  *time.Time
 	deleted_at                  *time.Time
 	name                        *string
-	_type                       *pet.Type
+	_type                       *string
 	weight_kg                   *float64
 	addweight_kg                *float64
-	gender                      *pet.Gender
+	gender                      *string
 	birth_date                  *time.Time
 	chip_number                 *string
 	photo_urls                  *[]string
 	appendphoto_urls            []string
-	living_condition            *pet.LivingCondition
-	reproductive_status         *pet.ReproductiveStatus
+	living_condition            *string
+	reproductive_status         *string
 	donor_restrictions          *[]string
 	appenddonor_restrictions    []string
+	bonuses                     *[]string
+	appendbonuses               []string
 	clearedFields               map[string]struct{}
 	owner                       *string
 	clearedowner                bool
@@ -4047,8 +4047,6 @@ type PetMutation struct {
 	analyses                    map[string]struct{}
 	removedanalyses             map[string]struct{}
 	clearedanalyses             bool
-	bonuses                     *string
-	clearedbonuses              bool
 	breed_ref                   *string
 	clearedbreed_ref            bool
 	blood_group_ref             *string
@@ -4325,12 +4323,12 @@ func (m *PetMutation) ResetName() {
 }
 
 // SetType sets the "type" field.
-func (m *PetMutation) SetType(pe pet.Type) {
-	m._type = &pe
+func (m *PetMutation) SetType(s string) {
+	m._type = &s
 }
 
 // GetType returns the value of the "type" field in the mutation.
-func (m *PetMutation) GetType() (r pet.Type, exists bool) {
+func (m *PetMutation) GetType() (r string, exists bool) {
 	v := m._type
 	if v == nil {
 		return
@@ -4341,7 +4339,7 @@ func (m *PetMutation) GetType() (r pet.Type, exists bool) {
 // OldType returns the old "type" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldType(ctx context.Context) (v pet.Type, err error) {
+func (m *PetMutation) OldType(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
@@ -4431,12 +4429,12 @@ func (m *PetMutation) ResetWeightKg() {
 }
 
 // SetGender sets the "gender" field.
-func (m *PetMutation) SetGender(pe pet.Gender) {
-	m.gender = &pe
+func (m *PetMutation) SetGender(s string) {
+	m.gender = &s
 }
 
 // Gender returns the value of the "gender" field in the mutation.
-func (m *PetMutation) Gender() (r pet.Gender, exists bool) {
+func (m *PetMutation) Gender() (r string, exists bool) {
 	v := m.gender
 	if v == nil {
 		return
@@ -4447,7 +4445,7 @@ func (m *PetMutation) Gender() (r pet.Gender, exists bool) {
 // OldGender returns the old "gender" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldGender(ctx context.Context) (v pet.Gender, err error) {
+func (m *PetMutation) OldGender(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldGender is only allowed on UpdateOne operations")
 	}
@@ -4838,62 +4836,13 @@ func (m *PetMutation) ResetTreatmentID() {
 	delete(m.clearedFields, pet.FieldTreatmentID)
 }
 
-// SetBonusID sets the "bonus_id" field.
-func (m *PetMutation) SetBonusID(s string) {
-	m.bonuses = &s
-}
-
-// BonusID returns the value of the "bonus_id" field in the mutation.
-func (m *PetMutation) BonusID() (r string, exists bool) {
-	v := m.bonuses
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBonusID returns the old "bonus_id" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldBonusID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBonusID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBonusID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBonusID: %w", err)
-	}
-	return oldValue.BonusID, nil
-}
-
-// ClearBonusID clears the value of the "bonus_id" field.
-func (m *PetMutation) ClearBonusID() {
-	m.bonuses = nil
-	m.clearedFields[pet.FieldBonusID] = struct{}{}
-}
-
-// BonusIDCleared returns if the "bonus_id" field was cleared in this mutation.
-func (m *PetMutation) BonusIDCleared() bool {
-	_, ok := m.clearedFields[pet.FieldBonusID]
-	return ok
-}
-
-// ResetBonusID resets all changes to the "bonus_id" field.
-func (m *PetMutation) ResetBonusID() {
-	m.bonuses = nil
-	delete(m.clearedFields, pet.FieldBonusID)
-}
-
 // SetLivingCondition sets the "living_condition" field.
-func (m *PetMutation) SetLivingCondition(pc pet.LivingCondition) {
-	m.living_condition = &pc
+func (m *PetMutation) SetLivingCondition(s string) {
+	m.living_condition = &s
 }
 
 // LivingCondition returns the value of the "living_condition" field in the mutation.
-func (m *PetMutation) LivingCondition() (r pet.LivingCondition, exists bool) {
+func (m *PetMutation) LivingCondition() (r string, exists bool) {
 	v := m.living_condition
 	if v == nil {
 		return
@@ -4904,7 +4853,7 @@ func (m *PetMutation) LivingCondition() (r pet.LivingCondition, exists bool) {
 // OldLivingCondition returns the old "living_condition" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldLivingCondition(ctx context.Context) (v pet.LivingCondition, err error) {
+func (m *PetMutation) OldLivingCondition(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLivingCondition is only allowed on UpdateOne operations")
 	}
@@ -4937,12 +4886,12 @@ func (m *PetMutation) ResetLivingCondition() {
 }
 
 // SetReproductiveStatus sets the "reproductive_status" field.
-func (m *PetMutation) SetReproductiveStatus(ps pet.ReproductiveStatus) {
-	m.reproductive_status = &ps
+func (m *PetMutation) SetReproductiveStatus(s string) {
+	m.reproductive_status = &s
 }
 
 // ReproductiveStatus returns the value of the "reproductive_status" field in the mutation.
-func (m *PetMutation) ReproductiveStatus() (r pet.ReproductiveStatus, exists bool) {
+func (m *PetMutation) ReproductiveStatus() (r string, exists bool) {
 	v := m.reproductive_status
 	if v == nil {
 		return
@@ -4953,7 +4902,7 @@ func (m *PetMutation) ReproductiveStatus() (r pet.ReproductiveStatus, exists boo
 // OldReproductiveStatus returns the old "reproductive_status" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldReproductiveStatus(ctx context.Context) (v pet.ReproductiveStatus, err error) {
+func (m *PetMutation) OldReproductiveStatus(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldReproductiveStatus is only allowed on UpdateOne operations")
 	}
@@ -5097,6 +5046,71 @@ func (m *PetMutation) BloodGroupIDCleared() bool {
 func (m *PetMutation) ResetBloodGroupID() {
 	m.blood_group_ref = nil
 	delete(m.clearedFields, pet.FieldBloodGroupID)
+}
+
+// SetBonuses sets the "bonuses" field.
+func (m *PetMutation) SetBonuses(s []string) {
+	m.bonuses = &s
+	m.appendbonuses = nil
+}
+
+// Bonuses returns the value of the "bonuses" field in the mutation.
+func (m *PetMutation) Bonuses() (r []string, exists bool) {
+	v := m.bonuses
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBonuses returns the old "bonuses" field's value of the Pet entity.
+// If the Pet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetMutation) OldBonuses(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBonuses is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBonuses requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBonuses: %w", err)
+	}
+	return oldValue.Bonuses, nil
+}
+
+// AppendBonuses adds s to the "bonuses" field.
+func (m *PetMutation) AppendBonuses(s []string) {
+	m.appendbonuses = append(m.appendbonuses, s...)
+}
+
+// AppendedBonuses returns the list of values that were appended to the "bonuses" field in this mutation.
+func (m *PetMutation) AppendedBonuses() ([]string, bool) {
+	if len(m.appendbonuses) == 0 {
+		return nil, false
+	}
+	return m.appendbonuses, true
+}
+
+// ClearBonuses clears the value of the "bonuses" field.
+func (m *PetMutation) ClearBonuses() {
+	m.bonuses = nil
+	m.appendbonuses = nil
+	m.clearedFields[pet.FieldBonuses] = struct{}{}
+}
+
+// BonusesCleared returns if the "bonuses" field was cleared in this mutation.
+func (m *PetMutation) BonusesCleared() bool {
+	_, ok := m.clearedFields[pet.FieldBonuses]
+	return ok
+}
+
+// ResetBonuses resets all changes to the "bonuses" field.
+func (m *PetMutation) ResetBonuses() {
+	m.bonuses = nil
+	m.appendbonuses = nil
+	delete(m.clearedFields, pet.FieldBonuses)
 }
 
 // SetOwnerID sets the "owner" edge to the User entity by id.
@@ -5258,46 +5272,6 @@ func (m *PetMutation) ResetAnalyses() {
 	m.analyses = nil
 	m.clearedanalyses = false
 	m.removedanalyses = nil
-}
-
-// SetBonusesID sets the "bonuses" edge to the PetBonus entity by id.
-func (m *PetMutation) SetBonusesID(id string) {
-	m.bonuses = &id
-}
-
-// ClearBonuses clears the "bonuses" edge to the PetBonus entity.
-func (m *PetMutation) ClearBonuses() {
-	m.clearedbonuses = true
-	m.clearedFields[pet.FieldBonusID] = struct{}{}
-}
-
-// BonusesCleared reports if the "bonuses" edge to the PetBonus entity was cleared.
-func (m *PetMutation) BonusesCleared() bool {
-	return m.BonusIDCleared() || m.clearedbonuses
-}
-
-// BonusesID returns the "bonuses" edge ID in the mutation.
-func (m *PetMutation) BonusesID() (id string, exists bool) {
-	if m.bonuses != nil {
-		return *m.bonuses, true
-	}
-	return
-}
-
-// BonusesIDs returns the "bonuses" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// BonusesID instead. It exists only for internal usage by the builders.
-func (m *PetMutation) BonusesIDs() (ids []string) {
-	if id := m.bonuses; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetBonuses resets all changes to the "bonuses" edge.
-func (m *PetMutation) ResetBonuses() {
-	m.bonuses = nil
-	m.clearedbonuses = false
 }
 
 // SetBreedRefID sets the "breed_ref" edge to the Breed entity by id.
@@ -5550,9 +5524,6 @@ func (m *PetMutation) Fields() []string {
 	if m.treatments != nil {
 		fields = append(fields, pet.FieldTreatmentID)
 	}
-	if m.bonuses != nil {
-		fields = append(fields, pet.FieldBonusID)
-	}
 	if m.living_condition != nil {
 		fields = append(fields, pet.FieldLivingCondition)
 	}
@@ -5564,6 +5535,9 @@ func (m *PetMutation) Fields() []string {
 	}
 	if m.blood_group_ref != nil {
 		fields = append(fields, pet.FieldBloodGroupID)
+	}
+	if m.bonuses != nil {
+		fields = append(fields, pet.FieldBonuses)
 	}
 	return fields
 }
@@ -5601,8 +5575,6 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.HealthID()
 	case pet.FieldTreatmentID:
 		return m.TreatmentID()
-	case pet.FieldBonusID:
-		return m.BonusID()
 	case pet.FieldLivingCondition:
 		return m.LivingCondition()
 	case pet.FieldReproductiveStatus:
@@ -5611,6 +5583,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.DonorRestrictions()
 	case pet.FieldBloodGroupID:
 		return m.BloodGroupID()
+	case pet.FieldBonuses:
+		return m.Bonuses()
 	}
 	return nil, false
 }
@@ -5648,8 +5622,6 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldHealthID(ctx)
 	case pet.FieldTreatmentID:
 		return m.OldTreatmentID(ctx)
-	case pet.FieldBonusID:
-		return m.OldBonusID(ctx)
 	case pet.FieldLivingCondition:
 		return m.OldLivingCondition(ctx)
 	case pet.FieldReproductiveStatus:
@@ -5658,6 +5630,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldDonorRestrictions(ctx)
 	case pet.FieldBloodGroupID:
 		return m.OldBloodGroupID(ctx)
+	case pet.FieldBonuses:
+		return m.OldBonuses(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
@@ -5696,7 +5670,7 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		m.SetName(v)
 		return nil
 	case pet.FieldType:
-		v, ok := value.(pet.Type)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5710,7 +5684,7 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		m.SetWeightKg(v)
 		return nil
 	case pet.FieldGender:
-		v, ok := value.(pet.Gender)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5765,22 +5739,15 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTreatmentID(v)
 		return nil
-	case pet.FieldBonusID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBonusID(v)
-		return nil
 	case pet.FieldLivingCondition:
-		v, ok := value.(pet.LivingCondition)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLivingCondition(v)
 		return nil
 	case pet.FieldReproductiveStatus:
-		v, ok := value.(pet.ReproductiveStatus)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5799,6 +5766,13 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBloodGroupID(v)
+		return nil
+	case pet.FieldBonuses:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBonuses(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
@@ -5875,9 +5849,6 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldTreatmentID) {
 		fields = append(fields, pet.FieldTreatmentID)
 	}
-	if m.FieldCleared(pet.FieldBonusID) {
-		fields = append(fields, pet.FieldBonusID)
-	}
 	if m.FieldCleared(pet.FieldLivingCondition) {
 		fields = append(fields, pet.FieldLivingCondition)
 	}
@@ -5889,6 +5860,9 @@ func (m *PetMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(pet.FieldBloodGroupID) {
 		fields = append(fields, pet.FieldBloodGroupID)
+	}
+	if m.FieldCleared(pet.FieldBonuses) {
+		fields = append(fields, pet.FieldBonuses)
 	}
 	return fields
 }
@@ -5934,9 +5908,6 @@ func (m *PetMutation) ClearField(name string) error {
 	case pet.FieldTreatmentID:
 		m.ClearTreatmentID()
 		return nil
-	case pet.FieldBonusID:
-		m.ClearBonusID()
-		return nil
 	case pet.FieldLivingCondition:
 		m.ClearLivingCondition()
 		return nil
@@ -5948,6 +5919,9 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldBloodGroupID:
 		m.ClearBloodGroupID()
+		return nil
+	case pet.FieldBonuses:
+		m.ClearBonuses()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet nullable field %s", name)
@@ -5999,9 +5973,6 @@ func (m *PetMutation) ResetField(name string) error {
 	case pet.FieldTreatmentID:
 		m.ResetTreatmentID()
 		return nil
-	case pet.FieldBonusID:
-		m.ResetBonusID()
-		return nil
 	case pet.FieldLivingCondition:
 		m.ResetLivingCondition()
 		return nil
@@ -6014,13 +5985,16 @@ func (m *PetMutation) ResetField(name string) error {
 	case pet.FieldBloodGroupID:
 		m.ResetBloodGroupID()
 		return nil
+	case pet.FieldBonuses:
+		m.ResetBonuses()
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PetMutation) AddedEdges() []string {
-	edges := make([]string, 0, 9)
+	edges := make([]string, 0, 8)
 	if m.owner != nil {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -6032,9 +6006,6 @@ func (m *PetMutation) AddedEdges() []string {
 	}
 	if m.analyses != nil {
 		edges = append(edges, pet.EdgeAnalyses)
-	}
-	if m.bonuses != nil {
-		edges = append(edges, pet.EdgeBonuses)
 	}
 	if m.breed_ref != nil {
 		edges = append(edges, pet.EdgeBreedRef)
@@ -6073,10 +6044,6 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case pet.EdgeBonuses:
-		if id := m.bonuses; id != nil {
-			return []ent.Value{*id}
-		}
 	case pet.EdgeBreedRef:
 		if id := m.breed_ref; id != nil {
 			return []ent.Value{*id}
@@ -6101,7 +6068,7 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PetMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 9)
+	edges := make([]string, 0, 8)
 	if m.removedanalyses != nil {
 		edges = append(edges, pet.EdgeAnalyses)
 	}
@@ -6133,7 +6100,7 @@ func (m *PetMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PetMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 9)
+	edges := make([]string, 0, 8)
 	if m.clearedowner {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -6145,9 +6112,6 @@ func (m *PetMutation) ClearedEdges() []string {
 	}
 	if m.clearedanalyses {
 		edges = append(edges, pet.EdgeAnalyses)
-	}
-	if m.clearedbonuses {
-		edges = append(edges, pet.EdgeBonuses)
 	}
 	if m.clearedbreed_ref {
 		edges = append(edges, pet.EdgeBreedRef)
@@ -6176,8 +6140,6 @@ func (m *PetMutation) EdgeCleared(name string) bool {
 		return m.clearedtreatments
 	case pet.EdgeAnalyses:
 		return m.clearedanalyses
-	case pet.EdgeBonuses:
-		return m.clearedbonuses
 	case pet.EdgeBreedRef:
 		return m.clearedbreed_ref
 	case pet.EdgeBloodGroupRef:
@@ -6202,9 +6164,6 @@ func (m *PetMutation) ClearEdge(name string) error {
 		return nil
 	case pet.EdgeTreatments:
 		m.ClearTreatments()
-		return nil
-	case pet.EdgeBonuses:
-		m.ClearBonuses()
 		return nil
 	case pet.EdgeBreedRef:
 		m.ClearBreedRef()
@@ -6234,9 +6193,6 @@ func (m *PetMutation) ResetEdge(name string) error {
 		return nil
 	case pet.EdgeAnalyses:
 		m.ResetAnalyses()
-		return nil
-	case pet.EdgeBonuses:
-		m.ResetBonuses()
 		return nil
 	case pet.EdgeBreedRef:
 		m.ResetBreedRef()
@@ -7035,751 +6991,6 @@ func (m *PetAnalysisMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown PetAnalysis edge %s", name)
-}
-
-// PetBonusMutation represents an operation that mutates the PetBonus nodes in the graph.
-type PetBonusMutation struct {
-	config
-	op              Op
-	typ             string
-	id              *string
-	created_at      *time.Time
-	updated_at      *time.Time
-	deleted_at      *time.Time
-	is_artist       *bool
-	is_therapist    *bool
-	is_former_donor *bool
-	is_guide_dog    *bool
-	clearedFields   map[string]struct{}
-	owner           *string
-	clearedowner    bool
-	done            bool
-	oldValue        func(context.Context) (*PetBonus, error)
-	predicates      []predicate.PetBonus
-}
-
-var _ ent.Mutation = (*PetBonusMutation)(nil)
-
-// petbonusOption allows management of the mutation configuration using functional options.
-type petbonusOption func(*PetBonusMutation)
-
-// newPetBonusMutation creates new mutation for the PetBonus entity.
-func newPetBonusMutation(c config, op Op, opts ...petbonusOption) *PetBonusMutation {
-	m := &PetBonusMutation{
-		config:        c,
-		op:            op,
-		typ:           TypePetBonus,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withPetBonusID sets the ID field of the mutation.
-func withPetBonusID(id string) petbonusOption {
-	return func(m *PetBonusMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *PetBonus
-		)
-		m.oldValue = func(ctx context.Context) (*PetBonus, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().PetBonus.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withPetBonus sets the old PetBonus of the mutation.
-func withPetBonus(node *PetBonus) petbonusOption {
-	return func(m *PetBonusMutation) {
-		m.oldValue = func(context.Context) (*PetBonus, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m PetBonusMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m PetBonusMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of PetBonus entities.
-func (m *PetBonusMutation) SetID(id string) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *PetBonusMutation) ID() (id string, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *PetBonusMutation) IDs(ctx context.Context) ([]string, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []string{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().PetBonus.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *PetBonusMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *PetBonusMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *PetBonusMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *PetBonusMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *PetBonusMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *PetBonusMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *PetBonusMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *PetBonusMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *PetBonusMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[petbonus.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *PetBonusMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[petbonus.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *PetBonusMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, petbonus.FieldDeletedAt)
-}
-
-// SetIsArtist sets the "is_artist" field.
-func (m *PetBonusMutation) SetIsArtist(b bool) {
-	m.is_artist = &b
-}
-
-// IsArtist returns the value of the "is_artist" field in the mutation.
-func (m *PetBonusMutation) IsArtist() (r bool, exists bool) {
-	v := m.is_artist
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsArtist returns the old "is_artist" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldIsArtist(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsArtist is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsArtist requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsArtist: %w", err)
-	}
-	return oldValue.IsArtist, nil
-}
-
-// ResetIsArtist resets all changes to the "is_artist" field.
-func (m *PetBonusMutation) ResetIsArtist() {
-	m.is_artist = nil
-}
-
-// SetIsTherapist sets the "is_therapist" field.
-func (m *PetBonusMutation) SetIsTherapist(b bool) {
-	m.is_therapist = &b
-}
-
-// IsTherapist returns the value of the "is_therapist" field in the mutation.
-func (m *PetBonusMutation) IsTherapist() (r bool, exists bool) {
-	v := m.is_therapist
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsTherapist returns the old "is_therapist" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldIsTherapist(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsTherapist is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsTherapist requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsTherapist: %w", err)
-	}
-	return oldValue.IsTherapist, nil
-}
-
-// ResetIsTherapist resets all changes to the "is_therapist" field.
-func (m *PetBonusMutation) ResetIsTherapist() {
-	m.is_therapist = nil
-}
-
-// SetIsFormerDonor sets the "is_former_donor" field.
-func (m *PetBonusMutation) SetIsFormerDonor(b bool) {
-	m.is_former_donor = &b
-}
-
-// IsFormerDonor returns the value of the "is_former_donor" field in the mutation.
-func (m *PetBonusMutation) IsFormerDonor() (r bool, exists bool) {
-	v := m.is_former_donor
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsFormerDonor returns the old "is_former_donor" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldIsFormerDonor(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsFormerDonor is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsFormerDonor requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsFormerDonor: %w", err)
-	}
-	return oldValue.IsFormerDonor, nil
-}
-
-// ResetIsFormerDonor resets all changes to the "is_former_donor" field.
-func (m *PetBonusMutation) ResetIsFormerDonor() {
-	m.is_former_donor = nil
-}
-
-// SetIsGuideDog sets the "is_guide_dog" field.
-func (m *PetBonusMutation) SetIsGuideDog(b bool) {
-	m.is_guide_dog = &b
-}
-
-// IsGuideDog returns the value of the "is_guide_dog" field in the mutation.
-func (m *PetBonusMutation) IsGuideDog() (r bool, exists bool) {
-	v := m.is_guide_dog
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIsGuideDog returns the old "is_guide_dog" field's value of the PetBonus entity.
-// If the PetBonus object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetBonusMutation) OldIsGuideDog(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsGuideDog is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsGuideDog requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsGuideDog: %w", err)
-	}
-	return oldValue.IsGuideDog, nil
-}
-
-// ResetIsGuideDog resets all changes to the "is_guide_dog" field.
-func (m *PetBonusMutation) ResetIsGuideDog() {
-	m.is_guide_dog = nil
-}
-
-// SetOwnerID sets the "owner" edge to the Pet entity by id.
-func (m *PetBonusMutation) SetOwnerID(id string) {
-	m.owner = &id
-}
-
-// ClearOwner clears the "owner" edge to the Pet entity.
-func (m *PetBonusMutation) ClearOwner() {
-	m.clearedowner = true
-}
-
-// OwnerCleared reports if the "owner" edge to the Pet entity was cleared.
-func (m *PetBonusMutation) OwnerCleared() bool {
-	return m.clearedowner
-}
-
-// OwnerID returns the "owner" edge ID in the mutation.
-func (m *PetBonusMutation) OwnerID() (id string, exists bool) {
-	if m.owner != nil {
-		return *m.owner, true
-	}
-	return
-}
-
-// OwnerIDs returns the "owner" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// OwnerID instead. It exists only for internal usage by the builders.
-func (m *PetBonusMutation) OwnerIDs() (ids []string) {
-	if id := m.owner; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetOwner resets all changes to the "owner" edge.
-func (m *PetBonusMutation) ResetOwner() {
-	m.owner = nil
-	m.clearedowner = false
-}
-
-// Where appends a list predicates to the PetBonusMutation builder.
-func (m *PetBonusMutation) Where(ps ...predicate.PetBonus) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the PetBonusMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *PetBonusMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.PetBonus, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *PetBonusMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *PetBonusMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (PetBonus).
-func (m *PetBonusMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *PetBonusMutation) Fields() []string {
-	fields := make([]string, 0, 7)
-	if m.created_at != nil {
-		fields = append(fields, petbonus.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, petbonus.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, petbonus.FieldDeletedAt)
-	}
-	if m.is_artist != nil {
-		fields = append(fields, petbonus.FieldIsArtist)
-	}
-	if m.is_therapist != nil {
-		fields = append(fields, petbonus.FieldIsTherapist)
-	}
-	if m.is_former_donor != nil {
-		fields = append(fields, petbonus.FieldIsFormerDonor)
-	}
-	if m.is_guide_dog != nil {
-		fields = append(fields, petbonus.FieldIsGuideDog)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *PetBonusMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case petbonus.FieldCreatedAt:
-		return m.CreatedAt()
-	case petbonus.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case petbonus.FieldDeletedAt:
-		return m.DeletedAt()
-	case petbonus.FieldIsArtist:
-		return m.IsArtist()
-	case petbonus.FieldIsTherapist:
-		return m.IsTherapist()
-	case petbonus.FieldIsFormerDonor:
-		return m.IsFormerDonor()
-	case petbonus.FieldIsGuideDog:
-		return m.IsGuideDog()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *PetBonusMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case petbonus.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case petbonus.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case petbonus.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
-	case petbonus.FieldIsArtist:
-		return m.OldIsArtist(ctx)
-	case petbonus.FieldIsTherapist:
-		return m.OldIsTherapist(ctx)
-	case petbonus.FieldIsFormerDonor:
-		return m.OldIsFormerDonor(ctx)
-	case petbonus.FieldIsGuideDog:
-		return m.OldIsGuideDog(ctx)
-	}
-	return nil, fmt.Errorf("unknown PetBonus field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *PetBonusMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case petbonus.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case petbonus.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case petbonus.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
-		return nil
-	case petbonus.FieldIsArtist:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsArtist(v)
-		return nil
-	case petbonus.FieldIsTherapist:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsTherapist(v)
-		return nil
-	case petbonus.FieldIsFormerDonor:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsFormerDonor(v)
-		return nil
-	case petbonus.FieldIsGuideDog:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsGuideDog(v)
-		return nil
-	}
-	return fmt.Errorf("unknown PetBonus field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *PetBonusMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *PetBonusMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *PetBonusMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown PetBonus numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *PetBonusMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(petbonus.FieldDeletedAt) {
-		fields = append(fields, petbonus.FieldDeletedAt)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *PetBonusMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *PetBonusMutation) ClearField(name string) error {
-	switch name {
-	case petbonus.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown PetBonus nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *PetBonusMutation) ResetField(name string) error {
-	switch name {
-	case petbonus.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case petbonus.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case petbonus.FieldDeletedAt:
-		m.ResetDeletedAt()
-		return nil
-	case petbonus.FieldIsArtist:
-		m.ResetIsArtist()
-		return nil
-	case petbonus.FieldIsTherapist:
-		m.ResetIsTherapist()
-		return nil
-	case petbonus.FieldIsFormerDonor:
-		m.ResetIsFormerDonor()
-		return nil
-	case petbonus.FieldIsGuideDog:
-		m.ResetIsGuideDog()
-		return nil
-	}
-	return fmt.Errorf("unknown PetBonus field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *PetBonusMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.owner != nil {
-		edges = append(edges, petbonus.EdgeOwner)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *PetBonusMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case petbonus.EdgeOwner:
-		if id := m.owner; id != nil {
-			return []ent.Value{*id}
-		}
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *PetBonusMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *PetBonusMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *PetBonusMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedowner {
-		edges = append(edges, petbonus.EdgeOwner)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *PetBonusMutation) EdgeCleared(name string) bool {
-	switch name {
-	case petbonus.EdgeOwner:
-		return m.clearedowner
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *PetBonusMutation) ClearEdge(name string) error {
-	switch name {
-	case petbonus.EdgeOwner:
-		m.ClearOwner()
-		return nil
-	}
-	return fmt.Errorf("unknown PetBonus unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *PetBonusMutation) ResetEdge(name string) error {
-	switch name {
-	case petbonus.EdgeOwner:
-		m.ResetOwner()
-		return nil
-	}
-	return fmt.Errorf("unknown PetBonus edge %s", name)
 }
 
 // PetHealthMutation represents an operation that mutates the PetHealth nodes in the graph.
