@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 )
 
 // EntBloodRequestRepository implements BloodRequestRepository using ENT
@@ -42,15 +43,32 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, input *ent.Creat
 }
 
 // GetByID возвращает заявку по её идентификатору
-func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) *ent.BloodSearchRequestQuery {
-	return r.client(ctx).BloodSearchRequest.Query().
+func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
+	reqQuery := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.ID(id))
+
+	req, err := reqQuery.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) { // This case should ideally be caught by the initial GetByID, but good for defensive programming
+			return nil, apperrors.ErrBloodRequestNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to execute blood request query")
+	}
+	return req, nil
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
-func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) *ent.BloodSearchRequestQuery {
-	return r.client(ctx).BloodSearchRequest.Query().
-		Where(bloodsearchrequest.PetID(petID))
+func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
+	req, err := r.client(ctx).BloodSearchRequest.Query().
+		Where(bloodsearchrequest.PetID(petID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrBloodRequestNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to execute blood request query by pet ID")
+	}
+	return req, nil
 }
 
 // Update обновляет информацию о заявке

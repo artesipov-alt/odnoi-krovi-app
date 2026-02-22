@@ -16,10 +16,10 @@ type BloodRequestRepository interface {
 	Create(ctx context.Context, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// GetByID возвращает заявку по её идентификатору
-	GetByID(ctx context.Context, id string) *ent.BloodSearchRequestQuery
+	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
 
 	// GetByPetID возвращает заявку по идентификатору питомца
-	GetByPetID(ctx context.Context, petID string) *ent.BloodSearchRequestQuery
+	GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
 
 	// Update обновляет информацию о заявке
 	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) error
@@ -123,14 +123,9 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 
 // GetRequestByID получает заявку по её ID
 func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
-	reqQuery := s.bloodRepo.GetByID(ctx, id)
-
-	req, err := reqQuery.Only(ctx)
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
-		if ent.IsNotFound(err) { // This case should ideally be caught by the initial GetByID, but good for defensive programming
-			return nil, apperrors.ErrBloodRequestNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to execute blood request query")
+		return nil, err
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -141,12 +136,9 @@ func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*en
 
 // GetRequestByPetID получает активную заявку для конкретного питомца
 func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
-	req, err := s.bloodRepo.GetByPetID(ctx, petID).Only(ctx)
+	req, err := s.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrBloodRequestNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get blood request by pet ID")
+		return nil, err
 	}
 
 	// Преобразуем пути к фото в полные URL
@@ -158,12 +150,9 @@ func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string
 // UpdateRequest обновляет информацию о заявке
 func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) error {
 	// Проверяем существование
-	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrBloodRequestNotFound
-		}
-		return apperrors.Internal(err, "failed to get blood request")
+		return err
 	}
 
 	// Сохраняем текущий статус, если он не передан
@@ -185,12 +174,9 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 	}
 
 	// Получаем заявку, чтобы узнать PetID
-	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrBloodRequestNotFound
-		}
-		return apperrors.Internal(err, "failed to get blood request")
+		return err
 	}
 
 	err = s.txManager.WithTx(ctx, func(txCtx context.Context) error {
@@ -202,9 +188,6 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 		// Обновляем статус заявки
 		err = s.bloodRepo.UpdateStatus(txCtx, id, status)
 		if err != nil {
-			if ent.IsNotFound(err) {
-				return apperrors.ErrBloodRequestNotFound
-			}
 			return apperrors.Internal(err, "failed to update status")
 		}
 
@@ -227,11 +210,8 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 // DeleteRequest удаляет заявку (soft delete)
 func (s *BloodSearchService) DeleteRequest(ctx context.Context, id string) error {
 	// Получаем заявку, чтобы узнать PetID
-	req, err := s.bloodRepo.GetByID(ctx, id).Only(ctx)
+	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return apperrors.ErrBloodRequestNotFound
-		}
 		return apperrors.Internal(err, "failed to get blood request")
 	}
 
