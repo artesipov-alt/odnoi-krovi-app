@@ -84,18 +84,18 @@ type Pet struct {
 // PetHealth представляет здоровье питомца
 type PetHealth struct {
 	HealthStatus          HealthStatus
-	LastDonation          time.Time
-	Transfused            bool
-	Medications           string
-	SurgicalInterventions string
+	LastDonation          *time.Time
+	Transfused            *bool
+	Medications           *string
+	SurgicalInterventions *string
 }
 
 // PetTreatment представляет лечение питомца
 type PetTreatment struct {
-	RabiesVaccinationDate     time.Time
-	InfectionVaccinationDate  time.Time
-	EctoparasiteTreatmentDate time.Time
-	DewormingDate             time.Time
+	RabiesVaccinationDate     *time.Time
+	InfectionVaccinationDate  *time.Time
+	EctoparasiteTreatmentDate *time.Time
+	DewormingDate             *time.Time
 }
 
 // PetAnalysis представляет анализ питомца
@@ -103,5 +103,5 @@ type PetAnalysis struct {
 	ID           string
 	AnalysisName string
 	AnalysisType string
-	AnalysisDate time.Time
+	AnalysisDate *time.Time
 }

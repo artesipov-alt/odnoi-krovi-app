@@ -21,7 +21,6 @@ type PetTreatment struct {
 	DewormingDate             *time.Time `json:"dewormingDate,omitempty" doc:"Дата дегельминтизации" example:"2023-10-01T12:00:00Z"`
 }
 
-// PetAnalysis представляет информацию об анализах питомца
 type PetAnalysis struct {
 	ID           *string    `json:"id,omitempty" doc:"ID анализа в системе" example:"PAN-aBcD1aBcD1" readOnly:"true"`
 	AnalysisName *string    `json:"analysisName,omitempty" doc:"Название анализа" enum:"leukemia,immunodeficiency,hemoplasmosis,bartonellosis,babesiosis,dirofilaria,ehrlichiosis,anaplasmosis" example:"leukemia"`

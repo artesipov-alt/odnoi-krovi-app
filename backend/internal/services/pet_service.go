@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
@@ -23,7 +24,7 @@ type PetRepository interface {
 
 	// Update обновляет питомца и его связанные сущности в одной транзакции
 	// Все параметры (кроме id и pet) могут быть nil - тогда соответствующие данные не обновляются
-	Update(ctx context.Context, id string, petDomain *domain.Pet, health *domain.PetHealth, treatments *domain.PetTreatment, analyses []*domain.PetAnalysis) error
+	Update(ctx context.Context, id string, petDomain *domain.Pet) (*domain.Pet, error)
 
 	// Delete удаляет питомца по его ID
 	Delete(ctx context.Context, id string) error
@@ -151,122 +152,53 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 }
 
 // Update обновляет питомца и его связанные сущности
-// func (s *PetService) Update(ctx context.Context, id string, petInput *ent.UpdatePetInput, healthInput *ent.UpdatePetHealthInput, treatmentsInput *ent.UpdatePetTreatmentInput, analysesInput []*ent.UpdatePetAnalysisInput, bonusesInput *ent.UpdatePetBonusInput) error {
-// 	// Нормализуем опциональные поля: конвертируем пустые строки в nil
-// 	if petInput != nil {
-// 		if petInput.Name != nil && *petInput.Name == "" {
-// 			petInput.Name = nil
-// 		}
-// 		if petInput.Gender != nil && string(*petInput.Gender) == "" {
-// 			petInput.Gender = nil
-// 		}
-// 		if petInput.LivingCondition != nil && string(*petInput.LivingCondition) == "" {
-// 			petInput.LivingCondition = nil
-// 		}
-// 		if petInput.ReproductiveStatus != nil && string(*petInput.ReproductiveStatus) == "" {
-// 			petInput.ReproductiveStatus = nil
-// 		}
-// 		if petInput.BloodGroupRefID != nil && *petInput.BloodGroupRefID == "" {
-// 			petInput.BloodGroupRefID = nil
-// 		}
-// 		if petInput.ChipNumber != nil && *petInput.ChipNumber == "" {
-// 			petInput.ChipNumber = nil
-// 		}
-// 	}
+func (s *PetService) Update(ctx context.Context, id string, petInput *domain.Pet) (*domain.Pet, error) {
+	exists, err := s.petRepo.ExistsByID(ctx, id)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to check user existence")
+	}
+	if !exists {
+		return nil, apperrors.ErrPetNotFound
+	}
 
-// 	// Валидируем основные данные питомца
-// 	if petInput != nil {
-// 		if petInput.Type != nil && *petInput.Type != "" {
-// 			if err := pet.TypeValidator(*petInput.Type); err != nil {
-// 				return apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
-// 			}
-// 		}
-// 		// if petInput.PetStatus != nil && *petInput.PetStatus != "" {
-// 		// 	if err := pet.PetStatusValidator(*petInput.PetStatus); err != nil {
-// 		// 		return apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
-// 		// 	}
-// 		// }
-// 		if petInput.Gender != nil && string(*petInput.Gender) != "" {
-// 			if err := pet.GenderValidator(*petInput.Gender); err != nil {
-// 				return apperrors.Validation("неверный пол животного", nil).WithInternal(err)
-// 			}
-// 		}
-// 		if petInput.LivingCondition != nil && string(*petInput.LivingCondition) != "" {
-// 			if err := pet.LivingConditionValidator(*petInput.LivingCondition); err != nil {
-// 				return apperrors.Validation("неверные условия проживания", nil).WithInternal(err)
-// 			}
-// 		}
-// 		if petInput.ReproductiveStatus != nil && string(*petInput.ReproductiveStatus) != "" {
-// 			if err := pet.ReproductiveStatusValidator(*petInput.ReproductiveStatus); err != nil {
-// 				return apperrors.Validation("неверный статус репродукции", nil).WithInternal(err)
-// 			}
-// 		}
-// 	}
+	updatedPet, err := s.petRepo.Update(ctx, id, petInput)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to create pet")
+	}
 
-// 	// Валидируем связанные данные
-// 	if healthInput != nil {
-// 		if healthInput.HealthStatus != nil && string(*healthInput.HealthStatus) != "" {
-// 			if err := pethealth.HealthStatusValidator(*healthInput.HealthStatus); err != nil {
-// 				return apperrors.Validation("неверный статус здоровья", nil).WithInternal(err)
-// 			}
-// 		}
-// 	}
+	return updatedPet, nil
 
-// 	for _, a := range analysesInput {
-// 		if a.AnalysisName != nil && *a.AnalysisName != petanalysis.AnalysisName("") {
-// 			if err := petanalysis.AnalysisNameValidator(*a.AnalysisName); err != nil {
-// 				return apperrors.Validation("неверный тип анализа", nil).WithInternal(err)
-// 			}
-// 		}
-// 	}
-
-// 	// Выполняем обновление через репозиторий
-// 	_, err := s.petRepo.Update(ctx, id, petInput, healthInput, treatmentsInput, analysesInput, bonusesInput)
-// 	if err != nil {
-// 		if ent.IsNotFound(err) {
-// 			return apperrors.ErrPetNotFound
-// 		}
-// 		return apperrors.Internal(err, "failed to update pet")
-// 	}
-
-// 	// Применяем валидацию
-// 	_, _, err = s.ApplyValidation(ctx, id)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
+}
 
 // DeletePet удаляет питомца по ID
-// func (s *PetService) DeletePet(ctx context.Context, petID string) error {
-// 	exists, err := s.petRepo.ExistsByID(ctx, petID)
-// 	if err != nil {
-// 		return apperrors.Internal(err, "failed to check pet existence")
-// 	}
-// 	if !exists {
-// 		return apperrors.ErrPetNotFound
-// 	}
+func (s *PetService) DeletePet(ctx context.Context, petID string) error {
+	exists, err := s.petRepo.ExistsByID(ctx, petID)
+	if err != nil {
+		return apperrors.Internal(err, "failed to check pet existence")
+	}
+	if !exists {
+		return apperrors.ErrPetNotFound
+	}
 
-// 	// Получаем все заявки на поиск крови, связанные с этим питомцем
-// 	bloodRequests, err := s.bloodRepo.List(ctx, 0, 0, map[string]any{"pet_id": petID})
-// 	if err != nil {
-// 		return apperrors.Internal(err, "failed to list blood requests for pet")
-// 	}
+	// Получаем все заявки на поиск крови, связанные с этим питомцем
+	bloodRequests, err := s.bloodReqRepo.List(ctx, 0, 0, map[string]any{"pet_id": petID})
+	if err != nil {
+		return apperrors.Internal(err, "failed to list blood requests for pet")
+	}
 
-// 	// Удаляем каждую связанную заявку
-// 	for _, req := range bloodRequests {
-// 		if err := s.bloodRepo.Delete(ctx, req.ID); err != nil {
-// 			slog.WarnContext(ctx, "Failed to delete blood request for pet", "blood_request_id", req.ID, "pet_id", petID, "error", err)
-// 		}
-// 	}
+	// Удаляем каждую связанную заявку
+	for _, req := range bloodRequests {
+		if err := s.bloodReqRepo.Delete(ctx, req.ID); err != nil {
+			slog.WarnContext(ctx, "Failed to delete blood request for pet", "blood_request_id", req.ID, "pet_id", petID, "error", err)
+		}
+	}
 
-// 	if err := s.petRepo.Delete(ctx, petID); err != nil {
-// 		return apperrors.Internal(err, "failed to delete pet")
-// 	}
+	if err := s.petRepo.Delete(ctx, petID); err != nil {
+		return apperrors.Internal(err, "failed to delete pet")
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
 // TODO Продумать как сделать валидацию более правильно
 // ApplyValidation применяет валидацию к питомцу, модифицирует объект и сохраняет изменения

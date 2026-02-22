@@ -58,8 +58,19 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *domain.Pet) (*
 	// 2. Создать связанные сущности, если они предоставлены
 	if petDomain.Health != nil {
 		var healthInput ent.CreatePetHealthInput
-		if err := copier.Copy(&healthInput, petDomain.Health); err != nil {
-			return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
+		hs := pethealth.HealthStatus(petDomain.Health.HealthStatus)
+		healthInput.HealthStatus = &hs
+		if petDomain.Health.LastDonation != nil {
+			healthInput.LastDonation = petDomain.Health.LastDonation
+		}
+		if petDomain.Health.Transfused != nil {
+			healthInput.Transfused = petDomain.Health.Transfused
+		}
+		if petDomain.Health.Medications != nil {
+			healthInput.Medications = petDomain.Health.Medications
+		}
+		if petDomain.Health.SurgicalInterventions != nil {
+			healthInput.SurgicalInterventions = petDomain.Health.SurgicalInterventions
 		}
 		_, err = tx.PetHealth.Create().
 			SetInput(healthInput).
@@ -148,9 +159,12 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.
 
 	// Явно копируем связанные сущности из Edges
 	if entPet.Edges.Health != nil {
-		var health domain.PetHealth
-		if err := copier.Copy(&health, entPet.Edges.Health); err == nil {
-			result.Health = &health
+		result.Health = &domain.PetHealth{
+			HealthStatus:          domain.HealthStatus(entPet.Edges.Health.HealthStatus),
+			LastDonation:          entPet.Edges.Health.LastDonation,
+			Transfused:            &entPet.Edges.Health.Transfused,
+			Medications:           &entPet.Edges.Health.Medications,
+			SurgicalInterventions: &entPet.Edges.Health.SurgicalInterventions,
 		}
 	}
 	if entPet.Edges.Treatments != nil {
@@ -198,59 +212,128 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 		if err := copier.Copy(&petDomain, p); err != nil {
 			return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
 		}
+		// Копируем связанные сущности из Edges
+		if p.Edges.Health != nil {
+			petDomain.Health = &domain.PetHealth{
+				HealthStatus:          domain.HealthStatus(p.Edges.Health.HealthStatus),
+				LastDonation:          p.Edges.Health.LastDonation,
+				Transfused:            &p.Edges.Health.Transfused,
+				Medications:           &p.Edges.Health.Medications,
+				SurgicalInterventions: &p.Edges.Health.SurgicalInterventions,
+			}
+		}
+		if p.Edges.Treatments != nil {
+			var treatments domain.PetTreatment
+			if err := copier.Copy(&treatments, p.Edges.Treatments); err == nil {
+				petDomain.Treatments = &treatments
+			}
+		}
+		if len(p.Edges.Analyses) > 0 {
+			var analyses []*domain.PetAnalysis
+			if err := copier.Copy(&analyses, p.Edges.Analyses); err == nil {
+				petDomain.Analyses = analyses
+			}
+		}
 		result = append(result, &petDomain)
 	}
 	return result, nil
 }
 
 // Update обновляет существующего питомца и его связанные сущности в транзакции
-func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *domain.Pet, health *domain.PetHealth, treatments *domain.PetTreatment, analyses []*domain.PetAnalysis) error {
+func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *domain.Pet) (*domain.Pet, error) {
 	if id == "" {
-		return errors.New("неверный ID питомца")
+		return nil, errors.New("неверный ID питомца")
 	}
 
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
-		return fmt.Errorf("не удалось начать транзакцию: %w", err)
+		return nil, fmt.Errorf("не удалось начать транзакцию: %w", err)
 	}
 
-	// 1. Обновить питомца
-	if petDomain != nil {
-		var petInput ent.UpdatePetInput
-		if err := copier.Copy(&petInput, petDomain); err != nil {
-			tx.Rollback()
-			return fmt.Errorf("не удалось скопировать данные питомца: %w", err)
-		}
-		err = tx.Pet.UpdateOneID(id).
-			SetInput(petInput).
-			Exec(ctx)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("не удалось обновить питомца: %w", err)
-		}
+	updater := tx.Pet.UpdateOneID(id)
+
+	if petDomain.Name != "" {
+		updater.SetName(petDomain.Name)
+	}
+	if petDomain.Type != "" {
+		updater.SetType(string(petDomain.Type))
+	}
+	if petDomain.WeightKg != 0 {
+		updater.SetWeightKg(petDomain.WeightKg)
+	}
+	if petDomain.Gender != "" {
+		updater.SetGender(string(petDomain.Gender))
+	}
+	if petDomain.BirthDate != nil {
+		updater.SetBirthDate(*petDomain.BirthDate)
+	}
+	if petDomain.ChipNumber != "" {
+		updater.SetChipNumber(petDomain.ChipNumber)
+	}
+	if petDomain.LivingCondition != "" {
+		updater.SetLivingCondition(string(petDomain.LivingCondition))
+	}
+	if petDomain.ReproductiveStatus != "" {
+		updater.SetReproductiveStatus(string(petDomain.ReproductiveStatus))
+	}
+	if petDomain.BreedRefID != "" {
+		updater.SetBreedRefID(petDomain.BreedRefID)
+	}
+	if petDomain.BloodGroupRefID != "" {
+		updater.SetBloodGroupRefID(petDomain.BloodGroupRefID)
+	}
+
+	updatedPetEntity, err := updater.Save(ctx)
+	if err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("не удалось обновить питомца: %w", err)
 	}
 
 	// 2. Обновить данные о здоровье
-	if health != nil {
+	if petDomain.Health != nil {
 		existingHealth, err := tx.PetHealth.Query().Where(pethealth.HasOwnerWith(pet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
-			return err
+			return nil, err
 		}
 		if existingHealth != nil {
-			var healthInput ent.UpdatePetHealthInput
-			if err := copier.Copy(&healthInput, health); err != nil {
-				tx.Rollback()
-				return fmt.Errorf("не удалось скопировать данные здоровья питомца: %w", err)
+			updater := tx.PetHealth.UpdateOne(existingHealth)
+			updater.SetHealthStatus(pethealth.HealthStatus(petDomain.Health.HealthStatus))
+			if petDomain.Health.LastDonation != nil {
+				updater.SetLastDonation(*petDomain.Health.LastDonation)
+			} else {
+				updater.ClearLastDonation()
 			}
-			_, err = tx.PetHealth.UpdateOne(existingHealth).
-				SetInput(healthInput).
-				Save(ctx)
+			if petDomain.Health.Transfused != nil {
+				updater.SetTransfused(*petDomain.Health.Transfused)
+			} else {
+				updater.ClearTransfused()
+			}
+			if petDomain.Health.Medications != nil {
+				updater.SetMedications(*petDomain.Health.Medications)
+			} else {
+				updater.ClearMedications()
+			}
+			if petDomain.Health.SurgicalInterventions != nil {
+				updater.SetSurgicalInterventions(*petDomain.Health.SurgicalInterventions)
+			} else {
+				updater.ClearSurgicalInterventions()
+			}
+			_, err = updater.Save(ctx)
 		} else {
 			var healthInput ent.CreatePetHealthInput
-			if err := copier.Copy(&healthInput, health); err != nil {
-				tx.Rollback()
-				return fmt.Errorf("не удалось скопировать данные здоровья питомца: %w", err)
+			healthInput.HealthStatus = new(pethealth.HealthStatus(petDomain.Health.HealthStatus))
+			if petDomain.Health.LastDonation != nil {
+				healthInput.LastDonation = petDomain.Health.LastDonation
+			}
+			if petDomain.Health.Transfused != nil {
+				healthInput.Transfused = petDomain.Health.Transfused
+			}
+			if petDomain.Health.Medications != nil {
+				healthInput.Medications = petDomain.Health.Medications
+			}
+			if petDomain.Health.SurgicalInterventions != nil {
+				healthInput.SurgicalInterventions = petDomain.Health.SurgicalInterventions
 			}
 			_, err = tx.PetHealth.Create().
 				SetInput(healthInput).
@@ -259,31 +342,45 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 		}
 		if err != nil {
 			tx.Rollback()
-			return fmt.Errorf("не удалось обновить данные о здоровье питомца: %w", err)
+			return nil, fmt.Errorf("не удалось обновить данные о здоровье питомца: %w", err)
 		}
 	}
 
 	// 3. Обновить данные о лечении
-	if treatments != nil {
-		var treatmentsInput ent.UpdatePetTreatmentInput
-		if err := copier.Copy(&treatmentsInput, treatments); err != nil {
-			tx.Rollback()
-			return fmt.Errorf("не удалось скопировать данные лечения питомца: %w", err)
-		}
+	if petDomain.Treatments != nil {
 		existingTreatment, err := tx.PetTreatment.Query().Where(pettreatment.HasOwnerWith(pet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
-			return err
+			return nil, err
 		}
 		if existingTreatment != nil {
-			_, err = tx.PetTreatment.UpdateOne(existingTreatment).
-				SetInput(treatmentsInput).
-				Save(ctx)
+			updater := tx.PetTreatment.UpdateOne(existingTreatment)
+			if petDomain.Treatments.RabiesVaccinationDate != nil {
+				updater.SetRabiesVaccinationDate(*petDomain.Treatments.RabiesVaccinationDate)
+			} else {
+				updater.ClearRabiesVaccinationDate()
+			}
+			if petDomain.Treatments.InfectionVaccinationDate != nil {
+				updater.SetInfectionVaccinationDate(*petDomain.Treatments.InfectionVaccinationDate)
+			} else {
+				updater.ClearInfectionVaccinationDate()
+			}
+			if petDomain.Treatments.EctoparasiteTreatmentDate != nil {
+				updater.SetEctoparasiteTreatmentDate(*petDomain.Treatments.EctoparasiteTreatmentDate)
+			} else {
+				updater.ClearEctoparasiteTreatmentDate()
+			}
+			if petDomain.Treatments.DewormingDate != nil {
+				updater.SetDewormingDate(*petDomain.Treatments.DewormingDate)
+			} else {
+				updater.ClearDewormingDate()
+			}
+			_, err = updater.Save(ctx)
 		} else {
 			var createInput ent.CreatePetTreatmentInput
-			if err := copier.Copy(&createInput, treatments); err != nil {
+			if err := copier.Copy(&createInput, petDomain.Treatments); err != nil {
 				tx.Rollback()
-				return fmt.Errorf("не удалось скопировать данные лечения питомца: %w", err)
+				return nil, fmt.Errorf("не удалось скопировать данные лечения питомца: %w", err)
 			}
 			_, err = tx.PetTreatment.Create().
 				SetInput(createInput).
@@ -292,25 +389,25 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 		}
 		if err != nil {
 			tx.Rollback()
-			return fmt.Errorf("не удалось обновить данные о лечении питомца: %w", err)
+			return nil, fmt.Errorf("не удалось обновить данные о лечении питомца: %w", err)
 		}
 	}
 
 	// Для анализов, удалить существующие и создать новые, если предоставлены
-	if analyses != nil {
+	if petDomain.Analyses != nil {
 		// Удалить существующие анализы для этого питомца (жесткое удаление)
 		_, err = tx.PetAnalysis.Delete().Where(petanalysis.PetID(id)).Exec(schema.SkipSoftDelete(ctx))
 		if err != nil {
 			tx.Rollback()
-			return fmt.Errorf("не удалось удалить существующие анализы питомца: %w", err)
+			return nil, fmt.Errorf("не удалось удалить существующие анализы питомца: %w", err)
 		}
 
 		// Создать новые анализы
-		for _, a := range analyses {
+		for _, a := range petDomain.Analyses {
 			var analysisInput ent.CreatePetAnalysisInput
 			if err := copier.Copy(&analysisInput, a); err != nil {
 				tx.Rollback()
-				return fmt.Errorf("не удалось скопировать данные анализа питомца: %w", err)
+				return nil, fmt.Errorf("не удалось скопировать данные анализа питомца: %w", err)
 			}
 			_, err = tx.PetAnalysis.Create().
 				SetInput(analysisInput).
@@ -318,16 +415,16 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 				Save(ctx)
 			if err != nil {
 				tx.Rollback()
-				return fmt.Errorf("не удалось создать анализ питомца: %w", err)
+				return nil, fmt.Errorf("не удалось создать анализ питомца: %w", err)
 			}
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
+		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
-	return nil
+	return &domain.Pet{ID: updatedPetEntity.ID, UpdatedAt: &updatedPetEntity.UpdatedAt}, nil
 }
 
 // Delete удаляет питомца по его ID (мягкое удаление)
