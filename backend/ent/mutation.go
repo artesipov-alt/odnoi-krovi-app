@@ -4026,7 +4026,6 @@ type PetMutation struct {
 	deleted_at                  *time.Time
 	name                        *string
 	_type                       *pet.Type
-	pet_status                  *pet.PetStatus
 	weight_kg                   *float64
 	addweight_kg                *float64
 	gender                      *pet.Gender
@@ -4359,42 +4358,6 @@ func (m *PetMutation) OldType(ctx context.Context) (v pet.Type, err error) {
 // ResetType resets all changes to the "type" field.
 func (m *PetMutation) ResetType() {
 	m._type = nil
-}
-
-// SetPetStatus sets the "pet_status" field.
-func (m *PetMutation) SetPetStatus(ps pet.PetStatus) {
-	m.pet_status = &ps
-}
-
-// PetStatus returns the value of the "pet_status" field in the mutation.
-func (m *PetMutation) PetStatus() (r pet.PetStatus, exists bool) {
-	v := m.pet_status
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPetStatus returns the old "pet_status" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldPetStatus(ctx context.Context) (v pet.PetStatus, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPetStatus is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPetStatus requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPetStatus: %w", err)
-	}
-	return oldValue.PetStatus, nil
-}
-
-// ResetPetStatus resets all changes to the "pet_status" field.
-func (m *PetMutation) ResetPetStatus() {
-	m.pet_status = nil
 }
 
 // SetWeightKg sets the "weight_kg" field.
@@ -5544,7 +5507,7 @@ func (m *PetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 19)
 	if m.created_at != nil {
 		fields = append(fields, pet.FieldCreatedAt)
 	}
@@ -5559,9 +5522,6 @@ func (m *PetMutation) Fields() []string {
 	}
 	if m._type != nil {
 		fields = append(fields, pet.FieldType)
-	}
-	if m.pet_status != nil {
-		fields = append(fields, pet.FieldPetStatus)
 	}
 	if m.weight_kg != nil {
 		fields = append(fields, pet.FieldWeightKg)
@@ -5623,8 +5583,6 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case pet.FieldType:
 		return m.GetType()
-	case pet.FieldPetStatus:
-		return m.PetStatus()
 	case pet.FieldWeightKg:
 		return m.WeightKg()
 	case pet.FieldGender:
@@ -5672,8 +5630,6 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldName(ctx)
 	case pet.FieldType:
 		return m.OldType(ctx)
-	case pet.FieldPetStatus:
-		return m.OldPetStatus(ctx)
 	case pet.FieldWeightKg:
 		return m.OldWeightKg(ctx)
 	case pet.FieldGender:
@@ -5745,13 +5701,6 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetType(v)
-		return nil
-	case pet.FieldPetStatus:
-		v, ok := value.(pet.PetStatus)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPetStatus(v)
 		return nil
 	case pet.FieldWeightKg:
 		v, ok := value.(float64)
@@ -6022,9 +5971,6 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldType:
 		m.ResetType()
-		return nil
-	case pet.FieldPetStatus:
-		m.ResetPetStatus()
 		return nil
 	case pet.FieldWeightKg:
 		m.ResetWeightKg()

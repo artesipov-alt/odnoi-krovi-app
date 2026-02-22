@@ -35,8 +35,6 @@ type Pet struct {
 	Name string `json:"name"`
 	// Type holds the value of the "type" field.
 	Type pet.Type `json:"type"`
-	// PetStatus holds the value of the "pet_status" field.
-	PetStatus pet.PetStatus `json:"petStatus"`
 	// WeightKg holds the value of the "weight_kg" field.
 	WeightKg float64 `json:"weightKg"`
 	// Gender holds the value of the "gender" field.
@@ -205,7 +203,7 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldPetStatus, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroupID:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldBonusID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroupID:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
@@ -260,12 +258,6 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
 				_m.Type = pet.Type(value.String)
-			}
-		case pet.FieldPetStatus:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field pet_status", values[i])
-			} else if value.Valid {
-				_m.PetStatus = pet.PetStatus(value.String)
 			}
 		case pet.FieldWeightKg:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -453,9 +445,6 @@ func (_m *Pet) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Type))
-	builder.WriteString(", ")
-	builder.WriteString("pet_status=")
-	builder.WriteString(fmt.Sprintf("%v", _m.PetStatus))
 	builder.WriteString(", ")
 	builder.WriteString("weight_kg=")
 	builder.WriteString(fmt.Sprintf("%v", _m.WeightKg))

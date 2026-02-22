@@ -489,21 +489,21 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 }
 
 // UpdateStatus обновляет статус питомца по его ID
-func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {
-	if id == "" {
-		return errors.New("неверный ID питомца")
-	}
+// func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {
+// 	if id == "" {
+// 		return errors.New("неверный ID питомца")
+// 	}
 
-	err := r.client.Pet.UpdateOneID(id).
-		SetPetStatus(pet.PetStatus(status)).
-		Exec(ctx)
+// 	err := r.client.Pet.UpdateOneID(id).
+// 		SetPetStatus(pet.PetStatus(status)).
+// 		Exec(ctx)
 
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("питомец с ID %s не найден", id)
-		}
-		return fmt.Errorf("не удалось обновить статус питомца: %w", err)
-	}
+// 	if err != nil {
+// 		if ent.IsNotFound(err) {
+// 			return fmt.Errorf("питомец с ID %s не найден", id)
+// 		}
+// 		return fmt.Errorf("не удалось обновить статус питомца: %w", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }

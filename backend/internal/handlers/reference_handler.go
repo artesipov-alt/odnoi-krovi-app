@@ -72,15 +72,15 @@ func (h *ReferenceHandler) Register(api huma.API) {
 		Tags:        []string{"reference-v1", "users-v1"},
 	}, h.GetUserRoles)
 
-	// Получение всех ролей питомцев
-	huma.Register(api, huma.Operation{
-		OperationID: "get-pet-roles",
-		Method:      http.MethodGet,
-		Path:        "/v1/reference/pet-roles",
-		Summary:     "Получение всех ролей питомцев",
-		Description: "Возвращает все доступные роли питомцев для выбора на фронтенде",
-		Tags:        []string{"reference-v1"},
-	}, h.GetPetRoles)
+	// // Получение всех ролей питомцев
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "get-pet-roles",
+	// 	Method:      http.MethodGet,
+	// 	Path:        "/v1/reference/pet-roles",
+	// 	Summary:     "Получение всех ролей питомцев",
+	// 	Description: "Возвращает все доступные роли питомцев для выбора на фронтенде",
+	// 	Tags:        []string{"reference-v1"},
+	// }, h.GetPetRoles)
 
 	// Получение всех пород животных
 	huma.Register(api, huma.Operation{
@@ -219,21 +219,21 @@ func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*
 	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
-	roles := enums.GetAllEntPetStatuses()
-	items := make([]dto.ReferenceItem, len(roles))
+// func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+// 	roles := enums.GetAllEntPetStatuses()
+// 	items := make([]dto.ReferenceItem, len(roles))
 
-	for i, role := range roles {
-		ruValue := enums.LocalizeEntPetStatus(role)
+// 	for i, role := range roles {
+// 		ruValue := enums.LocalizeEntPetStatus(role)
 
-		items[i] = dto.ReferenceItem{
-			Value: string(role),
-			Label: ruValue,
-		}
-	}
+// 		items[i] = dto.ReferenceItem{
+// 			Value: string(role),
+// 			Label: ruValue,
+// 		}
+// 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
-}
+// 	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+// }
 
 func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	slog.DebugContext(ctx, "getting all breeds")

@@ -12,9 +12,9 @@ func GetAllEntPetTypes() []pet.Type {
 }
 
 // GetAllEntPetStatuses возвращает все доступные статусы питомцев из ENT
-func GetAllEntPetStatuses() []pet.PetStatus {
-	return []pet.PetStatus{pet.PetStatusDonor, pet.PetStatusRecipient, pet.PetStatusNone}
-}
+// func GetAllEntPetStatuses() []pet.PetStatus {
+// 	return []pet.PetStatus{pet.PetStatusDonor, pet.PetStatusRecipient, pet.PetStatusNone}
+// }
 
 // GetAllEntGenders возвращает все доступные значения пола из ENT
 func GetAllEntGenders() []pet.Gender {
@@ -69,16 +69,16 @@ func LocalizeEntPetType(pt pet.Type) string {
 }
 
 // LocalizeEntPetStatus локализует статус питомца из ENT
-func LocalizeEntPetStatus(ps pet.PetStatus) string {
-	switch ps {
-	case pet.PetStatusDonor:
-		return "Донор"
-	case pet.PetStatusRecipient:
-		return "Реципиент"
-	default:
-		return string(ps)
-	}
-}
+// func LocalizeEntPetStatus(ps pet.PetStatus) string {
+// 	switch ps {
+// 	case pet.PetStatusDonor:
+// 		return "Донор"
+// 	case pet.PetStatusRecipient:
+// 		return "Реципиент"
+// 	default:
+// 		return string(ps)
+// 	}
+// }
 
 // LocalizeEntGender локализует пол животного из ENT
 func LocalizeEntGender(g pet.Gender) string {

@@ -124,10 +124,10 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 			return apperrors.Internal(err, "failed to create blood request")
 		}
 
-		err = s.petRepo.UpdateStatus(txCtx, bloodReq.PetID, "recipient")
-		if err != nil {
-			return apperrors.Internal(err, "failed to update pet status")
-		}
+		// err = s.petRepo.UpdateStatus(txCtx, bloodReq.PetID, "recipient")
+		// if err != nil {
+		// 	return apperrors.Internal(err, "failed to update pet status")
+		// }
 		return nil
 	})
 
@@ -238,7 +238,7 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 	}
 
 	// Получаем заявку, чтобы узнать PetID
-	req, err := s.bloodRepo.GetByID(ctx, id)
+	_, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -256,12 +256,12 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 		}
 
 		// Если статус закрыт, сбрасываем статус питомца на "none"
-		if status == "closed" {
-			err = s.petRepo.UpdateStatus(txCtx, req.PetID, "none")
-			if err != nil {
-				return apperrors.Internal(err, "failed to update pet status")
-			}
-		}
+		// if status == "closed" {
+		// 	err = s.petRepo.UpdateStatus(txCtx, req.PetID, "none")
+		// 	if err != nil {
+		// 		return apperrors.Internal(err, "failed to update pet status")
+		// 	}
+		// }
 		return nil
 	})
 	if err != nil {
@@ -274,7 +274,7 @@ func (s *BloodSearchService) UpdateStatus(ctx context.Context, id string, status
 // DeleteRequest удаляет заявку (soft delete)
 func (s *BloodSearchService) DeleteRequest(ctx context.Context, id string) error {
 	// Получаем заявку, чтобы узнать PetID
-	req, err := s.bloodRepo.GetByID(ctx, id)
+	_, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		return apperrors.Internal(err, "failed to get blood request")
 	}
@@ -285,11 +285,11 @@ func (s *BloodSearchService) DeleteRequest(ctx context.Context, id string) error
 			return apperrors.Internal(nil, "ent.TxFromContext returned nil")
 		}
 
-		// Обновляем статус питомца на "none"
-		err = s.petRepo.UpdateStatus(txCtx, req.PetID, "none")
-		if err != nil {
-			return apperrors.Internal(err, "failed to update pet status")
-		}
+		// // Обновляем статус питомца на "none"
+		// err = s.petRepo.UpdateStatus(txCtx, req.PetID, "none")
+		// if err != nil {
+		// 	return apperrors.Internal(err, "failed to update pet status")
+		// }
 
 		// Удаляем заявку
 		err = s.bloodRepo.Delete(txCtx, id)

@@ -345,26 +345,6 @@ func TypeNotIn(vs ...Type) predicate.Pet {
 	return predicate.Pet(sql.FieldNotIn(FieldType, vs...))
 }
 
-// PetStatusEQ applies the EQ predicate on the "pet_status" field.
-func PetStatusEQ(v PetStatus) predicate.Pet {
-	return predicate.Pet(sql.FieldEQ(FieldPetStatus, v))
-}
-
-// PetStatusNEQ applies the NEQ predicate on the "pet_status" field.
-func PetStatusNEQ(v PetStatus) predicate.Pet {
-	return predicate.Pet(sql.FieldNEQ(FieldPetStatus, v))
-}
-
-// PetStatusIn applies the In predicate on the "pet_status" field.
-func PetStatusIn(vs ...PetStatus) predicate.Pet {
-	return predicate.Pet(sql.FieldIn(FieldPetStatus, vs...))
-}
-
-// PetStatusNotIn applies the NotIn predicate on the "pet_status" field.
-func PetStatusNotIn(vs ...PetStatus) predicate.Pet {
-	return predicate.Pet(sql.FieldNotIn(FieldPetStatus, vs...))
-}
-
 // WeightKgEQ applies the EQ predicate on the "weight_kg" field.
 func WeightKgEQ(v float64) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldWeightKg, v))

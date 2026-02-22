@@ -28,8 +28,6 @@ func (Pet) Fields() []ent.Field {
 			MaxLen(100).StructTag(`json:"name"`),
 		field.Enum("type").
 			Values("dog", "cat").StructTag(`json:"type"`),
-		field.Enum("pet_status").
-			Values("donor", "recipient", "none").StructTag(`json:"petStatus"`),
 		field.Float("weight_kg").
 			Optional().StructTag(`json:"weightKg"`),
 		field.Enum("gender").

@@ -34,8 +34,8 @@ type PetRepository interface {
 	// ExistsByID проверяет, существует ли питомец с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)
 
-	// UpdateStatus обновляет статус питомца по его ID
-	UpdateStatus(ctx context.Context, id string, status string) error
+	// // UpdateStatus обновляет статус питомца по его ID
+	// UpdateStatus(ctx context.Context, id string, status string) error
 
 	// AddPhotoURLs добавляет новые пути к фотографиям питомца
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
@@ -131,9 +131,9 @@ func (s *PetServiceImpl) CreatePet(ctx context.Context, userID string, input *en
 	}
 
 	// Валидируем статус питомца
-	if err := pet.PetStatusValidator(input.PetStatus); err != nil {
-		return nil, apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
-	}
+	// if err := pet.PetStatusValidator(input.PetStatus); err != nil {
+	// 	return nil, apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
+	// }
 
 	// Валидируем пол животного
 	if input.Gender != nil && string(*input.Gender) != "" {
@@ -274,11 +274,11 @@ func (s *PetServiceImpl) Update(ctx context.Context, id string, petInput *ent.Up
 				return apperrors.Validation("неверный тип питомца", nil).WithInternal(err)
 			}
 		}
-		if petInput.PetStatus != nil && *petInput.PetStatus != "" {
-			if err := pet.PetStatusValidator(*petInput.PetStatus); err != nil {
-				return apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
-			}
-		}
+		// if petInput.PetStatus != nil && *petInput.PetStatus != "" {
+		// 	if err := pet.PetStatusValidator(*petInput.PetStatus); err != nil {
+		// 		return apperrors.Validation("неверный статус питомца", nil).WithInternal(err)
+		// 	}
+		// }
 		if petInput.Gender != nil && string(*petInput.Gender) != "" {
 			if err := pet.GenderValidator(*petInput.Gender); err != nil {
 				return apperrors.Validation("неверный пол животного", nil).WithInternal(err)
@@ -392,19 +392,19 @@ func (s *PetServiceImpl) ApplyValidation(ctx context.Context, petID string) ([]v
 	}
 
 	// Определяем новый статус
-	newStatus := ""
-	if len(stopFactors) == 0 {
-		newStatus = "donor"
-	}
+	// newStatus := ""
+	// if len(stopFactors) == 0 {
+	// 	newStatus = "donor"
+	// }
 
 	// Создаем UpdatePetInput для сохранения результатов валидации
 	updateInput := &ent.UpdatePetInput{
 		DonorRestrictions: allFactors,
 	}
-	if newStatus != "" {
-		petStatus := pet.PetStatus(newStatus)
-		updateInput.PetStatus = &petStatus
-	}
+	// if newStatus != "" {
+	// 	petStatus := pet.PetStatus(newStatus)
+	// 	updateInput.PetStatus = &petStatus
+	// }
 
 	// Обновляем только поля валидации
 	if _, err := s.petRepo.Update(ctx, petID, updateInput, nil, nil, nil, nil); err != nil {

@@ -28,8 +28,6 @@ const (
 	FieldName = "name"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
-	// FieldPetStatus holds the string denoting the pet_status field in the database.
-	FieldPetStatus = "pet_status"
 	// FieldWeightKg holds the string denoting the weight_kg field in the database.
 	FieldWeightKg = "weight_kg"
 	// FieldGender holds the string denoting the gender field in the database.
@@ -151,7 +149,6 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldName,
 	FieldType,
-	FieldPetStatus,
 	FieldWeightKg,
 	FieldGender,
 	FieldBirthDate,
@@ -219,30 +216,6 @@ func TypeValidator(_type Type) error {
 		return nil
 	default:
 		return fmt.Errorf("pet: invalid enum value for type field: %q", _type)
-	}
-}
-
-// PetStatus defines the type for the "pet_status" enum field.
-type PetStatus string
-
-// PetStatus values.
-const (
-	PetStatusDonor     PetStatus = "donor"
-	PetStatusRecipient PetStatus = "recipient"
-	PetStatusNone      PetStatus = "none"
-)
-
-func (ps PetStatus) String() string {
-	return string(ps)
-}
-
-// PetStatusValidator is a validator for the "pet_status" field enum values. It is called by the builders before save.
-func PetStatusValidator(ps PetStatus) error {
-	switch ps {
-	case PetStatusDonor, PetStatusRecipient, PetStatusNone:
-		return nil
-	default:
-		return fmt.Errorf("pet: invalid enum value for pet_status field: %q", ps)
 	}
 }
 
@@ -348,11 +321,6 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
-}
-
-// ByPetStatus orders the results by the pet_status field.
-func ByPetStatus(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPetStatus, opts...).ToFunc()
 }
 
 // ByWeightKg orders the results by the weight_kg field.
@@ -569,24 +537,6 @@ func (e *Type) UnmarshalGQL(val interface{}) error {
 	*e = Type(str)
 	if err := TypeValidator(*e); err != nil {
 		return fmt.Errorf("%s is not a valid Type", str)
-	}
-	return nil
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e PetStatus) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *PetStatus) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = PetStatus(str)
-	if err := PetStatusValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid PetStatus", str)
 	}
 	return nil
 }

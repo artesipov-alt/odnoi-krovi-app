@@ -325,9 +325,9 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 				Gender:          pet.Gender.String(),
 				Type:            pet.Type.String(),
 				BloodGroup:      pet.BloodGroupID,
-				PetStatus:       pet.PetStatus.String(),
-				CreatedAt:       &pet.CreatedAt,
-				UpdatedAt:       &pet.UpdatedAt,
+				// PetStatus:       pet.PetStatus.String(),
+				CreatedAt: &pet.CreatedAt,
+				UpdatedAt: &pet.UpdatedAt,
 			}
 		}
 	}

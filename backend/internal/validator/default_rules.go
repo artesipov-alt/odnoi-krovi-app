@@ -20,7 +20,7 @@ var DefaultStopChecks = []CheckFunc{
 	CheckReproductiveStatus,
 	CheckStopHealth,
 	CheckDonationHistory,
-	CheckPetStatus,
+	// CheckPetStatus,
 }
 
 var DefaultWarnChecks = []CheckFunc{
@@ -250,10 +250,10 @@ func CheckWarnAnalyses(p *ent.Pet) FactorCode {
 	return ""
 }
 
-// CheckPetStatus проверяет статус питомца. Если статус "recipient", возвращает стоп-фактор CURRENTLY_RECIPIENT.
-func CheckPetStatus(p *ent.Pet) FactorCode {
-	if p.PetStatus == "recipient" {
-		return StopFactorCurrentlyRecipient
-	}
-	return ""
-}
+// // CheckPetStatus проверяет статус питомца. Если статус "recipient", возвращает стоп-фактор CURRENTLY_RECIPIENT.
+// func CheckPetStatus(p *ent.Pet) FactorCode {
+// 	if p.PetStatus == "recipient" {
+// 		return StopFactorCurrentlyRecipient
+// 	}
+// 	return ""
+// }

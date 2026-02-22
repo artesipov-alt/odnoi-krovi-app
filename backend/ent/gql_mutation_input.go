@@ -299,7 +299,6 @@ type CreatePetInput struct {
 	DeletedAt            *time.Time
 	Name                 string
 	Type                 pet.Type
-	PetStatus            pet.PetStatus
 	WeightKg             *float64
 	Gender               *pet.Gender
 	BirthDate            *time.Time
@@ -332,7 +331,6 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	}
 	m.SetName(i.Name)
 	m.SetType(i.Type)
-	m.SetPetStatus(i.PetStatus)
 	if v := i.WeightKg; v != nil {
 		m.SetWeightKg(*v)
 	}
@@ -399,7 +397,6 @@ type UpdatePetInput struct {
 	DeletedAt               *time.Time
 	Name                    *string
 	Type                    *pet.Type
-	PetStatus               *pet.PetStatus
 	ClearWeightKg           bool
 	WeightKg                *float64
 	ClearGender             bool
@@ -456,9 +453,6 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	}
 	if v := i.Type; v != nil {
 		m.SetType(*v)
-	}
-	if v := i.PetStatus; v != nil {
-		m.SetPetStatus(*v)
 	}
 	if i.ClearWeightKg {
 		m.ClearWeightKg()

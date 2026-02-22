@@ -83,12 +83,6 @@ func (_c *PetCreate) SetType(v pet.Type) *PetCreate {
 	return _c
 }
 
-// SetPetStatus sets the "pet_status" field.
-func (_c *PetCreate) SetPetStatus(v pet.PetStatus) *PetCreate {
-	_c.mutation.SetPetStatus(v)
-	return _c
-}
-
 // SetWeightKg sets the "weight_kg" field.
 func (_c *PetCreate) SetWeightKg(v float64) *PetCreate {
 	_c.mutation.SetWeightKg(v)
@@ -505,14 +499,6 @@ func (_c *PetCreate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Pet.type": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.PetStatus(); !ok {
-		return &ValidationError{Name: "pet_status", err: errors.New(`ent: missing required field "Pet.pet_status"`)}
-	}
-	if v, ok := _c.mutation.PetStatus(); ok {
-		if err := pet.PetStatusValidator(v); err != nil {
-			return &ValidationError{Name: "pet_status", err: fmt.Errorf(`ent: validator failed for field "Pet.pet_status": %w`, err)}
-		}
-	}
 	if v, ok := _c.mutation.Gender(); ok {
 		if err := pet.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Pet.gender": %w`, err)}
@@ -587,10 +573,6 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(pet.FieldType, field.TypeEnum, value)
 		_node.Type = value
-	}
-	if value, ok := _c.mutation.PetStatus(); ok {
-		_spec.SetField(pet.FieldPetStatus, field.TypeEnum, value)
-		_node.PetStatus = value
 	}
 	if value, ok := _c.mutation.WeightKg(); ok {
 		_spec.SetField(pet.FieldWeightKg, field.TypeFloat64, value)

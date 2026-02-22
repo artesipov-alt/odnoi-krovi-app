@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -403,10 +402,10 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 		Type:               string(p.Type),
 		BloodGroup:         "",
 		ReproductiveStatus: string(p.ReproductiveStatus),
-		PetStatus:          string(p.PetStatus),
-		CreatedAt:          &p.CreatedAt,
-		UpdatedAt:          &p.UpdatedAt,
-		DeletedAt:          p.DeletedAt,
+		// PetStatus:          string(p.PetStatus),
+		CreatedAt: &p.CreatedAt,
+		UpdatedAt: &p.UpdatedAt,
+		DeletedAt: p.DeletedAt,
 	}
 	if p.Edges.BloodGroupRef != nil {
 		petDTO.BloodGroup = p.Edges.BloodGroupRef.BloodGroup
@@ -473,39 +472,39 @@ func (h *PetHandler) toDTO(p *ent.Pet) dto.Pet {
 	}
 
 	// Заполняем DonorRestrictions из сохранённых данных
-	if p.PetStatus != "" && len(p.DonorRestrictions) > 0 {
-		var stopRestrictionFactors []dto.RestrictionFactor
-		var warnRestrictionFactors []dto.RestrictionFactor
+	// if p.PetStatus != "" && len(p.DonorRestrictions) > 0 {
+	// 	var stopRestrictionFactors []dto.RestrictionFactor
+	// 	var warnRestrictionFactors []dto.RestrictionFactor
 
-		for _, codeStr := range p.DonorRestrictions {
-			code := validator.FactorCode(codeStr)
-			desc := validator.GetFactorDescription(code)
+	// 	for _, codeStr := range p.DonorRestrictions {
+	// 		code := validator.FactorCode(codeStr)
+	// 		desc := validator.GetFactorDescription(code)
 
-			factor := dto.RestrictionFactor{
-				Code:           codeStr,
-				Description:    desc.Description,
-				SubDescription: desc.SubDescription,
-			}
+	// 		factor := dto.RestrictionFactor{
+	// 			Code:           codeStr,
+	// 			Description:    desc.Description,
+	// 			SubDescription: desc.SubDescription,
+	// 		}
 
-			// Разделяем на стопы и предупреждения по префиксу
-			if strings.HasPrefix(codeStr, "STOP_") {
-				stopRestrictionFactors = append(stopRestrictionFactors, factor)
-			} else if strings.HasPrefix(codeStr, "WARN_") {
-				warnRestrictionFactors = append(warnRestrictionFactors, factor)
-			}
-		}
+	// 		// Разделяем на стопы и предупреждения по префиксу
+	// 		if strings.HasPrefix(codeStr, "STOP_") {
+	// 			stopRestrictionFactors = append(stopRestrictionFactors, factor)
+	// 		} else if strings.HasPrefix(codeStr, "WARN_") {
+	// 			warnRestrictionFactors = append(warnRestrictionFactors, factor)
+	// 		}
+	// 	}
 
-		petDTO.DonorRestrictions = &dto.DonorRestrictions{
-			StopFactors: stopRestrictionFactors,
-			WarnFactors: warnRestrictionFactors,
-		}
-	} else if p.PetStatus != "" {
-		// Если факторы ещё не рассчитаны, возвращаем пустые (не рассчитываем на лету)
-		petDTO.DonorRestrictions = &dto.DonorRestrictions{
-			StopFactors: []dto.RestrictionFactor{},
-			WarnFactors: []dto.RestrictionFactor{},
-		}
-	}
+	// 	petDTO.DonorRestrictions = &dto.DonorRestrictions{
+	// 		StopFactors: stopRestrictionFactors,
+	// 		WarnFactors: warnRestrictionFactors,
+	// 	}
+	// } else if p.PetStatus != "" {
+	// 	// Если факторы ещё не рассчитаны, возвращаем пустые (не рассчитываем на лету)
+	// 	petDTO.DonorRestrictions = &dto.DonorRestrictions{
+	// 		StopFactors: []dto.RestrictionFactor{},
+	// 		WarnFactors: []dto.RestrictionFactor{},
+	// 	}
+	// }
 
 	return petDTO
 }

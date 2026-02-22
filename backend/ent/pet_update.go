@@ -92,20 +92,6 @@ func (_u *PetUpdate) SetNillableType(v *pet.Type) *PetUpdate {
 	return _u
 }
 
-// SetPetStatus sets the "pet_status" field.
-func (_u *PetUpdate) SetPetStatus(v pet.PetStatus) *PetUpdate {
-	_u.mutation.SetPetStatus(v)
-	return _u
-}
-
-// SetNillablePetStatus sets the "pet_status" field if the given value is not nil.
-func (_u *PetUpdate) SetNillablePetStatus(v *pet.PetStatus) *PetUpdate {
-	if v != nil {
-		_u.SetPetStatus(*v)
-	}
-	return _u
-}
-
 // SetWeightKg sets the "weight_kg" field.
 func (_u *PetUpdate) SetWeightKg(v float64) *PetUpdate {
 	_u.mutation.ResetWeightKg()
@@ -675,11 +661,6 @@ func (_u *PetUpdate) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Pet.type": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.PetStatus(); ok {
-		if err := pet.PetStatusValidator(v); err != nil {
-			return &ValidationError{Name: "pet_status", err: fmt.Errorf(`ent: validator failed for field "Pet.pet_status": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Gender(); ok {
 		if err := pet.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Pet.gender": %w`, err)}
@@ -729,9 +710,6 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(pet.FieldType, field.TypeEnum, value)
-	}
-	if value, ok := _u.mutation.PetStatus(); ok {
-		_spec.SetField(pet.FieldPetStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.WeightKg(); ok {
 		_spec.SetField(pet.FieldWeightKg, field.TypeFloat64, value)
@@ -1157,20 +1135,6 @@ func (_u *PetUpdateOne) SetType(v pet.Type) *PetUpdateOne {
 func (_u *PetUpdateOne) SetNillableType(v *pet.Type) *PetUpdateOne {
 	if v != nil {
 		_u.SetType(*v)
-	}
-	return _u
-}
-
-// SetPetStatus sets the "pet_status" field.
-func (_u *PetUpdateOne) SetPetStatus(v pet.PetStatus) *PetUpdateOne {
-	_u.mutation.SetPetStatus(v)
-	return _u
-}
-
-// SetNillablePetStatus sets the "pet_status" field if the given value is not nil.
-func (_u *PetUpdateOne) SetNillablePetStatus(v *pet.PetStatus) *PetUpdateOne {
-	if v != nil {
-		_u.SetPetStatus(*v)
 	}
 	return _u
 }
@@ -1757,11 +1721,6 @@ func (_u *PetUpdateOne) check() error {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Pet.type": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.PetStatus(); ok {
-		if err := pet.PetStatusValidator(v); err != nil {
-			return &ValidationError{Name: "pet_status", err: fmt.Errorf(`ent: validator failed for field "Pet.pet_status": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Gender(); ok {
 		if err := pet.GenderValidator(v); err != nil {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Pet.gender": %w`, err)}
@@ -1828,9 +1787,6 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(pet.FieldType, field.TypeEnum, value)
-	}
-	if value, ok := _u.mutation.PetStatus(); ok {
-		_spec.SetField(pet.FieldPetStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.WeightKg(); ok {
 		_spec.SetField(pet.FieldWeightKg, field.TypeFloat64, value)

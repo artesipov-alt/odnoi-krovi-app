@@ -1874,12 +1874,6 @@ type PetWhereInput struct {
 	TypeIn    []pet.Type `json:"typeIn,omitempty"`
 	TypeNotIn []pet.Type `json:"typeNotIn,omitempty"`
 
-	// "pet_status" field predicates.
-	PetStatus      *pet.PetStatus  `json:"petStatus,omitempty"`
-	PetStatusNEQ   *pet.PetStatus  `json:"petStatusNEQ,omitempty"`
-	PetStatusIn    []pet.PetStatus `json:"petStatusIn,omitempty"`
-	PetStatusNotIn []pet.PetStatus `json:"petStatusNotIn,omitempty"`
-
 	// "weight_kg" field predicates.
 	WeightKg       *float64  `json:"weightKg,omitempty"`
 	WeightKgNEQ    *float64  `json:"weightKgNEQ,omitempty"`
@@ -2313,18 +2307,6 @@ func (i *PetWhereInput) P() (predicate.Pet, error) {
 	}
 	if len(i.TypeNotIn) > 0 {
 		predicates = append(predicates, pet.TypeNotIn(i.TypeNotIn...))
-	}
-	if i.PetStatus != nil {
-		predicates = append(predicates, pet.PetStatusEQ(*i.PetStatus))
-	}
-	if i.PetStatusNEQ != nil {
-		predicates = append(predicates, pet.PetStatusNEQ(*i.PetStatusNEQ))
-	}
-	if len(i.PetStatusIn) > 0 {
-		predicates = append(predicates, pet.PetStatusIn(i.PetStatusIn...))
-	}
-	if len(i.PetStatusNotIn) > 0 {
-		predicates = append(predicates, pet.PetStatusNotIn(i.PetStatusNotIn...))
 	}
 	if i.WeightKg != nil {
 		predicates = append(predicates, pet.WeightKgEQ(*i.WeightKg))

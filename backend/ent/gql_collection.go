@@ -784,11 +784,6 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, pet.FieldType)
 				fieldSeen[pet.FieldType] = struct{}{}
 			}
-		case "petStatus":
-			if _, ok := fieldSeen[pet.FieldPetStatus]; !ok {
-				selectedFields = append(selectedFields, pet.FieldPetStatus)
-				fieldSeen[pet.FieldPetStatus] = struct{}{}
-			}
 		case "weightKg":
 			if _, ok := fieldSeen[pet.FieldWeightKg]; !ok {
 				selectedFields = append(selectedFields, pet.FieldWeightKg)
