@@ -136,6 +136,8 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 		return nil, err
 	}
 
+	newReq.PhotoUrls = s.BuildFullPhotoURLs(newReq.PhotoUrls)
+
 	return newReq, nil
 }
 
@@ -325,7 +327,7 @@ func (s *BloodSearchService) ExistsByID(ctx context.Context, id string) (bool, e
 	return s.bloodRepo.ExistsByID(ctx, id)
 }
 
-// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
+// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
 func (s *BloodSearchService) BuildFullPhotoURLs(paths []string) []string {
 	if len(paths) == 0 {
 		return []string{}

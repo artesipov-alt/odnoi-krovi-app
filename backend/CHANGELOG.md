@@ -5,7 +5,26 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
-## [3.0.11] - 2026-02-21 - Обновление версии API до 3.0.11 и опциональность ID в BloodSearchPetRequest
+## [3.0.13] - 2026-02-21
+
+### Изменено
+- **Обновлены значения перечисления `onBoarding` в `BloodSearchPetRequest`:** Значения перечисления для поля `onBoarding` в `BloodSearchPetRequest` были изменены с "DONOR,RECIPIENT" на "SEARCH,BLOOD_CARD".
+
+### Технические детали
+- В `dto/blood_search.go` обновлены допустимые значения для поля `onBoarding` в структуре `BloodSearchPetRequest`.
+- Обновлены соответствующие DTO и валидация для отражения новых значений перечисления.
+
+
+## [3.0.12] - 2026-02-20
+
+### Изменено
+- **Рефакторинг метода `buildFullPhotoURLs` в `BloodSearchService`:** Метод `buildFullPhotoURLs` переименован в `BuildFullPhotoURLs` и теперь принимает указатель на `BloodSearchRequest`. Он модифицирует объект `BloodSearchRequest` напрямую, обновляя его `photo_urls` и добавляя параметр запроса `?t=` с временной меткой к каждому URL. Это обеспечивает инвалидацию кэша и упрощает использование метода.
+
+### Технические детали
+- В `internal/services/blood_search_service.go` метод `buildFullPhotoURLs` был переименован в `BuildFullPhotoURLs` и изменен для прямого обновления поля `photo_urls` в объекте `BloodSearchRequest` и добавления временной метки к каждому URL.
+- Обновлены все вызовы `BuildFullPhotoURLs` в `BloodSearchService` для соответствия новой сигнатуре.
+
+## [3.0.11] - 2026-02-19 - Обновление версии API до 3.0.11 и опциональность ID в BloodSearchPetRequest
 
 Этот релиз включает обновление версии API до 3.0.11 и делает поле `ID` в структуре `BloodSearchPetRequest` опциональным.
 
@@ -19,7 +38,7 @@
 - Обновлены соответствующие TypeScript интерфейсы для отражения опциональности поля `ID`.
 
 
-## [3.0.10] - 2026-02-20 - Удаление обязательной валидации для ID в BloodSearchPetRequest
+## [3.0.10] - 2026-02-19 - Удаление обязательной валидации для ID в BloodSearchPetRequest
 
 Этот релиз включает изменение валидации для поля `ID` в `BloodSearchPetRequest`, делая его необязательным.
 
