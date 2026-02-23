@@ -3,27 +3,25 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
 	petService    services.PetService
-	validator     validator.DonorValidator
 	bloodInfoRepo services.BloodInfoRepository
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService services.PetService, validator validator.DonorValidator, bloodInfoRepo services.BloodInfoRepository) *PetHandler {
+func NewPetHandler(petService services.PetService, bloodInfoRepo services.BloodInfoRepository) *PetHandler {
 	return &PetHandler{
 		petService:    petService,
-		validator:     validator,
 		bloodInfoRepo: bloodInfoRepo,
 	}
 }
@@ -183,23 +181,6 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.
 	resp.Body.Message = "Питомец удален"
 	return resp, nil
 }
-
-// func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
-// 	// Загружаем все связанные данные для полной валидации
-// 	p, err := h.petService.GetPet(ctx, input.ID, services.PetPreloadOptions{WithAll: true})
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// Применяем валидацию: пересчитываем и сохраняем факторы
-// 	_, _, err = h.petService.ApplyValidation(ctx, p.ID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// Возвращаем обновлённый DTO (факторы теперь сохранены и будут включены)
-// 	return &dto.PetResponse{Body: h.toDTO(p)}, nil
-// }
 
 // toPetsDTO преобразует слайс ENT питомцев в слайс DTO
 func ToDTOs(pets []*domain.Pet) []dto.Pet {
@@ -445,7 +426,7 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 		PhotoURLs:          petDomain.PhotoURLs,
 		WeightKg:           petDomain.WeightKg,
 		BirthDate:          petDomain.BirthDate,
-		PetStatus:          "none",
+		PetStatus:          string(petDomain.PetStatus),
 		LivingCondition:    string(petDomain.LivingCondition),
 		Gender:             string(petDomain.Gender),
 		Type:               string(petDomain.Type),
@@ -454,6 +435,29 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 		CreatedAt:          petDomain.CreatedAt,
 		UpdatedAt:          petDomain.UpdatedAt,
 		DeletedAt:          petDomain.DeletedAt,
+	}
+
+	// Map DonorRestrictions into StopFactors and WarnFactors
+	if len(petDomain.DonorRestrictions) > 0 {
+		var stopFactors []dto.RestrictionFactor
+		var warnFactors []dto.RestrictionFactor
+		for _, code := range petDomain.DonorRestrictions {
+			desc := domain.GetFactorDescription(domain.FactorCode(code))
+			factor := dto.RestrictionFactor{
+				Code:           code,
+				Description:    desc.Description,
+				SubDescription: desc.SubDescription,
+			}
+			if strings.HasPrefix(code, "STOP_") {
+				stopFactors = append(stopFactors, factor)
+			} else if strings.HasPrefix(code, "WARN_") {
+				warnFactors = append(warnFactors, factor)
+			}
+		}
+		petDTO.DonorRestrictions = &dto.DonorRestrictions{
+			StopFactors: stopFactors,
+			WarnFactors: warnFactors,
+		}
 	}
 
 	if petDomain.BreedRefID != nil {

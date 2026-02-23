@@ -10,7 +10,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 )
 
 // PetRepository определяет интерфейс для операций с данными питомцев
@@ -85,7 +84,7 @@ type PetService struct {
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo PetRepository, userRepo UserRepository, bloodReqRepo BloodRequestRepository, bloodInfoRepo BloodInfoRepository, breedRepo BreedRepository, storage FileStorage, validator validator.DonorValidator) *PetService {
+func NewPetService(petRepo PetRepository, userRepo UserRepository, bloodReqRepo BloodRequestRepository, bloodInfoRepo BloodInfoRepository, breedRepo BreedRepository, storage FileStorage) *PetService {
 	return &PetService{
 		petRepo:      petRepo,
 		userRepo:     userRepo,
@@ -110,6 +109,15 @@ func (s *PetService) CreatePet(ctx context.Context, userID string, pet *domain.P
 	// Set the owner ID for the pet
 	pet.OwnerID = userID
 
+	// Calculate stop and warn factors and set DonorRestrictions
+	stopFactors := pet.GetStopFactors(time.Now())
+	warnFactors := pet.GetWarnFactors(time.Now())
+	allFactors := append(stopFactors, warnFactors...)
+	pet.DonorRestrictions = make([]string, len(allFactors))
+	for i, f := range allFactors {
+		pet.DonorRestrictions[i] = string(f)
+	}
+
 	newPet, err := s.petRepo.Create(ctx, pet)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create pet")
@@ -127,6 +135,13 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 
 	pet.PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt)
 
+	// Set status based on stored DonorRestrictions
+	if len(pet.DonorRestrictions) > 0 {
+		pet.PetStatus = domain.PetStatusNone
+	} else {
+		pet.PetStatus = domain.PetStatusDonor
+	}
+
 	return pet, nil
 }
 
@@ -142,11 +157,18 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 
 	pets, err := s.petRepo.GetPetsByUser(ctx, userID, opts)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	for i, pet := range pets {
-		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt)
+	for i := range pets {
+		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pets[i].PhotoURLs, *pets[i].UpdatedAt)
+
+		// Set status based on stored DonorRestrictions
+		if len(pets[i].DonorRestrictions) > 0 {
+			pets[i].PetStatus = domain.PetStatusNone
+		} else {
+			pets[i].PetStatus = domain.PetStatusDonor
+		}
 	}
 
 	return pets, nil
@@ -160,6 +182,15 @@ func (s *PetService) Update(ctx context.Context, id string, petInput *domain.Pet
 	}
 	if !exists {
 		return nil, apperrors.ErrPetNotFound
+	}
+
+	// Calculate stop and warn factors and set DonorRestrictions
+	stopFactors := petInput.GetStopFactors(time.Now())
+	warnFactors := petInput.GetWarnFactors(time.Now())
+	allFactors := append(stopFactors, warnFactors...)
+	petInput.DonorRestrictions = make([]string, len(allFactors))
+	for i, f := range allFactors {
+		petInput.DonorRestrictions[i] = string(f)
 	}
 
 	updatedPet, err := s.petRepo.Update(ctx, id, petInput)

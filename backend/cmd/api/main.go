@@ -23,7 +23,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/validator"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
@@ -106,18 +105,14 @@ func main() {
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := repositories.NewTxManager(db)
 
-		donorValidator := validator.NewDonorValidator(validator.DefaultStopChecks, validator.DefaultWarnChecks)
-
 		// Инициализация сервисов
 		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, bloodInfoRepo, breedRepo, fileStorage, donorValidator)
+		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, bloodInfoRepo, breedRepo, fileStorage)
 		bloodSearchService := services.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
 		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
-
-		// Инициализация обработчиков
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 		userHandler := handlers.NewUserHandler(userService)
-		petHandler := handlers.NewPetHandler(*petService, donorValidator, bloodInfoRepo)
+		petHandler := handlers.NewPetHandler(*petService, bloodInfoRepo)
 		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
 		fileHandler := handlers.NewFileHandler(fileService)
 
