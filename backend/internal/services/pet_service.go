@@ -130,6 +130,8 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 		return nil, err
 	}
 
+	pet.PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs)
+
 	return pet, nil
 }
 
@@ -146,6 +148,10 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 	pets, err := s.petRepo.GetPetsByUser(ctx, userID, opts)
 	if err != nil {
 		return nil, err
+	}
+
+	for i, pet := range pets {
+		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs)
 	}
 
 	return pets, nil
