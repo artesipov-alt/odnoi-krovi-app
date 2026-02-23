@@ -82,7 +82,7 @@ func (h *PetHandler) Register(api huma.API) {
 	// Валидация донора по ID (изменено на POST)
 	huma.Register(api, huma.Operation{
 		OperationID:   "validate-donor",
-		Method:        http.MethodPut,
+		Method:        http.MethodPost,
 		Path:          "/v1/pet/validate-donor/{id}",
 		Summary:       "Валидация донора по ID",
 		Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",

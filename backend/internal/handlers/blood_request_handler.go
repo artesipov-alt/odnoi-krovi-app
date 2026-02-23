@@ -68,6 +68,17 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByPetID)
 
+	// Откликнуться на заявку
+	huma.Register(api, huma.Operation{
+		OperationID:   "apply-for-blood-request", // More descriptive OperationID
+		Method:        http.MethodPost,
+		Path:          "/v1/blood-request/{id}/apply", // RESTful path for applying to a specific request
+		Summary:       "Откликнуться на заявку на поиск крови",
+		Description:   "Позволяет донору откликнуться на существующую заявку на поиск крови.",
+		Tags:          []string{"blood-request-v1"},
+		DefaultStatus: http.StatusCreated, // Applying usually creates a new application record
+	}, h.ApplyForBloodRequest)
+
 	// // Получить список доноров по ID заявки
 	// huma.Register(api, huma.Operation{
 	// 	OperationID: "get-donors-by-req-id",

@@ -30,13 +30,17 @@ func NewEntDonorResponseRepository(client *ent.Client) *EntDonorResponseReposito
 }
 
 func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error) {
-	return r.client(ctx).DonorResponse.
+	created, err := r.client(ctx).DonorResponse.
 		Create().
 		SetRequestID(reqID).
 		SetDonorID(donorID).
 		SetConditions(conditions).
 		SetStatus("pending").
 		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.client(ctx).DonorResponse.Query().Where(donorresponse.ID(created.ID)).WithRequest().WithDonor().Only(ctx)
 }
 
 func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, id string) (*ent.DonorResponse, error) {
@@ -65,6 +69,8 @@ func (r *EntDonorResponseRepository) GetDonorResponsesByDonorID(ctx context.Cont
 	return r.client(ctx).DonorResponse.
 		Query().
 		Where(donorresponse.HasDonorWith(pet.ID(donorID))).
+		WithRequest().
+		WithDonor().
 		All(ctx)
 }
 
