@@ -39,14 +39,6 @@ type PetAnalysisGroup struct {
 	Anaplasmosis     []*PetAnalysis `json:"anaplasmosis,omitempty" doc:"Анализ на анаплазмоз"`
 }
 
-// PetBonus представляет дополнительную информацию о питомце
-type PetBonus struct {
-	IsArtist      bool `json:"isArtist,omitempty" doc:"Является ли питомец артистом" example:"false"`
-	IsTherapist   bool `json:"isTherapist,omitempty" doc:"Является ли питомец терапевтом" example:"false"`
-	IsFormerDonor bool `json:"isFormerDonor,omitempty" doc:"Был ли питомец донором ранее" example:"true"`
-	IsGuideDog    bool `json:"isGuideDog,omitempty" doc:"Является ли питомец собакой-проводником" example:"false"`
-}
-
 // DonorRestrictions представляет собой стоп-факторы и вопросы о донорстве.
 type DonorRestrictions struct {
 	StopFactors []RestrictionFactor `json:"stopFactors,omitempty" doc:"Стоп-факторы"`
@@ -77,7 +69,7 @@ type PetUpdate struct {
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
-	Bonuses            *PetBonus         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	Bonuses            *[]string         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
 }
 
 // Pet представляет ответ с информацией о питомце
@@ -99,7 +91,7 @@ type PetCreate struct {
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
-	Bonuses            *PetBonus         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	Bonuses            []string          `json:"bonuses,omitempty" doc:"Дополнительная информация"`
 }
 
 type Pet struct {

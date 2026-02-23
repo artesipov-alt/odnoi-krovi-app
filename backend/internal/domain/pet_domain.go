@@ -61,6 +61,7 @@ const (
 type Pet struct {
 	ID                 string
 	Name               string
+	PetStatus          PetStatus
 	Type               PetType
 	WeightKg           float64
 	Gender             Gender
@@ -69,10 +70,11 @@ type Pet struct {
 	PhotoURLs          []string
 	LivingCondition    LivingCondition
 	ReproductiveStatus ReproductiveStatus
-	DonorRestrictions  []string
 	OwnerID            string
 	BreedRefID         *string
 	BloodGroupName     *string
+	DonorRestrictions  []string
+	Bonuses            []string
 	Health             *PetHealth
 	Treatments         *PetTreatment
 	Analyses           []*PetAnalysis

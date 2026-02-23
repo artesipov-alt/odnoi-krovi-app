@@ -356,6 +356,9 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 		if v.ReproductiveStatus != nil {
 			petDomain.ReproductiveStatus = domain.ReproductiveStatus(*v.ReproductiveStatus)
 		}
+		if v.Bonuses != nil {
+			petDomain.Bonuses = *v.Bonuses
+		}
 
 		// Handle PetHealth
 		if v.Health != nil {
@@ -441,6 +444,7 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 		Gender:             string(petDomain.Gender),
 		Type:               string(petDomain.Type),
 		ReproductiveStatus: string(petDomain.ReproductiveStatus),
+		Bonuses:            petDomain.Bonuses,
 		CreatedAt:          petDomain.CreatedAt,
 		UpdatedAt:          petDomain.UpdatedAt,
 		DeletedAt:          petDomain.DeletedAt,
