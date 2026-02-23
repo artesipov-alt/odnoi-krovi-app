@@ -29,14 +29,14 @@ func NewEntDonorResponseRepository(client *ent.Client) *EntDonorResponseReposito
 	}
 }
 
-func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, reqID, donorID string, amountML int32) error {
+func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error) {
 	return r.client(ctx).DonorResponse.
 		Create().
 		SetRequestID(reqID).
 		SetDonorID(donorID).
-		SetAmountMl(amountML).
+		SetConditions(conditions).
 		SetStatus("pending").
-		Exec(ctx)
+		Save(ctx)
 }
 
 func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, id string) (*ent.DonorResponse, error) {

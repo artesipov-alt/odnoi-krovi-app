@@ -18,7 +18,7 @@ type DonorResponse struct {
 // Fields of the BloodSearchRequest.
 func (DonorResponse) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int32("amount_ml"),
+		field.JSON("conditions", []string{}).Optional(),
 		field.String("status"),
 	}
 }

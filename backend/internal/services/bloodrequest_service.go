@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
@@ -61,7 +60,7 @@ type BloodInfoRepository interface {
 
 // DonorResponseRepository определяет интерфейс для работы с откликами доноров
 type DonorResponseRepository interface {
-	CreateDonorResponse(ctx context.Context, reqID, donorID string, amountML int32) error
+	CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error)
 	GetDonorResponseByID(ctx context.Context, id string) (*ent.DonorResponse, error)
 	UpdateDonorResponseStatus(ctx context.Context, id, status string) error
 	DeleteDonorResponse(ctx context.Context, id string) error
@@ -115,27 +114,9 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 
 	bloodReq.Status = new(bloodsearchrequest.StatusActive)
 
-	var newReq *ent.BloodSearchRequest
-	err = s.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		entTx := ent.TxFromContext(txCtx)
-		if entTx == nil {
-			return apperrors.Internal(nil, "ent.TxFromContext returned nil")
-		}
-
-		newReq, err = s.bloodRepo.Create(txCtx, bloodReq)
-		if err != nil {
-			return apperrors.Internal(err, "failed to create blood request")
-		}
-
-		// err = s.petRepo.UpdateStatus(txCtx, bloodReq.PetID, "recipient")
-		// if err != nil {
-		// 	return apperrors.Internal(err, "failed to update pet status")
-		// }
-		return nil
-	})
-
+	newReq, err := s.bloodRepo.Create(ctx, bloodReq)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.Internal(err, "failed to create blood request")
 	}
 
 	newReq.PhotoUrls = s.BuildFullPhotoURLs(newReq.PhotoUrls, newReq.UpdatedAt)
@@ -169,51 +150,42 @@ func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string
 	return req, nil
 }
 
-func (s *BloodSearchService) ApplyForBloodRequest(ctx context.Context, reqID, donorID string, amountML int32) error {
+func (s *BloodSearchService) ApplyForBloodRequest(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error) {
 	// Проверяем существование и статус заявки
 	req, err := s.bloodRepo.GetByID(ctx, reqID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if req.Status != bloodsearchrequest.StatusActive {
-		return apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
+		return nil, apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
 	}
 
 	// Проверяем существование донора
 	donorExists, err := s.petRepo.ExistsByID(ctx, donorID)
 	if err != nil {
-		return apperrors.Internal(err, "failed to check donor existence")
+		return nil, apperrors.Internal(err, "failed to check donor existence")
 	}
 	if !donorExists {
-		return apperrors.ErrPetNotFound
-	}
-
-	// Проверяем статус донора
-	donor, err := s.petRepo.GetPet(ctx, donorID, PetPreloadOptions{})
-	if err != nil {
-		return err
-	}
-	if len(donor.DonorRestrictions) > 0 {
-		for _, restriction := range donor.DonorRestrictions {
-			if strings.HasPrefix(restriction, "STOP") {
-				return apperrors.ErrInvalidPetStatus.WithMessage("pet is not a donor")
-			}
-		}
+		return nil, apperrors.ErrPetNotFound
 	}
 
 	// Проверяем, нет ли уже отклика от этого донора на эту заявку
 	responses, err := s.donorRepo.GetDonorResponsesByDonorID(ctx, donorID)
 	if err != nil {
-		return apperrors.Internal(err, "failed to check existing responses")
+		return nil, apperrors.Internal(err, "failed to check existing responses")
 	}
 	for _, resp := range responses {
 		if resp.Edges.Request.ID == reqID {
-			return apperrors.ErrDonorResponseAlreadyExists
+			return nil, apperrors.ErrDonorResponseAlreadyExists
 		}
 	}
 
-	// Создаем отклик
-	return s.donorRepo.CreateDonorResponse(ctx, reqID, donorID, amountML)
+	resp, err := s.donorRepo.CreateDonorResponse(ctx, reqID, donorID, conditions)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 // UpdateRequest обновляет информацию о заявке

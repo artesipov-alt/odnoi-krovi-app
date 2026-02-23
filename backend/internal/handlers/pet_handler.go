@@ -80,15 +80,15 @@ func (h *PetHandler) Register(api huma.API) {
 	}, h.DeletePet)
 
 	// Валидация донора по ID (изменено на POST)
-	// huma.Register(api, huma.Operation{
-	// 	OperationID:   "validate-donor",
-	// 	Method:        http.MethodPost,
-	// 	Path:          "/v1/pet/validate-donor/{id}",
-	// 	Summary:       "Валидация донора по ID",
-	// 	Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
-	// 	Tags:          []string{"pets-v1"},
-	// 	DefaultStatus: http.StatusOK,
-	// }, h.ValidateDonor)
+	huma.Register(api, huma.Operation{
+		OperationID:   "validate-donor",
+		Method:        http.MethodPut,
+		Path:          "/v1/pet/validate-donor/{id}",
+		Summary:       "Валидация донора по ID",
+		Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
+		Tags:          []string{"pets-v1"},
+		DefaultStatus: http.StatusOK,
+	}, h.ValidateDonor)
 
 }
 
@@ -180,6 +180,15 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.
 	resp := &dto.MessageResponse{}
 	resp.Body.Message = "Питомец удален"
 	return resp, nil
+}
+
+func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
+	pet, err := h.petService.RevalidateDonor(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.PetResponse{Body: ToDTO(*pet)}, nil
 }
 
 // toPetsDTO преобразует слайс ENT питомцев в слайс DTO

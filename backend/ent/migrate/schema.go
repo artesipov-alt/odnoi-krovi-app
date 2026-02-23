@@ -83,7 +83,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "amount_ml", Type: field.TypeInt32},
+		{Name: "conditions", Type: field.TypeJSON, Nullable: true},
 		{Name: "status", Type: field.TypeString},
 		{Name: "blood_search_request_responses", Type: field.TypeString},
 		{Name: "donor_response_donor", Type: field.TypeString},

@@ -2859,23 +2859,23 @@ func (m *BreedMutation) ResetEdge(name string) error {
 // DonorResponseMutation represents an operation that mutates the DonorResponse nodes in the graph.
 type DonorResponseMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *string
-	created_at     *time.Time
-	updated_at     *time.Time
-	deleted_at     *time.Time
-	amount_ml      *int32
-	addamount_ml   *int32
-	status         *string
-	clearedFields  map[string]struct{}
-	request        *string
-	clearedrequest bool
-	donor          *string
-	cleareddonor   bool
-	done           bool
-	oldValue       func(context.Context) (*DonorResponse, error)
-	predicates     []predicate.DonorResponse
+	op               Op
+	typ              string
+	id               *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *time.Time
+	conditions       *[]string
+	appendconditions []string
+	status           *string
+	clearedFields    map[string]struct{}
+	request          *string
+	clearedrequest   bool
+	donor            *string
+	cleareddonor     bool
+	done             bool
+	oldValue         func(context.Context) (*DonorResponse, error)
+	predicates       []predicate.DonorResponse
 }
 
 var _ ent.Mutation = (*DonorResponseMutation)(nil)
@@ -3103,60 +3103,69 @@ func (m *DonorResponseMutation) ResetDeletedAt() {
 	delete(m.clearedFields, donorresponse.FieldDeletedAt)
 }
 
-// SetAmountMl sets the "amount_ml" field.
-func (m *DonorResponseMutation) SetAmountMl(i int32) {
-	m.amount_ml = &i
-	m.addamount_ml = nil
+// SetConditions sets the "conditions" field.
+func (m *DonorResponseMutation) SetConditions(s []string) {
+	m.conditions = &s
+	m.appendconditions = nil
 }
 
-// AmountMl returns the value of the "amount_ml" field in the mutation.
-func (m *DonorResponseMutation) AmountMl() (r int32, exists bool) {
-	v := m.amount_ml
+// Conditions returns the value of the "conditions" field in the mutation.
+func (m *DonorResponseMutation) Conditions() (r []string, exists bool) {
+	v := m.conditions
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldAmountMl returns the old "amount_ml" field's value of the DonorResponse entity.
+// OldConditions returns the old "conditions" field's value of the DonorResponse entity.
 // If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DonorResponseMutation) OldAmountMl(ctx context.Context) (v int32, err error) {
+func (m *DonorResponseMutation) OldConditions(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAmountMl is only allowed on UpdateOne operations")
+		return v, errors.New("OldConditions is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAmountMl requires an ID field in the mutation")
+		return v, errors.New("OldConditions requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAmountMl: %w", err)
+		return v, fmt.Errorf("querying old value for OldConditions: %w", err)
 	}
-	return oldValue.AmountMl, nil
+	return oldValue.Conditions, nil
 }
 
-// AddAmountMl adds i to the "amount_ml" field.
-func (m *DonorResponseMutation) AddAmountMl(i int32) {
-	if m.addamount_ml != nil {
-		*m.addamount_ml += i
-	} else {
-		m.addamount_ml = &i
-	}
+// AppendConditions adds s to the "conditions" field.
+func (m *DonorResponseMutation) AppendConditions(s []string) {
+	m.appendconditions = append(m.appendconditions, s...)
 }
 
-// AddedAmountMl returns the value that was added to the "amount_ml" field in this mutation.
-func (m *DonorResponseMutation) AddedAmountMl() (r int32, exists bool) {
-	v := m.addamount_ml
-	if v == nil {
-		return
+// AppendedConditions returns the list of values that were appended to the "conditions" field in this mutation.
+func (m *DonorResponseMutation) AppendedConditions() ([]string, bool) {
+	if len(m.appendconditions) == 0 {
+		return nil, false
 	}
-	return *v, true
+	return m.appendconditions, true
 }
 
-// ResetAmountMl resets all changes to the "amount_ml" field.
-func (m *DonorResponseMutation) ResetAmountMl() {
-	m.amount_ml = nil
-	m.addamount_ml = nil
+// ClearConditions clears the value of the "conditions" field.
+func (m *DonorResponseMutation) ClearConditions() {
+	m.conditions = nil
+	m.appendconditions = nil
+	m.clearedFields[donorresponse.FieldConditions] = struct{}{}
+}
+
+// ConditionsCleared returns if the "conditions" field was cleared in this mutation.
+func (m *DonorResponseMutation) ConditionsCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldConditions]
+	return ok
+}
+
+// ResetConditions resets all changes to the "conditions" field.
+func (m *DonorResponseMutation) ResetConditions() {
+	m.conditions = nil
+	m.appendconditions = nil
+	delete(m.clearedFields, donorresponse.FieldConditions)
 }
 
 // SetStatus sets the "status" field.
@@ -3317,8 +3326,8 @@ func (m *DonorResponseMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, donorresponse.FieldDeletedAt)
 	}
-	if m.amount_ml != nil {
-		fields = append(fields, donorresponse.FieldAmountMl)
+	if m.conditions != nil {
+		fields = append(fields, donorresponse.FieldConditions)
 	}
 	if m.status != nil {
 		fields = append(fields, donorresponse.FieldStatus)
@@ -3337,8 +3346,8 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case donorresponse.FieldDeletedAt:
 		return m.DeletedAt()
-	case donorresponse.FieldAmountMl:
-		return m.AmountMl()
+	case donorresponse.FieldConditions:
+		return m.Conditions()
 	case donorresponse.FieldStatus:
 		return m.Status()
 	}
@@ -3356,8 +3365,8 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case donorresponse.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case donorresponse.FieldAmountMl:
-		return m.OldAmountMl(ctx)
+	case donorresponse.FieldConditions:
+		return m.OldConditions(ctx)
 	case donorresponse.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -3390,12 +3399,12 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeletedAt(v)
 		return nil
-	case donorresponse.FieldAmountMl:
-		v, ok := value.(int32)
+	case donorresponse.FieldConditions:
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetAmountMl(v)
+		m.SetConditions(v)
 		return nil
 	case donorresponse.FieldStatus:
 		v, ok := value.(string)
@@ -3411,21 +3420,13 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *DonorResponseMutation) AddedFields() []string {
-	var fields []string
-	if m.addamount_ml != nil {
-		fields = append(fields, donorresponse.FieldAmountMl)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *DonorResponseMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case donorresponse.FieldAmountMl:
-		return m.AddedAmountMl()
-	}
 	return nil, false
 }
 
@@ -3434,13 +3435,6 @@ func (m *DonorResponseMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *DonorResponseMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case donorresponse.FieldAmountMl:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddAmountMl(v)
-		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse numeric field %s", name)
 }
@@ -3451,6 +3445,9 @@ func (m *DonorResponseMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(donorresponse.FieldDeletedAt) {
 		fields = append(fields, donorresponse.FieldDeletedAt)
+	}
+	if m.FieldCleared(donorresponse.FieldConditions) {
+		fields = append(fields, donorresponse.FieldConditions)
 	}
 	return fields
 }
@@ -3469,6 +3466,9 @@ func (m *DonorResponseMutation) ClearField(name string) error {
 	case donorresponse.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
+	case donorresponse.FieldConditions:
+		m.ClearConditions()
+		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse nullable field %s", name)
 }
@@ -3486,8 +3486,8 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 	case donorresponse.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
-	case donorresponse.FieldAmountMl:
-		m.ResetAmountMl()
+	case donorresponse.FieldConditions:
+		m.ResetConditions()
 		return nil
 	case donorresponse.FieldStatus:
 		m.ResetStatus()

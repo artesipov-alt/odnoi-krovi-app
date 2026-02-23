@@ -132,14 +132,26 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 	if err != nil {
 		return nil, err
 	}
+	bloodReq, err := s.bloodReqRepo.GetByPetID(ctx, petID)
+	if err != nil {
+		return nil, err
+	}
 
 	pet.PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt)
 
-	// Set status based on stored DonorRestrictions
-	if len(pet.DonorRestrictions) > 0 {
-		pet.PetStatus = domain.PetStatusNone
+	// Set status based on blood request and stored DonorRestrictions
+	if bloodReq != nil {
+		if len(bloodReq.Edges.Responses) > 0 {
+			pet.PetStatus = domain.PetStatusBloodFound
+		} else {
+			pet.PetStatus = domain.PetStatusRecipient
+		}
 	} else {
-		pet.PetStatus = domain.PetStatusDonor
+		if len(pet.DonorRestrictions) > 0 {
+			pet.PetStatus = domain.PetStatusNone
+		} else {
+			pet.PetStatus = domain.PetStatusDonor
+		}
 	}
 
 	return pet, nil
@@ -163,15 +175,55 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 	for i := range pets {
 		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pets[i].PhotoURLs, *pets[i].UpdatedAt)
 
-		// Set status based on stored DonorRestrictions
-		if len(pets[i].DonorRestrictions) > 0 {
-			pets[i].PetStatus = domain.PetStatusNone
+		bloodReq, err := s.bloodReqRepo.GetByPetID(ctx, pets[i].ID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set status based on blood request and stored DonorRestrictions
+		if bloodReq != nil {
+			if len(bloodReq.Edges.Responses) > 0 {
+				pets[i].PetStatus = domain.PetStatusBloodFound
+			} else {
+				pets[i].PetStatus = domain.PetStatusRecipient
+			}
 		} else {
-			pets[i].PetStatus = domain.PetStatusDonor
+			if len(pets[i].DonorRestrictions) > 0 {
+				pets[i].PetStatus = domain.PetStatusNone
+			} else {
+				pets[i].PetStatus = domain.PetStatusDonor
+			}
 		}
 	}
 
 	return pets, nil
+}
+
+func (s *PetService) RevalidateDonor(ctx context.Context, petID string) (*domain.Pet, error) {
+	pet, err := s.petRepo.GetPet(ctx, petID, PetPreloadOptions{
+		WithAll: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	stopFactors := pet.GetStopFactors(time.Now())
+	warnFactors := pet.GetWarnFactors(time.Now())
+	allFactors := append(stopFactors, warnFactors...)
+
+	// Create a new empty pet structure to update only DonorRestrictions
+	updatePet := &domain.Pet{}
+	updatePet.DonorRestrictions = make([]string, len(allFactors))
+	for i, f := range allFactors {
+		updatePet.DonorRestrictions[i] = string(f)
+	}
+
+	updatedPet, err := s.petRepo.Update(ctx, petID, updatePet)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedPet, nil
 }
 
 // Update обновляет питомца и его связанные сущности

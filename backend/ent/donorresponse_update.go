@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
@@ -56,24 +57,21 @@ func (_u *DonorResponseUpdate) ClearDeletedAt() *DonorResponseUpdate {
 	return _u
 }
 
-// SetAmountMl sets the "amount_ml" field.
-func (_u *DonorResponseUpdate) SetAmountMl(v int32) *DonorResponseUpdate {
-	_u.mutation.ResetAmountMl()
-	_u.mutation.SetAmountMl(v)
+// SetConditions sets the "conditions" field.
+func (_u *DonorResponseUpdate) SetConditions(v []string) *DonorResponseUpdate {
+	_u.mutation.SetConditions(v)
 	return _u
 }
 
-// SetNillableAmountMl sets the "amount_ml" field if the given value is not nil.
-func (_u *DonorResponseUpdate) SetNillableAmountMl(v *int32) *DonorResponseUpdate {
-	if v != nil {
-		_u.SetAmountMl(*v)
-	}
+// AppendConditions appends value to the "conditions" field.
+func (_u *DonorResponseUpdate) AppendConditions(v []string) *DonorResponseUpdate {
+	_u.mutation.AppendConditions(v)
 	return _u
 }
 
-// AddAmountMl adds value to the "amount_ml" field.
-func (_u *DonorResponseUpdate) AddAmountMl(v int32) *DonorResponseUpdate {
-	_u.mutation.AddAmountMl(v)
+// ClearConditions clears the value of the "conditions" field.
+func (_u *DonorResponseUpdate) ClearConditions() *DonorResponseUpdate {
+	_u.mutation.ClearConditions()
 	return _u
 }
 
@@ -198,11 +196,16 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(donorresponse.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.AmountMl(); ok {
-		_spec.SetField(donorresponse.FieldAmountMl, field.TypeInt32, value)
+	if value, ok := _u.mutation.Conditions(); ok {
+		_spec.SetField(donorresponse.FieldConditions, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.AddedAmountMl(); ok {
-		_spec.AddField(donorresponse.FieldAmountMl, field.TypeInt32, value)
+	if value, ok := _u.mutation.AppendedConditions(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, donorresponse.FieldConditions, value)
+		})
+	}
+	if _u.mutation.ConditionsCleared() {
+		_spec.ClearField(donorresponse.FieldConditions, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
@@ -311,24 +314,21 @@ func (_u *DonorResponseUpdateOne) ClearDeletedAt() *DonorResponseUpdateOne {
 	return _u
 }
 
-// SetAmountMl sets the "amount_ml" field.
-func (_u *DonorResponseUpdateOne) SetAmountMl(v int32) *DonorResponseUpdateOne {
-	_u.mutation.ResetAmountMl()
-	_u.mutation.SetAmountMl(v)
+// SetConditions sets the "conditions" field.
+func (_u *DonorResponseUpdateOne) SetConditions(v []string) *DonorResponseUpdateOne {
+	_u.mutation.SetConditions(v)
 	return _u
 }
 
-// SetNillableAmountMl sets the "amount_ml" field if the given value is not nil.
-func (_u *DonorResponseUpdateOne) SetNillableAmountMl(v *int32) *DonorResponseUpdateOne {
-	if v != nil {
-		_u.SetAmountMl(*v)
-	}
+// AppendConditions appends value to the "conditions" field.
+func (_u *DonorResponseUpdateOne) AppendConditions(v []string) *DonorResponseUpdateOne {
+	_u.mutation.AppendConditions(v)
 	return _u
 }
 
-// AddAmountMl adds value to the "amount_ml" field.
-func (_u *DonorResponseUpdateOne) AddAmountMl(v int32) *DonorResponseUpdateOne {
-	_u.mutation.AddAmountMl(v)
+// ClearConditions clears the value of the "conditions" field.
+func (_u *DonorResponseUpdateOne) ClearConditions() *DonorResponseUpdateOne {
+	_u.mutation.ClearConditions()
 	return _u
 }
 
@@ -483,11 +483,16 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(donorresponse.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.AmountMl(); ok {
-		_spec.SetField(donorresponse.FieldAmountMl, field.TypeInt32, value)
+	if value, ok := _u.mutation.Conditions(); ok {
+		_spec.SetField(donorresponse.FieldConditions, field.TypeJSON, value)
 	}
-	if value, ok := _u.mutation.AddedAmountMl(); ok {
-		_spec.AddField(donorresponse.FieldAmountMl, field.TypeInt32, value)
+	if value, ok := _u.mutation.AppendedConditions(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, donorresponse.FieldConditions, value)
+		})
+	}
+	if _u.mutation.ConditionsCleared() {
+		_spec.ClearField(donorresponse.FieldConditions, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)

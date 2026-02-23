@@ -21,8 +21,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldAmountMl holds the string denoting the amount_ml field in the database.
-	FieldAmountMl = "amount_ml"
+	// FieldConditions holds the string denoting the conditions field in the database.
+	FieldConditions = "conditions"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeRequest holds the string denoting the request edge name in mutations.
@@ -53,7 +53,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldAmountMl,
+	FieldConditions,
 	FieldStatus,
 }
 
@@ -117,11 +117,6 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
-}
-
-// ByAmountMl orders the results by the amount_ml field.
-func ByAmountMl(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAmountMl, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

@@ -1270,16 +1270,6 @@ type DonorResponseWhereInput struct {
 	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
 	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
-	// "amount_ml" field predicates.
-	AmountMl      *int32  `json:"amountMl,omitempty"`
-	AmountMlNEQ   *int32  `json:"amountMlNEQ,omitempty"`
-	AmountMlIn    []int32 `json:"amountMlIn,omitempty"`
-	AmountMlNotIn []int32 `json:"amountMlNotIn,omitempty"`
-	AmountMlGT    *int32  `json:"amountMlGT,omitempty"`
-	AmountMlGTE   *int32  `json:"amountMlGTE,omitempty"`
-	AmountMlLT    *int32  `json:"amountMlLT,omitempty"`
-	AmountMlLTE   *int32  `json:"amountMlLTE,omitempty"`
-
 	// "status" field predicates.
 	Status             *string  `json:"status,omitempty"`
 	StatusNEQ          *string  `json:"statusNEQ,omitempty"`
@@ -1482,30 +1472,6 @@ func (i *DonorResponseWhereInput) P() (predicate.DonorResponse, error) {
 	}
 	if i.DeletedAtNotNil {
 		predicates = append(predicates, donorresponse.DeletedAtNotNil())
-	}
-	if i.AmountMl != nil {
-		predicates = append(predicates, donorresponse.AmountMlEQ(*i.AmountMl))
-	}
-	if i.AmountMlNEQ != nil {
-		predicates = append(predicates, donorresponse.AmountMlNEQ(*i.AmountMlNEQ))
-	}
-	if len(i.AmountMlIn) > 0 {
-		predicates = append(predicates, donorresponse.AmountMlIn(i.AmountMlIn...))
-	}
-	if len(i.AmountMlNotIn) > 0 {
-		predicates = append(predicates, donorresponse.AmountMlNotIn(i.AmountMlNotIn...))
-	}
-	if i.AmountMlGT != nil {
-		predicates = append(predicates, donorresponse.AmountMlGT(*i.AmountMlGT))
-	}
-	if i.AmountMlGTE != nil {
-		predicates = append(predicates, donorresponse.AmountMlGTE(*i.AmountMlGTE))
-	}
-	if i.AmountMlLT != nil {
-		predicates = append(predicates, donorresponse.AmountMlLT(*i.AmountMlLT))
-	}
-	if i.AmountMlLTE != nil {
-		predicates = append(predicates, donorresponse.AmountMlLTE(*i.AmountMlLTE))
 	}
 	if i.Status != nil {
 		predicates = append(predicates, donorresponse.StatusEQ(*i.Status))

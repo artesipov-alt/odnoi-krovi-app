@@ -211,13 +211,13 @@ func (c *BloodSearchRequestUpdateOne) SetInput(i UpdateBloodSearchRequestInput) 
 
 // CreateDonorResponseInput represents a mutation input for creating donorresponses.
 type CreateDonorResponseInput struct {
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
-	DeletedAt *time.Time
-	AmountMl  int32
-	Status    string
-	RequestID string
-	DonorID   string
+	CreatedAt  *time.Time
+	UpdatedAt  *time.Time
+	DeletedAt  *time.Time
+	Conditions []string
+	Status     string
+	RequestID  string
+	DonorID    string
 }
 
 // Mutate applies the CreateDonorResponseInput on the DonorResponseMutation builder.
@@ -231,7 +231,9 @@ func (i *CreateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	if v := i.DeletedAt; v != nil {
 		m.SetDeletedAt(*v)
 	}
-	m.SetAmountMl(i.AmountMl)
+	if v := i.Conditions; v != nil {
+		m.SetConditions(v)
+	}
 	m.SetStatus(i.Status)
 	m.SetRequestID(i.RequestID)
 	m.SetDonorID(i.DonorID)
@@ -245,13 +247,15 @@ func (c *DonorResponseCreate) SetInput(i CreateDonorResponseInput) *DonorRespons
 
 // UpdateDonorResponseInput represents a mutation input for updating donorresponses.
 type UpdateDonorResponseInput struct {
-	UpdatedAt      *time.Time
-	ClearDeletedAt bool
-	DeletedAt      *time.Time
-	AmountMl       *int32
-	Status         *string
-	RequestID      *string
-	DonorID        *string
+	UpdatedAt        *time.Time
+	ClearDeletedAt   bool
+	DeletedAt        *time.Time
+	ClearConditions  bool
+	Conditions       []string
+	AppendConditions []string
+	Status           *string
+	RequestID        *string
+	DonorID          *string
 }
 
 // Mutate applies the UpdateDonorResponseInput on the DonorResponseMutation builder.
@@ -265,8 +269,14 @@ func (i *UpdateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	if v := i.DeletedAt; v != nil {
 		m.SetDeletedAt(*v)
 	}
-	if v := i.AmountMl; v != nil {
-		m.SetAmountMl(*v)
+	if i.ClearConditions {
+		m.ClearConditions()
+	}
+	if v := i.Conditions; v != nil {
+		m.SetConditions(v)
+	}
+	if i.AppendConditions != nil {
+		m.AppendConditions(i.Conditions)
 	}
 	if v := i.Status; v != nil {
 		m.SetStatus(*v)

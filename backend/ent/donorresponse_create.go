@@ -64,9 +64,9 @@ func (_c *DonorResponseCreate) SetNillableDeletedAt(v *time.Time) *DonorResponse
 	return _c
 }
 
-// SetAmountMl sets the "amount_ml" field.
-func (_c *DonorResponseCreate) SetAmountMl(v int32) *DonorResponseCreate {
-	_c.mutation.SetAmountMl(v)
+// SetConditions sets the "conditions" field.
+func (_c *DonorResponseCreate) SetConditions(v []string) *DonorResponseCreate {
+	_c.mutation.SetConditions(v)
 	return _c
 }
 
@@ -169,9 +169,6 @@ func (_c *DonorResponseCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DonorResponse.updated_at"`)}
 	}
-	if _, ok := _c.mutation.AmountMl(); !ok {
-		return &ValidationError{Name: "amount_ml", err: errors.New(`ent: missing required field "DonorResponse.amount_ml"`)}
-	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DonorResponse.status"`)}
 	}
@@ -228,9 +225,9 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		_spec.SetField(donorresponse.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := _c.mutation.AmountMl(); ok {
-		_spec.SetField(donorresponse.FieldAmountMl, field.TypeInt32, value)
-		_node.AmountMl = value
+	if value, ok := _c.mutation.Conditions(); ok {
+		_spec.SetField(donorresponse.FieldConditions, field.TypeJSON, value)
+		_node.Conditions = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)

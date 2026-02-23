@@ -303,6 +303,9 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 	if petDomain.ReproductiveStatus != "" {
 		updater.SetReproductiveStatus(string(petDomain.ReproductiveStatus))
 	}
+	if petDomain.DonorRestrictions != nil {
+		updater.SetDonorRestrictions(petDomain.DonorRestrictions)
+	}
 	if petDomain.BreedRefID != nil {
 		updater.SetBreedRefID(*petDomain.BreedRefID)
 	}

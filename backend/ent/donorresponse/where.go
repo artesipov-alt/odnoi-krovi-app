@@ -80,11 +80,6 @@ func DeletedAt(v time.Time) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// AmountMl applies equality check predicate on the "amount_ml" field. It's identical to AmountMlEQ.
-func AmountMl(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldEQ(FieldAmountMl, v))
-}
-
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldStatus, v))
@@ -220,44 +215,14 @@ func DeletedAtNotNil() predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// AmountMlEQ applies the EQ predicate on the "amount_ml" field.
-func AmountMlEQ(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldEQ(FieldAmountMl, v))
+// ConditionsIsNil applies the IsNil predicate on the "conditions" field.
+func ConditionsIsNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIsNull(FieldConditions))
 }
 
-// AmountMlNEQ applies the NEQ predicate on the "amount_ml" field.
-func AmountMlNEQ(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldNEQ(FieldAmountMl, v))
-}
-
-// AmountMlIn applies the In predicate on the "amount_ml" field.
-func AmountMlIn(vs ...int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldIn(FieldAmountMl, vs...))
-}
-
-// AmountMlNotIn applies the NotIn predicate on the "amount_ml" field.
-func AmountMlNotIn(vs ...int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldNotIn(FieldAmountMl, vs...))
-}
-
-// AmountMlGT applies the GT predicate on the "amount_ml" field.
-func AmountMlGT(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldGT(FieldAmountMl, v))
-}
-
-// AmountMlGTE applies the GTE predicate on the "amount_ml" field.
-func AmountMlGTE(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldGTE(FieldAmountMl, v))
-}
-
-// AmountMlLT applies the LT predicate on the "amount_ml" field.
-func AmountMlLT(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldLT(FieldAmountMl, v))
-}
-
-// AmountMlLTE applies the LTE predicate on the "amount_ml" field.
-func AmountMlLTE(v int32) predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldLTE(FieldAmountMl, v))
+// ConditionsNotNil applies the NotNil predicate on the "conditions" field.
+func ConditionsNotNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotNull(FieldConditions))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

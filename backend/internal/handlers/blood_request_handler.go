@@ -4,52 +4,22 @@ import (
 	"context"
 	"log/slog" // Import slog
 	"net/http"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
 
-// BloodSearchService определяет интерфейс для бизнес-логики заявок на поиск крови
-type BloodSearchService interface {
-	// CreateRequest создает новую заявку на поиск крови
-	CreateRequest(ctx context.Context, bloodReq *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
-
-	// GetRequestByID получает заявку по её ID
-	GetRequestByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
-
-	// GetRequestByPetID получает активную заявку для конкретного питомца
-	GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
-
-	// UpdateRequest обновляет информацию о заявке
-	UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) error
-
-	// UpdateStatus обновляет статус заявки
-	UpdateStatus(ctx context.Context, id string, status string) error
-
-	// ExistsByID проверяет существование заявки по её ID
-	ExistsByID(ctx context.Context, id string) (bool, error)
-
-	// DeleteRequest удаляет заявку (soft delete)
-	DeleteRequest(ctx context.Context, id string) error
-
-	// ListRequests возвращает список заявок с фильтрацией
-	ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
-
-	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string
-}
-
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	svc BloodSearchService
+	svc services.BloodSearchService
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
-func NewBloodRequestHandler(service BloodSearchService) *BloodRequestHandler {
+func NewBloodRequestHandler(service services.BloodSearchService) *BloodRequestHandler {
 	return &BloodRequestHandler{
 		svc: service,
 	}
@@ -180,6 +150,27 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		PetID:  result.PetID,
 		Status: dto.BloodSearchRequestStatus(result.Status),
 	}}, nil
+}
+
+func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *struct {
+	dto.IDPathStr
+	Body dto.DonorApplicationCreate
+}) (*dto.DonorApplicationCreateResponse, error) {
+	slog.DebugContext(ctx, "applying for blood request", "request_id", input.IDPathStr.ID, "donor_id", input.Body.DonorID)
+
+	resp, err := h.svc.ApplyForBloodRequest(ctx, input.IDPathStr.ID, input.Body.DonorID, input.Body.Conditions)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.DonorApplicationCreateResponse{
+		Body: dto.DonorApplicationResponse{
+			ID:      resp.ID,
+			ReqID:   resp.Edges.Request.ID,
+			DonorID: resp.Edges.Donor.ID,
+			Status:  dto.DonorResponseStatus(resp.Status),
+		},
+	}, nil
 }
 
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {

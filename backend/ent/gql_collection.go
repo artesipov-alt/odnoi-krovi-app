@@ -479,10 +479,10 @@ func (_q *DonorResponseQuery) collectField(ctx context.Context, oneNode bool, op
 				selectedFields = append(selectedFields, donorresponse.FieldDeletedAt)
 				fieldSeen[donorresponse.FieldDeletedAt] = struct{}{}
 			}
-		case "amountMl":
-			if _, ok := fieldSeen[donorresponse.FieldAmountMl]; !ok {
-				selectedFields = append(selectedFields, donorresponse.FieldAmountMl)
-				fieldSeen[donorresponse.FieldAmountMl] = struct{}{}
+		case "conditions":
+			if _, ok := fieldSeen[donorresponse.FieldConditions]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldConditions)
+				fieldSeen[donorresponse.FieldConditions] = struct{}{}
 			}
 		case "status":
 			if _, ok := fieldSeen[donorresponse.FieldStatus]; !ok {

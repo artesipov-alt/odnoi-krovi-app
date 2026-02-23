@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -25,8 +26,8 @@ type DonorResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
-	// AmountMl holds the value of the "amount_ml" field.
-	AmountMl int32 `json:"amount_ml,omitempty"`
+	// Conditions holds the value of the "conditions" field.
+	Conditions []string `json:"conditions,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -77,8 +78,8 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case donorresponse.FieldAmountMl:
-			values[i] = new(sql.NullInt64)
+		case donorresponse.FieldConditions:
+			values[i] = new([]byte)
 		case donorresponse.FieldID, donorresponse.FieldStatus:
 			values[i] = new(sql.NullString)
 		case donorresponse.FieldCreatedAt, donorresponse.FieldUpdatedAt, donorresponse.FieldDeletedAt:
@@ -127,11 +128,13 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
-		case donorresponse.FieldAmountMl:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field amount_ml", values[i])
-			} else if value.Valid {
-				_m.AmountMl = int32(value.Int64)
+		case donorresponse.FieldConditions:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field conditions", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Conditions); err != nil {
+					return fmt.Errorf("unmarshal field conditions: %w", err)
+				}
 			}
 		case donorresponse.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -210,8 +213,8 @@ func (_m *DonorResponse) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("amount_ml=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AmountMl))
+	builder.WriteString("conditions=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Conditions))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

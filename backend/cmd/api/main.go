@@ -113,7 +113,7 @@ func main() {
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(*petService, bloodInfoRepo)
-		bloodRequestHandler := handlers.NewBloodRequestHandler(bloodSearchService)
+		bloodRequestHandler := handlers.NewBloodRequestHandler(*bloodSearchService)
 		fileHandler := handlers.NewFileHandler(fileService)
 
 		// Настройка Huma
