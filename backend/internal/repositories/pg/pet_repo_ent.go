@@ -276,11 +276,11 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 	if petDomain.ReproductiveStatus != "" {
 		updater.SetReproductiveStatus(string(petDomain.ReproductiveStatus))
 	}
-	if petDomain.BreedRefID != "" {
-		updater.SetBreedRefID(petDomain.BreedRefID)
+	if petDomain.BreedRefID != nil {
+		updater.SetBreedRefID(*petDomain.BreedRefID)
 	}
-	if petDomain.BloodGroupRefID != "" {
-		updater.SetBloodGroupRefID(petDomain.BloodGroupRefID)
+	if petDomain.BloodGroupRefID != nil {
+		updater.SetBloodGroupRefID(*petDomain.BloodGroupRefID)
 	}
 
 	updatedPetEntity, err := updater.Save(ctx)

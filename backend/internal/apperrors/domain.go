@@ -17,6 +17,7 @@ var (
 // Pet domain errors
 var (
 	ErrPetNotFound            = NotFound("питомец не найден")
+	ErrBreedNotFound          = NotFound("порода не найдена")
 	ErrPetNameRequired        = BadRequest("имя питомца обязательно")
 	ErrInvalidPetType         = BadRequest("неверный тип питомца")
 	ErrPetInvalidRole         = BadRequest("неверная роль пользователя")

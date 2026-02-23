@@ -71,8 +71,8 @@ type Pet struct {
 	ReproductiveStatus ReproductiveStatus
 	DonorRestrictions  []string
 	OwnerID            string
-	BreedRefID         string
-	BloodGroupRefID    string
+	BreedRefID         *string
+	BloodGroupRefID    *string
 	Health             *PetHealth
 	Treatments         *PetTreatment
 	Analyses           []*PetAnalysis

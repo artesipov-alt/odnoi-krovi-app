@@ -443,9 +443,12 @@ func (_q *BloodGroupQuery) loadPets(ctx context.Context, query *PetQuery, nodes 
 	}
 	for _, n := range neighbors {
 		fk := n.BloodGroupID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "blood_group_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "blood_group_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "blood_group_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

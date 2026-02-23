@@ -104,12 +104,12 @@ func (s *PetService) CreatePet(ctx context.Context, userID string, pet *domain.P
 	}
 
 	// Проверяем, существует ли группа крови, если указана
-	if pet.BloodGroupRefID != "" {
-		bg, err := s.blooInfoRepo.FindByName(ctx, pet.BloodGroupRefID)
+	if pet.BloodGroupRefID != nil {
+		bg, err := s.blooInfoRepo.FindByName(ctx, *pet.BloodGroupRefID)
 		if err != nil {
 			return nil, apperrors.Internal(err, "failed to check blood group existence")
 		}
-		pet.BloodGroupRefID = bg.ID
+		pet.BloodGroupRefID = &bg.ID
 	}
 
 	// Set the owner ID for the pet

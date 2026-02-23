@@ -1,51 +1,51 @@
 package enums
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 )
 
 // GetAllEntPetTypes возвращает все доступные типы животных из ENT
-// func GetAllEntPetTypes() []pet.Type {
-// 	return []pet.Type{pet.TypeDog, pet.TypeCat}
-// }
+func GetAllEntPetTypes() []domain.PetType {
+	return []domain.PetType{domain.PetTypeDog, domain.PetTypeCat}
+}
 
 // GetAllEntPetStatuses возвращает все доступные статусы питомцев из ENT
-// func GetAllEntPetStatuses() []pet.PetStatus {
-// 	return []pet.PetStatus{pet.PetStatusDonor, pet.PetStatusRecipient, pet.PetStatusNone}
-// }
+func GetAllEntPetStatuses() []domain.PetStatus {
+	return []domain.PetStatus{domain.PetStatusDonor, domain.PetStatusRecipient, domain.PetStatusNone}
+}
 
 // GetAllEntGenders возвращает все доступные значения пола из ENT
-// func GetAllEntGenders() []pet.Gender {
-// 	return []pet.Gender{pet.GenderMale, pet.GenderFemale}
-// }
+func GetAllEntGenders() []domain.Gender {
+	return []domain.Gender{domain.GenderMale, domain.GenderFemale}
+}
 
-// // GetAllEntLivingConditions возвращает все доступные условия проживания из ENT
-// func GetAllEntLivingConditions() []pet.LivingCondition {
-// 	return []pet.LivingCondition{
-// 		pet.LivingConditionIndoor,
-// 		pet.LivingConditionLeashWalking,
-// 		pet.LivingConditionSelfOutdoor,
-// 	}
-// }
-
-// GetAllEntHealthStatuses возвращает все доступные статусы здоровья из ENT
-func GetAllEntHealthStatuses() []pethealth.HealthStatus {
-	return []pethealth.HealthStatus{
-		pethealth.HealthStatusHealthy,
-		pethealth.HealthStatusIll,
-		pethealth.HealthStatusUnknown,
+// GetAllEntLivingConditions возвращает все доступные условия проживания из ENT
+func GetAllEntLivingConditions() []domain.LivingCondition {
+	return []domain.LivingCondition{
+		domain.LivingConditionIndoor,
+		domain.LivingConditionLeashWalking,
+		domain.LivingConditionSelfOutdoor,
 	}
 }
 
-// // GetAllEntReproductiveStatuses возвращает все доступные репродуктивные состояния из ENT
-// func GetAllEntReproductiveStatuses() []pet.ReproductiveStatus {
-// 	return []pet.ReproductiveStatus{
-// 		pet.ReproductiveStatusPregnancy,
-// 		pet.ReproductiveStatusLactation,
-// 		pet.ReproductiveStatusEstrus,
-// 	}
-// }
+// GetAllEntHealthStatuses возвращает все доступные статусы здоровья из ENT
+func GetAllEntHealthStatuses() []domain.HealthStatus {
+	return []domain.HealthStatus{
+		domain.HealthStatusHealthy,
+		domain.HealthStatusIll,
+		domain.HealthStatusUnknown,
+	}
+}
+
+// GetAllEntReproductiveStatuses возвращает все доступные репродуктивные состояния из ENT
+func GetAllEntReproductiveStatuses() []domain.ReproductiveStatus {
+	return []domain.ReproductiveStatus{
+		domain.ReproductiveStatusPregnancy,
+		domain.ReproductiveStatusLactation,
+		domain.ReproductiveStatusEstrus,
+	}
+}
 
 // GetAllEntUserRoles возвращает все доступные роли пользователей из ENT
 func GetAllEntUserRoles() []user.Role {
@@ -55,64 +55,64 @@ func GetAllEntUserRoles() []user.Role {
 	}
 }
 
-// // LocalizeEntPetType локализует тип животного из ENT
-// func LocalizeEntPetType(pt pet.Type) string {
-// 	switch pt {
-// 	case pet.TypeDog:
-// 		return "Собака"
-// 	case pet.TypeCat:
-// 		return "Кошка"
-// 	default:
-// 		return string(pt)
-// 	}
-// }
+// LocalizeEntPetType локализует тип животного из ENT
+func LocalizeEntPetType(pt domain.PetType) string {
+	switch pt {
+	case domain.PetTypeDog:
+		return "Собака"
+	case domain.PetTypeCat:
+		return "Кошка"
+	default:
+		return string(pt)
+	}
+}
 
 // LocalizeEntPetStatus локализует статус питомца из ENT
-// func LocalizeEntPetStatus(ps pet.PetStatus) string {
-// 	switch ps {
-// 	case pet.PetStatusDonor:
-// 		return "Донор"
-// 	case pet.PetStatusRecipient:
-// 		return "Реципиент"
-// 	default:
-// 		return string(ps)
-// 	}
-// }
+func LocalizeEntPetStatus(ps domain.PetStatus) string {
+	switch ps {
+	case domain.PetStatusDonor:
+		return "Донор"
+	case domain.PetStatusRecipient:
+		return "Реципиент"
+	default:
+		return string(ps)
+	}
+}
 
-// // LocalizeEntGender локализует пол животного из ENT
-// func LocalizeEntGender(g pet.Gender) string {
-// 	switch g {
-// 	case pet.GenderMale:
-// 		return "Самец"
-// 	case pet.GenderFemale:
-// 		return "Самка"
-// 	default:
-// 		return string(g)
-// 	}
-// }
+// LocalizeEntGender локализует пол животного из ENT
+func LocalizeEntGender(g domain.Gender) string {
+	switch g {
+	case domain.GenderMale:
+		return "Самец"
+	case domain.GenderFemale:
+		return "Самка"
+	default:
+		return string(g)
+	}
+}
 
-// // LocalizeEntLivingCondition локализует условие проживания из ENT
-// func LocalizeEntLivingCondition(lc pet.LivingCondition) string {
-// 	switch lc {
-// 	case pet.LivingConditionIndoor:
-// 		return "Домашний"
-// 	case pet.LivingConditionLeashWalking:
-// 		return "Выгул на шлейке"
-// 	case pet.LivingConditionSelfOutdoor:
-// 		return "Самовыгул"
-// 	default:
-// 		return string(lc)
-// 	}
-// }
+// LocalizeEntLivingCondition локализует условие проживания из ENT
+func LocalizeEntLivingCondition(lc domain.LivingCondition) string {
+	switch lc {
+	case domain.LivingConditionIndoor:
+		return "Домашний"
+	case domain.LivingConditionLeashWalking:
+		return "Выгул на шлейке"
+	case domain.LivingConditionSelfOutdoor:
+		return "Самовыгул"
+	default:
+		return string(lc)
+	}
+}
 
 // LocalizeEntHealthStatus локализует состояние здоровья из ENT
-func LocalizeEntHealthStatus(hs pethealth.HealthStatus) string {
+func LocalizeEntHealthStatus(hs domain.HealthStatus) string {
 	switch hs {
-	case pethealth.HealthStatusHealthy:
+	case domain.HealthStatusHealthy:
 		return "Здоров"
-	case pethealth.HealthStatusIll:
+	case domain.HealthStatusIll:
 		return "Есть заболевания"
-	case pethealth.HealthStatusUnknown:
+	case domain.HealthStatusUnknown:
 		return "Неизвестно"
 	default:
 		return string(hs)
@@ -131,16 +131,16 @@ func LocalizeEntUserRole(r user.Role) string {
 	}
 }
 
-// // LocalizeEntReproductiveStatus локализует физиологическое состояние из ENT
-// func LocalizeEntReproductiveStatus(rs pet.ReproductiveStatus) string {
-// 	switch rs {
-// 	case pet.ReproductiveStatusPregnancy:
-// 		return "Беременность"
-// 	case pet.ReproductiveStatusLactation:
-// 		return "Лактация"
-// 	case pet.ReproductiveStatusEstrus:
-// 		return "Течка"
-// 	default:
-// 		return string(rs)
-// 	}
-// }
+// LocalizeEntReproductiveStatus локализует физиологическое состояние из ENT
+func LocalizeEntReproductiveStatus(rs domain.ReproductiveStatus) string {
+	switch rs {
+	case domain.ReproductiveStatusPregnancy:
+		return "Беременность"
+	case domain.ReproductiveStatusLactation:
+		return "Лактация"
+	case domain.ReproductiveStatusEstrus:
+		return "Течка"
+	default:
+		return string(rs)
+	}
+}

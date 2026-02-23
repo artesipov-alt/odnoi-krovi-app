@@ -45,7 +45,7 @@ type Pet struct {
 	// PhotoUrls holds the value of the "photo_urls" field.
 	PhotoUrls []string `json:"photo_urls,omitempty"`
 	// BreedID holds the value of the "breed_id" field.
-	BreedID string `json:"breed_id,omitempty"`
+	BreedID *string `json:"breed_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"user_id,omitempty"`
 	// HealthID holds the value of the "health_id" field.
@@ -59,7 +59,7 @@ type Pet struct {
 	// DonorRestrictions holds the value of the "donor_restrictions" field.
 	DonorRestrictions []string `json:"donor_restrictions,omitempty"`
 	// BloodGroupID holds the value of the "blood_group_id" field.
-	BloodGroupID string `json:"blood_group_id,omitempty"`
+	BloodGroupID *string `json:"blood_group_id,omitempty"`
 	// Bonuses holds the value of the "bonuses" field.
 	Bonuses []string `json:"bonuses,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -282,7 +282,8 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field breed_id", values[i])
 			} else if value.Valid {
-				_m.BreedID = value.String
+				_m.BreedID = new(string)
+				*_m.BreedID = value.String
 			}
 		case pet.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -326,7 +327,8 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field blood_group_id", values[i])
 			} else if value.Valid {
-				_m.BloodGroupID = value.String
+				_m.BloodGroupID = new(string)
+				*_m.BloodGroupID = value.String
 			}
 		case pet.FieldBonuses:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -446,8 +448,10 @@ func (_m *Pet) String() string {
 	builder.WriteString("photo_urls=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PhotoUrls))
 	builder.WriteString(", ")
-	builder.WriteString("breed_id=")
-	builder.WriteString(_m.BreedID)
+	if v := _m.BreedID; v != nil {
+		builder.WriteString("breed_id=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(_m.UserID)
@@ -467,8 +471,10 @@ func (_m *Pet) String() string {
 	builder.WriteString("donor_restrictions=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DonorRestrictions))
 	builder.WriteString(", ")
-	builder.WriteString("blood_group_id=")
-	builder.WriteString(_m.BloodGroupID)
+	if v := _m.BloodGroupID; v != nil {
+		builder.WriteString("blood_group_id=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("bonuses=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Bonuses))

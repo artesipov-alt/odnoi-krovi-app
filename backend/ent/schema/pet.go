@@ -32,14 +32,14 @@ func (Pet) Fields() []ent.Field {
 		field.Time("birth_date").Optional().Nillable(),
 		field.String("chip_number").Optional().MaxLen(15),
 		field.JSON("photo_urls", []string{}).Optional(),
-		field.String("breed_id").Optional(),
+		field.String("breed_id").Optional().Nillable(),
 		field.String("user_id").Optional(),
 		field.String("health_id").Optional(),
 		field.String("treatment_id").Optional(),
 		field.String("living_condition").Optional(),
 		field.String("reproductive_status").Optional(),
 		field.JSON("donor_restrictions", []string{}).Optional(),
-		field.String("blood_group_id").Optional(),
+		field.String("blood_group_id").Optional().Nillable(),
 		field.JSON("bonuses", []string{}).Optional(),
 	}
 }

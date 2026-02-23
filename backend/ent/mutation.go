@@ -4657,7 +4657,7 @@ func (m *PetMutation) BreedID() (r string, exists bool) {
 // OldBreedID returns the old "breed_id" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldBreedID(ctx context.Context) (v string, err error) {
+func (m *PetMutation) OldBreedID(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBreedID is only allowed on UpdateOne operations")
 	}
@@ -5016,7 +5016,7 @@ func (m *PetMutation) BloodGroupID() (r string, exists bool) {
 // OldBloodGroupID returns the old "blood_group_id" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldBloodGroupID(ctx context.Context) (v string, err error) {
+func (m *PetMutation) OldBloodGroupID(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBloodGroupID is only allowed on UpdateOne operations")
 	}

@@ -243,8 +243,12 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 		petDomain.Gender = domain.Gender(v.Gender)
 		petDomain.ChipNumber = v.ChipNumber
 		petDomain.LivingCondition = domain.LivingCondition(v.LivingCondition)
-		petDomain.BreedRefID = v.BreedID
-		petDomain.BloodGroupRefID = v.BloodGroup
+		if v.BreedID != "" {
+			petDomain.BreedRefID = &v.BreedID
+		}
+		if v.BloodGroup != "" {
+			petDomain.BloodGroupRefID = &v.BloodGroup
+		}
 
 		if v.BirthDate != nil {
 			petDomain.BirthDate = v.BirthDate
@@ -341,10 +345,10 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 			petDomain.LivingCondition = domain.LivingCondition(*v.LivingCondition)
 		}
 		if v.BreedID != nil {
-			petDomain.BreedRefID = *v.BreedID
+			petDomain.BreedRefID = v.BreedID
 		}
 		if v.BloodGroup != nil {
-			petDomain.BloodGroupRefID = *v.BloodGroup
+			petDomain.BloodGroupRefID = v.BloodGroup
 		}
 		if v.BirthDate != nil {
 			petDomain.BirthDate = v.BirthDate
@@ -430,17 +434,22 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 		Name:               petDomain.Name,
 		ChipNumber:         petDomain.ChipNumber,
 		PhotoURLs:          petDomain.PhotoURLs,
-		BreedID:            petDomain.BreedRefID,
 		WeightKg:           petDomain.WeightKg,
 		BirthDate:          petDomain.BirthDate,
 		LivingCondition:    string(petDomain.LivingCondition),
 		Gender:             string(petDomain.Gender),
 		Type:               string(petDomain.Type),
-		BloodGroup:         petDomain.BloodGroupRefID,
 		ReproductiveStatus: string(petDomain.ReproductiveStatus),
 		CreatedAt:          petDomain.CreatedAt,
 		UpdatedAt:          petDomain.UpdatedAt,
 		DeletedAt:          petDomain.DeletedAt,
+	}
+
+	if petDomain.BreedRefID != nil {
+		petDTO.BreedID = *petDomain.BreedRefID
+	}
+	if petDomain.BloodGroupRefID != nil {
+		petDTO.BloodGroup = *petDomain.BloodGroupRefID
 	}
 
 	if petDomain.Health != nil {

@@ -852,7 +852,10 @@ func (_q *PetQuery) loadBreedRef(ctx context.Context, query *BreedQuery, nodes [
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Pet)
 	for i := range nodes {
-		fk := nodes[i].BreedID
+		if nodes[i].BreedID == nil {
+			continue
+		}
+		fk := *nodes[i].BreedID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -881,7 +884,10 @@ func (_q *PetQuery) loadBloodGroupRef(ctx context.Context, query *BloodGroupQuer
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Pet)
 	for i := range nodes {
-		fk := nodes[i].BloodGroupID
+		if nodes[i].BloodGroupID == nil {
+			continue
+		}
+		fk := *nodes[i].BloodGroupID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
