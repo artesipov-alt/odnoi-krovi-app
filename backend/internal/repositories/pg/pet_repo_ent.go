@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
@@ -35,15 +36,25 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *domain.Pet) (*
 		return nil, errors.New("входные данные питомца не могут быть nil")
 	}
 
-	var petInput ent.CreatePetInput
-	if err := copier.Copy(&petInput, petDomain); err != nil {
-		return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
-	}
-
 	// Начать транзакцию
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("не удалось начать транзакцию: %w", err)
+	}
+
+	var petInput ent.CreatePetInput
+	if err := copier.Copy(&petInput, petDomain); err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
+	}
+
+	if petDomain.BloodGroupName != nil {
+		bg, err := tx.BloodGroup.Query().Where(bloodgroup.BloodGroupEQ(*petDomain.BloodGroupName)).Only(ctx)
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("не удалось найти группу крови: %w", err)
+		}
+		petInput.BloodGroupRefID = &bg.ID
 	}
 
 	// 1. Создать питомца
@@ -157,7 +168,14 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.
 		return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
 	}
 
-	// Явно копируем связанные сущности из Edges
+	if entPet.Edges.BloodGroupRef != nil {
+		result.BloodGroupName = &entPet.Edges.BloodGroupRef.BloodGroup
+	}
+
+	if entPet.Edges.BreedRef != nil {
+		result.BreedRefID = &entPet.Edges.BreedRef.ID
+	}
+
 	if entPet.Edges.Health != nil {
 		result.Health = &domain.PetHealth{
 			HealthStatus:          domain.HealthStatus(entPet.Edges.Health.HealthStatus),
@@ -212,7 +230,15 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 		if err := copier.Copy(&petDomain, p); err != nil {
 			return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
 		}
-		// Копируем связанные сущности из Edges
+
+		if p.Edges.BloodGroupRef != nil {
+			petDomain.BloodGroupName = &p.Edges.BloodGroupRef.BloodGroup
+		}
+
+		if p.Edges.BreedRef != nil {
+			petDomain.BreedRefID = &p.Edges.BreedRef.ID
+		}
+
 		if p.Edges.Health != nil {
 			petDomain.Health = &domain.PetHealth{
 				HealthStatus:          domain.HealthStatus(p.Edges.Health.HealthStatus),
@@ -245,6 +271,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 		return nil, errors.New("неверный ID питомца")
 	}
 
+	// Начать транзакцию
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("не удалось начать транзакцию: %w", err)
@@ -279,8 +306,13 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 	if petDomain.BreedRefID != nil {
 		updater.SetBreedRefID(*petDomain.BreedRefID)
 	}
-	if petDomain.BloodGroupRefID != nil {
-		updater.SetBloodGroupRefID(*petDomain.BloodGroupRefID)
+	if petDomain.BloodGroupName != nil {
+		bg, err := tx.BloodGroup.Query().Where(bloodgroup.BloodGroupEQ(*petDomain.BloodGroupName)).Only(ctx)
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("blood group not found: %w", err)
+		}
+		updater.SetBloodGroupRefID(bg.ID)
 	}
 
 	updatedPetEntity, err := updater.Save(ctx)
@@ -511,17 +543,11 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 		return errors.New("неверный ID питомца")
 	}
 
-	// Получить текущие URL-адреса фотографий
-	p, err := r.client.Pet.Get(ctx, id)
-	if err != nil {
-		return fmt.Errorf("не удалось получить питомца для обновления фото: %w", err)
-	}
-
-	// Добавить новые пути
-	newPhotoUrls := append(p.PhotoUrls, paths...)
+	// Заменить URL-адреса фотографий на новые
+	newPhotoUrls := paths
 
 	// Обновить питомца
-	err = r.client.Pet.UpdateOneID(id).
+	err := r.client.Pet.UpdateOneID(id).
 		SetPhotoUrls(newPhotoUrls).
 		Exec(ctx)
 

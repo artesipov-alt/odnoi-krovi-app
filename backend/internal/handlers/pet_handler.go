@@ -247,7 +247,7 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 			petDomain.BreedRefID = &v.BreedID
 		}
 		if v.BloodGroup != "" {
-			petDomain.BloodGroupRefID = &v.BloodGroup
+			petDomain.BloodGroupName = &v.BloodGroup
 		}
 
 		if v.BirthDate != nil {
@@ -295,35 +295,35 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 				treatmentDomain.DewormingDate = v.Treatments.DewormingDate
 			}
 			petDomain.Treatments = treatmentDomain
+		}
 
-			// Handle PetAnalysis
-			var analysesDomain []*domain.PetAnalysis
-			if v.Analyses != nil {
-				processGroup := func(group []*dto.PetAnalysis, name string) {
-					for _, a := range group {
-						if a != nil && a.AnalysisDate != nil {
-							analysis := &domain.PetAnalysis{
-								AnalysisName: name,
-								AnalysisDate: a.AnalysisDate,
-							}
-							if a.AnalysisType != nil {
-								analysis.AnalysisType = *a.AnalysisType
-							}
-							analysesDomain = append(analysesDomain, analysis)
+		// Handle PetAnalysis
+		analysesDomain := []*domain.PetAnalysis{}
+		if v.Analyses != nil {
+			processGroup := func(group []*dto.PetAnalysis, name string) {
+				for _, a := range group {
+					if a != nil && a.AnalysisDate != nil {
+						analysis := &domain.PetAnalysis{
+							AnalysisName: name,
+							AnalysisDate: a.AnalysisDate,
 						}
+						if a.AnalysisType != nil {
+							analysis.AnalysisType = *a.AnalysisType
+						}
+						analysesDomain = append(analysesDomain, analysis)
 					}
 				}
-
-				processGroup(v.Analyses.Leukemia, "leukemia")
-				processGroup(v.Analyses.Immunodeficiency, "immunodeficiency")
-				processGroup(v.Analyses.Hemoplasmosis, "hemoplasmosis")
-				processGroup(v.Analyses.Bartonellosis, "bartonellosis")
-				processGroup(v.Analyses.Babesiosis, "babesiosis")
-				processGroup(v.Analyses.Dirofilaria, "dirofilaria")
-				processGroup(v.Analyses.Ehrlichiosis, "ehrlichiosis")
-				processGroup(v.Analyses.Anaplasmosis, "anaplasmosis")
-				petDomain.Analyses = analysesDomain
 			}
+
+			processGroup(v.Analyses.Leukemia, "leukemia")
+			processGroup(v.Analyses.Immunodeficiency, "immunodeficiency")
+			processGroup(v.Analyses.Hemoplasmosis, "hemoplasmosis")
+			processGroup(v.Analyses.Bartonellosis, "bartonellosis")
+			processGroup(v.Analyses.Babesiosis, "babesiosis")
+			processGroup(v.Analyses.Dirofilaria, "dirofilaria")
+			processGroup(v.Analyses.Ehrlichiosis, "ehrlichiosis")
+			processGroup(v.Analyses.Anaplasmosis, "anaplasmosis")
+			petDomain.Analyses = analysesDomain
 		}
 	case *dto.PetUpdate:
 		if v.Name != nil {
@@ -348,7 +348,7 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 			petDomain.BreedRefID = v.BreedID
 		}
 		if v.BloodGroup != nil {
-			petDomain.BloodGroupRefID = v.BloodGroup
+			petDomain.BloodGroupName = v.BloodGroup
 		}
 		if v.BirthDate != nil {
 			petDomain.BirthDate = v.BirthDate
@@ -394,35 +394,35 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 				treatmentDomain.DewormingDate = v.Treatments.DewormingDate
 			}
 			petDomain.Treatments = treatmentDomain
+		}
 
-			// Handle PetAnalysis
-			var analysesDomain []*domain.PetAnalysis
-			if v.Analyses != nil {
-				processGroup := func(group []*dto.PetAnalysis, name string) {
-					for _, a := range group {
-						if a != nil && a.AnalysisDate != nil {
-							analysis := &domain.PetAnalysis{
-								AnalysisName: name,
-								AnalysisDate: a.AnalysisDate,
-							}
-							if a.AnalysisType != nil {
-								analysis.AnalysisType = *a.AnalysisType
-							}
-							analysesDomain = append(analysesDomain, analysis)
+		// Handle PetAnalysis
+		analysesDomain := []*domain.PetAnalysis{}
+		if v.Analyses != nil {
+			processGroup := func(group []*dto.PetAnalysis, name string) {
+				for _, a := range group {
+					if a != nil && a.AnalysisDate != nil {
+						analysis := &domain.PetAnalysis{
+							AnalysisName: name,
+							AnalysisDate: a.AnalysisDate,
 						}
+						if a.AnalysisType != nil {
+							analysis.AnalysisType = *a.AnalysisType
+						}
+						analysesDomain = append(analysesDomain, analysis)
 					}
 				}
-
-				processGroup(v.Analyses.Leukemia, "leukemia")
-				processGroup(v.Analyses.Immunodeficiency, "immunodeficiency")
-				processGroup(v.Analyses.Hemoplasmosis, "hemoplasmosis")
-				processGroup(v.Analyses.Bartonellosis, "bartonellosis")
-				processGroup(v.Analyses.Babesiosis, "babesiosis")
-				processGroup(v.Analyses.Dirofilaria, "dirofilaria")
-				processGroup(v.Analyses.Ehrlichiosis, "ehrlichiosis")
-				processGroup(v.Analyses.Anaplasmosis, "anaplasmosis")
-				petDomain.Analyses = analysesDomain
 			}
+
+			processGroup(v.Analyses.Leukemia, "leukemia")
+			processGroup(v.Analyses.Immunodeficiency, "immunodeficiency")
+			processGroup(v.Analyses.Hemoplasmosis, "hemoplasmosis")
+			processGroup(v.Analyses.Bartonellosis, "bartonellosis")
+			processGroup(v.Analyses.Babesiosis, "babesiosis")
+			processGroup(v.Analyses.Dirofilaria, "dirofilaria")
+			processGroup(v.Analyses.Ehrlichiosis, "ehrlichiosis")
+			processGroup(v.Analyses.Anaplasmosis, "anaplasmosis")
+			petDomain.Analyses = analysesDomain
 		}
 	}
 }
@@ -436,6 +436,7 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 		PhotoURLs:          petDomain.PhotoURLs,
 		WeightKg:           petDomain.WeightKg,
 		BirthDate:          petDomain.BirthDate,
+		PetStatus:          "none",
 		LivingCondition:    string(petDomain.LivingCondition),
 		Gender:             string(petDomain.Gender),
 		Type:               string(petDomain.Type),
@@ -448,8 +449,8 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 	if petDomain.BreedRefID != nil {
 		petDTO.BreedID = *petDomain.BreedRefID
 	}
-	if petDomain.BloodGroupRefID != nil {
-		petDTO.BloodGroup = *petDomain.BloodGroupRefID
+	if petDomain.BloodGroupName != nil {
+		petDTO.BloodGroup = *petDomain.BloodGroupName
 	}
 
 	if petDomain.Health != nil {

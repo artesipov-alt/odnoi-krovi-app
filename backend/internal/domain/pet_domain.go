@@ -72,7 +72,7 @@ type Pet struct {
 	DonorRestrictions  []string
 	OwnerID            string
 	BreedRefID         *string
-	BloodGroupRefID    *string
+	BloodGroupName     *string
 	Health             *PetHealth
 	Treatments         *PetTreatment
 	Analyses           []*PetAnalysis

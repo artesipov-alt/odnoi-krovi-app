@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
@@ -136,7 +138,7 @@ func (s *BloodSearchService) CreateRequest(ctx context.Context, bloodReq *ent.Cr
 		return nil, err
 	}
 
-	newReq.PhotoUrls = s.BuildFullPhotoURLs(newReq.PhotoUrls)
+	newReq.PhotoUrls = s.BuildFullPhotoURLs(newReq.PhotoUrls, newReq.UpdatedAt)
 
 	return newReq, nil
 }
@@ -149,7 +151,7 @@ func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*en
 	}
 
 	// Преобразуем пути к фото в полные URL
-	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls)
+	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls, req.UpdatedAt)
 
 	return req, nil
 }
@@ -162,7 +164,7 @@ func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string
 	}
 
 	// Преобразуем пути к фото в полные URL
-	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls)
+	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls, req.UpdatedAt)
 
 	return req, nil
 }
@@ -328,7 +330,7 @@ func (s *BloodSearchService) ExistsByID(ctx context.Context, id string) (bool, e
 }
 
 // BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *BloodSearchService) BuildFullPhotoURLs(paths []string) []string {
+func (s *BloodSearchService) BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string {
 	if len(paths) == 0 {
 		return []string{}
 	}
@@ -337,7 +339,8 @@ func (s *BloodSearchService) BuildFullPhotoURLs(paths []string) []string {
 		if path == "" {
 			result[i] = ""
 		} else {
-			result[i] = s.storage.GetPublicURLFromPath(path)
+			url := s.storage.GetPublicURLFromPath(path)
+			result[i] = url + "?t=" + strconv.FormatInt(updatedAt.Unix(), 10)
 		}
 	}
 	return result

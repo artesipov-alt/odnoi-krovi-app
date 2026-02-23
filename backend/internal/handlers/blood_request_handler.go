@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog" // Import slog
 	"net/http"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
@@ -39,7 +40,7 @@ type BloodSearchService interface {
 	ListRequests(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error)
 
 	// buildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(paths []string) []string
+	BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string
 }
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови

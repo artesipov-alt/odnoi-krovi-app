@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -45,7 +46,7 @@ type UserService interface {
 	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
 
 	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(paths []string) []string
+	BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string
 }
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями

@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
@@ -191,7 +193,7 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserP
 	}
 
 	// Преобразуем пути к фото в полные URL
-	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls)
+	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls, u.UpdatedAt)
 
 	return u, nil
 }
@@ -207,7 +209,7 @@ func (s *UserService) GetUserByTelegramID(ctx context.Context, telegramID int64,
 	}
 
 	// Преобразуем пути к фото в полные URL
-	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls)
+	u.PhotoUrls = s.BuildFullPhotoURLs(u.PhotoUrls, u.UpdatedAt)
 
 	return u, nil
 }
@@ -238,7 +240,7 @@ func (s *UserService) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) 
 }
 
 // BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *UserService) BuildFullPhotoURLs(paths []string) []string {
+func (s *UserService) BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string {
 	if len(paths) == 0 {
 		return []string{}
 	}
@@ -247,7 +249,8 @@ func (s *UserService) BuildFullPhotoURLs(paths []string) []string {
 		if path == "" {
 			result[i] = ""
 		} else {
-			result[i] = s.storage.GetPublicURLFromPath(path)
+			url := s.storage.GetPublicURLFromPath(path)
+			result[i] = url + "?t=" + strconv.FormatInt(updatedAt.Unix(), 10)
 		}
 	}
 	return result

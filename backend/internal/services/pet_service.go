@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"log/slog"
+	"strconv"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
@@ -79,16 +81,18 @@ type PetService struct {
 	storage      FileStorage
 	bloodReqRepo BloodRequestRepository
 	blooInfoRepo BloodInfoRepository
+	breedRepo    BreedRepository
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo PetRepository, userRepo UserRepository, bloodReqRepo BloodRequestRepository, bloodInfoRepo BloodInfoRepository, storage FileStorage, validator validator.DonorValidator) *PetService {
+func NewPetService(petRepo PetRepository, userRepo UserRepository, bloodReqRepo BloodRequestRepository, bloodInfoRepo BloodInfoRepository, breedRepo BreedRepository, storage FileStorage, validator validator.DonorValidator) *PetService {
 	return &PetService{
 		petRepo:      petRepo,
 		userRepo:     userRepo,
 		storage:      storage,
 		bloodReqRepo: bloodReqRepo,
 		blooInfoRepo: bloodInfoRepo,
+		breedRepo:    breedRepo,
 	}
 }
 
@@ -101,15 +105,6 @@ func (s *PetService) CreatePet(ctx context.Context, userID string, pet *domain.P
 	}
 	if !exists {
 		return nil, apperrors.ErrUserNotFound
-	}
-
-	// Проверяем, существует ли группа крови, если указана
-	if pet.BloodGroupRefID != nil {
-		bg, err := s.blooInfoRepo.FindByName(ctx, *pet.BloodGroupRefID)
-		if err != nil {
-			return nil, apperrors.Internal(err, "failed to check blood group existence")
-		}
-		pet.BloodGroupRefID = &bg.ID
 	}
 
 	// Set the owner ID for the pet
@@ -130,7 +125,7 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 		return nil, err
 	}
 
-	pet.PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs)
+	pet.PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt)
 
 	return pet, nil
 }
@@ -151,7 +146,7 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 	}
 
 	for i, pet := range pets {
-		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs)
+		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt)
 	}
 
 	return pets, nil
@@ -173,7 +168,6 @@ func (s *PetService) Update(ctx context.Context, id string, petInput *domain.Pet
 	}
 
 	return updatedPet, nil
-
 }
 
 // DeletePet удаляет питомца по ID
@@ -262,7 +256,7 @@ func (s *PetService) DeletePet(ctx context.Context, petID string) error {
 //===================HELPERS===============================================
 
 // BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-func (s *PetService) BuildFullPhotoURLs(paths []string) []string {
+func (s *PetService) BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string {
 	if len(paths) == 0 {
 		return []string{}
 	}
@@ -271,7 +265,8 @@ func (s *PetService) BuildFullPhotoURLs(paths []string) []string {
 		if path == "" {
 			result[i] = ""
 		} else {
-			result[i] = s.storage.GetPublicURLFromPath(path)
+			url := s.storage.GetPublicURLFromPath(path)
+			result[i] = url + "?t=" + strconv.FormatInt(updatedAt.Unix(), 10)
 		}
 	}
 	return result
