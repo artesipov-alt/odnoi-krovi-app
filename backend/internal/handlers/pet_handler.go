@@ -257,6 +257,9 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 		if v.ReproductiveStatus != "" {
 			petDomain.ReproductiveStatus = domain.ReproductiveStatus(v.ReproductiveStatus)
 		}
+		if v.AgeMonths != 0 || v.AgeYears != 0 {
+			petDomain.BirthDate = calculateBirthDateFromAge(&v.AgeYears, &v.AgeMonths)
+		}
 
 		// Handle PetHealth
 		if v.Health != nil {
@@ -358,6 +361,9 @@ func ToDomain(petDto any, petDomain *domain.Pet) {
 		}
 		if v.Bonuses != nil {
 			petDomain.Bonuses = *v.Bonuses
+		}
+		if v.AgeMonths != nil || v.AgeYears != nil {
+			petDomain.BirthDate = calculateBirthDateFromAge(v.AgeYears, v.AgeMonths)
 		}
 
 		// Handle PetHealth
