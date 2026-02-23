@@ -72,7 +72,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "apply-for-blood-request", // More descriptive OperationID
 		Method:        http.MethodPost,
-		Path:          "/v1/blood-request/{id}/apply", // RESTful path for applying to a specific request
+		Path:          "/v1/blood-request/apply/{id}", // RESTful path for applying to a specific request
 		Summary:       "Откликнуться на заявку на поиск крови",
 		Description:   "Позволяет донору откликнуться на существующую заявку на поиск крови.",
 		Tags:          []string{"blood-request-v1"},

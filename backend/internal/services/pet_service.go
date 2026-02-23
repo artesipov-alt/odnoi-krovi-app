@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"strconv"
 	"time"
@@ -133,7 +134,7 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 		return nil, err
 	}
 	bloodReq, err := s.bloodReqRepo.GetByPetID(ctx, petID)
-	if err != nil {
+	if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 		return nil, err
 	}
 
@@ -176,7 +177,7 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 		pets[i].PhotoURLs = s.BuildFullPhotoURLs(pets[i].PhotoURLs, *pets[i].UpdatedAt)
 
 		bloodReq, err := s.bloodReqRepo.GetByPetID(ctx, pets[i].ID)
-		if err != nil {
+		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			return nil, err
 		}
 
