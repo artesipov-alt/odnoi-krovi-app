@@ -61,7 +61,11 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*en
 func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.PetID(petID)).
-		WithResponses().
+		WithResponses(func(drq *ent.DonorResponseQuery) {
+			drq.WithDonor(func(pq *ent.PetQuery) {
+				pq.WithBloodGroupRef()
+			})
+		}).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {

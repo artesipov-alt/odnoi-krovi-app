@@ -26,6 +26,7 @@ type BloodSearchPetRequest struct {
 	BloodComponentIds      []string                 `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются"`
 	OnBoarding             []string                 `json:"onBoarding,omitempty" doc:"Список пройденых онбордингов" enum:"SEARCH,BLOOD_CARD"`
 	Status                 BloodSearchRequestStatus `json:"status,omitempty" doc:"Статус запроса" enum:"active,closed,draft" example:"active"`
+	Responses              []*DonorApplication      `json:"responses,omitempty" doc:"Список ID ответов на запрос"`
 	CreatedAt              *time.Time               `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt              *time.Time               `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt              *time.Time               `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`

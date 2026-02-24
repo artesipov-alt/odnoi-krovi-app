@@ -13,6 +13,24 @@ import (
 	"github.com/jinzhu/copier"
 )
 
+// calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)
+// Для собак: не более 17.6 мл/кг
+// Для кошек: не более 13.2 мл/кг
+func calculateDonationAmount(pet *ent.Pet) int32 {
+	weight := pet.WeightKg
+	var limitPerKg float64
+	switch pet.Type {
+	case "dog":
+		limitPerKg = 17.6
+	case "cat":
+		limitPerKg = 13.2
+	default:
+		return 0
+	}
+	amount := limitPerKg * weight
+	return int32(amount)
+}
+
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
 	svc services.BloodSearchService
@@ -110,10 +128,26 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 	}, h.DeleteBloodRequest)
 }
 
-// Вспомогательные структуры для Huma
-
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
 func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest {
+	var applications []*dto.DonorApplication
+	for _, response := range req.Edges.Responses {
+		donor := response.Edges.Donor
+		applications = append(applications, &dto.DonorApplication{
+			ID:              response.ID,
+			RequestID:       req.ID,
+			DonorID:         donor.ID,
+			DonorName:       donor.Name,
+			DonorPhotos:     donor.PhotoUrls,
+			DonorBloodGroup: donor.Edges.BloodGroupRef.BloodGroup,
+			Amount:          calculateDonationAmount(donor),
+			WarnFactors:     donor.DonorRestrictions,
+			Conditions:      response.Conditions,
+			Status:          dto.DonorResponseStatus(response.Status),
+			CreatedAt:       &response.CreatedAt,
+			UpdatedAt:       &response.UpdatedAt,
+		})
+	}
 	return dto.BloodSearchPetRequest{
 		ID:                     req.ID,
 		PetID:                  req.PetID,
@@ -127,6 +161,7 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest
 		BloodComponentIds:      req.BloodComponentIds,
 		OnBoarding:             req.OnBoarding,
 		Status:                 dto.BloodSearchRequestStatus(req.Status),
+		Responses:              applications,
 		CreatedAt:              &req.CreatedAt,
 		UpdatedAt:              &req.UpdatedAt,
 		DeletedAt:              req.DeletedAt,

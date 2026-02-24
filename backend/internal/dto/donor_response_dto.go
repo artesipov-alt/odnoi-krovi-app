@@ -14,13 +14,18 @@ const (
 )
 
 type DonorApplication struct {
-	ID         string              `json:"id" doc:"ID ответа донора" example:"DR-ABCDEABCDE"`
-	RequestID  string              `json:"requestId" doc:"ID запроса на кровь" example:"BSR-ABCDEABCDE"`
-	DonorID    string              `json:"donorId" doc:"ID донора" example:"DON-ABCDEABCDE"`
-	Conditions []string            `json:"conditions" doc:"Условия, при которых донор готов помочь" enum:"free,paid,food,taxi_compensation"`
-	Status     DonorResponseStatus `json:"status" doc:"Статус ответа донора" enum:"pending,accepted,declined,donated" example:"pending"`
-	CreatedAt  *time.Time          `json:"createdAt,omitempty" doc:"Дата создания ответа" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt  *time.Time          `json:"updatedAt,omitempty" doc:"Дата последнего обновления ответа" example:"2023-10-01T12:00:00Z"`
+	ID              string              `json:"id" doc:"ID ответа донора" example:"RES-ABCDEABCDE"`
+	RequestID       string              `json:"requestId,omitempty" doc:"ID запроса на кровь" example:"BSR-ABCDEABCDE"`
+	DonorID         string              `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
+	DonorName       string              `json:"donorName" doc:"Имя донора" example:"Генри"`
+	DonorPhotos     []string            `json:"donorPhotos" doc:"Фотографии донора" example:"[\"https://example.com/photo1.jpg\"]"`
+	DonorBloodGroup string              `json:"donorBloodGroup" doc:"Группа крови донора" example:"A"`
+	Amount          int32               `json:"amount" doc:"Количество крови в мл" example:"450"`
+	WarnFactors     []string            `json:"warnFactors" doc:"Предупреждающие факторы"`
+	Conditions      []string            `json:"conditions" doc:"Условия, при которых донор готов помочь" enum:"free,paid,food,taxi_compensation"`
+	Status          DonorResponseStatus `json:"status" doc:"Статус ответа донора" enum:"pending,accepted,declined,donated" example:"pending"`
+	CreatedAt       *time.Time          `json:"createdAt,omitempty" doc:"Дата создания ответа" example:"2023-10-01T12:00:00Z"`
+	UpdatedAt       *time.Time          `json:"updatedAt,omitempty" doc:"Дата последнего обновления ответа" example:"2023-10-01T12:00:00Z"`
 }
 
 type DonorApplicationCreate struct {
