@@ -31,6 +31,21 @@ type BloodSearchPetRequest struct {
 	DeletedAt              *time.Time               `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
+// UpdateBloodRequestDTO представляет DTO для частичного обновления заявки на поиск крови
+type UpdateBloodRequestDTO struct {
+	PetID                  *string  `json:"petId,omitempty" doc:"ID питомца"`
+	BloodVolumeNeeded      *int32   `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл"`
+	BloodVolumeReserved    *int32   `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл"`
+	Regions                []string `json:"regions,omitempty" doc:"Список ID регионов"`
+	SmallPetsNotifyAllowed *bool    `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для мелких питомцев"`
+	Description            *string  `json:"description,omitempty" doc:"Дополнительное описание"`
+	PhotoUrls              []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
+	BloodGroupNames        []string `json:"bloodGroupNames,omitempty" doc:"Список названий групп крови"`
+	BloodComponentIds      []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
+	OnBoarding             []string `json:"onBoarding,omitempty" doc:"Список пройденных онбордингов"`
+	Status                 *string  `json:"status,omitempty" doc:"Статус запроса"`
+}
+
 // BloodSearchPetResponse представляет ответ после создания запроса на поиск крови
 type BloodSearchPetResponse struct {
 	ID     string                   `json:"id" doc:"ID запроса на поиск крови" example:"BSR-ABCDEABCDE" readOnly:"true"`

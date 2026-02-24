@@ -19,6 +19,7 @@ export * from './PetUpdate';
 export * from './ReferenceData';
 export * from './ReferenceItem';
 export * from './RestrictionFactor';
+export * from './UpdateBloodRequestDTO';
 export * from './UploadItem';
 export * from './UploadURLResponseBody';
 export * from './User';

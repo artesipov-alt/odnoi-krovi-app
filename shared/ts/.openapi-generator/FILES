@@ -24,6 +24,7 @@ models/PetUpdate.ts
 models/ReferenceData.ts
 models/ReferenceItem.ts
 models/RestrictionFactor.ts
+models/UpdateBloodRequestDTO.ts
 models/UploadItem.ts
 models/UploadURLResponseBody.ts
 models/User.ts

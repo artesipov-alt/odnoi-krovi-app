@@ -23,6 +23,7 @@ import type {
   DonorApplicationCreate,
   DonorApplicationResponse,
   MessageBody,
+  UpdateBloodRequestDTO,
   UploadURLResponseBody,
 } from '../models/index';
 import {
@@ -42,6 +43,8 @@ import {
     DonorApplicationResponseToJSON,
     MessageBodyFromJSON,
     MessageBodyToJSON,
+    UpdateBloodRequestDTOFromJSON,
+    UpdateBloodRequestDTOToJSON,
     UploadURLResponseBodyFromJSON,
     UploadURLResponseBodyToJSON,
 } from '../models/index';
@@ -85,7 +88,7 @@ export interface GetPresignedUrlRequest {
 
 export interface UpdateBloodRequestRequest {
     id: string;
-    bloodSearchPetRequest: Omit<BloodSearchPetRequest, '$schema'|'createdAt'|'deletedAt'|'updatedAt'>;
+    updateBloodRequestDTO: Omit<UpdateBloodRequestDTO, '$schema'>;
 }
 
 /**
@@ -438,7 +441,7 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
     }
 
     /**
-     * Обновляет информацию о существующей заявке на поиск крови.
+     * Частично обновляет информацию о существующей заявке на поиск крови.
      * Обновить заявку на поиск крови
      */
     async updateBloodRequestRaw(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchPetRequest>> {
@@ -449,10 +452,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['bloodSearchPetRequest'] == null) {
+        if (requestParameters['updateBloodRequestDTO'] == null) {
             throw new runtime.RequiredError(
-                'bloodSearchPetRequest',
-                'Required parameter "bloodSearchPetRequest" was null or undefined when calling updateBloodRequest().'
+                'updateBloodRequestDTO',
+                'Required parameter "updateBloodRequestDTO" was null or undefined when calling updateBloodRequest().'
             );
         }
 
@@ -468,17 +471,17 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
 
         const response = await this.request({
             path: urlPath,
-            method: 'PUT',
+            method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: BloodSearchPetRequestToJSON(requestParameters['bloodSearchPetRequest']),
+            body: UpdateBloodRequestDTOToJSON(requestParameters['updateBloodRequestDTO']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BloodSearchPetRequestFromJSON(jsonValue));
     }
 
     /**
-     * Обновляет информацию о существующей заявке на поиск крови.
+     * Частично обновляет информацию о существующей заявке на поиск крови.
      * Обновить заявку на поиск крови
      */
     async updateBloodRequest(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetRequest> {

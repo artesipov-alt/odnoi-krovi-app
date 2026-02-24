@@ -82,10 +82,10 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 	// Обновить заявку
 	huma.Register(api, huma.Operation{
 		OperationID: "update-blood-request",
-		Method:      http.MethodPut,
+		Method:      http.MethodPatch,
 		Path:        "/v1/blood-request/{id}",
 		Summary:     "Обновить заявку на поиск крови",
-		Description: "Обновляет информацию о существующей заявке на поиск крови.",
+		Description: "Частично обновляет информацию о существующей заявке на поиск крови.",
 		Tags:        []string{"blood-request-v1"},
 	}, h.UpdateBloodRequest)
 
@@ -196,12 +196,54 @@ func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *s
 
 func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *struct {
 	dto.IDPathStr
-	Body dto.BloodSearchPetRequest
+	Body dto.UpdateBloodRequestDTO
 }) (*dto.BloodRequestResponse, error) {
-	slog.DebugContext(ctx, "updating blood request", "request_id", input.IDPathStr.ID, "pet_id", input.Body.PetID)
+	slog.DebugContext(ctx, "updating blood request", "request_id", input.IDPathStr.ID)
 
+	// Получить текущий объект
+	existing, err := h.svc.GetRequestByID(ctx, input.IDPathStr.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Частично обновить поля
+	if input.Body.PetID != nil {
+		existing.PetID = *input.Body.PetID
+	}
+	if input.Body.BloodVolumeNeeded != nil {
+		existing.BloodVolumeNeeded = *input.Body.BloodVolumeNeeded
+	}
+	if input.Body.BloodVolumeReserved != nil {
+		existing.BloodVolumeReserved = *input.Body.BloodVolumeReserved
+	}
+	if len(input.Body.Regions) > 0 {
+		existing.Regions = input.Body.Regions
+	}
+	if input.Body.SmallPetsNotifyAllowed != nil {
+		existing.SmallPetsNotifyAllowed = *input.Body.SmallPetsNotifyAllowed
+	}
+	if input.Body.Description != nil {
+		existing.Description = *input.Body.Description
+	}
+	if len(input.Body.PhotoUrls) > 0 {
+		existing.PhotoUrls = input.Body.PhotoUrls
+	}
+	if len(input.Body.BloodGroupNames) > 0 {
+		existing.BloodGroupNames = input.Body.BloodGroupNames
+	}
+	if len(input.Body.BloodComponentIds) > 0 {
+		existing.BloodComponentIds = input.Body.BloodComponentIds
+	}
+	if len(input.Body.OnBoarding) > 0 {
+		existing.OnBoarding = input.Body.OnBoarding
+	}
+	if input.Body.Status != nil {
+		existing.Status = bloodsearchrequest.Status(*input.Body.Status)
+	}
+
+	// Создать update input из обновленного existing
 	updateReq := new(ent.UpdateBloodSearchRequestInput)
-	if err := copier.Copy(updateReq, input.Body); err != nil {
+	if err := copier.Copy(updateReq, existing); err != nil {
 		return nil, err
 	}
 
