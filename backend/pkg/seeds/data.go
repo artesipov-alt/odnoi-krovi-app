@@ -74,7 +74,7 @@ type BreedData struct {
 }
 
 var Breeds = []BreedData{
-	{ID: "MIX", Name: "МЕТИС", Type: breed.TypeDog},
+	{ID: "MIX_DOG", Name: "МЕТИС", Type: breed.TypeDog},
 	{ID: "AUS_SHP", Name: "АВСТРАЛИЙСКАЯ ОВЧАРКА", Type: breed.TypeDog},
 	{ID: "AUS_KLP", Name: "АВСТРАЛИЙСКИЙ КЕЛПИ", Type: breed.TypeDog},
 	{ID: "AUS_TER", Name: "АВСТРАЛИЙСКИЙ ТЕРЬЕР", Type: breed.TypeDog},

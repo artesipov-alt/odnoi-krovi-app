@@ -16,94 +16,80 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AppError
+ * @interface DonorApplicationCreate
  */
-export interface AppError {
+export interface DonorApplicationCreate {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof DonorApplicationCreate
      */
     readonly $schema?: string;
     /**
-     * 
+     * Условия, при которых донор готов помочь
+     * @type {Array<string>}
+     * @memberof DonorApplicationCreate
+     */
+    conditions: Array<DonorApplicationCreateConditionsEnum> | null;
+    /**
+     * ID донора
      * @type {string}
-     * @memberof AppError
+     * @memberof DonorApplicationCreate
      */
-    code: string;
-    /**
-     * 
-     * @type {object}
-     * @memberof AppError
-     */
-    details: object;
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AppError
-     */
-    message: string;
+    donorId: string;
 }
 
+
 /**
- * Check if a given object implements the AppError interface.
+ * @export
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
-    if (!('message' in value) || value['message'] === undefined) return false;
+export const DonorApplicationCreateConditionsEnum = {
+    Free: 'free',
+    Paid: 'paid',
+    Food: 'food',
+    TaxiCompensation: 'taxi_compensation'
+} as const;
+export type DonorApplicationCreateConditionsEnum = typeof DonorApplicationCreateConditionsEnum[keyof typeof DonorApplicationCreateConditionsEnum];
+
+
+/**
+ * Check if a given object implements the DonorApplicationCreate interface.
+ */
+export function instanceOfDonorApplicationCreate(value: object): value is DonorApplicationCreate {
+    if (!('conditions' in value) || value['conditions'] === undefined) return false;
+    if (!('donorId' in value) || value['donorId'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function DonorApplicationCreateFromJSON(json: any): DonorApplicationCreate {
+    return DonorApplicationCreateFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function DonorApplicationCreateFromJSONTyped(json: any, ignoreDiscriminator: boolean): DonorApplicationCreate {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'conditions': json['conditions'] == null ? null : json['conditions'],
+        'donorId': json['donorId'],
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function DonorApplicationCreateToJSON(json: any): DonorApplicationCreate {
+    return DonorApplicationCreateToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function DonorApplicationCreateToJSONTyped(value?: Omit<DonorApplicationCreate, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'conditions': value['conditions'],
+        'donorId': value['donorId'],
     };
 }
 
