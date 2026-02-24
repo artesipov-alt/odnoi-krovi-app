@@ -16,6 +16,7 @@
 import * as runtime from '../runtime';
 import type {
   AppError,
+  BloodRequestUpdateResponseBody,
   BloodSearchFilterRequest,
   BloodSearchPetRequest,
   BloodSearchPetResponse,
@@ -29,6 +30,8 @@ import type {
 import {
     AppErrorFromJSON,
     AppErrorToJSON,
+    BloodRequestUpdateResponseBodyFromJSON,
+    BloodRequestUpdateResponseBodyToJSON,
     BloodSearchFilterRequestFromJSON,
     BloodSearchFilterRequestToJSON,
     BloodSearchPetRequestFromJSON,
@@ -444,7 +447,7 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Частично обновляет информацию о существующей заявке на поиск крови.
      * Обновить заявку на поиск крови
      */
-    async updateBloodRequestRaw(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodSearchPetRequest>> {
+    async updateBloodRequestRaw(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodRequestUpdateResponseBody>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
@@ -477,14 +480,14 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
             body: UpdateBloodRequestDTOToJSON(requestParameters['updateBloodRequestDTO']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BloodSearchPetRequestFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BloodRequestUpdateResponseBodyFromJSON(jsonValue));
     }
 
     /**
      * Частично обновляет информацию о существующей заявке на поиск крови.
      * Обновить заявку на поиск крови
      */
-    async updateBloodRequest(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodSearchPetRequest> {
+    async updateBloodRequest(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodRequestUpdateResponseBody> {
         const response = await this.updateBloodRequestRaw(requestParameters, initOverrides);
         return await response.value();
     }

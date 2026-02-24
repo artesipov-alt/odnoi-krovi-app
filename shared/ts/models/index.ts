@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AppError';
+export * from './BloodRequestUpdateResponseBody';
 export * from './BloodSearchFilterRequest';
 export * from './BloodSearchPetRequest';
 export * from './BloodSearchPetResponse';

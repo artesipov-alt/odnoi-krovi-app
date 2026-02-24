@@ -197,7 +197,7 @@ func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *s
 func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *struct {
 	dto.IDPathStr
 	Body dto.UpdateBloodRequestDTO
-}) (*dto.BloodRequestResponse, error) {
+}) (*dto.BloodRequestUpdateResponse, error) {
 	slog.DebugContext(ctx, "updating blood request", "request_id", input.IDPathStr.ID)
 
 	// Получить текущий объект
@@ -252,7 +252,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 		return nil, err
 	}
 
-	return &dto.BloodRequestResponse{Body: dto.BloodSearchPetRequest{
+	return &dto.BloodRequestUpdateResponse{Body: dto.BloodRequestUpdateResponseBody{
 		ID:        result.ID,
 		UpdatedAt: &result.UpdatedAt,
 	}}, nil

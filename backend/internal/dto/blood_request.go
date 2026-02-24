@@ -46,6 +46,17 @@ type UpdateBloodRequestDTO struct {
 	Status                 *string  `json:"status,omitempty" doc:"Статус запроса"`
 }
 
+// BloodRequestUpdateResponse представляет ответ на обновление заявки
+type BloodRequestUpdateResponse struct {
+	Body BloodRequestUpdateResponseBody
+}
+
+// BloodRequestUpdateResponseBody представляет тело ответа на обновление
+type BloodRequestUpdateResponseBody struct {
+	ID        string     `json:"id" doc:"ID заявки" example:"BLS-aBcDeF1234"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z"`
+}
+
 // BloodSearchPetResponse представляет ответ после создания запроса на поиск крови
 type BloodSearchPetResponse struct {
 	ID     string                   `json:"id" doc:"ID запроса на поиск крови" example:"BSR-ABCDEABCDE" readOnly:"true"`

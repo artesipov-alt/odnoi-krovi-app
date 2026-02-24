@@ -6,6 +6,7 @@ apis/UsersV1Api.ts
 apis/index.ts
 index.ts
 models/AppError.ts
+models/BloodRequestUpdateResponseBody.ts
 models/BloodSearchFilterRequest.ts
 models/BloodSearchPetRequest.ts
 models/BloodSearchPetResponse.ts
