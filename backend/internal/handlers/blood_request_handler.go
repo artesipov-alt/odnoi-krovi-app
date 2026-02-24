@@ -79,6 +79,16 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		DefaultStatus: http.StatusCreated, // Applying usually creates a new application record
 	}, h.ApplyForBloodRequest)
 
+	// Обновить заявку
+	huma.Register(api, huma.Operation{
+		OperationID: "update-blood-request",
+		Method:      http.MethodPut,
+		Path:        "/v1/blood-request/{id}",
+		Summary:     "Обновить заявку на поиск крови",
+		Description: "Обновляет информацию о существующей заявке на поиск крови.",
+		Tags:        []string{"blood-request-v1"},
+	}, h.UpdateBloodRequest)
+
 	// // Получить список доноров по ID заявки
 	// huma.Register(api, huma.Operation{
 	// 	OperationID: "get-donors-by-req-id",
@@ -182,6 +192,28 @@ func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *s
 			Status:  dto.DonorResponseStatus(resp.Status),
 		},
 	}, nil
+}
+
+func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *struct {
+	dto.IDPathStr
+	Body dto.BloodSearchPetRequest
+}) (*dto.BloodRequestResponse, error) {
+	slog.DebugContext(ctx, "updating blood request", "request_id", input.IDPathStr.ID, "pet_id", input.Body.PetID)
+
+	updateReq := new(ent.UpdateBloodSearchRequestInput)
+	if err := copier.Copy(updateReq, input.Body); err != nil {
+		return nil, err
+	}
+
+	result, err := h.svc.UpdateRequest(ctx, input.IDPathStr.ID, updateReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.BloodRequestResponse{Body: dto.BloodSearchPetRequest{
+		ID:        result.ID,
+		UpdatedAt: &result.UpdatedAt,
+	}}, nil
 }
 
 func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {

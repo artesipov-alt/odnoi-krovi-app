@@ -73,24 +73,27 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 }
 
 // Update обновляет информацию о заявке
-func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, input *ent.UpdateBloodSearchRequestInput) error {
+func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, input *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	if input == nil {
-		return errors.New("blood request cannot be nil")
+		return nil, errors.New("blood request cannot be nil")
 	}
 
 	if id == "" {
-		return errors.New("invalid blood request ID")
+		return nil, errors.New("invalid blood request ID")
 	}
 
-	_, err := r.db.BloodSearchRequest.UpdateOneID(id).
+	updatedBloodReq, err := r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetInput(*input).
 		Save(ctx)
 
 	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrBloodRequestNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
 
-	return nil
+	return updatedBloodReq, nil
 }
 
 // UpdateStatus обновляет статус заявки

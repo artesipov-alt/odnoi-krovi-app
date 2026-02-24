@@ -15,7 +15,7 @@ import (
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
 type BloodRequestRepository interface {
 	// Create создает новую заявку на поиск крови
-	Create(ctx context.Context, request *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
+	Create(ctx context.Context, input *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// GetByID возвращает заявку по её идентификатору
 	GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error)
@@ -24,12 +24,12 @@ type BloodRequestRepository interface {
 	GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error)
 
 	// Update обновляет информацию о заявке
-	Update(ctx context.Context, id string, request *ent.UpdateBloodSearchRequestInput) error
+	Update(ctx context.Context, id string, input *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
 
-	// Delete удаляет заявку из хранилища
+	// Delete удаляет заявку из хранилища (soft delete)
 	Delete(ctx context.Context, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
@@ -189,11 +189,11 @@ func (s *BloodSearchService) ApplyForBloodRequest(ctx context.Context, reqID, do
 }
 
 // UpdateRequest обновляет информацию о заявке
-func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) error {
+func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, bloodReq *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
 	// Проверяем существование
 	req, err := s.bloodRepo.GetByID(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Сохраняем текущий статус, если он не передан
@@ -201,11 +201,14 @@ func (s *BloodSearchService) UpdateRequest(ctx context.Context, id string, blood
 		bloodReq.Status = &req.Status
 	}
 
-	if err := s.bloodRepo.Update(ctx, id, bloodReq); err != nil {
-		return apperrors.Internal(err, "failed to update blood request")
+	updatedReq, err := s.bloodRepo.Update(ctx, id, bloodReq)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
 
-	return nil
+	updatedReq.PhotoUrls = s.BuildFullPhotoURLs(updatedReq.PhotoUrls, updatedReq.UpdatedAt)
+
+	return updatedReq, nil
 }
 
 // UpdateStatus обновляет статус заявки
