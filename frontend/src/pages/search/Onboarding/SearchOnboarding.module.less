@@ -1,0 +1,113 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding: 17px 0 30px;
+}
+
+.header {
+    display: flex;
+    gap: 4px;
+    padding: 0 23px;
+}
+
+.tab {
+    width: 50%;
+    height: 4px;
+    border-radius: 10px;
+    background: @border3;
+
+    &.checked {
+        background: @textColor2;
+    }
+}
+
+.title {
+    margin: 50px 0 50px;
+    color: @textColor2;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+
+    &.card {
+        padding: 0 23px;
+        margin: 68px 0 10px;
+
+        &.second {
+            margin: 68px 0 10px;
+        }
+    }
+
+    &.second {
+        margin: 41px 0 14px;
+    }
+}
+
+.description {
+    margin-bottom: 30px;
+    color: @textColor6;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+
+    &.card {
+        padding: 0 40px;
+        margin-bottom: 16px;
+    }
+}
+
+.img {
+    display: block;
+    width: 100%;
+
+    &.card {
+        padding: 0 16px 0 0;
+
+        &.second {
+            padding: 0 26px;
+        }
+    }
+
+    &.second {
+        padding: 0 26px;
+        box-sizing: border-box;
+    }
+}
+
+.footerDescr {
+    margin: 60px 0 16px;
+    color: @textColor6;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.button {
+    padding: 0 26px;
+    margin: 0 0 16px;
+
+    &.card {
+        margin: 40px 0 10px;
+
+        &.second {
+            margin: 56px 0 10px;
+        }
+    }
+}
+
+.confirm {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+}

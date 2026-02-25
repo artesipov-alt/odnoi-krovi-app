@@ -1,0 +1,355 @@
+@import 'styles/colors';
+
+.wrapper {
+    position: relative;
+    padding: 12px 11px 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 33px;
+    margin-bottom: 17px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.name {
+    flex-grow: 1;
+    padding: 0 11px;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    color: @textColor2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 14px;
+}
+
+.tab {
+    width: 33.33%;
+    padding: 12px 10px;
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    box-sizing: border-box;
+    text-align: center;
+
+    &.active {
+        color: @textColor2;
+        border-bottom: 2px solid @textColor2;
+    }
+
+    &.disabled {
+        pointer-events: none;
+        opacity: .4;
+    }
+}
+
+.main {
+    display: flex;
+    //justify-content: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 50%;
+    max-width: 280px;
+}
+
+.leftItem {
+    flex-grow: 0;
+    //width: 147px;
+    height: 55px;
+    padding: 0 20px;
+    border-radius: 6px;
+    background: @white;
+    box-sizing: border-box;
+
+    &.name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        & .icon {
+            display: flex;
+            width: 8px;
+            height: 8px;
+            fill: @grayBg12;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+
+        & .text {
+            color: @textColor1;
+            font-family: Marmelad, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+        }
+    }
+
+    &.blood {
+        padding: 12px 20px;
+        box-sizing: border-box;
+
+        & .subTitle {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        & .icon {
+            display: flex;
+            width: 8px;
+            height: 11px;
+            fill: @grayBg13;
+            opacity: 0.5;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+
+        & .text {
+            margin: 0;
+            color: @textColor4;
+            font-family: Proxima Nova, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            line-height: 10px;
+        }
+
+        & .bloodInfo {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            color: @textColor4;
+            font-size: 10px;
+            margin-top: 6px;
+        }
+
+        & .bloodGroup {
+            display: inline-block;
+            padding: 3px 5.5px;
+            border-radius: 30px;
+            background: @red2;
+            color: @white1;
+            font-family: Marmelad, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            line-height: 10px;
+
+            &.needed {
+                color: @textColor1;
+                background: @red5;
+            }
+        }
+    }
+
+    &.location {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        & .icon {
+            display: flex;
+            width: 8px;
+            height: 11px;
+            fill: @grayBg12;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+
+        & .text {
+            color: @textColor1;
+            font-family: Marmelad, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+        }
+    }
+}
+
+.avatarWrapper {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    box-sizing: border-box;
+}
+
+.avatar {
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+    border: 17px solid @white;
+    box-sizing: border-box;
+}
+
+.neededVolume {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 38px;
+    color: @textColor4;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 15px;
+    background: @white;
+    border-radius: 50%;
+    padding-top: 8px;
+    box-sizing: border-box;
+
+    span {
+        display: block;
+        font-size: 9px;
+        line-height: 10px;
+    }
+}
+
+.infoItem {
+    padding: 17px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: @white;
+}
+
+.infoItemTitle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 19px;
+
+    &.noMargin {
+        margin-bottom: 0;
+    }
+}
+
+.bloodComponents {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.itemText {
+    color: @textColor6;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+
+    &.accordionText {
+        margin-top: 14px;
+        overflow-wrap: break-word;
+    }
+}
+
+.text {
+    color: @textColor2;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+.itemIcon {
+    width: 14px;
+    height: 14px;
+    margin-top: -4px;
+
+    &.miniPaw {
+        width: 14px;
+        height: 18px;
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @red4;
+    }
+}
+
+.confirm {
+    height: 60px;
+    margin-top: 24px !important;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+}
+
+.cancel {
+    height: 60px;
+    margin-top: 8px !important;
+    border-radius: 10px !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor1 !important;
+    text-transform: none !important;
+
+    & svg {
+        width: 10px;
+        height: 10px;
+        margin-top: 2px;
+        stroke-width: 2 !important; /* принудительно делаем жирнее */
+    }
+
+    & path {
+        stroke-width: 2 !important;
+    }
+}
+
+.bloodRequestPhoto {
+    width: 82px;
+    height: 104px;
+    margin-top: 14px;
+    border-radius: 10px;
+}
+
+.loading {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}

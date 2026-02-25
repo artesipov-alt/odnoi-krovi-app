@@ -404,7 +404,7 @@ const PetProfile: FC<Props> = ({
                                 <p className={styles.labelInfoTitle}>Примерный объем донации</p>
                                 <div className={styles.labelInfoValue}>
                                     <p className={styles.labelDescr}>
-                                        {Number((weightKg * (type === PetType.DOG ? 17.6 : 13.2) * 0.2).toFixed(2))} мл
+                                        {Number((weightKg * (type === PetType.DOG ? 17.6 : 13.2)).toFixed(2))} мл
                                     </p>
                                     <div onClick={toggleTooltip} className={styles.infoIcon}>
                                         <Info />

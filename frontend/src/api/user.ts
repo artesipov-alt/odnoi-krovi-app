@@ -9,6 +9,12 @@ export enum Role {
     DONOR = 'donor',
     CLINIC = 'clinic',
     RECIPIENT = 'recipient',
+    BLOOD_FOUND = 'blood_found',
+}
+
+export enum Onboarding {
+    START = 'START',
+    FIND_BLOOD = 'FIND_BLOOD',
 }
 
 export type GetUserResponse = {
@@ -23,7 +29,7 @@ export type GetUserResponse = {
     consentPd?: boolean;
     locationId?: number;
     telegramId?: number;
-    onBoarding?: boolean;
+    onBoarding?: Onboarding[];
     organizationName?: string;
 };
 
@@ -31,10 +37,10 @@ export type UpdateUserRequest = {
     id: string;
     phone?: string;
     email?: string;
-    fullName: string;
+    fullName?: string;
     allowGeo?: boolean;
     locationId?: number;
-    onBoarding?: boolean;
+    onBoarding?: Onboarding[];
 };
 
 export type UpdateUserResponse = {
@@ -44,7 +50,7 @@ export type UpdateUserResponse = {
 };
 
 export interface IUserApi {
-    getUser(id: number): AxiosPromise<GetUserResponse>;
+    getUser(id: string): AxiosPromise<GetUserResponse>;
     getUserByTelegramId(id: number): AxiosPromise<GetUserResponse>;
     updateUser(params: UpdateUserRequest): AxiosPromise<UpdateUserResponse>;
 }

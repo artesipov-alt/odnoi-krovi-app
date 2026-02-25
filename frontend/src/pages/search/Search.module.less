@@ -1,0 +1,146 @@
+@import 'styles/colors';
+
+.wrapper {
+    position: relative;
+    padding: 10px 12px 30px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.main {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    padding: 10px 12px;
+    background: @white;
+    border-radius: 12px;
+}
+
+.avatarWrapper {
+    position: relative;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    margin-right: 8px;
+    border: 3px solid @white-bg;
+    border-radius: 25px;
+    box-sizing: border-box;
+}
+
+.name {
+    color: @textColor2;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.searchResult {
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.searchDetails {
+    position: relative;
+    padding: 11px 22px 11px 11px;
+    margin-left: auto;
+    color: @grayBg6;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+    background: @black;
+    border-radius: 4px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 9px;
+        right: 11px;
+        width: 6px;
+        height: 6px;
+        background: @red6;
+        border-radius: 10px;
+    }
+}
+
+.tabs {
+    display: flex;
+    height: 50px;
+    margin-top: 10px;
+    padding: 6px 3px;
+    align-items: center;
+    border-radius: 40px;
+    background: @grayBg11;
+    box-sizing: border-box;
+}
+.tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 50%;
+    height: 43px;
+    border-radius: 40px;
+    color: @textColor1;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 43px;
+
+    &.active {
+        color: @white;
+        background: @common-red;
+
+        & div {
+            background: @red13;
+            border-radius: 50%;
+            opacity: 1
+        }
+    }
+}
+
+.loading {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}
+
+.tabCounter {
+    min-width: 20px;
+    height: 20px;
+    background: @grayBg8;
+    border-radius: 50%;
+    color: @grayBg14;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    opacity: .5;
+}

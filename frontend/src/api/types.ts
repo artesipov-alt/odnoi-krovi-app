@@ -7,6 +7,7 @@ export enum PetGender {
     MALE = 'male',
     FEMALE = 'female',
 }
+
 export enum AnalysesTypes {
     PCR = 'PCR',
     ICA = 'ICA',

@@ -1,0 +1,30 @@
+@import 'styles/colors';
+
+.progressRing {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: visible !important; // для progressDotText
+
+    circle {
+        transition: stroke-dashoffset 0.3s ease;
+    }
+}
+
+.progressCircle {
+    color: var(--progress-color, @red10);
+}
+
+.progressDot {
+    color: var(--progress-color, #ff4d4f);
+}
+
+.progressDotText {
+    color: @white;
+    text-align: center;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 20px;
+    pointer-events: none; // чтобы текст не мешал интеракциям
+}

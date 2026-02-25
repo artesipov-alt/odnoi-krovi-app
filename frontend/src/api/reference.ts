@@ -18,8 +18,6 @@ export type Dict = {
     label: string;
 };
 
-export type StringDict = Dict;
-
 export type GetPetsTypesResponse = {
     data: PetTypeDict[];
 };
