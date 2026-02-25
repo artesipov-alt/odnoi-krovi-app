@@ -12,25 +12,36 @@ const (
 	BloodSearchRequestStatusDraft  BloodSearchRequestStatus = "draft"  // Черновик запроса
 )
 
-// BloodSearchPetRequest представляет запрос на добавление питомца в систему поиска крови
-type BloodSearchPetRequest struct {
+// BloodSearchRequest представляет полную информацию о запросе на поиск крови
+type BloodSearchRequest struct {
 	ID                     string                   `json:"id,omitempty" doc:"ID заявки" example:"BLS-aBcDeF1234"`
-	PetID                  string                   `json:"petId" validate:"required" doc:"ID питомца" example:"PET-aBcDeF1234"`
-	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded" validate:"required,gt=0" doc:"Необходимый объем крови в мл" example:"100"`
+	PetID                  string                   `json:"petId,omitempty" doc:"ID питомца" example:"PET-aBcDeF1234"`
+	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"100"`
 	BloodVolumeReserved    int32                    `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" example:"0"`
-	Regions                []string                 `json:"regions" validate:"required" doc:"Список ID регионов, где требуется кровь"`
-	SmallPetsNotifyAllowed bool                     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
+	Regions                []string                 `json:"regions,omitempty" doc:"Список ID регионов, где требуется кровь"`
+	SmallPetsNotifyAllowed bool                     `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
 	Description            string                   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
-	PhotoUrls              []string                 `json:"photoUrls,omitempty" doc:"Список URL фотографий питомца" example:"[\"https://example.com/pet_photo1.jpg\", \"https://example.com/pet_photo2.jpg\"]"`
-	BloodGroupNames        []string                 `json:"bloodGroupNames" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
-	BloodComponentIds      []string                 `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются"`
+	PhotoUrls              []string                 `json:"photoUrls,omitempty" doc:"Список URL фотографий питомца к заявке" example:"[\"https://example.com/pet_photo1.jpg\", \"https://example.com/pet_photo2.jpg\"]"`
+	BloodGroupNames        []string                 `json:"bloodGroupNames,omitempty" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
+	BloodComponentIds      []string                 `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови, которые требуются"`
 	OnBoarding             []string                 `json:"onBoarding,omitempty" doc:"Список пройденых онбордингов" enum:"SEARCH,BLOOD_CARD"`
 	Status                 BloodSearchRequestStatus `json:"status,omitempty" doc:"Статус запроса" enum:"active,closed,draft" example:"active"`
-	Responses              []*DonorApplication      `json:"responses,omitempty" doc:"Список ID ответов на запрос"`
-	SuitableDonors         int                      `json:"suitableDonors" doc:"Колличество подходящих доноров на портале"`
+	Responses              []*DonorApplication      `json:"responses,omitempty" doc:"Отклики доноров на запрос"`
+	SuitableDonors         int                      `json:"suitableDonors,omitempty" doc:"Колличество подходящих доноров на портале"`
 	CreatedAt              *time.Time               `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt              *time.Time               `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt              *time.Time               `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+}
+
+// CreateBloodSearchRequest представляет запрос на создание заявки на поиск крови
+type CreateBloodSearchRequest struct {
+	PetID                  string   `json:"petId" validate:"required" doc:"ID питомца" example:"PET-aBcDeF1234"`
+	BloodVolumeNeeded      int32    `json:"bloodVolumeNeeded" validate:"required,gt=0" doc:"Необходимый объем крови в мл" example:"100"`
+	Regions                []string `json:"regions" validate:"required" doc:"Список ID регионов, где требуется кровь"`
+	SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
+	Description            string   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
+	BloodGroupNames        []string `json:"bloodGroupNames" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
+	BloodComponentIds      []string `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются"`
 }
 
 // UpdateBloodRequestDTO представляет DTO для частичного обновления заявки на поиск крови
@@ -83,10 +94,10 @@ type BloodRequestCreateResponse struct {
 
 // BloodRequestsResponse представляет обертку для ответа со списком запросов на поиск крови для Huma
 type BloodRequestsResponse struct {
-	Body []BloodSearchPetRequest
+	Body []BloodSearchRequest
 }
 
 // BloodRequestResponse представляет обертку для ответа с одним запросом на поиск крови для Huma
 type BloodRequestResponse struct {
-	Body BloodSearchPetRequest
+	Body BloodSearchRequest
 }

@@ -129,7 +129,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 }
 
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
-func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dto.BloodSearchPetRequest {
+func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dto.BloodSearchRequest {
 	var applications []*dto.DonorApplication
 	for _, response := range req.Edges.Responses {
 		donor := response.Edges.Donor
@@ -148,7 +148,7 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dt
 			UpdatedAt:       &response.UpdatedAt,
 		})
 	}
-	return dto.BloodSearchPetRequest{
+	return dto.BloodSearchRequest{
 		ID:                     req.ID,
 		PetID:                  req.PetID,
 		BloodVolumeNeeded:      req.BloodVolumeNeeded,
@@ -170,15 +170,13 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dt
 }
 
 // mapDTOToBloodRequest преобразует DTO создания заявки в ENT модель
-func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
+func mapDTOToBloodRequest(d dto.CreateBloodSearchRequest) *ent.BloodSearchRequest {
 	return &ent.BloodSearchRequest{
 		PetID:                  d.PetID,
 		BloodVolumeNeeded:      d.BloodVolumeNeeded,
-		BloodVolumeReserved:    d.BloodVolumeReserved,
 		Regions:                d.Regions,
 		SmallPetsNotifyAllowed: d.SmallPetsNotifyAllowed,
 		Description:            d.Description,
-		PhotoUrls:              d.PhotoUrls,
 		BloodGroupNames:        d.BloodGroupNames,
 		BloodComponentIds:      d.BloodComponentIds,
 		Status:                 bloodsearchrequest.StatusActive,
@@ -188,7 +186,7 @@ func mapDTOToBloodRequest(d dto.BloodSearchPetRequest) *ent.BloodSearchRequest {
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
-	Body dto.BloodSearchPetRequest
+	Body dto.CreateBloodSearchRequest
 }) (*dto.BloodRequestCreateResponse, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
 

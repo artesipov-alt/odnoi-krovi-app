@@ -96,7 +96,7 @@ func (h *PetHandler) Register(api huma.API) {
 func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	dto.PetUserIDPath
 	Body dto.PetCreate
-}) (*dto.PetResponse, error) {
+}) (*dto.BodyPetCreateResponse, error) {
 	body := &input.Body
 
 	petDomain := new(domain.Pet)
@@ -107,7 +107,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: ToDTO(*createdPet)}, nil
+	return &dto.BodyPetCreateResponse{Body: dto.PetCreateResponse{ID: createdPet.ID, CreatedAt: createdPet.CreatedAt}}, nil
 }
 
 func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {

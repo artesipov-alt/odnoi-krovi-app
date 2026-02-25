@@ -65,14 +65,13 @@ type PetUpdate struct {
 	Type               *string           `json:"type,omitempty" doc:"Тип животного" enum:"dog,cat" example:"dog"`
 	BloodGroup         *string           `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
 	ReproductiveStatus *string           `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус питомца" enum:"pregnancy,lactation,estrus"`
-	PetStatus          *string           `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient" example:"donor"`
+	PetStatus          *string           `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient,blood_found"`
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
 	Bonuses            *[]string         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
 }
 
-// Pet представляет ответ с информацией о питомце
 // PetCreate представляет структуру для создания нового питомца
 type PetCreate struct {
 	Name               string            `json:"name" doc:"Имя питомца" example:"Шарик"`
@@ -94,6 +93,13 @@ type PetCreate struct {
 	Bonuses            []string          `json:"bonuses,omitempty" doc:"Дополнительная информация"`
 }
 
+// PetCreateResponse представляет ответ с ID созданного питомца и датой создания
+type PetCreateResponse struct {
+	ID        string     `json:"id,omitempty" doc:"Уникальный идентификатор созданного питомца" example:"PET-aBcDeF1234"`
+	CreatedAt *time.Time `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z"`
+}
+
+// Pet представляет ответ с информацией о питомце
 type Pet struct {
 	ID                 string             `json:"id,omitempty" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
 	Name               string             `json:"name,omitempty" doc:"Имя питомца" example:"Шарик"`
@@ -132,6 +138,10 @@ type PetPreloadQuery struct {
 
 type PetResponse struct {
 	Body Pet
+}
+
+type BodyPetCreateResponse struct {
+	Body PetCreateResponse
 }
 
 type PetsResponse struct {

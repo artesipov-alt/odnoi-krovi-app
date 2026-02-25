@@ -34,10 +34,10 @@ type DonorApplicationCreate struct {
 }
 
 type DonorApplicationResponse struct {
-	ID        string              `json:"id" doc:"ID ответа донора" example:"DR-ABCDEABCDE"`
-	ReqID     string              `json:"requestId" doc:"ID запроса на кровь" example:"BSR-ABCDEABCDE"`
-	DonorID   string              `json:"donorId" doc:"ID донора" example:"DON-ABCDEABCDE"`
-	Status    DonorResponseStatus `json:"status" doc:"Статус ответа донора" enum:"pending,accepted,declined,donated" example:"pending"`
+	ID        string              `json:"id,omitempty" doc:"ID ответа донора" example:"DR-ABCDEABCDE"`
+	ReqID     string              `json:"requestId,omitempty" doc:"ID запроса на кровь" example:"BSR-ABCDEABCDE"`
+	DonorID   string              `json:"donorId,omitempty" doc:"ID донора" example:"DON-ABCDEABCDE"`
+	Status    DonorResponseStatus `json:"status,omitempty" doc:"Статус ответа донора" enum:"pending,accepted,declined,donated" example:"pending"`
 	CreatedAt *time.Time          `json:"createdAt,omitempty" doc:"Дата создания ответа" example:"2023-10-01T12:00:00Z"`
 }
 
