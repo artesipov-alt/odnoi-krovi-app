@@ -5,6 +5,33 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.2.0] - 2026-02-25
+
+### Добавлено
+- **Количество подходящих доноров в DTO заявки на кровь:** Добавлено новое поле `SuitableDonors` в DTO `BloodSearchPetRequest`, которое отслеживает количество подходящих доноров для заявки на кровь. Это поле заполняется путем запроса к базе данных для доноров, соответствующих критериям группы крови и не имеющих стоп-факторов. Метод `GetRequestByPetID` в сервисном слое теперь возвращает это количество вместе с заявкой на кровь.
+- **Ответы доноров в DTO заявки на кровь:** Включены детали доноров, такие как имя, фотографии, группа крови, в ответы. Рассчитывается безопасное количество донации на основе типа и веса питомца. Обновлен репозиторий для загрузки данных донора и группы крови с ответами.
+
+### Изменено
+- **Рефакторинг DTO и обработчиков заявок на кровь и питомцев:**
+    - `BloodSearchPetRequest` переименован в `BloodSearchRequest`.
+    - Добавлен DTO `CreateBloodSearchRequest` для создания.
+    - Обновлен обработчик питомцев для возврата упрощенного ответа на создание.
+    - Различные поля DTO сделаны опциональными с `omitempty`.
+    - Добавлено новое значение перечисления статуса питомца `blood_found`.
+- **Замена `donor_restrictions` на `stop_factors` и `warn_factors`:** Поле `donor_restrictions` заменено на отдельные поля `stop_factors` и `warn_factors`.
+
+### Технические детали
+- В `dto/blood_search.go` добавлено поле `SuitableDonors` в `BloodSearchPetRequest`.
+- В `internal/services/blood_search_service.go` метод `GetRequestByPetID` обновлен для возврата количества подходящих доноров.
+- В `dto/blood_search.go` и `internal/handlers/blood_search_handler.go` `BloodSearchPetRequest` переименован в `BloodSearchRequest`.
+- Добавлен `dto/create_blood_search_request.go`.
+- В `internal/handlers/pet_handler.go` обновлен ответ на создание.
+- В различных DTO добавлены теги `json:",omitempty"`.
+- В `internal/domain/pet.go` (или аналогичном файле) добавлено значение `blood_found` в перечисление статусов питомца.
+- В схеме `Pet` (или соответствующей) поля `donor_restrictions` заменены на `stop_factors` и `warn_factors`.
+- В `dto/blood_search.go` и `internal/repositories/blood_search_repository.go` обновлены структуры для включения деталей доноров и расчета безопасного количества донации.
+
+
 
 ## [3.1.1] - 2026-02-24
 

@@ -13,78 +13,68 @@
  */
 
 import { mapValues } from '../runtime';
-import type { User } from './User';
-import {
-    UserFromJSON,
-    UserFromJSONTyped,
-    UserToJSON,
-    UserToJSONTyped,
-} from './User';
-
 /**
  * 
  * @export
- * @interface UsersDeletedBody
+ * @interface PetCreateResponse
  */
-export interface UsersDeletedBody {
+export interface PetCreateResponse {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof UsersDeletedBody
+     * @memberof PetCreateResponse
      */
     readonly $schema?: string;
     /**
-     * Информационное сообщение
-     * @type {string}
-     * @memberof UsersDeletedBody
+     * Дата создания записи
+     * @type {Date}
+     * @memberof PetCreateResponse
      */
-    message: string;
+    createdAt?: Date;
     /**
-     * Список удаленных пользователей
-     * @type {Array<User>}
-     * @memberof UsersDeletedBody
+     * Уникальный идентификатор созданного питомца
+     * @type {string}
+     * @memberof PetCreateResponse
      */
-    users: Array<User> | null;
+    id?: string;
 }
 
 /**
- * Check if a given object implements the UsersDeletedBody interface.
+ * Check if a given object implements the PetCreateResponse interface.
  */
-export function instanceOfUsersDeletedBody(value: object): value is UsersDeletedBody {
-    if (!('message' in value) || value['message'] === undefined) return false;
-    if (!('users' in value) || value['users'] === undefined) return false;
+export function instanceOfPetCreateResponse(value: object): value is PetCreateResponse {
     return true;
 }
 
-export function UsersDeletedBodyFromJSON(json: any): UsersDeletedBody {
-    return UsersDeletedBodyFromJSONTyped(json, false);
+export function PetCreateResponseFromJSON(json: any): PetCreateResponse {
+    return PetCreateResponseFromJSONTyped(json, false);
 }
 
-export function UsersDeletedBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): UsersDeletedBody {
+export function PetCreateResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): PetCreateResponse {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'message': json['message'],
-        'users': (json['users'] == null ? null : (json['users'] as Array<any>).map(UserFromJSON)),
+        'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
+        'id': json['id'] == null ? undefined : json['id'],
     };
 }
 
-export function UsersDeletedBodyToJSON(json: any): UsersDeletedBody {
-    return UsersDeletedBodyToJSONTyped(json, false);
+export function PetCreateResponseToJSON(json: any): PetCreateResponse {
+    return PetCreateResponseToJSONTyped(json, false);
 }
 
-export function UsersDeletedBodyToJSONTyped(value?: Omit<UsersDeletedBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function PetCreateResponseToJSONTyped(value?: Omit<PetCreateResponse, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'message': value['message'],
-        'users': (value['users'] == null ? null : (value['users'] as Array<any>).map(UserToJSON)),
+        'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
+        'id': value['id'],
     };
 }
 
