@@ -98,11 +98,17 @@ const Second: FC<Props> = ({
             return;
         }
 
-        if (petType === PetType.CAT && Number(newValue) > Number(weight) * 0.07 * 1000) {
+        if (
+            petType === PetType.CAT &&
+            Number(newValue.replace(',', '.')) > Number((Number(weight) * 13.2).toFixed(2))
+        ) {
             return;
         }
 
-        if (petType === PetType.DOG && Number(newValue) > Number(weight) * 0.1 * 1000) {
+        if (
+            petType === PetType.DOG &&
+            Number(newValue.replace(',', '.')) > Number((Number(weight) * 17.6).toFixed(2))
+        ) {
             return;
         }
 
