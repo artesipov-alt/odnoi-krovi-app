@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
@@ -564,9 +566,20 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 	return nil
 }
 
-// func (r *EntBloodInfoRepository) CountSuitableDonors(ctx context.Context, bloodGroups []string) (int, error) {
-
-// }
+func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups []string) (int, error) {
+	count, err := r.client.Pet.Query().
+		Where(
+			func(s *sql.Selector) {
+				s.Where(sqljson.LenEQ(pet.FieldStopFactors, 0))
+			},
+			pet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
+		).
+		Count(ctx)
+	if err != nil {
+		return 0, apperrors.Internal(err, "failed to count suitable donors")
+	}
+	return count, nil
+}
 
 // UpdateStatus обновляет статус питомца по его ID
 // func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {

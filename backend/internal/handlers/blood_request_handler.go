@@ -56,15 +56,15 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		DefaultStatus: http.StatusCreated,
 	}, h.AddPetToBloodRequestPool)
 
-	// Получить список заявок на поиск крови
-	huma.Register(api, huma.Operation{
-		OperationID: "get-pets-from-blood-request-pool",
-		Method:      http.MethodPost,
-		Path:        "/v1/blood-request/pool/search",
-		Summary:     "Получить список заявок на поиск крови",
-		Description: "Возвращает список заявок по фильтрам",
-		Tags:        []string{"blood-request-v1"},
-	}, h.GetPetsFromBloodRequestPool)
+	// // Получить список заявок на поиск крови
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "get-pets-from-blood-request-pool",
+	// 	Method:      http.MethodPost,
+	// 	Path:        "/v1/blood-request/pool/search",
+	// 	Summary:     "Получить список заявок на поиск крови",
+	// 	Description: "Возвращает список заявок по фильтрам",
+	// 	Tags:        []string{"blood-request-v1"},
+	// }, h.GetPetsFromBloodRequestPool)
 
 	// Получить заявку по ID
 	huma.Register(api, huma.Operation{
@@ -129,7 +129,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 }
 
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
-func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest {
+func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dto.BloodSearchPetRequest {
 	var applications []*dto.DonorApplication
 	for _, response := range req.Edges.Responses {
 		donor := response.Edges.Donor
@@ -162,6 +162,7 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest
 		OnBoarding:             req.OnBoarding,
 		Status:                 dto.BloodSearchRequestStatus(req.Status),
 		Responses:              applications,
+		SuitableDonors:         *situatableDonors,
 		CreatedAt:              &req.CreatedAt,
 		UpdatedAt:              &req.UpdatedAt,
 		DeletedAt:              req.DeletedAt,
@@ -293,48 +294,48 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 	}}, nil
 }
 
-func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
-	Body dto.BloodSearchFilterRequest
-}) (*dto.BloodRequestsResponse, error) {
-	slog.DebugContext(ctx, "getting pets from blood request pool", "filters", input.Body)
-	filters := make(map[string]any)
-	if input.Body.PetID != "" {
-		filters["pet_id"] = input.Body.PetID
-	}
-	if input.Body.Status != "" {
-		filters["status"] = input.Body.Status
-	}
+// func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
+// 	Body dto.BloodSearchFilterRequest
+// }) (*dto.BloodRequestsResponse, error) {
+// 	slog.DebugContext(ctx, "getting pets from blood request pool", "filters", input.Body)
+// 	filters := make(map[string]any)
+// 	if input.Body.PetID != "" {
+// 		filters["pet_id"] = input.Body.PetID
+// 	}
+// 	if input.Body.Status != "" {
+// 		filters["status"] = input.Body.Status
+// 	}
 
-	requests, err := h.svc.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
-	if err != nil {
-		return nil, err
-	}
+// 	requests, err := h.svc.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	dtos := make([]dto.BloodSearchPetRequest, len(requests))
-	for i, req := range requests {
-		dtos[i] = mapBloodRequestToDTO(req)
-	}
+// 	dtos := make([]dto.BloodSearchPetRequest, len(requests))
+// 	for i, req := range requests {
+// 		dtos[i] = mapBloodRequestToDTO(req)
+// 	}
 
-	return &dto.BloodRequestsResponse{Body: dtos}, nil
-}
+// 	return &dto.BloodRequestsResponse{Body: dtos}, nil
+// }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
 	bloodReq, err := h.svc.GetRequestByID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq)}, nil
+	//TODO Метод GetRequestByID Также нужно исправить.
+	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq, new(0))}, nil
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
 	slog.DebugContext(ctx, "getting blood request by PET ID", "pet_id", input.ID)
-	bloodReq, err := h.svc.GetRequestByPetID(ctx, input.ID)
+	bloodReq, situatableDonors, err := h.svc.GetRequestByPetID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq)}, nil
+	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq, &situatableDonors)}, nil
 }
 
 // func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {

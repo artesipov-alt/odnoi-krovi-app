@@ -138,16 +138,20 @@ func (s *BloodSearchService) GetRequestByID(ctx context.Context, id string) (*en
 }
 
 // GetRequestByPetID получает активную заявку для конкретного питомца
-func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
+func (s *BloodSearchService) GetRequestByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, int, error) {
 	req, err := s.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
+	}
+	situatableDonors, err := s.petRepo.CountSuitableDonors(ctx, req.BloodGroupNames)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	// Преобразуем пути к фото в полные URL
 	req.PhotoUrls = s.BuildFullPhotoURLs(req.PhotoUrls, req.UpdatedAt)
 
-	return req, nil
+	return req, situatableDonors, nil
 }
 
 func (s *BloodSearchService) ApplyForBloodRequest(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error) {

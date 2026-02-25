@@ -34,7 +34,7 @@ type PetRepository interface {
 	// ExistsByID проверяет, существует ли питомец с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)
 
-	// CountSuitableDonorsByBloodGroups(ctx context.Context, bloodGroups []string) (int, error)
+	CountSuitableDonors(ctx context.Context, bloodGroups []string) (int, error)
 
 	// // UpdateStatus обновляет статус питомца по его ID
 	// UpdateStatus(ctx context.Context, id string, status string) error
