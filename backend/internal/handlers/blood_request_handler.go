@@ -141,7 +141,7 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest) dto.BloodSearchPetRequest
 			DonorPhotos:     donor.PhotoUrls,
 			DonorBloodGroup: donor.Edges.BloodGroupRef.BloodGroup,
 			Amount:          calculateDonationAmount(donor),
-			WarnFactors:     donor.DonorRestrictions,
+			WarnFactors:     donor.WarnFactors,
 			Conditions:      response.Conditions,
 			Status:          dto.DonorResponseStatus(response.Status),
 			CreatedAt:       &response.CreatedAt,

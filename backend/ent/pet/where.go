@@ -1115,14 +1115,24 @@ func ReproductiveStatusContainsFold(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldContainsFold(FieldReproductiveStatus, v))
 }
 
-// DonorRestrictionsIsNil applies the IsNil predicate on the "donor_restrictions" field.
-func DonorRestrictionsIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldDonorRestrictions))
+// StopFactorsIsNil applies the IsNil predicate on the "stop_factors" field.
+func StopFactorsIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldStopFactors))
 }
 
-// DonorRestrictionsNotNil applies the NotNil predicate on the "donor_restrictions" field.
-func DonorRestrictionsNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldDonorRestrictions))
+// StopFactorsNotNil applies the NotNil predicate on the "stop_factors" field.
+func StopFactorsNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldStopFactors))
+}
+
+// WarnFactorsIsNil applies the IsNil predicate on the "warn_factors" field.
+func WarnFactorsIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldWarnFactors))
+}
+
+// WarnFactorsNotNil applies the NotNil predicate on the "warn_factors" field.
+func WarnFactorsNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldWarnFactors))
 }
 
 // BloodGroupIDEQ applies the EQ predicate on the "blood_group_id" field.

@@ -315,7 +315,8 @@ type CreatePetInput struct {
 	PhotoUrls            []string
 	LivingCondition      *string
 	ReproductiveStatus   *string
-	DonorRestrictions    []string
+	StopFactors          []string
+	WarnFactors          []string
 	Bonuses              []string
 	OwnerID              *string
 	HealthID             *string
@@ -361,8 +362,11 @@ func (i *CreatePetInput) Mutate(m *PetMutation) {
 	if v := i.ReproductiveStatus; v != nil {
 		m.SetReproductiveStatus(*v)
 	}
-	if v := i.DonorRestrictions; v != nil {
-		m.SetDonorRestrictions(v)
+	if v := i.StopFactors; v != nil {
+		m.SetStopFactors(v)
+	}
+	if v := i.WarnFactors; v != nil {
+		m.SetWarnFactors(v)
 	}
 	if v := i.Bonuses; v != nil {
 		m.SetBonuses(v)
@@ -421,9 +425,12 @@ type UpdatePetInput struct {
 	LivingCondition         *string
 	ClearReproductiveStatus bool
 	ReproductiveStatus      *string
-	ClearDonorRestrictions  bool
-	DonorRestrictions       []string
-	AppendDonorRestrictions []string
+	ClearStopFactors        bool
+	StopFactors             []string
+	AppendStopFactors       []string
+	ClearWarnFactors        bool
+	WarnFactors             []string
+	AppendWarnFactors       []string
 	ClearBonuses            bool
 	Bonuses                 []string
 	AppendBonuses           []string
@@ -509,14 +516,23 @@ func (i *UpdatePetInput) Mutate(m *PetMutation) {
 	if v := i.ReproductiveStatus; v != nil {
 		m.SetReproductiveStatus(*v)
 	}
-	if i.ClearDonorRestrictions {
-		m.ClearDonorRestrictions()
+	if i.ClearStopFactors {
+		m.ClearStopFactors()
 	}
-	if v := i.DonorRestrictions; v != nil {
-		m.SetDonorRestrictions(v)
+	if v := i.StopFactors; v != nil {
+		m.SetStopFactors(v)
 	}
-	if i.AppendDonorRestrictions != nil {
-		m.AppendDonorRestrictions(i.DonorRestrictions)
+	if i.AppendStopFactors != nil {
+		m.AppendStopFactors(i.StopFactors)
+	}
+	if i.ClearWarnFactors {
+		m.ClearWarnFactors()
+	}
+	if v := i.WarnFactors; v != nil {
+		m.SetWarnFactors(v)
+	}
+	if i.AppendWarnFactors != nil {
+		m.AppendWarnFactors(i.WarnFactors)
 	}
 	if i.ClearBonuses {
 		m.ClearBonuses()

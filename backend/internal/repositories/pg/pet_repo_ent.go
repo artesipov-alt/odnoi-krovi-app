@@ -303,8 +303,11 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 	if petDomain.ReproductiveStatus != "" {
 		updater.SetReproductiveStatus(string(petDomain.ReproductiveStatus))
 	}
-	if petDomain.DonorRestrictions != nil {
-		updater.SetDonorRestrictions(petDomain.DonorRestrictions)
+	if petDomain.StopFactors != nil {
+		updater.SetStopFactors(petDomain.StopFactors)
+	}
+	if petDomain.WarnFactors != nil {
+		updater.SetWarnFactors(petDomain.WarnFactors)
 	}
 	if petDomain.BreedRefID != nil {
 		updater.SetBreedRefID(*petDomain.BreedRefID)
@@ -560,6 +563,10 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 
 	return nil
 }
+
+// func (r *EntBloodInfoRepository) CountSuitableDonors(ctx context.Context, bloodGroups []string) (int, error) {
+
+// }
 
 // UpdateStatus обновляет статус питомца по его ID
 // func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {

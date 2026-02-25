@@ -823,10 +823,15 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, pet.FieldReproductiveStatus)
 				fieldSeen[pet.FieldReproductiveStatus] = struct{}{}
 			}
-		case "donorRestrictions":
-			if _, ok := fieldSeen[pet.FieldDonorRestrictions]; !ok {
-				selectedFields = append(selectedFields, pet.FieldDonorRestrictions)
-				fieldSeen[pet.FieldDonorRestrictions] = struct{}{}
+		case "stopFactors":
+			if _, ok := fieldSeen[pet.FieldStopFactors]; !ok {
+				selectedFields = append(selectedFields, pet.FieldStopFactors)
+				fieldSeen[pet.FieldStopFactors] = struct{}{}
+			}
+		case "warnFactors":
+			if _, ok := fieldSeen[pet.FieldWarnFactors]; !ok {
+				selectedFields = append(selectedFields, pet.FieldWarnFactors)
+				fieldSeen[pet.FieldWarnFactors] = struct{}{}
 			}
 		case "bloodGroupID":
 			if _, ok := fieldSeen[pet.FieldBloodGroupID]; !ok {

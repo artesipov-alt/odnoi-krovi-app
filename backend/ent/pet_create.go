@@ -228,9 +228,15 @@ func (_c *PetCreate) SetNillableReproductiveStatus(v *string) *PetCreate {
 	return _c
 }
 
-// SetDonorRestrictions sets the "donor_restrictions" field.
-func (_c *PetCreate) SetDonorRestrictions(v []string) *PetCreate {
-	_c.mutation.SetDonorRestrictions(v)
+// SetStopFactors sets the "stop_factors" field.
+func (_c *PetCreate) SetStopFactors(v []string) *PetCreate {
+	_c.mutation.SetStopFactors(v)
+	return _c
+}
+
+// SetWarnFactors sets the "warn_factors" field.
+func (_c *PetCreate) SetWarnFactors(v []string) *PetCreate {
+	_c.mutation.SetWarnFactors(v)
 	return _c
 }
 
@@ -549,9 +555,13 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_spec.SetField(pet.FieldReproductiveStatus, field.TypeString, value)
 		_node.ReproductiveStatus = value
 	}
-	if value, ok := _c.mutation.DonorRestrictions(); ok {
-		_spec.SetField(pet.FieldDonorRestrictions, field.TypeJSON, value)
-		_node.DonorRestrictions = value
+	if value, ok := _c.mutation.StopFactors(); ok {
+		_spec.SetField(pet.FieldStopFactors, field.TypeJSON, value)
+		_node.StopFactors = value
+	}
+	if value, ok := _c.mutation.WarnFactors(); ok {
+		_spec.SetField(pet.FieldWarnFactors, field.TypeJSON, value)
+		_node.WarnFactors = value
 	}
 	if value, ok := _c.mutation.Bonuses(); ok {
 		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)

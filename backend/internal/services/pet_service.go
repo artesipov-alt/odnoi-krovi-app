@@ -34,6 +34,8 @@ type PetRepository interface {
 	// ExistsByID проверяет, существует ли питомец с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)
 
+	// CountSuitableDonorsByBloodGroups(ctx context.Context, bloodGroups []string) (int, error)
+
 	// // UpdateStatus обновляет статус питомца по его ID
 	// UpdateStatus(ctx context.Context, id string, status string) error
 
@@ -112,11 +114,15 @@ func (s *PetService) CreatePet(ctx context.Context, userID string, pet *domain.P
 
 	// Calculate stop and warn factors and set DonorRestrictions
 	stopFactors := pet.GetStopFactors(time.Now())
+	pet.StopFactors = make([]string, len(stopFactors))
+	for i, f := range stopFactors {
+		pet.StopFactors[i] = string(f)
+	}
+
 	warnFactors := pet.GetWarnFactors(time.Now())
-	allFactors := append(stopFactors, warnFactors...)
-	pet.DonorRestrictions = make([]string, len(allFactors))
-	for i, f := range allFactors {
-		pet.DonorRestrictions[i] = string(f)
+	pet.WarnFactors = make([]string, len(warnFactors))
+	for i, f := range warnFactors {
+		pet.WarnFactors[i] = string(f)
 	}
 
 	newPet, err := s.petRepo.Create(ctx, pet)
@@ -148,7 +154,7 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 			pet.PetStatus = domain.PetStatusRecipient
 		}
 	} else {
-		if len(pet.DonorRestrictions) > 0 {
+		if len(pet.StopFactors) > 0 {
 			pet.PetStatus = domain.PetStatusNone
 		} else {
 			pet.PetStatus = domain.PetStatusDonor
@@ -189,7 +195,7 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPre
 				pets[i].PetStatus = domain.PetStatusRecipient
 			}
 		} else {
-			if len(pets[i].DonorRestrictions) > 0 {
+			if len(pets[i].StopFactors) > 0 {
 				pets[i].PetStatus = domain.PetStatusNone
 			} else {
 				pets[i].PetStatus = domain.PetStatusDonor
@@ -210,13 +216,16 @@ func (s *PetService) RevalidateDonor(ctx context.Context, petID string) (*domain
 
 	stopFactors := pet.GetStopFactors(time.Now())
 	warnFactors := pet.GetWarnFactors(time.Now())
-	allFactors := append(stopFactors, warnFactors...)
 
-	// Create a new empty pet structure to update only DonorRestrictions
+	// Create a new empty pet structure to update only StopFactors and WarnFactors
 	updatePet := &domain.Pet{}
-	updatePet.DonorRestrictions = make([]string, len(allFactors))
-	for i, f := range allFactors {
-		updatePet.DonorRestrictions[i] = string(f)
+	updatePet.StopFactors = make([]string, len(stopFactors))
+	for i, f := range stopFactors {
+		updatePet.StopFactors[i] = string(f)
+	}
+	updatePet.WarnFactors = make([]string, len(warnFactors))
+	for i, f := range warnFactors {
+		updatePet.WarnFactors[i] = string(f)
 	}
 
 	updatedPet, err := s.petRepo.Update(ctx, petID, updatePet)
@@ -231,7 +240,7 @@ func (s *PetService) RevalidateDonor(ctx context.Context, petID string) (*domain
 func (s *PetService) Update(ctx context.Context, id string, petInput *domain.Pet) (*domain.Pet, error) {
 	exists, err := s.petRepo.ExistsByID(ctx, id)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to check user existence")
+		return nil, apperrors.Internal(err, "failed to check pet existence")
 	}
 	if !exists {
 		return nil, apperrors.ErrPetNotFound
@@ -239,16 +248,20 @@ func (s *PetService) Update(ctx context.Context, id string, petInput *domain.Pet
 
 	// Calculate stop and warn factors and set DonorRestrictions
 	stopFactors := petInput.GetStopFactors(time.Now())
+	petInput.StopFactors = make([]string, len(stopFactors))
+	for i, f := range stopFactors {
+		petInput.StopFactors[i] = string(f)
+	}
+
 	warnFactors := petInput.GetWarnFactors(time.Now())
-	allFactors := append(stopFactors, warnFactors...)
-	petInput.DonorRestrictions = make([]string, len(allFactors))
-	for i, f := range allFactors {
-		petInput.DonorRestrictions[i] = string(f)
+	petInput.WarnFactors = make([]string, len(warnFactors))
+	for i, f := range warnFactors {
+		petInput.WarnFactors[i] = string(f)
 	}
 
 	updatedPet, err := s.petRepo.Update(ctx, id, petInput)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to create pet")
+		return nil, apperrors.Internal(err, "failed to update pet")
 	}
 
 	return updatedPet, nil

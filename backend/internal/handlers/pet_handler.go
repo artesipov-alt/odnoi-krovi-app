@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
@@ -446,22 +445,27 @@ func ToDTO(petDomain domain.Pet) dto.Pet {
 		DeletedAt:          petDomain.DeletedAt,
 	}
 
-	// Map DonorRestrictions into StopFactors and WarnFactors
-	if len(petDomain.DonorRestrictions) > 0 {
+	// Map StopFactors and WarnFactors into DonorRestrictions
+	if len(petDomain.StopFactors) > 0 || len(petDomain.WarnFactors) > 0 {
 		var stopFactors []dto.RestrictionFactor
 		var warnFactors []dto.RestrictionFactor
-		for _, code := range petDomain.DonorRestrictions {
+		for _, code := range petDomain.StopFactors {
 			desc := domain.GetFactorDescription(domain.FactorCode(code))
 			factor := dto.RestrictionFactor{
 				Code:           code,
 				Description:    desc.Description,
 				SubDescription: desc.SubDescription,
 			}
-			if strings.HasPrefix(code, "STOP_") {
-				stopFactors = append(stopFactors, factor)
-			} else if strings.HasPrefix(code, "WARN_") {
-				warnFactors = append(warnFactors, factor)
+			stopFactors = append(stopFactors, factor)
+		}
+		for _, code := range petDomain.WarnFactors {
+			desc := domain.GetFactorDescription(domain.FactorCode(code))
+			factor := dto.RestrictionFactor{
+				Code:           code,
+				Description:    desc.Description,
+				SubDescription: desc.SubDescription,
 			}
+			warnFactors = append(warnFactors, factor)
 		}
 		petDTO.DonorRestrictions = &dto.DonorRestrictions{
 			StopFactors: stopFactors,

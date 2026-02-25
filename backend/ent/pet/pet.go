@@ -47,8 +47,10 @@ const (
 	FieldLivingCondition = "living_condition"
 	// FieldReproductiveStatus holds the string denoting the reproductive_status field in the database.
 	FieldReproductiveStatus = "reproductive_status"
-	// FieldDonorRestrictions holds the string denoting the donor_restrictions field in the database.
-	FieldDonorRestrictions = "donor_restrictions"
+	// FieldStopFactors holds the string denoting the stop_factors field in the database.
+	FieldStopFactors = "stop_factors"
+	// FieldWarnFactors holds the string denoting the warn_factors field in the database.
+	FieldWarnFactors = "warn_factors"
 	// FieldBloodGroupID holds the string denoting the blood_group_id field in the database.
 	FieldBloodGroupID = "blood_group_id"
 	// FieldBonuses holds the string denoting the bonuses field in the database.
@@ -148,7 +150,8 @@ var Columns = []string{
 	FieldTreatmentID,
 	FieldLivingCondition,
 	FieldReproductiveStatus,
-	FieldDonorRestrictions,
+	FieldStopFactors,
+	FieldWarnFactors,
 	FieldBloodGroupID,
 	FieldBonuses,
 }

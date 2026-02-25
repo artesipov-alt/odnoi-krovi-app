@@ -56,8 +56,10 @@ type Pet struct {
 	LivingCondition string `json:"living_condition,omitempty"`
 	// ReproductiveStatus holds the value of the "reproductive_status" field.
 	ReproductiveStatus string `json:"reproductive_status,omitempty"`
-	// DonorRestrictions holds the value of the "donor_restrictions" field.
-	DonorRestrictions []string `json:"donor_restrictions,omitempty"`
+	// StopFactors holds the value of the "stop_factors" field.
+	StopFactors []string `json:"stop_factors,omitempty"`
+	// WarnFactors holds the value of the "warn_factors" field.
+	WarnFactors []string `json:"warn_factors,omitempty"`
 	// BloodGroupID holds the value of the "blood_group_id" field.
 	BloodGroupID *string `json:"blood_group_id,omitempty"`
 	// Bonuses holds the value of the "bonuses" field.
@@ -185,7 +187,7 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case pet.FieldPhotoUrls, pet.FieldDonorRestrictions, pet.FieldBonuses:
+		case pet.FieldPhotoUrls, pet.FieldStopFactors, pet.FieldWarnFactors, pet.FieldBonuses:
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
@@ -315,12 +317,20 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ReproductiveStatus = value.String
 			}
-		case pet.FieldDonorRestrictions:
+		case pet.FieldStopFactors:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field donor_restrictions", values[i])
+				return fmt.Errorf("unexpected type %T for field stop_factors", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.DonorRestrictions); err != nil {
-					return fmt.Errorf("unmarshal field donor_restrictions: %w", err)
+				if err := json.Unmarshal(*value, &_m.StopFactors); err != nil {
+					return fmt.Errorf("unmarshal field stop_factors: %w", err)
+				}
+			}
+		case pet.FieldWarnFactors:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field warn_factors", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.WarnFactors); err != nil {
+					return fmt.Errorf("unmarshal field warn_factors: %w", err)
 				}
 			}
 		case pet.FieldBloodGroupID:
@@ -468,8 +478,11 @@ func (_m *Pet) String() string {
 	builder.WriteString("reproductive_status=")
 	builder.WriteString(_m.ReproductiveStatus)
 	builder.WriteString(", ")
-	builder.WriteString("donor_restrictions=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DonorRestrictions))
+	builder.WriteString("stop_factors=")
+	builder.WriteString(fmt.Sprintf("%v", _m.StopFactors))
+	builder.WriteString(", ")
+	builder.WriteString("warn_factors=")
+	builder.WriteString(fmt.Sprintf("%v", _m.WarnFactors))
 	builder.WriteString(", ")
 	if v := _m.BloodGroupID; v != nil {
 		builder.WriteString("blood_group_id=")
