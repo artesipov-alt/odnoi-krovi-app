@@ -25,8 +25,8 @@ type BloodSearchRequest struct {
 	BloodGroupNames        []string                 `json:"bloodGroupNames,omitempty" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
 	BloodComponentIds      []string                 `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови, которые требуются"`
 	OnBoarding             []string                 `json:"onBoarding,omitempty" doc:"Список пройденых онбордингов" enum:"SEARCH,BLOOD_CARD"`
-	Status                 BloodSearchRequestStatus `json:"status,omitempty" doc:"Статус запроса" enum:"active,closed,draft" example:"active"`
-	Responses              []*DonorApplication      `json:"responses,omitempty" doc:"Отклики доноров на запрос"`
+	Status                 BloodSearchRequestStatus `json:"status" doc:"Статус запроса" enum:"active,closed,draft" example:"active"`
+	Responses              []*DonorApplication      `json:"responses" doc:"Отклики доноров на запрос"`
 	SuitableDonors         int                      `json:"suitableDonors" doc:"Колличество подходящих доноров на портале"`
 	CreatedAt              *time.Time               `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt              *time.Time               `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
