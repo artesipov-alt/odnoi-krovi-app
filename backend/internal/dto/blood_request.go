@@ -14,8 +14,8 @@ const (
 
 // BloodSearchRequest представляет полную информацию о запросе на поиск крови
 type BloodSearchRequest struct {
-	ID                     string                   `json:"id" doc:"ID заявки" example:"BLS-aBcDeF1234"`
-	PetID                  string                   `json:"petId" doc:"ID питомца" example:"PET-aBcDeF1234"`
+	ID                     string                   `json:"id" doc:"ID заявки" example:"BLS-aBcDeF1234"`     // должно всегда возвращаться
+	PetID                  string                   `json:"petId" doc:"ID питомца" example:"PET-aBcDeF1234"` // должно всегда возвращаться
 	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"100"`
 	BloodVolumeReserved    int32                    `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" example:"0"`
 	Regions                []string                 `json:"regions,omitempty" doc:"Список ID регионов, где требуется кровь"`
@@ -25,9 +25,9 @@ type BloodSearchRequest struct {
 	BloodGroupNames        []string                 `json:"bloodGroupNames,omitempty" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
 	BloodComponentIds      []string                 `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови, которые требуются"`
 	OnBoarding             []string                 `json:"onBoarding,omitempty" doc:"Список пройденых онбордингов" enum:"SEARCH,BLOOD_CARD"`
-	Status                 BloodSearchRequestStatus `json:"status" doc:"Статус запроса" enum:"active,closed,draft" example:"active"`
-	Responses              []*DonorApplication      `json:"responses" doc:"Отклики доноров на запрос"`
-	SuitableDonors         int                      `json:"suitableDonors" doc:"Колличество подходящих доноров на портале"`
+	Status                 BloodSearchRequestStatus `json:"status" doc:"Статус запроса" enum:"active,closed,draft" example:"active"` // должно всегда возвращаться
+	Responses              []*DonorApplication      `json:"responses" doc:"Отклики доноров на запрос"`                               // должно всегда возвращаться
+	SuitableDonors         int                      `json:"suitableDonors" doc:"Колличество подходящих доноров на портале"`          // должно всегда возвращаться
 	CreatedAt              *time.Time               `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt              *time.Time               `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt              *time.Time               `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`

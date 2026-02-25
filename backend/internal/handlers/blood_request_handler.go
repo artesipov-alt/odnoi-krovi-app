@@ -130,7 +130,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 
 // mapBloodRequestToDTO преобразует ENT модель заявки в DTO
 func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dto.BloodSearchRequest {
-	var applications []*dto.DonorApplication
+	applications := []*dto.DonorApplication{}
 	for _, response := range req.Edges.Responses {
 		donor := response.Edges.Donor
 		var bloodGroup string
