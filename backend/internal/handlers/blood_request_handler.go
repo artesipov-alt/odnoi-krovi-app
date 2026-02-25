@@ -133,13 +133,17 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dt
 	var applications []*dto.DonorApplication
 	for _, response := range req.Edges.Responses {
 		donor := response.Edges.Donor
+		var bloodGroup string
+		if donor.Edges.BloodGroupRef != nil {
+			bloodGroup = donor.Edges.BloodGroupRef.BloodGroup
+		}
 		applications = append(applications, &dto.DonorApplication{
 			ID:              response.ID,
 			RequestID:       req.ID,
 			DonorID:         donor.ID,
 			DonorName:       donor.Name,
 			DonorPhotos:     donor.PhotoUrls,
-			DonorBloodGroup: donor.Edges.BloodGroupRef.BloodGroup,
+			DonorBloodGroup: bloodGroup,
 			Amount:          calculateDonationAmount(donor),
 			WarnFactors:     donor.WarnFactors,
 			Conditions:      response.Conditions,
