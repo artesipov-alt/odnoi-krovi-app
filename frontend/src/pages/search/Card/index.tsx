@@ -153,10 +153,10 @@ const SearchCard: FC<Props> = ({
                                         <CircularProgress
                                             showDot
                                             size={180}
-                                            current={5}
-                                            total={bloodVolumeNeeded}
                                             strokeWidth={15}
+                                            total={bloodVolumeNeeded}
                                             color='var(--red10, #FF2727)'
+                                            current={bloodVolumeNeeded / 2}
                                         />
                                         <div className={styles.neededVolume}>
                                             {bloodVolumeNeeded}
