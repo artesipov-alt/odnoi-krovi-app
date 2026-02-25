@@ -93,12 +93,13 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
 
         if (success) {
             setStep(confirmedStep + 1);
-            setIsLoading(false);
 
             await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
         } else {
             showToast(error || '');
         }
+
+        setIsLoading(false);
     };
 
     const onBackClickHandler = () => {

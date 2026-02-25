@@ -70,7 +70,7 @@
                         "groups": [
                             ["^\\u0000"],
                             ["^@?\\w"],
-                            ["^(config|modules|api|store|components|designSystemm)"],
+                            ["^(config|modules|api|store|components|designSystem)"],
                             ["^"],
                             ["^\\."]
                         ]

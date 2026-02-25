@@ -161,13 +161,13 @@ const Second: FC<Props> = ({
                     })}
                 </div>
                 {((petType === PetType.CAT && desiredBloodGroups.length > 1) ||
-                    (petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === '2')) && (
+                    (petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === 'BLG-2')) && (
                     <Alert
                         className={cn(styles.alert, { [styles.isTopMargin]: true })}
                         text='Переливание неподходящей группы крови может быть ОПАСНО! Проконсультируйтесь с врачом!'
                     />
                 )}
-                {petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === '1' && (
+                {petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === 'BLG-1' && (
                     <Alert
                         className={cn(styles.alert, { [styles.isTopMargin]: true })}
                         text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу (DEA 1 +), чтобы не создавать дефицит для других собак.'
@@ -184,7 +184,7 @@ const Second: FC<Props> = ({
             <FormItem
                 title='Какой объем требуется?'
                 // subtitle={`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
-                subtitle={`до ${Number((Number(weight) * (petType === PetType.DOG ? 17.6 : 13.2) * 0.2).toFixed(2))} мл`}
+                subtitle={`до ${Number((Number(weight) * (petType === PetType.DOG ? 17.6 : 13.2)).toFixed(2))} мл`}
             >
                 <TextField
                     name='volume'

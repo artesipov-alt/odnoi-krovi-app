@@ -1,8 +1,5 @@
 import 'react-toastify/dist/ReactToastify.css';
 
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { ru } from 'date-fns/locale/ru';
 import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
@@ -10,6 +7,7 @@ import { Slide, ToastContainer } from 'react-toastify';
 import Adding from './pages/adding';
 import Owner from './pages/owner';
 import Registration from './pages/registration';
+import Search from './pages/search';
 import { useTelegram } from './TelegramProvider';
 
 const App: FC = () => {
@@ -20,10 +18,11 @@ const App: FC = () => {
     }
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+        <>
             <Routes>
                 <Route path='/owner' element={<Owner user={user} />} />
                 <Route path='/adding' element={<Adding user={user} />} />
+                <Route path='/search/:id' element={<Search user={user} />} />
                 <Route path='/registration' element={<Registration user={user} />} />
                 <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <Registration user={user} />} />
             </Routes>
@@ -36,7 +35,7 @@ const App: FC = () => {
                 position='top-right'
                 closeOnClick={false}
             />
-        </LocalizationProvider>
+        </>
     );
 };
 
