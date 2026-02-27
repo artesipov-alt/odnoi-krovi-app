@@ -14,7 +14,9 @@ models/CreateBloodSearchRequest.ts
 models/DonorApplication.ts
 models/DonorApplicationCreate.ts
 models/DonorApplicationResponse.ts
+models/DonorRestrictionResponse.ts
 models/DonorRestrictions.ts
+models/FactorDescription.ts
 models/MessageBody.ts
 models/Pet.ts
 models/PetAnalysis.ts

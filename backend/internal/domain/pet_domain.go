@@ -246,6 +246,11 @@ func GetFactorDescription(code FactorCode) FactorDescription {
 	return factorDescriptions[code]
 }
 
+// GetAllFactors возвращает все возможные стоп- и варн-факторы
+func GetAllFactors() map[FactorCode]FactorDescription {
+	return factorDescriptions
+}
+
 // GetStopFactors возвращает список стоп-факторов для питомца на основе текущего времени
 func (p *Pet) GetStopFactors(now time.Time) []FactorCode {
 	var factors []FactorCode

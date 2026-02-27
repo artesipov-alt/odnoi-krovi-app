@@ -25,3 +25,21 @@ type PetTypePath struct {
 type PetTypeQuery struct {
 	PetType string `query:"petType" doc:"Тип животного (dog, cat, etc.)" example:"dog"`
 }
+
+// FactorDescription represents the description of a stop or warn factor
+type FactorDescription struct {
+	Code           string `json:"code" doc:"Код фактора"`
+	Description    string `json:"description" doc:"Описание фактора"`
+	SubDescription string `json:"subDescription,omitempty" doc:"Дополнительное описание или пояснение"`
+}
+
+// DonorRestrictionResponse представляет ответ со стоп-факторами и варн-факторами для донора
+type DonorRestrictionResponse struct {
+	StopFactors []FactorDescription `json:"stopFactors" doc:"Список стоп-факторов"`
+	WarnFactors []FactorDescription `json:"warnFactors" doc:"Список варн-факторов"`
+}
+
+// DonorRestrictionBody представляет тело ответа с ограничениями для донора
+type DonorRestrictionBody struct {
+	Body DonorRestrictionResponse
+}

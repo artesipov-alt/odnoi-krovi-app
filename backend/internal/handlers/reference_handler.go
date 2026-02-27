@@ -4,10 +4,12 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/enums"
@@ -42,6 +44,15 @@ func (h *ReferenceHandler) Register(api huma.API) {
 		Tags:        []string{"reference-v1"},
 	}, h.GetPetTypes)
 
+	huma.Register(api, huma.Operation{
+		OperationID: "get-donor-restrictions",
+		Method:      http.MethodGet,
+		Path:        "/v1/reference/donor-restrictions",
+		Summary:     "Получение всех ограничений для доноров",
+		Description: "Возвращает все доступные ограничения и предупреждения для доноров для выбора на фронтенде",
+		Tags:        []string{"reference-v1"},
+	}, h.GetDonorRestrictions)
+
 	// Получение всех значений пола
 	huma.Register(api, huma.Operation{
 		OperationID: "get-genders",
@@ -69,7 +80,7 @@ func (h *ReferenceHandler) Register(api huma.API) {
 		Path:        "/v1/reference/user-roles",
 		Summary:     "Получение всех ролей пользователей",
 		Description: "Возвращает все доступные роли пользователей для выбора на фронтенде",
-		Tags:        []string{"reference-v1", "users-v1"},
+		Tags:        []string{"reference-v1"},
 	}, h.GetUserRoles)
 
 	// // Получение всех ролей питомцев
@@ -169,6 +180,32 @@ func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*d
 	}
 
 	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+}
+
+func (h *ReferenceHandler) GetDonorRestrictions(ctx context.Context, input *struct{}) (*dto.DonorRestrictionBody, error) {
+	allFactors := domain.GetAllFactors()
+	var stopFactors []dto.FactorDescription
+	var warnFactors []dto.FactorDescription
+
+	for code, desc := range allFactors {
+		factor := dto.FactorDescription{
+			Code:           string(code),
+			Description:    desc.Description,
+			SubDescription: desc.SubDescription,
+		}
+		if strings.HasPrefix(string(code), "STOP_") {
+			stopFactors = append(stopFactors, factor)
+		} else if strings.HasPrefix(string(code), "WARN_") {
+			warnFactors = append(warnFactors, factor)
+		}
+	}
+
+	response := dto.DonorRestrictionResponse{
+		StopFactors: stopFactors,
+		WarnFactors: warnFactors,
+	}
+
+	return &dto.DonorRestrictionBody{Body: response}, nil
 }
 
 func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {

@@ -13,69 +13,71 @@
  */
 
 import { mapValues } from '../runtime';
-import type { UploadItem } from './UploadItem';
-import {
-    UploadItemFromJSON,
-    UploadItemFromJSONTyped,
-    UploadItemToJSON,
-    UploadItemToJSONTyped,
-} from './UploadItem';
-
 /**
  * 
  * @export
- * @interface UploadURLResponseBody
+ * @interface FactorDescription
  */
-export interface UploadURLResponseBody {
+export interface FactorDescription {
     /**
-     * A URL to the JSON Schema for this object.
+     * Код фактора
      * @type {string}
-     * @memberof UploadURLResponseBody
+     * @memberof FactorDescription
      */
-    readonly $schema?: string;
+    code: string;
     /**
-     * Список ссылок для загрузки
-     * @type {Array<UploadItem>}
-     * @memberof UploadURLResponseBody
+     * Описание фактора
+     * @type {string}
+     * @memberof FactorDescription
      */
-    items: Array<UploadItem> | null;
+    description: string;
+    /**
+     * Дополнительное описание или пояснение
+     * @type {string}
+     * @memberof FactorDescription
+     */
+    subDescription?: string;
 }
 
 /**
- * Check if a given object implements the UploadURLResponseBody interface.
+ * Check if a given object implements the FactorDescription interface.
  */
-export function instanceOfUploadURLResponseBody(value: object): value is UploadURLResponseBody {
-    if (!('items' in value) || value['items'] === undefined) return false;
+export function instanceOfFactorDescription(value: object): value is FactorDescription {
+    if (!('code' in value) || value['code'] === undefined) return false;
+    if (!('description' in value) || value['description'] === undefined) return false;
     return true;
 }
 
-export function UploadURLResponseBodyFromJSON(json: any): UploadURLResponseBody {
-    return UploadURLResponseBodyFromJSONTyped(json, false);
+export function FactorDescriptionFromJSON(json: any): FactorDescription {
+    return FactorDescriptionFromJSONTyped(json, false);
 }
 
-export function UploadURLResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): UploadURLResponseBody {
+export function FactorDescriptionFromJSONTyped(json: any, ignoreDiscriminator: boolean): FactorDescription {
     if (json == null) {
         return json;
     }
     return {
         
-        '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'items': (json['items'] == null ? null : (json['items'] as Array<any>).map(UploadItemFromJSON)),
+        'code': json['code'],
+        'description': json['description'],
+        'subDescription': json['subDescription'] == null ? undefined : json['subDescription'],
     };
 }
 
-export function UploadURLResponseBodyToJSON(json: any): UploadURLResponseBody {
-    return UploadURLResponseBodyToJSONTyped(json, false);
+export function FactorDescriptionToJSON(json: any): FactorDescription {
+    return FactorDescriptionToJSONTyped(json, false);
 }
 
-export function UploadURLResponseBodyToJSONTyped(value?: Omit<UploadURLResponseBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function FactorDescriptionToJSONTyped(value?: FactorDescription | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'items': (value['items'] == null ? null : (value['items'] as Array<any>).map(UploadItemToJSON)),
+        'code': value['code'],
+        'description': value['description'],
+        'subDescription': value['subDescription'],
     };
 }
 
