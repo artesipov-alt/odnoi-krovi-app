@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 )
 
 // EntBreedRepository implements BreedRepository using ENT

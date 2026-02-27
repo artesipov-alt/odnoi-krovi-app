@@ -7,26 +7,27 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 )
 
 // PetRepository определяет интерфейс для операций с данными питомцев
 type PetRepository interface {
 	// Create создает нового питомца в базе данных
-	Create(ctx context.Context, petDomain *domain.Pet) (*domain.Pet, error)
+	Create(ctx context.Context, petDomain *model.Pet) (*model.Pet, error)
 
 	// GetPetQuery возвращает query для eager loading
-	GetPet(ctx context.Context, id string, opts PetPreloadOptions) (*domain.Pet, error)
+	GetPet(ctx context.Context, id string, opts PetPreloadOptions) (*model.Pet, error)
 
 	// GetPetsQueryByUser возвращает query для eager loading питомцев пользователя
-	GetPetsByUser(ctx context.Context, userID string, opts PetPreloadOptions) ([]*domain.Pet, error)
+	GetPetsByUser(ctx context.Context, userID string, opts PetPreloadOptions) ([]*model.Pet, error)
 
 	// Update обновляет питомца и его связанные сущности в одной транзакции
 	// Все параметры (кроме id и pet) могут быть nil - тогда соответствующие данные не обновляются
-	Update(ctx context.Context, id string, petDomain *domain.Pet) (*domain.Pet, error)
+	Update(ctx context.Context, id string, petDomain *model.Pet) (*model.Pet, error)
 
 	// Delete удаляет питомца по его ID
 	Delete(ctx context.Context, id string) error

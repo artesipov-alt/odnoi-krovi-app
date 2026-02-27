@@ -7,16 +7,18 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqljson"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/petanalysis"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pethealth"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pettreatment"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+
 	"github.com/jinzhu/copier"
 )
 
@@ -33,7 +35,7 @@ func NewEntPetRepository(client *ent.Client) *EntPetRepository {
 }
 
 // Create создает нового питомца в базе данных вместе с его связанными сущностями в транзакции
-func (r *EntPetRepository) Create(ctx context.Context, petDomain *domain.Pet) (*domain.Pet, error) {
+func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*model.Pet, error) {
 	if petDomain == nil {
 		return nil, errors.New("входные данные питомца не могут быть nil")
 	}
@@ -130,7 +132,7 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *domain.Pet) (*
 		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
-	result := &domain.Pet{
+	result := &model.Pet{
 		ID:        newPet.ID,
 		CreatedAt: &newPet.CreatedAt,
 	}
@@ -139,8 +141,8 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *domain.Pet) (*
 }
 
 // GetPet возвращает питомца по его ID с возможностью предварительной загрузки связанных данных
-func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.PetPreloadOptions) (*domain.Pet, error) {
-	pquery := r.client.Pet.Query().Where(pet.ID(id)).WithBreedRef().WithBloodGroupRef()
+func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
+	pquery := r.client.Pet.Query().Where(entpet.ID(id)).WithBreedRef().WithBloodGroupRef()
 
 	// Применяем опции предварительной загрузки
 	if opts.WithAll {
@@ -165,7 +167,7 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.
 		return nil, apperrors.Internal(err, "не удалось получить питомца")
 	}
 
-	var result domain.Pet
+	var result model.Pet
 	if err := copier.Copy(&result, entPet); err != nil {
 		return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
 	}
@@ -179,8 +181,8 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.
 	}
 
 	if entPet.Edges.Health != nil {
-		result.Health = &domain.PetHealth{
-			HealthStatus:          domain.HealthStatus(entPet.Edges.Health.HealthStatus),
+		result.Health = &model.PetHealth{
+			HealthStatus:          model.HealthStatus(entPet.Edges.Health.HealthStatus),
 			LastDonation:          entPet.Edges.Health.LastDonation,
 			Transfused:            &entPet.Edges.Health.Transfused,
 			Medications:           &entPet.Edges.Health.Medications,
@@ -188,13 +190,13 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.
 		}
 	}
 	if entPet.Edges.Treatments != nil {
-		var treatments domain.PetTreatment
+		var treatments model.PetTreatment
 		if err := copier.Copy(&treatments, entPet.Edges.Treatments); err == nil {
 			result.Treatments = &treatments
 		}
 	}
 	if len(entPet.Edges.Analyses) > 0 {
-		var analyses []*domain.PetAnalysis
+		var analyses []*model.PetAnalysis
 		if err := copier.Copy(&analyses, entPet.Edges.Analyses); err == nil {
 			result.Analyses = analyses
 		}
@@ -204,8 +206,8 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts services.
 }
 
 // GetPetsByUser возвращает запрос для предварительной загрузки питомцев по ID пользователя
-func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts services.PetPreloadOptions) ([]*domain.Pet, error) {
-	pquery := r.client.Pet.Query().Where(pet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
+func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
+	pquery := r.client.Pet.Query().Where(entpet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
 
 	// Применяем опции предварительной загрузки
 	if opts.WithAll {
@@ -226,9 +228,9 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	var result []*domain.Pet
+	var result []*model.Pet
 	for _, p := range pets {
-		var petDomain domain.Pet
+		var petDomain model.Pet
 		if err := copier.Copy(&petDomain, p); err != nil {
 			return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
 		}
@@ -242,8 +244,8 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 		}
 
 		if p.Edges.Health != nil {
-			petDomain.Health = &domain.PetHealth{
-				HealthStatus:          domain.HealthStatus(p.Edges.Health.HealthStatus),
+			petDomain.Health = &model.PetHealth{
+				HealthStatus:          model.HealthStatus(p.Edges.Health.HealthStatus),
 				LastDonation:          p.Edges.Health.LastDonation,
 				Transfused:            &p.Edges.Health.Transfused,
 				Medications:           &p.Edges.Health.Medications,
@@ -251,13 +253,13 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 			}
 		}
 		if p.Edges.Treatments != nil {
-			var treatments domain.PetTreatment
+			var treatments model.PetTreatment
 			if err := copier.Copy(&treatments, p.Edges.Treatments); err == nil {
 				petDomain.Treatments = &treatments
 			}
 		}
 		if len(p.Edges.Analyses) > 0 {
-			var analyses []*domain.PetAnalysis
+			var analyses []*model.PetAnalysis
 			if err := copier.Copy(&analyses, p.Edges.Analyses); err == nil {
 				petDomain.Analyses = analyses
 			}
@@ -268,7 +270,7 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 }
 
 // Update обновляет существующего питомца и его связанные сущности в транзакции
-func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *domain.Pet) (*domain.Pet, error) {
+func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *model.Pet) (*model.Pet, error) {
 	if id == "" {
 		return nil, errors.New("неверный ID питомца")
 	}
@@ -331,7 +333,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 
 	// 2. Обновить данные о здоровье
 	if petDomain.Health != nil {
-		existingHealth, err := tx.PetHealth.Query().Where(pethealth.HasOwnerWith(pet.ID(id))).Only(ctx)
+		existingHealth, err := tx.PetHealth.Query().Where(pethealth.HasOwnerWith(entpet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
 			return nil, err
@@ -388,7 +390,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 
 	// 3. Обновить данные о лечении
 	if petDomain.Treatments != nil {
-		existingTreatment, err := tx.PetTreatment.Query().Where(pettreatment.HasOwnerWith(pet.ID(id))).Only(ctx)
+		existingTreatment, err := tx.PetTreatment.Query().Where(pettreatment.HasOwnerWith(entpet.ID(id))).Only(ctx)
 		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
 			return nil, err
@@ -464,7 +466,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *dom
 		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
-	return &domain.Pet{ID: updatedPetEntity.ID, UpdatedAt: &updatedPetEntity.UpdatedAt}, nil
+	return &model.Pet{ID: updatedPetEntity.ID, UpdatedAt: &updatedPetEntity.UpdatedAt}, nil
 }
 
 // Delete удаляет питомца по его ID (мягкое удаление)
@@ -493,7 +495,7 @@ func (r *EntPetRepository) ExistsByID(ctx context.Context, id string) (bool, err
 	}
 
 	exists, err := r.client.Pet.Query().
-		Where(pet.ID(id)).
+		Where(entpet.ID(id)).
 		Exist(ctx)
 
 	if err != nil {
@@ -532,7 +534,7 @@ func (r *EntPetRepository) GetDeletedPets(ctx context.Context) ([]*ent.Pet, erro
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
 	pets, err := r.client.Pet.Query().
-		Where(pet.DeletedAtNotNil()).
+		Where(entpet.DeletedAtNotNil()).
 		WithHealth().
 		WithTreatments().
 		WithAnalyses().
@@ -570,9 +572,9 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 	count, err := r.client.Pet.Query().
 		Where(
 			func(s *sql.Selector) {
-				s.Where(sqljson.LenEQ(pet.FieldStopFactors, 0))
+				s.Where(sqljson.LenEQ(entpet.FieldStopFactors, 0))
 			},
-			pet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
+			entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
 		).
 		Count(ctx)
 	if err != nil {

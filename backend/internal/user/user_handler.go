@@ -5,57 +5,24 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	petdto "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/user/dto"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
 
-// UserService определяет интерфейс для бизнес-логики пользователей
-type UserService interface {
-	// RegisterUser регистрирует нового пользователя в системе
-	RegisterUser(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
-
-	// RegisterUserSimple создает нового пользователя с Telegram ID и базовой информацией (для команды Start)
-	RegisterUserSimple(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
-
-	// GetUserByID получает пользователя по его внутреннему ID
-	GetUserByID(ctx context.Context, userID string, opt services.UserPreloadOptions) (*ent.User, error)
-
-	// GetUserByTelegramID получает пользователя по Telegram ID
-	GetUserByTelegramID(ctx context.Context, telegramID int64, opts services.UserPreloadOptions) (*ent.User, error)
-
-	// Update обновляет информацию о пользователе
-	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
-
-	// DeleteUser удаляет пользователя по ID (soft delete)
-	DeleteUser(ctx context.Context, userID string) error
-
-	// ResetUser сбрасывает пользователя к начальным настройкам
-	ResetUser(ctx context.Context, userID string) error
-
-	// RestoreUser восстанавливает удаленного пользователя
-	RestoreUser(ctx context.Context, userID string) error
-
-	// GetDeletedUsers получает всех удаленных пользователей
-	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
-
-	// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
-	BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string
-}
-
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	userService UserService
+	userService *UserService
 }
 
 // NewUserHandler создает новый обработчик пользователей
-func NewUserHandler(userService UserService) *UserHandler {
+func NewUserHandler(userService *UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
 	}
@@ -154,7 +121,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 }) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
-	usr, err := h.userService.GetUserByID(ctx, input.ID, services.UserPreloadOptions{
+	usr, err := h.userService.GetUserByID(ctx, input.ID, user.UserPreloadOptions{
 		WithPets: input.WithPets,
 	})
 
@@ -217,7 +184,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 }) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
-	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, services.UserPreloadOptions{
+	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, user.UserPreloadOptions{
 		WithPets: input.WithPets,
 	})
 
@@ -312,9 +279,9 @@ func (h *UserHandler) toDTO(u *ent.User) dto.User {
 	}
 
 	if u.Edges.Pets != nil {
-		userDTO.Pets = make([]dto.Pet, len(u.Edges.Pets))
+		userDTO.Pets = make([]petdto.Pet, len(u.Edges.Pets))
 		for i, pet := range u.Edges.Pets {
-			userDTO.Pets[i] = dto.Pet{
+			userDTO.Pets[i] = petdto.Pet{
 				ID:              pet.ID,
 				Name:            pet.Name,
 				ChipNumber:      pet.ChipNumber,
@@ -353,6 +320,6 @@ func (h *UserHandler) toENT(u *dto.User) ent.User {
 		OnBoarding:       u.OnBoarding,
 		AllowGeo:         u.AllowGeo,
 		LocationID:       u.LocationID,
-		Role:             user.Role(u.Role),
+		Role:             entuser.Role(u.Role),
 	}
 }

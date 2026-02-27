@@ -49,6 +49,16 @@ type UserResponse struct {
 	Body User
 }
 
+// IDPath представляет параметры пути с ID объекта
+type IDPathStr struct {
+	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
+}
+
+// IDPath представляет параметры пути с ID объекта
+type IDPathInt struct {
+	ID int64 `path:"id" doc:"ID Телеграм" minLength:"1" example:"12345678"`
+}
+
 // UsersDeletedBody представляет тело ответа со списком удаленных пользователей
 type UsersDeletedBody struct {
 	Message string `json:"message" doc:"Информационное сообщение"`
@@ -62,4 +72,14 @@ type UsersDeletedResponse struct {
 
 type UserPreloadQuery struct {
 	WithPets bool `query:"with_pets" doc:"Включить данные о питомцах"`
+}
+
+// MessageBody представляет тело простого текстового ответа
+type MessageBody struct {
+	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
+}
+
+// MessageResponse представляет простой текстовый ответ
+type MessageResponse struct {
+	Body MessageBody
 }

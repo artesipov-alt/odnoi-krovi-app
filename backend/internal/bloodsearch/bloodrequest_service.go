@@ -1,14 +1,16 @@
-package services
+package bloodsearch
 
 import (
 	"context"
 	"strconv"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
 )
 
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
@@ -63,15 +65,15 @@ type DonorResponseRepository interface {
 
 // BloodSearchService реализует BloodSearchService
 type BloodSearchService struct {
-	txManager repositories.TxManager
+	txManager presistance.TxManager
 	bloodRepo BloodRequestRepository
-	petRepo   PetRepository
+	petRepo   pet.PetRepository
 	donorRepo DonorResponseRepository
-	storage   FileStorage
+	storage   fileuploader.FileStorage
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(txManager repositories.TxManager, repo BloodRequestRepository, petRepo PetRepository, donorRepo DonorResponseRepository, storage FileStorage) *BloodSearchService {
+func NewBloodSearchService(txManager presistance.TxManager, repo BloodRequestRepository, petRepo PetRepository, donorRepo DonorResponseRepository, storage FileStorage) *BloodSearchService {
 	return &BloodSearchService{
 		txManager: txManager,
 		bloodRepo: repo,

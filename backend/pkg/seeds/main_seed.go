@@ -5,12 +5,12 @@ import (
 	"log/slog"
 	"strconv"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 )
 
 // SeedBloodGroups заполняет таблицу групп крови начальными данными через ENT

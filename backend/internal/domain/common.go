@@ -1,24 +1,4 @@
-package dto
-
-// MessageBody представляет тело простого текстового ответа
-type MessageBody struct {
-	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
-}
-
-// MessageResponse представляет простой текстовый ответ
-type MessageResponse struct {
-	Body MessageBody
-}
-
-// IDPath представляет параметры пути с ID объекта
-type IDPathStr struct {
-	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
-}
-
-// IDPath представляет параметры пути с ID объекта
-type IDPathInt struct {
-	ID int64 `path:"id" doc:"ID Телеграм" minLength:"1" example:"12345678"`
-}
+package domain
 
 type PhotoPreloadQuery struct {
 	PhotosCount   int64 `query:"photos_count" doc:"Количество фотографий прикрепленных пользователем" example:"1"`

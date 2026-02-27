@@ -1,14 +1,14 @@
-package handlers
+package bloodsearch
 
 import (
 	"context"
 	"log/slog" // Import slog
 	"net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jinzhu/copier"
 )
@@ -33,11 +33,11 @@ func calculateDonationAmount(pet *ent.Pet) int32 {
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	svc services.BloodSearchService
+	svc bloodsearch.BloodSearchService
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
-func NewBloodRequestHandler(service services.BloodSearchService) *BloodRequestHandler {
+func NewBloodRequestHandler(service bloodsearch.BloodSearchService) *BloodRequestHandler {
 	return &BloodRequestHandler{
 		svc: service,
 	}

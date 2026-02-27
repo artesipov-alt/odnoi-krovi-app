@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 )
 
 // EntLocationRepository implements LocationRepository using ENT

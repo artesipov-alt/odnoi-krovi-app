@@ -3,10 +3,10 @@ package pg
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/donorresponse"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 )
 
 // EntDonorResponseRepository implements DonorResponseRepository using ENT

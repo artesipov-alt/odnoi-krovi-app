@@ -1,10 +1,10 @@
-package repositories
+package presistance
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
 
 // TxManager управляет жизненным циклом транзакции

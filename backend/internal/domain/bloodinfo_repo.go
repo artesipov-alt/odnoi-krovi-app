@@ -1,6 +1,11 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+)
 
 // BloodInfoRepository определяет интерфейс для работы с типами крови
 type BloodInfoRepository interface {

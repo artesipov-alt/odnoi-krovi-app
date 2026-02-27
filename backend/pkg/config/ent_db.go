@@ -7,10 +7,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/migrate"
-	_ "github.com/artesipov-alt/odnoi-krovi-app/ent/runtime"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/migrate"
+	_ "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/runtime"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"

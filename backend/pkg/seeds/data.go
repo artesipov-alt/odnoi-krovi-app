@@ -1,8 +1,8 @@
 package seeds
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 )
 
 // BloodGroupData представляет структуру для данных группы крови

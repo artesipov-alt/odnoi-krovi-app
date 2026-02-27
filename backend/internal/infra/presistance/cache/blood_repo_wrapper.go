@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
 )
 
 // CachedBloodInfoRepository реализует кеширующий репозиторий для работы с группами крови

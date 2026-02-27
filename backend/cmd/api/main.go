@@ -18,11 +18,14 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	bloodsearch "github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
+	fileuploader "github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
+	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	user "github.com/artesipov-alt/odnoi-krovi-app/internal/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
@@ -106,10 +109,10 @@ func main() {
 		txManager := repositories.NewTxManager(db)
 
 		// Инициализация сервисов
-		userService := services.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := services.NewPetService(petRepo, userRepo, bloodRequestRepo, bloodInfoRepo, breedRepo, fileStorage)
-		bloodSearchService := services.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
-		fileService := services.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
+		userService := user.NewUserService(userRepo, locationRepo, fileStorage)
+		petService := pet.NewPetService(petRepo, userRepo, bloodRequestRepo, bloodInfoRepo, breedRepo, fileStorage)
+		bloodSearchService := bloodsearch.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
+		fileService := fileuploader.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
 		userHandler := handlers.NewUserHandler(userService)
 		petHandler := handlers.NewPetHandler(*petService, bloodInfoRepo)

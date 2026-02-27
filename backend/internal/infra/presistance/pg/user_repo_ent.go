@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/schema"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
+	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
 )
 
 // EntUserRepository implements UserRepository using ENT
@@ -38,8 +38,8 @@ func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInp
 }
 
 // GetQuery returns a query for eager loading
-func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts services.UserPreloadOptions) (*ent.User, error) {
-	quser := r.client.User.Query().Where(user.ID(id))
+func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.UserPreloadOptions) (*ent.User, error) {
+	quser := r.client.User.Query().Where(entuser.ID(id))
 
 	if opts.WithPets {
 		quser = quser.WithPets()
@@ -54,8 +54,8 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts service
 }
 
 // GetByTelegram returns a user by Telegram ID
-func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts services.UserPreloadOptions) (*ent.User, error) {
-	quser := r.client.User.Query().Where(user.TelegramID(telegramID))
+func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*ent.User, error) {
+	quser := r.client.User.Query().Where(entuser.TelegramID(telegramID))
 
 	if opts.WithPets {
 		quser = quser.WithPets()
@@ -76,7 +76,7 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 	}
 
 	exists, err := r.client.User.Query().
-		Where(user.ID(id)).
+		Where(entuser.ID(id)).
 		Exist(ctx)
 
 	if err != nil {
@@ -133,7 +133,7 @@ func (r *EntUserRepository) ExistsByTelegramID(ctx context.Context, telegramID i
 	}
 
 	exists, err := r.client.User.Query().
-		Where(user.TelegramID(telegramID)).
+		Where(entuser.TelegramID(telegramID)).
 		Exist(ctx)
 
 	if err != nil {
@@ -193,7 +193,7 @@ func (r *EntUserRepository) GetDeletedUsers(ctx context.Context) ([]*ent.User, e
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
 	users, err := r.client.User.Query().
-		Where(user.DeletedAtNotNil()).
+		Where(entuser.DeletedAtNotNil()).
 		All(ctxWithSkip)
 
 	if err != nil {

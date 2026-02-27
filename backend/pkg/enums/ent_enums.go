@@ -1,8 +1,8 @@
 package enums
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
 // GetAllEntPetTypes возвращает все доступные типы животных из ENT

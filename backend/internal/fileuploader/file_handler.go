@@ -1,4 +1,4 @@
-package handlers
+package fileuploader
 
 import (
 	"context"
@@ -7,23 +7,16 @@ import (
 	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
 )
 
-type FileService interface {
-	GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]services.UploadInfo, error)
-	ConfirmUploads(ctx context.Context, ID string, paths []string, preload string) error
-}
-
 // FileHandler обрабатывает HTTP запросы для загрузки и подтверждения файлов
 type FileHandler struct {
-	fileService FileService
+	fileService *FileService
 }
 
 // NewFileHandler создает новый обработчик файлов
-func NewFileHandler(fileService FileService) *FileHandler {
+func NewFileHandler(fileService *FileService) *FileHandler {
 	return &FileHandler{
 		fileService: fileService,
 	}

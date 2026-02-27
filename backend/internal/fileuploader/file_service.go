@@ -1,10 +1,13 @@
-// internal/services/file_service.go
-package services
+package fileuploader
 
 import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
 )
 
 type FileStorage interface {
@@ -28,9 +31,9 @@ type UploadInfo struct {
 
 // FileService реализует FileStorage
 type FileService struct {
-	PetRepo   PetRepository
-	UserRepo  UserRepository
-	BloodRepo BloodRequestRepository
+	PetRepo   pet.PetRepository
+	UserRepo  user.UserRepository
+	BloodRepo bloodsearchrequest.BloodRequestRepository
 	storage   FileStorage
 }
 

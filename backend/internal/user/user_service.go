@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	userval "github.com/artesipov-alt/odnoi-krovi-app/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	userval "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
 // UserRepository определяет интерфейс для операций с данными пользователей
@@ -65,11 +66,11 @@ type UserPreloadOptions struct {
 type UserService struct {
 	userRepo     UserRepository
 	locationRepo LocationRepository
-	storage      FileStorage
+	storage      fileuploader.FileStorage
 }
 
 // NewUserService создает новый экземпляр UserService
-func NewUserService(userRepo UserRepository, locationRepo LocationRepository, storage FileStorage) *UserService {
+func NewUserService(userRepo UserRepository, locationRepo LocationRepository, storage fileuploader.FileStorage) *UserService {
 	return &UserService{
 		userRepo:     userRepo,
 		locationRepo: locationRepo,
