@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader/dto"
 	"github.com/danielgtaylor/huma/v2"
 )
 

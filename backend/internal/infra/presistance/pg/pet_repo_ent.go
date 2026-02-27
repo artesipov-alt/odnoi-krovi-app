@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -16,7 +17,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
 
 	"github.com/jinzhu/copier"
@@ -141,7 +141,7 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 }
 
 // GetPet возвращает питомца по его ID с возможностью предварительной загрузки связанных данных
-func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
+func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts domain.PetPreloadOptions) (*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.ID(id)).WithBreedRef().WithBloodGroupRef()
 
 	// Применяем опции предварительной загрузки
@@ -206,7 +206,7 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts pet.PetPr
 }
 
 // GetPetsByUser возвращает запрос для предварительной загрузки питомцев по ID пользователя
-func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
+func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts domain.PetPreloadOptions) ([]*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
 
 	// Применяем опции предварительной загрузки

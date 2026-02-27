@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
+)
 
 // TelegramIDQuery представляет параметры запроса с Telegram ID
 type TelegramIDQuery struct {
@@ -38,7 +42,7 @@ type User struct {
 	AllowGeo         bool       `json:"allowGeo" doc:"Разрешение использовать геоданные"`
 	LocationID       string     `json:"locationId,omitempty" doc:"ID локации"`
 	Role             string     `json:"role" doc:"Роль"`
-	Pets             []Pet      `json:"pets,omitempty" doc:"Список питомцев"`
+	Pets             []dto.Pet  `json:"pets,omitempty" doc:"Список питомцев"`
 	CreatedAt        *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt        *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`

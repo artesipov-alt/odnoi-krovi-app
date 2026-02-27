@@ -4,41 +4,19 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 )
-
-type FileStorage interface {
-	GetPresignedURLs(ctx context.Context, count int64, id string) ([]UploadInfo, error)
-	CheckObjectExists(ctx context.Context, objectPath string) (bool, error)
-	GetAvatarPublicURL(id string) string
-	GetPublicURLFromPath(path string) string
-	SetObjectPublicACL(ctx context.Context, objectPath string) error
-	ConfirmUploads(ctx context.Context, paths []string) error
-}
-
-type MediaService interface {
-	Compress(ctx context.Context, path string) error
-}
-
-// UploadInfo содержит информацию для загрузки файла: подписанную ссылку и путь в S3
-type UploadInfo struct {
-	UploadURL  string
-	ObjectPath string
-}
 
 // FileService реализует FileStorage
 type FileService struct {
-	PetRepo   pet.PetRepository
-	UserRepo  user.UserRepository
-	BloodRepo bloodsearchrequest.BloodRequestRepository
-	storage   FileStorage
+	PetRepo   domain.PetRepository
+	UserRepo  domain.UserRepository
+	BloodRepo domain.BloodRequestRepository
+	storage   domain.FileStorage
 }
 
 // NewFileService создает новый FileService
-func NewFileService(petRepo PetRepository, userRepo UserRepository, bloodRepo BloodRequestRepository, storage FileStorage) *FileService {
+func NewFileService(petRepo domain.PetRepository, userRepo domain.UserRepository, bloodRepo domain.BloodRequestRepository, storage domain.FileStorage) *FileService {
 	return &FileService{
 		PetRepo:   petRepo,
 		UserRepo:  userRepo,
@@ -48,12 +26,12 @@ func NewFileService(petRepo PetRepository, userRepo UserRepository, bloodRepo Bl
 }
 
 // GetPresignURLs Возвращает ссылки для загрузки фотографий.
-func (s *FileService) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]UploadInfo, error) {
+func (s *FileService) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]domain.UploadInfo, error) {
 	if len(preloads) == 0 {
 		return nil, apperrors.BadRequest("preload type is required")
 	}
 
-	var uploadInfos []UploadInfo
+	var uploadInfos []domain.UploadInfo
 
 	switch preloads[0] {
 	case "pet_avatar":

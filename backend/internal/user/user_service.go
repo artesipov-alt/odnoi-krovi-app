@@ -6,71 +6,19 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	userval "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
-// UserRepository определяет интерфейс для операций с данными пользователей
-type UserRepository interface {
-	// Create создает нового пользователя в базе данных
-	Create(ctx context.Context, user *ent.CreateUserInput) (*ent.User, error)
-
-	// GetByID возвращает пользователя по ID
-	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*ent.User, error)
-
-	// GetByTelegram возвращает пользователя по Telegram ID
-	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*ent.User, error)
-
-	// Update обновляет существующего пользователя в базе данных
-	Update(ctx context.Context, id string, input *ent.UpdateUserInput) error
-
-	// Delete удаляет пользователя по его ID
-	Delete(ctx context.Context, id string) error
-
-	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
-	ExistsByTelegramID(ctx context.Context, telegramID int64) (bool, error)
-
-	// ExistsByID проверяет, существует ли пользователь с заданным ID
-	ExistsByID(ctx context.Context, id string) (bool, error)
-
-	// ResetUser сбрасывает email и номер телефона пользователя по ID
-	ResetUser(ctx context.Context, id string) error
-
-	// RestoreUser восстанавливает пользователя по его ID
-	RestoreUser(ctx context.Context, id string) error
-
-	// GetDeletedUsers получает всех удаленных пользователей
-	GetDeletedUsers(ctx context.Context) ([]*ent.User, error)
-
-	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
-	AddPhotoURLs(ctx context.Context, id string, paths []string) error
-}
-
-// LocationRepository определяет интерфейс для операций с данными локаций
-type LocationRepository interface {
-	// GetByID получает локацию по её ID
-	GetByID(ctx context.Context, id string) (*ent.Location, error)
-
-	// GetAll получает все локации из базы данных
-	GetAll(ctx context.Context) ([]*ent.Location, error)
-
-	// Exists проверяет, существует ли локация с заданным ID
-	Exists(ctx context.Context, id string) (bool, error)
-}
-
-type UserPreloadOptions struct {
-	WithPets bool
-}
-
 type UserService struct {
-	userRepo     UserRepository
-	locationRepo LocationRepository
-	storage      fileuploader.FileStorage
+	userRepo     domain.UserRepository
+	locationRepo domain.LocationRepository
+	storage      domain.FileStorage
 }
 
 // NewUserService создает новый экземпляр UserService
-func NewUserService(userRepo UserRepository, locationRepo LocationRepository, storage fileuploader.FileStorage) *UserService {
+func NewUserService(userRepo domain.UserRepository, locationRepo domain.LocationRepository, storage domain.FileStorage) *UserService {
 	return &UserService{
 		userRepo:     userRepo,
 		locationRepo: locationRepo,
@@ -91,7 +39,7 @@ func (s *UserService) RegisterUser(ctx context.Context, input *ent.CreateUserInp
 	}
 
 	// Валидируем роль пользователя через ENT-валидатор
-	if err := userval.RoleValidator(*input.Role); err != nil {
+	if err := entuser.RoleValidator(*input.Role); err != nil {
 		return nil, apperrors.ErrUserInvalidRole.WithInternal(err)
 	}
 
@@ -129,7 +77,7 @@ func (s *UserService) RegisterUserSimple(ctx context.Context, input *ent.CreateU
 		input.FullName = new(`Пользователь Telegram`)
 	}
 	// 3. Установка роли (тоже в сервисе!)
-	role := userval.RoleUser
+	role := entuser.RoleUser
 	input.Role = &role
 
 	newUser, err := s.userRepo.Create(ctx, input)
@@ -145,7 +93,7 @@ func (s *UserService) RegisterUserSimple(ctx context.Context, input *ent.CreateU
 // DeleteUser удаляет пользователя по ID (soft delete)
 func (s *UserService) DeleteUser(ctx context.Context, userID string) error {
 	// Проверяем, существует ли пользователь
-	_, err := s.userRepo.GetByID(ctx, userID, UserPreloadOptions{})
+	_, err := s.userRepo.GetByID(ctx, userID, domain.UserPreloadOptions{})
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return apperrors.ErrUserNotFound
@@ -184,7 +132,7 @@ func (s *UserService) Update(ctx context.Context, id string, input *ent.UpdateUs
 }
 
 // GetUserByID получает пользователя по ID
-func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserPreloadOptions) (*ent.User, error) {
+func (s *UserService) GetUserByID(ctx context.Context, userID string, opts domain.UserPreloadOptions) (*ent.User, error) {
 	u, err := s.userRepo.GetByID(ctx, userID, opts)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -200,7 +148,7 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string, opts UserP
 }
 
 // GetUserByTelegramID получает пользователя по Telegram ID
-func (s *UserService) GetUserByTelegramID(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*ent.User, error) {
+func (s *UserService) GetUserByTelegramID(ctx context.Context, telegramID int64, opts domain.UserPreloadOptions) (*ent.User, error) {
 	u, err := s.userRepo.GetByTelegram(ctx, telegramID, opts)
 	if err != nil {
 		if ent.IsNotFound(err) {

@@ -5,7 +5,7 @@ import (
 	"log/slog" // Import slog
 	"net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 
@@ -33,11 +33,11 @@ func calculateDonationAmount(pet *ent.Pet) int32 {
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	svc bloodsearch.BloodSearchService
+	svc BloodSearchService
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
-func NewBloodRequestHandler(service bloodsearch.BloodSearchService) *BloodRequestHandler {
+func NewBloodRequestHandler(service BloodSearchService) *BloodRequestHandler {
 	return &BloodRequestHandler{
 		svc: service,
 	}

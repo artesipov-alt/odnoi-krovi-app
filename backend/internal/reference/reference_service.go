@@ -7,18 +7,16 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
 )
 
 type ReferenceService struct {
 	bloodInfoRepo domain.BloodInfoRepository
-	breedsRepo    pet.BreedRepository
-	locationRepo  user.LocationRepository
+	breedsRepo    domain.BreedRepository
+	locationRepo  domain.LocationRepository
 }
 
 // NewReferenceService создает новый экземпляр ReferenceService
-func NewReferenceService(bloodInfoRepo domain.BloodInfoRepository, breedsRepo pet.BreedRepository, locationRepo user.LocationRepository) *ReferenceService {
+func NewReferenceService(bloodInfoRepo domain.BloodInfoRepository, breedsRepo domain.BreedRepository, locationRepo domain.LocationRepository) *ReferenceService {
 	return &ReferenceService{
 		bloodInfoRepo: bloodInfoRepo,
 		breedsRepo:    breedsRepo,
