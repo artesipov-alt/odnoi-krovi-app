@@ -162,17 +162,11 @@ func (r *EntBloodRequestRepository) AddPhotoURLs(ctx context.Context, id string,
 		return errors.New("invalid blood request ID")
 	}
 
-	// Fetch current photo URLs
-	req, err := r.client(ctx).BloodSearchRequest.Get(ctx, id)
-	if err != nil {
-		return fmt.Errorf("failed to get blood request for photo update: %w", err)
-	}
-
-	// Append new paths
-	newPhotoUrls := append(req.PhotoUrls, paths...)
+	// Replace photo URLs with new paths
+	newPhotoUrls := paths
 
 	// Update blood request
-	err = r.client(ctx).BloodSearchRequest.UpdateOneID(id).
+	err := r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetPhotoUrls(newPhotoUrls).
 		Exec(ctx)
 

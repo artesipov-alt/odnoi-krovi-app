@@ -209,17 +209,11 @@ func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths [
 		return errors.New("invalid user ID")
 	}
 
-	// Fetch current photo URLs
-	u, err := r.client.User.Get(ctx, id)
-	if err != nil {
-		return fmt.Errorf("failed to get user for photo update: %w", err)
-	}
-
-	// Append new paths
-	newPhotoUrls := append(u.PhotoUrls, paths...)
+	// Replace photo URLs with new paths
+	newPhotoUrls := paths
 
 	// Update user
-	err = r.client.User.UpdateOneID(id).
+	err := r.client.User.UpdateOneID(id).
 		SetPhotoUrls(newPhotoUrls).
 		Exec(ctx)
 
