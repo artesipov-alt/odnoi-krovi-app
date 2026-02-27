@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
@@ -46,16 +45,6 @@ type BloodRequestRepository interface {
 
 	// AddPhotoURLs добавляет новые пути к фотографиям заявки
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
-}
-
-// BloodInfoRepository определяет интерфейс для работы с типами крови
-type BloodInfoRepository interface {
-	AllComponents(ctx context.Context) ([]*ent.BloodComponent, error)
-	ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error)
-	BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error)
-	FindByTypeAndBloodGroup(ctx context.Context, petType bloodgroup.PetType, bloodGroup string) (*ent.BloodGroup, error)
-	FindByBloodGroup(ctx context.Context, bloodGroup string) (*ent.BloodGroup, error)
-	FindByName(ctx context.Context, name string) (*ent.BloodGroup, error)
 }
 
 // DonorResponseRepository определяет интерфейс для работы с откликами доноров

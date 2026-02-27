@@ -716,8 +716,7 @@ func (c *BloodSearchRequestClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *BloodSearchRequestClient) Interceptors() []Interceptor {
-	inters := c.inters.BloodSearchRequest
-	return append(inters[:len(inters):len(inters)], bloodsearchrequest.Interceptors[:]...)
+	return c.inters.BloodSearchRequest
 }
 
 func (c *BloodSearchRequestClient) mutate(ctx context.Context, m *BloodSearchRequestMutation) (Value, error) {
@@ -1031,8 +1030,7 @@ func (c *DonorResponseClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *DonorResponseClient) Interceptors() []Interceptor {
-	inters := c.inters.DonorResponse
-	return append(inters[:len(inters):len(inters)], donorresponse.Interceptors[:]...)
+	return c.inters.DonorResponse
 }
 
 func (c *DonorResponseClient) mutate(ctx context.Context, m *DonorResponseMutation) (Value, error) {
@@ -1442,8 +1440,7 @@ func (c *PetClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *PetClient) Interceptors() []Interceptor {
-	inters := c.inters.Pet
-	return append(inters[:len(inters):len(inters)], pet.Interceptors[:]...)
+	return c.inters.Pet
 }
 
 func (c *PetClient) mutate(ctx context.Context, m *PetMutation) (Value, error) {
@@ -1592,8 +1589,7 @@ func (c *PetAnalysisClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *PetAnalysisClient) Interceptors() []Interceptor {
-	inters := c.inters.PetAnalysis
-	return append(inters[:len(inters):len(inters)], petanalysis.Interceptors[:]...)
+	return c.inters.PetAnalysis
 }
 
 func (c *PetAnalysisClient) mutate(ctx context.Context, m *PetAnalysisMutation) (Value, error) {
@@ -1742,8 +1738,7 @@ func (c *PetHealthClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *PetHealthClient) Interceptors() []Interceptor {
-	inters := c.inters.PetHealth
-	return append(inters[:len(inters):len(inters)], pethealth.Interceptors[:]...)
+	return c.inters.PetHealth
 }
 
 func (c *PetHealthClient) mutate(ctx context.Context, m *PetHealthMutation) (Value, error) {
@@ -1892,8 +1887,7 @@ func (c *PetTreatmentClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *PetTreatmentClient) Interceptors() []Interceptor {
-	inters := c.inters.PetTreatment
-	return append(inters[:len(inters):len(inters)], pettreatment.Interceptors[:]...)
+	return c.inters.PetTreatment
 }
 
 func (c *PetTreatmentClient) mutate(ctx context.Context, m *PetTreatmentMutation) (Value, error) {
@@ -2058,8 +2052,7 @@ func (c *UserClient) Hooks() []Hook {
 
 // Interceptors returns the client interceptors.
 func (c *UserClient) Interceptors() []Interceptor {
-	inters := c.inters.User
-	return append(inters[:len(inters):len(inters)], user.Interceptors[:]...)
+	return c.inters.User
 }
 
 func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error) {

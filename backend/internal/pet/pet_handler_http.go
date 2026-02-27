@@ -1,19 +1,16 @@
-package handlers
+package pet
 
 import (
 	"context"
 	"net/http"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService    services.PetService
+	petService    PetService
 	bloodInfoRepo services.BloodInfoRepository
 }
 
