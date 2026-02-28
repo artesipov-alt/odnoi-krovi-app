@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
@@ -17,13 +18,27 @@ import (
 
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
-	referenceService *ReferenceService
+	getAllBreedsHandler          *query.GetAllBreedsHandler
+	getBreedsByTypeHandler       *query.GetBreedsByPetTypeHandler
+	getAllLocationsHandler       *query.GetAllLocationsHandler
+	getAllBloodComponentsHandler *query.GetAllBloodComponentsHandler
+	getBloodGroupsByTypeHandler  *query.GetBloodGroupsByPetTypeHandler
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(referenceService *ReferenceService) *ReferenceHandler {
+func NewReferenceHandler(
+	getAllBreedsHandler *query.GetAllBreedsHandler,
+	getBreedsByTypeHandler *query.GetBreedsByPetTypeHandler,
+	getAllLocationsHandler *query.GetAllLocationsHandler,
+	getAllBloodComponentsHandler *query.GetAllBloodComponentsHandler,
+	getBloodGroupsByTypeHandler *query.GetBloodGroupsByPetTypeHandler,
+) *ReferenceHandler {
 	return &ReferenceHandler{
-		referenceService: referenceService,
+		getAllBreedsHandler:          getAllBreedsHandler,
+		getBreedsByTypeHandler:       getBreedsByTypeHandler,
+		getAllLocationsHandler:       getAllLocationsHandler,
+		getAllBloodComponentsHandler: getAllBloodComponentsHandler,
+		getBloodGroupsByTypeHandler:  getBloodGroupsByTypeHandler,
 	}
 }
 
@@ -269,7 +284,7 @@ func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*d
 
 func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	slog.DebugContext(ctx, "getting all breeds")
-	breeds, err := h.referenceService.GetAllBreeds(ctx)
+	breeds, err := h.getAllBreedsHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +302,7 @@ func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto
 
 func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	slog.DebugContext(ctx, "getting all locations")
-	locations, err := h.referenceService.GetAllLocations(ctx)
+	locations, err := h.getAllLocationsHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -321,7 +336,7 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTy
 		return nil, apperrors.BadRequest("Неверный тип животного")
 	}
 
-	breeds, err := h.referenceService.GetBreedsByPetType(ctx, breed.Type(petTypeStr))
+	breeds, err := h.getBreedsByTypeHandler.Handle(ctx, breed.Type(petTypeStr))
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +354,7 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTy
 
 func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
 	slog.DebugContext(ctx, "getting blood components")
-	bloodComponents, err := h.referenceService.AllComponents(ctx)
+	bloodComponents, err := h.getAllBloodComponentsHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -362,7 +377,7 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTyp
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")
 	}
 
-	bloodGroups, err := h.referenceService.GetBloodGroupsByPetType(ctx, bloodgroup.PetType(petType))
+	bloodGroups, err := h.getBloodGroupsByTypeHandler.Handle(ctx, bloodgroup.PetType(petType))
 	if err != nil {
 		return nil, err
 	}

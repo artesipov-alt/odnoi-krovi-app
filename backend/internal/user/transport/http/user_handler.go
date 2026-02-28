@@ -2,29 +2,51 @@ package user
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	petdto "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user/dto"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+	userdto "github.com/artesipov-alt/odnoi-krovi-app/internal/user/dto"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/jinzhu/copier"
 )
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	userService *UserService
+	createSimpleHandler  *cmd.CreateSimpleHandler
+	deleteHandler        *cmd.DeleteHandler
+	updateHandler        *cmd.UpdateHandler
+	resetHandler         *cmd.ResetHandler
+	restoreHandler       *cmd.RestoreHandler
+	getByIDHandler       *query.GetByIDHandler
+	getByTelegramHandler *query.GetByTelegramHandler
+	getDeletedHandler    *query.GetDeletedUsersHandler
 }
 
 // NewUserHandler создает новый обработчик пользователей
-func NewUserHandler(userService *UserService) *UserHandler {
+func NewUserHandler(
+	createSimpleHandler *cmd.CreateSimpleHandler,
+	deleteHandler *cmd.DeleteHandler,
+	updateHandler *cmd.UpdateHandler,
+	resetHandler *cmd.ResetHandler,
+	restoreHandler *cmd.RestoreHandler,
+	getByIDHandler *query.GetByIDHandler,
+	getByTelegramHandler *query.GetByTelegramHandler,
+	getDeletedHandler *query.GetDeletedUsersHandler,
+) *UserHandler {
 	return &UserHandler{
-		userService: userService,
+		createSimpleHandler:  createSimpleHandler,
+		deleteHandler:        deleteHandler,
+		updateHandler:        updateHandler,
+		resetHandler:         resetHandler,
+		restoreHandler:       restoreHandler,
+		getByIDHandler:       getByIDHandler,
+		getByTelegramHandler: getByTelegramHandler,
+		getDeletedHandler:    getDeletedHandler,
 	}
 }
 
@@ -40,7 +62,6 @@ func (h *UserHandler) Register(api huma.API) {
 		Tags:        []string{"users-v1"},
 	}, h.GetUser)
 
-	// Простая регистрация пользователя
 	// Простая регистрация пользователя
 	huma.Register(api, huma.Operation{
 		OperationID:   "register-user-simple",
@@ -116,210 +137,224 @@ func (h *UserHandler) Register(api huma.API) {
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *struct {
-	dto.IDPathStr
-	dto.UserPreloadQuery
-}) (*dto.UserResponse, error) {
+	userdto.IDPathStr
+	userdto.UserPreloadQuery
+}) (*userdto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
-	usr, err := h.userService.GetUserByID(ctx, input.ID, UserPreloadOptions{
-		WithPets: input.WithPets,
-	})
-
+	usr, pets, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.toDTO(usr)}, nil
+	return &userdto.UserResponse{Body: h.toDTO(usr, pets)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
-	Body dto.UserRegistrationSimple
-}) (*dto.UserResponse, error) {
+	Body userdto.UserRegistrationSimple
+}) (*userdto.UserResponse, error) {
 	slog.DebugContext(ctx, "registering user simple", "telegram_id", input.Body.TelegramID)
 
-	var userData ent.CreateUserInput
-
-	if err := copier.Copy(&userData, &input.Body); err != nil {
-		return nil, apperrors.Internal(errors.New("failed to copy user data"), "ошибка при копировании данных пользователя")
-	}
-
-	u, err := h.userService.RegisterUserSimple(ctx, &userData)
+	u, err := h.createSimpleHandler.Handle(ctx, input.Body.TelegramID, input.Body.FullName, "user")
 	if err != nil {
 		return nil, err
 	}
 
 	if u == nil {
-		return nil, apperrors.Internal(errors.New("registration returned nil user"), "ошибка при создании пользователя")
+		return nil, apperrors.Internal(nil, "ошибка при создании пользователя")
 	}
 
-	return &dto.UserResponse{Body: h.toDTO(u)}, nil
+	return &userdto.UserResponse{Body: h.toDTO(u, nil)}, nil
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.UserUpdate
-}) (*dto.MessageResponse, error) {
+	userdto.IDPathStr
+	Body userdto.UserUpdate
+}) (*userdto.MessageResponse, error) {
 	slog.DebugContext(ctx, "updating user", "user_id", input.ID)
 
-	var user ent.UpdateUserInput
+	user := &usermodel.User{}
 
-	if err := copier.Copy(&user, &input.Body); err != nil {
-		return nil, apperrors.Internal(err, "failed to copy user update data")
+	if input.Body.FullName != nil {
+		user.FullName = *input.Body.FullName
+	}
+	if input.Body.Phone != nil {
+		user.Phone = *input.Body.Phone
+	}
+	if input.Body.Email != nil {
+		user.Email = *input.Body.Email
+	}
+	if input.Body.PhotoURLs != nil {
+		user.PhotoURLs = input.Body.PhotoURLs
+	}
+	if input.Body.AllowGeo != nil {
+		user.AllowGeo = *input.Body.AllowGeo
+	}
+	if input.Body.OnBoarding != nil {
+		user.OnBoarding = *input.Body.OnBoarding
+	}
+	if input.Body.LocationID != nil {
+		user.LocationID = input.Body.LocationID
 	}
 
-	if err := h.userService.Update(ctx, input.ID, &user); err != nil {
+	if err := h.updateHandler.Handle(ctx, input.ID, user); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
+	return &userdto.MessageResponse{
+		Body: userdto.MessageBody{
 			Message: "Пользователь обновлен",
 		},
 	}, nil
 }
 
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
-	dto.IDPathInt
-	dto.UserPreloadQuery
-}) (*dto.UserResponse, error) {
+	userdto.IDPathInt
+	userdto.UserPreloadQuery
+}) (*userdto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
-	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, UserPreloadOptions{
-		WithPets: input.WithPets,
-	})
-
+	usr, pets, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.toDTO(usr)}, nil
+	return &userdto.UserResponse{Body: h.toDTO(usr, pets)}, nil
 }
 
-func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *UserHandler) DeleteUser(ctx context.Context, input *userdto.IDPathStr) (*userdto.MessageResponse, error) {
 	slog.DebugContext(ctx, "deleting user", "user_id", input.ID)
-	if err := h.userService.DeleteUser(ctx, input.ID); err != nil {
+	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
+	return &userdto.MessageResponse{
+		Body: userdto.MessageBody{
 			Message: "Пользователь удален",
 		},
 	}, nil
 }
 
-func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *UserHandler) ResetUser(ctx context.Context, input *userdto.IDPathStr) (*userdto.MessageResponse, error) {
 	slog.DebugContext(ctx, "resetting user", "user_id", input.ID)
-	if err := h.userService.ResetUser(ctx, input.ID); err != nil {
+	if err := h.resetHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
+	return &userdto.MessageResponse{
+		Body: userdto.MessageBody{
 			Message: "Пользователь сброшен к заводским настройкам",
 		},
 	}, nil
 }
 
-func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *UserHandler) RestoreUser(ctx context.Context, input *userdto.IDPathStr) (*userdto.MessageResponse, error) {
 	slog.DebugContext(ctx, "restoring user", "user_id", input.ID)
-	if err := h.userService.RestoreUser(ctx, input.ID); err != nil {
+	if err := h.restoreHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
+	return &userdto.MessageResponse{
+		Body: userdto.MessageBody{
 			Message: "Пользователь восстановлен",
 		},
 	}, nil
 }
 
-func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
+func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*userdto.UsersDeletedResponse, error) {
 	slog.DebugContext(ctx, "getting deleted users")
-	users, err := h.userService.GetDeletedUsers(ctx)
+	users, err := h.getDeletedHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	userDTOs := make([]dto.User, len(users))
+	userDTOs := make([]userdto.User, len(users))
 	for i, u := range users {
-		userDTOs[i] = h.toDTO(u)
+		userDTOs[i] = h.toDTO(u, nil)
 	}
 
-	return &dto.UsersDeletedResponse{
-		Body: dto.UsersDeletedBody{
+	return &userdto.UsersDeletedResponse{
+		Body: userdto.UsersDeletedBody{
 			Message: "Удаленные пользователи получены",
 			Users:   userDTOs,
 		},
 	}, nil
 }
 
-// toDTO преобразует ENT модель пользователя в DTO для ответа
-func (h *UserHandler) toDTO(u *ent.User) dto.User {
+// toDTO преобразует модель пользователя в DTO для ответа
+func (h *UserHandler) toDTO(u *usermodel.User, pets []*petmodel.Pet) userdto.User {
 	if u == nil {
-		return dto.User{}
+		return userdto.User{}
 	}
 
-	userDTO := dto.User{
+	userDTO := userdto.User{
 		ID:               u.ID,
 		TelegramID:       u.TelegramID,
 		FullName:         u.FullName,
 		Phone:            u.Phone,
 		Email:            u.Email,
-		PhotoURLs:        u.PhotoUrls,
+		PhotoURLs:        u.PhotoURLs,
 		OrganizationName: u.OrganizationName,
 		ConsentPd:        u.ConsentPd,
 		OnBoarding:       u.OnBoarding,
 		AllowGeo:         u.AllowGeo,
-		LocationID:       u.LocationID,
-		Role:             string(u.Role),
-		CreatedAt:        &u.CreatedAt,
-		UpdatedAt:        &u.UpdatedAt,
+		LocationID:       "",
+		Role:             u.Role,
+		CreatedAt:        u.CreatedAt,
+		UpdatedAt:        u.UpdatedAt,
 		DeletedAt:        u.DeletedAt,
 	}
 
-	if u.Edges.Pets != nil {
-		userDTO.Pets = make([]petdto.Pet, len(u.Edges.Pets))
-		for i, pet := range u.Edges.Pets {
-			userDTO.Pets[i] = petdto.Pet{
-				ID:              pet.ID,
-				Name:            pet.Name,
-				ChipNumber:      pet.ChipNumber,
-				PhotoURLs:       pet.PhotoUrls,
-				BreedID:         *pet.BreedID,
-				WeightKg:        pet.WeightKg,
-				BirthDate:       pet.BirthDate,
-				LivingCondition: pet.LivingCondition,
-				Gender:          pet.Gender,
-				Type:            pet.Type,
-				BloodGroup:      *pet.BloodGroupID,
-				// PetStatus:       pet.PetStatus.String(),
-				CreatedAt: &pet.CreatedAt,
-				UpdatedAt: &pet.UpdatedAt,
-			}
+	if u.LocationID != nil {
+		userDTO.LocationID = *u.LocationID
+	}
+
+	if pets != nil {
+		userDTO.Pets = make([]petdto.Pet, len(pets))
+		for i, pet := range pets {
+			userDTO.Pets[i] = h.petToDTO(pet)
 		}
 	}
 
 	return userDTO
 }
 
-// toENT преобразует DTO пользователя в ENT модель
-func (h *UserHandler) toENT(u *dto.User) ent.User {
-	if u == nil {
-		return ent.User{}
+// petToDTO преобразует модель питомца в DTO
+func (h *UserHandler) petToDTO(pet *petmodel.Pet) petdto.Pet {
+	if pet == nil {
+		return petdto.Pet{}
 	}
-	return ent.User{
-		ID:               u.ID,
-		TelegramID:       u.TelegramID,
-		FullName:         u.FullName,
-		Phone:            u.Phone,
-		Email:            u.Email,
-		PhotoUrls:        u.PhotoURLs,
-		OrganizationName: u.OrganizationName,
-		ConsentPd:        u.ConsentPd,
-		OnBoarding:       u.OnBoarding,
-		AllowGeo:         u.AllowGeo,
-		LocationID:       u.LocationID,
-		Role:             entuser.Role(u.Role),
+
+	dtoPet := petdto.Pet{
+		ID:         pet.ID,
+		Name:       pet.Name,
+		ChipNumber: pet.ChipNumber,
+		PhotoURLs:  pet.PhotoURLs,
+		WeightKg:   pet.WeightKg,
+		BirthDate:  pet.BirthDate,
+		CreatedAt:  pet.CreatedAt,
+		UpdatedAt:  pet.UpdatedAt,
 	}
+
+	if pet.BreedRefID != nil {
+		dtoPet.BreedID = *pet.BreedRefID
+	}
+
+	if pet.BloodGroupName != nil {
+		dtoPet.BloodGroup = *pet.BloodGroupName
+	}
+
+	if pet.LivingCondition != "" {
+		dtoPet.LivingCondition = string(pet.LivingCondition)
+	}
+
+	if pet.Gender != "" {
+		dtoPet.Gender = string(pet.Gender)
+	}
+
+	if pet.Type != "" {
+		dtoPet.Type = string(pet.Type)
+	}
+
+	return dtoPet
 }

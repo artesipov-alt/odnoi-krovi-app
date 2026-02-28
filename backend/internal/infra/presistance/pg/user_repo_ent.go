@@ -26,17 +26,48 @@ func NewEntUserRepository(client *ent.Client) *EntUserRepository {
 }
 
 // Create creates a new user in the database
-func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInput) (*ent.User, error) {
-	newUser, err := r.client.User.
-		Create().
-		SetInput(*input). // МАГИЯ! Ent сам вызовет все нужные Set-методы
-		Save(ctx)
+func (r *EntUserRepository) Create(ctx context.Context, input *usermodel.User) (*usermodel.User, error) {
+	if input == nil {
+		return nil, errors.New("user cannot be nil")
+	}
 
+	builder := r.client.User.
+		Create().
+		SetTelegramID(input.TelegramID).
+		SetFullName(input.FullName).
+		SetRole(entuser.Role(input.Role))
+
+	if input.Phone != "" {
+		builder.SetPhone(input.Phone)
+	}
+	if input.Email != "" {
+		builder.SetEmail(input.Email)
+	}
+	if input.OrganizationName != "" {
+		builder.SetOrganizationName(input.OrganizationName)
+	}
+	if input.LocationID != nil && *input.LocationID != "" {
+		builder.SetLocationID(*input.LocationID)
+	}
+	if len(input.PhotoURLs) > 0 {
+		builder.SetPhotoUrls(input.PhotoURLs)
+	}
+	if len(input.OnBoarding) > 0 {
+		builder.SetOnBoarding(input.OnBoarding)
+	}
+	if input.ConsentPd {
+		builder.SetConsentPd(input.ConsentPd)
+	}
+	if input.AllowGeo {
+		builder.SetAllowGeo(input.AllowGeo)
+	}
+
+	newUser, err := builder.Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return newUser, nil
+	return EntToModel(newUser), nil
 }
 
 func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error) {
@@ -102,7 +133,7 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 }
 
 // Update updates an existing user in the database
-func (r *EntUserRepository) Update(ctx context.Context, id string, input *ent.UpdateUserInput) error {
+func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermodel.User) error {
 	if input == nil {
 		return errors.New("user cannot be nil")
 	}
@@ -111,10 +142,33 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *ent.Up
 		return errors.New("invalid user ID")
 	}
 
-	_, err := r.client.User.UpdateOneID(id).
-		SetInput(*input).
-		Save(ctx)
+	builder := r.client.User.UpdateOneID(id)
 
+	if input.FullName != "" {
+		builder.SetFullName(input.FullName)
+	}
+	if input.Phone != "" {
+		builder.SetPhone(input.Phone)
+	}
+	if input.Email != "" {
+		builder.SetEmail(input.Email)
+	}
+	if input.OrganizationName != "" {
+		builder.SetOrganizationName(input.OrganizationName)
+	}
+	if input.LocationID != nil {
+		builder.SetLocationID(*input.LocationID)
+	}
+	if len(input.PhotoURLs) > 0 {
+		builder.SetPhotoUrls(input.PhotoURLs)
+	}
+	if len(input.OnBoarding) > 0 {
+		builder.SetOnBoarding(input.OnBoarding)
+	}
+	builder.SetConsentPd(input.ConsentPd)
+	builder.SetAllowGeo(input.AllowGeo)
+
+	_, err := builder.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
@@ -203,7 +257,7 @@ func (r *EntUserRepository) RestoreUser(ctx context.Context, id string) error {
 }
 
 // GetDeletedUsers retrieves all soft-deleted users
-func (r *EntUserRepository) GetDeletedUsers(ctx context.Context) ([]*ent.User, error) {
+func (r *EntUserRepository) GetDeletedUsers(ctx context.Context) ([]*usermodel.User, error) {
 	// Use SkipSoftDelete context to see deleted records
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
@@ -215,7 +269,12 @@ func (r *EntUserRepository) GetDeletedUsers(ctx context.Context) ([]*ent.User, e
 		return nil, fmt.Errorf("failed to get deleted users: %w", err)
 	}
 
-	return users, nil
+	result := make([]*usermodel.User, len(users))
+	for i, u := range users {
+		result[i] = EntToModel(u)
+	}
+
+	return result, nil
 }
 
 // AddPhotoURLs adds new photo paths to the user's PhotoUrls array
@@ -245,7 +304,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 		return nil
 	}
 
-	return &usermodel.User{
+	user := &usermodel.User{
 		ID:               e.ID,
 		TelegramID:       e.TelegramID,
 		FullName:         e.FullName,
@@ -256,11 +315,16 @@ func EntToModel(e *ent.User) *usermodel.User {
 		ConsentPd:        e.ConsentPd,
 		OnBoarding:       e.OnBoarding,
 		AllowGeo:         e.AllowGeo,
-		LocationID:       &e.LocationID,
 		Role:             string(e.Role),
 		Pets:             nil, // Pets are loaded separately via WithPets
 		CreatedAt:        &e.CreatedAt,
 		UpdatedAt:        &e.UpdatedAt,
 		DeletedAt:        e.DeletedAt,
 	}
+
+	if e.LocationID != "" {
+		user.LocationID = &e.LocationID
+	}
+
+	return user
 }

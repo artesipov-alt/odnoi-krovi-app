@@ -18,8 +18,11 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	refquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
+	usercmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
+	userquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	bloodsearch "github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
-	fileuploader "github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader"
+	filestorage "github.com/artesipov-alt/odnoi-krovi-app/internal/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
@@ -27,7 +30,7 @@ import (
 	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference"
 
-	user "github.com/artesipov-alt/odnoi-krovi-app/internal/user"
+	usertransport "github.com/artesipov-alt/odnoi-krovi-app/internal/user/transport/http"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
@@ -110,19 +113,47 @@ func main() {
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
 
-		// Инициализация reference service
-		referenceService := reference.NewReferenceService(bloodInfoRepo, breedRepo, locationRepo)
+		// Инициализация reference query handlers
+		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
+		getBreedsByTypeHandler := refquery.NewGetBreedsByPetTypeHandler(breedRepo)
+		getAllLocationsHandler := refquery.NewGetAllLocationsHandler(locationRepo)
+		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler(bloodInfoRepo)
+		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
-		// Инициализация сервисов
-		userService := user.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := pet.NewPetService(petRepo, userRepo, bloodRequestRepo, referenceService, fileStorage)
+		// Инициализация user command и query handlers
+		createSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo)
+		deleteHandler := usercmd.NewDeleteHandler(userRepo)
+		updateHandler := usercmd.NewUpdateHandler(userRepo)
+		resetHandler := usercmd.NewResetHandler(userRepo)
+		restoreHandler := usercmd.NewRestoreHandler(userRepo)
+		getByIDHandler := userquery.NewGetByIDHandler(userRepo, fileStorage)
+		getByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo, fileStorage)
+		getDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
+
+		// Инициализация остальных сервисов
+		petService := pet.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage)
 		bloodSearchService := bloodsearch.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
-		fileService := fileuploader.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
-		referenceHandler := reference.NewReferenceHandler(referenceService)
-		userHandler := user.NewUserHandler(userService)
+		fileService := filestorage.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
+		referenceHandler := reference.NewReferenceHandler(
+			getAllBreedsHandler,
+			getBreedsByTypeHandler,
+			getAllLocationsHandler,
+			getAllBloodComponentsHandler,
+			getBloodGroupsByTypeHandler,
+		)
+		userHandler := usertransport.NewUserHandler(
+			createSimpleHandler,
+			deleteHandler,
+			updateHandler,
+			resetHandler,
+			restoreHandler,
+			getByIDHandler,
+			getByTelegramHandler,
+			getDeletedHandler,
+		)
 		petHandler := pet.NewPetHandler(*petService, bloodInfoRepo)
 		bloodRequestHandler := bloodsearch.NewBloodRequestHandler(*bloodSearchService)
-		fileHandler := fileuploader.NewFileHandler(fileService)
+		fileHandler := filestorage.NewFileHandler(fileService)
 
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))

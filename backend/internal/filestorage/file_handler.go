@@ -1,4 +1,4 @@
-package filestrorage
+package filestorage
 
 import (
 	"context"

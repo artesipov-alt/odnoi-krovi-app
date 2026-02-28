@@ -3,7 +3,7 @@ package query
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/filestrorage"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/filestorage"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
@@ -11,10 +11,10 @@ import (
 
 type GetByTelegramHandler struct {
 	userRepo    user.Repository
-	fileStorage filestrorage.Repository // Интерфейс для URL
+	fileStorage filestorage.Repository // Интерфейс для URL
 }
 
-func NewGetByTelegramHandler(userepo user.Repository, filestorage filestrorage.Repository) *GetByTelegramHandler {
+func NewGetByTelegramHandler(userepo user.Repository, filestorage filestorage.Repository) *GetByTelegramHandler {
 	return &GetByTelegramHandler{
 		userRepo:    userepo,
 		fileStorage: filestorage,

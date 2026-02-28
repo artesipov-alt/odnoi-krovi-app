@@ -1,4 +1,4 @@
-package filestrorage
+package filestorage
 
 type PhotoPreloadQuery struct {
 	PhotosCount   int64 `query:"photos_count" doc:"Количество фотографий прикрепленных пользователем" example:"1"`

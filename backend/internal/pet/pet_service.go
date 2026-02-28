@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
@@ -20,18 +19,16 @@ type PetService struct {
 	petRepo      Repository
 	userRepo     domain.UserRepository
 	bloodReqRepo domain.BloodRequestRepository
-	referenceSvc *reference.ReferenceService
 	storage      domain.FileStorage
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo Repository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, referenceSvc *reference.ReferenceService, storage domain.FileStorage) *PetService {
+func NewPetService(petRepo Repository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, storage domain.FileStorage) *PetService {
 	return &PetService{
 		petRepo:      petRepo,
 		userRepo:     userRepo,
 		storage:      storage,
 		bloodReqRepo: bloodReqRepo,
-		referenceSvc: referenceSvc,
 	}
 }
 

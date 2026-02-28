@@ -1,4 +1,4 @@
-package filestrorage
+package filestorage
 
 import (
 	"context"
@@ -26,12 +26,12 @@ func NewFileService(petRepo domain.PetRepository, userRepo domain.UserRepository
 }
 
 // GetPresignURLs Возвращает ссылки для загрузки фотографий.
-func (s *FileService) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]domain.UploadInfo, error) {
+func (s *FileService) GetPresignURLs(ctx context.Context, ID string, count int64, preloads ...string) ([]UploadInfo, error) {
 	if len(preloads) == 0 {
 		return nil, apperrors.BadRequest("preload type is required")
 	}
 
-	var uploadInfos []domain.UploadInfo
+	var uploadInfos []UploadInfo
 
 	switch preloads[0] {
 	case "pet_avatar":

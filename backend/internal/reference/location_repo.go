@@ -7,7 +7,7 @@ import (
 )
 
 // LocationRepository определяет интерфейс для операций с данными локаций
-type LocationRepository interface {
+type LocationInfoRepository interface {
 	// GetByID получает локацию по её ID
 	GetByID(ctx context.Context, id string) (*model.Location, error)
 

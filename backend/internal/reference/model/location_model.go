@@ -1,6 +1,6 @@
 package model
 
 type Location struct {
-	ID   int
+	ID   string
 	Name string
 }
