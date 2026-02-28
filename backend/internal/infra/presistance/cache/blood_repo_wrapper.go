@@ -4,19 +4,19 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
 )
 
 // CachedBloodInfoRepository реализует кеширующий репозиторий для работы с группами крови
 type CachedBloodInfoRepository struct {
-	repo  services.BloodInfoRepository
-	cache cache.ICache
+	repo  domain.BloodInfoRepository
+	cache ICache
 }
 
 // NewCachedBloodInfoRepository создает новый экземпляр кеширующего репозитория
-func NewCachedBloodInfoRepository(repo services.BloodInfoRepository, cache cache.ICache) *CachedBloodInfoRepository {
+func NewCachedBloodInfoRepository(repo domain.BloodInfoRepository, cache ICache) *CachedBloodInfoRepository {
 	return &CachedBloodInfoRepository{
 		repo:  repo,
 		cache: cache,
@@ -25,7 +25,7 @@ func NewCachedBloodInfoRepository(repo services.BloodInfoRepository, cache cache
 
 // AllComponents возвращает все компоненты крови с кешированием
 func (r *CachedBloodInfoRepository) AllComponents(ctx context.Context) ([]*ent.BloodComponent, error) {
-	cacheKey := cache.BloodTypesListKey
+	cacheKey := BloodTypesListKey
 
 	// Пытаемся получить из кэша
 	var components []*ent.BloodComponent
@@ -40,14 +40,14 @@ func (r *CachedBloodInfoRepository) AllComponents(ctx context.Context) ([]*ent.B
 	}
 
 	// Сохраняем в кэш
-	r.cache.SetJSON(ctx, cacheKey, components, cache.LongTTL)
+	r.cache.SetJSON(ctx, cacheKey, components, LongTTL)
 
 	return components, nil
 }
 
 // ComponentByID возвращает компонент крови по ID с кешированием
 func (r *CachedBloodInfoRepository) ComponentByID(ctx context.Context, id string) (*ent.BloodComponent, error) {
-	cacheKey := fmt.Sprintf(cache.BloodComponentByIDKey, id)
+	cacheKey := fmt.Sprintf(BloodComponentByIDKey, id)
 
 	// Пытаемся получить из кэша
 	var component ent.BloodComponent
@@ -62,14 +62,14 @@ func (r *CachedBloodInfoRepository) ComponentByID(ctx context.Context, id string
 	}
 
 	// Сохраняем в кэш
-	r.cache.SetJSON(ctx, cacheKey, componentPtr, cache.LongTTL)
+	r.cache.SetJSON(ctx, cacheKey, componentPtr, LongTTL)
 
 	return componentPtr, nil
 }
 
 // BloodGroupsByPetType возвращает группы крови по типу животного с кешированием
 func (r *CachedBloodInfoRepository) BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error) {
-	cacheKey := fmt.Sprintf(cache.BloodGroupsByPetTypeKey, petType)
+	cacheKey := fmt.Sprintf(BloodGroupsByPetTypeKey, petType)
 
 	// Пытаемся получить из кэша
 	var bloodGroups []*ent.BloodGroup
@@ -84,7 +84,7 @@ func (r *CachedBloodInfoRepository) BloodGroupsByPetType(ctx context.Context, pe
 	}
 
 	// Сохраняем в кэш
-	r.cache.SetJSON(ctx, cacheKey, bloodGroups, cache.LongTTL)
+	r.cache.SetJSON(ctx, cacheKey, bloodGroups, LongTTL)
 
 	return bloodGroups, nil
 }

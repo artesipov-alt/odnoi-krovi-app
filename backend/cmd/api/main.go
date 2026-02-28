@@ -20,11 +20,13 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodsearch "github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
 	fileuploader "github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/handlers"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
+
 	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/pg"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/repositories/s3"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference"
+
 	user "github.com/artesipov-alt/odnoi-krovi-app/internal/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
@@ -106,18 +108,21 @@ func main() {
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
-		txManager := repositories.NewTxManager(db)
+		txManager := presistance.NewTxManager(db)
+
+		// Инициализация reference service
+		referenceService := reference.NewReferenceService(bloodInfoRepo, breedRepo, locationRepo)
 
 		// Инициализация сервисов
 		userService := user.NewUserService(userRepo, locationRepo, fileStorage)
-		petService := pet.NewPetService(petRepo, userRepo, bloodRequestRepo, bloodInfoRepo, breedRepo, fileStorage)
+		petService := pet.NewPetService(petRepo, userRepo, bloodRequestRepo, referenceService, fileStorage)
 		bloodSearchService := bloodsearch.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
 		fileService := fileuploader.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
-		referenceHandler := handlers.NewReferenceHandler(breedRepo, bloodInfoRepo, locationRepo)
-		userHandler := handlers.NewUserHandler(userService)
-		petHandler := handlers.NewPetHandler(*petService, bloodInfoRepo)
-		bloodRequestHandler := handlers.NewBloodRequestHandler(*bloodSearchService)
-		fileHandler := handlers.NewFileHandler(fileService)
+		referenceHandler := reference.NewReferenceHandler(referenceService)
+		userHandler := user.NewUserHandler(userService)
+		petHandler := pet.NewPetHandler(*petService, bloodInfoRepo)
+		bloodRequestHandler := bloodsearch.NewBloodRequestHandler(*bloodSearchService)
+		fileHandler := fileuploader.NewFileHandler(fileService)
 
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))

@@ -17,11 +17,11 @@ import (
 
 // ReferenceHandler обрабатывает HTTP запросы для справочных данных
 type ReferenceHandler struct {
-	referenceService ReferenceService
+	referenceService *ReferenceService
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
-func NewReferenceHandler(referenceService ReferenceService) *ReferenceHandler {
+func NewReferenceHandler(referenceService *ReferenceService) *ReferenceHandler {
 	return &ReferenceHandler{
 		referenceService: referenceService,
 	}

@@ -20,12 +20,12 @@ type PetService struct {
 	petRepo      domain.PetRepository
 	userRepo     domain.UserRepository
 	bloodReqRepo domain.BloodRequestRepository
-	referenceSvc reference.ReferenceService
+	referenceSvc *reference.ReferenceService
 	storage      domain.FileStorage
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo domain.PetRepository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, referenceSvc reference.ReferenceService, storage domain.FileStorage) *PetService {
+func NewPetService(petRepo domain.PetRepository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, referenceSvc *reference.ReferenceService, storage domain.FileStorage) *PetService {
 	return &PetService{
 		petRepo:      petRepo,
 		userRepo:     userRepo,

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/cache"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
 )
 
 // Config содержит конфигурацию для кэша

@@ -13,9 +13,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/aws/smithy-go"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/services"
 )
 
 // S3Storage представляет собой клиент для работы с S3-совместимым хранилищем
@@ -27,7 +26,7 @@ type S3Storage struct {
 		region     string
 	}
 	client *s3.Client
-	fs     *services.MediaService
+	fs     *domain.MediaService
 }
 
 // S3Config содержит конфигурацию для подключения к S3
@@ -44,11 +43,11 @@ type S3Config struct {
 // S3Builder представляет собой билдер для создания S3Storage с различными настройками
 type S3Builder struct {
 	config S3Config
-	fs     *services.MediaService
+	fs     *domain.MediaService
 }
 
 // NewS3Storage создает новый билдер для S3Storage
-func NewS3Storage(fservice *services.MediaService) *S3Builder {
+func NewS3Storage(fservice *domain.MediaService) *S3Builder {
 	return &S3Builder{
 		fs: fservice,
 		config: S3Config{
@@ -163,13 +162,13 @@ func (s *S3Storage) Client() *s3.Client {
 }
 
 // FileService возвращает сервис для работы с файлами
-func (s *S3Storage) FileService() *services.MediaService {
+func (s *S3Storage) FileService() *domain.MediaService {
 	return s.fs
 }
 
 // GetPresignedURLs возвращает информацию для загрузки нескольких фотографий
 // Возвращает: слайс UploadInfo, error
-func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string) ([]services.UploadInfo, error) {
+func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string) ([]domain.UploadInfo, error) {
 	var format string
 	var contentType string
 	year := time.Now().Year()
@@ -189,7 +188,7 @@ func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string
 	}
 
 	presigner := s3.NewPresignClient(s.client)
-	uploadInfos := make([]services.UploadInfo, count)
+	uploadInfos := make([]domain.UploadInfo, count)
 
 	for p := range count {
 		path := fmt.Sprintf(format, id, p+1)
@@ -202,7 +201,7 @@ func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string
 		if err != nil {
 			return nil, fmt.Errorf("ошибка создания presigned URL для загрузки %d: %v", p, err)
 		}
-		uploadInfos[p] = services.UploadInfo{
+		uploadInfos[p] = domain.UploadInfo{
 			UploadURL:  req.URL,
 			ObjectPath: path,
 		}
