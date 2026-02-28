@@ -18,6 +18,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
 
 	"github.com/jinzhu/copier"
 )
@@ -602,3 +603,42 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 
 // 	return nil
 // }
+
+// EntToPetModel converts ent.Pet to domain model Pet
+func EntToShortPetModel(e *ent.Pet) *petmodel.Pet {
+	if e == nil {
+		return nil
+	}
+
+	pet := &petmodel.Pet{
+		ID:                 e.ID,
+		Name:               e.Name,
+		WeightKg:           e.WeightKg,
+		Gender:             petmodel.Gender(e.Gender),
+		BirthDate:          e.BirthDate,
+		ChipNumber:         e.ChipNumber,
+		PhotoURLs:          e.PhotoUrls,
+		LivingCondition:    petmodel.LivingCondition(e.LivingCondition),
+		ReproductiveStatus: petmodel.ReproductiveStatus(e.ReproductiveStatus),
+		OwnerID:            e.UserID,
+		BreedRefID:         e.BreedID,
+		StopFactors:        e.StopFactors,
+		WarnFactors:        e.WarnFactors,
+		Bonuses:            e.Bonuses,
+		CreatedAt:          &e.CreatedAt,
+		UpdatedAt:          &e.UpdatedAt,
+		DeletedAt:          e.DeletedAt,
+	}
+
+	// Map PetType
+	if e.Type != "" {
+		pet.Type = petmodel.PetType(e.Type)
+	}
+
+	// Map BloodGroupName from edge if available
+	if e.Edges.BloodGroupRef != nil {
+		pet.BloodGroupName = &e.Edges.BloodGroupRef.BloodGroup
+	}
+
+	return pet
+}

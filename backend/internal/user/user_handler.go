@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	petdto "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
@@ -122,7 +121,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 }) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
-	usr, err := h.userService.GetUserByID(ctx, input.ID, domain.UserPreloadOptions{
+	usr, err := h.userService.GetUserByID(ctx, input.ID, UserPreloadOptions{
 		WithPets: input.WithPets,
 	})
 
@@ -185,7 +184,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 }) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
-	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, domain.UserPreloadOptions{
+	usr, err := h.userService.GetUserByTelegramID(ctx, input.ID, UserPreloadOptions{
 		WithPets: input.WithPets,
 	})
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -299,4 +300,21 @@ func (s *S3Storage) GetPublicURLFromPath(path string) string {
 		s.cfg.endpoint,
 		s.cfg.bucketName,
 		path)
+}
+
+// BuildFullPhotoURLs преобразует пути к фото в полные публичные URL
+func (s *S3Storage) BuildFullPhotoURLs(paths []string, updatedAt time.Time) []string {
+	if len(paths) == 0 {
+		return []string{}
+	}
+	result := make([]string, len(paths))
+	for i, path := range paths {
+		if path == "" {
+			result[i] = ""
+		} else {
+			url := s.GetPublicURLFromPath(path)
+			result[i] = url + "?t=" + strconv.FormatInt(updatedAt.Unix(), 10)
+		}
+	}
+	return result
 }

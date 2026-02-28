@@ -133,7 +133,7 @@ func (h *PetHandler) GetPet(ctx context.Context,
 		dto.PetPreloadQuery
 	}) (*dto.PetResponse, error) {
 	// Добавляем опции к запросу.
-	opts := domain.PetPreloadOptions{
+	opts := PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
 		WithAnalyses:   input.WithAnalysis,
@@ -155,7 +155,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context,
 		dto.PetPreloadQuery
 	}) (*dto.PetsResponse, error) {
 
-	opts := domain.PetPreloadOptions{
+	opts := PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
 		WithAnalyses:   input.WithAnalysis,

@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
 )
 
 // EntUserRepository implements UserRepository using ENT
@@ -37,8 +39,7 @@ func (r *EntUserRepository) Create(ctx context.Context, input *ent.CreateUserInp
 	return newUser, nil
 }
 
-// GetQuery returns a query for eager loading
-func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts domain.UserPreloadOptions) (*ent.User, error) {
+func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error) {
 	quser := r.client.User.Query().Where(entuser.ID(id))
 
 	if opts.WithPets {
@@ -47,14 +48,21 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts domain.
 
 	user, err := quser.Only(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return user, nil
+	var pets []*petmodel.Pet
+	if len(user.Edges.Pets) > 0 {
+		for _, p := range user.Edges.Pets {
+			pets = append(pets, EntToShortPetModel(p))
+		}
+	}
+
+	return EntToModel(user), pets, nil
 }
 
 // GetByTelegram returns a user by Telegram ID
-func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts domain.UserPreloadOptions) (*ent.User, error) {
+func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error) {
 	quser := r.client.User.Query().Where(entuser.TelegramID(telegramID))
 
 	if opts.WithPets {
@@ -63,10 +71,17 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 
 	user, err := quser.Only(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return user, nil
+	var pets []*petmodel.Pet
+	if len(user.Edges.Pets) > 0 {
+		for _, p := range user.Edges.Pets {
+			pets = append(pets, EntToShortPetModel(p))
+		}
+	}
+
+	return EntToModel(user), pets, nil
 }
 
 // ExistsByID checks if a user with the given ID exists
@@ -222,4 +237,30 @@ func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths [
 	}
 
 	return nil
+}
+
+// EntToModel converts ent.User to domain model User
+func EntToModel(e *ent.User) *usermodel.User {
+	if e == nil {
+		return nil
+	}
+
+	return &usermodel.User{
+		ID:               e.ID,
+		TelegramID:       e.TelegramID,
+		FullName:         e.FullName,
+		Phone:            e.Phone,
+		Email:            e.Email,
+		PhotoURLs:        e.PhotoUrls,
+		OrganizationName: e.OrganizationName,
+		ConsentPd:        e.ConsentPd,
+		OnBoarding:       e.OnBoarding,
+		AllowGeo:         e.AllowGeo,
+		LocationID:       &e.LocationID,
+		Role:             string(e.Role),
+		Pets:             nil, // Pets are loaded separately via WithPets
+		CreatedAt:        &e.CreatedAt,
+		UpdatedAt:        &e.UpdatedAt,
+		DeletedAt:        e.DeletedAt,
+	}
 }

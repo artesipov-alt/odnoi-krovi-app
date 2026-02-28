@@ -17,7 +17,7 @@ import (
 
 // PetService реализует PetService
 type PetService struct {
-	petRepo      domain.PetRepository
+	petRepo      Repository
 	userRepo     domain.UserRepository
 	bloodReqRepo domain.BloodRequestRepository
 	referenceSvc *reference.ReferenceService
@@ -25,7 +25,7 @@ type PetService struct {
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo domain.PetRepository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, referenceSvc *reference.ReferenceService, storage domain.FileStorage) *PetService {
+func NewPetService(petRepo Repository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, referenceSvc *reference.ReferenceService, storage domain.FileStorage) *PetService {
 	return &PetService{
 		petRepo:      petRepo,
 		userRepo:     userRepo,
@@ -71,7 +71,7 @@ func (s *PetService) CreatePet(ctx context.Context, userID string, pet *model.Pe
 }
 
 // GetPet получает питомца с preload связанных данных
-func (s *PetService) GetPet(ctx context.Context, petID string, opts domain.PetPreloadOptions) (*model.Pet, error) {
+func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOptions) (*model.Pet, error) {
 	pet, err := s.petRepo.GetPet(ctx, petID, opts)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts domain.PetPr
 }
 
 // GetUserPets получает всех питомцев пользователя с preload связей
-func (s *PetService) GetUserPets(ctx context.Context, userID string, opts domain.PetPreloadOptions) ([]*model.Pet, error) {
+func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*model.Pet, error) {
 	_, err := s.userRepo.GetByID(ctx, userID, domain.UserPreloadOptions{})
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -144,7 +144,7 @@ func (s *PetService) GetUserPets(ctx context.Context, userID string, opts domain
 }
 
 func (s *PetService) RevalidateDonor(ctx context.Context, petID string) (*model.Pet, error) {
-	pet, err := s.petRepo.GetPet(ctx, petID, domain.PetPreloadOptions{
+	pet, err := s.petRepo.GetPet(ctx, petID, PetPreloadOptions{
 		WithAll: true,
 	})
 	if err != nil {

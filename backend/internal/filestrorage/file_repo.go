@@ -1,12 +1,16 @@
-package domain
+package filestrorage
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
-type FileStorage interface {
+type Repository interface {
 	GetPresignedURLs(ctx context.Context, count int64, id string) ([]UploadInfo, error)
 	CheckObjectExists(ctx context.Context, objectPath string) (bool, error)
 	GetAvatarPublicURL(id string) string
 	GetPublicURLFromPath(path string) string
+	BuildPhotoURLs(paths []string, updatedAt time.Time) []string
 	SetObjectPublicACL(ctx context.Context, objectPath string) error
 	ConfirmUploads(ctx context.Context, paths []string) error
 }

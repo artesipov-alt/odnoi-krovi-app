@@ -1,4 +1,4 @@
-package fileuploader
+package filestrorage
 
 import (
 	"context"
