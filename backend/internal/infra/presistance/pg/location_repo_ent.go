@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 )
@@ -21,7 +22,7 @@ func NewEntLocationRepository(client *ent.Client) *EntLocationRepository {
 }
 
 // GetByID retrieves a location by its ID
-func (r *EntLocationRepository) GetByID(ctx context.Context, id string) (*ent.Location, error) {
+func (r *EntLocationRepository) GetByID(ctx context.Context, id string) (*model.Location, error) {
 	l, err := r.client.Location.Get(ctx, id)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -30,17 +31,28 @@ func (r *EntLocationRepository) GetByID(ctx context.Context, id string) (*ent.Lo
 		return nil, fmt.Errorf("failed to get location by id %s: %w", id, err)
 	}
 
-	return l, nil
+	return &model.Location{
+		ID:   l.ID,
+		Name: l.Name,
+	}, nil
 }
 
 // GetAll retrieves all locations from the database
-func (r *EntLocationRepository) GetAll(ctx context.Context) ([]*ent.Location, error) {
-	locations, err := r.client.Location.Query().
+func (r *EntLocationRepository) GetAll(ctx context.Context) ([]*model.Location, error) {
+	entLocations, err := r.client.Location.Query().
 		Order(ent.Asc(location.FieldName)).
 		All(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all locations: %w", err)
+	}
+
+	locations := make([]*model.Location, len(entLocations))
+	for i, l := range entLocations {
+		locations[i] = &model.Location{
+			ID:   l.ID,
+			Name: l.Name,
+		}
 	}
 
 	return locations, nil

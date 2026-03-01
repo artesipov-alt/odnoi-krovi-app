@@ -5,7 +5,8 @@ import (
 	"log/slog" // Import slog
 	"net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
+	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -34,13 +35,36 @@ func calculateDonationAmount(pet *ent.Pet) int32 {
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	svc *bloodsearch.BloodSearchService
+	createHandler       *bloodcmd.CreateRequestHandler
+	updateHandler       *bloodcmd.UpdateRequestHandler
+	updateStatusHandler *bloodcmd.UpdateStatusHandler
+	deleteHandler       *bloodcmd.DeleteRequestHandler
+	applyHandler        *bloodcmd.ApplyForRequestHandler
+	getByIDHandler      *bloodquery.GetByIDHandler
+	getByPetIDHandler   *bloodquery.GetByPetIDHandler
+	listHandler         *bloodquery.ListRequestsHandler
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
-func NewBloodRequestHandler(service *bloodsearch.BloodSearchService) *BloodRequestHandler {
+func NewBloodRequestHandler(
+	createHandler *bloodcmd.CreateRequestHandler,
+	updateHandler *bloodcmd.UpdateRequestHandler,
+	updateStatusHandler *bloodcmd.UpdateStatusHandler,
+	deleteHandler *bloodcmd.DeleteRequestHandler,
+	applyHandler *bloodcmd.ApplyForRequestHandler,
+	getByIDHandler *bloodquery.GetByIDHandler,
+	getByPetIDHandler *bloodquery.GetByPetIDHandler,
+	listHandler *bloodquery.ListRequestsHandler,
+) *BloodRequestHandler {
 	return &BloodRequestHandler{
-		svc: service,
+		createHandler:       createHandler,
+		updateHandler:       updateHandler,
+		updateStatusHandler: updateStatusHandler,
+		deleteHandler:       deleteHandler,
+		applyHandler:        applyHandler,
+		getByIDHandler:      getByIDHandler,
+		getByPetIDHandler:   getByPetIDHandler,
+		listHandler:         listHandler,
 	}
 }
 
@@ -200,7 +224,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		return nil, err
 	}
 
-	result, err := h.svc.CreateRequest(ctx, bloodReq)
+	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +242,7 @@ func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *s
 }) (*dto.DonorApplicationCreateResponse, error) {
 	slog.DebugContext(ctx, "applying for blood request", "request_id", input.IDPathStr.ID, "donor_id", input.Body.DonorID)
 
-	resp, err := h.svc.ApplyForBloodRequest(ctx, input.IDPathStr.ID, input.Body.DonorID, input.Body.Conditions)
+	resp, err := h.applyHandler.Handle(ctx, input.IDPathStr.ID, input.Body.DonorID, input.Body.Conditions)
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +264,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 	slog.DebugContext(ctx, "updating blood request", "request_id", input.IDPathStr.ID)
 
 	// Получить текущий объект
-	existing, err := h.svc.GetRequestByID(ctx, input.IDPathStr.ID)
+	existing, err := h.getByIDHandler.Handle(ctx, input.IDPathStr.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -286,7 +310,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 		return nil, err
 	}
 
-	result, err := h.svc.UpdateRequest(ctx, input.IDPathStr.ID, updateReq)
+	result, err := h.updateHandler.Handle(ctx, input.IDPathStr.ID, updateReq)
 	if err != nil {
 		return nil, err
 	}
@@ -323,7 +347,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 // }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
-	bloodReq, err := h.svc.GetRequestByID(ctx, input.ID)
+	bloodReq, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +357,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
 	slog.DebugContext(ctx, "getting blood request by PET ID", "pet_id", input.ID)
-	bloodReq, situatableDonors, err := h.svc.GetRequestByPetID(ctx, input.ID)
+	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -352,7 +376,7 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
-	if err := h.svc.DeleteRequest(ctx, input.ID); err != nil {
+	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 

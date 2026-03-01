@@ -18,19 +18,19 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
+	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
+	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
+	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
+	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	refquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	usercmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	userquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
-	bloodsearch "github.com/artesipov-alt/odnoi-krovi-app/internal/bloodsearch"
-	filestorage "github.com/artesipov-alt/odnoi-krovi-app/internal/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 
-	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference"
-
-	usertransport "github.com/artesipov-alt/odnoi-krovi-app/internal/user/transport/http"
+	transport "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
@@ -130,18 +130,37 @@ func main() {
 		getByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo, fileStorage)
 		getDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		// Инициализация остальных сервисов
-		petService := pet.NewPetService(petRepo, userRepo, bloodRequestRepo, fileStorage)
-		bloodSearchService := bloodsearch.NewBloodSearchService(*txManager, bloodRequestRepo, petRepo, donorResponseRepo, fileStorage)
-		fileService := filestorage.NewFileService(petRepo, userRepo, bloodRequestRepo, fileStorage)
-		referenceHandler := reference.NewReferenceHandler(
+		// Инициализация pet handlers
+		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
+		petUpdateHandler := petcmd.NewUpdateHandler(petRepo)
+		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, bloodRequestRepo)
+		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo)
+		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo, fileStorage)
+		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
+
+		// Инициализация bloodsearch handlers
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, fileStorage)
+		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo, fileStorage)
+		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(*txManager, bloodRequestRepo)
+		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, *txManager)
+		bloodApplyHandler := bloodcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo)
+		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, fileStorage)
+		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo, fileStorage)
+		bloodListHandler := bloodquery.NewListRequestsHandler(bloodRequestRepo)
+
+		// Инициализация file handlers
+		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
+		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
+
+		// Инициализация handlers
+		referenceHandler := transport.NewReferenceHandler(
 			getAllBreedsHandler,
 			getBreedsByTypeHandler,
 			getAllLocationsHandler,
 			getAllBloodComponentsHandler,
 			getBloodGroupsByTypeHandler,
 		)
-		userHandler := usertransport.NewUserHandler(
+		userHandler := transport.NewUserHandler(
 			createSimpleHandler,
 			deleteHandler,
 			updateHandler,
@@ -151,9 +170,26 @@ func main() {
 			getByTelegramHandler,
 			getDeletedHandler,
 		)
-		petHandler := pet.NewPetHandler(*petService, bloodInfoRepo)
-		bloodRequestHandler := bloodsearch.NewBloodRequestHandler(*bloodSearchService)
-		fileHandler := filestorage.NewFileHandler(fileService)
+		petHandler := transport.NewPetHandler(
+			petCreateHandler,
+			petUpdateHandler,
+			petDeleteHandler,
+			petRevalidateHandler,
+			petGetByIDHandler,
+			petGetByUserHandler,
+			bloodInfoRepo,
+		)
+		bloodRequestHandler := transport.NewBloodRequestHandler(
+			bloodCreateHandler,
+			bloodUpdateHandler,
+			bloodUpdateStatusHandler,
+			bloodDeleteHandler,
+			bloodApplyHandler,
+			bloodGetByIDHandler,
+			bloodGetByPetIDHandler,
+			bloodListHandler,
+		)
+		fileHandler := transport.NewFileHandler(fileGetPresignedHandler, fileConfirmUploadHandler)
 
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))

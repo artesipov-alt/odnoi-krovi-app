@@ -7,20 +7,25 @@ import (
 	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // FileHandler обрабатывает HTTP запросы для загрузки и подтверждения файлов
 type FileHandler struct {
-	fileService *filestorage.FileService
+	getPresignedHandler  *filecmd.GetPresignedURLsHandler
+	confirmUploadHandler *filecmd.ConfirmUploadHandler
 }
 
 // NewFileHandler создает новый обработчик файлов
-func NewFileHandler(fileService *filestorage.FileService) *FileHandler {
+func NewFileHandler(
+	getPresignedHandler *filecmd.GetPresignedURLsHandler,
+	confirmUploadHandler *filecmd.ConfirmUploadHandler,
+) *FileHandler {
 	return &FileHandler{
-		fileService: fileService,
+		getPresignedHandler:  getPresignedHandler,
+		confirmUploadHandler: confirmUploadHandler,
 	}
 }
 
@@ -74,7 +79,7 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 		return nil, apperrors.BadRequest("Максимальное количество фотографий - 5")
 	}
 
-	uploadInfos, err := h.fileService.GetPresignURLs(ctx, input.ID, input.PhotosCount, preloads...)
+	uploadInfos, err := h.getPresignedHandler.Handle(ctx, input.ID, input.PhotosCount, preloads[0])
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +138,7 @@ func (h *FileHandler) ConfirmUpload(ctx context.Context, input *struct {
 		preload = "blood_req"
 	}
 
-	err := h.fileService.ConfirmUploads(ctx, input.Body.EntityID, input.Body.Paths, preload)
+	err := h.confirmUploadHandler.Handle(ctx, input.Body.EntityID, input.Body.Paths, preload)
 	if err != nil {
 		return nil, err
 	}

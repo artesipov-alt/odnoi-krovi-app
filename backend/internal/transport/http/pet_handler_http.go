@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
+	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
@@ -14,15 +16,33 @@ import (
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService    pet.PetService
-	bloodInfoRepo reference.BloodInfoRepository
+	createHandler     *petcmd.CreateHandler
+	updateHandler     *petcmd.UpdateHandler
+	deleteHandler     *petcmd.DeleteHandler
+	revalidateHandler *petcmd.RevalidateDonorHandler
+	getByIDHandler    *petquery.GetByIDHandler
+	getByUserHandler  *petquery.GetByUserHandler
+	bloodInfoRepo     reference.BloodInfoRepository
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService pet.PetService, bloodInfoRepo reference.BloodInfoRepository) *PetHandler {
+func NewPetHandler(
+	createHandler *petcmd.CreateHandler,
+	updateHandler *petcmd.UpdateHandler,
+	deleteHandler *petcmd.DeleteHandler,
+	revalidateHandler *petcmd.RevalidateDonorHandler,
+	getByIDHandler *petquery.GetByIDHandler,
+	getByUserHandler *petquery.GetByUserHandler,
+	bloodInfoRepo reference.BloodInfoRepository,
+) *PetHandler {
 	return &PetHandler{
-		petService:    petService,
-		bloodInfoRepo: bloodInfoRepo,
+		createHandler:     createHandler,
+		updateHandler:     updateHandler,
+		deleteHandler:     deleteHandler,
+		revalidateHandler: revalidateHandler,
+		getByIDHandler:    getByIDHandler,
+		getByUserHandler:  getByUserHandler,
+		bloodInfoRepo:     bloodInfoRepo,
 	}
 }
 
@@ -103,7 +123,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 	petDomain := new(model.Pet)
 	ToDomain(*body, petDomain)
 
-	createdPet, err := h.petService.CreatePet(ctx, input.ID, petDomain)
+	createdPet, err := h.createHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +140,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 	petDomain := new(model.Pet)
 	ToDomain(body, petDomain)
 
-	updatedPet, err := h.petService.Update(ctx, input.ID, petDomain)
+	updatedPet, err := h.updateHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +162,7 @@ func (h *PetHandler) GetPet(ctx context.Context,
 		WithAll:        input.WithAll,
 	}
 
-	pet, err := h.petService.GetPet(ctx, input.ID, opts)
+	pet, err := h.getByIDHandler.Handle(ctx, input.ID, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +184,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context,
 		WithAll:        input.WithAll,
 	}
 
-	pets, err := h.petService.GetUserPets(ctx, input.ID, opts)
+	pets, err := h.getByUserHandler.Handle(ctx, input.ID, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +193,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context,
 }
 
 func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
-	if err := h.petService.DeletePet(ctx, input.ID); err != nil {
+	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
@@ -183,7 +203,7 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.
 }
 
 func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
-	pet, err := h.petService.RevalidateDonor(ctx, input.ID)
+	pet, err := h.revalidateHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
