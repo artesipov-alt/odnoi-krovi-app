@@ -16,94 +16,67 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AppError
+ * @interface ValidateDonorResult
  */
-export interface AppError {
+export interface ValidateDonorResult {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof ValidateDonorResult
      */
     readonly $schema?: string;
     /**
-     * 
+     * ID питомца
      * @type {string}
-     * @memberof AppError
+     * @memberof ValidateDonorResult
      */
-    code: string;
+    id: string;
     /**
-     * 
-     * @type {object}
-     * @memberof AppError
+     * Дата обновления
+     * @type {Date}
+     * @memberof ValidateDonorResult
      */
-    details: object;
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AppError
-     */
-    message: string;
+    updatedAt: Date | null;
 }
 
 /**
- * Check if a given object implements the AppError interface.
+ * Check if a given object implements the ValidateDonorResult interface.
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
-    if (!('message' in value) || value['message'] === undefined) return false;
+export function instanceOfValidateDonorResult(value: object): value is ValidateDonorResult {
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function ValidateDonorResultFromJSON(json: any): ValidateDonorResult {
+    return ValidateDonorResultFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function ValidateDonorResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): ValidateDonorResult {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'id': json['id'],
+        'updatedAt': (json['updatedAt'] == null ? null : new Date(json['updatedAt'])),
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function ValidateDonorResultToJSON(json: any): ValidateDonorResult {
+    return ValidateDonorResultToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ValidateDonorResultToJSONTyped(value?: Omit<ValidateDonorResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'id': value['id'],
+        'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
     };
 }
 

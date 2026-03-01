@@ -16,94 +16,66 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AppError
+ * @interface CreateUserResult
  */
-export interface AppError {
+export interface CreateUserResult {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof CreateUserResult
      */
     readonly $schema?: string;
     /**
-     * 
+     * Дата создания
+     * @type {Date}
+     * @memberof CreateUserResult
+     */
+    createdAt?: Date;
+    /**
+     * ID созданного пользователя
      * @type {string}
-     * @memberof AppError
+     * @memberof CreateUserResult
      */
-    code: string;
-    /**
-     * 
-     * @type {object}
-     * @memberof AppError
-     */
-    details: object;
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AppError
-     */
-    message: string;
+    id: string;
 }
 
 /**
- * Check if a given object implements the AppError interface.
+ * Check if a given object implements the CreateUserResult interface.
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
-    if (!('message' in value) || value['message'] === undefined) return false;
+export function instanceOfCreateUserResult(value: object): value is CreateUserResult {
+    if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function CreateUserResultFromJSON(json: any): CreateUserResult {
+    return CreateUserResultFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function CreateUserResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserResult {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
+        'id': json['id'],
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function CreateUserResultToJSON(json: any): CreateUserResult {
+    return CreateUserResultToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function CreateUserResultToJSONTyped(value?: Omit<CreateUserResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
+        'id': value['id'],
     };
 }
 

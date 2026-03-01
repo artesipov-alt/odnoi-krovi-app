@@ -16,94 +16,67 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AppError
+ * @interface ConfirmUploadBody
  */
-export interface AppError {
+export interface ConfirmUploadBody {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof ConfirmUploadBody
      */
     readonly $schema?: string;
     /**
-     * 
+     * ID сущности (питомец/пользователь/заявка)
      * @type {string}
-     * @memberof AppError
+     * @memberof ConfirmUploadBody
      */
-    code: string;
+    entityId: string;
     /**
-     * 
-     * @type {object}
-     * @memberof AppError
+     * Массив путей к загруженным файлам
+     * @type {Array<string>}
+     * @memberof ConfirmUploadBody
      */
-    details: object;
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AppError
-     */
-    message: string;
+    paths: Array<string> | null;
 }
 
 /**
- * Check if a given object implements the AppError interface.
+ * Check if a given object implements the ConfirmUploadBody interface.
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
-    if (!('message' in value) || value['message'] === undefined) return false;
+export function instanceOfConfirmUploadBody(value: object): value is ConfirmUploadBody {
+    if (!('entityId' in value) || value['entityId'] === undefined) return false;
+    if (!('paths' in value) || value['paths'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function ConfirmUploadBodyFromJSON(json: any): ConfirmUploadBody {
+    return ConfirmUploadBodyFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function ConfirmUploadBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ConfirmUploadBody {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'entityId': json['entityId'],
+        'paths': json['paths'] == null ? null : json['paths'],
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function ConfirmUploadBodyToJSON(json: any): ConfirmUploadBody {
+    return ConfirmUploadBodyToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ConfirmUploadBodyToJSONTyped(value?: Omit<ConfirmUploadBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'entityId': value['entityId'],
+        'paths': value['paths'],
     };
 }
 

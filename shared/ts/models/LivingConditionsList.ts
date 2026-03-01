@@ -13,63 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ReferenceItem } from './ReferenceItem';
+import {
+    ReferenceItemFromJSON,
+    ReferenceItemFromJSONTyped,
+    ReferenceItemToJSON,
+    ReferenceItemToJSONTyped,
+} from './ReferenceItem';
+
 /**
  * 
  * @export
- * @interface ReferenceItem
+ * @interface LivingConditionsList
  */
-export interface ReferenceItem {
+export interface LivingConditionsList {
     /**
-     * Отображаемое название
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof LivingConditionsList
      */
-    label: string;
+    readonly $schema?: string;
     /**
-     * Значение элемента
-     * @type {string}
-     * @memberof ReferenceItem
+     * Список условий проживания
+     * @type {Array<ReferenceItem>}
+     * @memberof LivingConditionsList
      */
-    value: string;
+    data: Array<ReferenceItem> | null;
 }
 
 /**
- * Check if a given object implements the ReferenceItem interface.
+ * Check if a given object implements the LivingConditionsList interface.
  */
-export function instanceOfReferenceItem(value: object): value is ReferenceItem {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfLivingConditionsList(value: object): value is LivingConditionsList {
+    if (!('data' in value) || value['data'] === undefined) return false;
     return true;
 }
 
-export function ReferenceItemFromJSON(json: any): ReferenceItem {
-    return ReferenceItemFromJSONTyped(json, false);
+export function LivingConditionsListFromJSON(json: any): LivingConditionsList {
+    return LivingConditionsListFromJSONTyped(json, false);
 }
 
-export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItem {
+export function LivingConditionsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): LivingConditionsList {
     if (json == null) {
         return json;
     }
     return {
         
-        'label': json['label'],
-        'value': json['value'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'data': (json['data'] == null ? null : (json['data'] as Array<any>).map(ReferenceItemFromJSON)),
     };
 }
 
-export function ReferenceItemToJSON(json: any): ReferenceItem {
-    return ReferenceItemToJSONTyped(json, false);
+export function LivingConditionsListToJSON(json: any): LivingConditionsList {
+    return LivingConditionsListToJSONTyped(json, false);
 }
 
-export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDiscriminator: boolean = false): any {
+export function LivingConditionsListToJSONTyped(value?: Omit<LivingConditionsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'label': value['label'],
-        'value': value['value'],
+        'data': (value['data'] == null ? null : (value['data'] as Array<any>).map(ReferenceItemToJSON)),
     };
 }
 

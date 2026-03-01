@@ -16,94 +16,67 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AppError
+ * @interface CreatePetResult
  */
-export interface AppError {
+export interface CreatePetResult {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof CreatePetResult
      */
     readonly $schema?: string;
     /**
-     * 
+     * Дата создания
+     * @type {Date}
+     * @memberof CreatePetResult
+     */
+    createdAt: Date | null;
+    /**
+     * ID созданного питомца
      * @type {string}
-     * @memberof AppError
+     * @memberof CreatePetResult
      */
-    code: string;
-    /**
-     * 
-     * @type {object}
-     * @memberof AppError
-     */
-    details: object;
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AppError
-     */
-    message: string;
+    id: string;
 }
 
 /**
- * Check if a given object implements the AppError interface.
+ * Check if a given object implements the CreatePetResult interface.
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
-    if (!('message' in value) || value['message'] === undefined) return false;
+export function instanceOfCreatePetResult(value: object): value is CreatePetResult {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('id' in value) || value['id'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function CreatePetResultFromJSON(json: any): CreatePetResult {
+    return CreatePetResultFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function CreatePetResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreatePetResult {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'createdAt': (json['createdAt'] == null ? null : new Date(json['createdAt'])),
+        'id': json['id'],
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function CreatePetResultToJSON(json: any): CreatePetResult {
+    return CreatePetResultToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function CreatePetResultToJSONTyped(value?: Omit<CreatePetResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
+        'id': value['id'],
     };
 }
 

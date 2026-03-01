@@ -13,63 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ReferenceItem } from './ReferenceItem';
+import {
+    ReferenceItemFromJSON,
+    ReferenceItemFromJSONTyped,
+    ReferenceItemToJSON,
+    ReferenceItemToJSONTyped,
+} from './ReferenceItem';
+
 /**
  * 
  * @export
- * @interface ReferenceItem
+ * @interface UserRolesList
  */
-export interface ReferenceItem {
+export interface UserRolesList {
     /**
-     * Отображаемое название
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof UserRolesList
      */
-    label: string;
+    readonly $schema?: string;
     /**
-     * Значение элемента
-     * @type {string}
-     * @memberof ReferenceItem
+     * Список ролей пользователей
+     * @type {Array<ReferenceItem>}
+     * @memberof UserRolesList
      */
-    value: string;
+    data: Array<ReferenceItem> | null;
 }
 
 /**
- * Check if a given object implements the ReferenceItem interface.
+ * Check if a given object implements the UserRolesList interface.
  */
-export function instanceOfReferenceItem(value: object): value is ReferenceItem {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfUserRolesList(value: object): value is UserRolesList {
+    if (!('data' in value) || value['data'] === undefined) return false;
     return true;
 }
 
-export function ReferenceItemFromJSON(json: any): ReferenceItem {
-    return ReferenceItemFromJSONTyped(json, false);
+export function UserRolesListFromJSON(json: any): UserRolesList {
+    return UserRolesListFromJSONTyped(json, false);
 }
 
-export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItem {
+export function UserRolesListFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserRolesList {
     if (json == null) {
         return json;
     }
     return {
         
-        'label': json['label'],
-        'value': json['value'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'data': (json['data'] == null ? null : (json['data'] as Array<any>).map(ReferenceItemFromJSON)),
     };
 }
 
-export function ReferenceItemToJSON(json: any): ReferenceItem {
-    return ReferenceItemToJSONTyped(json, false);
+export function UserRolesListToJSON(json: any): UserRolesList {
+    return UserRolesListToJSONTyped(json, false);
 }
 
-export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDiscriminator: boolean = false): any {
+export function UserRolesListToJSONTyped(value?: Omit<UserRolesList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'label': value['label'],
-        'value': value['value'],
+        'data': (value['data'] == null ? null : (value['data'] as Array<any>).map(ReferenceItemToJSON)),
     };
 }
 

@@ -13,63 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
+import type { UploadItem } from './UploadItem';
+import {
+    UploadItemFromJSON,
+    UploadItemFromJSONTyped,
+    UploadItemToJSON,
+    UploadItemToJSONTyped,
+} from './UploadItem';
+
 /**
  * 
  * @export
- * @interface ReferenceItem
+ * @interface UploadURLsResult
  */
-export interface ReferenceItem {
+export interface UploadURLsResult {
     /**
-     * Отображаемое название
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof UploadURLsResult
      */
-    label: string;
+    readonly $schema?: string;
     /**
-     * Значение элемента
-     * @type {string}
-     * @memberof ReferenceItem
+     * Список подписанных URL для загрузки файлов
+     * @type {Array<UploadItem>}
+     * @memberof UploadURLsResult
      */
-    value: string;
+    items: Array<UploadItem> | null;
 }
 
 /**
- * Check if a given object implements the ReferenceItem interface.
+ * Check if a given object implements the UploadURLsResult interface.
  */
-export function instanceOfReferenceItem(value: object): value is ReferenceItem {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfUploadURLsResult(value: object): value is UploadURLsResult {
+    if (!('items' in value) || value['items'] === undefined) return false;
     return true;
 }
 
-export function ReferenceItemFromJSON(json: any): ReferenceItem {
-    return ReferenceItemFromJSONTyped(json, false);
+export function UploadURLsResultFromJSON(json: any): UploadURLsResult {
+    return UploadURLsResultFromJSONTyped(json, false);
 }
 
-export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItem {
+export function UploadURLsResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): UploadURLsResult {
     if (json == null) {
         return json;
     }
     return {
         
-        'label': json['label'],
-        'value': json['value'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'items': (json['items'] == null ? null : (json['items'] as Array<any>).map(UploadItemFromJSON)),
     };
 }
 
-export function ReferenceItemToJSON(json: any): ReferenceItem {
-    return ReferenceItemToJSONTyped(json, false);
+export function UploadURLsResultToJSON(json: any): UploadURLsResult {
+    return UploadURLsResultToJSONTyped(json, false);
 }
 
-export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDiscriminator: boolean = false): any {
+export function UploadURLsResultToJSONTyped(value?: Omit<UploadURLsResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'label': value['label'],
-        'value': value['value'],
+        'items': (value['items'] == null ? null : (value['items'] as Array<any>).map(UploadItemToJSON)),
     };
 }
 

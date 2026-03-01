@@ -13,97 +13,78 @@
  */
 
 import { mapValues } from '../runtime';
+import type { UserDetail } from './UserDetail';
+import {
+    UserDetailFromJSON,
+    UserDetailFromJSONTyped,
+    UserDetailToJSON,
+    UserDetailToJSONTyped,
+} from './UserDetail';
+
 /**
  * 
  * @export
- * @interface AppError
+ * @interface DeletedUsersList
  */
-export interface AppError {
+export interface DeletedUsersList {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof DeletedUsersList
      */
     readonly $schema?: string;
     /**
-     * 
+     * Информационное сообщение
      * @type {string}
-     * @memberof AppError
-     */
-    code: string;
-    /**
-     * 
-     * @type {object}
-     * @memberof AppError
-     */
-    details: object;
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof AppError
+     * @memberof DeletedUsersList
      */
     message: string;
+    /**
+     * Список удаленных пользователей
+     * @type {Array<UserDetail>}
+     * @memberof DeletedUsersList
+     */
+    users: Array<UserDetail> | null;
 }
 
 /**
- * Check if a given object implements the AppError interface.
+ * Check if a given object implements the DeletedUsersList interface.
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
+export function instanceOfDeletedUsersList(value: object): value is DeletedUsersList {
     if (!('message' in value) || value['message'] === undefined) return false;
+    if (!('users' in value) || value['users'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function DeletedUsersListFromJSON(json: any): DeletedUsersList {
+    return DeletedUsersListFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function DeletedUsersListFromJSONTyped(json: any, ignoreDiscriminator: boolean): DeletedUsersList {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'message': json['message'],
+        'users': (json['users'] == null ? null : (json['users'] as Array<any>).map(UserDetailFromJSON)),
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function DeletedUsersListToJSON(json: any): DeletedUsersList {
+    return DeletedUsersListToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function DeletedUsersListToJSONTyped(value?: Omit<DeletedUsersList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'message': value['message'],
+        'users': (value['users'] == null ? null : (value['users'] as Array<any>).map(UserDetailToJSON)),
     };
 }
 

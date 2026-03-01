@@ -13,63 +13,69 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ReferenceItem } from './ReferenceItem';
+import {
+    ReferenceItemFromJSON,
+    ReferenceItemFromJSONTyped,
+    ReferenceItemToJSON,
+    ReferenceItemToJSONTyped,
+} from './ReferenceItem';
+
 /**
  * 
  * @export
- * @interface ReferenceItem
+ * @interface BreedsList
  */
-export interface ReferenceItem {
+export interface BreedsList {
     /**
-     * Отображаемое название
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof BreedsList
      */
-    label: string;
+    readonly $schema?: string;
     /**
-     * Значение элемента
-     * @type {string}
-     * @memberof ReferenceItem
+     * Список пород
+     * @type {Array<ReferenceItem>}
+     * @memberof BreedsList
      */
-    value: string;
+    data: Array<ReferenceItem> | null;
 }
 
 /**
- * Check if a given object implements the ReferenceItem interface.
+ * Check if a given object implements the BreedsList interface.
  */
-export function instanceOfReferenceItem(value: object): value is ReferenceItem {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfBreedsList(value: object): value is BreedsList {
+    if (!('data' in value) || value['data'] === undefined) return false;
     return true;
 }
 
-export function ReferenceItemFromJSON(json: any): ReferenceItem {
-    return ReferenceItemFromJSONTyped(json, false);
+export function BreedsListFromJSON(json: any): BreedsList {
+    return BreedsListFromJSONTyped(json, false);
 }
 
-export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItem {
+export function BreedsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): BreedsList {
     if (json == null) {
         return json;
     }
     return {
         
-        'label': json['label'],
-        'value': json['value'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'data': (json['data'] == null ? null : (json['data'] as Array<any>).map(ReferenceItemFromJSON)),
     };
 }
 
-export function ReferenceItemToJSON(json: any): ReferenceItem {
-    return ReferenceItemToJSONTyped(json, false);
+export function BreedsListToJSON(json: any): BreedsList {
+    return BreedsListToJSONTyped(json, false);
 }
 
-export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDiscriminator: boolean = false): any {
+export function BreedsListToJSONTyped(value?: Omit<BreedsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'label': value['label'],
-        'value': value['value'],
+        'data': (value['data'] == null ? null : (value['data'] as Array<any>).map(ReferenceItemToJSON)),
     };
 }
 
