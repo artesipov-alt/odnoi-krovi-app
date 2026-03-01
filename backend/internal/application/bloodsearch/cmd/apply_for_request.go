@@ -57,10 +57,16 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID stri
 		}
 	}
 
-	resp, err := h.donorRepo.CreateDonorResponse(ctx, reqID, donorID, conditions)
+	// Create domain model using constructor
+	resp, err := model.NewDonorResponse(reqID, donorID, conditions)
+	if err != nil {
+		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
+	}
+
+	created, err := h.donorRepo.CreateDonorResponse(ctx, resp)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp, nil
+	return created, nil
 }

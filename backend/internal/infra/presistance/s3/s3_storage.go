@@ -347,8 +347,8 @@ func (s *S3Storage) ExtractPathFromURL(fullURL string) string {
 		s.cfg.bucketName)
 
 	// Если URL начинается с префикса, возвращаем только путь
-	if strings.HasPrefix(fullURL, prefix) {
-		return strings.TrimPrefix(fullURL, prefix)
+	if after, ok := strings.CutPrefix(fullURL, prefix); ok {
+		return after
 	}
 
 	return fullURL

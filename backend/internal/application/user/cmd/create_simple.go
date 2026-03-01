@@ -18,25 +18,11 @@ func NewCreateSimpleHandler(userepo user.Repository) *CreateSimpleHandler {
 	}
 }
 
-func (h *CreateSimpleHandler) Handle(ctx context.Context, telegramID int64, fullName string, role string) (*usermodel.User, error) {
+func (h *CreateSimpleHandler) Handle(ctx context.Context, user *usermodel.User) (*usermodel.User, error) {
 	// Проверка exists — это координация, не бизнес-логика
-	exists, _ := h.userRepo.ExistsByTelegramID(ctx, telegramID)
+	exists, _ := h.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
 	if exists {
 		return nil, apperrors.ErrUserAlreadyExists
-	}
-
-	if fullName == "" {
-		fullName = "Пользователь Telegram"
-	}
-
-	if role == "" {
-		role = "user"
-	}
-
-	user := &usermodel.User{
-		TelegramID: telegramID,
-		FullName:   fullName,
-		Role:       role,
 	}
 
 	return h.userRepo.Create(ctx, user)

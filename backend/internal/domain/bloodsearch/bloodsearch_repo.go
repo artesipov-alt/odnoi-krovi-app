@@ -44,7 +44,7 @@ type BloodRequestRepository interface {
 
 // DonorResponseRepository определяет интерфейс для работы с откликами доноров
 type DonorResponseRepository interface {
-	CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*model.DonorResponse, error)
+	CreateDonorResponse(ctx context.Context, resp *model.DonorResponse) (*model.DonorResponse, error)
 	GetDonorResponseByID(ctx context.Context, id string) (*model.DonorResponse, error)
 	UpdateDonorResponseStatus(ctx context.Context, id, status string) error
 	DeleteDonorResponse(ctx context.Context, id string) error

@@ -43,11 +43,6 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		return nil, apperrors.ErrBloodRequestAlreadyExists
 	}
 
-	// Устанавливаем статус active если не указан
-	if req.Status == "" {
-		req.Status = model.BloodRequestStatusActive
-	}
-
 	newReq, err := h.bloodRepo.Create(ctx, req)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create blood request")

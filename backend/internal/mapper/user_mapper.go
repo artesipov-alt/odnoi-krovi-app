@@ -65,3 +65,16 @@ func (m *UserMapper) ToResponseSlice(users []*model.User) []dto.UserDetail {
 	}
 	return dtos
 }
+
+// FromCreate converts a CreateUserBody DTO to a domain User model using the constructor.
+func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
+	return model.NewUser(
+		body.TelegramID,
+		body.FullName,
+		"", // phone - empty for simple creation
+		"", // email - empty for simple creation
+		model.RoleUser,
+		false, // consentPd
+		nil,   // locationID
+	)
+}

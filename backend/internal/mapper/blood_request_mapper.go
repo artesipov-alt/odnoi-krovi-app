@@ -69,19 +69,19 @@ func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequest) []dto.B
 	return dtos
 }
 
-// FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model.
+// FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model using the constructor.
 func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.BloodRequest {
-	return &model.BloodRequest{
-		PetID:                  body.PetID,
-		BloodVolumeNeeded:      body.BloodVolumeNeeded,
-		BloodVolumeReserved:    0,
-		Regions:                body.Regions,
-		SmallPetsNotifyAllowed: body.SmallPetsNotifyAllowed,
-		Description:            body.Description,
-		PhotoURLs:              nil,
-		BloodGroupNames:        body.BloodGroupNames,
-		BloodComponentIDs:      body.BloodComponentIDs,
-		OnBoarding:             nil,
-		Status:                 model.BloodRequestStatusActive,
-	}
+	req := model.NewBloodRequest(
+		body.PetID,
+		body.BloodVolumeNeeded,
+		body.Regions,
+	)
+
+	// Set additional fields from DTO
+	req.SmallPetsNotifyAllowed = body.SmallPetsNotifyAllowed
+	req.Description = body.Description
+	req.BloodGroupNames = body.BloodGroupNames
+	req.BloodComponentIDs = body.BloodComponentIDs
+
+	return req
 }

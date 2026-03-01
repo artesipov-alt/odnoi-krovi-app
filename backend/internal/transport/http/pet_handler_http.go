@@ -121,7 +121,7 @@ func (h *PetHandler) Register(api huma.API) {
 func (h *PetHandler) CreatePet(ctx context.Context, input *dto.CreatePetInput) (*dto.CreatePetOutput, error) {
 	petDomain, err := h.petMapper.FromCreate(input.Body)
 	if err != nil {
-		return nil, apperrors.Validation("некорректные данные питомца", map[string]interface{}{"error": err.Error()})
+		return nil, apperrors.Validation("некорректные данные питомца", map[string]any{"error": err.Error()})
 	}
 
 	userID := input.UserID

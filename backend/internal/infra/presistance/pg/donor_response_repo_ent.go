@@ -47,13 +47,13 @@ func (r *EntDonorResponseRepository) toDomainModel(entResp *ent.DonorResponse) *
 	}
 }
 
-func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*model.DonorResponse, error) {
+func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, resp *model.DonorResponse) (*model.DonorResponse, error) {
 	created, err := r.client(ctx).DonorResponse.
 		Create().
-		SetRequestID(reqID).
-		SetDonorID(donorID).
-		SetConditions(conditions).
-		SetStatus("pending").
+		SetRequestID(resp.RequestID).
+		SetDonorID(resp.DonorID).
+		SetConditions(resp.Conditions).
+		SetStatus(string(resp.Status)).
 		Save(ctx)
 	if err != nil {
 		return nil, err

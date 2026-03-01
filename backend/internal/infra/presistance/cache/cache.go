@@ -48,8 +48,8 @@ type ICache interface {
 	Close() error
 
 	// GetJSON получает JSON объект по ключу и десериализует его
-	GetJSON(ctx context.Context, key string, target interface{}) error
+	GetJSON(ctx context.Context, key string, target any) error
 
 	// SetJSON сериализует объект в JSON и сохраняет его по ключу с TTL
-	SetJSON(ctx context.Context, key string, value interface{}, ttl time.Duration) error
+	SetJSON(ctx context.Context, key string, value any, ttl time.Duration) error
 }
