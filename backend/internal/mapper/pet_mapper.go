@@ -16,9 +16,9 @@ func NewPetMapper() *PetMapper {
 	return &PetMapper{}
 }
 
-// ToResponse converts a domain Pet model to a DTO.
-func (m *PetMapper) ToResponse(petmodel model.Pet) dto.Pet {
-	petDTO := dto.Pet{
+// ToResponse converts a domain Pet model to a PetDetail DTO.
+func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
+	petDTO := dto.PetDetail{
 		ID:                 petmodel.ID,
 		Name:               petmodel.Name,
 		ChipNumber:         petmodel.ChipNumber,
@@ -128,11 +128,11 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.Pet {
 }
 
 // ToResponseSlice converts a slice of domain Pet models to DTOs.
-func (m *PetMapper) ToResponseSlice(pets []*model.Pet) []dto.Pet {
+func (m *PetMapper) ToResponseSlice(pets []*model.Pet) []dto.PetDetail {
 	if pets == nil {
 		return nil
 	}
-	petDTOs := make([]dto.Pet, len(pets))
+	petDTOs := make([]dto.PetDetail, len(pets))
 	for i, p := range pets {
 		if p != nil {
 			petDTOs[i] = m.ToResponse(*p)
@@ -141,8 +141,8 @@ func (m *PetMapper) ToResponseSlice(pets []*model.Pet) []dto.Pet {
 	return petDTOs
 }
 
-// FromCreate converts a PetCreate DTO to a domain Pet model using the constructor.
-func (m *PetMapper) FromCreate(petDto dto.PetCreate) (*model.Pet, error) {
+// FromCreate converts a CreatePetBody DTO to a domain Pet model using the constructor.
+func (m *PetMapper) FromCreate(petDto dto.CreatePetBody) (*model.Pet, error) {
 	var birthDate *time.Time
 	if petDto.BirthDate != nil {
 		birthDate = petDto.BirthDate
@@ -251,8 +251,8 @@ func (m *PetMapper) FromCreate(petDto dto.PetCreate) (*model.Pet, error) {
 	)
 }
 
-// ApplyUpdate applies PetUpdate DTO fields to a domain Pet model.
-func (m *PetMapper) ApplyUpdate(petDto dto.PetUpdate, petmodel *model.Pet) {
+// ApplyUpdate applies UpdatePetBody DTO fields to a domain Pet model.
+func (m *PetMapper) ApplyUpdate(petDto dto.UpdatePetBody, petmodel *model.Pet) {
 	if petmodel == nil {
 		return
 	}
@@ -365,12 +365,12 @@ func (m *PetMapper) ApplyUpdate(petDto dto.PetUpdate, petmodel *model.Pet) {
 
 // ToSimplifiedResponse converts a domain Pet model to a simplified DTO for nested usage.
 // This is used when embedding pet info in other DTOs (e.g., UserDTO).
-func (m *PetMapper) ToSimplifiedResponse(pet *model.Pet) dto.Pet {
+func (m *PetMapper) ToSimplifiedResponse(pet *model.Pet) dto.PetDetail {
 	if pet == nil {
-		return dto.Pet{}
+		return dto.PetDetail{}
 	}
 
-	dtoPet := dto.Pet{
+	dtoPet := dto.PetDetail{
 		ID:         pet.ID,
 		Name:       pet.Name,
 		ChipNumber: pet.ChipNumber,
@@ -405,11 +405,11 @@ func (m *PetMapper) ToSimplifiedResponse(pet *model.Pet) dto.Pet {
 }
 
 // ToSimplifiedResponseSlice converts a slice of domain Pet models to simplified DTOs.
-func (m *PetMapper) ToSimplifiedResponseSlice(pets []*model.Pet) []dto.Pet {
+func (m *PetMapper) ToSimplifiedResponseSlice(pets []*model.Pet) []dto.PetDetail {
 	if pets == nil {
 		return nil
 	}
-	dtoPets := make([]dto.Pet, len(pets))
+	dtoPets := make([]dto.PetDetail, len(pets))
 	for i, pet := range pets {
 		dtoPets[i] = m.ToSimplifiedResponse(pet)
 	}

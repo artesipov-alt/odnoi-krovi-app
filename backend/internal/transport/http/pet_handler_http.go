@@ -102,7 +102,7 @@ func (h *PetHandler) Register(api huma.API) {
 		Tags:        []string{"pets-v1"},
 	}, h.DeletePet)
 
-	// Валидация донора по ID (изменено на POST)
+	// Валидация донора по ID
 	huma.Register(api, huma.Operation{
 		OperationID:   "validate-donor",
 		Method:        http.MethodPost,
@@ -112,54 +112,50 @@ func (h *PetHandler) Register(api huma.API) {
 		Tags:          []string{"pets-v1"},
 		DefaultStatus: http.StatusOK,
 	}, h.ValidateDonor)
-
 }
 
-//==========Handlers==============================
-
-func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
-	dto.PetUserIDPath
-	Body dto.PetCreate
-}) (*dto.BodyPetCreateResponse, error) {
-	body := &input.Body
-
-	petDomain, err := h.petMapper.FromCreate(*body)
+// CreatePet создает нового питомца
+func (h *PetHandler) CreatePet(ctx context.Context, input *dto.CreatePetInput) (*dto.CreatePetOutput, error) {
+	petDomain, err := h.petMapper.FromCreate(input.Body)
 	if err != nil {
-		return nil, apperrors.Validation("invalid pet data", map[string]interface{}{"error": err.Error()})
+		return nil, apperrors.Validation("некорректные данные питомца", map[string]interface{}{"error": err.Error()})
 	}
 
-	createdPet, err := h.createHandler.Handle(ctx, input.ID, petDomain)
+	userID := input.UserID
+
+	createdPet, err := h.createHandler.Handle(ctx, userID, petDomain)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.BodyPetCreateResponse{Body: dto.PetCreateResponse{ID: createdPet.ID, CreatedAt: createdPet.CreatedAt}}, nil
+	return &dto.CreatePetOutput{
+		Body: dto.CreatePetResult{
+			ID:        createdPet.ID,
+			CreatedAt: createdPet.CreatedAt,
+		},
+	}, nil
 }
 
-func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.PetUpdate
-}) (*dto.PetResponse, error) {
-	body := &input.Body
-
-	// Create empty domain model and apply updates to it
+// UpdatePet обновляет данные питомца
+func (h *PetHandler) UpdatePet(ctx context.Context, input *dto.UpdatePetInput) (*dto.UpdatePetOutput, error) {
 	petDomain := &model.Pet{}
-	h.petMapper.ApplyUpdate(*body, petDomain)
+	h.petMapper.ApplyUpdate(input.Body, petDomain)
 
 	updatedPet, err := h.updateHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.petMapper.ToResponse(*updatedPet)}, nil
+	return &dto.UpdatePetOutput{
+		Body: dto.UpdatePetResult{
+			ID:        updatedPet.ID,
+			UpdatedAt: updatedPet.UpdatedAt,
+		},
+	}, nil
 }
 
-func (h *PetHandler) GetPet(ctx context.Context,
-	input *struct {
-		dto.IDPathStr
-		dto.PetPreloadQuery
-	}) (*dto.PetResponse, error) {
-	// Добавляем опции к запросу.
+// GetPet возвращает питомца по ID
+func (h *PetHandler) GetPet(ctx context.Context, input *dto.GetPetByIDInput) (*dto.GetPetByIDOutput, error) {
 	opts := pet.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
@@ -168,20 +164,18 @@ func (h *PetHandler) GetPet(ctx context.Context,
 		WithAll:        input.WithAll,
 	}
 
-	pet, err := h.getByIDHandler.Handle(ctx, input.ID, opts)
+	petResult, err := h.getByIDHandler.Handle(ctx, input.ID, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.petMapper.ToResponse(*pet)}, nil
+	return &dto.GetPetByIDOutput{
+		Body: h.petMapper.ToResponse(*petResult),
+	}, nil
 }
 
-func (h *PetHandler) GetUserPets(ctx context.Context,
-	input *struct {
-		dto.PetUserIDPath
-		dto.PetPreloadQuery
-	}) (*dto.PetsResponse, error) {
-
+// GetUserPets возвращает всех питомцев пользователя
+func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserInput) (*dto.GetPetsByUserOutput, error) {
 	opts := pet.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
@@ -190,29 +184,40 @@ func (h *PetHandler) GetUserPets(ctx context.Context,
 		WithAll:        input.WithAll,
 	}
 
-	pets, err := h.getByUserHandler.Handle(ctx, input.ID, opts)
+	pets, err := h.getByUserHandler.Handle(ctx, input.UserID, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.PetsResponse{Body: h.petMapper.ToResponseSlice(pets)}, nil
+	return &dto.GetPetsByUserOutput{
+		Body: h.petMapper.ToResponseSlice(pets),
+	}, nil
 }
 
-func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+// DeletePet удаляет питомца
+func (h *PetHandler) DeletePet(ctx context.Context, input *dto.DeletePetInput) (*dto.DeletePetOutput, error) {
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	resp := &dto.MessageResponse{}
-	resp.Body.Message = "Питомец удален"
-	return resp, nil
+	return &dto.DeletePetOutput{
+		Body: dto.DeletePetResult{
+			Message: "Питомец успешно удален",
+		},
+	}, nil
 }
 
-func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*dto.PetResponse, error) {
-	pet, err := h.revalidateHandler.Handle(ctx, input.ID)
+// ValidateDonor пересчитывает факторы валидации донора
+func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.ValidateDonorInput) (*dto.ValidateDonorOutput, error) {
+	petResult, err := h.revalidateHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.petMapper.ToResponse(*pet)}, nil
+	return &dto.ValidateDonorOutput{
+		Body: dto.ValidateDonorResult{
+			ID:        petResult.ID,
+			UpdatedAt: petResult.UpdatedAt,
+		},
+	}, nil
 }
