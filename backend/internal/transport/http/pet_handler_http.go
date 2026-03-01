@@ -7,6 +7,7 @@ import (
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -137,11 +138,8 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 }) (*dto.PetResponse, error) {
 	body := &input.Body
 
-	petDomain := h.petMapper.FromCreate(dto.PetCreate{
-		Name:     *body.Name,
-		Type:     *body.Type,
-		WeightKg: *body.WeightKg,
-	})
+	// Create empty domain model and apply updates to it
+	petDomain := &model.Pet{}
 	h.petMapper.ApplyUpdate(*body, petDomain)
 
 	updatedPet, err := h.updateHandler.Handle(ctx, input.ID, petDomain)
