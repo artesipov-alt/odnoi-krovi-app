@@ -148,7 +148,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.userMapper.ToDTO(usr, pets)}, nil
+	return &dto.UserResponse{Body: h.userMapper.ToResponse(usr, pets)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
@@ -165,7 +165,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		return nil, apperrors.Internal(nil, "ошибка при создании пользователя")
 	}
 
-	return &dto.UserResponse{Body: h.userMapper.ToDTO(u, nil)}, nil
+	return &dto.UserResponse{Body: h.userMapper.ToResponse(u, nil)}, nil
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
@@ -220,7 +220,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.userMapper.ToDTO(usr, pets)}, nil
+	return &dto.UserResponse{Body: h.userMapper.ToResponse(usr, pets)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
@@ -272,7 +272,7 @@ func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.U
 	return &dto.UsersDeletedResponse{
 		Body: dto.UsersDeletedBody{
 			Message: "Удаленные пользователи получены",
-			Users:   h.userMapper.ToDTOs(users),
+			Users:   h.userMapper.ToResponseSlice(users),
 		},
 	}, nil
 }

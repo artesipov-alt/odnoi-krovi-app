@@ -16,8 +16,8 @@ func NewBloodRequestMapper() *BloodRequestMapper {
 	return &BloodRequestMapper{}
 }
 
-// ToDTO converts a domain BloodRequest model to a DTO.
-func (m *BloodRequestMapper) ToDTO(req *model.BloodRequest, suitableDonors *int) dto.BloodSearchRequest {
+// ToResponse converts a domain BloodRequest model to a DTO.
+func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors *int) dto.BloodSearchRequest {
 	if req == nil {
 		return dto.BloodSearchRequest{}
 	}
@@ -57,20 +57,20 @@ func (m *BloodRequestMapper) ToDTO(req *model.BloodRequest, suitableDonors *int)
 	}
 }
 
-// ToDTOs converts a slice of domain BloodRequest models to DTOs.
-func (m *BloodRequestMapper) ToDTOs(reqs []*model.BloodRequest) []dto.BloodSearchRequest {
+// ToResponseSlice converts a slice of domain BloodRequest models to DTOs.
+func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequest) []dto.BloodSearchRequest {
 	if reqs == nil {
 		return nil
 	}
 	dtos := make([]dto.BloodSearchRequest, len(reqs))
 	for i, req := range reqs {
-		dtos[i] = m.ToDTO(req, nil)
+		dtos[i] = m.ToResponse(req, nil)
 	}
 	return dtos
 }
 
-// ToDomain converts a CreateBloodSearchRequest DTO to a domain BloodRequest model.
-func (m *BloodRequestMapper) ToDomain(dto dto.CreateBloodSearchRequest) *model.BloodRequest {
+// FromCreate converts a CreateBloodSearchRequest DTO to a domain BloodRequest model.
+func (m *BloodRequestMapper) FromCreate(dto dto.CreateBloodSearchRequest) *model.BloodRequest {
 	return &model.BloodRequest{
 		PetID:                  dto.PetID,
 		BloodVolumeNeeded:      dto.BloodVolumeNeeded,

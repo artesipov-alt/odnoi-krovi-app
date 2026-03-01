@@ -121,7 +121,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 }) (*dto.BodyPetCreateResponse, error) {
 	body := &input.Body
 
-	petDomain := h.petMapper.ToDomainCreate(*body)
+	petDomain := h.petMapper.FromCreate(*body)
 
 	createdPet, err := h.createHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {
@@ -137,19 +137,19 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *struct {
 }) (*dto.PetResponse, error) {
 	body := &input.Body
 
-	petDomain := h.petMapper.ToDomainCreate(dto.PetCreate{
+	petDomain := h.petMapper.FromCreate(dto.PetCreate{
 		Name:     *body.Name,
 		Type:     *body.Type,
 		WeightKg: *body.WeightKg,
 	})
-	h.petMapper.ToDomainUpdate(*body, petDomain)
+	h.petMapper.ApplyUpdate(*body, petDomain)
 
 	updatedPet, err := h.updateHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.petMapper.ToDTO(*updatedPet)}, nil
+	return &dto.PetResponse{Body: h.petMapper.ToResponse(*updatedPet)}, nil
 }
 
 func (h *PetHandler) GetPet(ctx context.Context,
@@ -171,7 +171,7 @@ func (h *PetHandler) GetPet(ctx context.Context,
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.petMapper.ToDTO(*pet)}, nil
+	return &dto.PetResponse{Body: h.petMapper.ToResponse(*pet)}, nil
 }
 
 func (h *PetHandler) GetUserPets(ctx context.Context,
@@ -193,7 +193,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context,
 		return nil, err
 	}
 
-	return &dto.PetsResponse{Body: h.petMapper.ToDTOs(pets)}, nil
+	return &dto.PetsResponse{Body: h.petMapper.ToResponseSlice(pets)}, nil
 }
 
 func (h *PetHandler) DeletePet(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
@@ -212,5 +212,5 @@ func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.IDPathStr) (*
 		return nil, err
 	}
 
-	return &dto.PetResponse{Body: h.petMapper.ToDTO(*pet)}, nil
+	return &dto.PetResponse{Body: h.petMapper.ToResponse(*pet)}, nil
 }

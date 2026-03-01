@@ -160,7 +160,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 }) (*dto.BloodRequestCreateResponse, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
 
-	bloodReq := h.bloodRequestMapper.ToDomain(input.Body)
+	bloodReq := h.bloodRequestMapper.FromCreate(input.Body)
 
 	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
@@ -285,7 +285,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 	}
 	//TODO Метод GetRequestByID Также нужно исправить.
 	zero := 0
-	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToDTO(bloodReq, &zero)}, nil
+	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
@@ -295,7 +295,7 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 		return nil, err
 	}
 
-	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToDTO(bloodReq, &situatableDonors)}, nil
+	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }
 
 // func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {

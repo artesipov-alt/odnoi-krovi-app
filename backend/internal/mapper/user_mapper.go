@@ -19,8 +19,8 @@ func NewUserMapper(petMapper *PetMapper) *UserMapper {
 	}
 }
 
-// ToDTO converts a domain User model to a DTO.
-func (m *UserMapper) ToDTO(u *model.User, pets []*petmodel.Pet) dto.User {
+// ToResponse converts a domain User model to a DTO.
+func (m *UserMapper) ToResponse(u *model.User, pets []*petmodel.Pet) dto.User {
 	if u == nil {
 		return dto.User{}
 	}
@@ -48,20 +48,20 @@ func (m *UserMapper) ToDTO(u *model.User, pets []*petmodel.Pet) dto.User {
 	}
 
 	if pets != nil && m.petMapper != nil {
-		userDTO.Pets = m.petMapper.ToSimplifiedDTOs(pets)
+		userDTO.Pets = m.petMapper.ToSimplifiedResponseSlice(pets)
 	}
 
 	return userDTO
 }
 
-// ToDTOs converts a slice of domain User models to DTOs.
-func (m *UserMapper) ToDTOs(users []*model.User) []dto.User {
+// ToResponseSlice converts a slice of domain User models to DTOs.
+func (m *UserMapper) ToResponseSlice(users []*model.User) []dto.User {
 	if users == nil {
 		return nil
 	}
 	dtos := make([]dto.User, len(users))
 	for i, u := range users {
-		dtos[i] = m.ToDTO(u, nil)
+		dtos[i] = m.ToResponse(u, nil)
 	}
 	return dtos
 }

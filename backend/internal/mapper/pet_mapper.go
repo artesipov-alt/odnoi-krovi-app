@@ -16,8 +16,8 @@ func NewPetMapper() *PetMapper {
 	return &PetMapper{}
 }
 
-// ToDTO converts a domain Pet model to a DTO.
-func (m *PetMapper) ToDTO(petmodel model.Pet) dto.Pet {
+// ToResponse converts a domain Pet model to a DTO.
+func (m *PetMapper) ToResponse(petmodel model.Pet) dto.Pet {
 	petDTO := dto.Pet{
 		ID:                 petmodel.ID,
 		Name:               petmodel.Name,
@@ -127,22 +127,22 @@ func (m *PetMapper) ToDTO(petmodel model.Pet) dto.Pet {
 	return petDTO
 }
 
-// ToDTOs converts a slice of domain Pet models to DTOs.
-func (m *PetMapper) ToDTOs(pets []*model.Pet) []dto.Pet {
+// ToResponseSlice converts a slice of domain Pet models to DTOs.
+func (m *PetMapper) ToResponseSlice(pets []*model.Pet) []dto.Pet {
 	if pets == nil {
 		return nil
 	}
 	petDTOs := make([]dto.Pet, len(pets))
 	for i, p := range pets {
 		if p != nil {
-			petDTOs[i] = m.ToDTO(*p)
+			petDTOs[i] = m.ToResponse(*p)
 		}
 	}
 	return petDTOs
 }
 
 // ToDomain converts a PetCreate DTO to a domain Pet model.
-func (m *PetMapper) ToDomainCreate(petDto dto.PetCreate) *model.Pet {
+func (m *PetMapper) FromCreate(petDto dto.PetCreate) *model.Pet {
 	petmodel := &model.Pet{
 		Name:            petDto.Name,
 		Type:            model.PetType(petDto.Type),
@@ -241,8 +241,8 @@ func (m *PetMapper) ToDomainCreate(petDto dto.PetCreate) *model.Pet {
 	return petmodel
 }
 
-// ToDomainUpdate applies PetUpdate DTO fields to a domain Pet model.
-func (m *PetMapper) ToDomainUpdate(petDto dto.PetUpdate, petmodel *model.Pet) {
+// ApplyUpdate applies PetUpdate DTO fields to a domain Pet model.
+func (m *PetMapper) ApplyUpdate(petDto dto.PetUpdate, petmodel *model.Pet) {
 	if petmodel == nil {
 		return
 	}
@@ -353,9 +353,9 @@ func (m *PetMapper) ToDomainUpdate(petDto dto.PetUpdate, petmodel *model.Pet) {
 	}
 }
 
-// ToSimplifiedDTO converts a domain Pet model to a simplified DTO for nested usage.
+// ToSimplifiedResponse converts a domain Pet model to a simplified DTO for nested usage.
 // This is used when embedding pet info in other DTOs (e.g., UserDTO).
-func (m *PetMapper) ToSimplifiedDTO(pet *model.Pet) dto.Pet {
+func (m *PetMapper) ToSimplifiedResponse(pet *model.Pet) dto.Pet {
 	if pet == nil {
 		return dto.Pet{}
 	}
@@ -394,14 +394,14 @@ func (m *PetMapper) ToSimplifiedDTO(pet *model.Pet) dto.Pet {
 	return dtoPet
 }
 
-// ToSimplifiedDTOs converts a slice of domain Pet models to simplified DTOs.
-func (m *PetMapper) ToSimplifiedDTOs(pets []*model.Pet) []dto.Pet {
+// ToSimplifiedResponseSlice converts a slice of domain Pet models to simplified DTOs.
+func (m *PetMapper) ToSimplifiedResponseSlice(pets []*model.Pet) []dto.Pet {
 	if pets == nil {
 		return nil
 	}
 	dtoPets := make([]dto.Pet, len(pets))
 	for i, pet := range pets {
-		dtoPets[i] = m.ToSimplifiedDTO(pet)
+		dtoPets[i] = m.ToSimplifiedResponse(pet)
 	}
 	return dtoPets
 }
