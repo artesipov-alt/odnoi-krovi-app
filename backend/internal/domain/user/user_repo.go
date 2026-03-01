@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 // Repository определяет интерфейс для операций с данными пользователей

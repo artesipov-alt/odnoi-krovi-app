@@ -1,4 +1,4 @@
-package filestorage
+package http
 
 import (
 	"context"
@@ -7,17 +7,18 @@ import (
 	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/fileuploader/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // FileHandler обрабатывает HTTP запросы для загрузки и подтверждения файлов
 type FileHandler struct {
-	fileService *FileService
+	fileService *filestorage.FileService
 }
 
 // NewFileHandler создает новый обработчик файлов
-func NewFileHandler(fileService *FileService) *FileHandler {
+func NewFileHandler(fileService *filestorage.FileService) *FileHandler {
 	return &FileHandler{
 		fileService: fileService,
 	}

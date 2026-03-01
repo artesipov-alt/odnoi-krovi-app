@@ -1,4 +1,4 @@
-package user
+package http
 
 import (
 	"context"
@@ -8,10 +8,9 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
-	petdto "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
-	userdto "github.com/artesipov-alt/odnoi-krovi-app/internal/user/dto"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -137,9 +136,9 @@ func (h *UserHandler) Register(api huma.API) {
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *struct {
-	userdto.IDPathStr
-	userdto.UserPreloadQuery
-}) (*userdto.UserResponse, error) {
+	dto.IDPathStr
+	dto.UserPreloadQuery
+}) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
 	usr, pets, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets)
@@ -147,12 +146,12 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &userdto.UserResponse{Body: h.toDTO(usr, pets)}, nil
+	return &dto.UserResponse{Body: h.toDTO(usr, pets)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
-	Body userdto.UserRegistrationSimple
-}) (*userdto.UserResponse, error) {
+	Body dto.UserRegistrationSimple
+}) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "registering user simple", "telegram_id", input.Body.TelegramID)
 
 	u, err := h.createSimpleHandler.Handle(ctx, input.Body.TelegramID, input.Body.FullName, "user")
@@ -164,13 +163,13 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		return nil, apperrors.Internal(nil, "ошибка при создании пользователя")
 	}
 
-	return &userdto.UserResponse{Body: h.toDTO(u, nil)}, nil
+	return &dto.UserResponse{Body: h.toDTO(u, nil)}, nil
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
-	userdto.IDPathStr
-	Body userdto.UserUpdate
-}) (*userdto.MessageResponse, error) {
+	dto.IDPathStr
+	Body dto.UserUpdate
+}) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "updating user", "user_id", input.ID)
 
 	user := &usermodel.User{}
@@ -201,17 +200,17 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &userdto.MessageResponse{
-		Body: userdto.MessageBody{
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
 			Message: "Пользователь обновлен",
 		},
 	}, nil
 }
 
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
-	userdto.IDPathInt
-	userdto.UserPreloadQuery
-}) (*userdto.UserResponse, error) {
+	dto.IDPathInt
+	dto.UserPreloadQuery
+}) (*dto.UserResponse, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
 	usr, pets, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets)
@@ -219,62 +218,62 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &userdto.UserResponse{Body: h.toDTO(usr, pets)}, nil
+	return &dto.UserResponse{Body: h.toDTO(usr, pets)}, nil
 }
 
-func (h *UserHandler) DeleteUser(ctx context.Context, input *userdto.IDPathStr) (*userdto.MessageResponse, error) {
+func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "deleting user", "user_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &userdto.MessageResponse{
-		Body: userdto.MessageBody{
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
 			Message: "Пользователь удален",
 		},
 	}, nil
 }
 
-func (h *UserHandler) ResetUser(ctx context.Context, input *userdto.IDPathStr) (*userdto.MessageResponse, error) {
+func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "resetting user", "user_id", input.ID)
 	if err := h.resetHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &userdto.MessageResponse{
-		Body: userdto.MessageBody{
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
 			Message: "Пользователь сброшен к заводским настройкам",
 		},
 	}, nil
 }
 
-func (h *UserHandler) RestoreUser(ctx context.Context, input *userdto.IDPathStr) (*userdto.MessageResponse, error) {
+func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
 	slog.DebugContext(ctx, "restoring user", "user_id", input.ID)
 	if err := h.restoreHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &userdto.MessageResponse{
-		Body: userdto.MessageBody{
+	return &dto.MessageResponse{
+		Body: dto.MessageBody{
 			Message: "Пользователь восстановлен",
 		},
 	}, nil
 }
 
-func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*userdto.UsersDeletedResponse, error) {
+func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
 	slog.DebugContext(ctx, "getting deleted users")
 	users, err := h.getDeletedHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	userDTOs := make([]userdto.User, len(users))
+	userDTOs := make([]dto.User, len(users))
 	for i, u := range users {
 		userDTOs[i] = h.toDTO(u, nil)
 	}
 
-	return &userdto.UsersDeletedResponse{
-		Body: userdto.UsersDeletedBody{
+	return &dto.UsersDeletedResponse{
+		Body: dto.UsersDeletedBody{
 			Message: "Удаленные пользователи получены",
 			Users:   userDTOs,
 		},
@@ -282,12 +281,12 @@ func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*userd
 }
 
 // toDTO преобразует модель пользователя в DTO для ответа
-func (h *UserHandler) toDTO(u *usermodel.User, pets []*petmodel.Pet) userdto.User {
+func (h *UserHandler) toDTO(u *usermodel.User, pets []*petmodel.Pet) dto.User {
 	if u == nil {
-		return userdto.User{}
+		return dto.User{}
 	}
 
-	userDTO := userdto.User{
+	userDTO := dto.User{
 		ID:               u.ID,
 		TelegramID:       u.TelegramID,
 		FullName:         u.FullName,
@@ -310,7 +309,7 @@ func (h *UserHandler) toDTO(u *usermodel.User, pets []*petmodel.Pet) userdto.Use
 	}
 
 	if pets != nil {
-		userDTO.Pets = make([]petdto.Pet, len(pets))
+		userDTO.Pets = make([]dto.Pet, len(pets))
 		for i, pet := range pets {
 			userDTO.Pets[i] = h.petToDTO(pet)
 		}
@@ -320,12 +319,12 @@ func (h *UserHandler) toDTO(u *usermodel.User, pets []*petmodel.Pet) userdto.Use
 }
 
 // petToDTO преобразует модель питомца в DTO
-func (h *UserHandler) petToDTO(pet *petmodel.Pet) petdto.Pet {
+func (h *UserHandler) petToDTO(pet *petmodel.Pet) dto.Pet {
 	if pet == nil {
-		return petdto.Pet{}
+		return dto.Pet{}
 	}
 
-	dtoPet := petdto.Pet{
+	dtoPet := dto.Pet{
 		ID:         pet.ID,
 		Name:       pet.Name,
 		ChipNumber: pet.ChipNumber,

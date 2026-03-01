@@ -1,24 +1,25 @@
-package pet
+package http
 
 import (
 	"context"
 	"net/http"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	petService    PetService
-	bloodInfoRepo domain.BloodInfoRepository
+	petService    pet.PetService
+	bloodInfoRepo reference.BloodInfoRepository
 }
 
 // NewPetHandler создает новый обработчик питомцев
-func NewPetHandler(petService PetService, bloodInfoRepo domain.BloodInfoRepository) *PetHandler {
+func NewPetHandler(petService pet.PetService, bloodInfoRepo reference.BloodInfoRepository) *PetHandler {
 	return &PetHandler{
 		petService:    petService,
 		bloodInfoRepo: bloodInfoRepo,
@@ -133,7 +134,7 @@ func (h *PetHandler) GetPet(ctx context.Context,
 		dto.PetPreloadQuery
 	}) (*dto.PetResponse, error) {
 	// Добавляем опции к запросу.
-	opts := PetPreloadOptions{
+	opts := pet.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
 		WithAnalyses:   input.WithAnalysis,
@@ -155,7 +156,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context,
 		dto.PetPreloadQuery
 	}) (*dto.PetsResponse, error) {
 
-	opts := PetPreloadOptions{
+	opts := pet.PetPreloadOptions{
 		WithHealth:     input.WithHealth,
 		WithTreatments: input.WithTreatments,
 		WithAnalyses:   input.WithAnalysis,

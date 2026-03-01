@@ -3,7 +3,7 @@ package pet
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // Repository определяет интерфейс для операций с данными питомцев

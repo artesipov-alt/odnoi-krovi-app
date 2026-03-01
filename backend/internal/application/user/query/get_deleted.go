@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type GetDeletedUsersHandler struct {

@@ -3,10 +3,10 @@ package query
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/filestorage"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type GetByIDHandler struct {

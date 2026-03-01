@@ -8,22 +8,23 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
 )
 
 // PetService реализует PetService
 type PetService struct {
 	petRepo      Repository
-	userRepo     domain.UserRepository
-	bloodReqRepo domain.BloodRequestRepository
-	storage      domain.FileStorage
+	userRepo     user.Repository
+	bloodReqRepo bloodsearch.BloodRequestRepository
+	storage      filestorage.Repository
 }
 
 // NewPetService создает новый сервис питомцев
-func NewPetService(petRepo Repository, userRepo domain.UserRepository, bloodReqRepo domain.BloodRequestRepository, storage domain.FileStorage) *PetService {
+func NewPetService(petRepo Repository, userRepo user.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, storage filestorage.Repository) *PetService {
 	return &PetService{
 		petRepo:      petRepo,
 		userRepo:     userRepo,
@@ -100,7 +101,7 @@ func (s *PetService) GetPet(ctx context.Context, petID string, opts PetPreloadOp
 
 // GetUserPets получает всех питомцев пользователя с preload связей
 func (s *PetService) GetUserPets(ctx context.Context, userID string, opts PetPreloadOptions) ([]*model.Pet, error) {
-	_, err := s.userRepo.GetByID(ctx, userID, domain.UserPreloadOptions{})
+	_, _, err := s.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{})
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound

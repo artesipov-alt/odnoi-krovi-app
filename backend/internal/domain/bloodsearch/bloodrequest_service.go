@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
@@ -15,14 +16,14 @@ import (
 // BloodSearchService реализует BloodSearchService
 type BloodSearchService struct {
 	txManager presistance.TxManager
-	bloodRepo domain.BloodRequestRepository
-	petRepo   domain.PetRepository
-	donorRepo domain.DonorResponseRepository
-	storage   domain.FileStorage
+	bloodRepo BloodRequestRepository
+	petRepo   pet.Repository
+	donorRepo DonorResponseRepository
+	storage   filestorage.Repository
 }
 
 // NewBloodSearchService создает новый экземпляр BloodSearchService
-func NewBloodSearchService(txManager presistance.TxManager, repo domain.BloodRequestRepository, petRepo domain.PetRepository, donorRepo domain.DonorResponseRepository, storage domain.FileStorage) *BloodSearchService {
+func NewBloodSearchService(txManager presistance.TxManager, repo BloodRequestRepository, petRepo pet.Repository, donorRepo DonorResponseRepository, storage filestorage.Repository) *BloodSearchService {
 	return &BloodSearchService{
 		txManager: txManager,
 		bloodRepo: repo,

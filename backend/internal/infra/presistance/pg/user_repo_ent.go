@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
 )
 
 // EntUserRepository implements UserRepository using ENT

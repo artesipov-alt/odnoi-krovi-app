@@ -3,7 +3,7 @@ package reference
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference/model"
 )
 
 // LocationRepository определяет интерфейс для операций с данными локаций

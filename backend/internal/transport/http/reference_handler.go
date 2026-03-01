@@ -1,4 +1,4 @@
-package reference
+package http
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
-	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/enums"
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -193,7 +193,7 @@ func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*d
 }
 
 func (h *ReferenceHandler) GetDonorRestrictions(ctx context.Context, input *struct{}) (*dto.DonorRestrictionBody, error) {
-	allFactors := pet.GetAllFactors()
+	allFactors := petmodel.GetAllFactors()
 	var stopFactors []dto.FactorDescription
 	var warnFactors []dto.FactorDescription
 

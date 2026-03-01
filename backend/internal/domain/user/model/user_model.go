@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/pet/model"
+	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // User представляет доменную модель пользователя

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference/model"
 )
 
 type GetAllLocationsHandler struct {

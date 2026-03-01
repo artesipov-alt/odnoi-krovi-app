@@ -1,4 +1,4 @@
-package filestorage
+package dto
 
 type PhotoPreloadQuery struct {
 	PhotosCount   int64 `query:"photos_count" doc:"Количество фотографий прикрепленных пользователем" example:"1"`
@@ -34,16 +34,16 @@ type ConfirmUploadResponse struct {
 }
 
 // IDPath представляет параметры пути с ID объекта
-type IDPathStr struct {
-	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
-}
+// type IDPathStr struct {
+// 	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
+// }
 
 // MessageBody представляет тело простого текстового ответа
-type MessageBody struct {
-	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
-}
+// type MessageBody struct {
+// 	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
+// }
 
-// MessageResponse представляет простой текстовый ответ
-type MessageResponse struct {
-	Body MessageBody
-}
+// // MessageResponse представляет простой текстовый ответ
+// type MessageResponse struct {
+// 	Body MessageBody
+// }

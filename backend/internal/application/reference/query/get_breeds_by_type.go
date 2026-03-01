@@ -3,9 +3,9 @@ package query
 import (
 	"context"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/reference"
 )
 
 type GetBreedsByPetTypeHandler struct {

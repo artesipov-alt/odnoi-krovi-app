@@ -4,19 +4,21 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
 
 // FileService реализует FileStorage
 type FileService struct {
-	PetRepo   domain.PetRepository
-	UserRepo  domain.UserRepository
-	BloodRepo domain.BloodRequestRepository
-	storage   domain.FileStorage
+	PetRepo   pet.Repository
+	UserRepo  user.Repository
+	BloodRepo bloodsearch.BloodRequestRepository
+	storage   Repository
 }
 
 // NewFileService создает новый FileService
-func NewFileService(petRepo domain.PetRepository, userRepo domain.UserRepository, bloodRepo domain.BloodRequestRepository, storage domain.FileStorage) *FileService {
+func NewFileService(petRepo pet.Repository, userRepo user.Repository, bloodRepo bloodsearch.BloodRequestRepository, storage Repository) *FileService {
 	return &FileService{
 		PetRepo:   petRepo,
 		UserRepo:  userRepo,

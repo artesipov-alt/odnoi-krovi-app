@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/user/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type RegisterHandler struct {

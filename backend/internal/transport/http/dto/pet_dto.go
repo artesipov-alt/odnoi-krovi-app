@@ -149,16 +149,16 @@ type PetsResponse struct {
 }
 
 // IDPath представляет параметры пути с ID объекта
-type IDPathStr struct {
+type PetPathID struct {
 	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
 }
 
 // MessageBody представляет тело простого текстового ответа
-type MessageBody struct {
-	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
-}
+// type MessageBody struct {
+// 	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
+// }
 
-// MessageResponse представляет простой текстовый ответ
-type MessageResponse struct {
-	Body MessageBody
-}
+// // MessageResponse представляет простой текстовый ответ
+// type MessageResponse struct {
+// 	Body MessageBody
+// }

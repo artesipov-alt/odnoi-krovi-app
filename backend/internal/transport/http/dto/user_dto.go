@@ -2,8 +2,6 @@ package dto
 
 import (
 	"time"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/pet/dto"
 )
 
 // TelegramIDQuery представляет параметры запроса с Telegram ID
@@ -42,7 +40,7 @@ type User struct {
 	AllowGeo         bool       `json:"allowGeo" doc:"Разрешение использовать геоданные"`
 	LocationID       string     `json:"locationId,omitempty" doc:"ID локации"`
 	Role             string     `json:"role" doc:"Роль"`
-	Pets             []dto.Pet  `json:"pets,omitempty" doc:"Список питомцев"`
+	Pets             []Pet      `json:"pets,omitempty" doc:"Список питомцев"`
 	CreatedAt        *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt        *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
@@ -54,7 +52,7 @@ type UserResponse struct {
 }
 
 // IDPath представляет параметры пути с ID объекта
-type IDPathStr struct {
+type UserPathID struct {
 	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
 }
 
@@ -79,11 +77,11 @@ type UserPreloadQuery struct {
 }
 
 // MessageBody представляет тело простого текстового ответа
-type MessageBody struct {
-	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
-}
+// type MessageBody struct {
+// 	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
+// }
 
-// MessageResponse представляет простой текстовый ответ
-type MessageResponse struct {
-	Body MessageBody
-}
+// // MessageResponse представляет простой текстовый ответ
+// type MessageResponse struct {
+// 	Body MessageBody
+// }

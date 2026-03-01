@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/filestorage"
 	"github.com/aws/smithy-go"
 )
 
