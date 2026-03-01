@@ -323,3 +323,33 @@ func (s *S3Storage) BuildFullPhotoURLs(paths []string, updatedAt time.Time) []st
 func (s *S3Storage) BuildPhotoURLs(paths []string, updatedAt time.Time) []string {
 	return s.BuildFullPhotoURLs(paths, updatedAt)
 }
+
+// ExtractPathFromURL извлекает относительный путь из полного URL
+// Если передан не URL из этого хранилища, возвращает исходную строку
+func (s *S3Storage) ExtractPathFromURL(fullURL string) string {
+	if fullURL == "" {
+		return ""
+	}
+
+	// Убираем query параметры (?t=...)
+	if idx := strings.Index(fullURL, "?"); idx != -1 {
+		fullURL = fullURL[:idx]
+	}
+
+	// Строим префикс URL хранилища
+	protocol := "https"
+	if strings.Contains(s.cfg.endpoint, "http://") {
+		protocol = "http"
+	}
+	prefix := fmt.Sprintf("%s://%s/%s/",
+		protocol,
+		s.cfg.endpoint,
+		s.cfg.bucketName)
+
+	// Если URL начинается с префикса, возвращаем только путь
+	if strings.HasPrefix(fullURL, prefix) {
+		return strings.TrimPrefix(fullURL, prefix)
+	}
+
+	return fullURL
+}

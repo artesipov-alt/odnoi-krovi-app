@@ -44,6 +44,7 @@ func (User) Fields() []ent.Field {
 			StructTag(`json:"organizationName"`),
 		// consent_pd indicates if the user has consented to personal data processing.
 		field.Bool("consent_pd").
+			Default(false).
 			StructTag(`json:"consentPd"`),
 		// on_boarding is a list of onboarding steps completed by the user.
 		field.JSON("on_boarding", []string{}).
@@ -51,6 +52,7 @@ func (User) Fields() []ent.Field {
 			StructTag(`json:"onBoarding"`),
 		// allow_geo indicates if the user allows geolocation.
 		field.Bool("allow_geo").
+			Default(false).
 			StructTag(`json:"allowGeo"`),
 		// location_id is the foreign key to the location.
 		field.String("location_id").

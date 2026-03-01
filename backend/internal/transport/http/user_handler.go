@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -25,6 +26,7 @@ type UserHandler struct {
 	getByTelegramHandler *query.GetByTelegramHandler
 	getDeletedHandler    *query.GetDeletedUsersHandler
 	userMapper           *mapper.UserMapper
+	storage              filestorage.Repository
 }
 
 // NewUserHandler создает новый обработчик пользователей
@@ -37,6 +39,7 @@ func NewUserHandler(
 	getByIDHandler *query.GetByIDHandler,
 	getByTelegramHandler *query.GetByTelegramHandler,
 	getDeletedHandler *query.GetDeletedUsersHandler,
+	storage filestorage.Repository,
 ) *UserHandler {
 	return &UserHandler{
 		createSimpleHandler:  createSimpleHandler,
@@ -48,6 +51,7 @@ func NewUserHandler(
 		getByTelegramHandler: getByTelegramHandler,
 		getDeletedHandler:    getDeletedHandler,
 		userMapper:           mapper.NewUserMapper(mapper.NewPetMapper()),
+		storage:              storage,
 	}
 }
 
@@ -145,6 +149,9 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 		return nil, err
 	}
 
+	// Преобразуем пути к фото в полные URL для ответа
+	usr.PhotoURLs = h.storage.BuildPhotoURLs(usr.PhotoURLs, *usr.UpdatedAt)
+
 	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr, pets)}, nil
 }
 
@@ -216,6 +223,9 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTe
 	if err != nil {
 		return nil, err
 	}
+
+	// Преобразуем пути к фото в полные URL для ответа
+	usr.PhotoURLs = h.storage.BuildPhotoURLs(usr.PhotoURLs, *usr.UpdatedAt)
 
 	return &dto.GetUserByTelegramOutput{Body: h.userMapper.ToResponse(usr, pets)}, nil
 }

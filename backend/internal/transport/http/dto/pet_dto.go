@@ -92,7 +92,7 @@ type CreatePetBody struct {
 	Name               string            `json:"name" validate:"required,min=1,max=100" doc:"Имя питомца" example:"Шарик"`
 	Type               string            `json:"type" validate:"required,oneof=dog cat" doc:"Тип животного" enum:"dog,cat" example:"dog"`
 	WeightKg           float64           `json:"weightKg" validate:"required,gt=0" doc:"Вес в килограммах" example:"15.5"`
-	Gender             string            `json:"gender" validate:"required,oneof=male female" doc:"Пол питомца" enum:"male,female" example:"male"`
+	Gender             string            `json:"gender,omitempty" validate:"omitempty,oneof=male female" doc:"Пол питомца" enum:"male,female" example:"male"`
 	BirthDate          *time.Time        `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
 	AgeYears           int               `json:"ageYears,omitempty" validate:"omitempty,min=0,max=30" doc:"Возраст в годах (альтернатива birthDate)" example:"3"`
 	AgeMonths          int               `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах (дополнение к ageYears)" example:"6"`
@@ -105,6 +105,7 @@ type CreatePetBody struct {
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
 	Bonuses            []string          `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	PetStatus          string            `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient,none" example:"none"`
 }
 
 // CreatePetOutput представляет ответ на создание питомца
@@ -147,6 +148,7 @@ type UpdatePetBody struct {
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
 	Bonuses            *[]string         `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	PetStatus          *string           `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient,none" example:"none"`
 }
 
 // UpdatePetOutput представляет ответ на обновление питомца

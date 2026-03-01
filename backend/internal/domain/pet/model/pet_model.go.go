@@ -144,14 +144,8 @@ func NewPet(
 	if weightKg <= 0 {
 		return nil, errors.New("weight must be greater than 0")
 	}
-	if gender == "" {
-		return nil, errors.New("gender is required")
-	}
-	if gender != GenderMale && gender != GenderFemale {
+	if gender != "" && gender != GenderMale && gender != GenderFemale {
 		return nil, errors.New("invalid gender")
-	}
-	if ownerID == "" {
-		return nil, errors.New("owner ID is required")
 	}
 	if chipNumber != "" && len(chipNumber) != 15 {
 		return nil, errors.New("chip number must be 15 characters")

@@ -7,7 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -17,20 +17,18 @@ type GetByUserHandler struct {
 	petReadRepo  pet.PetReadRepository
 	userRepo     user.Repository
 	bloodReqRepo bloodsearch.BloodRequestRepository
-	storage      filestorage.Repository
 }
 
 func NewGetByUserHandler(
 	petReadRepo pet.PetReadRepository,
 	userRepo user.Repository,
 	bloodReqRepo bloodsearch.BloodRequestRepository,
-	storage filestorage.Repository,
+
 ) *GetByUserHandler {
 	return &GetByUserHandler{
 		petReadRepo:  petReadRepo,
 		userRepo:     userRepo,
 		bloodReqRepo: bloodReqRepo,
-		storage:      storage,
 	}
 }
 
@@ -47,8 +45,6 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 
 	for i := range pets {
-		pets[i].PhotoURLs = h.storage.BuildPhotoURLs(pets[i].PhotoURLs, *pets[i].UpdatedAt)
-
 		bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, pets[i].ID)
 		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			return nil, err

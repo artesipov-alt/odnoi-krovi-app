@@ -3,21 +3,18 @@ package query
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type GetByTelegramHandler struct {
-	userRepo    user.Repository
-	fileStorage filestorage.Repository // Интерфейс для URL
+	userRepo user.Repository
 }
 
-func NewGetByTelegramHandler(userepo user.Repository, filestorage filestorage.Repository) *GetByTelegramHandler {
+func NewGetByTelegramHandler(userepo user.Repository) *GetByTelegramHandler {
 	return &GetByTelegramHandler{
-		userRepo:    userepo,
-		fileStorage: filestorage,
+		userRepo: userepo,
 	}
 }
 
@@ -30,8 +27,6 @@ func (h *GetByTelegramHandler) Handle(ctx context.Context, id int64, withPets bo
 	if err != nil {
 		return nil, nil, err // Доменная ошибка (например, ErrUserNotFound)
 	}
-
-	u.PhotoURLs = h.fileStorage.BuildPhotoURLs(u.PhotoURLs, *u.UpdatedAt)
 
 	return u, p, nil
 }

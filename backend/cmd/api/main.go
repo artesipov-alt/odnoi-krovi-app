@@ -123,30 +123,30 @@ func main() {
 		// Инициализация user command и query handlers
 		userCreateSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo)
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
-		userUpdateHandler := usercmd.NewUpdateHandler(userRepo)
+		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, fileStorage)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
 		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)
-		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo, fileStorage)
-		userGetByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo, fileStorage)
+		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo)
+		userGetByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
-		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
+		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo, fileStorage)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
 		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
-		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo, fileStorage)
-		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
+		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
+		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo)
 
 		// Инициализация bloodsearch handlers
-		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, fileStorage)
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo, fileStorage)
 		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(*txManager, bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, *txManager)
 		bloodApplyHandler := bloodcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo)
-		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, fileStorage)
-		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo, fileStorage)
+		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo)
+		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
 		bloodListHandler := bloodquery.NewListRequestsHandler(bloodRequestRepo)
 
 		// Инициализация file handlers
@@ -170,6 +170,7 @@ func main() {
 			userGetByIDHandler,
 			userGetByTelegramHandler,
 			userGetDeletedHandler,
+			fileStorage,
 		)
 		petHandler := transport.NewPetHandler(
 			petCreateHandler,
@@ -179,6 +180,7 @@ func main() {
 			petGetByIDHandler,
 			petGetByUserHandler,
 			bloodInfoRepo,
+			fileStorage,
 		)
 		bloodRequestHandler := transport.NewBloodRequestHandler(
 			bloodCreateHandler,
@@ -189,6 +191,7 @@ func main() {
 			bloodGetByIDHandler,
 			bloodGetByPetIDHandler,
 			bloodListHandler,
+			fileStorage,
 		)
 		fileHandler := transport.NewFileHandler(
 			fileGetPresignedHandler,

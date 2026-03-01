@@ -136,11 +136,14 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 		SetName(petDomain.Name).
 		SetType(string(petDomain.Type)).
 		SetWeightKg(petDomain.WeightKg).
-		SetGender(string(petDomain.Gender)).
 		SetUserID(petDomain.OwnerID).
 		SetStopFactors(petDomain.StopFactors).
 		SetWarnFactors(petDomain.WarnFactors).
 		SetBonuses(petDomain.Bonuses)
+
+	if petDomain.Gender != "" {
+		builder.SetGender(string(petDomain.Gender))
+	}
 
 	if petDomain.BirthDate != nil {
 		builder.SetBirthDate(*petDomain.BirthDate)

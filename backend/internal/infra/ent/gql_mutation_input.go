@@ -951,9 +951,9 @@ type CreateUserInput struct {
 	Phone            *string
 	Email            *string
 	OrganizationName *string
-	ConsentPd        bool
+	ConsentPd        *bool
 	OnBoarding       []string
-	AllowGeo         bool
+	AllowGeo         *bool
 	PhotoUrls        []string
 	Role             *user.Role
 	PetIDs           []string
@@ -984,11 +984,15 @@ func (i *CreateUserInput) Mutate(m *UserMutation) {
 	if v := i.OrganizationName; v != nil {
 		m.SetOrganizationName(*v)
 	}
-	m.SetConsentPd(i.ConsentPd)
+	if v := i.ConsentPd; v != nil {
+		m.SetConsentPd(*v)
+	}
 	if v := i.OnBoarding; v != nil {
 		m.SetOnBoarding(v)
 	}
-	m.SetAllowGeo(i.AllowGeo)
+	if v := i.AllowGeo; v != nil {
+		m.SetAllowGeo(*v)
+	}
 	if v := i.PhotoUrls; v != nil {
 		m.SetPhotoUrls(v)
 	}

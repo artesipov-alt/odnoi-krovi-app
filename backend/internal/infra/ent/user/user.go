@@ -118,6 +118,10 @@ var (
 	EmailValidator func(string) error
 	// OrganizationNameValidator is a validator for the "organization_name" field. It is called by the builders before save.
 	OrganizationNameValidator func(string) error
+	// DefaultConsentPd holds the default value on creation for the "consent_pd" field.
+	DefaultConsentPd bool
+	// DefaultAllowGeo holds the default value on creation for the "allow_geo" field.
+	DefaultAllowGeo bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )

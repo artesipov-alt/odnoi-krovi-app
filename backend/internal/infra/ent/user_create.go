@@ -132,6 +132,14 @@ func (_c *UserCreate) SetConsentPd(v bool) *UserCreate {
 	return _c
 }
 
+// SetNillableConsentPd sets the "consent_pd" field if the given value is not nil.
+func (_c *UserCreate) SetNillableConsentPd(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetConsentPd(*v)
+	}
+	return _c
+}
+
 // SetOnBoarding sets the "on_boarding" field.
 func (_c *UserCreate) SetOnBoarding(v []string) *UserCreate {
 	_c.mutation.SetOnBoarding(v)
@@ -141,6 +149,14 @@ func (_c *UserCreate) SetOnBoarding(v []string) *UserCreate {
 // SetAllowGeo sets the "allow_geo" field.
 func (_c *UserCreate) SetAllowGeo(v bool) *UserCreate {
 	_c.mutation.SetAllowGeo(v)
+	return _c
+}
+
+// SetNillableAllowGeo sets the "allow_geo" field if the given value is not nil.
+func (_c *UserCreate) SetNillableAllowGeo(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetAllowGeo(*v)
+	}
 	return _c
 }
 
@@ -254,6 +270,14 @@ func (_c *UserCreate) defaults() {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := user.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := _c.mutation.ConsentPd(); !ok {
+		v := user.DefaultConsentPd
+		_c.mutation.SetConsentPd(v)
+	}
+	if _, ok := _c.mutation.AllowGeo(); !ok {
+		v := user.DefaultAllowGeo
+		_c.mutation.SetAllowGeo(v)
 	}
 	if _, ok := _c.mutation.Role(); !ok {
 		v := user.DefaultRole

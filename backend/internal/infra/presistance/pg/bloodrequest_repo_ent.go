@@ -37,6 +37,15 @@ func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest
 		return nil
 	}
 
+	// Extract response IDs from loaded edges
+	var responseIDs []string
+	if entReq.Edges.Responses != nil {
+		responseIDs = make([]string, len(entReq.Edges.Responses))
+		for i, resp := range entReq.Edges.Responses {
+			responseIDs[i] = resp.ID
+		}
+	}
+
 	return &model.BloodRequest{
 		ID:                     entReq.ID,
 		PetID:                  entReq.PetID,
@@ -50,6 +59,7 @@ func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest
 		BloodGroupNames:        entReq.BloodGroupNames,
 		BloodComponentIDs:      entReq.BloodComponentIds,
 		OnBoarding:             entReq.OnBoarding,
+		ResponseIDs:            responseIDs,
 		CreatedAt:              entReq.CreatedAt,
 		UpdatedAt:              entReq.UpdatedAt,
 		DeletedAt:              entReq.DeletedAt,
@@ -81,7 +91,12 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *model.Blood
 // GetByID возвращает заявку по её идентификатору
 func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*model.BloodRequest, error) {
 	reqQuery := r.client(ctx).BloodSearchRequest.Query().
-		Where(bloodsearchrequest.ID(id))
+		Where(bloodsearchrequest.ID(id)).
+		WithResponses(func(drq *ent.DonorResponseQuery) {
+			drq.WithDonor(func(pq *ent.PetQuery) {
+				pq.WithBloodGroupRef()
+			})
+		})
 
 	req, err := reqQuery.Only(ctx)
 	if err != nil {

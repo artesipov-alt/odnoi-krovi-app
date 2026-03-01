@@ -8,6 +8,7 @@ import (
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 
@@ -42,6 +43,7 @@ type BloodRequestHandler struct {
 	getByPetIDHandler   *bloodquery.GetByPetIDHandler
 	listHandler         *bloodquery.ListRequestsHandler
 	bloodRequestMapper  *mapper.BloodRequestMapper
+	storage             filestorage.Repository
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
@@ -54,6 +56,7 @@ func NewBloodRequestHandler(
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
 	listHandler *bloodquery.ListRequestsHandler,
+	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
 		createHandler:       createHandler,
@@ -65,6 +68,7 @@ func NewBloodRequestHandler(
 		getByPetIDHandler:   getByPetIDHandler,
 		listHandler:         listHandler,
 		bloodRequestMapper:  mapper.NewBloodRequestMapper(),
+		storage:             storage,
 	}
 }
 
@@ -274,7 +278,8 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 	if err != nil {
 		return nil, err
 	}
-	//TODO Метод GetRequestByID Также нужно исправить.
+	// Преобразуем пути к фото в полные URL для ответа
+	bloodReq.PhotoURLs = h.storage.BuildPhotoURLs(bloodReq.PhotoURLs, bloodReq.UpdatedAt)
 	zero := 0
 	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
 }
@@ -285,6 +290,9 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 	if err != nil {
 		return nil, err
 	}
+
+	// Преобразуем пути к фото в полные URL для ответа
+	bloodReq.PhotoURLs = h.storage.BuildPhotoURLs(bloodReq.PhotoURLs, bloodReq.UpdatedAt)
 
 	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }

@@ -274,6 +274,14 @@ func init() {
 	userDescOrganizationName := userFields[4].Descriptor()
 	// user.OrganizationNameValidator is a validator for the "organization_name" field. It is called by the builders before save.
 	user.OrganizationNameValidator = userDescOrganizationName.Validators[0].(func(string) error)
+	// userDescConsentPd is the schema descriptor for consent_pd field.
+	userDescConsentPd := userFields[5].Descriptor()
+	// user.DefaultConsentPd holds the default value on creation for the consent_pd field.
+	user.DefaultConsentPd = userDescConsentPd.Default.(bool)
+	// userDescAllowGeo is the schema descriptor for allow_geo field.
+	userDescAllowGeo := userFields[7].Descriptor()
+	// user.DefaultAllowGeo holds the default value on creation for the allow_geo field.
+	user.DefaultAllowGeo = userDescAllowGeo.Default.(bool)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

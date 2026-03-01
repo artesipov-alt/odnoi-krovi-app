@@ -11,6 +11,7 @@ type Repository interface {
 	GetAvatarPublicURL(id string) string
 	GetPublicURLFromPath(path string) string
 	BuildPhotoURLs(paths []string, updatedAt time.Time) []string
+	ExtractPathFromURL(fullURL string) string
 	SetObjectPublicACL(ctx context.Context, objectPath string) error
 	ConfirmUploads(ctx context.Context, paths []string) error
 }

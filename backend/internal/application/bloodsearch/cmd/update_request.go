@@ -33,13 +33,15 @@ func (h *UpdateRequestHandler) Handle(ctx context.Context, id string, bloodReq *
 		bloodReq.Status = existingReq.Status
 	}
 
+	// Нормализуем PhotoURLs - преобразуем полные URL обратно в относительные пути
+	for i, url := range bloodReq.PhotoURLs {
+		bloodReq.PhotoURLs[i] = h.storage.ExtractPathFromURL(url)
+	}
+
 	updatedReq, err := h.bloodRepo.Update(ctx, id, bloodReq)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
-
-	// Строим полные URL для фото
-	updatedReq.PhotoURLs = h.storage.BuildPhotoURLs(updatedReq.PhotoURLs, updatedReq.UpdatedAt)
 
 	return updatedReq, nil
 }

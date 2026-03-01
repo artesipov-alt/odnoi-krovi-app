@@ -6,7 +6,7 @@ package dto
 
 // PetTypePath представляет параметр пути с типом питомца
 type PetTypePath struct {
-	PetType string `path:"pet_type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
+	PetType string `path:"pet_type" doc:"Тип животного" enum:"dog,cat" minLength:"1" example:"dog"`
 }
 
 // ============================================
@@ -160,7 +160,7 @@ type BreedsList struct {
 
 // GetBreedsByTypeInput представляет запрос на получение пород по типу питомца
 type GetBreedsByTypeInput struct {
-	PetTypePath
+	PetTypeQuery
 }
 
 // GetBreedsByTypeOutput представляет ответ со списком пород

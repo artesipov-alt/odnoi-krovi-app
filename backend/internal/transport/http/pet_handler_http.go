@@ -7,6 +7,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
@@ -24,6 +25,7 @@ type PetHandler struct {
 	getByUserHandler  *petquery.GetByUserHandler
 	bloodInfoRepo     reference.BloodInfoRepository
 	petMapper         *mapper.PetMapper
+	storage           filestorage.Repository
 }
 
 // NewPetHandler создает новый обработчик питомцев
@@ -35,6 +37,7 @@ func NewPetHandler(
 	getByIDHandler *petquery.GetByIDHandler,
 	getByUserHandler *petquery.GetByUserHandler,
 	bloodInfoRepo reference.BloodInfoRepository,
+	storage filestorage.Repository,
 ) *PetHandler {
 	return &PetHandler{
 		createHandler:     createHandler,
@@ -45,6 +48,7 @@ func NewPetHandler(
 		getByUserHandler:  getByUserHandler,
 		bloodInfoRepo:     bloodInfoRepo,
 		petMapper:         mapper.NewPetMapper(),
+		storage:           storage,
 	}
 }
 
@@ -167,6 +171,9 @@ func (h *PetHandler) GetPet(ctx context.Context, input *dto.GetPetByIDInput) (*d
 		return nil, err
 	}
 
+	// Преобразуем пути к фото в полные URL для ответа
+	petResult.PhotoURLs = h.storage.BuildPhotoURLs(petResult.PhotoURLs, *petResult.UpdatedAt)
+
 	return &dto.GetPetByIDOutput{
 		Body: h.petMapper.ToResponse(*petResult),
 	}, nil
@@ -185,6 +192,11 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 	pets, err := h.getByUserHandler.Handle(ctx, input.UserID, opts)
 	if err != nil {
 		return nil, err
+	}
+
+	// Преобразуем пути к фото в полные URL для ответа
+	for i := range pets {
+		pets[i].PhotoURLs = h.storage.BuildPhotoURLs(pets[i].PhotoURLs, *pets[i].UpdatedAt)
 	}
 
 	return &dto.GetPetsByUserOutput{
