@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 )
@@ -30,35 +31,70 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 	}
 }
 
+// toDomainModel converts ENT BloodSearchRequest to domain BloodRequest
+func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest) *model.BloodRequest {
+	if entReq == nil {
+		return nil
+	}
+
+	return &model.BloodRequest{
+		ID:                     entReq.ID,
+		PetID:                  entReq.PetID,
+		BloodVolumeNeeded:      entReq.BloodVolumeNeeded,
+		BloodVolumeReserved:    entReq.BloodVolumeReserved,
+		Regions:                entReq.Regions,
+		SmallPetsNotifyAllowed: entReq.SmallPetsNotifyAllowed,
+		Status:                 model.BloodRequestStatus(entReq.Status),
+		Description:            entReq.Description,
+		PhotoURLs:              entReq.PhotoUrls,
+		BloodGroupNames:        entReq.BloodGroupNames,
+		BloodComponentIDs:      entReq.BloodComponentIds,
+		OnBoarding:             entReq.OnBoarding,
+		CreatedAt:              entReq.CreatedAt,
+		UpdatedAt:              entReq.UpdatedAt,
+		DeletedAt:              entReq.DeletedAt,
+	}
+}
+
 // Create создает новую заявку на поиск крови
-func (r *EntBloodRequestRepository) Create(ctx context.Context, input *ent.CreateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) Create(ctx context.Context, req *model.BloodRequest) (*model.BloodRequest, error) {
 	newBloodReq, err := r.client(ctx).BloodSearchRequest.
 		Create().
-		SetInput(*input).
+		SetPetID(req.PetID).
+		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
+		SetBloodVolumeReserved(req.BloodVolumeReserved).
+		SetRegions(req.Regions).
+		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
+		SetStatus(bloodsearchrequest.Status(req.Status)).
+		SetDescription(req.Description).
+		SetPhotoUrls(req.PhotoURLs).
+		SetBloodGroupNames(req.BloodGroupNames).
+		SetBloodComponentIds(req.BloodComponentIDs).
+		SetOnBoarding(req.OnBoarding).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return newBloodReq, nil
+	return r.toDomainModel(newBloodReq), nil
 }
 
 // GetByID возвращает заявку по её идентификатору
-func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*model.BloodRequest, error) {
 	reqQuery := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.ID(id))
 
 	req, err := reqQuery.Only(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) { // This case should ideally be caught by the initial GetByID, but good for defensive programming
+		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query")
 	}
-	return req, nil
+	return r.toDomainModel(req), nil
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
-func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*model.BloodRequest, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.PetID(petID)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
@@ -73,12 +109,12 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query by pet ID")
 	}
-	return req, nil
+	return r.toDomainModel(req), nil
 }
 
 // Update обновляет информацию о заявке
-func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, input *ent.UpdateBloodSearchRequestInput) (*ent.BloodSearchRequest, error) {
-	if input == nil {
+func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *model.BloodRequest) (*model.BloodRequest, error) {
+	if req == nil {
 		return nil, errors.New("blood request cannot be nil")
 	}
 
@@ -86,9 +122,19 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, input
 		return nil, errors.New("invalid blood request ID")
 	}
 
-	updatedBloodReq, err := r.client(ctx).BloodSearchRequest.UpdateOneID(id).
-		SetInput(*input).
-		Save(ctx)
+	updater := r.client(ctx).BloodSearchRequest.UpdateOneID(id).
+		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
+		SetBloodVolumeReserved(req.BloodVolumeReserved).
+		SetRegions(req.Regions).
+		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
+		SetStatus(bloodsearchrequest.Status(req.Status)).
+		SetDescription(req.Description).
+		SetPhotoUrls(req.PhotoURLs).
+		SetBloodGroupNames(req.BloodGroupNames).
+		SetBloodComponentIds(req.BloodComponentIDs).
+		SetOnBoarding(req.OnBoarding)
+
+	updatedBloodReq, err := updater.Save(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -97,7 +143,7 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, input
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
 
-	return updatedBloodReq, nil
+	return r.toDomainModel(updatedBloodReq), nil
 }
 
 // UpdateStatus обновляет статус заявки
@@ -113,7 +159,7 @@ func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
+func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int, filters map[string]any) ([]*model.BloodRequest, error) {
 	query := r.client(ctx).BloodSearchRequest.Query()
 
 	if status, ok := filters["status"].(string); ok {
@@ -131,7 +177,17 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int,
 		query = query.Offset(offset)
 	}
 
-	return query.All(ctx)
+	entReqs, err := query.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*model.BloodRequest, len(entReqs))
+	for i, entReq := range entReqs {
+		result[i] = r.toDomainModel(entReq)
+	}
+
+	return result, nil
 }
 
 // ExistsByPetID проверяет существование активной заявки для питомца
@@ -162,12 +218,8 @@ func (r *EntBloodRequestRepository) AddPhotoURLs(ctx context.Context, id string,
 		return errors.New("invalid blood request ID")
 	}
 
-	// Replace photo URLs with new paths
-	newPhotoUrls := paths
-
-	// Update blood request
 	err := r.client(ctx).BloodSearchRequest.UpdateOneID(id).
-		SetPhotoUrls(newPhotoUrls).
+		SetPhotoUrls(paths).
 		Exec(ctx)
 
 	if err != nil {

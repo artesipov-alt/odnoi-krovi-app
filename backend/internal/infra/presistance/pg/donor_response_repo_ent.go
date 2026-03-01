@@ -3,6 +3,7 @@ package pg
 import (
 	"context"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -22,14 +23,31 @@ func (r *EntDonorResponseRepository) client(ctx context.Context) *ent.Client {
 	return r.db
 }
 
-// NewEntDonorResponseRepository creates a new ENT blood request repository
+// NewEntDonorResponseRepository creates a new ENT donor response repository
 func NewEntDonorResponseRepository(client *ent.Client) *EntDonorResponseRepository {
 	return &EntDonorResponseRepository{
 		db: client,
 	}
 }
 
-func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error) {
+// toDomainModel converts ENT DonorResponse to domain DonorResponse
+func (r *EntDonorResponseRepository) toDomainModel(entResp *ent.DonorResponse) *model.DonorResponse {
+	if entResp == nil {
+		return nil
+	}
+
+	return &model.DonorResponse{
+		ID:         entResp.ID,
+		RequestID:  entResp.Edges.Request.ID,
+		DonorID:    entResp.Edges.Donor.ID,
+		Conditions: entResp.Conditions,
+		Status:     model.DonorResponseStatus(entResp.Status),
+		CreatedAt:  entResp.CreatedAt,
+		UpdatedAt:  entResp.UpdatedAt,
+	}
+}
+
+func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, reqID, donorID string, conditions []string) (*model.DonorResponse, error) {
 	created, err := r.client(ctx).DonorResponse.
 		Create().
 		SetRequestID(reqID).
@@ -40,11 +58,22 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 	if err != nil {
 		return nil, err
 	}
-	return r.client(ctx).DonorResponse.Query().Where(donorresponse.ID(created.ID)).WithRequest().WithDonor().Only(ctx)
+
+	// Load with edges
+	entResp, err := r.client(ctx).DonorResponse.Query().Where(donorresponse.ID(created.ID)).WithRequest().WithDonor().Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.toDomainModel(entResp), nil
 }
 
-func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, id string) (*ent.DonorResponse, error) {
-	return r.client(ctx).DonorResponse.Get(ctx, id)
+func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, id string) (*model.DonorResponse, error) {
+	entResp, err := r.client(ctx).DonorResponse.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return r.toDomainModel(entResp), nil
 }
 
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id, status string) error {
@@ -58,20 +87,38 @@ func (r *EntDonorResponseRepository) DeleteDonorResponse(ctx context.Context, id
 	return r.client(ctx).DonorResponse.DeleteOneID(id).Exec(ctx)
 }
 
-func (r *EntDonorResponseRepository) GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*ent.DonorResponse, error) {
-	return r.client(ctx).DonorResponse.
+func (r *EntDonorResponseRepository) GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*model.DonorResponse, error) {
+	entResps, err := r.client(ctx).DonorResponse.
 		Query().
 		Where(donorresponse.HasRequestWith(bloodsearchrequest.ID(reqID))).
 		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*model.DonorResponse, len(entResps))
+	for i, entResp := range entResps {
+		result[i] = r.toDomainModel(entResp)
+	}
+	return result, nil
 }
 
-func (r *EntDonorResponseRepository) GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*ent.DonorResponse, error) {
-	return r.client(ctx).DonorResponse.
+func (r *EntDonorResponseRepository) GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*model.DonorResponse, error) {
+	entResps, err := r.client(ctx).DonorResponse.
 		Query().
 		Where(donorresponse.HasDonorWith(pet.ID(donorID))).
 		WithRequest().
 		WithDonor().
 		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*model.DonorResponse, len(entResps))
+	for i, entResp := range entResps {
+		result[i] = r.toDomainModel(entResp)
+	}
+	return result, nil
 }
 
 func (r *EntDonorResponseRepository) ExistsByID(ctx context.Context, id string) (bool, error) {

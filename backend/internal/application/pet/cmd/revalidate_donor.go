@@ -9,17 +9,19 @@ import (
 )
 
 type RevalidateDonorHandler struct {
-	petRepo pet.Repository
+	petReadRepo  pet.PetReadRepository
+	petWriteRepo pet.PetWriteRepository
 }
 
-func NewRevalidateDonorHandler(petRepo pet.Repository) *RevalidateDonorHandler {
+func NewRevalidateDonorHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository) *RevalidateDonorHandler {
 	return &RevalidateDonorHandler{
-		petRepo: petRepo,
+		petReadRepo:  petReadRepo,
+		petWriteRepo: petWriteRepo,
 	}
 }
 
 func (h *RevalidateDonorHandler) Handle(ctx context.Context, petID string) (*model.Pet, error) {
-	p, err := h.petRepo.GetPet(ctx, petID, pet.PetPreloadOptions{
+	p, err := h.petReadRepo.GetByID(ctx, petID, pet.PetPreloadOptions{
 		WithAll: true,
 	})
 	if err != nil {
@@ -40,5 +42,5 @@ func (h *RevalidateDonorHandler) Handle(ctx context.Context, petID string) (*mod
 		updatePet.WarnFactors[i] = string(f)
 	}
 
-	return h.petRepo.Update(ctx, petID, updatePet)
+	return h.petWriteRepo.Update(ctx, petID, updatePet)
 }

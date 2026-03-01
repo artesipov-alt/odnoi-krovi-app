@@ -12,21 +12,21 @@ import (
 )
 
 type GetByIDHandler struct {
-	petRepo      pet.Repository
+	petReadRepo  pet.PetReadRepository
 	bloodReqRepo bloodsearch.BloodRequestRepository
 	storage      filestorage.Repository
 }
 
-func NewGetByIDHandler(petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, storage filestorage.Repository) *GetByIDHandler {
+func NewGetByIDHandler(petReadRepo pet.PetReadRepository, bloodReqRepo bloodsearch.BloodRequestRepository, storage filestorage.Repository) *GetByIDHandler {
 	return &GetByIDHandler{
-		petRepo:      petRepo,
+		petReadRepo:  petReadRepo,
 		bloodReqRepo: bloodReqRepo,
 		storage:      storage,
 	}
 }
 
 func (h *GetByIDHandler) Handle(ctx context.Context, petID string, opts pet.PetPreloadOptions) (*model.Pet, error) {
-	p, err := h.petRepo.GetPet(ctx, petID, opts)
+	p, err := h.petReadRepo.GetByID(ctx, petID, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (h *GetByIDHandler) Handle(ctx context.Context, petID string, opts pet.PetP
 
 	// Set status based on blood request and stored DonorRestrictions
 	if bloodReq != nil {
-		if len(bloodReq.Edges.Responses) > 0 {
+		if len(bloodReq.ResponseIDs) > 0 {
 			p.PetStatus = model.PetStatusBloodFound
 		} else {
 			p.PetStatus = model.PetStatusRecipient

@@ -10,19 +10,21 @@ import (
 )
 
 type DeleteHandler struct {
-	petRepo      pet.Repository
+	petReadRepo  pet.PetReadRepository
+	petWriteRepo pet.PetWriteRepository
 	bloodReqRepo bloodsearch.BloodRequestRepository
 }
 
-func NewDeleteHandler(petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository) *DeleteHandler {
+func NewDeleteHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository, bloodReqRepo bloodsearch.BloodRequestRepository) *DeleteHandler {
 	return &DeleteHandler{
-		petRepo:      petRepo,
+		petReadRepo:  petReadRepo,
+		petWriteRepo: petWriteRepo,
 		bloodReqRepo: bloodReqRepo,
 	}
 }
 
 func (h *DeleteHandler) Handle(ctx context.Context, petID string) error {
-	exists, err := h.petRepo.ExistsByID(ctx, petID)
+	exists, err := h.petReadRepo.Exists(ctx, petID)
 	if err != nil {
 		return apperrors.Internal(err, "failed to check pet existence")
 	}
@@ -43,7 +45,7 @@ func (h *DeleteHandler) Handle(ctx context.Context, petID string) error {
 		}
 	}
 
-	if err := h.petRepo.Delete(ctx, petID); err != nil {
+	if err := h.petWriteRepo.Delete(ctx, petID); err != nil {
 		return apperrors.Internal(err, "failed to delete pet")
 	}
 

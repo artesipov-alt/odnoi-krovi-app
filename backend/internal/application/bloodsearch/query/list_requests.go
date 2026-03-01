@@ -5,7 +5,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 )
 
 type ListRequestsHandler struct {
@@ -18,7 +18,7 @@ func NewListRequestsHandler(bloodRepo bloodsearch.BloodRequestRepository) *ListR
 	}
 }
 
-func (h *ListRequestsHandler) Handle(ctx context.Context, limit, offset int, filters map[string]any) ([]*ent.BloodSearchRequest, error) {
+func (h *ListRequestsHandler) Handle(ctx context.Context, limit, offset int, filters map[string]any) ([]*model.BloodRequest, error) {
 	requests, err := h.bloodRepo.List(ctx, limit, offset, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")

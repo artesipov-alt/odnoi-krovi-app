@@ -14,20 +14,20 @@ import (
 )
 
 type GetByUserHandler struct {
-	petRepo      pet.Repository
+	petReadRepo  pet.PetReadRepository
 	userRepo     user.Repository
 	bloodReqRepo bloodsearch.BloodRequestRepository
 	storage      filestorage.Repository
 }
 
 func NewGetByUserHandler(
-	petRepo pet.Repository,
+	petReadRepo pet.PetReadRepository,
 	userRepo user.Repository,
 	bloodReqRepo bloodsearch.BloodRequestRepository,
 	storage filestorage.Repository,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
-		petRepo:      petRepo,
+		petReadRepo:  petReadRepo,
 		userRepo:     userRepo,
 		bloodReqRepo: bloodReqRepo,
 		storage:      storage,
@@ -43,7 +43,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	pets, err := h.petRepo.GetPetsByUser(ctx, userID, opts)
+	pets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
@@ -58,7 +58,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 
 		// Set status based on blood request and stored DonorRestrictions
 		if bloodReq != nil {
-			if len(bloodReq.Edges.Responses) > 0 {
+			if len(bloodReq.ResponseIDs) > 0 {
 				pets[i].PetStatus = model.PetStatusBloodFound
 			} else {
 				pets[i].PetStatus = model.PetStatusRecipient

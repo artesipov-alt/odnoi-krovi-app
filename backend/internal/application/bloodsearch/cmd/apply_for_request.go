@@ -5,9 +5,8 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 )
 
 type ApplyForRequestHandler struct {
@@ -28,13 +27,13 @@ func NewApplyForRequestHandler(
 	}
 }
 
-func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID string, conditions []string) (*ent.DonorResponse, error) {
+func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID string, conditions []string) (*model.DonorResponse, error) {
 	// Проверяем существование и статус заявки
 	req, err := h.bloodRepo.GetByID(ctx, reqID)
 	if err != nil {
 		return nil, err
 	}
-	if req.Status != bloodsearchrequest.StatusActive {
+	if req.Status != model.BloodRequestStatusActive {
 		return nil, apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
 	}
 
@@ -53,7 +52,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID stri
 		return nil, apperrors.Internal(err, "failed to check existing responses")
 	}
 	for _, resp := range responses {
-		if resp.Edges.Request.ID == reqID {
+		if resp.RequestID == reqID {
 			return nil, apperrors.ErrDonorResponseAlreadyExists
 		}
 	}

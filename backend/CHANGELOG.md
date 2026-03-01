@@ -5,6 +5,52 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.2.0] - 2025-01-XX
+
+### Добавлено
+- **CQRS архитектура в Application слое**: Разделение на команды (`cmd/`) и запросы (`query/`)
+  - `pet/cmd/`: `CreateHandler`, `UpdateHandler`, `DeleteHandler`, `RevalidateDonorHandler`
+  - `pet/query/`: `GetByIDHandler`, `GetByUserHandler`
+  - `bloodsearch/cmd/`: `CreateRequestHandler`, `UpdateRequestHandler`, `DeleteRequestHandler`, `ApplyForRequestHandler`, `UpdateStatusHandler`
+  - `bloodsearch/query/`: `GetByIDHandler`, `GetByPetIDHandler`, `ListRequestsHandler`
+  - `file/cmd/`: `GetPresignedURLsHandler`, `ConfirmUploadHandler`
+- **Доменные модели для BloodSearch**: `model.BloodRequest`, `model.DonorResponse` с бизнес-логикой
+- **Разделение Repository интерфейсов** (Interface Segregation):
+  - `PetReadRepository`: `GetByID()`, `GetByUserID()`, `Exists()`
+  - `PetWriteRepository`: `Create()`, `Update()`, `Delete()`
+  - `PetStatsRepository`: `CountSuitableDonors()`
+  - `PetPhotoRepository`: `AddPhotoURLs()`
+- **Мапперы** для конвертации: `toDomainModel()` в репозиториях, `mapDTOToBloodRequest()`, `mapBloodRequestToDTO()` в handlers
+
+### Изменено
+- **BREAKING**: `BloodRequestRepository` интерфейс работает с доменными моделями вместо ENT типов
+  - `Create(ctx, *model.BloodRequest)` вместо `Create(ctx, *ent.CreateBloodSearchRequestInput)`
+  - `GetByID()` возвращает `*model.BloodRequest` вместо `*ent.BloodSearchRequest`
+  - `Update()` принимает `*model.BloodRequest` вместо `*ent.UpdateBloodSearchRequestInput`
+- **BREAKING**: `DonorResponseRepository` возвращает `*model.DonorResponse` вместо `*ent.DonorResponse`
+- Репозитории теперь конвертируют ENT ↔ Domain через методы `toDomainModel()`
+- HTTP handlers работают с доменными моделями (DTO ↔ Domain маппинг)
+- `PetRepository` разделён на специализированные интерфейсы (Read/Write/Stats/Photo)
+
+### Исправлено
+- Удалены дубликаты типов `DonorResponseStatus` и `DonorResponse`
+- Устранены циклические зависимости между domain слоями
+- `LocationRepository` возвращает `[]*model.Location` вместо `[]*ent.Location`
+- Используется единый `storage.BuildPhotoURLs()` вместо дублирования логики
+
+### Deprecated
+- Старые fat services больше не используются:
+  - `domain/pet/pet_service.go` (закомментирован)
+  - `domain/bloodsearch/bloodrequest_service.go` (закомментирован)
+  - `domain/filestorage/file_service.go` (закомментирован)
+
+### Технический долг
+- [ ] Полностью удалить старые сервисы
+- [ ] Разделить Pet агрегат на под-агрегаты (Health, Treatment, Analyses)
+- [ ] Внедрить Value Objects (Weight, ChipNumber, PhotoGallery)
+- [ ] Добавить Domain Events
+- [ ] Реализовать Unit of Work
+
 ## [3.1.4] - 2026-02-27
 
 ### Изменено

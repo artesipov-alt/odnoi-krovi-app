@@ -7,21 +7,18 @@ import (
 
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/jinzhu/copier"
 )
 
 // calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)
 // Для собак: не более 17.6 мл/кг
 // Для кошек: не более 13.2 мл/кг
-func calculateDonationAmount(pet *ent.Pet) int32 {
-	weight := pet.WeightKg
+func calculateDonationAmount(petType string, weightKg float64) int32 {
 	var limitPerKg float64
-	switch pet.Type {
+	switch petType {
 	case "dog":
 		limitPerKg = 17.6
 	case "cat":
@@ -29,7 +26,7 @@ func calculateDonationAmount(pet *ent.Pet) int32 {
 	default:
 		return 0
 	}
-	amount := limitPerKg * weight
+	amount := limitPerKg * weightKg
 	return int32(amount)
 }
 
@@ -153,30 +150,8 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 	}, h.DeleteBloodRequest)
 }
 
-// mapBloodRequestToDTO преобразует ENT модель заявки в DTO
-func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dto.BloodSearchRequest {
-	applications := []*dto.DonorApplication{}
-	for _, response := range req.Edges.Responses {
-		donor := response.Edges.Donor
-		var bloodGroup string
-		if donor.Edges.BloodGroupRef != nil {
-			bloodGroup = donor.Edges.BloodGroupRef.BloodGroup
-		}
-		applications = append(applications, &dto.DonorApplication{
-			ID:              response.ID,
-			RequestID:       req.ID,
-			DonorID:         donor.ID,
-			DonorName:       donor.Name,
-			DonorPhotos:     donor.PhotoUrls,
-			DonorBloodGroup: bloodGroup,
-			Amount:          calculateDonationAmount(donor),
-			WarnFactors:     donor.WarnFactors,
-			Conditions:      response.Conditions,
-			Status:          dto.DonorResponseStatus(response.Status),
-			CreatedAt:       &response.CreatedAt,
-			UpdatedAt:       &response.UpdatedAt,
-		})
-	}
+// mapBloodRequestToDTO преобразует доменную модель заявки в DTO
+func mapBloodRequestToDTO(req *model.BloodRequest, suitableDonors *int) dto.BloodSearchRequest {
 	return dto.BloodSearchRequest{
 		ID:                     req.ID,
 		PetID:                  req.PetID,
@@ -185,30 +160,30 @@ func mapBloodRequestToDTO(req *ent.BloodSearchRequest, situatableDonors *int) dt
 		Regions:                req.Regions,
 		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
 		Description:            req.Description,
-		PhotoUrls:              req.PhotoUrls,
+		PhotoUrls:              req.PhotoURLs,
 		BloodGroupNames:        req.BloodGroupNames,
-		BloodComponentIds:      req.BloodComponentIds,
+		BloodComponentIds:      req.BloodComponentIDs,
 		OnBoarding:             req.OnBoarding,
 		Status:                 dto.BloodSearchRequestStatus(req.Status),
-		Responses:              applications,
-		SuitableDonors:         *situatableDonors,
+		SuitableDonors:         *suitableDonors,
 		CreatedAt:              &req.CreatedAt,
 		UpdatedAt:              &req.UpdatedAt,
 		DeletedAt:              req.DeletedAt,
 	}
 }
 
-// mapDTOToBloodRequest преобразует DTO создания заявки в ENT модель
-func mapDTOToBloodRequest(d dto.CreateBloodSearchRequest) *ent.BloodSearchRequest {
-	return &ent.BloodSearchRequest{
+// mapDTOToBloodRequest преобразует DTO создания заявки в доменную модель
+func mapDTOToBloodRequest(d dto.CreateBloodSearchRequest) *model.BloodRequest {
+	return &model.BloodRequest{
 		PetID:                  d.PetID,
 		BloodVolumeNeeded:      d.BloodVolumeNeeded,
 		Regions:                d.Regions,
 		SmallPetsNotifyAllowed: d.SmallPetsNotifyAllowed,
 		Description:            d.Description,
 		BloodGroupNames:        d.BloodGroupNames,
-		BloodComponentIds:      d.BloodComponentIds,
-		Status:                 bloodsearchrequest.StatusActive,
+		BloodComponentIDs:      d.BloodComponentIds,
+		PhotoURLs:              []string{},
+		OnBoarding:             []string{},
 	}
 }
 
@@ -219,10 +194,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 }) (*dto.BloodRequestCreateResponse, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
 
-	bloodReq := new(ent.CreateBloodSearchRequestInput)
-	if err := copier.Copy(bloodReq, input.Body); err != nil {
-		return nil, err
-	}
+	bloodReq := mapDTOToBloodRequest(input.Body)
 
 	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
@@ -250,8 +222,8 @@ func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *s
 	return &dto.DonorApplicationCreateResponse{
 		Body: dto.DonorApplicationResponse{
 			ID:      resp.ID,
-			ReqID:   resp.Edges.Request.ID,
-			DonorID: resp.Edges.Donor.ID,
+			ReqID:   resp.RequestID,
+			DonorID: resp.DonorID,
 			Status:  dto.DonorResponseStatus(resp.Status),
 		},
 	}, nil
@@ -289,28 +261,22 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 		existing.Description = *input.Body.Description
 	}
 	if len(input.Body.PhotoUrls) > 0 {
-		existing.PhotoUrls = input.Body.PhotoUrls
+		existing.PhotoURLs = input.Body.PhotoUrls
 	}
 	if len(input.Body.BloodGroupNames) > 0 {
 		existing.BloodGroupNames = input.Body.BloodGroupNames
 	}
 	if len(input.Body.BloodComponentIds) > 0 {
-		existing.BloodComponentIds = input.Body.BloodComponentIds
+		existing.BloodComponentIDs = input.Body.BloodComponentIds
 	}
 	if len(input.Body.OnBoarding) > 0 {
 		existing.OnBoarding = input.Body.OnBoarding
 	}
 	if input.Body.Status != nil {
-		existing.Status = bloodsearchrequest.Status(*input.Body.Status)
+		existing.Status = model.BloodRequestStatus(*input.Body.Status)
 	}
 
-	// Создать update input из обновленного existing
-	updateReq := new(ent.UpdateBloodSearchRequestInput)
-	if err := copier.Copy(updateReq, existing); err != nil {
-		return nil, err
-	}
-
-	result, err := h.updateHandler.Handle(ctx, input.IDPathStr.ID, updateReq)
+	result, err := h.updateHandler.Handle(ctx, input.IDPathStr.ID, existing)
 	if err != nil {
 		return nil, err
 	}

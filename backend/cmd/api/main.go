@@ -131,10 +131,11 @@ func main() {
 		getDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
 		// Инициализация pet handlers
+		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
-		petUpdateHandler := petcmd.NewUpdateHandler(petRepo)
-		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, bloodRequestRepo)
-		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo)
+		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
+		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
+		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo, fileStorage)
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
 

@@ -10,17 +10,19 @@ import (
 )
 
 type UpdateHandler struct {
-	petRepo pet.Repository
+	petReadRepo  pet.PetReadRepository
+	petWriteRepo pet.PetWriteRepository
 }
 
-func NewUpdateHandler(petRepo pet.Repository) *UpdateHandler {
+func NewUpdateHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository) *UpdateHandler {
 	return &UpdateHandler{
-		petRepo: petRepo,
+		petReadRepo:  petReadRepo,
+		petWriteRepo: petWriteRepo,
 	}
 }
 
 func (h *UpdateHandler) Handle(ctx context.Context, id string, petInput *model.Pet) (*model.Pet, error) {
-	exists, err := h.petRepo.ExistsByID(ctx, id)
+	exists, err := h.petReadRepo.Exists(ctx, id)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check pet existence")
 	}
@@ -41,7 +43,7 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, petInput *model.P
 		petInput.WarnFactors[i] = string(f)
 	}
 
-	updatedPet, err := h.petRepo.Update(ctx, id, petInput)
+	updatedPet, err := h.petWriteRepo.Update(ctx, id, petInput)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to update pet")
 	}

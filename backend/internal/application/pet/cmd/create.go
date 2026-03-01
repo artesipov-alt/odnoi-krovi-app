@@ -11,11 +11,11 @@ import (
 )
 
 type CreateHandler struct {
-	petRepo  pet.Repository
+	petRepo  pet.PetWriteRepository
 	userRepo user.Repository
 }
 
-func NewCreateHandler(petRepo pet.Repository, userRepo user.Repository) *CreateHandler {
+func NewCreateHandler(petRepo pet.PetWriteRepository, userRepo user.Repository) *CreateHandler {
 	return &CreateHandler{
 		petRepo:  petRepo,
 		userRepo: userRepo,

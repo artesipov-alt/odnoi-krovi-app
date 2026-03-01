@@ -585,6 +585,21 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 	return count, nil
 }
 
+// GetByID получает питомца по ID (алиас для GetPet для совместимости с PetReadRepository)
+func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
+	return r.GetPet(ctx, id, opts)
+}
+
+// GetByUserID получает питомцев пользователя (алиас для GetPetsByUser для совместимости с PetReadRepository)
+func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
+	return r.GetPetsByUser(ctx, userID, opts)
+}
+
+// Exists проверяет существование питомца (алиас для ExistsByID для совместимости с PetReadRepository)
+func (r *EntPetRepository) Exists(ctx context.Context, id string) (bool, error) {
+	return r.ExistsByID(ctx, id)
+}
+
 // UpdateStatus обновляет статус питомца по его ID
 // func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {
 // 	if id == "" {
