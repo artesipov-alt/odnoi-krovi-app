@@ -121,14 +121,14 @@ func main() {
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
 		// Инициализация user command и query handlers
-		createSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo)
-		deleteHandler := usercmd.NewDeleteHandler(userRepo)
-		updateHandler := usercmd.NewUpdateHandler(userRepo)
-		resetHandler := usercmd.NewResetHandler(userRepo)
-		restoreHandler := usercmd.NewRestoreHandler(userRepo)
-		getByIDHandler := userquery.NewGetByIDHandler(userRepo, fileStorage)
-		getByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo, fileStorage)
-		getDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
+		userCreateSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo)
+		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
+		userUpdateHandler := usercmd.NewUpdateHandler(userRepo)
+		userResetHandler := usercmd.NewResetHandler(userRepo)
+		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)
+		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo, fileStorage)
+		userGetByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo, fileStorage)
+		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
@@ -162,14 +162,14 @@ func main() {
 			getBloodGroupsByTypeHandler,
 		)
 		userHandler := transport.NewUserHandler(
-			createSimpleHandler,
-			deleteHandler,
-			updateHandler,
-			resetHandler,
-			restoreHandler,
-			getByIDHandler,
-			getByTelegramHandler,
-			getDeletedHandler,
+			userCreateSimpleHandler,
+			userDeleteHandler,
+			userUpdateHandler,
+			userResetHandler,
+			userRestoreHandler,
+			userGetByIDHandler,
+			userGetByTelegramHandler,
+			userGetDeletedHandler,
 		)
 		petHandler := transport.NewPetHandler(
 			petCreateHandler,
@@ -190,7 +190,10 @@ func main() {
 			bloodGetByPetIDHandler,
 			bloodListHandler,
 		)
-		fileHandler := transport.NewFileHandler(fileGetPresignedHandler, fileConfirmUploadHandler)
+		fileHandler := transport.NewFileHandler(
+			fileGetPresignedHandler,
+			fileConfirmUploadHandler,
+		)
 
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
