@@ -85,7 +85,7 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.Us
 	var pets []*petmodel.Pet
 	if len(user.Edges.Pets) > 0 {
 		for _, p := range user.Edges.Pets {
-			pets = append(pets, toDomain(p))
+			pets = append(pets, petToDomain(p))
 		}
 	}
 
@@ -108,7 +108,7 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 	var pets []*petmodel.Pet
 	if len(user.Edges.Pets) > 0 {
 		for _, p := range user.Edges.Pets {
-			pets = append(pets, toDomain(p))
+			pets = append(pets, petToDomain(p))
 		}
 	}
 

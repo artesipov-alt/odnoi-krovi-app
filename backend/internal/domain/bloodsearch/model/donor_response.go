@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 // DonorResponseStatus представляет статус отклика донора
 type DonorResponseStatus string
@@ -21,4 +24,24 @@ type DonorResponse struct {
 	Status     DonorResponseStatus
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+}
+
+// NewDonorResponse creates a new donor response with validation
+func NewDonorResponse(requestID, donorID string, conditions []string) (*DonorResponse, error) {
+	if requestID == "" {
+		return nil, errors.New("request ID is required")
+	}
+	if donorID == "" {
+		return nil, errors.New("donor ID is required")
+	}
+
+	now := time.Now()
+	return &DonorResponse{
+		RequestID:  requestID,
+		DonorID:    donorID,
+		Conditions: conditions,
+		Status:     DonorResponseStatusActive,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+	}, nil
 }

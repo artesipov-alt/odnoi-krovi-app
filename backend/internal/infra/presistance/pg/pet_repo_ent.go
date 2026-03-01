@@ -21,8 +21,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 )
 
-// toDomain converts ent.Pet to domain model.Pet
-func toDomain(e *ent.Pet) *model.Pet {
+// petToDomain converts ent.Pet to domain model.Pet
+func petToDomain(e *ent.Pet) *model.Pet {
 	if e == nil {
 		return nil
 	}
@@ -95,14 +95,14 @@ func toDomain(e *ent.Pet) *model.Pet {
 	return pet
 }
 
-// toDomainSlice converts slice of ent.Pet to slice of domain model.Pet
-func toDomainSlice(pets []*ent.Pet) []*model.Pet {
+// petToDomainSlice converts slice of ent.Pet to slice of domain model.Pet
+func petToDomainSlice(pets []*ent.Pet) []*model.Pet {
 	if pets == nil {
 		return nil
 	}
 	result := make([]*model.Pet, len(pets))
 	for i, p := range pets {
-		result[i] = toDomain(p)
+		result[i] = petToDomain(p)
 	}
 	return result
 }
@@ -290,7 +290,7 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 		return nil, apperrors.Internal(err, "failed to get pet")
 	}
 
-	return toDomain(entPet), nil
+	return petToDomain(entPet), nil
 }
 
 // GetByUserID получает всех питомцев пользователя
@@ -317,7 +317,7 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	return toDomainSlice(pets), nil
+	return petToDomainSlice(pets), nil
 }
 
 // Update обновляет существующего питомца и его связанные сущности в транзакции
