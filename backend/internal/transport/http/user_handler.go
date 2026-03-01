@@ -8,8 +8,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -24,6 +24,7 @@ type UserHandler struct {
 	getByIDHandler       *query.GetByIDHandler
 	getByTelegramHandler *query.GetByTelegramHandler
 	getDeletedHandler    *query.GetDeletedUsersHandler
+	userMapper           *mapper.UserMapper
 }
 
 // NewUserHandler создает новый обработчик пользователей
@@ -36,6 +37,7 @@ func NewUserHandler(
 	getByIDHandler *query.GetByIDHandler,
 	getByTelegramHandler *query.GetByTelegramHandler,
 	getDeletedHandler *query.GetDeletedUsersHandler,
+	petMapper *mapper.PetMapper,
 ) *UserHandler {
 	return &UserHandler{
 		createSimpleHandler:  createSimpleHandler,
@@ -46,6 +48,7 @@ func NewUserHandler(
 		getByIDHandler:       getByIDHandler,
 		getByTelegramHandler: getByTelegramHandler,
 		getDeletedHandler:    getDeletedHandler,
+		userMapper:           mapper.NewUserMapper(petMapper),
 	}
 }
 
@@ -146,7 +149,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.toDTO(usr, pets)}, nil
+	return &dto.UserResponse{Body: h.userMapper.ToDTO(usr, pets)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
@@ -163,7 +166,7 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		return nil, apperrors.Internal(nil, "ошибка при создании пользователя")
 	}
 
-	return &dto.UserResponse{Body: h.toDTO(u, nil)}, nil
+	return &dto.UserResponse{Body: h.userMapper.ToDTO(u, nil)}, nil
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
@@ -218,7 +221,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.toDTO(usr, pets)}, nil
+	return &dto.UserResponse{Body: h.userMapper.ToDTO(usr, pets)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
@@ -267,93 +270,10 @@ func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.U
 		return nil, err
 	}
 
-	userDTOs := make([]dto.User, len(users))
-	for i, u := range users {
-		userDTOs[i] = h.toDTO(u, nil)
-	}
-
 	return &dto.UsersDeletedResponse{
 		Body: dto.UsersDeletedBody{
 			Message: "Удаленные пользователи получены",
-			Users:   userDTOs,
+			Users:   h.userMapper.ToDTOs(users),
 		},
 	}, nil
-}
-
-// toDTO преобразует модель пользователя в DTO для ответа
-func (h *UserHandler) toDTO(u *usermodel.User, pets []*petmodel.Pet) dto.User {
-	if u == nil {
-		return dto.User{}
-	}
-
-	userDTO := dto.User{
-		ID:               u.ID,
-		TelegramID:       u.TelegramID,
-		FullName:         u.FullName,
-		Phone:            u.Phone,
-		Email:            u.Email,
-		PhotoURLs:        u.PhotoURLs,
-		OrganizationName: u.OrganizationName,
-		ConsentPd:        u.ConsentPd,
-		OnBoarding:       u.OnBoarding,
-		AllowGeo:         u.AllowGeo,
-		LocationID:       "",
-		Role:             u.Role,
-		CreatedAt:        u.CreatedAt,
-		UpdatedAt:        u.UpdatedAt,
-		DeletedAt:        u.DeletedAt,
-	}
-
-	if u.LocationID != nil {
-		userDTO.LocationID = *u.LocationID
-	}
-
-	if pets != nil {
-		userDTO.Pets = make([]dto.Pet, len(pets))
-		for i, pet := range pets {
-			userDTO.Pets[i] = h.petToDTO(pet)
-		}
-	}
-
-	return userDTO
-}
-
-// petToDTO преобразует модель питомца в DTO
-func (h *UserHandler) petToDTO(pet *petmodel.Pet) dto.Pet {
-	if pet == nil {
-		return dto.Pet{}
-	}
-
-	dtoPet := dto.Pet{
-		ID:         pet.ID,
-		Name:       pet.Name,
-		ChipNumber: pet.ChipNumber,
-		PhotoURLs:  pet.PhotoURLs,
-		WeightKg:   pet.WeightKg,
-		BirthDate:  pet.BirthDate,
-		CreatedAt:  pet.CreatedAt,
-		UpdatedAt:  pet.UpdatedAt,
-	}
-
-	if pet.BreedRefID != nil {
-		dtoPet.BreedID = *pet.BreedRefID
-	}
-
-	if pet.BloodGroupName != nil {
-		dtoPet.BloodGroup = *pet.BloodGroupName
-	}
-
-	if pet.LivingCondition != "" {
-		dtoPet.LivingCondition = string(pet.LivingCondition)
-	}
-
-	if pet.Gender != "" {
-		dtoPet.Gender = string(pet.Gender)
-	}
-
-	if pet.Type != "" {
-		dtoPet.Type = string(pet.Type)
-	}
-
-	return dtoPet
 }
