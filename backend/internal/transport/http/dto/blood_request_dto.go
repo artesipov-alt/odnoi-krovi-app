@@ -2,117 +2,253 @@ package dto
 
 import "time"
 
-// BloodSearchRequestStatus представляет статус запроса на поиск крови
-type BloodSearchRequestStatus string
+// ============================================
+// Blood Request Status
+// ============================================
 
-// Возможные статусы запроса на поиск крови
+// BloodRequestStatus представляет статус заявки на поиск крови
+type BloodRequestStatus string
+
 const (
-	BloodSearchRequestStatusActive BloodSearchRequestStatus = "active" // Активный запрос
-	BloodSearchRequestStatusClosed BloodSearchRequestStatus = "closed" // Закрытый запрос
-	BloodSearchRequestStatusDraft  BloodSearchRequestStatus = "draft"  // Черновик запроса
+	BloodRequestStatusActive BloodRequestStatus = "active"
+	BloodRequestStatusClosed BloodRequestStatus = "closed"
+	BloodRequestStatusDraft  BloodRequestStatus = "draft"
 )
 
-// BloodSearchRequest представляет полную информацию о запросе на поиск крови
-type BloodSearchRequest struct {
-	ID                     string                   `json:"id" doc:"ID заявки" example:"BLS-aBcDeF1234"`     // должно всегда возвращаться
-	PetID                  string                   `json:"petId" doc:"ID питомца" example:"PET-aBcDeF1234"` // должно всегда возвращаться
-	BloodVolumeNeeded      int32                    `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"100"`
-	BloodVolumeReserved    int32                    `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" example:"0"`
-	Regions                []string                 `json:"regions,omitempty" doc:"Список ID регионов, где требуется кровь"`
-	SmallPetsNotifyAllowed bool                     `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
-	Description            string                   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
-	PhotoUrls              []string                 `json:"photoUrls,omitempty" doc:"Список URL фотографий питомца к заявке" example:"[\"https://example.com/pet_photo1.jpg\", \"https://example.com/pet_photo2.jpg\"]"`
-	BloodGroupNames        []string                 `json:"bloodGroupNames,omitempty" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
-	BloodComponentIds      []string                 `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови, которые требуются"`
-	OnBoarding             []string                 `json:"onBoarding,omitempty" doc:"Список пройденых онбордингов" enum:"SEARCH,BLOOD_CARD"`
-	Status                 BloodSearchRequestStatus `json:"status" doc:"Статус запроса" enum:"active,closed,draft" example:"active"` // должно всегда возвращаться
-	Responses              []*DonorApplication      `json:"responses" doc:"Отклики доноров на запрос"`                               // должно всегда возвращаться
-	SuitableDonors         int                      `json:"suitableDonors" doc:"Колличество подходящих доноров на портале"`          // должно всегда возвращаться
-	CreatedAt              *time.Time               `json:"createdAt,omitempty" doc:"Дата создания записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	UpdatedAt              *time.Time               `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	DeletedAt              *time.Time               `json:"deletedAt,omitempty" doc:"Дата удаления записи" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+// ============================================
+// Path Parameters
+// ============================================
+
+// BloodRequestIDPath представляет параметр пути с ID заявки
+type BloodRequestIDPath struct {
+	ID string `path:"id" doc:"ID заявки на поиск крови" minLength:"1" example:"BLS-ABCDEABCDE"`
 }
 
-// CreateBloodSearchRequest представляет запрос на создание заявки на поиск крови
-type CreateBloodSearchRequest struct {
-	PetID                  string   `json:"petId" validate:"required" doc:"ID питомца" example:"PET-aBcDeF1234"`
-	BloodVolumeNeeded      int32    `json:"bloodVolumeNeeded" validate:"required,gt=0" doc:"Необходимый объем крови в мл" example:"100"`
-	Regions                []string `json:"regions" validate:"required" doc:"Список ID регионов, где требуется кровь"`
-	SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для владельцев мелких питомцев" example:"true"`
-	Description            string   `json:"description,omitempty" doc:"Дополнительное описание запроса" example:"Срочно нужна кровь для переливания"`
-	BloodGroupNames        []string `json:"bloodGroupNames" doc:"Список названий групп крови, которые подходят" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
-	BloodComponentIds      []string `json:"bloodComponentIds" doc:"Список ID компонентов крови, которые требуются"`
+// PetIDPath представляет параметр пути с ID питомца
+type PetIDPath struct {
+	ID string `path:"id" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
 }
 
-// UpdateBloodRequestDTO представляет DTO для частичного обновления заявки на поиск крови
-type UpdateBloodRequestDTO struct {
-	PetID                  *string  `json:"petId,omitempty" doc:"ID питомца"`
-	BloodVolumeNeeded      *int32   `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл"`
-	BloodVolumeReserved    *int32   `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл"`
+// ============================================
+// Create Blood Request
+// ============================================
+
+// CreateBloodRequestInput представляет запрос на создание заявки
+type CreateBloodRequestInput struct {
+	Body CreateBloodRequestBody
+}
+
+// CreateBloodRequestBody представляет тело запроса на создание заявки
+type CreateBloodRequestBody struct {
+	PetID                  string   `json:"petId" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
+	BloodVolumeNeeded      int32    `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" minimum:"1" example:"100"`
+	Regions                []string `json:"regions" doc:"Список ID регионов" example:"[\"MOSCOW\", \"SPB\"]"`
+	SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
+	Description            string   `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
+	BloodGroupNames        []string `json:"bloodGroupNames" doc:"Список групп крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
+	BloodComponentIDs      []string `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
+}
+
+// CreateBloodRequestOutput представляет ответ на создание заявки
+type CreateBloodRequestOutput struct {
+	Body CreateBloodRequestResult
+}
+
+// CreateBloodRequestResult представляет результат создания заявки
+type CreateBloodRequestResult struct {
+	ID        string             `json:"id" doc:"ID созданной заявки" example:"BLS-ABCDEABCDE"`
+	PetID     string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
+	Status    BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	CreatedAt *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+}
+
+// ============================================
+// Update Blood Request
+// ============================================
+
+// UpdateBloodRequestInput представляет запрос на обновление заявки
+type UpdateBloodRequestInput struct {
+	BloodRequestIDPath
+	Body UpdateBloodRequestBody
+}
+
+// UpdateBloodRequestBody представляет тело запроса на обновление заявки
+type UpdateBloodRequestBody struct {
+	BloodVolumeNeeded      *int32   `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" minimum:"1"`
+	BloodVolumeReserved    *int32   `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" minimum:"0"`
 	Regions                []string `json:"regions,omitempty" doc:"Список ID регионов"`
 	SmallPetsNotifyAllowed *bool    `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для мелких питомцев"`
-	Description            *string  `json:"description,omitempty" doc:"Дополнительное описание"`
-	PhotoUrls              []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
-	BloodGroupNames        []string `json:"bloodGroupNames,omitempty" doc:"Список названий групп крови"`
-	BloodComponentIds      []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
+	Description            *string  `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
+	PhotoURLs              []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
+	BloodGroupNames        []string `json:"bloodGroupNames,omitempty" doc:"Список групп крови"`
+	BloodComponentIDs      []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
 	OnBoarding             []string `json:"onBoarding,omitempty" doc:"Список пройденных онбордингов"`
-	Status                 *string  `json:"status,omitempty" doc:"Статус запроса"`
+	Status                 *string  `json:"status,omitempty" doc:"Статус заявки"`
 }
 
-// BloodRequestUpdateResponse представляет ответ на обновление заявки
-type BloodRequestUpdateResponse struct {
-	Body BloodRequestUpdateResponseBody
+// UpdateBloodRequestOutput представляет ответ на обновление заявки
+type UpdateBloodRequestOutput struct {
+	Body UpdateBloodRequestResult
 }
 
-// BloodRequestUpdateResponseBody представляет тело ответа на обновление
-type BloodRequestUpdateResponseBody struct {
-	ID        string     `json:"id" doc:"ID заявки" example:"BLS-aBcDeF1234"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty" doc:"Дата последнего обновления" example:"2023-10-01T12:00:00Z"`
+// UpdateBloodRequestResult представляет результат обновления заявки
+type UpdateBloodRequestResult struct {
+	ID        string     `json:"id" doc:"ID обновленной заявки" example:"BLS-ABCDEABCDE"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
 }
 
-// BloodSearchPetResponse представляет ответ после создания запроса на поиск крови
-type BloodSearchPetResponse struct {
-	ID     string                   `json:"id" doc:"ID запроса на поиск крови" example:"BSR-ABCDEABCDE" readOnly:"true"`
-	PetID  string                   `json:"petId" doc:"ID питомца, для которого создан запрос" example:"PET-aBcDeF1234"`
-	Status BloodSearchRequestStatus `json:"status" doc:"Текущий статус запроса" enum:"active,closed,draft" example:"active"`
+// ============================================
+// Get Blood Request By ID
+// ============================================
+
+// GetBloodRequestByIDInput представляет запрос на получение заявки по ID
+type GetBloodRequestByIDInput struct {
+	BloodRequestIDPath
 }
 
-// BloodSearchFilterRequest представляет параметры для фильтрации запросов на поиск крови
-type BloodSearchFilterRequest struct {
-	PetID  string                   `json:"petId,omitempty" doc:"ID питомца для фильтрации" example:"PET-aBcDeF1234"`
-	Status BloodSearchRequestStatus `json:"status,omitempty" doc:"Статус запроса для фильтрации" enum:"active,closed,draft" example:"active"`
-	Limit  int                      `json:"limit,omitempty" doc:"Максимальное количество результатов" example:"10"`
-	Offset int                      `json:"offset,omitempty" doc:"Смещение для пагинации" example:"0"`
+// GetBloodRequestByIDOutput представляет ответ с данными заявки
+type GetBloodRequestByIDOutput struct {
+	Body BloodRequestDetail
 }
 
-// BloodSearchRequestIDPath представляет параметры пути с ID запроса на поиск крови
+// ============================================
+// Get Blood Request By Pet ID
+// ============================================
 
-// BloodRequestCreateResponse представляет обертку для ответа после создания запроса на поиск крови для Huma
-type BloodRequestCreateResponse struct {
-	Body BloodSearchPetResponse
+// GetBloodRequestByPetIDInput представляет запрос на получение заявки по ID питомца
+type GetBloodRequestByPetIDInput struct {
+	PetIDPath
 }
 
-// BloodRequestsResponse представляет обертку для ответа со списком запросов на поиск крови для Huma
-type BloodRequestsResponse struct {
-	Body []BloodSearchRequest
+// GetBloodRequestByPetIDOutput представляет ответ с данными заявки
+type GetBloodRequestByPetIDOutput struct {
+	Body BloodRequestDetail
 }
 
-// BloodRequestResponse представляет обертку для ответа с одним запросом на поиск крови для Huma
-type BloodRequestResponse struct {
-	Body BloodSearchRequest
+// ============================================
+// Delete Blood Request
+// ============================================
+
+// DeleteBloodRequestInput представляет запрос на удаление заявки
+type DeleteBloodRequestInput struct {
+	BloodRequestIDPath
 }
 
-// IDPath представляет параметры пути с ID объекта
-type IDPathStr struct {
-	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
+// DeleteBloodRequestOutput представляет ответ на удаление заявки
+type DeleteBloodRequestOutput struct {
+	Body DeleteBloodRequestResult
 }
 
-// MessageBody представляет тело простого текстового ответа
-type MessageBody struct {
-	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
+// DeleteBloodRequestResult представляет результат удаления заявки
+type DeleteBloodRequestResult struct {
+	Message string `json:"message" doc:"Сообщение о результате операции"`
 }
 
-// MessageResponse представляет простой текстовый ответ
-type MessageResponse struct {
-	Body MessageBody
+// ============================================
+// Apply For Blood Request (Donor Response)
+// ============================================
+
+// ApplyForBloodRequestInput представляет запрос на отклик донора
+type ApplyForBloodRequestInput struct {
+	BloodRequestIDPath
+	Body ApplyForBloodRequestBody
 }
+
+// ApplyForBloodRequestBody представляет тело запроса на отклик
+type ApplyForBloodRequestBody struct {
+	DonorID    string   `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
+	Conditions []string `json:"conditions,omitempty" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
+}
+
+// ApplyForBloodRequestOutput представляет ответ на отклик
+type ApplyForBloodRequestOutput struct {
+	Body DonorResponseResult
+}
+
+// DonorResponseResult представляет результат создания отклика
+type DonorResponseResult struct {
+	ID        string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
+	RequestID string              `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	DonorID   string              `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
+	Status    DonorResponseStatus `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
+	CreatedAt *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+}
+
+// ============================================
+// List Blood Requests
+// ============================================
+
+// ListBloodRequestsInput представляет запрос на список заявок
+type ListBloodRequestsInput struct {
+	Body ListBloodRequestsFilter
+}
+
+// ListBloodRequestsFilter представляет фильтр для списка заявок
+type ListBloodRequestsFilter struct {
+	PetID  string             `json:"petId,omitempty" doc:"ID питомца для фильтрации"`
+	Status BloodRequestStatus `json:"status,omitempty" doc:"Статус заявки" enum:"active,closed,draft"`
+	Limit  int                `json:"limit,omitempty" doc:"Максимальное количество результатов" minimum:"1" maximum:"100"`
+	Offset int                `json:"offset,omitempty" doc:"Смещение для пагинации" minimum:"0"`
+}
+
+// ListBloodRequestsOutput представляет ответ со списком заявок
+type ListBloodRequestsOutput struct {
+	Body BloodRequestsList
+}
+
+// BloodRequestsList представляет список заявок
+type BloodRequestsList struct {
+	Items []BloodRequestDetail `json:"items" doc:"Список заявок"`
+	Total int                  `json:"total" doc:"Общее количество заявок"`
+}
+
+// ============================================
+// Common Types
+// ============================================
+
+// BloodRequestDetail представляет полные данные заявки
+type BloodRequestDetail struct {
+	ID                     string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	PetID                  string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
+	BloodVolumeNeeded      int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
+	BloodVolumeReserved    int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"0"`
+	Regions                []string           `json:"regions" doc:"Список регионов"`
+	SmallPetsNotifyAllowed bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
+	Description            string             `json:"description,omitempty" doc:"Дополнительное описание"`
+	PhotoURLs              []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
+	BloodGroupNames        []string           `json:"bloodGroupNames" doc:"Список групп крови"`
+	BloodComponentIDs      []string           `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
+	OnBoarding             []string           `json:"onBoarding" doc:"Список пройденных онбордингов"`
+	Status                 BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Responses              []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
+	SuitableDonors         int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
+	CreatedAt              *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt              *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt              *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+}
+
+// DonorApplication представляет отклик донора
+type DonorApplication struct {
+	ID              string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
+	RequestID       string              `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	DonorID         string              `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
+	DonorName       string              `json:"donorName" doc:"Имя донора" example:"Барсик"`
+	DonorPhotos     []string            `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
+	DonorBloodGroup string              `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
+	Amount          int32               `json:"amount" doc:"Объем крови в мл" example:"450"`
+	WarnFactors     []string            `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
+	Conditions      []string            `json:"conditions" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
+	Status          DonorResponseStatus `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
+	CreatedAt       *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+	UpdatedAt       *time.Time          `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
+}
+
+// DonorResponseStatus представляет статус отклика донора
+type DonorResponseStatus string
+
+const (
+	DonorResponseStatusPending  DonorResponseStatus = "pending"
+	DonorResponseStatusAccepted DonorResponseStatus = "accepted"
+	DonorResponseStatusDeclined DonorResponseStatus = "declined"
+	DonorResponseStatusDonated  DonorResponseStatus = "donated"
+)

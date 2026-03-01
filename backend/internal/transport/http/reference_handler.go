@@ -176,7 +176,7 @@ func (h *ReferenceHandler) Register(api huma.API) {
 
 // Handlers
 
-func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *dto.GetPetTypesInput) (*dto.GetPetTypesOutput, error) {
 	petTypes := enums.GetAllEntPetTypes()
 	items := make([]dto.ReferenceItem, len(petTypes))
 
@@ -189,10 +189,10 @@ func (h *ReferenceHandler) GetPetTypes(ctx context.Context, input *struct{}) (*d
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetPetTypesOutput{Body: dto.PetTypesList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetDonorRestrictions(ctx context.Context, input *struct{}) (*dto.DonorRestrictionBody, error) {
+func (h *ReferenceHandler) GetDonorRestrictions(ctx context.Context, input *dto.GetDonorRestrictionsInput) (*dto.GetDonorRestrictionsOutput, error) {
 	allFactors := petmodel.GetAllFactors()
 	var stopFactors []dto.FactorDescription
 	var warnFactors []dto.FactorDescription
@@ -210,15 +210,15 @@ func (h *ReferenceHandler) GetDonorRestrictions(ctx context.Context, input *stru
 		}
 	}
 
-	response := dto.DonorRestrictionResponse{
+	response := dto.DonorRestrictionsDetail{
 		StopFactors: stopFactors,
 		WarnFactors: warnFactors,
 	}
 
-	return &dto.DonorRestrictionBody{Body: response}, nil
+	return &dto.GetDonorRestrictionsOutput{Body: response}, nil
 }
 
-func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetGenders(ctx context.Context, input *dto.GetGendersInput) (*dto.GetGendersOutput, error) {
 	genders := enums.GetAllEntGenders()
 	items := make([]dto.ReferenceItem, len(genders))
 
@@ -231,10 +231,10 @@ func (h *ReferenceHandler) GetGenders(ctx context.Context, input *struct{}) (*dt
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetGendersOutput{Body: dto.GendersList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *dto.GetLivingConditionsInput) (*dto.GetLivingConditionsOutput, error) {
 	conditions := enums.GetAllEntLivingConditions()
 	items := make([]dto.ReferenceItem, len(conditions))
 
@@ -247,10 +247,10 @@ func (h *ReferenceHandler) GetLivingConditions(ctx context.Context, input *struc
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetLivingConditionsOutput{Body: dto.LivingConditionsList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *dto.GetUserRolesInput) (*dto.GetUserRolesOutput, error) {
 	roles := enums.GetAllEntUserRoles()
 	items := make([]dto.ReferenceItem, len(roles))
 
@@ -263,10 +263,10 @@ func (h *ReferenceHandler) GetUserRoles(ctx context.Context, input *struct{}) (*
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetUserRolesOutput{Body: dto.UserRolesList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *dto.GetPetRolesInput) (*dto.GetPetRolesOutput, error) {
 	roles := enums.GetAllEntPetStatuses()
 	items := make([]dto.ReferenceItem, len(roles))
 
@@ -279,10 +279,10 @@ func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *struct{}) (*d
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetPetRolesOutput{Body: dto.PetRolesList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *dto.GetBreedsInput) (*dto.GetBreedsOutput, error) {
 	slog.DebugContext(ctx, "getting all breeds")
 	breeds, err := h.getAllBreedsHandler.Handle(ctx)
 	if err != nil {
@@ -297,10 +297,10 @@ func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *struct{}) (*dto
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetBreedsOutput{Body: dto.BreedsList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetLocations(ctx context.Context, input *dto.GetLocationsInput) (*dto.GetLocationsOutput, error) {
 	slog.DebugContext(ctx, "getting all locations")
 	locations, err := h.getAllLocationsHandler.Handle(ctx)
 	if err != nil {
@@ -315,10 +315,10 @@ func (h *ReferenceHandler) GetLocations(ctx context.Context, input *struct{}) (*
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetLocationsOutput{Body: dto.LocationsList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTypeQuery) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.GetBreedsByTypeInput) (*dto.GetBreedsByTypeOutput, error) {
 	slog.DebugContext(ctx, "getting breeds by type", "pet_type", input.PetType)
 	petTypeStr := input.PetType
 	if petTypeStr == "" {
@@ -349,10 +349,10 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.PetTy
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetBreedsByTypeOutput{Body: dto.BreedsList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *dto.GetBloodComponentsInput) (*dto.GetBloodComponentsOutput, error) {
 	slog.DebugContext(ctx, "getting blood components")
 	bloodComponents, err := h.getAllBloodComponentsHandler.Handle(ctx)
 	if err != nil {
@@ -367,10 +367,10 @@ func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *struct
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetBloodComponentsOutput{Body: dto.BloodComponentsList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTypePath) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBloodGroupsInput) (*dto.GetBloodGroupsOutput, error) {
 	slog.DebugContext(ctx, "getting blood groups", "pet_type", input.PetType)
 	petType := input.PetType
 	if petType == "" {
@@ -390,10 +390,10 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.PetTyp
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetBloodGroupsOutput{Body: dto.BloodGroupsList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *dto.GetHealthStatusesInput) (*dto.GetHealthStatusesOutput, error) {
 	statuses := enums.GetAllEntHealthStatuses()
 	items := make([]dto.ReferenceItem, len(statuses))
 
@@ -406,10 +406,10 @@ func (h *ReferenceHandler) GetHealthStatuses(ctx context.Context, input *struct{
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetHealthStatusesOutput{Body: dto.HealthStatusesList{Data: items}}, nil
 }
 
-func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *struct{}) (*dto.ReferenceResponse, error) {
+func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *dto.GetReproductiveStatusesInput) (*dto.GetReproductiveStatusesOutput, error) {
 	statuses := enums.GetAllEntReproductiveStatuses()
 	items := make([]dto.ReferenceItem, len(statuses))
 
@@ -422,5 +422,5 @@ func (h *ReferenceHandler) GetReproductiveStatuses(ctx context.Context, input *s
 		}
 	}
 
-	return &dto.ReferenceResponse{Body: dto.ReferenceData{Data: items}}, nil
+	return &dto.GetReproductiveStatusesOutput{Body: dto.ReproductiveStatusesList{Data: items}}, nil
 }

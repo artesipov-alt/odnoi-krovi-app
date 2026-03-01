@@ -52,10 +52,7 @@ func (h *FileHandler) Register(api huma.API) {
 	}, h.ConfirmUpload)
 }
 
-func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
-	dto.IDPathStr
-	dto.PhotoPreloadQuery
-}) (*dto.UploadURLResponse, error) {
+func (h *FileHandler) GetPresignURL(ctx context.Context, input *dto.GetUploadURLsInput) (*dto.GetUploadURLsOutput, error) {
 	slog.DebugContext(ctx, "getting presign URL", "entity_id", input.ID)
 	var preloads []string
 	if input.ForPetAvatar {
@@ -64,7 +61,7 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 	if input.ForUserAvatar {
 		preloads = append(preloads, "user_avatar")
 	}
-	if input.ForPetBlood {
+	if input.ForBloodReq {
 		preloads = append(preloads, "blood_req")
 	}
 
@@ -96,10 +93,8 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *struct {
 		}
 	}
 
-	return &dto.UploadURLResponse{
-		Body: struct {
-			Items []dto.UploadItem `json:"items" doc:"Список ссылок для загрузки"`
-		}{
+	return &dto.GetUploadURLsOutput{
+		Body: dto.UploadURLsResult{
 			Items: items,
 		},
 	}, nil
@@ -119,9 +114,7 @@ func getEntityType(id string) string {
 	}
 }
 
-func (h *FileHandler) ConfirmUpload(ctx context.Context, input *struct {
-	Body dto.ConfirmUploadRequest
-}) (*dto.MessageResponse, error) {
+func (h *FileHandler) ConfirmUpload(ctx context.Context, input *dto.ConfirmUploadInput) (*dto.ConfirmUploadOutput, error) {
 	slog.DebugContext(ctx, "confirming upload", "entity_id", input.Body.EntityID)
 	entityType := getEntityType(input.Body.EntityID)
 	if entityType == "" {
@@ -143,8 +136,8 @@ func (h *FileHandler) ConfirmUpload(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
+	return &dto.ConfirmUploadOutput{
+		Body: dto.ConfirmUploadResult{
 			Message: "Фото подтверждены и добавлены",
 		},
 	}, nil

@@ -1,49 +1,64 @@
 package dto
 
-type PhotoPreloadQuery struct {
-	PhotosCount   int64 `query:"photos_count" doc:"Количество фотографий прикрепленных пользователем" example:"1"`
-	ForPetAvatar  bool  `query:"for_pet_avatar" doc:"Получение ссылок для аватарки питомца"`
-	ForUserAvatar bool  `query:"for_user_avatar" doc:"Получение ссылок для аватарки пользователя"`
-	ForPetBlood   bool  `query:"for_blood_req" doc:"Получение ссылок для заявки на поиск крови для питомца"`
+// ============================================
+// Query Parameters
+// ============================================
+
+// UploadQuery представляет параметры для получения URL загрузки
+type UploadQuery struct {
+	PhotosCount   int64 `query:"photos_count" doc:"Количество фотографий для загрузки" minimum:"1" maximum:"10" example:"1"`
+	ForPetAvatar  bool  `query:"for_pet_avatar" doc:"URL для аватарки питомца"`
+	ForUserAvatar bool  `query:"for_user_avatar" doc:"URL для аватарки пользователя"`
+	ForBloodReq   bool  `query:"for_blood_req" doc:"URL для заявки на поиск крови"`
 }
 
-type PathParam struct {
-	Path string `path:"path" doc:"Путь к фото" example:"pets/PET-aBcDeF1234/avatar.jpg"`
+// ============================================
+// Get Upload URLs
+// ============================================
+
+// GetUploadURLsInput представляет запрос на получение URL для загрузки файлов
+type GetUploadURLsInput struct {
+	ID string `path:"id" doc:"ID сущности" minLength:"1" example:"PET-ABCDEABCDE"`
+	UploadQuery
 }
 
+// GetUploadURLsOutput представляет ответ с URL для загрузки файлов
+type GetUploadURLsOutput struct {
+	Body UploadURLsResult
+}
+
+// UploadURLsResult представляет результат с URL для загрузки
+type UploadURLsResult struct {
+	Items []UploadItem `json:"items" doc:"Список подписанных URL для загрузки файлов"`
+}
+
+// UploadItem представляет элемент загрузки с подписанным URL
 type UploadItem struct {
-	URL  string `json:"url" doc:"Подписанная ссылка для загрузки"`
+	URL  string `json:"url" doc:"Подписанная ссылка для загрузки файла"`
 	Path string `json:"path" doc:"Путь к файлу в хранилище"`
 }
 
-type UploadURLResponse struct {
-	Body struct {
-		Items []UploadItem `json:"items" doc:"Список ссылок для загрузки"`
-	}
+// ============================================
+// Confirm Upload
+// ============================================
+
+// ConfirmUploadInput представляет запрос на подтверждение загрузки файлов
+type ConfirmUploadInput struct {
+	Body ConfirmUploadBody
 }
 
-type ConfirmUploadRequest struct {
-	EntityID string   `json:"entityId" doc:"ID сущности (питомец/пользователь/заявка)" example:"PET-aBcDeF1234"`
-	Paths    []string `json:"paths" doc:"Массив путей к загруженным фото" example:"pets/PET-aBcDeF1234/photos/1.jpg"`
+// ConfirmUploadBody представляет тело запроса на подтверждение загрузки
+type ConfirmUploadBody struct {
+	EntityID string   `json:"entityId" doc:"ID сущности (питомец/пользователь/заявка)" minLength:"1" example:"PET-ABCDEABCDE"`
+	Paths    []string `json:"paths" doc:"Массив путей к загруженным файлам" validate:"required,dive,min=1,max=255"`
 }
 
-type ConfirmUploadResponse struct {
-	Body struct {
-		Message string `json:"message" doc:"Сообщение об успехе"`
-	}
+// ConfirmUploadOutput представляет ответ на подтверждение загрузки
+type ConfirmUploadOutput struct {
+	Body ConfirmUploadResult
 }
 
-// IDPath представляет параметры пути с ID объекта
-// type IDPathStr struct {
-// 	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
-// }
-
-// MessageBody представляет тело простого текстового ответа
-// type MessageBody struct {
-// 	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
-// }
-
-// // MessageResponse представляет простой текстовый ответ
-// type MessageResponse struct {
-// 	Body MessageBody
-// }
+// ConfirmUploadResult представляет результат подтверждения загрузки
+type ConfirmUploadResult struct {
+	Message string `json:"message" doc:"Сообщение о результате операции"`
+}

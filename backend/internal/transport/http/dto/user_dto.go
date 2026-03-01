@@ -4,84 +4,222 @@ import (
 	"time"
 )
 
-// TelegramIDQuery представляет параметры запроса с Telegram ID
-type TelegramIDQuery struct {
-	TelegramID int64 `query:"telegram_id" doc:"Telegram ID пользователя" minimum:"1" example:"123456789"`
+// ============================================
+// Path Parameters
+// ============================================
+
+// UserIDPath представляет параметр пути с ID пользователя
+type UserIDPath struct {
+	ID string `path:"id" doc:"ID пользователя" minLength:"1" example:"USR-ABCDEABCDE"`
 }
 
-// UserRegistrationSimple представляет запрос на простую регистрацию через Telegram
-type UserRegistrationSimple struct {
+// TelegramIDPath представляет параметр пути с Telegram ID
+type TelegramIDPath struct {
+	ID int64 `path:"id" doc:"Telegram ID пользователя" minimum:"1" example:"123456789"`
+}
+
+// ============================================
+// Query Parameters
+// ============================================
+
+// UserPreloadQuery представляет параметры для предзагрузки связанных данных
+type UserPreloadQuery struct {
+	WithPets bool `query:"with_pets" doc:"Включить данные о питомцах"`
+}
+
+// ============================================
+// Create User
+// ============================================
+
+// CreateUserInput представляет запрос на создание пользователя
+type CreateUserInput struct {
+	Body CreateUserBody
+}
+
+// CreateUserBody представляет тело запроса на создание пользователя
+type CreateUserBody struct {
 	TelegramID int64  `json:"telegramId" doc:"Telegram ID пользователя" format:"int64" example:"123456789" minimum:"1"`
-	FullName   string `json:"fullName,omitempty" doc:"Полное имя пользователя" maxLength:"255" example:"Иван Иванов"`
+	FullName   string `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
 }
 
-// UserUpdate представляет структуру для обновления данных пользователя
-type UserUpdate struct {
+// CreateUserOutput представляет ответ на создание пользователя
+type CreateUserOutput struct {
+	Body CreateUserResult
+}
+
+// CreateUserResult представляет результат создания пользователя
+type CreateUserResult struct {
+	ID        string     `json:"id" doc:"ID созданного пользователя" example:"USR-ABCDEABCDE"`
+	CreatedAt *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+}
+
+// ============================================
+// Update User
+// ============================================
+
+// UpdateUserInput представляет запрос на обновление пользователя
+type UpdateUserInput struct {
+	UserIDPath
+	Body UpdateUserBody
+}
+
+// UpdateUserBody представляет тело запроса на обновление пользователя
+type UpdateUserBody struct {
 	FullName   *string   `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
-	Phone      *string   `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$"`
-	Email      *string   `json:"email,omitempty" doc:"Email адрес" format:"email"`
+	Phone      *string   `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
+	Email      *string   `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
 	PhotoURLs  []string  `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
 	AllowGeo   *bool     `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
 	OnBoarding *[]string `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
-	LocationID *string   `json:"locationId,omitempty" doc:"ID локации" minimum:"1"`
+	LocationID *string   `json:"locationId,omitempty" doc:"ID локации"`
 }
 
-// User представляет данные пользователя для ответа API
-type User struct {
+// UpdateUserOutput представляет ответ на обновление пользователя
+type UpdateUserOutput struct {
+	Body UpdateUserResult
+}
+
+// UpdateUserResult представляет результат обновления пользователя
+type UpdateUserResult struct {
+	ID        string     `json:"id" doc:"ID обновленного пользователя" example:"USR-ABCDEABCDE"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
+}
+
+// ============================================
+// Get User By ID
+// ============================================
+
+// GetUserByIDInput представляет запрос на получение пользователя по ID
+type GetUserByIDInput struct {
+	UserIDPath
+	UserPreloadQuery
+}
+
+// GetUserByIDOutput представляет ответ с данными пользователя
+type GetUserByIDOutput struct {
+	Body UserDetail
+}
+
+// ============================================
+// Get User By Telegram
+// ============================================
+
+// GetUserByTelegramInput представляет запрос на получение пользователя по Telegram ID
+type GetUserByTelegramInput struct {
+	TelegramIDPath
+	UserPreloadQuery
+}
+
+// GetUserByTelegramOutput представляет ответ с данными пользователя
+type GetUserByTelegramOutput struct {
+	Body UserDetail
+}
+
+// ============================================
+// Delete User
+// ============================================
+
+// DeleteUserInput представляет запрос на удаление пользователя
+type DeleteUserInput struct {
+	UserIDPath
+}
+
+// DeleteUserOutput представляет ответ на удаление пользователя
+type DeleteUserOutput struct {
+	Body DeleteUserResult
+}
+
+// DeleteUserResult представляет результат удаления пользователя
+type DeleteUserResult struct {
+	Message string `json:"message" doc:"Сообщение о результате операции"`
+}
+
+// ============================================
+// Reset User
+// ============================================
+
+// ResetUserInput представляет запрос на сброс пользователя
+type ResetUserInput struct {
+	UserIDPath
+}
+
+// ResetUserOutput представляет ответ на сброс пользователя
+type ResetUserOutput struct {
+	Body ResetUserResult
+}
+
+// ResetUserResult представляет результат сброса пользователя
+type ResetUserResult struct {
+	Message string `json:"message" doc:"Сообщение о результате операции"`
+}
+
+// ============================================
+// Restore User
+// ============================================
+
+// RestoreUserInput представляет запрос на восстановление пользователя
+type RestoreUserInput struct {
+	UserIDPath
+}
+
+// RestoreUserOutput представляет ответ на восстановление пользователя
+type RestoreUserOutput struct {
+	Body RestoreUserResult
+}
+
+// RestoreUserResult представляет результат восстановления пользователя
+type RestoreUserResult struct {
+	Message string `json:"message" doc:"Сообщение о результате операции"`
+}
+
+// ============================================
+// Get Deleted Users
+// ============================================
+
+// GetDeletedUsersInput представляет запрос на получение удаленных пользователей
+type GetDeletedUsersInput struct{}
+
+// GetDeletedUsersOutput представляет ответ со списком удаленных пользователей
+type GetDeletedUsersOutput struct {
+	Body DeletedUsersList
+}
+
+// DeletedUsersList представляет список удаленных пользователей
+type DeletedUsersList struct {
+	Message string       `json:"message" doc:"Информационное сообщение"`
+	Users   []UserDetail `json:"users" doc:"Список удаленных пользователей"`
+}
+
+// ============================================
+// Common Types
+// ============================================
+
+// UserDetail представляет полные данные пользователя
+type UserDetail struct {
 	ID               string      `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
 	TelegramID       int64       `json:"telegramId" doc:"Telegram ID" example:"123456789"`
 	FullName         string      `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
 	Phone            string      `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
 	Email            string      `json:"email,omitempty" doc:"Email" example:"user@example.com"`
-	PhotoURLs        []string    `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" example:"https://example.com/photo.jpg"`
+	PhotoURLs        []string    `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
 	OrganizationName string      `json:"organizationName,omitempty" doc:"Название организации"`
-	ConsentPd        bool        `json:"consentPd" doc:"Согласие на ПД"`
+	ConsentPd        bool        `json:"consentPd" doc:"Согласие на обработку персональных данных"`
 	OnBoarding       []string    `json:"onBoarding" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
 	AllowGeo         bool        `json:"allowGeo" doc:"Разрешение использовать геоданные"`
 	LocationID       string      `json:"locationId,omitempty" doc:"ID локации"`
-	Role             string      `json:"role" doc:"Роль"`
+	Role             string      `json:"role" doc:"Роль пользователя"`
 	Pets             []PetDetail `json:"pets,omitempty" doc:"Список питомцев"`
 	CreatedAt        *time.Time  `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time  `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt        *time.Time  `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
-// UserResponse представляет обертку для ответа с одним пользователем для Huma
-type UserResponse struct {
-	Body User
+// SimpleMessage представляет простое текстовое сообщение
+type SimpleMessage struct {
+	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
 }
 
-// IDPath представляет параметры пути с ID объекта
-type UserPathID struct {
-	ID string `path:"id" doc:"ID сущности (заявки/питомца/пользователя)" minLength:"1" example:"ENT-ABCDEABCDE"`
+// SimpleMessageOutput представляет обертку для простого текстового ответа
+type SimpleMessageOutput struct {
+	Body SimpleMessage
 }
-
-// IDPath представляет параметры пути с ID объекта
-type IDPathInt struct {
-	ID int64 `path:"id" doc:"ID Телеграм" minLength:"1" example:"12345678"`
-}
-
-// UsersDeletedBody представляет тело ответа со списком удаленных пользователей
-type UsersDeletedBody struct {
-	Message string `json:"message" doc:"Информационное сообщение"`
-	Users   []User `json:"users" doc:"Список удаленных пользователей"`
-}
-
-// UsersDeletedResponse представляет ответ со списком удаленных пользователей
-type UsersDeletedResponse struct {
-	Body UsersDeletedBody
-}
-
-type UserPreloadQuery struct {
-	WithPets bool `query:"with_pets" doc:"Включить данные о питомцах"`
-}
-
-// MessageBody представляет тело простого текстового ответа
-// type MessageBody struct {
-// 	Message string `json:"message" doc:"Сообщение об успехе или ошибке"`
-// }
-
-// // MessageResponse представляет простой текстовый ответ
-// type MessageResponse struct {
-// 	Body MessageBody
-// }

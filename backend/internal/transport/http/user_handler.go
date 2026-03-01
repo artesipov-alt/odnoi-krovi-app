@@ -137,10 +137,7 @@ func (h *UserHandler) Register(api huma.API) {
 
 // Handlers
 
-func (h *UserHandler) GetUser(ctx context.Context, input *struct {
-	dto.IDPathStr
-	dto.UserPreloadQuery
-}) (*dto.UserResponse, error) {
+func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) (*dto.GetUserByIDOutput, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
 	usr, pets, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets)
@@ -148,12 +145,10 @@ func (h *UserHandler) GetUser(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.userMapper.ToResponse(usr, pets)}, nil
+	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr, pets)}, nil
 }
 
-func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
-	Body dto.UserRegistrationSimple
-}) (*dto.UserResponse, error) {
+func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateUserInput) (*dto.CreateUserOutput, error) {
 	slog.DebugContext(ctx, "registering user simple", "telegram_id", input.Body.TelegramID)
 
 	u, err := h.createSimpleHandler.Handle(ctx, input.Body.TelegramID, input.Body.FullName, "user")
@@ -165,13 +160,13 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *struct {
 		return nil, apperrors.Internal(nil, "ошибка при создании пользователя")
 	}
 
-	return &dto.UserResponse{Body: h.userMapper.ToResponse(u, nil)}, nil
+	return &dto.CreateUserOutput{Body: dto.CreateUserResult{
+		ID:        u.ID,
+		CreatedAt: u.CreatedAt,
+	}}, nil
 }
 
-func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.UserUpdate
-}) (*dto.MessageResponse, error) {
+func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput) (*dto.UpdateUserOutput, error) {
 	slog.DebugContext(ctx, "updating user", "user_id", input.ID)
 
 	user := &usermodel.User{}
@@ -202,17 +197,19 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
-			Message: "Пользователь обновлен",
-		},
-	}, nil
+	// Получаем обновленного пользователя для возврата UpdatedAt
+	usr, _, err := h.getByIDHandler.Handle(ctx, input.ID, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.UpdateUserOutput{Body: dto.UpdateUserResult{
+		ID:        input.ID,
+		UpdatedAt: usr.UpdatedAt,
+	}}, nil
 }
 
-func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
-	dto.IDPathInt
-	dto.UserPreloadQuery
-}) (*dto.UserResponse, error) {
+func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTelegramInput) (*dto.GetUserByTelegramOutput, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
 	usr, pets, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets)
@@ -220,59 +217,51 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *struct {
 		return nil, err
 	}
 
-	return &dto.UserResponse{Body: h.userMapper.ToResponse(usr, pets)}, nil
+	return &dto.GetUserByTelegramOutput{Body: h.userMapper.ToResponse(usr, pets)}, nil
 }
 
-func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.DeleteUserInput) (*dto.DeleteUserOutput, error) {
 	slog.DebugContext(ctx, "deleting user", "user_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
-			Message: "Пользователь удален",
-		},
-	}, nil
+	return &dto.DeleteUserOutput{Body: dto.DeleteUserResult{
+		Message: "Пользователь удален",
+	}}, nil
 }
 
-func (h *UserHandler) ResetUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *UserHandler) ResetUser(ctx context.Context, input *dto.ResetUserInput) (*dto.ResetUserOutput, error) {
 	slog.DebugContext(ctx, "resetting user", "user_id", input.ID)
 	if err := h.resetHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
-			Message: "Пользователь сброшен к заводским настройкам",
-		},
-	}, nil
+	return &dto.ResetUserOutput{Body: dto.ResetUserResult{
+		Message: "Пользователь сброшен к заводским настройкам",
+	}}, nil
 }
 
-func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.RestoreUserInput) (*dto.RestoreUserOutput, error) {
 	slog.DebugContext(ctx, "restoring user", "user_id", input.ID)
 	if err := h.restoreHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.MessageResponse{
-		Body: dto.MessageBody{
-			Message: "Пользователь восстановлен",
-		},
-	}, nil
+	return &dto.RestoreUserOutput{Body: dto.RestoreUserResult{
+		Message: "Пользователь восстановлен",
+	}}, nil
 }
 
-func (h *UserHandler) DeletedUsers(ctx context.Context, input *struct{}) (*dto.UsersDeletedResponse, error) {
+func (h *UserHandler) DeletedUsers(ctx context.Context, input *dto.GetDeletedUsersInput) (*dto.GetDeletedUsersOutput, error) {
 	slog.DebugContext(ctx, "getting deleted users")
 	users, err := h.getDeletedHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.UsersDeletedResponse{
-		Body: dto.UsersDeletedBody{
-			Message: "Удаленные пользователи получены",
-			Users:   h.userMapper.ToResponseSlice(users),
-		},
-	}, nil
+	return &dto.GetDeletedUsersOutput{Body: dto.DeletedUsersList{
+		Message: "Удаленные пользователи получены",
+		Users:   h.userMapper.ToResponseSlice(users),
+	}}, nil
 }

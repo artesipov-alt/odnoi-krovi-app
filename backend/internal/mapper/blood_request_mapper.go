@@ -17,9 +17,9 @@ func NewBloodRequestMapper() *BloodRequestMapper {
 }
 
 // ToResponse converts a domain BloodRequest model to a DTO.
-func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors *int) dto.BloodSearchRequest {
+func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors *int) dto.BloodRequestDetail {
 	if req == nil {
-		return dto.BloodSearchRequest{}
+		return dto.BloodRequestDetail{}
 	}
 
 	var createdAt, updatedAt, deletedAt *time.Time
@@ -37,7 +37,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		suitableDonorsCount = *suitableDonors
 	}
 
-	return dto.BloodSearchRequest{
+	return dto.BloodRequestDetail{
 		ID:                     req.ID,
 		PetID:                  req.PetID,
 		BloodVolumeNeeded:      req.BloodVolumeNeeded,
@@ -45,11 +45,11 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		Regions:                req.Regions,
 		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
 		Description:            req.Description,
-		PhotoUrls:              req.PhotoURLs,
+		PhotoURLs:              req.PhotoURLs,
 		BloodGroupNames:        req.BloodGroupNames,
-		BloodComponentIds:      req.BloodComponentIDs,
+		BloodComponentIDs:      req.BloodComponentIDs,
 		OnBoarding:             req.OnBoarding,
-		Status:                 dto.BloodSearchRequestStatus(req.Status),
+		Status:                 dto.BloodRequestStatus(req.Status),
 		SuitableDonors:         suitableDonorsCount,
 		CreatedAt:              createdAt,
 		UpdatedAt:              updatedAt,
@@ -58,29 +58,29 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 }
 
 // ToResponseSlice converts a slice of domain BloodRequest models to DTOs.
-func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequest) []dto.BloodSearchRequest {
+func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequest) []dto.BloodRequestDetail {
 	if reqs == nil {
 		return nil
 	}
-	dtos := make([]dto.BloodSearchRequest, len(reqs))
+	dtos := make([]dto.BloodRequestDetail, len(reqs))
 	for i, req := range reqs {
 		dtos[i] = m.ToResponse(req, nil)
 	}
 	return dtos
 }
 
-// FromCreate converts a CreateBloodSearchRequest DTO to a domain BloodRequest model.
-func (m *BloodRequestMapper) FromCreate(dto dto.CreateBloodSearchRequest) *model.BloodRequest {
+// FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model.
+func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.BloodRequest {
 	return &model.BloodRequest{
-		PetID:                  dto.PetID,
-		BloodVolumeNeeded:      dto.BloodVolumeNeeded,
+		PetID:                  body.PetID,
+		BloodVolumeNeeded:      body.BloodVolumeNeeded,
 		BloodVolumeReserved:    0,
-		Regions:                dto.Regions,
-		SmallPetsNotifyAllowed: dto.SmallPetsNotifyAllowed,
-		Description:            dto.Description,
+		Regions:                body.Regions,
+		SmallPetsNotifyAllowed: body.SmallPetsNotifyAllowed,
+		Description:            body.Description,
 		PhotoURLs:              nil,
-		BloodGroupNames:        dto.BloodGroupNames,
-		BloodComponentIDs:      dto.BloodComponentIds,
+		BloodGroupNames:        body.BloodGroupNames,
+		BloodComponentIDs:      body.BloodComponentIDs,
 		OnBoarding:             nil,
 		Status:                 model.BloodRequestStatusActive,
 	}

@@ -155,9 +155,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 
 // Handlers
 
-func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
-	Body dto.CreateBloodSearchRequest
-}) (*dto.BloodRequestCreateResponse, error) {
+func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *dto.CreateBloodRequestInput) (*dto.CreateBloodRequestOutput, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
 
 	bloodReq := h.bloodRequestMapper.FromCreate(input.Body)
@@ -167,50 +165,43 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		return nil, err
 	}
 
-	return &dto.BloodRequestCreateResponse{Body: dto.BloodSearchPetResponse{
-		ID:     result.ID,
-		PetID:  result.PetID,
-		Status: dto.BloodSearchRequestStatus(result.Status),
+	return &dto.CreateBloodRequestOutput{Body: dto.CreateBloodRequestResult{
+		ID:        result.ID,
+		PetID:     result.PetID,
+		Status:    dto.BloodRequestStatus(result.Status),
+		CreatedAt: &result.CreatedAt,
 	}}, nil
 }
 
-func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.DonorApplicationCreate
-}) (*dto.DonorApplicationCreateResponse, error) {
-	slog.DebugContext(ctx, "applying for blood request", "request_id", input.IDPathStr.ID, "donor_id", input.Body.DonorID)
+func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *dto.ApplyForBloodRequestInput) (*dto.ApplyForBloodRequestOutput, error) {
+	slog.DebugContext(ctx, "applying for blood request", "request_id", input.ID, "donor_id", input.Body.DonorID)
 
-	resp, err := h.applyHandler.Handle(ctx, input.IDPathStr.ID, input.Body.DonorID, input.Body.Conditions)
+	resp, err := h.applyHandler.Handle(ctx, input.ID, input.Body.DonorID, input.Body.Conditions)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.DonorApplicationCreateResponse{
-		Body: dto.DonorApplicationResponse{
-			ID:      resp.ID,
-			ReqID:   resp.RequestID,
-			DonorID: resp.DonorID,
-			Status:  dto.DonorResponseStatus(resp.Status),
+	return &dto.ApplyForBloodRequestOutput{
+		Body: dto.DonorResponseResult{
+			ID:        resp.ID,
+			RequestID: resp.RequestID,
+			DonorID:   resp.DonorID,
+			Status:    dto.DonorResponseStatus(resp.Status),
+			CreatedAt: &resp.CreatedAt,
 		},
 	}, nil
 }
 
-func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *struct {
-	dto.IDPathStr
-	Body dto.UpdateBloodRequestDTO
-}) (*dto.BloodRequestUpdateResponse, error) {
-	slog.DebugContext(ctx, "updating blood request", "request_id", input.IDPathStr.ID)
+func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto.UpdateBloodRequestInput) (*dto.UpdateBloodRequestOutput, error) {
+	slog.DebugContext(ctx, "updating blood request", "request_id", input.ID)
 
 	// Получить текущий объект
-	existing, err := h.getByIDHandler.Handle(ctx, input.IDPathStr.ID)
+	existing, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Частично обновить поля
-	if input.Body.PetID != nil {
-		existing.PetID = *input.Body.PetID
-	}
 	if input.Body.BloodVolumeNeeded != nil {
 		existing.BloodVolumeNeeded = *input.Body.BloodVolumeNeeded
 	}
@@ -226,14 +217,14 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 	if input.Body.Description != nil {
 		existing.Description = *input.Body.Description
 	}
-	if len(input.Body.PhotoUrls) > 0 {
-		existing.PhotoURLs = input.Body.PhotoUrls
+	if len(input.Body.PhotoURLs) > 0 {
+		existing.PhotoURLs = input.Body.PhotoURLs
 	}
 	if len(input.Body.BloodGroupNames) > 0 {
 		existing.BloodGroupNames = input.Body.BloodGroupNames
 	}
-	if len(input.Body.BloodComponentIds) > 0 {
-		existing.BloodComponentIDs = input.Body.BloodComponentIds
+	if len(input.Body.BloodComponentIDs) > 0 {
+		existing.BloodComponentIDs = input.Body.BloodComponentIDs
 	}
 	if len(input.Body.OnBoarding) > 0 {
 		existing.OnBoarding = input.Body.OnBoarding
@@ -242,12 +233,12 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 		existing.Status = model.BloodRequestStatus(*input.Body.Status)
 	}
 
-	result, err := h.updateHandler.Handle(ctx, input.IDPathStr.ID, existing)
+	result, err := h.updateHandler.Handle(ctx, input.ID, existing)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.BloodRequestUpdateResponse{Body: dto.BloodRequestUpdateResponseBody{
+	return &dto.UpdateBloodRequestOutput{Body: dto.UpdateBloodRequestResult{
 		ID:        result.ID,
 		UpdatedAt: &result.UpdatedAt,
 	}}, nil
@@ -278,24 +269,24 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *str
 // 	return &dto.BloodRequestsResponse{Body: dtos}, nil
 // }
 
-func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
+func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.GetBloodRequestByIDInput) (*dto.GetBloodRequestByIDOutput, error) {
 	bloodReq, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 	//TODO Метод GetRequestByID Также нужно исправить.
 	zero := 0
-	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
+	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
+func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.GetBloodRequestByPetIDInput) (*dto.GetBloodRequestByPetIDOutput, error) {
 	slog.DebugContext(ctx, "getting blood request by PET ID", "pet_id", input.ID)
 	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
+	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }
 
 // func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {
@@ -307,13 +298,13 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 // 	return &dto.PetsResponse{Body: pets}, nil
 // }
 
-func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.IDPathStr) (*dto.MessageResponse, error) {
+func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.DeleteBloodRequestInput) (*dto.DeleteBloodRequestOutput, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	resp := &dto.MessageResponse{}
-	resp.Body.Message = "Заявка удалена"
-	return resp, nil
+	return &dto.DeleteBloodRequestOutput{Body: dto.DeleteBloodRequestResult{
+		Message: "Заявка удалена",
+	}}, nil
 }
