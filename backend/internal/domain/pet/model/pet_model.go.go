@@ -702,3 +702,107 @@ func (p *Pet) CalculateStatus(now time.Time, hasActiveRequest bool, hasResponses
 	// Нет стоп-факторов - может быть донором
 	return PetStatusDonor
 }
+
+// RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
+// Этот метод инкапсулирует логику обновления факторов внутри агрегата
+func (p *Pet) RecalculateFactors(now time.Time) {
+	// Обновляем статические факторы
+	staticFactors := p.GetStaticStopFactors()
+	p.StopFactors = make([]string, len(staticFactors))
+	for i, f := range staticFactors {
+		p.StopFactors[i] = string(f)
+	}
+
+	// Обновляем факторы-предупреждения
+	warnFactors := p.GetWarnFactors(now)
+	p.WarnFactors = make([]string, len(warnFactors))
+	for i, f := range warnFactors {
+		p.WarnFactors[i] = string(f)
+	}
+}
+
+// UpdateStopFactors обновляет только стоп-факторы на основе текущего состояния агрегата
+func (p *Pet) UpdateStopFactors() {
+	stopFactors := p.GetStaticStopFactors()
+	p.StopFactors = make([]string, len(stopFactors))
+	for i, f := range stopFactors {
+		p.StopFactors[i] = string(f)
+	}
+}
+
+// UpdateWarnFactors обновляет только факторы-предупреждения на основе текущего состояния
+func (p *Pet) UpdateWarnFactors(now time.Time) {
+	warnFactors := p.GetWarnFactors(now)
+	p.WarnFactors = make([]string, len(warnFactors))
+	for i, f := range warnFactors {
+		p.WarnFactors[i] = string(f)
+	}
+}
+
+// UpdateFrom применяет изменения из другого объекта Pet.
+// Используется для контролируемой мутации агрегата вместо прямого доступа к полям.
+// Поля ID, OwnerID, CreatedAt не изменяются (контролируемые поля).
+func (p *Pet) UpdateFrom(other *Pet) error {
+	if other == nil {
+		return errors.New("cannot update from nil pet")
+	}
+
+	// Обновляем базовые поля, если они не пустые
+	if other.Name != "" {
+		p.Name = other.Name
+	}
+	if other.Type != "" {
+		p.Type = other.Type
+	}
+	if other.WeightKg > 0 {
+		p.WeightKg = other.WeightKg
+	}
+	if other.Gender != "" {
+		p.Gender = other.Gender
+	}
+	if other.BirthDate != nil {
+		p.BirthDate = other.BirthDate
+	}
+	if other.ChipNumber != "" {
+		p.ChipNumber = other.ChipNumber
+	}
+	if other.LivingCondition != "" {
+		p.LivingCondition = other.LivingCondition
+	}
+	if other.ReproductiveStatus != "" {
+		p.ReproductiveStatus = other.ReproductiveStatus
+	}
+	if other.BreedRefID != nil {
+		p.BreedRefID = other.BreedRefID
+	}
+	if other.BloodGroupName != nil {
+		p.BloodGroupName = other.BloodGroupName
+	}
+
+	// Обновляем срезы (полностью заменяем)
+	if other.PhotoURLs != nil {
+		p.PhotoURLs = other.PhotoURLs
+	}
+	if other.Bonuses != nil {
+		p.Bonuses = other.Bonuses
+	}
+	if other.StopFactors != nil {
+		p.StopFactors = other.StopFactors
+	}
+	if other.WarnFactors != nil {
+		p.WarnFactors = other.WarnFactors
+	}
+
+	// Обновляем вложенные структуры
+	if other.Health != nil {
+		p.Health = other.Health
+	}
+	if other.Treatments != nil {
+		p.Treatments = other.Treatments
+	}
+	if other.Analyses != nil {
+		p.Analyses = other.Analyses
+	}
+
+	return nil
+}

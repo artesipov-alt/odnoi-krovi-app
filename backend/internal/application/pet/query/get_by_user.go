@@ -11,7 +11,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
 
 type GetByUserHandler struct {
@@ -38,10 +37,8 @@ func NewGetByUserHandler(
 func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
 	_, _, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{})
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrUserNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get user")
+		// Репозиторий уже возвращает доменные ошибки
+		return nil, err
 	}
 
 	pets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)

@@ -28,19 +28,13 @@ func (h *RevalidateDonorHandler) Handle(ctx context.Context, petID string) (*mod
 		return nil, err
 	}
 
-	stopFactors := p.GetStaticStopFactors()
-	warnFactors := p.GetWarnFactors(time.Now())
+	// Recalculate factors using aggregate method (encapsulates domain logic)
+	p.RecalculateFactors(time.Now())
 
 	// Создаём структуру только с полями для обновления
 	updatePet := &model.Pet{}
-	updatePet.StopFactors = make([]string, len(stopFactors))
-	for i, f := range stopFactors {
-		updatePet.StopFactors[i] = string(f)
-	}
-	updatePet.WarnFactors = make([]string, len(warnFactors))
-	for i, f := range warnFactors {
-		updatePet.WarnFactors[i] = string(f)
-	}
+	updatePet.StopFactors = p.StopFactors
+	updatePet.WarnFactors = p.WarnFactors
 
 	return h.petWriteRepo.Update(ctx, petID, updatePet)
 }

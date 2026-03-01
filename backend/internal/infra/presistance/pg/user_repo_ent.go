@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
@@ -79,7 +80,10 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.Us
 
 	user, err := quser.Only(ctx)
 	if err != nil {
-		return nil, nil, err
+		if ent.IsNotFound(err) {
+			return nil, nil, apperrors.ErrUserNotFound
+		}
+		return nil, nil, apperrors.Internal(err, "failed to get user by ID")
 	}
 
 	var pets []*petmodel.Pet
@@ -102,7 +106,10 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 
 	user, err := quser.Only(ctx)
 	if err != nil {
-		return nil, nil, err
+		if ent.IsNotFound(err) {
+			return nil, nil, apperrors.ErrUserNotFound
+		}
+		return nil, nil, apperrors.Internal(err, "failed to get user by Telegram ID")
 	}
 
 	var pets []*petmodel.Pet

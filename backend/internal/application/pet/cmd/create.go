@@ -35,18 +35,8 @@ func (h *CreateHandler) Handle(ctx context.Context, userID string, petInput *mod
 	// Set the owner ID for the pet
 	petInput.OwnerID = userID
 
-	// Calculate static stop factors (stored in DB) and warn factors
-	stopFactors := petInput.GetStaticStopFactors()
-	petInput.StopFactors = make([]string, len(stopFactors))
-	for i, f := range stopFactors {
-		petInput.StopFactors[i] = string(f)
-	}
-
-	warnFactors := petInput.GetWarnFactors(time.Now())
-	petInput.WarnFactors = make([]string, len(warnFactors))
-	for i, f := range warnFactors {
-		petInput.WarnFactors[i] = string(f)
-	}
+	// Recalculate factors using aggregate method (encapsulates domain logic)
+	petInput.RecalculateFactors(time.Now())
 
 	newPet, err := h.petRepo.Create(ctx, petInput)
 	if err != nil {

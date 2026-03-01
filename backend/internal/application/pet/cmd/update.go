@@ -22,28 +22,26 @@ func NewUpdateHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWri
 }
 
 func (h *UpdateHandler) Handle(ctx context.Context, id string, petInput *model.Pet) (*model.Pet, error) {
-	exists, err := h.petReadRepo.Exists(ctx, id)
+	// Load existing pet with all relations
+	existingPet, err := h.petReadRepo.GetByID(ctx, id, pet.PetPreloadOptions{
+		WithHealth:     true,
+		WithTreatments: true,
+		WithAnalyses:   true,
+		WithBonuses:    true,
+	})
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to check pet existence")
-	}
-	if !exists {
-		return nil, apperrors.ErrPetNotFound
+		return nil, err // Доменная ошибка (например, ErrPetNotFound)
 	}
 
-	// Calculate static stop factors (stored in DB) and warn factors
-	stopFactors := petInput.GetStaticStopFactors()
-	petInput.StopFactors = make([]string, len(stopFactors))
-	for i, f := range stopFactors {
-		petInput.StopFactors[i] = string(f)
+	// Apply updates through aggregate method (controlled mutation)
+	if err := existingPet.UpdateFrom(petInput); err != nil {
+		return nil, apperrors.Internal(err, "failed to apply pet updates")
 	}
 
-	warnFactors := petInput.GetWarnFactors(time.Now())
-	petInput.WarnFactors = make([]string, len(warnFactors))
-	for i, f := range warnFactors {
-		petInput.WarnFactors[i] = string(f)
-	}
+	// Recalculate factors using aggregate method (encapsulates domain logic)
+	existingPet.RecalculateFactors(time.Now())
 
-	updatedPet, err := h.petWriteRepo.Update(ctx, id, petInput)
+	updatedPet, err := h.petWriteRepo.Update(ctx, id, existingPet)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to update pet")
 	}

@@ -8,7 +8,6 @@ import (
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -138,8 +137,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *dto.CreatePetInput) (
 
 // UpdatePet обновляет данные питомца
 func (h *PetHandler) UpdatePet(ctx context.Context, input *dto.UpdatePetInput) (*dto.UpdatePetOutput, error) {
-	petDomain := &model.Pet{}
-	h.petMapper.ApplyUpdate(input.Body, petDomain)
+	petDomain := h.petMapper.ToUpdateModel(input.Body)
 
 	updatedPet, err := h.updateHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {

@@ -251,47 +251,46 @@ func (m *PetMapper) FromCreate(petDto dto.CreatePetBody) (*model.Pet, error) {
 	)
 }
 
-// ApplyUpdate applies UpdatePetBody DTO fields to a domain Pet model.
-func (m *PetMapper) ApplyUpdate(petDto dto.UpdatePetBody, petmodel *model.Pet) {
-	if petmodel == nil {
-		return
-	}
+// ToUpdateModel converts UpdatePetBody DTO to a domain Pet model containing only changes.
+// This is used to apply updates to an existing pet through the aggregate's UpdateFrom method.
+func (m *PetMapper) ToUpdateModel(petDto dto.UpdatePetBody) *model.Pet {
+	petUpdate := &model.Pet{}
 
 	if petDto.Name != nil {
-		petmodel.Name = *petDto.Name
+		petUpdate.Name = *petDto.Name
 	}
 	if petDto.Type != nil {
-		petmodel.Type = model.PetType(*petDto.Type)
+		petUpdate.Type = model.PetType(*petDto.Type)
 	}
 	if petDto.WeightKg != nil {
-		petmodel.WeightKg = *petDto.WeightKg
+		petUpdate.WeightKg = *petDto.WeightKg
 	}
 	if petDto.Gender != nil {
-		petmodel.Gender = model.Gender(*petDto.Gender)
+		petUpdate.Gender = model.Gender(*petDto.Gender)
 	}
 	if petDto.ChipNumber != nil {
-		petmodel.ChipNumber = *petDto.ChipNumber
+		petUpdate.ChipNumber = *petDto.ChipNumber
 	}
 	if petDto.LivingCondition != nil {
-		petmodel.LivingCondition = model.LivingCondition(*petDto.LivingCondition)
+		petUpdate.LivingCondition = model.LivingCondition(*petDto.LivingCondition)
 	}
 	if petDto.BreedID != nil {
-		petmodel.BreedRefID = petDto.BreedID
+		petUpdate.BreedRefID = petDto.BreedID
 	}
 	if petDto.BloodGroup != nil {
-		petmodel.BloodGroupName = petDto.BloodGroup
+		petUpdate.BloodGroupName = petDto.BloodGroup
 	}
 	if petDto.BirthDate != nil {
-		petmodel.BirthDate = petDto.BirthDate
+		petUpdate.BirthDate = petDto.BirthDate
 	}
 	if petDto.ReproductiveStatus != nil {
-		petmodel.ReproductiveStatus = model.ReproductiveStatus(*petDto.ReproductiveStatus)
+		petUpdate.ReproductiveStatus = model.ReproductiveStatus(*petDto.ReproductiveStatus)
 	}
 	if petDto.Bonuses != nil {
-		petmodel.Bonuses = *petDto.Bonuses
+		petUpdate.Bonuses = *petDto.Bonuses
 	}
 	if petDto.AgeMonths != nil || petDto.AgeYears != nil {
-		petmodel.BirthDate = calculateBirthDateFromAge(petDto.AgeYears, petDto.AgeMonths)
+		petUpdate.BirthDate = calculateBirthDateFromAge(petDto.AgeYears, petDto.AgeMonths)
 	}
 
 	// Handle PetHealth
@@ -312,7 +311,7 @@ func (m *PetMapper) ApplyUpdate(petDto dto.UpdatePetBody, petmodel *model.Pet) {
 		if petDto.Health.SurgicalInterventions != nil {
 			healthmodel.SurgicalInterventions = petDto.Health.SurgicalInterventions
 		}
-		petmodel.Health = healthmodel
+		petUpdate.Health = healthmodel
 	}
 
 	// Handle PetTreatment
@@ -330,7 +329,7 @@ func (m *PetMapper) ApplyUpdate(petDto dto.UpdatePetBody, petmodel *model.Pet) {
 		if petDto.Treatments.DewormingDate != nil {
 			treatmentmodel.DewormingDate = petDto.Treatments.DewormingDate
 		}
-		petmodel.Treatments = treatmentmodel
+		petUpdate.Treatments = treatmentmodel
 	}
 
 	// Handle PetAnalysis
@@ -359,8 +358,10 @@ func (m *PetMapper) ApplyUpdate(petDto dto.UpdatePetBody, petmodel *model.Pet) {
 		processGroup(petDto.Analyses.Dirofilaria, "dirofilaria")
 		processGroup(petDto.Analyses.Ehrlichiosis, "ehrlichiosis")
 		processGroup(petDto.Analyses.Anaplasmosis, "anaplasmosis")
-		petmodel.Analyses = analysesDomain
+		petUpdate.Analyses = analysesDomain
 	}
+
+	return petUpdate
 }
 
 // ToSimplifiedResponse converts a domain Pet model to a simplified DTO for nested usage.
