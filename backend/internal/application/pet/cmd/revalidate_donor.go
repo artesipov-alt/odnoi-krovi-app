@@ -28,7 +28,7 @@ func (h *RevalidateDonorHandler) Handle(ctx context.Context, petID string) (*mod
 		return nil, err
 	}
 
-	stopFactors := p.GetStopFactors(time.Now())
+	stopFactors := p.GetStaticStopFactors()
 	warnFactors := p.GetWarnFactors(time.Now())
 
 	// Создаём структуру только с полями для обновления

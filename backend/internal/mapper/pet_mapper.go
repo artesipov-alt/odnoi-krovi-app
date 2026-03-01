@@ -141,76 +141,71 @@ func (m *PetMapper) ToResponseSlice(pets []*model.Pet) []dto.Pet {
 	return petDTOs
 }
 
-// ToDomain converts a PetCreate DTO to a domain Pet model.
-func (m *PetMapper) FromCreate(petDto dto.PetCreate) *model.Pet {
-	petmodel := &model.Pet{
-		Name:            petDto.Name,
-		Type:            model.PetType(petDto.Type),
-		WeightKg:        petDto.WeightKg,
-		Gender:          model.Gender(petDto.Gender),
-		ChipNumber:      petDto.ChipNumber,
-		LivingCondition: model.LivingCondition(petDto.LivingCondition),
-	}
-
-	if petDto.BreedID != "" {
-		petmodel.BreedRefID = &petDto.BreedID
-	}
-	if petDto.BloodGroup != "" {
-		petmodel.BloodGroupName = &petDto.BloodGroup
-	}
-
+// FromCreate converts a PetCreate DTO to a domain Pet model using the constructor.
+func (m *PetMapper) FromCreate(petDto dto.PetCreate) (*model.Pet, error) {
+	var birthDate *time.Time
 	if petDto.BirthDate != nil {
-		petmodel.BirthDate = petDto.BirthDate
+		birthDate = petDto.BirthDate
+	} else if petDto.AgeMonths != 0 || petDto.AgeYears != 0 {
+		birthDate = calculateBirthDateFromAge(&petDto.AgeYears, &petDto.AgeMonths)
 	}
 
-	if petDto.ReproductiveStatus != "" {
-		petmodel.ReproductiveStatus = model.ReproductiveStatus(petDto.ReproductiveStatus)
+	var breedRefID *string
+	if petDto.BreedID != "" {
+		breedRefID = &petDto.BreedID
 	}
-	if petDto.AgeMonths != 0 || petDto.AgeYears != 0 {
-		petmodel.BirthDate = calculateBirthDateFromAge(&petDto.AgeYears, &petDto.AgeMonths)
+
+	var bloodGroupName *string
+	if petDto.BloodGroup != "" {
+		bloodGroupName = &petDto.BloodGroup
+	}
+
+	var reproductiveStatus model.ReproductiveStatus
+	if petDto.ReproductiveStatus != "" {
+		reproductiveStatus = model.ReproductiveStatus(petDto.ReproductiveStatus)
 	}
 
 	// Handle PetHealth
+	var health *model.PetHealth
 	if petDto.Health != nil {
-		healthmodel := &model.PetHealth{}
+		health = &model.PetHealth{}
 		if petDto.Health.HealthStatus != nil {
-			healthmodel.HealthStatus = model.HealthStatus(*petDto.Health.HealthStatus)
+			health.HealthStatus = model.HealthStatus(*petDto.Health.HealthStatus)
 		}
 		if petDto.Health.LastDonation != nil {
-			healthmodel.LastDonation = petDto.Health.LastDonation
+			health.LastDonation = petDto.Health.LastDonation
 		}
 		if petDto.Health.Transfused != nil {
-			healthmodel.Transfused = petDto.Health.Transfused
+			health.Transfused = petDto.Health.Transfused
 		}
 		if petDto.Health.Medications != nil {
-			healthmodel.Medications = petDto.Health.Medications
+			health.Medications = petDto.Health.Medications
 		}
 		if petDto.Health.SurgicalInterventions != nil {
-			healthmodel.SurgicalInterventions = petDto.Health.SurgicalInterventions
+			health.SurgicalInterventions = petDto.Health.SurgicalInterventions
 		}
-		petmodel.Health = healthmodel
 	}
 
 	// Handle PetTreatment
+	var treatments *model.PetTreatment
 	if petDto.Treatments != nil {
-		treatmentmodel := &model.PetTreatment{}
+		treatments = &model.PetTreatment{}
 		if petDto.Treatments.RabiesVaccinationDate != nil {
-			treatmentmodel.RabiesVaccinationDate = petDto.Treatments.RabiesVaccinationDate
+			treatments.RabiesVaccinationDate = petDto.Treatments.RabiesVaccinationDate
 		}
 		if petDto.Treatments.InfectionVaccinationDate != nil {
-			treatmentmodel.InfectionVaccinationDate = petDto.Treatments.InfectionVaccinationDate
+			treatments.InfectionVaccinationDate = petDto.Treatments.InfectionVaccinationDate
 		}
 		if petDto.Treatments.EctoparasiteTreatmentDate != nil {
-			treatmentmodel.EctoparasiteTreatmentDate = petDto.Treatments.EctoparasiteTreatmentDate
+			treatments.EctoparasiteTreatmentDate = petDto.Treatments.EctoparasiteTreatmentDate
 		}
 		if petDto.Treatments.DewormingDate != nil {
-			treatmentmodel.DewormingDate = petDto.Treatments.DewormingDate
+			treatments.DewormingDate = petDto.Treatments.DewormingDate
 		}
-		petmodel.Treatments = treatmentmodel
 	}
 
 	// Handle PetAnalysis
-	analysesDomain := []*model.PetAnalysis{}
+	var analyses []*model.PetAnalysis
 	if petDto.Analyses != nil {
 		processGroup := func(group []*dto.PetAnalysis, name string) {
 			for _, a := range group {
@@ -222,7 +217,7 @@ func (m *PetMapper) FromCreate(petDto dto.PetCreate) *model.Pet {
 					if a.AnalysisType != nil {
 						analysis.AnalysisType = *a.AnalysisType
 					}
-					analysesDomain = append(analysesDomain, analysis)
+					analyses = append(analyses, analysis)
 				}
 			}
 		}
@@ -235,10 +230,25 @@ func (m *PetMapper) FromCreate(petDto dto.PetCreate) *model.Pet {
 		processGroup(petDto.Analyses.Dirofilaria, "dirofilaria")
 		processGroup(petDto.Analyses.Ehrlichiosis, "ehrlichiosis")
 		processGroup(petDto.Analyses.Anaplasmosis, "anaplasmosis")
-		petmodel.Analyses = analysesDomain
 	}
 
-	return petmodel
+	return model.NewPet(
+		petDto.Name,
+		model.PetType(petDto.Type),
+		petDto.WeightKg,
+		model.Gender(petDto.Gender),
+		"", // ownerID will be set by command handler
+		birthDate,
+		petDto.ChipNumber,
+		model.LivingCondition(petDto.LivingCondition),
+		reproductiveStatus,
+		breedRefID,
+		bloodGroupName,
+		health,
+		treatments,
+		analyses,
+		petDto.Bonuses,
+	)
 }
 
 // ApplyUpdate applies PetUpdate DTO fields to a domain Pet model.

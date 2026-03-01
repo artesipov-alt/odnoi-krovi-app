@@ -19,7 +19,6 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.34.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jaevor/go-nanoid v1.4.0
-	github.com/jinzhu/copier v0.4.0
 	github.com/lib/pq v1.10.9
 	github.com/rs/cors v1.11.1
 	github.com/samber/slog-http v1.11.1

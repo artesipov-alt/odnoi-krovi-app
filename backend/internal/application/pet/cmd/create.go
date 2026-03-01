@@ -35,8 +35,8 @@ func (h *CreateHandler) Handle(ctx context.Context, userID string, petInput *mod
 	// Set the owner ID for the pet
 	petInput.OwnerID = userID
 
-	// Calculate stop and warn factors
-	stopFactors := petInput.GetStopFactors(time.Now())
+	// Calculate static stop factors (stored in DB) and warn factors
+	stopFactors := petInput.GetStaticStopFactors()
 	petInput.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {
 		petInput.StopFactors[i] = string(f)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -122,7 +123,10 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *struct {
 }) (*dto.BodyPetCreateResponse, error) {
 	body := &input.Body
 
-	petDomain := h.petMapper.FromCreate(*body)
+	petDomain, err := h.petMapper.FromCreate(*body)
+	if err != nil {
+		return nil, apperrors.Validation("invalid pet data", map[string]interface{}{"error": err.Error()})
+	}
 
 	createdPet, err := h.createHandler.Handle(ctx, input.ID, petDomain)
 	if err != nil {

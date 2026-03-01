@@ -30,8 +30,8 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, petInput *model.P
 		return nil, apperrors.ErrPetNotFound
 	}
 
-	// Calculate stop and warn factors and set DonorRestrictions
-	stopFactors := petInput.GetStopFactors(time.Now())
+	// Calculate static stop factors (stored in DB) and warn factors
+	stopFactors := petInput.GetStaticStopFactors()
 	petInput.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {
 		petInput.StopFactors[i] = string(f)

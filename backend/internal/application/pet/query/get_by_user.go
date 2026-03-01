@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -56,20 +57,10 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 			return nil, err
 		}
 
-		// Set status based on blood request and stored DonorRestrictions
-		if bloodReq != nil {
-			if len(bloodReq.ResponseIDs) > 0 {
-				pets[i].PetStatus = model.PetStatusBloodFound
-			} else {
-				pets[i].PetStatus = model.PetStatusRecipient
-			}
-		} else {
-			if len(pets[i].StopFactors) > 0 {
-				pets[i].PetStatus = model.PetStatusNone
-			} else {
-				pets[i].PetStatus = model.PetStatusDonor
-			}
-		}
+		// Calculate status using domain method
+		hasActiveRequest := bloodReq != nil
+		hasResponses := hasActiveRequest && len(bloodReq.ResponseIDs) > 0
+		pets[i].PetStatus = pets[i].CalculateStatus(time.Now(), hasActiveRequest, hasResponses)
 	}
 
 	return pets, nil

@@ -12,7 +12,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -20,9 +19,93 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
-
-	"github.com/jinzhu/copier"
 )
+
+// toDomain converts ent.Pet to domain model.Pet
+func toDomain(e *ent.Pet) *model.Pet {
+	if e == nil {
+		return nil
+	}
+
+	pet := &model.Pet{
+		ID:                 e.ID,
+		Name:               e.Name,
+		Type:               model.PetType(e.Type),
+		WeightKg:           e.WeightKg,
+		Gender:             model.Gender(e.Gender),
+		BirthDate:          e.BirthDate,
+		ChipNumber:         e.ChipNumber,
+		PhotoURLs:          e.PhotoUrls,
+		LivingCondition:    model.LivingCondition(e.LivingCondition),
+		ReproductiveStatus: model.ReproductiveStatus(e.ReproductiveStatus),
+		OwnerID:            e.UserID,
+		BreedRefID:         e.BreedID,
+		StopFactors:        e.StopFactors,
+		WarnFactors:        e.WarnFactors,
+		Bonuses:            e.Bonuses,
+		CreatedAt:          &e.CreatedAt,
+		UpdatedAt:          &e.UpdatedAt,
+		DeletedAt:          e.DeletedAt,
+	}
+
+	// Map BloodGroupName from edge if available
+	if e.Edges.BloodGroupRef != nil {
+		pet.BloodGroupName = &e.Edges.BloodGroupRef.BloodGroup
+	}
+
+	// Map BreedRefID from edge if available
+	if e.Edges.BreedRef != nil {
+		pet.BreedRefID = &e.Edges.BreedRef.ID
+	}
+
+	// Map Health
+	if e.Edges.Health != nil {
+		pet.Health = &model.PetHealth{
+			HealthStatus:          model.HealthStatus(e.Edges.Health.HealthStatus),
+			LastDonation:          e.Edges.Health.LastDonation,
+			Transfused:            &e.Edges.Health.Transfused,
+			Medications:           &e.Edges.Health.Medications,
+			SurgicalInterventions: &e.Edges.Health.SurgicalInterventions,
+		}
+	}
+
+	// Map Treatments
+	if e.Edges.Treatments != nil {
+		pet.Treatments = &model.PetTreatment{
+			RabiesVaccinationDate:     e.Edges.Treatments.RabiesVaccinationDate,
+			InfectionVaccinationDate:  e.Edges.Treatments.InfectionVaccinationDate,
+			EctoparasiteTreatmentDate: e.Edges.Treatments.EctoparasiteTreatmentDate,
+			DewormingDate:             e.Edges.Treatments.DewormingDate,
+		}
+	}
+
+	// Map Analyses
+	if len(e.Edges.Analyses) > 0 {
+		pet.Analyses = make([]*model.PetAnalysis, len(e.Edges.Analyses))
+		for i, a := range e.Edges.Analyses {
+			pet.Analyses[i] = &model.PetAnalysis{
+				ID:           a.ID,
+				AnalysisName: string(a.AnalysisName),
+				AnalysisType: string(a.AnalysisType),
+				AnalysisDate: a.AnalysisDate,
+			}
+		}
+	}
+
+	return pet
+}
+
+// toDomainSlice converts slice of ent.Pet to slice of domain model.Pet
+func toDomainSlice(pets []*ent.Pet) []*model.Pet {
+	if pets == nil {
+		return nil
+	}
+	result := make([]*model.Pet, len(pets))
+	for i, p := range pets {
+		result[i] = toDomain(p)
+	}
+	return result
+}
 
 // EntPetRepository реализует PetRepository с использованием ENT
 type EntPetRepository struct {
@@ -48,10 +131,34 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 		return nil, fmt.Errorf("не удалось начать транзакцию: %w", err)
 	}
 
-	var petInput ent.CreatePetInput
-	if err := copier.Copy(&petInput, petDomain); err != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
+	// 1. Создать питомца
+	builder := tx.Pet.Create().
+		SetName(petDomain.Name).
+		SetType(string(petDomain.Type)).
+		SetWeightKg(petDomain.WeightKg).
+		SetGender(string(petDomain.Gender)).
+		SetUserID(petDomain.OwnerID).
+		SetStopFactors(petDomain.StopFactors).
+		SetWarnFactors(petDomain.WarnFactors).
+		SetBonuses(petDomain.Bonuses)
+
+	if petDomain.BirthDate != nil {
+		builder.SetBirthDate(*petDomain.BirthDate)
+	}
+	if petDomain.ChipNumber != "" {
+		builder.SetChipNumber(petDomain.ChipNumber)
+	}
+	if len(petDomain.PhotoURLs) > 0 {
+		builder.SetPhotoUrls(petDomain.PhotoURLs)
+	}
+	if petDomain.LivingCondition != "" {
+		builder.SetLivingCondition(string(petDomain.LivingCondition))
+	}
+	if petDomain.ReproductiveStatus != "" {
+		builder.SetReproductiveStatus(string(petDomain.ReproductiveStatus))
+	}
+	if petDomain.BreedRefID != nil {
+		builder.SetBreedRefID(*petDomain.BreedRefID)
 	}
 
 	if petDomain.BloodGroupName != nil {
@@ -60,13 +167,10 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 			tx.Rollback()
 			return nil, fmt.Errorf("не удалось найти группу крови: %w", err)
 		}
-		petInput.BloodGroupRefID = &bg.ID
+		builder.SetBloodGroupRefID(bg.ID)
 	}
 
-	// 1. Создать питомца
-	newPet, err := tx.Pet.Create().
-		SetInput(petInput).
-		Save(ctx)
+	newPet, err := builder.Save(ctx)
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("не удалось создать питомца: %w", err)
@@ -74,25 +178,24 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 
 	// 2. Создать связанные сущности, если они предоставлены
 	if petDomain.Health != nil {
-		var healthInput ent.CreatePetHealthInput
-		hs := pethealth.HealthStatus(petDomain.Health.HealthStatus)
-		healthInput.HealthStatus = &hs
+		healthBuilder := tx.PetHealth.Create().
+			SetHealthStatus(pethealth.HealthStatus(petDomain.Health.HealthStatus)).
+			SetOwner(newPet)
+
 		if petDomain.Health.LastDonation != nil {
-			healthInput.LastDonation = petDomain.Health.LastDonation
+			healthBuilder.SetLastDonation(*petDomain.Health.LastDonation)
 		}
 		if petDomain.Health.Transfused != nil {
-			healthInput.Transfused = petDomain.Health.Transfused
+			healthBuilder.SetTransfused(*petDomain.Health.Transfused)
 		}
 		if petDomain.Health.Medications != nil {
-			healthInput.Medications = petDomain.Health.Medications
+			healthBuilder.SetMedications(*petDomain.Health.Medications)
 		}
 		if petDomain.Health.SurgicalInterventions != nil {
-			healthInput.SurgicalInterventions = petDomain.Health.SurgicalInterventions
+			healthBuilder.SetSurgicalInterventions(*petDomain.Health.SurgicalInterventions)
 		}
-		_, err = tx.PetHealth.Create().
-			SetInput(healthInput).
-			SetOwner(newPet).
-			Save(ctx)
+
+		_, err = healthBuilder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("не удалось создать данные о здоровье питомца: %w", err)
@@ -100,14 +203,23 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 	}
 
 	if petDomain.Treatments != nil {
-		var treatmentsInput ent.CreatePetTreatmentInput
-		if err := copier.Copy(&treatmentsInput, petDomain.Treatments); err != nil {
-			return nil, fmt.Errorf("не удалось скопировать данные лечения питомца: %w", err)
+		treatmentBuilder := tx.PetTreatment.Create().
+			SetOwner(newPet)
+
+		if petDomain.Treatments.RabiesVaccinationDate != nil {
+			treatmentBuilder.SetRabiesVaccinationDate(*petDomain.Treatments.RabiesVaccinationDate)
 		}
-		_, err = tx.PetTreatment.Create().
-			SetInput(treatmentsInput).
-			SetOwner(newPet).
-			Save(ctx)
+		if petDomain.Treatments.InfectionVaccinationDate != nil {
+			treatmentBuilder.SetInfectionVaccinationDate(*petDomain.Treatments.InfectionVaccinationDate)
+		}
+		if petDomain.Treatments.EctoparasiteTreatmentDate != nil {
+			treatmentBuilder.SetEctoparasiteTreatmentDate(*petDomain.Treatments.EctoparasiteTreatmentDate)
+		}
+		if petDomain.Treatments.DewormingDate != nil {
+			treatmentBuilder.SetDewormingDate(*petDomain.Treatments.DewormingDate)
+		}
+
+		_, err = treatmentBuilder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("не удалось создать данные о лечении питомца: %w", err)
@@ -115,15 +227,12 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 	}
 
 	for _, a := range petDomain.Analyses {
-		var analysisInput ent.CreatePetAnalysisInput
-		if err := copier.Copy(&analysisInput, a); err != nil {
-			return nil, fmt.Errorf("не удалось скопировать данные анализа питомца: %w", err)
-		}
-		builder := tx.PetAnalysis.Create().
-			SetInput(analysisInput).
-			SetPetID(newPet.ID)
-
-		_, err = builder.Save(ctx)
+		_, err = tx.PetAnalysis.Create().
+			SetAnalysisName(petanalysis.AnalysisName(a.AnalysisName)).
+			SetAnalysisType(petanalysis.AnalysisType(a.AnalysisType)).
+			SetAnalysisDate(*a.AnalysisDate).
+			SetPetID(newPet.ID).
+			Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("не удалось создать анализ питомца: %w", err)
@@ -134,19 +243,31 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
-	result := &model.Pet{
-		ID:        newPet.ID,
-		CreatedAt: &newPet.CreatedAt,
-	}
-
-	return result, nil
+	// Re-fetch the created pet with all relations to return complete aggregate
+	return r.GetByID(ctx, newPet.ID, pet.PetPreloadOptions{
+		WithHealth:     petDomain.Health != nil,
+		WithTreatments: petDomain.Treatments != nil,
+		WithAnalyses:   len(petDomain.Analyses) > 0,
+	})
 }
 
 // GetPet возвращает питомца по его ID с возможностью предварительной загрузки связанных данных
+// Deprecated: используйте GetByID
 func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
+	return r.GetByID(ctx, id, opts)
+}
+
+// GetPetsByUser возвращает запрос для предварительной загрузки питомцев по ID пользователя
+// Deprecated: используйте GetByUserID
+func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
+	return r.GetByUserID(ctx, userID, opts)
+}
+
+// GetByID получает питомца по ID с опциями загрузки связанных данных
+func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.ID(id)).WithBreedRef().WithBloodGroupRef()
 
-	// Применяем опции предварительной загрузки
+	// Apply preload options
 	if opts.WithAll {
 		pquery = pquery.WithHealth().WithTreatments().WithAnalyses()
 	} else {
@@ -166,52 +287,17 @@ func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts pet.PetPr
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrPetNotFound
 		}
-		return nil, apperrors.Internal(err, "не удалось получить питомца")
+		return nil, apperrors.Internal(err, "failed to get pet")
 	}
 
-	var result model.Pet
-	if err := copier.Copy(&result, entPet); err != nil {
-		return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
-	}
-
-	if entPet.Edges.BloodGroupRef != nil {
-		result.BloodGroupName = &entPet.Edges.BloodGroupRef.BloodGroup
-	}
-
-	if entPet.Edges.BreedRef != nil {
-		result.BreedRefID = &entPet.Edges.BreedRef.ID
-	}
-
-	if entPet.Edges.Health != nil {
-		result.Health = &model.PetHealth{
-			HealthStatus:          model.HealthStatus(entPet.Edges.Health.HealthStatus),
-			LastDonation:          entPet.Edges.Health.LastDonation,
-			Transfused:            &entPet.Edges.Health.Transfused,
-			Medications:           &entPet.Edges.Health.Medications,
-			SurgicalInterventions: &entPet.Edges.Health.SurgicalInterventions,
-		}
-	}
-	if entPet.Edges.Treatments != nil {
-		var treatments model.PetTreatment
-		if err := copier.Copy(&treatments, entPet.Edges.Treatments); err == nil {
-			result.Treatments = &treatments
-		}
-	}
-	if len(entPet.Edges.Analyses) > 0 {
-		var analyses []*model.PetAnalysis
-		if err := copier.Copy(&analyses, entPet.Edges.Analyses); err == nil {
-			result.Analyses = analyses
-		}
-	}
-
-	return &result, nil
+	return toDomain(entPet), nil
 }
 
-// GetPetsByUser возвращает запрос для предварительной загрузки питомцев по ID пользователя
-func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
+// GetByUserID получает всех питомцев пользователя
+func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
 
-	// Применяем опции предварительной загрузки
+	// Apply preload options
 	if opts.WithAll {
 		pquery = pquery.WithHealth().WithTreatments().WithAnalyses()
 	} else {
@@ -225,50 +311,13 @@ func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opt
 			pquery = pquery.WithAnalyses()
 		}
 	}
+
 	pets, err := pquery.All(ctx)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	var result []*model.Pet
-	for _, p := range pets {
-		var petDomain model.Pet
-		if err := copier.Copy(&petDomain, p); err != nil {
-			return nil, fmt.Errorf("не удалось скопировать данные питомца: %w", err)
-		}
-
-		if p.Edges.BloodGroupRef != nil {
-			petDomain.BloodGroupName = &p.Edges.BloodGroupRef.BloodGroup
-		}
-
-		if p.Edges.BreedRef != nil {
-			petDomain.BreedRefID = &p.Edges.BreedRef.ID
-		}
-
-		if p.Edges.Health != nil {
-			petDomain.Health = &model.PetHealth{
-				HealthStatus:          model.HealthStatus(p.Edges.Health.HealthStatus),
-				LastDonation:          p.Edges.Health.LastDonation,
-				Transfused:            &p.Edges.Health.Transfused,
-				Medications:           &p.Edges.Health.Medications,
-				SurgicalInterventions: &p.Edges.Health.SurgicalInterventions,
-			}
-		}
-		if p.Edges.Treatments != nil {
-			var treatments model.PetTreatment
-			if err := copier.Copy(&treatments, p.Edges.Treatments); err == nil {
-				petDomain.Treatments = &treatments
-			}
-		}
-		if len(p.Edges.Analyses) > 0 {
-			var analyses []*model.PetAnalysis
-			if err := copier.Copy(&analyses, p.Edges.Analyses); err == nil {
-				petDomain.Analyses = analyses
-			}
-		}
-		result = append(result, &petDomain)
-	}
-	return result, nil
+	return toDomainSlice(pets), nil
 }
 
 // Update обновляет существующего питомца и его связанные сущности в транзакции
@@ -327,7 +376,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 		updater.SetBloodGroupRefID(bg.ID)
 	}
 
-	updatedPetEntity, err := updater.Save(ctx)
+	_, err = updater.Save(ctx)
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("не удалось обновить питомца: %w", err)
@@ -421,15 +470,21 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 			}
 			_, err = updater.Save(ctx)
 		} else {
-			var createInput ent.CreatePetTreatmentInput
-			if err := copier.Copy(&createInput, petDomain.Treatments); err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("не удалось скопировать данные лечения питомца: %w", err)
+			treatmentBuilder := tx.PetTreatment.Create().
+				SetOwnerID(id)
+			if petDomain.Treatments.RabiesVaccinationDate != nil {
+				treatmentBuilder.SetRabiesVaccinationDate(*petDomain.Treatments.RabiesVaccinationDate)
 			}
-			_, err = tx.PetTreatment.Create().
-				SetInput(createInput).
-				SetOwnerID(id).
-				Save(ctx)
+			if petDomain.Treatments.InfectionVaccinationDate != nil {
+				treatmentBuilder.SetInfectionVaccinationDate(*petDomain.Treatments.InfectionVaccinationDate)
+			}
+			if petDomain.Treatments.EctoparasiteTreatmentDate != nil {
+				treatmentBuilder.SetEctoparasiteTreatmentDate(*petDomain.Treatments.EctoparasiteTreatmentDate)
+			}
+			if petDomain.Treatments.DewormingDate != nil {
+				treatmentBuilder.SetDewormingDate(*petDomain.Treatments.DewormingDate)
+			}
+			_, err = treatmentBuilder.Save(ctx)
 		}
 		if err != nil {
 			tx.Rollback()
@@ -448,13 +503,10 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 
 		// Создать новые анализы
 		for _, a := range petDomain.Analyses {
-			var analysisInput ent.CreatePetAnalysisInput
-			if err := copier.Copy(&analysisInput, a); err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("не удалось скопировать данные анализа питомца: %w", err)
-			}
 			_, err = tx.PetAnalysis.Create().
-				SetInput(analysisInput).
+				SetAnalysisName(petanalysis.AnalysisName(a.AnalysisName)).
+				SetAnalysisType(petanalysis.AnalysisType(a.AnalysisType)).
+				SetAnalysisDate(*a.AnalysisDate).
 				SetPetID(id).
 				Save(ctx)
 			if err != nil {
@@ -468,7 +520,12 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 		return nil, fmt.Errorf("не удалось зафиксировать транзакцию: %w", err)
 	}
 
-	return &model.Pet{ID: updatedPetEntity.ID, UpdatedAt: &updatedPetEntity.UpdatedAt}, nil
+	// Re-fetch the updated pet with all relations to return complete aggregate
+	return r.GetByID(ctx, id, pet.PetPreloadOptions{
+		WithHealth:     petDomain.Health != nil,
+		WithTreatments: petDomain.Treatments != nil,
+		WithAnalyses:   len(petDomain.Analyses) > 0,
+	})
 }
 
 // Delete удаляет питомца по его ID (мягкое удаление)
@@ -585,16 +642,6 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 	return count, nil
 }
 
-// GetByID получает питомца по ID (алиас для GetPet для совместимости с PetReadRepository)
-func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
-	return r.GetPet(ctx, id, opts)
-}
-
-// GetByUserID получает питомцев пользователя (алиас для GetPetsByUser для совместимости с PetReadRepository)
-func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
-	return r.GetPetsByUser(ctx, userID, opts)
-}
-
 // Exists проверяет существование питомца (алиас для ExistsByID для совместимости с PetReadRepository)
 func (r *EntPetRepository) Exists(ctx context.Context, id string) (bool, error) {
 	return r.ExistsByID(ctx, id)
@@ -619,42 +666,3 @@ func (r *EntPetRepository) Exists(ctx context.Context, id string) (bool, error) 
 
 // 	return nil
 // }
-
-// EntToPetModel converts ent.Pet to domain model Pet
-func EntToShortPetModel(e *ent.Pet) *petmodel.Pet {
-	if e == nil {
-		return nil
-	}
-
-	pet := &petmodel.Pet{
-		ID:                 e.ID,
-		Name:               e.Name,
-		WeightKg:           e.WeightKg,
-		Gender:             petmodel.Gender(e.Gender),
-		BirthDate:          e.BirthDate,
-		ChipNumber:         e.ChipNumber,
-		PhotoURLs:          e.PhotoUrls,
-		LivingCondition:    petmodel.LivingCondition(e.LivingCondition),
-		ReproductiveStatus: petmodel.ReproductiveStatus(e.ReproductiveStatus),
-		OwnerID:            e.UserID,
-		BreedRefID:         e.BreedID,
-		StopFactors:        e.StopFactors,
-		WarnFactors:        e.WarnFactors,
-		Bonuses:            e.Bonuses,
-		CreatedAt:          &e.CreatedAt,
-		UpdatedAt:          &e.UpdatedAt,
-		DeletedAt:          e.DeletedAt,
-	}
-
-	// Map PetType
-	if e.Type != "" {
-		pet.Type = petmodel.PetType(e.Type)
-	}
-
-	// Map BloodGroupName from edge if available
-	if e.Edges.BloodGroupRef != nil {
-		pet.BloodGroupName = &e.Edges.BloodGroupRef.BloodGroup
-	}
-
-	return pet
-}
