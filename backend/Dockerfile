@@ -21,7 +21,6 @@ COPY backend/internal/ ./internal/
 COPY backend/app/ ./app/
 COPY backend/docs/ ./docs/
 COPY backend/docsui/ ./docsui/
-COPY backend/ent/ ./ent/
 COPY backend/pkg/ ./pkg/
 
 # Сборка бинарника
