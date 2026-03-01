@@ -37,7 +37,6 @@ func NewUserHandler(
 	getByIDHandler *query.GetByIDHandler,
 	getByTelegramHandler *query.GetByTelegramHandler,
 	getDeletedHandler *query.GetDeletedUsersHandler,
-	petMapper *mapper.PetMapper,
 ) *UserHandler {
 	return &UserHandler{
 		createSimpleHandler:  createSimpleHandler,
@@ -48,7 +47,7 @@ func NewUserHandler(
 		getByIDHandler:       getByIDHandler,
 		getByTelegramHandler: getByTelegramHandler,
 		getDeletedHandler:    getDeletedHandler,
-		userMapper:           mapper.NewUserMapper(petMapper),
+		userMapper:           mapper.NewUserMapper(mapper.NewPetMapper()),
 	}
 }
 

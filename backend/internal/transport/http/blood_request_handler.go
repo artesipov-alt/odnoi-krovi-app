@@ -2,12 +2,13 @@ package http
 
 import (
 	"context"
-	"log/slog" // Import slog
+	"log/slog"
 	"net/http"
 
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -40,6 +41,7 @@ type BloodRequestHandler struct {
 	getByIDHandler      *bloodquery.GetByIDHandler
 	getByPetIDHandler   *bloodquery.GetByPetIDHandler
 	listHandler         *bloodquery.ListRequestsHandler
+	bloodRequestMapper  *mapper.BloodRequestMapper
 }
 
 // NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
@@ -62,6 +64,7 @@ func NewBloodRequestHandler(
 		getByIDHandler:      getByIDHandler,
 		getByPetIDHandler:   getByPetIDHandler,
 		listHandler:         listHandler,
+		bloodRequestMapper:  mapper.NewBloodRequestMapper(),
 	}
 }
 
@@ -150,43 +153,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 	}, h.DeleteBloodRequest)
 }
 
-// mapBloodRequestToDTO преобразует доменную модель заявки в DTO
-func mapBloodRequestToDTO(req *model.BloodRequest, suitableDonors *int) dto.BloodSearchRequest {
-	return dto.BloodSearchRequest{
-		ID:                     req.ID,
-		PetID:                  req.PetID,
-		BloodVolumeNeeded:      req.BloodVolumeNeeded,
-		BloodVolumeReserved:    req.BloodVolumeReserved,
-		Regions:                req.Regions,
-		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-		Description:            req.Description,
-		PhotoUrls:              req.PhotoURLs,
-		BloodGroupNames:        req.BloodGroupNames,
-		BloodComponentIds:      req.BloodComponentIDs,
-		OnBoarding:             req.OnBoarding,
-		Status:                 dto.BloodSearchRequestStatus(req.Status),
-		SuitableDonors:         *suitableDonors,
-		CreatedAt:              &req.CreatedAt,
-		UpdatedAt:              &req.UpdatedAt,
-		DeletedAt:              req.DeletedAt,
-	}
-}
-
-// mapDTOToBloodRequest преобразует DTO создания заявки в доменную модель
-func mapDTOToBloodRequest(d dto.CreateBloodSearchRequest) *model.BloodRequest {
-	return &model.BloodRequest{
-		PetID:                  d.PetID,
-		BloodVolumeNeeded:      d.BloodVolumeNeeded,
-		Regions:                d.Regions,
-		SmallPetsNotifyAllowed: d.SmallPetsNotifyAllowed,
-		Description:            d.Description,
-		BloodGroupNames:        d.BloodGroupNames,
-		BloodComponentIDs:      d.BloodComponentIds,
-		PhotoURLs:              []string{},
-		OnBoarding:             []string{},
-	}
-}
-
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *struct {
@@ -194,7 +160,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 }) (*dto.BloodRequestCreateResponse, error) {
 	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
 
-	bloodReq := mapDTOToBloodRequest(input.Body)
+	bloodReq := h.bloodRequestMapper.ToDomain(input.Body)
 
 	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
@@ -318,7 +284,8 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 		return nil, err
 	}
 	//TODO Метод GetRequestByID Также нужно исправить.
-	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq, new(0))}, nil
+	zero := 0
+	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToDTO(bloodReq, &zero)}, nil
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.IDPathStr) (*dto.BloodRequestResponse, error) {
@@ -328,7 +295,7 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 		return nil, err
 	}
 
-	return &dto.BloodRequestResponse{Body: mapBloodRequestToDTO(bloodReq, &situatableDonors)}, nil
+	return &dto.BloodRequestResponse{Body: h.bloodRequestMapper.ToDTO(bloodReq, &situatableDonors)}, nil
 }
 
 // func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {

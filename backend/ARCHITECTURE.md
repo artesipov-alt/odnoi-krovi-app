@@ -38,6 +38,10 @@ backend/
 │   │   ├── bloodsearch/query/# Запросы
 │   │   ├── file/cmd/
 │   │   └── user/cmd/, user/query/
+│   ├── mapper/                # Mapping Layer (DTO <-> Domain conversions)
+│   │   ├── pet_mapper.go     # Pet DTO <-> Domain mappings
+│   │   ├── user_mapper.go    # User DTO <-> Domain mappings
+│   │   └── blood_request_mapper.go # BloodRequest mappings
 │   ├── infra/                 # Infrastructure Layer
 │   │   ├── presistance/pg/   # PostgreSQL реализации (ENT)
 │   │   ├── presistance/s3/   # S3 реализация
@@ -54,6 +58,10 @@ backend/
 ```
 ┌─────────────────────────────────────┐
 │  Transport (HTTP/Huma)              │
+├─────────────────────────────────────┤
+│  Mapper (DTO <-> Domain)            │
+│  - Преобразование между DTO и       │
+│    доменными моделями               │
 ├─────────────────────────────────────┤
 │  Application (CQRS Handlers)        │
 │  - cmd: бизнес-логика, транзакции   │
@@ -432,6 +440,23 @@ func (h *ListUserPetsHandler) Handle(ctx context.Context, userID string) ([]PetL
   - `domain/pet/pet_service.go`
   - `domain/bloodsearch/bloodrequest_service.go`
   - `domain/filestorage/file_service.go`
+
+### [2024-XX-XX] Выделение Mapper Layer (DTO <-> Domain conversions)
+
+#### Добавлено
+- Новый пакет `internal/mapper/` для централизованного маппинга DTO <-> Domain:
+  - `PetMapper`: `ToDTO()`, `ToDTOs()`, `ToDomainCreate()`, `ToDomainUpdate()`, `ToSimplifiedDTO()`
+  - `UserMapper`: `ToDTO()`, `ToDTOs()` (использует PetMapper для вложенных питомцев)
+  - `BloodRequestMapper`: `ToDTO()`, `ToDTOs()`, `ToDomain()`
+- Мапперы инициализируются внутри HTTP handlers (self-contained)
+- Удалены дублирующие функции маппинга из handlers:
+  - `pet_handler_http.go`: удалены `ToDTO()`, `ToDTOs()`, `ToDomain()`, `calculateBirthDateFromAge()`, `nilable()`
+  - `user_handler.go`: удалены `toDTO()`, `petToDTO()`
+  - `blood_request_handler.go`: удалены `mapBloodRequestToDTO()`, `mapDTOToBloodRequest()`
+
+#### Изменено
+- HTTP handlers теперь используют мапперы через поле `*mapper.XXXMapper`
+- Консистентный подход к маппингу во всех handlers
 
 #### Технический долг (TODO)
 - [ ] Удалить закомментированные старые сервисы полностью
