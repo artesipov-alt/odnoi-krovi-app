@@ -24,6 +24,8 @@ models/DeletePetResult.ts
 models/DeleteUserResult.ts
 models/DeletedUsersList.ts
 models/DonorApplication.ts
+models/DonorPreference.ts
+models/DonorPreferenceParams.ts
 models/DonorResponseResult.ts
 models/DonorRestrictions.ts
 models/DonorRestrictionsDetail.ts

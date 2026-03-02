@@ -19,6 +19,8 @@ export * from './DeletePetResult';
 export * from './DeleteUserResult';
 export * from './DeletedUsersList';
 export * from './DonorApplication';
+export * from './DonorPreference';
+export * from './DonorPreferenceParams';
 export * from './DonorResponseResult';
 export * from './DonorRestrictions';
 export * from './DonorRestrictionsDetail';
