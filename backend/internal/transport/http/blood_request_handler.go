@@ -67,7 +67,7 @@ func NewBloodRequestHandler(
 		getByIDHandler:      getByIDHandler,
 		getByPetIDHandler:   getByPetIDHandler,
 		listHandler:         listHandler,
-		bloodRequestMapper:  mapper.NewBloodRequestMapper(),
+		bloodRequestMapper:  mapper.NewBloodRequestMapper(storage),
 		storage:             storage,
 	}
 }
@@ -278,8 +278,6 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 	if err != nil {
 		return nil, err
 	}
-	// Преобразуем пути к фото в полные URL для ответа
-	bloodReq.PhotoURLs = h.storage.BuildPhotoURLs(bloodReq.PhotoURLs, bloodReq.UpdatedAt)
 	zero := 0
 	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
 }
@@ -290,9 +288,6 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 	if err != nil {
 		return nil, err
 	}
-
-	// Преобразуем пути к фото в полные URL для ответа
-	bloodReq.PhotoURLs = h.storage.BuildPhotoURLs(bloodReq.PhotoURLs, bloodReq.UpdatedAt)
 
 	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }

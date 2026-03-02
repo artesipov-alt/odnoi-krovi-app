@@ -123,7 +123,7 @@ func main() {
 		// Инициализация user command и query handlers
 		userCreateSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo)
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
-		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, fileStorage)
+		userUpdateHandler := usercmd.NewUpdateHandler(userRepo)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
 		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)
 		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo)
@@ -133,7 +133,7 @@ func main() {
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
-		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo, fileStorage)
+		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
 		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
@@ -141,7 +141,7 @@ func main() {
 
 		// Инициализация bloodsearch handlers
 		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo)
-		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo, fileStorage)
+		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(*txManager, bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, *txManager)
 		bloodApplyHandler := bloodcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo)

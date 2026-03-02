@@ -4,16 +4,29 @@ package mapper
 import (
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 )
 
 // PetMapper handles conversions between domain Pet model and DTOs.
-type PetMapper struct{}
+type PetMapper struct {
+	storage filestorage.Repository
+}
 
 // NewPetMapper creates a new PetMapper instance.
-func NewPetMapper() *PetMapper {
-	return &PetMapper{}
+func NewPetMapper(storage filestorage.Repository) *PetMapper {
+	return &PetMapper{
+		storage: storage,
+	}
+}
+
+// buildPhotoURLs helper builds full URLs from paths using storage
+func (m *PetMapper) buildPhotoURLs(paths []string, updatedAt *time.Time) []string {
+	if m.storage == nil || updatedAt == nil {
+		return paths
+	}
+	return m.storage.BuildPhotoURLs(paths, *updatedAt)
 }
 
 // ToResponse converts a domain Pet model to a PetDetail DTO.
@@ -22,7 +35,7 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 		ID:                 petmodel.ID,
 		Name:               petmodel.Name,
 		ChipNumber:         petmodel.ChipNumber,
-		PhotoURLs:          petmodel.PhotoURLs,
+		PhotoURLs:          m.buildPhotoURLs(petmodel.PhotoURLs, petmodel.UpdatedAt),
 		WeightKg:           petmodel.WeightKg,
 		BirthDate:          petmodel.BirthDate,
 		PetStatus:          string(petmodel.PetStatus),
@@ -375,7 +388,7 @@ func (m *PetMapper) ToSimplifiedResponse(pet *model.Pet) dto.PetDetail {
 		ID:         pet.ID,
 		Name:       pet.Name,
 		ChipNumber: pet.ChipNumber,
-		PhotoURLs:  pet.PhotoURLs,
+		PhotoURLs:  m.buildPhotoURLs(pet.PhotoURLs, pet.UpdatedAt),
 		WeightKg:   pet.WeightKg,
 		BirthDate:  pet.BirthDate,
 		CreatedAt:  pet.CreatedAt,

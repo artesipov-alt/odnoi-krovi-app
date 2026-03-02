@@ -5,15 +5,20 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 )
 
 // BloodRequestMapper handles conversions between domain BloodRequest model and DTOs.
-type BloodRequestMapper struct{}
+type BloodRequestMapper struct {
+	storage filestorage.Repository
+}
 
 // NewBloodRequestMapper creates a new BloodRequestMapper instance.
-func NewBloodRequestMapper() *BloodRequestMapper {
-	return &BloodRequestMapper{}
+func NewBloodRequestMapper(storage filestorage.Repository) *BloodRequestMapper {
+	return &BloodRequestMapper{
+		storage: storage,
+	}
 }
 
 // ToResponse converts a domain BloodRequest model to a DTO.
@@ -45,7 +50,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		Regions:                req.Regions,
 		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
 		Description:            req.Description,
-		PhotoURLs:              req.PhotoURLs,
+		PhotoURLs:              m.storage.BuildPhotoURLs(req.PhotoURLs, req.UpdatedAt),
 		BloodGroupNames:        req.BloodGroupNames,
 		BloodComponentIDs:      req.BloodComponentIDs,
 		OnBoarding:             req.OnBoarding,

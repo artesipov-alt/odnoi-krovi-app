@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
@@ -13,14 +12,12 @@ import (
 type UpdateHandler struct {
 	petReadRepo  pet.PetReadRepository
 	petWriteRepo pet.PetWriteRepository
-	storage      filestorage.Repository
 }
 
-func NewUpdateHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository, storage filestorage.Repository) *UpdateHandler {
+func NewUpdateHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository) *UpdateHandler {
 	return &UpdateHandler{
 		petReadRepo:  petReadRepo,
 		petWriteRepo: petWriteRepo,
-		storage:      storage,
 	}
 }
 
@@ -34,11 +31,6 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, petInput *model.P
 	})
 	if err != nil {
 		return nil, err // Доменная ошибка (например, ErrPetNotFound)
-	}
-
-	// Нормализуем PhotoURLs - преобразуем полные URL обратно в относительные пути
-	for i, url := range petInput.PhotoURLs {
-		petInput.PhotoURLs[i] = h.storage.ExtractPathFromURL(url)
 	}
 
 	// Apply updates through aggregate method (controlled mutation)

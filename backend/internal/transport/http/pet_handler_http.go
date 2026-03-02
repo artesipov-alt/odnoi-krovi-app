@@ -47,7 +47,7 @@ func NewPetHandler(
 		getByIDHandler:    getByIDHandler,
 		getByUserHandler:  getByUserHandler,
 		bloodInfoRepo:     bloodInfoRepo,
-		petMapper:         mapper.NewPetMapper(),
+		petMapper:         mapper.NewPetMapper(storage),
 		storage:           storage,
 	}
 }
@@ -171,9 +171,6 @@ func (h *PetHandler) GetPet(ctx context.Context, input *dto.GetPetByIDInput) (*d
 		return nil, err
 	}
 
-	// Преобразуем пути к фото в полные URL для ответа
-	petResult.PhotoURLs = h.storage.BuildPhotoURLs(petResult.PhotoURLs, *petResult.UpdatedAt)
-
 	return &dto.GetPetByIDOutput{
 		Body: h.petMapper.ToResponse(*petResult),
 	}, nil
@@ -192,11 +189,6 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 	pets, err := h.getByUserHandler.Handle(ctx, input.UserID, opts)
 	if err != nil {
 		return nil, err
-	}
-
-	// Преобразуем пути к фото в полные URL для ответа
-	for i := range pets {
-		pets[i].PhotoURLs = h.storage.BuildPhotoURLs(pets[i].PhotoURLs, *pets[i].UpdatedAt)
 	}
 
 	return &dto.GetPetsByUserOutput{

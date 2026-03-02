@@ -50,7 +50,7 @@ func NewUserHandler(
 		getByIDHandler:       getByIDHandler,
 		getByTelegramHandler: getByTelegramHandler,
 		getDeletedHandler:    getDeletedHandler,
-		userMapper:           mapper.NewUserMapper(mapper.NewPetMapper()),
+		userMapper:           mapper.NewUserMapper(mapper.NewPetMapper(storage), storage),
 		storage:              storage,
 	}
 }
@@ -149,9 +149,6 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 		return nil, err
 	}
 
-	// Преобразуем пути к фото в полные URL для ответа
-	usr.PhotoURLs = h.storage.BuildPhotoURLs(usr.PhotoURLs, *usr.UpdatedAt)
-
 	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr)}, nil
 }
 
@@ -223,19 +220,14 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 		}
 	}
 
-	if err := h.updateHandler.Handle(ctx, input.ID, user); err != nil {
-		return nil, err
-	}
-
-	// Получаем обновленного пользователя для возврата UpdatedAt
-	usr, err := h.getByIDHandler.Handle(ctx, input.ID, false, false)
+	updatedAt, err := h.updateHandler.Handle(ctx, input.ID, user)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.UpdateUserOutput{Body: dto.UpdateUserResult{
 		ID:        input.ID,
-		UpdatedAt: usr.UpdatedAt,
+		UpdatedAt: updatedAt,
 	}}, nil
 }
 
@@ -246,9 +238,6 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTe
 	if err != nil {
 		return nil, err
 	}
-
-	// Преобразуем пути к фото в полные URL для ответа
-	usr.PhotoURLs = h.storage.BuildPhotoURLs(usr.PhotoURLs, *usr.UpdatedAt)
 
 	return &dto.GetUserByTelegramOutput{Body: h.userMapper.ToResponse(usr)}, nil
 }

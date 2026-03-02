@@ -2,6 +2,7 @@
 package mapper
 
 import (
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 )
@@ -9,12 +10,14 @@ import (
 // UserMapper handles conversions between domain User model and DTOs.
 type UserMapper struct {
 	petMapper *PetMapper
+	storage   filestorage.Repository
 }
 
 // NewUserMapper creates a new UserMapper instance.
-func NewUserMapper(petMapper *PetMapper) *UserMapper {
+func NewUserMapper(petMapper *PetMapper, storage filestorage.Repository) *UserMapper {
 	return &UserMapper{
 		petMapper: petMapper,
+		storage:   storage,
 	}
 }
 
@@ -24,13 +27,21 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		return dto.UserDetail{}
 	}
 
+	// Build full photo URLs with cache invalidation
+	var photoURLs []string
+	if u.UpdatedAt != nil {
+		photoURLs = m.storage.BuildPhotoURLs(u.PhotoURLs, *u.UpdatedAt)
+	} else {
+		photoURLs = m.storage.BuildPhotoURLs(u.PhotoURLs, *u.CreatedAt)
+	}
+
 	userDTO := dto.UserDetail{
 		ID:               u.ID,
 		TelegramID:       u.TelegramID,
 		FullName:         u.FullName,
 		Phone:            u.Phone,
 		Email:            u.Email,
-		PhotoURLs:        u.PhotoURLs,
+		PhotoURLs:        photoURLs,
 		OrganizationName: u.OrganizationName,
 		ConsentPd:        u.ConsentPd,
 		OnBoarding:       u.OnBoarding,
