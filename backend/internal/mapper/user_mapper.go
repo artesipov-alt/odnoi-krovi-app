@@ -76,6 +76,7 @@ func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 	prefs := &model.DonorPreferenceParams{
 		RecoveryPeriodMonths:  2,
 		NotificationFrequency: model.NotifyImmediately,
+		TaxiCompensation:      false,
 	}
 	return model.NewUser(params, prefs)
 }

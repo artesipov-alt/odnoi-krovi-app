@@ -181,7 +181,13 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 		return errors.New("invalid user ID")
 	}
 
-	builder := r.client.User.UpdateOneID(id)
+	// Start transaction
+	tx, err := r.client.Tx(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+
+	builder := tx.User.UpdateOneID(id)
 
 	if input.FullName != "" {
 		builder.SetFullName(input.FullName)
@@ -207,9 +213,39 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 	builder.SetConsentPd(input.ConsentPd)
 	builder.SetAllowGeo(input.AllowGeo)
 
-	_, err := builder.Save(ctx)
+	_, err = builder.Save(ctx)
 	if err != nil {
+		tx.Rollback()
 		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	// Update DonorPreference if provided
+	if input.DonorPreference != nil {
+		prefBuilder := tx.DonorPreference.Update().
+			Where(donorpreference.HasUserWith(entuser.ID(id)))
+
+		if len(input.DonorPreference.PreferredLocationIDs) > 0 {
+			prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
+		}
+		if input.DonorPreference.RecoveryPeriodMonths > 0 {
+			prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
+		}
+		if input.DonorPreference.CompensationType != "" {
+			prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
+		}
+		prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
+		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
+
+		_, err = prefBuilder.Save(ctx)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to update donor preference: %w", err)
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return nil
