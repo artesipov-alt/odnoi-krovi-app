@@ -190,9 +190,6 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 	if input.Body.Email != nil {
 		user.Email = *input.Body.Email
 	}
-	if input.Body.PhotoURLs != nil {
-		user.PhotoURLs = input.Body.PhotoURLs
-	}
 	if input.Body.AllowGeo != nil {
 		user.AllowGeo = *input.Body.AllowGeo
 	}

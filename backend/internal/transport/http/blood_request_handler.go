@@ -221,9 +221,6 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 	if input.Body.Description != nil {
 		existing.Description = *input.Body.Description
 	}
-	if len(input.Body.PhotoURLs) > 0 {
-		existing.PhotoURLs = input.Body.PhotoURLs
-	}
 	if len(input.Body.BloodGroupNames) > 0 {
 		existing.BloodGroupNames = input.Body.BloodGroupNames
 	}

@@ -79,7 +79,6 @@ type UpdateBloodRequestBody struct {
 	Regions                []string `json:"regions,omitempty" doc:"Список ID регионов"`
 	SmallPetsNotifyAllowed *bool    `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для мелких питомцев"`
 	Description            *string  `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
-	PhotoURLs              []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	BloodGroupNames        []string `json:"bloodGroupNames,omitempty" doc:"Список групп крови"`
 	BloodComponentIDs      []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
 	OnBoarding             []string `json:"onBoarding,omitempty" doc:"Список пройденных онбордингов"`
