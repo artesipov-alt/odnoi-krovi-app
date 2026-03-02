@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
@@ -226,6 +227,25 @@ func (_c *UserCreate) AddPets(v ...*Pet) *UserCreate {
 // SetLocation sets the "location" edge to the Location entity.
 func (_c *UserCreate) SetLocation(v *Location) *UserCreate {
 	return _c.SetLocationID(v.ID)
+}
+
+// SetDonorPreferenceID sets the "donor_preference" edge to the DonorPreference entity by ID.
+func (_c *UserCreate) SetDonorPreferenceID(id string) *UserCreate {
+	_c.mutation.SetDonorPreferenceID(id)
+	return _c
+}
+
+// SetNillableDonorPreferenceID sets the "donor_preference" edge to the DonorPreference entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableDonorPreferenceID(id *string) *UserCreate {
+	if id != nil {
+		_c = _c.SetDonorPreferenceID(*id)
+	}
+	return _c
+}
+
+// SetDonorPreference sets the "donor_preference" edge to the DonorPreference entity.
+func (_c *UserCreate) SetDonorPreference(v *DonorPreference) *UserCreate {
+	return _c.SetDonorPreferenceID(v.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -452,6 +472,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.LocationID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DonorPreferenceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.DonorPreferenceTable,
+			Columns: []string{user.DonorPreferenceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

@@ -77,6 +77,33 @@ var (
 		Columns:    RefBreedsColumns,
 		PrimaryKey: []*schema.Column{RefBreedsColumns[0]},
 	}
+	// DonorPreferencesColumns holds the columns for the "donor_preferences" table.
+	DonorPreferencesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "preferred_location_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "recovery_period_months", Type: field.TypeInt, Nullable: true, Default: 2},
+		{Name: "compensation_type", Type: field.TypeEnum, Enums: []string{"free", "paid", "food"}},
+		{Name: "taxi_compensation", Type: field.TypeBool, Default: false},
+		{Name: "notification_frequency", Type: field.TypeEnum, Enums: []string{"immediately", "daily", "weekly", "never"}, Default: "immediately"},
+		{Name: "user_donor_preference", Type: field.TypeString, Unique: true},
+	}
+	// DonorPreferencesTable holds the schema information for the "donor_preferences" table.
+	DonorPreferencesTable = &schema.Table{
+		Name:       "donor_preferences",
+		Columns:    DonorPreferencesColumns,
+		PrimaryKey: []*schema.Column{DonorPreferencesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "donor_preferences_users_donor_preference",
+				Columns:    []*schema.Column{DonorPreferencesColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// DonorResponsesColumns holds the columns for the "donor_responses" table.
 	DonorResponsesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -279,6 +306,7 @@ var (
 		RefBloodgTable,
 		BloodRequestsTable,
 		RefBreedsTable,
+		DonorPreferencesTable,
 		DonorResponsesTable,
 		RefLocationsTable,
 		PetsTable,
@@ -302,6 +330,10 @@ func init() {
 	}
 	RefBreedsTable.Annotation = &entsql.Annotation{
 		Table: "ref_breeds",
+	}
+	DonorPreferencesTable.ForeignKeys[0].RefTable = UsersTable
+	DonorPreferencesTable.Annotation = &entsql.Annotation{
+		Table: "donor_preferences",
 	}
 	DonorResponsesTable.ForeignKeys[0].RefTable = BloodRequestsTable
 	DonorResponsesTable.ForeignKeys[1].RefTable = PetsTable

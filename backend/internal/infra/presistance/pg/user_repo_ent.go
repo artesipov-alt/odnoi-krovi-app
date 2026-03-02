@@ -10,6 +10,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
@@ -27,99 +28,130 @@ func NewEntUserRepository(client *ent.Client) *EntUserRepository {
 }
 
 // Create creates a new user in the database
-func (r *EntUserRepository) Create(ctx context.Context, input *usermodel.User) (*usermodel.User, error) {
-	if input == nil {
+func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error) {
+	if inputuser == nil {
 		return nil, errors.New("user cannot be nil")
 	}
 
-	builder := r.client.User.
-		Create().
-		SetTelegramID(input.TelegramID).
-		SetFullName(input.FullName).
-		SetRole(entuser.Role(input.Role))
+	// Start transaction
+	tx, err := r.client.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to start transaction: %w", err)
+	}
 
-	if input.Phone != "" {
-		builder.SetPhone(input.Phone)
+	builder := tx.User.
+		Create().
+		SetTelegramID(inputuser.TelegramID).
+		SetFullName(inputuser.FullName).
+		SetRole(entuser.Role(inputuser.Role))
+
+	if inputuser.Phone != "" {
+		builder.SetPhone(inputuser.Phone)
 	}
-	if input.Email != "" {
-		builder.SetEmail(input.Email)
+	if inputuser.Email != "" {
+		builder.SetEmail(inputuser.Email)
 	}
-	if input.OrganizationName != "" {
-		builder.SetOrganizationName(input.OrganizationName)
+	if inputuser.OrganizationName != "" {
+		builder.SetOrganizationName(inputuser.OrganizationName)
 	}
-	if input.LocationID != nil && *input.LocationID != "" {
-		builder.SetLocationID(*input.LocationID)
+	if inputuser.LocationID != nil && *inputuser.LocationID != "" {
+		builder.SetLocationID(*inputuser.LocationID)
 	}
-	if len(input.PhotoURLs) > 0 {
-		builder.SetPhotoUrls(input.PhotoURLs)
+	if len(inputuser.PhotoURLs) > 0 {
+		builder.SetPhotoUrls(inputuser.PhotoURLs)
 	}
-	if len(input.OnBoarding) > 0 {
-		builder.SetOnBoarding(input.OnBoarding)
+	if len(inputuser.OnBoarding) > 0 {
+		builder.SetOnBoarding(inputuser.OnBoarding)
 	}
-	if input.ConsentPd {
-		builder.SetConsentPd(input.ConsentPd)
+	if inputuser.ConsentPd {
+		builder.SetConsentPd(inputuser.ConsentPd)
 	}
-	if input.AllowGeo {
-		builder.SetAllowGeo(input.AllowGeo)
+	if inputuser.AllowGeo {
+		builder.SetAllowGeo(inputuser.AllowGeo)
 	}
 
 	newUser, err := builder.Save(ctx)
 	if err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return EntToModel(newUser), nil
+	// Create DonorPreference if provided
+	if inputuser.DonorPreference != nil {
+		prefBuilder := tx.DonorPreference.Create().
+			SetUser(newUser)
+
+		if len(inputuser.DonorPreference.PreferredLocationIDs) > 0 {
+			prefBuilder.SetPreferredLocationIds(inputuser.DonorPreference.PreferredLocationIDs)
+		}
+		if inputuser.DonorPreference.RecoveryPeriodMonths > 0 {
+			prefBuilder.SetRecoveryPeriodMonths(inputuser.DonorPreference.RecoveryPeriodMonths)
+		}
+		if inputuser.DonorPreference.CompensationType != "" {
+			prefBuilder.SetCompensationType(donorpreference.CompensationType(inputuser.DonorPreference.CompensationType))
+		}
+		prefBuilder.SetTaxiCompensation(inputuser.DonorPreference.TaxiCompensation)
+		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(inputuser.DonorPreference.NotificationFrequency))
+
+		_, err = prefBuilder.Save(ctx)
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to create donor preference: %w", err)
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Re-fetch the created user with relations
+	return r.GetByID(ctx, newUser.ID, user.UserPreloadOptions{
+		WithPets:            false, // Adjust as needed
+		WithDonorPreference: inputuser.DonorPreference != nil,
+	})
 }
 
-func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error) {
+func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.UserPreloadOptions) (*usermodel.User, error) {
 	quser := r.client.User.Query().Where(entuser.ID(id))
 
 	if opts.WithPets {
 		quser = quser.WithPets()
 	}
+	if opts.WithDonorPreference {
+		quser = quser.WithDonorPreference()
+	}
 
 	user, err := quser.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, nil, apperrors.ErrUserNotFound
+			return nil, apperrors.ErrUserNotFound
 		}
-		return nil, nil, apperrors.Internal(err, "failed to get user by ID")
+		return nil, apperrors.Internal(err, "failed to get user by ID")
 	}
 
-	var pets []*petmodel.Pet
-	if len(user.Edges.Pets) > 0 {
-		for _, p := range user.Edges.Pets {
-			pets = append(pets, petToDomain(p))
-		}
-	}
-
-	return EntToModel(user), pets, nil
+	return EntToModel(user), nil
 }
 
-// GetByTelegram returns a user by Telegram ID
-func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error) {
+func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*usermodel.User, error) {
 	quser := r.client.User.Query().Where(entuser.TelegramID(telegramID))
 
 	if opts.WithPets {
 		quser = quser.WithPets()
 	}
+	if opts.WithDonorPreference {
+		quser = quser.WithDonorPreference()
+	}
 
 	user, err := quser.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, nil, apperrors.ErrUserNotFound
+			return nil, apperrors.ErrUserNotFound
 		}
-		return nil, nil, apperrors.Internal(err, "failed to get user by Telegram ID")
+		return nil, apperrors.Internal(err, "failed to get user by Telegram ID")
 	}
 
-	var pets []*petmodel.Pet
-	if len(user.Edges.Pets) > 0 {
-		for _, p := range user.Edges.Pets {
-			pets = append(pets, petToDomain(p))
-		}
-	}
-
-	return EntToModel(user), pets, nil
+	return EntToModel(user), nil
 }
 
 // ExistsByID checks if a user with the given ID exists
@@ -324,6 +356,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 		AllowGeo:         e.AllowGeo,
 		Role:             string(e.Role),
 		Pets:             nil, // Pets are loaded separately via WithPets
+		DonorPreference:  donorPrefToDomain(e.Edges.DonorPreference),
 		CreatedAt:        &e.CreatedAt,
 		UpdatedAt:        &e.UpdatedAt,
 		DeletedAt:        e.DeletedAt,
@@ -333,5 +366,32 @@ func EntToModel(e *ent.User) *usermodel.User {
 		user.LocationID = &e.LocationID
 	}
 
+	var pets []*petmodel.Pet
+	if len(e.Edges.Pets) > 0 {
+		for _, p := range e.Edges.Pets {
+			pets = append(pets, petToDomain(p))
+		}
+	}
+	user.Pets = pets
+
 	return user
+}
+
+func donorPrefToDomain(e *ent.DonorPreference) *usermodel.DonorPreference {
+	if e == nil {
+		return nil
+	}
+
+	return &usermodel.DonorPreference{
+		ID:                    e.ID,
+		UserID:                e.Edges.User.ID, // Assuming User is loaded
+		PreferredLocationIDs:  e.PreferredLocationIds,
+		RecoveryPeriodMonths:  e.RecoveryPeriodMonths,
+		CompensationType:      usermodel.CompensationType(e.CompensationType.String()),
+		TaxiCompensation:      e.TaxiCompensation,
+		NotificationFrequency: usermodel.NotificationFrequency(e.NotificationFrequency.String()),
+		CreatedAt:             &e.CreatedAt,
+		UpdatedAt:             &e.UpdatedAt,
+		DeletedAt:             e.DeletedAt,
+	}
 }

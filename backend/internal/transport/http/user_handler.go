@@ -144,7 +144,7 @@ func (h *UserHandler) Register(api huma.API) {
 func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) (*dto.GetUserByIDOutput, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
-	usr, pets, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets)
+	usr, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 	// Преобразуем пути к фото в полные URL для ответа
 	usr.PhotoURLs = h.storage.BuildPhotoURLs(usr.PhotoURLs, *usr.UpdatedAt)
 
-	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr, pets)}, nil
+	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr)}, nil
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateUserInput) (*dto.CreateUserOutput, error) {
@@ -211,7 +211,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 	}
 
 	// Получаем обновленного пользователя для возврата UpdatedAt
-	usr, _, err := h.getByIDHandler.Handle(ctx, input.ID, false)
+	usr, err := h.getByIDHandler.Handle(ctx, input.ID, false)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTelegramInput) (*dto.GetUserByTelegramOutput, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
-	usr, pets, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets)
+	usr, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTe
 	// Преобразуем пути к фото в полные URL для ответа
 	usr.PhotoURLs = h.storage.BuildPhotoURLs(usr.PhotoURLs, *usr.UpdatedAt)
 
-	return &dto.GetUserByTelegramOutput{Body: h.userMapper.ToResponse(usr, pets)}, nil
+	return &dto.GetUserByTelegramOutput{Body: h.userMapper.ToResponse(usr)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.DeleteUserInput) (*dto.DeleteUserOutput, error) {

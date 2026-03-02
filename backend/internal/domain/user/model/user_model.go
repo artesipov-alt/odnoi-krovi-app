@@ -30,55 +30,110 @@ type User struct {
 	LocationID       *string
 	Role             string
 	Pets             []*pet.Pet
+	DonorPreference  *DonorPreference
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 	DeletedAt        *time.Time
 }
 
+// CompensationType represents donor's compensation preference
+type CompensationType string
+
+const (
+	CompensationFree CompensationType = "free" // Готов помочь безвозмездно
+	CompensationPaid CompensationType = "paid" // Не готов помочь бесплатно
+	CompensationFood CompensationType = "food" // Готов помочь за корм
+)
+
+// NotificationFrequency represents how often donor wants to be notified
+type NotificationFrequency string
+
+const (
+	NotifyImmediately NotificationFrequency = "immediately" // Сразу
+	NotifyDaily       NotificationFrequency = "daily"       // Раз в день
+	NotifyWeekly      NotificationFrequency = "weekly"      // Раз в неделю
+	NotifyNever       NotificationFrequency = "never"       // Никогда
+)
+
+// DonorPreference represents donor's default preferences for blood donation responses
+type DonorPreference struct {
+	ID                    string
+	UserID                string
+	PreferredLocationIDs  []string
+	RecoveryPeriodMonths  int
+	CompensationType      CompensationType
+	TaxiCompensation      bool
+	NotificationFrequency NotificationFrequency
+	CreatedAt             *time.Time
+	UpdatedAt             *time.Time
+	DeletedAt             *time.Time
+}
+
+// NewUserParams holds the parameters for creating a new User
+type NewUserParams struct {
+	TelegramID int64
+	FullName   string
+	Phone      string
+	Email      string
+	Role       UserRole
+	ConsentPd  bool
+	LocationID *string
+}
+
+// DonorPreferenceParams holds the parameters for creating or updating a DonorPreference.
+type DonorPreferenceParams struct {
+	PreferredLocationIDs  []string
+	RecoveryPeriodMonths  int
+	CompensationType      CompensationType
+	TaxiCompensation      bool
+	NotificationFrequency NotificationFrequency
+}
+
 // NewUser creates a new User aggregate with validation
-func NewUser(
-	telegramID int64,
-	fullName string,
-	phone string,
-	email string,
-	role UserRole,
-	consentPd bool,
-	locationID *string,
-) (*User, error) {
+func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*User, error) {
 	// Validation
-	if fullName == "" {
+	if userparams.FullName == "" {
 		return nil, errors.New("full name is required")
 	}
-	if len(fullName) > 100 {
+	if len(userparams.FullName) > 100 {
 		return nil, errors.New("full name must be less than 100 characters")
 	}
-	if role == "" {
-		role = RoleUser // default role
+	if userparams.Role == "" {
+		userparams.Role = RoleUser // default role
 	}
-	if role != RoleUser && role != RoleAdmin {
+	if userparams.Role != RoleUser && userparams.Role != RoleAdmin {
 		return nil, errors.New("invalid user role")
 	}
-	if email != "" {
+	if userparams.Email != "" {
 		// Basic email validation could be added here
-		if len(email) > 100 {
+		if len(userparams.Email) > 100 {
 			return nil, errors.New("email must be less than 100 characters")
 		}
 	}
-	if phone != "" && len(phone) > 20 {
+	if userparams.Phone != "" && len(userparams.Phone) > 20 {
 		return nil, errors.New("phone must be less than 20 characters")
 	}
 
 	user := &User{
-		TelegramID: telegramID,
-		FullName:   fullName,
-		Phone:      phone,
-		Email:      email,
-		Role:       string(role),
-		ConsentPd:  consentPd,
-		LocationID: locationID,
+		TelegramID: userparams.TelegramID,
+		FullName:   userparams.FullName,
+		Phone:      userparams.Phone,
+		Email:      userparams.Email,
+		Role:       string(userparams.Role),
+		ConsentPd:  userparams.ConsentPd,
+		LocationID: userparams.LocationID,
 		PhotoURLs:  []string{},
 		OnBoarding: []string{},
 		Pets:       []*pet.Pet{},
+	}
+	if donorparams != nil {
+		user.DonorPreference = &DonorPreference{
+			PreferredLocationIDs:  donorparams.PreferredLocationIDs,
+			RecoveryPeriodMonths:  donorparams.RecoveryPeriodMonths,
+			CompensationType:      donorparams.CompensationType,
+			TaxiCompensation:      donorparams.TaxiCompensation,
+			NotificationFrequency: donorparams.NotificationFrequency,
+		}
 	}
 
 	return user, nil

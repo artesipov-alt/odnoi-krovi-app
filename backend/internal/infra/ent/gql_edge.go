@@ -52,6 +52,14 @@ func (_m *Breed) Pets(ctx context.Context) (result []*Pet, err error) {
 	return result, err
 }
 
+func (_m *DonorPreference) User(ctx context.Context) (*User, error) {
+	result, err := _m.Edges.UserOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryUser().Only(ctx)
+	}
+	return result, err
+}
+
 func (_m *DonorResponse) Request(ctx context.Context) (*BloodSearchRequest, error) {
 	result, err := _m.Edges.RequestOrErr()
 	if IsNotLoaded(err) {
@@ -192,6 +200,14 @@ func (_m *User) Location(ctx context.Context) (*Location, error) {
 	result, err := _m.Edges.LocationOrErr()
 	if IsNotLoaded(err) {
 		result, err = _m.QueryLocation().Only(ctx)
+	}
+	return result, MaskNotFound(err)
+}
+
+func (_m *User) DonorPreference(ctx context.Context) (*DonorPreference, error) {
+	result, err := _m.Edges.DonorPreferenceOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryDonorPreference().Only(ctx)
 	}
 	return result, MaskNotFound(err)
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -184,6 +185,33 @@ func (f TraverseBreed) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.BreedQuery", q)
+}
+
+// The DonorPreferenceFunc type is an adapter to allow the use of ordinary function as a Querier.
+type DonorPreferenceFunc func(context.Context, *ent.DonorPreferenceQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f DonorPreferenceFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.DonorPreferenceQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.DonorPreferenceQuery", q)
+}
+
+// The TraverseDonorPreference type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseDonorPreference func(context.Context, *ent.DonorPreferenceQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseDonorPreference) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseDonorPreference) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.DonorPreferenceQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.DonorPreferenceQuery", q)
 }
 
 // The DonorResponseFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -386,6 +414,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.BloodSearchRequestQuery, predicate.BloodSearchRequest, bloodsearchrequest.OrderOption]{typ: ent.TypeBloodSearchRequest, tq: q}, nil
 	case *ent.BreedQuery:
 		return &query[*ent.BreedQuery, predicate.Breed, breed.OrderOption]{typ: ent.TypeBreed, tq: q}, nil
+	case *ent.DonorPreferenceQuery:
+		return &query[*ent.DonorPreferenceQuery, predicate.DonorPreference, donorpreference.OrderOption]{typ: ent.TypeDonorPreference, tq: q}, nil
 	case *ent.DonorResponseQuery:
 		return &query[*ent.DonorResponseQuery, predicate.DonorResponse, donorresponse.OrderOption]{typ: ent.TypeDonorResponse, tq: q}, nil
 	case *ent.LocationQuery:

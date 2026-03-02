@@ -19,13 +19,15 @@ import (
 
 // Prefix constants for ID generation
 const (
-	UserPrefix         = "USR"
-	PetPrefix          = "PET"
-	PetHealthPrefix    = "PHL"
-	PetTreatmentPrefix = "PTR"
-	PetAnalysisPrefix  = "PAN"
-	PetBonusPrefix     = "PBN"
-	BloodSearchPrefix  = "BLS"
+	UserPrefix            = "USR"
+	PetPrefix             = "PET"
+	PetHealthPrefix       = "PHL"
+	PetTreatmentPrefix    = "PTR"
+	PetAnalysisPrefix     = "PAN"
+	PetBonusPrefix        = "PBN"
+	BloodSearchPrefix     = "BLS"
+	DonorResponsePrefix   = "RES"
+	DonorPreferencePrefix = "DPR"
 )
 
 // generateID generates a new ID with prefix and nanoID of 10 characters

@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
@@ -59,11 +60,13 @@ type UserEdges struct {
 	Pets []*Pet `json:"pets,omitempty"`
 	// Location holds the value of the location edge.
 	Location *Location `json:"location,omitempty"`
+	// DonorPreference holds the value of the donor_preference edge.
+	DonorPreference *DonorPreference `json:"donor_preference,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 	// totalCount holds the count of the edges above.
-	totalCount [2]map[string]int
+	totalCount [3]map[string]int
 
 	namedPets map[string][]*Pet
 }
@@ -86,6 +89,17 @@ func (e UserEdges) LocationOrErr() (*Location, error) {
 		return nil, &NotFoundError{label: location.Label}
 	}
 	return nil, &NotLoadedError{edge: "location"}
+}
+
+// DonorPreferenceOrErr returns the DonorPreference value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) DonorPreferenceOrErr() (*DonorPreference, error) {
+	if e.DonorPreference != nil {
+		return e.DonorPreference, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: donorpreference.Label}
+	}
+	return nil, &NotLoadedError{edge: "donor_preference"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -234,6 +248,11 @@ func (_m *User) QueryPets() *PetQuery {
 // QueryLocation queries the "location" edge of the User entity.
 func (_m *User) QueryLocation() *LocationQuery {
 	return NewUserClient(_m.config).QueryLocation(_m)
+}
+
+// QueryDonorPreference queries the "donor_preference" edge of the User entity.
+func (_m *User) QueryDonorPreference() *DonorPreferenceQuery {
+	return NewUserClient(_m.config).QueryDonorPreference(_m)
 }
 
 // Update returns a builder for updating this User.

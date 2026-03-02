@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
@@ -21,15 +22,16 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx           *QueryContext
-	order         []user.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.User
-	withPets      *PetQuery
-	withLocation  *LocationQuery
-	modifiers     []func(*sql.Selector)
-	loadTotal     []func(context.Context, []*User) error
-	withNamedPets map[string]*PetQuery
+	ctx                 *QueryContext
+	order               []user.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.User
+	withPets            *PetQuery
+	withLocation        *LocationQuery
+	withDonorPreference *DonorPreferenceQuery
+	modifiers           []func(*sql.Selector)
+	loadTotal           []func(context.Context, []*User) error
+	withNamedPets       map[string]*PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -103,6 +105,28 @@ func (_q *UserQuery) QueryLocation() *LocationQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(location.Table, location.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, user.LocationTable, user.LocationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDonorPreference chains the current query on the "donor_preference" edge.
+func (_q *UserQuery) QueryDonorPreference() *DonorPreferenceQuery {
+	query := (&DonorPreferenceClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(donorpreference.Table, donorpreference.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.DonorPreferenceTable, user.DonorPreferenceColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -297,13 +321,14 @@ func (_q *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:       _q.config,
-		ctx:          _q.ctx.Clone(),
-		order:        append([]user.OrderOption{}, _q.order...),
-		inters:       append([]Interceptor{}, _q.inters...),
-		predicates:   append([]predicate.User{}, _q.predicates...),
-		withPets:     _q.withPets.Clone(),
-		withLocation: _q.withLocation.Clone(),
+		config:              _q.config,
+		ctx:                 _q.ctx.Clone(),
+		order:               append([]user.OrderOption{}, _q.order...),
+		inters:              append([]Interceptor{}, _q.inters...),
+		predicates:          append([]predicate.User{}, _q.predicates...),
+		withPets:            _q.withPets.Clone(),
+		withLocation:        _q.withLocation.Clone(),
+		withDonorPreference: _q.withDonorPreference.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -329,6 +354,17 @@ func (_q *UserQuery) WithLocation(opts ...func(*LocationQuery)) *UserQuery {
 		opt(query)
 	}
 	_q.withLocation = query
+	return _q
+}
+
+// WithDonorPreference tells the query-builder to eager-load the nodes that are connected to
+// the "donor_preference" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithDonorPreference(opts ...func(*DonorPreferenceQuery)) *UserQuery {
+	query := (&DonorPreferenceClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDonorPreference = query
 	return _q
 }
 
@@ -410,9 +446,10 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withPets != nil,
 			_q.withLocation != nil,
+			_q.withDonorPreference != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -446,6 +483,12 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if query := _q.withLocation; query != nil {
 		if err := _q.loadLocation(ctx, query, nodes, nil,
 			func(n *User, e *Location) { n.Edges.Location = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDonorPreference; query != nil {
+		if err := _q.loadDonorPreference(ctx, query, nodes, nil,
+			func(n *User, e *DonorPreference) { n.Edges.DonorPreference = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -520,6 +563,34 @@ func (_q *UserQuery) loadLocation(ctx context.Context, query *LocationQuery, nod
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (_q *UserQuery) loadDonorPreference(ctx context.Context, query *DonorPreferenceQuery, nodes []*User, init func(*User), assign func(*User, *DonorPreference)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.DonorPreference(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.DonorPreferenceColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.user_donor_preference
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_donor_preference" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_donor_preference" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

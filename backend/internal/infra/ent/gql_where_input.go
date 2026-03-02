@@ -11,6 +11,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -1216,6 +1217,358 @@ func (i *BreedWhereInput) P() (predicate.Breed, error) {
 		return predicates[0], nil
 	default:
 		return breed.And(predicates...), nil
+	}
+}
+
+// DonorPreferenceWhereInput represents a where input for filtering DonorPreference queries.
+type DonorPreferenceWhereInput struct {
+	Predicates []predicate.DonorPreference  `json:"-"`
+	Not        *DonorPreferenceWhereInput   `json:"not,omitempty"`
+	Or         []*DonorPreferenceWhereInput `json:"or,omitempty"`
+	And        []*DonorPreferenceWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID             *string  `json:"id,omitempty"`
+	IDNEQ          *string  `json:"idNEQ,omitempty"`
+	IDIn           []string `json:"idIn,omitempty"`
+	IDNotIn        []string `json:"idNotIn,omitempty"`
+	IDGT           *string  `json:"idGT,omitempty"`
+	IDGTE          *string  `json:"idGTE,omitempty"`
+	IDLT           *string  `json:"idLT,omitempty"`
+	IDLTE          *string  `json:"idLTE,omitempty"`
+	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
+	IDContainsFold *string  `json:"idContainsFold,omitempty"`
+
+	// "created_at" field predicates.
+	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
+	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
+	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
+	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
+	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
+	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
+	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
+	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
+
+	// "updated_at" field predicates.
+	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
+	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
+	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
+	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
+	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
+	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
+	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
+
+	// "deleted_at" field predicates.
+	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
+	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
+	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
+	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
+	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
+	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
+	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
+	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
+	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
+	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
+
+	// "recovery_period_months" field predicates.
+	RecoveryPeriodMonths       *int  `json:"recoveryPeriodMonths,omitempty"`
+	RecoveryPeriodMonthsNEQ    *int  `json:"recoveryPeriodMonthsNEQ,omitempty"`
+	RecoveryPeriodMonthsIn     []int `json:"recoveryPeriodMonthsIn,omitempty"`
+	RecoveryPeriodMonthsNotIn  []int `json:"recoveryPeriodMonthsNotIn,omitempty"`
+	RecoveryPeriodMonthsGT     *int  `json:"recoveryPeriodMonthsGT,omitempty"`
+	RecoveryPeriodMonthsGTE    *int  `json:"recoveryPeriodMonthsGTE,omitempty"`
+	RecoveryPeriodMonthsLT     *int  `json:"recoveryPeriodMonthsLT,omitempty"`
+	RecoveryPeriodMonthsLTE    *int  `json:"recoveryPeriodMonthsLTE,omitempty"`
+	RecoveryPeriodMonthsIsNil  bool  `json:"recoveryPeriodMonthsIsNil,omitempty"`
+	RecoveryPeriodMonthsNotNil bool  `json:"recoveryPeriodMonthsNotNil,omitempty"`
+
+	// "compensation_type" field predicates.
+	CompensationType      *donorpreference.CompensationType  `json:"compensationType,omitempty"`
+	CompensationTypeNEQ   *donorpreference.CompensationType  `json:"compensationTypeNEQ,omitempty"`
+	CompensationTypeIn    []donorpreference.CompensationType `json:"compensationTypeIn,omitempty"`
+	CompensationTypeNotIn []donorpreference.CompensationType `json:"compensationTypeNotIn,omitempty"`
+
+	// "taxi_compensation" field predicates.
+	TaxiCompensation    *bool `json:"taxiCompensation,omitempty"`
+	TaxiCompensationNEQ *bool `json:"taxiCompensationNEQ,omitempty"`
+
+	// "notification_frequency" field predicates.
+	NotificationFrequency      *donorpreference.NotificationFrequency  `json:"notificationFrequency,omitempty"`
+	NotificationFrequencyNEQ   *donorpreference.NotificationFrequency  `json:"notificationFrequencyNEQ,omitempty"`
+	NotificationFrequencyIn    []donorpreference.NotificationFrequency `json:"notificationFrequencyIn,omitempty"`
+	NotificationFrequencyNotIn []donorpreference.NotificationFrequency `json:"notificationFrequencyNotIn,omitempty"`
+
+	// "user" edge predicates.
+	HasUser     *bool             `json:"hasUser,omitempty"`
+	HasUserWith []*UserWhereInput `json:"hasUserWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *DonorPreferenceWhereInput) AddPredicates(predicates ...predicate.DonorPreference) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the DonorPreferenceWhereInput filter on the DonorPreferenceQuery builder.
+func (i *DonorPreferenceWhereInput) Filter(q *DonorPreferenceQuery) (*DonorPreferenceQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyDonorPreferenceWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyDonorPreferenceWhereInput is returned in case the DonorPreferenceWhereInput is empty.
+var ErrEmptyDonorPreferenceWhereInput = errors.New("ent: empty predicate DonorPreferenceWhereInput")
+
+// P returns a predicate for filtering donorpreferences.
+// An error is returned if the input is empty or invalid.
+func (i *DonorPreferenceWhereInput) P() (predicate.DonorPreference, error) {
+	var predicates []predicate.DonorPreference
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, donorpreference.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.DonorPreference, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, donorpreference.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.DonorPreference, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, donorpreference.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, donorpreference.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, donorpreference.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, donorpreference.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, donorpreference.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, donorpreference.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, donorpreference.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, donorpreference.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, donorpreference.IDLTE(*i.IDLTE))
+	}
+	if i.IDEqualFold != nil {
+		predicates = append(predicates, donorpreference.IDEqualFold(*i.IDEqualFold))
+	}
+	if i.IDContainsFold != nil {
+		predicates = append(predicates, donorpreference.IDContainsFold(*i.IDContainsFold))
+	}
+	if i.CreatedAt != nil {
+		predicates = append(predicates, donorpreference.CreatedAtEQ(*i.CreatedAt))
+	}
+	if i.CreatedAtNEQ != nil {
+		predicates = append(predicates, donorpreference.CreatedAtNEQ(*i.CreatedAtNEQ))
+	}
+	if len(i.CreatedAtIn) > 0 {
+		predicates = append(predicates, donorpreference.CreatedAtIn(i.CreatedAtIn...))
+	}
+	if len(i.CreatedAtNotIn) > 0 {
+		predicates = append(predicates, donorpreference.CreatedAtNotIn(i.CreatedAtNotIn...))
+	}
+	if i.CreatedAtGT != nil {
+		predicates = append(predicates, donorpreference.CreatedAtGT(*i.CreatedAtGT))
+	}
+	if i.CreatedAtGTE != nil {
+		predicates = append(predicates, donorpreference.CreatedAtGTE(*i.CreatedAtGTE))
+	}
+	if i.CreatedAtLT != nil {
+		predicates = append(predicates, donorpreference.CreatedAtLT(*i.CreatedAtLT))
+	}
+	if i.CreatedAtLTE != nil {
+		predicates = append(predicates, donorpreference.CreatedAtLTE(*i.CreatedAtLTE))
+	}
+	if i.UpdatedAt != nil {
+		predicates = append(predicates, donorpreference.UpdatedAtEQ(*i.UpdatedAt))
+	}
+	if i.UpdatedAtNEQ != nil {
+		predicates = append(predicates, donorpreference.UpdatedAtNEQ(*i.UpdatedAtNEQ))
+	}
+	if len(i.UpdatedAtIn) > 0 {
+		predicates = append(predicates, donorpreference.UpdatedAtIn(i.UpdatedAtIn...))
+	}
+	if len(i.UpdatedAtNotIn) > 0 {
+		predicates = append(predicates, donorpreference.UpdatedAtNotIn(i.UpdatedAtNotIn...))
+	}
+	if i.UpdatedAtGT != nil {
+		predicates = append(predicates, donorpreference.UpdatedAtGT(*i.UpdatedAtGT))
+	}
+	if i.UpdatedAtGTE != nil {
+		predicates = append(predicates, donorpreference.UpdatedAtGTE(*i.UpdatedAtGTE))
+	}
+	if i.UpdatedAtLT != nil {
+		predicates = append(predicates, donorpreference.UpdatedAtLT(*i.UpdatedAtLT))
+	}
+	if i.UpdatedAtLTE != nil {
+		predicates = append(predicates, donorpreference.UpdatedAtLTE(*i.UpdatedAtLTE))
+	}
+	if i.DeletedAt != nil {
+		predicates = append(predicates, donorpreference.DeletedAtEQ(*i.DeletedAt))
+	}
+	if i.DeletedAtNEQ != nil {
+		predicates = append(predicates, donorpreference.DeletedAtNEQ(*i.DeletedAtNEQ))
+	}
+	if len(i.DeletedAtIn) > 0 {
+		predicates = append(predicates, donorpreference.DeletedAtIn(i.DeletedAtIn...))
+	}
+	if len(i.DeletedAtNotIn) > 0 {
+		predicates = append(predicates, donorpreference.DeletedAtNotIn(i.DeletedAtNotIn...))
+	}
+	if i.DeletedAtGT != nil {
+		predicates = append(predicates, donorpreference.DeletedAtGT(*i.DeletedAtGT))
+	}
+	if i.DeletedAtGTE != nil {
+		predicates = append(predicates, donorpreference.DeletedAtGTE(*i.DeletedAtGTE))
+	}
+	if i.DeletedAtLT != nil {
+		predicates = append(predicates, donorpreference.DeletedAtLT(*i.DeletedAtLT))
+	}
+	if i.DeletedAtLTE != nil {
+		predicates = append(predicates, donorpreference.DeletedAtLTE(*i.DeletedAtLTE))
+	}
+	if i.DeletedAtIsNil {
+		predicates = append(predicates, donorpreference.DeletedAtIsNil())
+	}
+	if i.DeletedAtNotNil {
+		predicates = append(predicates, donorpreference.DeletedAtNotNil())
+	}
+	if i.RecoveryPeriodMonths != nil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsEQ(*i.RecoveryPeriodMonths))
+	}
+	if i.RecoveryPeriodMonthsNEQ != nil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsNEQ(*i.RecoveryPeriodMonthsNEQ))
+	}
+	if len(i.RecoveryPeriodMonthsIn) > 0 {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsIn(i.RecoveryPeriodMonthsIn...))
+	}
+	if len(i.RecoveryPeriodMonthsNotIn) > 0 {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsNotIn(i.RecoveryPeriodMonthsNotIn...))
+	}
+	if i.RecoveryPeriodMonthsGT != nil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsGT(*i.RecoveryPeriodMonthsGT))
+	}
+	if i.RecoveryPeriodMonthsGTE != nil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsGTE(*i.RecoveryPeriodMonthsGTE))
+	}
+	if i.RecoveryPeriodMonthsLT != nil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsLT(*i.RecoveryPeriodMonthsLT))
+	}
+	if i.RecoveryPeriodMonthsLTE != nil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsLTE(*i.RecoveryPeriodMonthsLTE))
+	}
+	if i.RecoveryPeriodMonthsIsNil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsIsNil())
+	}
+	if i.RecoveryPeriodMonthsNotNil {
+		predicates = append(predicates, donorpreference.RecoveryPeriodMonthsNotNil())
+	}
+	if i.CompensationType != nil {
+		predicates = append(predicates, donorpreference.CompensationTypeEQ(*i.CompensationType))
+	}
+	if i.CompensationTypeNEQ != nil {
+		predicates = append(predicates, donorpreference.CompensationTypeNEQ(*i.CompensationTypeNEQ))
+	}
+	if len(i.CompensationTypeIn) > 0 {
+		predicates = append(predicates, donorpreference.CompensationTypeIn(i.CompensationTypeIn...))
+	}
+	if len(i.CompensationTypeNotIn) > 0 {
+		predicates = append(predicates, donorpreference.CompensationTypeNotIn(i.CompensationTypeNotIn...))
+	}
+	if i.TaxiCompensation != nil {
+		predicates = append(predicates, donorpreference.TaxiCompensationEQ(*i.TaxiCompensation))
+	}
+	if i.TaxiCompensationNEQ != nil {
+		predicates = append(predicates, donorpreference.TaxiCompensationNEQ(*i.TaxiCompensationNEQ))
+	}
+	if i.NotificationFrequency != nil {
+		predicates = append(predicates, donorpreference.NotificationFrequencyEQ(*i.NotificationFrequency))
+	}
+	if i.NotificationFrequencyNEQ != nil {
+		predicates = append(predicates, donorpreference.NotificationFrequencyNEQ(*i.NotificationFrequencyNEQ))
+	}
+	if len(i.NotificationFrequencyIn) > 0 {
+		predicates = append(predicates, donorpreference.NotificationFrequencyIn(i.NotificationFrequencyIn...))
+	}
+	if len(i.NotificationFrequencyNotIn) > 0 {
+		predicates = append(predicates, donorpreference.NotificationFrequencyNotIn(i.NotificationFrequencyNotIn...))
+	}
+
+	if i.HasUser != nil {
+		p := donorpreference.HasUser()
+		if !*i.HasUser {
+			p = donorpreference.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasUserWith) > 0 {
+		with := make([]predicate.User, 0, len(i.HasUserWith))
+		for _, w := range i.HasUserWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasUserWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, donorpreference.HasUserWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyDonorPreferenceWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return donorpreference.And(predicates...), nil
 	}
 }
 
@@ -4412,6 +4765,10 @@ type UserWhereInput struct {
 	// "location" edge predicates.
 	HasLocation     *bool                 `json:"hasLocation,omitempty"`
 	HasLocationWith []*LocationWhereInput `json:"hasLocationWith,omitempty"`
+
+	// "donor_preference" edge predicates.
+	HasDonorPreference     *bool                        `json:"hasDonorPreference,omitempty"`
+	HasDonorPreferenceWith []*DonorPreferenceWhereInput `json:"hasDonorPreferenceWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -4902,6 +5259,24 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, user.HasLocationWith(with...))
+	}
+	if i.HasDonorPreference != nil {
+		p := user.HasDonorPreference()
+		if !*i.HasDonorPreference {
+			p = user.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasDonorPreferenceWith) > 0 {
+		with := make([]predicate.DonorPreference, 0, len(i.HasDonorPreferenceWith))
+		for _, w := range i.HasDonorPreferenceWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasDonorPreferenceWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, user.HasDonorPreferenceWith(with...))
 	}
 	switch len(predicates) {
 	case 0:

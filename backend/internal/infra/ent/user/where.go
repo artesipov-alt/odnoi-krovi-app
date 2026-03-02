@@ -771,6 +771,29 @@ func HasLocationWith(preds ...predicate.Location) predicate.User {
 	})
 }
 
+// HasDonorPreference applies the HasEdge predicate on the "donor_preference" edge.
+func HasDonorPreference() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, DonorPreferenceTable, DonorPreferenceColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDonorPreferenceWith applies the HasEdge predicate on the "donor_preference" edge with a given conditions (other predicates).
+func HasDonorPreferenceWith(preds ...predicate.DonorPreference) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newDonorPreferenceStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

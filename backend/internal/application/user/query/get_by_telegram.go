@@ -3,7 +3,6 @@ package query
 import (
 	"context"
 
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
@@ -18,15 +17,15 @@ func NewGetByTelegramHandler(userepo user.Repository) *GetByTelegramHandler {
 	}
 }
 
-func (h *GetByTelegramHandler) Handle(ctx context.Context, id int64, withPets bool) (*usermodel.User, []*petmodel.Pet, error) {
+func (h *GetByTelegramHandler) Handle(ctx context.Context, id int64, withPets bool) (*usermodel.User, error) {
 	opts := user.UserPreloadOptions{
 		WithPets: withPets,
 	}
 
-	u, p, err := h.userRepo.GetByTelegram(ctx, id, opts)
+	u, err := h.userRepo.GetByTelegram(ctx, id, opts)
 	if err != nil {
-		return nil, nil, err // Доменная ошибка (например, ErrUserNotFound)
+		return nil, err // Доменная ошибка (например, ErrUserNotFound)
 	}
 
-	return u, p, nil
+	return u, nil
 }

@@ -33,7 +33,7 @@ func NewGetByUserHandler(
 }
 
 func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
-	_, _, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{})
+	_, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{})
 	if err != nil {
 		// Репозиторий уже возвращает доменные ошибки
 		return nil, err

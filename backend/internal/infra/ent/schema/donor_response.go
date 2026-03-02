@@ -9,8 +9,6 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-const DonorResponsePrefix = "RES"
-
 type DonorResponse struct {
 	ent.Schema
 }

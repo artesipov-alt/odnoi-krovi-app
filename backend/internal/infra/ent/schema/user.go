@@ -80,6 +80,9 @@ func (User) Edges() []ent.Edge {
 			Ref("users").
 			Unique().
 			Field("location_id"),
+		// donor_preference is the edge to the user's donor preferences.
+		edge.To("donor_preference", DonorPreference.Type).
+			Unique(),
 	}
 }
 

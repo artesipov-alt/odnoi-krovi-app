@@ -16,6 +16,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -87,6 +88,7 @@ func checkColumn(t, c string) error {
 			bloodgroup.Table:         bloodgroup.ValidColumn,
 			bloodsearchrequest.Table: bloodsearchrequest.ValidColumn,
 			breed.Table:              breed.ValidColumn,
+			donorpreference.Table:    donorpreference.ValidColumn,
 			donorresponse.Table:      donorresponse.ValidColumn,
 			location.Table:           location.ValidColumn,
 			pet.Table:                pet.ValidColumn,

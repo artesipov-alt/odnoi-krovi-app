@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
@@ -276,6 +277,25 @@ func (_u *UserUpdate) SetLocation(v *Location) *UserUpdate {
 	return _u.SetLocationID(v.ID)
 }
 
+// SetDonorPreferenceID sets the "donor_preference" edge to the DonorPreference entity by ID.
+func (_u *UserUpdate) SetDonorPreferenceID(id string) *UserUpdate {
+	_u.mutation.SetDonorPreferenceID(id)
+	return _u
+}
+
+// SetNillableDonorPreferenceID sets the "donor_preference" edge to the DonorPreference entity by ID if the given value is not nil.
+func (_u *UserUpdate) SetNillableDonorPreferenceID(id *string) *UserUpdate {
+	if id != nil {
+		_u = _u.SetDonorPreferenceID(*id)
+	}
+	return _u
+}
+
+// SetDonorPreference sets the "donor_preference" edge to the DonorPreference entity.
+func (_u *UserUpdate) SetDonorPreference(v *DonorPreference) *UserUpdate {
+	return _u.SetDonorPreferenceID(v.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -305,6 +325,12 @@ func (_u *UserUpdate) RemovePets(v ...*Pet) *UserUpdate {
 // ClearLocation clears the "location" edge to the Location entity.
 func (_u *UserUpdate) ClearLocation() *UserUpdate {
 	_u.mutation.ClearLocation()
+	return _u
+}
+
+// ClearDonorPreference clears the "donor_preference" edge to the DonorPreference entity.
+func (_u *UserUpdate) ClearDonorPreference() *UserUpdate {
+	_u.mutation.ClearDonorPreference()
 	return _u
 }
 
@@ -523,6 +549,35 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DonorPreferenceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.DonorPreferenceTable,
+			Columns: []string{user.DonorPreferenceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DonorPreferenceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.DonorPreferenceTable,
+			Columns: []string{user.DonorPreferenceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -795,6 +850,25 @@ func (_u *UserUpdateOne) SetLocation(v *Location) *UserUpdateOne {
 	return _u.SetLocationID(v.ID)
 }
 
+// SetDonorPreferenceID sets the "donor_preference" edge to the DonorPreference entity by ID.
+func (_u *UserUpdateOne) SetDonorPreferenceID(id string) *UserUpdateOne {
+	_u.mutation.SetDonorPreferenceID(id)
+	return _u
+}
+
+// SetNillableDonorPreferenceID sets the "donor_preference" edge to the DonorPreference entity by ID if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableDonorPreferenceID(id *string) *UserUpdateOne {
+	if id != nil {
+		_u = _u.SetDonorPreferenceID(*id)
+	}
+	return _u
+}
+
+// SetDonorPreference sets the "donor_preference" edge to the DonorPreference entity.
+func (_u *UserUpdateOne) SetDonorPreference(v *DonorPreference) *UserUpdateOne {
+	return _u.SetDonorPreferenceID(v.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -824,6 +898,12 @@ func (_u *UserUpdateOne) RemovePets(v ...*Pet) *UserUpdateOne {
 // ClearLocation clears the "location" edge to the Location entity.
 func (_u *UserUpdateOne) ClearLocation() *UserUpdateOne {
 	_u.mutation.ClearLocation()
+	return _u
+}
+
+// ClearDonorPreference clears the "donor_preference" edge to the DonorPreference entity.
+func (_u *UserUpdateOne) ClearDonorPreference() *UserUpdateOne {
+	_u.mutation.ClearDonorPreference()
 	return _u
 }
 
@@ -1072,6 +1152,35 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(location.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DonorPreferenceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.DonorPreferenceTable,
+			Columns: []string{user.DonorPreferenceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DonorPreferenceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.DonorPreferenceTable,
+			Columns: []string{user.DonorPreferenceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

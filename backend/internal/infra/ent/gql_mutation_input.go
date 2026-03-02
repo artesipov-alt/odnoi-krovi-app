@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
@@ -205,6 +206,120 @@ func (c *BloodSearchRequestUpdate) SetInput(i UpdateBloodSearchRequestInput) *Bl
 
 // SetInput applies the change-set in the UpdateBloodSearchRequestInput on the BloodSearchRequestUpdateOne builder.
 func (c *BloodSearchRequestUpdateOne) SetInput(i UpdateBloodSearchRequestInput) *BloodSearchRequestUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// CreateDonorPreferenceInput represents a mutation input for creating donorpreferences.
+type CreateDonorPreferenceInput struct {
+	CreatedAt             *time.Time
+	UpdatedAt             *time.Time
+	DeletedAt             *time.Time
+	PreferredLocationIds  []string
+	RecoveryPeriodMonths  *int
+	CompensationType      donorpreference.CompensationType
+	TaxiCompensation      *bool
+	NotificationFrequency *donorpreference.NotificationFrequency
+	UserID                string
+}
+
+// Mutate applies the CreateDonorPreferenceInput on the DonorPreferenceMutation builder.
+func (i *CreateDonorPreferenceInput) Mutate(m *DonorPreferenceMutation) {
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if v := i.PreferredLocationIds; v != nil {
+		m.SetPreferredLocationIds(v)
+	}
+	if v := i.RecoveryPeriodMonths; v != nil {
+		m.SetRecoveryPeriodMonths(*v)
+	}
+	m.SetCompensationType(i.CompensationType)
+	if v := i.TaxiCompensation; v != nil {
+		m.SetTaxiCompensation(*v)
+	}
+	if v := i.NotificationFrequency; v != nil {
+		m.SetNotificationFrequency(*v)
+	}
+	m.SetUserID(i.UserID)
+}
+
+// SetInput applies the change-set in the CreateDonorPreferenceInput on the DonorPreferenceCreate builder.
+func (c *DonorPreferenceCreate) SetInput(i CreateDonorPreferenceInput) *DonorPreferenceCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdateDonorPreferenceInput represents a mutation input for updating donorpreferences.
+type UpdateDonorPreferenceInput struct {
+	UpdatedAt                  *time.Time
+	ClearDeletedAt             bool
+	DeletedAt                  *time.Time
+	ClearPreferredLocationIds  bool
+	PreferredLocationIds       []string
+	AppendPreferredLocationIds []string
+	ClearRecoveryPeriodMonths  bool
+	RecoveryPeriodMonths       *int
+	CompensationType           *donorpreference.CompensationType
+	TaxiCompensation           *bool
+	NotificationFrequency      *donorpreference.NotificationFrequency
+	UserID                     *string
+}
+
+// Mutate applies the UpdateDonorPreferenceInput on the DonorPreferenceMutation builder.
+func (i *UpdateDonorPreferenceInput) Mutate(m *DonorPreferenceMutation) {
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if i.ClearDeletedAt {
+		m.ClearDeletedAt()
+	}
+	if v := i.DeletedAt; v != nil {
+		m.SetDeletedAt(*v)
+	}
+	if i.ClearPreferredLocationIds {
+		m.ClearPreferredLocationIds()
+	}
+	if v := i.PreferredLocationIds; v != nil {
+		m.SetPreferredLocationIds(v)
+	}
+	if i.AppendPreferredLocationIds != nil {
+		m.AppendPreferredLocationIds(i.PreferredLocationIds)
+	}
+	if i.ClearRecoveryPeriodMonths {
+		m.ClearRecoveryPeriodMonths()
+	}
+	if v := i.RecoveryPeriodMonths; v != nil {
+		m.SetRecoveryPeriodMonths(*v)
+	}
+	if v := i.CompensationType; v != nil {
+		m.SetCompensationType(*v)
+	}
+	if v := i.TaxiCompensation; v != nil {
+		m.SetTaxiCompensation(*v)
+	}
+	if v := i.NotificationFrequency; v != nil {
+		m.SetNotificationFrequency(*v)
+	}
+	if v := i.UserID; v != nil {
+		m.SetUserID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdateDonorPreferenceInput on the DonorPreferenceUpdate builder.
+func (c *DonorPreferenceUpdate) SetInput(i UpdateDonorPreferenceInput) *DonorPreferenceUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdateDonorPreferenceInput on the DonorPreferenceUpdateOne builder.
+func (c *DonorPreferenceUpdateOne) SetInput(i UpdateDonorPreferenceInput) *DonorPreferenceUpdateOne {
 	i.Mutate(c.Mutation())
 	return c
 }
@@ -943,21 +1058,22 @@ func (c *PetTreatmentUpdateOne) SetInput(i UpdatePetTreatmentInput) *PetTreatmen
 
 // CreateUserInput represents a mutation input for creating users.
 type CreateUserInput struct {
-	CreatedAt        *time.Time
-	UpdatedAt        *time.Time
-	DeletedAt        *time.Time
-	TelegramID       int64
-	FullName         *string
-	Phone            *string
-	Email            *string
-	OrganizationName *string
-	ConsentPd        *bool
-	OnBoarding       []string
-	AllowGeo         *bool
-	PhotoUrls        []string
-	Role             *user.Role
-	PetIDs           []string
-	LocationID       *string
+	CreatedAt         *time.Time
+	UpdatedAt         *time.Time
+	DeletedAt         *time.Time
+	TelegramID        int64
+	FullName          *string
+	Phone             *string
+	Email             *string
+	OrganizationName  *string
+	ConsentPd         *bool
+	OnBoarding        []string
+	AllowGeo          *bool
+	PhotoUrls         []string
+	Role              *user.Role
+	PetIDs            []string
+	LocationID        *string
+	DonorPreferenceID *string
 }
 
 // Mutate applies the CreateUserInput on the UserMutation builder.
@@ -1005,6 +1121,9 @@ func (i *CreateUserInput) Mutate(m *UserMutation) {
 	if v := i.LocationID; v != nil {
 		m.SetLocationID(*v)
 	}
+	if v := i.DonorPreferenceID; v != nil {
+		m.SetDonorPreferenceID(*v)
+	}
 }
 
 // SetInput applies the change-set in the CreateUserInput on the UserCreate builder.
@@ -1041,6 +1160,8 @@ type UpdateUserInput struct {
 	RemovePetIDs          []string
 	ClearLocation         bool
 	LocationID            *string
+	ClearDonorPreference  bool
+	DonorPreferenceID     *string
 }
 
 // Mutate applies the UpdateUserInput on the UserMutation builder.
@@ -1122,6 +1243,12 @@ func (i *UpdateUserInput) Mutate(m *UserMutation) {
 	}
 	if v := i.LocationID; v != nil {
 		m.SetLocationID(*v)
+	}
+	if i.ClearDonorPreference {
+		m.ClearDonorPreference()
+	}
+	if v := i.DonorPreferenceID; v != nil {
+		m.SetDonorPreferenceID(*v)
 	}
 }
 

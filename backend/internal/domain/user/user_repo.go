@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
@@ -13,10 +12,10 @@ type Repository interface {
 	Create(ctx context.Context, user *usermodel.User) (*usermodel.User, error)
 
 	// GetByID возвращает пользователя по ID
-	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error)
+	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*usermodel.User, error)
 
 	// GetByTelegram возвращает пользователя по Telegram ID
-	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*usermodel.User, []*petmodel.Pet, error)
+	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*usermodel.User, error)
 
 	// Update обновляет существующего пользователя в базе данных
 	Update(ctx context.Context, id string, input *usermodel.User) error
@@ -44,5 +43,6 @@ type Repository interface {
 }
 
 type UserPreloadOptions struct {
-	WithPets bool
+	WithPets            bool
+	WithDonorPreference bool
 }

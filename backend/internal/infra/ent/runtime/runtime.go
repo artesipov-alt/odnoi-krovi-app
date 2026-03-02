@@ -9,6 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -112,6 +113,35 @@ func init() {
 			return nil
 		}
 	}()
+	donorpreferenceMixin := schema.DonorPreference{}.Mixin()
+	donorpreferenceMixinInters0 := donorpreferenceMixin[0].Interceptors()
+	donorpreference.Interceptors[0] = donorpreferenceMixinInters0[0]
+	donorpreferenceMixinFields0 := donorpreferenceMixin[0].Fields()
+	_ = donorpreferenceMixinFields0
+	donorpreferenceFields := schema.DonorPreference{}.Fields()
+	_ = donorpreferenceFields
+	// donorpreferenceDescCreatedAt is the schema descriptor for created_at field.
+	donorpreferenceDescCreatedAt := donorpreferenceMixinFields0[1].Descriptor()
+	// donorpreference.DefaultCreatedAt holds the default value on creation for the created_at field.
+	donorpreference.DefaultCreatedAt = donorpreferenceDescCreatedAt.Default.(func() time.Time)
+	// donorpreferenceDescUpdatedAt is the schema descriptor for updated_at field.
+	donorpreferenceDescUpdatedAt := donorpreferenceMixinFields0[2].Descriptor()
+	// donorpreference.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	donorpreference.DefaultUpdatedAt = donorpreferenceDescUpdatedAt.Default.(func() time.Time)
+	// donorpreference.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	donorpreference.UpdateDefaultUpdatedAt = donorpreferenceDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// donorpreferenceDescRecoveryPeriodMonths is the schema descriptor for recovery_period_months field.
+	donorpreferenceDescRecoveryPeriodMonths := donorpreferenceFields[1].Descriptor()
+	// donorpreference.DefaultRecoveryPeriodMonths holds the default value on creation for the recovery_period_months field.
+	donorpreference.DefaultRecoveryPeriodMonths = donorpreferenceDescRecoveryPeriodMonths.Default.(int)
+	// donorpreferenceDescTaxiCompensation is the schema descriptor for taxi_compensation field.
+	donorpreferenceDescTaxiCompensation := donorpreferenceFields[3].Descriptor()
+	// donorpreference.DefaultTaxiCompensation holds the default value on creation for the taxi_compensation field.
+	donorpreference.DefaultTaxiCompensation = donorpreferenceDescTaxiCompensation.Default.(bool)
+	// donorpreferenceDescID is the schema descriptor for id field.
+	donorpreferenceDescID := donorpreferenceMixinFields0[0].Descriptor()
+	// donorpreference.DefaultID holds the default value on creation for the id field.
+	donorpreference.DefaultID = donorpreferenceDescID.Default.(func() string)
 	donorresponseMixin := schema.DonorResponse{}.Mixin()
 	donorresponseMixinInters0 := donorresponseMixin[0].Interceptors()
 	donorresponse.Interceptors[0] = donorresponseMixinInters0[0]

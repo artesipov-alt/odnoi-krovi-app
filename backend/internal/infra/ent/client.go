@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -41,6 +42,8 @@ type Client struct {
 	BloodSearchRequest *BloodSearchRequestClient
 	// Breed is the client for interacting with the Breed builders.
 	Breed *BreedClient
+	// DonorPreference is the client for interacting with the DonorPreference builders.
+	DonorPreference *DonorPreferenceClient
 	// DonorResponse is the client for interacting with the DonorResponse builders.
 	DonorResponse *DonorResponseClient
 	// Location is the client for interacting with the Location builders.
@@ -70,6 +73,7 @@ func (c *Client) init() {
 	c.BloodGroup = NewBloodGroupClient(c.config)
 	c.BloodSearchRequest = NewBloodSearchRequestClient(c.config)
 	c.Breed = NewBreedClient(c.config)
+	c.DonorPreference = NewDonorPreferenceClient(c.config)
 	c.DonorResponse = NewDonorResponseClient(c.config)
 	c.Location = NewLocationClient(c.config)
 	c.Pet = NewPetClient(c.config)
@@ -173,6 +177,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		BloodGroup:         NewBloodGroupClient(cfg),
 		BloodSearchRequest: NewBloodSearchRequestClient(cfg),
 		Breed:              NewBreedClient(cfg),
+		DonorPreference:    NewDonorPreferenceClient(cfg),
 		DonorResponse:      NewDonorResponseClient(cfg),
 		Location:           NewLocationClient(cfg),
 		Pet:                NewPetClient(cfg),
@@ -203,6 +208,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		BloodGroup:         NewBloodGroupClient(cfg),
 		BloodSearchRequest: NewBloodSearchRequestClient(cfg),
 		Breed:              NewBreedClient(cfg),
+		DonorPreference:    NewDonorPreferenceClient(cfg),
 		DonorResponse:      NewDonorResponseClient(cfg),
 		Location:           NewLocationClient(cfg),
 		Pet:                NewPetClient(cfg),
@@ -239,8 +245,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed, c.DonorResponse,
-		c.Location, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User,
+		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed,
+		c.DonorPreference, c.DonorResponse, c.Location, c.Pet, c.PetAnalysis,
+		c.PetHealth, c.PetTreatment, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -250,8 +257,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed, c.DonorResponse,
-		c.Location, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User,
+		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed,
+		c.DonorPreference, c.DonorResponse, c.Location, c.Pet, c.PetAnalysis,
+		c.PetHealth, c.PetTreatment, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -268,6 +276,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.BloodSearchRequest.mutate(ctx, m)
 	case *BreedMutation:
 		return c.Breed.mutate(ctx, m)
+	case *DonorPreferenceMutation:
+		return c.DonorPreference.mutate(ctx, m)
 	case *DonorResponseMutation:
 		return c.DonorResponse.mutate(ctx, m)
 	case *LocationMutation:
@@ -881,6 +891,156 @@ func (c *BreedClient) mutate(ctx context.Context, m *BreedMutation) (Value, erro
 		return (&BreedDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Breed mutation op: %q", m.Op())
+	}
+}
+
+// DonorPreferenceClient is a client for the DonorPreference schema.
+type DonorPreferenceClient struct {
+	config
+}
+
+// NewDonorPreferenceClient returns a client for the DonorPreference from the given config.
+func NewDonorPreferenceClient(c config) *DonorPreferenceClient {
+	return &DonorPreferenceClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `donorpreference.Hooks(f(g(h())))`.
+func (c *DonorPreferenceClient) Use(hooks ...Hook) {
+	c.hooks.DonorPreference = append(c.hooks.DonorPreference, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `donorpreference.Intercept(f(g(h())))`.
+func (c *DonorPreferenceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DonorPreference = append(c.inters.DonorPreference, interceptors...)
+}
+
+// Create returns a builder for creating a DonorPreference entity.
+func (c *DonorPreferenceClient) Create() *DonorPreferenceCreate {
+	mutation := newDonorPreferenceMutation(c.config, OpCreate)
+	return &DonorPreferenceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DonorPreference entities.
+func (c *DonorPreferenceClient) CreateBulk(builders ...*DonorPreferenceCreate) *DonorPreferenceCreateBulk {
+	return &DonorPreferenceCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DonorPreferenceClient) MapCreateBulk(slice any, setFunc func(*DonorPreferenceCreate, int)) *DonorPreferenceCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DonorPreferenceCreateBulk{err: fmt.Errorf("calling to DonorPreferenceClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DonorPreferenceCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DonorPreferenceCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DonorPreference.
+func (c *DonorPreferenceClient) Update() *DonorPreferenceUpdate {
+	mutation := newDonorPreferenceMutation(c.config, OpUpdate)
+	return &DonorPreferenceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DonorPreferenceClient) UpdateOne(_m *DonorPreference) *DonorPreferenceUpdateOne {
+	mutation := newDonorPreferenceMutation(c.config, OpUpdateOne, withDonorPreference(_m))
+	return &DonorPreferenceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DonorPreferenceClient) UpdateOneID(id string) *DonorPreferenceUpdateOne {
+	mutation := newDonorPreferenceMutation(c.config, OpUpdateOne, withDonorPreferenceID(id))
+	return &DonorPreferenceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DonorPreference.
+func (c *DonorPreferenceClient) Delete() *DonorPreferenceDelete {
+	mutation := newDonorPreferenceMutation(c.config, OpDelete)
+	return &DonorPreferenceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DonorPreferenceClient) DeleteOne(_m *DonorPreference) *DonorPreferenceDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DonorPreferenceClient) DeleteOneID(id string) *DonorPreferenceDeleteOne {
+	builder := c.Delete().Where(donorpreference.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DonorPreferenceDeleteOne{builder}
+}
+
+// Query returns a query builder for DonorPreference.
+func (c *DonorPreferenceClient) Query() *DonorPreferenceQuery {
+	return &DonorPreferenceQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDonorPreference},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DonorPreference entity by its id.
+func (c *DonorPreferenceClient) Get(ctx context.Context, id string) (*DonorPreference, error) {
+	return c.Query().Where(donorpreference.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DonorPreferenceClient) GetX(ctx context.Context, id string) *DonorPreference {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a DonorPreference.
+func (c *DonorPreferenceClient) QueryUser(_m *DonorPreference) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(donorpreference.Table, donorpreference.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, donorpreference.UserTable, donorpreference.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DonorPreferenceClient) Hooks() []Hook {
+	return c.hooks.DonorPreference
+}
+
+// Interceptors returns the client interceptors.
+func (c *DonorPreferenceClient) Interceptors() []Interceptor {
+	inters := c.inters.DonorPreference
+	return append(inters[:len(inters):len(inters)], donorpreference.Interceptors[:]...)
+}
+
+func (c *DonorPreferenceClient) mutate(ctx context.Context, m *DonorPreferenceMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DonorPreferenceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DonorPreferenceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DonorPreferenceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DonorPreferenceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DonorPreference mutation op: %q", m.Op())
 	}
 }
 
@@ -2051,6 +2211,22 @@ func (c *UserClient) QueryLocation(_m *User) *LocationQuery {
 	return query
 }
 
+// QueryDonorPreference queries the donor_preference edge of a User.
+func (c *UserClient) QueryDonorPreference(_m *User) *DonorPreferenceQuery {
+	query := (&DonorPreferenceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(donorpreference.Table, donorpreference.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.DonorPreferenceTable, user.DonorPreferenceColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -2080,11 +2256,13 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorResponse, Location,
-		Pet, PetAnalysis, PetHealth, PetTreatment, User []ent.Hook
+		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorPreference,
+		DonorResponse, Location, Pet, PetAnalysis, PetHealth, PetTreatment,
+		User []ent.Hook
 	}
 	inters struct {
-		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorResponse, Location,
-		Pet, PetAnalysis, PetHealth, PetTreatment, User []ent.Interceptor
+		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorPreference,
+		DonorResponse, Location, Pet, PetAnalysis, PetHealth, PetTreatment,
+		User []ent.Interceptor
 	}
 )

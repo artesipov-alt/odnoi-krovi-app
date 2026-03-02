@@ -2,7 +2,6 @@
 package mapper
 
 import (
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 )
@@ -20,7 +19,7 @@ func NewUserMapper(petMapper *PetMapper) *UserMapper {
 }
 
 // ToResponse converts a domain User model to a UserDetail DTO.
-func (m *UserMapper) ToResponse(u *model.User, pets []*petmodel.Pet) dto.UserDetail {
+func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 	if u == nil {
 		return dto.UserDetail{}
 	}
@@ -47,10 +46,6 @@ func (m *UserMapper) ToResponse(u *model.User, pets []*petmodel.Pet) dto.UserDet
 		userDTO.LocationID = *u.LocationID
 	}
 
-	if pets != nil && m.petMapper != nil {
-		userDTO.Pets = m.petMapper.ToSimplifiedResponseSlice(pets)
-	}
-
 	return userDTO
 }
 
@@ -61,20 +56,26 @@ func (m *UserMapper) ToResponseSlice(users []*model.User) []dto.UserDetail {
 	}
 	dtos := make([]dto.UserDetail, len(users))
 	for i, u := range users {
-		dtos[i] = m.ToResponse(u, nil)
+		dtos[i] = m.ToResponse(u)
 	}
 	return dtos
 }
 
 // FromCreate converts a CreateUserBody DTO to a domain User model using the constructor.
 func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
-	return model.NewUser(
-		body.TelegramID,
-		body.FullName,
-		"", // phone - empty for simple creation
-		"", // email - empty for simple creation
-		model.RoleUser,
-		false, // consentPd
-		nil,   // locationID
-	)
+	params := model.NewUserParams{
+		TelegramID: body.TelegramID,
+		FullName:   body.FullName,
+		Phone:      "", // phone - empty for simple creation
+		Email:      "", // email - empty for simple creation
+		Role:       model.RoleUser,
+		ConsentPd:  false, // consentPd
+		LocationID: nil,   // locationID
+	}
+
+	prefs := &model.DonorPreferenceParams{
+		RecoveryPeriodMonths:  2,
+		NotificationFrequency: model.NotifyImmediately,
+	}
+	return model.NewUser(params, prefs)
 }

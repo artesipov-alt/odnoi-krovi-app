@@ -57,6 +57,18 @@ func (f BreedFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BreedMutation", m)
 }
 
+// The DonorPreferenceFunc type is an adapter to allow the use of ordinary
+// function as DonorPreference mutator.
+type DonorPreferenceFunc func(context.Context, *ent.DonorPreferenceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DonorPreferenceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DonorPreferenceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DonorPreferenceMutation", m)
+}
+
 // The DonorResponseFunc type is an adapter to allow the use of ordinary
 // function as DonorResponse mutator.
 type DonorResponseFunc func(context.Context, *ent.DonorResponseMutation) (ent.Value, error)
