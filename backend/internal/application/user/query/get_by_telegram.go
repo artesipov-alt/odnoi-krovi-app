@@ -17,9 +17,10 @@ func NewGetByTelegramHandler(userepo user.Repository) *GetByTelegramHandler {
 	}
 }
 
-func (h *GetByTelegramHandler) Handle(ctx context.Context, id int64, withPets bool) (*usermodel.User, error) {
+func (h *GetByTelegramHandler) Handle(ctx context.Context, id int64, withPets bool, withDonorPrefs bool) (*usermodel.User, error) {
 	opts := user.UserPreloadOptions{
-		WithPets: withPets,
+		WithPets:            withPets,
+		WithDonorPreference: withDonorPrefs,
 	}
 
 	u, err := h.userRepo.GetByTelegram(ctx, id, opts)

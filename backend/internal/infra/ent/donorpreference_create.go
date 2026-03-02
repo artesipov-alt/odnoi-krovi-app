@@ -89,6 +89,14 @@ func (_c *DonorPreferenceCreate) SetCompensationType(v donorpreference.Compensat
 	return _c
 }
 
+// SetNillableCompensationType sets the "compensation_type" field if the given value is not nil.
+func (_c *DonorPreferenceCreate) SetNillableCompensationType(v *donorpreference.CompensationType) *DonorPreferenceCreate {
+	if v != nil {
+		_c.SetCompensationType(*v)
+	}
+	return _c
+}
+
 // SetTaxiCompensation sets the "taxi_compensation" field.
 func (_c *DonorPreferenceCreate) SetTaxiCompensation(v bool) *DonorPreferenceCreate {
 	_c.mutation.SetTaxiCompensation(v)
@@ -211,9 +219,6 @@ func (_c *DonorPreferenceCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DonorPreference.updated_at"`)}
 	}
-	if _, ok := _c.mutation.CompensationType(); !ok {
-		return &ValidationError{Name: "compensation_type", err: errors.New(`ent: missing required field "DonorPreference.compensation_type"`)}
-	}
 	if v, ok := _c.mutation.CompensationType(); ok {
 		if err := donorpreference.CompensationTypeValidator(v); err != nil {
 			return &ValidationError{Name: "compensation_type", err: fmt.Errorf(`ent: validator failed for field "DonorPreference.compensation_type": %w`, err)}
@@ -290,7 +295,7 @@ func (_c *DonorPreferenceCreate) createSpec() (*DonorPreference, *sqlgraph.Creat
 	}
 	if value, ok := _c.mutation.CompensationType(); ok {
 		_spec.SetField(donorpreference.FieldCompensationType, field.TypeEnum, value)
-		_node.CompensationType = &value
+		_node.CompensationType = value
 	}
 	if value, ok := _c.mutation.TaxiCompensation(); ok {
 		_spec.SetField(donorpreference.FieldTaxiCompensation, field.TypeBool, value)

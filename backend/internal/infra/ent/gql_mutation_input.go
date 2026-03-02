@@ -217,7 +217,7 @@ type CreateDonorPreferenceInput struct {
 	DeletedAt             *time.Time
 	PreferredLocationIds  []string
 	RecoveryPeriodMonths  *int
-	CompensationType      donorpreference.CompensationType
+	CompensationType      *donorpreference.CompensationType
 	TaxiCompensation      *bool
 	NotificationFrequency *donorpreference.NotificationFrequency
 	UserID                string
@@ -240,7 +240,9 @@ func (i *CreateDonorPreferenceInput) Mutate(m *DonorPreferenceMutation) {
 	if v := i.RecoveryPeriodMonths; v != nil {
 		m.SetRecoveryPeriodMonths(*v)
 	}
-	m.SetCompensationType(i.CompensationType)
+	if v := i.CompensationType; v != nil {
+		m.SetCompensationType(*v)
+	}
 	if v := i.TaxiCompensation; v != nil {
 		m.SetTaxiCompensation(*v)
 	}
@@ -266,6 +268,7 @@ type UpdateDonorPreferenceInput struct {
 	AppendPreferredLocationIds []string
 	ClearRecoveryPeriodMonths  bool
 	RecoveryPeriodMonths       *int
+	ClearCompensationType      bool
 	CompensationType           *donorpreference.CompensationType
 	TaxiCompensation           *bool
 	NotificationFrequency      *donorpreference.NotificationFrequency
@@ -297,6 +300,9 @@ func (i *UpdateDonorPreferenceInput) Mutate(m *DonorPreferenceMutation) {
 	}
 	if v := i.RecoveryPeriodMonths; v != nil {
 		m.SetRecoveryPeriodMonths(*v)
+	}
+	if i.ClearCompensationType {
+		m.ClearCompensationType()
 	}
 	if v := i.CompensationType; v != nil {
 		m.SetCompensationType(*v)

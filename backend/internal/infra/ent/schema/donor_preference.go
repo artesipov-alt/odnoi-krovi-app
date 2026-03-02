@@ -28,7 +28,7 @@ func (DonorPreference) Fields() []ent.Field {
 		// compensation_type указывает предпочтение донора по компенсации
 		field.Enum("compensation_type").
 			Values("free", "paid", "food").
-			Nillable(),
+			Optional(),
 		// taxi_compensation указывает, нужна ли донору компенсация за такси
 		field.Bool("taxi_compensation").
 			Default(false),

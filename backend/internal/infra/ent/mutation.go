@@ -3259,7 +3259,7 @@ func (m *DonorPreferenceMutation) CompensationType() (r donorpreference.Compensa
 // OldCompensationType returns the old "compensation_type" field's value of the DonorPreference entity.
 // If the DonorPreference object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DonorPreferenceMutation) OldCompensationType(ctx context.Context) (v *donorpreference.CompensationType, err error) {
+func (m *DonorPreferenceMutation) OldCompensationType(ctx context.Context) (v donorpreference.CompensationType, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompensationType is only allowed on UpdateOne operations")
 	}
@@ -3273,9 +3273,22 @@ func (m *DonorPreferenceMutation) OldCompensationType(ctx context.Context) (v *d
 	return oldValue.CompensationType, nil
 }
 
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (m *DonorPreferenceMutation) ClearCompensationType() {
+	m.compensation_type = nil
+	m.clearedFields[donorpreference.FieldCompensationType] = struct{}{}
+}
+
+// CompensationTypeCleared returns if the "compensation_type" field was cleared in this mutation.
+func (m *DonorPreferenceMutation) CompensationTypeCleared() bool {
+	_, ok := m.clearedFields[donorpreference.FieldCompensationType]
+	return ok
+}
+
 // ResetCompensationType resets all changes to the "compensation_type" field.
 func (m *DonorPreferenceMutation) ResetCompensationType() {
 	m.compensation_type = nil
+	delete(m.clearedFields, donorpreference.FieldCompensationType)
 }
 
 // SetTaxiCompensation sets the "taxi_compensation" field.
@@ -3616,6 +3629,9 @@ func (m *DonorPreferenceMutation) ClearedFields() []string {
 	if m.FieldCleared(donorpreference.FieldRecoveryPeriodMonths) {
 		fields = append(fields, donorpreference.FieldRecoveryPeriodMonths)
 	}
+	if m.FieldCleared(donorpreference.FieldCompensationType) {
+		fields = append(fields, donorpreference.FieldCompensationType)
+	}
 	return fields
 }
 
@@ -3638,6 +3654,9 @@ func (m *DonorPreferenceMutation) ClearField(name string) error {
 		return nil
 	case donorpreference.FieldRecoveryPeriodMonths:
 		m.ClearRecoveryPeriodMonths()
+		return nil
+	case donorpreference.FieldCompensationType:
+		m.ClearCompensationType()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorPreference nullable field %s", name)

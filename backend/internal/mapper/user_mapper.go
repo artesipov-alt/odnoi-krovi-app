@@ -46,6 +46,21 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		userDTO.LocationID = *u.LocationID
 	}
 
+	if u.DonorPreference != nil {
+		userDTO.DonorPreference = dto.DonorPreference{
+			ID:                    u.DonorPreference.ID,
+			UserID:                u.DonorPreference.UserID,
+			PreferredLocationIDs:  u.DonorPreference.PreferredLocationIDs,
+			RecoveryPeriodMonths:  u.DonorPreference.RecoveryPeriodMonths,
+			CompensationType:      string(u.DonorPreference.CompensationType),
+			TaxiCompensation:      u.DonorPreference.TaxiCompensation,
+			NotificationFrequency: string(u.DonorPreference.NotificationFrequency),
+			CreatedAt:             u.DonorPreference.CreatedAt,
+			UpdatedAt:             u.DonorPreference.UpdatedAt,
+			DeletedAt:             u.DonorPreference.DeletedAt,
+		}
+	}
+
 	return userDTO
 }
 
@@ -74,9 +89,11 @@ func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 	}
 
 	prefs := &model.DonorPreferenceParams{
+		PreferredLocationIDs:  []string{},
 		RecoveryPeriodMonths:  2,
-		NotificationFrequency: model.NotifyImmediately,
+		CompensationType:      "",
 		TaxiCompensation:      false,
+		NotificationFrequency: model.NotifyImmediately,
 	}
 	return model.NewUser(params, prefs)
 }

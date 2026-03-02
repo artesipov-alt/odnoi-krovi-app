@@ -30,7 +30,7 @@ type DonorPreference struct {
 	// RecoveryPeriodMonths holds the value of the "recovery_period_months" field.
 	RecoveryPeriodMonths int `json:"recovery_period_months,omitempty"`
 	// CompensationType holds the value of the "compensation_type" field.
-	CompensationType *donorpreference.CompensationType `json:"compensation_type,omitempty"`
+	CompensationType donorpreference.CompensationType `json:"compensation_type,omitempty"`
 	// TaxiCompensation holds the value of the "taxi_compensation" field.
 	TaxiCompensation bool `json:"taxi_compensation,omitempty"`
 	// NotificationFrequency holds the value of the "notification_frequency" field.
@@ -139,8 +139,7 @@ func (_m *DonorPreference) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field compensation_type", values[i])
 			} else if value.Valid {
-				_m.CompensationType = new(donorpreference.CompensationType)
-				*_m.CompensationType = donorpreference.CompensationType(value.String)
+				_m.CompensationType = donorpreference.CompensationType(value.String)
 			}
 		case donorpreference.FieldTaxiCompensation:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -219,10 +218,8 @@ func (_m *DonorPreference) String() string {
 	builder.WriteString("recovery_period_months=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RecoveryPeriodMonths))
 	builder.WriteString(", ")
-	if v := _m.CompensationType; v != nil {
-		builder.WriteString("compensation_type=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("compensation_type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CompensationType))
 	builder.WriteString(", ")
 	builder.WriteString("taxi_compensation=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TaxiCompensation))

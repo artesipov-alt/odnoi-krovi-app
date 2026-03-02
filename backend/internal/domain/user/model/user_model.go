@@ -36,6 +36,17 @@ type User struct {
 	DeletedAt        *time.Time
 }
 
+// NewUserParams holds the parameters for creating a new User
+type NewUserParams struct {
+	TelegramID int64
+	FullName   string
+	Phone      string
+	Email      string
+	Role       UserRole
+	ConsentPd  bool
+	LocationID *string
+}
+
 // CompensationType represents donor's compensation preference
 type CompensationType string
 
@@ -67,17 +78,6 @@ type DonorPreference struct {
 	CreatedAt             *time.Time
 	UpdatedAt             *time.Time
 	DeletedAt             *time.Time
-}
-
-// NewUserParams holds the parameters for creating a new User
-type NewUserParams struct {
-	TelegramID int64
-	FullName   string
-	Phone      string
-	Email      string
-	Role       UserRole
-	ConsentPd  bool
-	LocationID *string
 }
 
 // DonorPreferenceParams holds the parameters for creating or updating a DonorPreference.

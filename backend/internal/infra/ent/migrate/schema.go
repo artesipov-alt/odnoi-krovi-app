@@ -85,7 +85,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "preferred_location_ids", Type: field.TypeJSON, Nullable: true},
 		{Name: "recovery_period_months", Type: field.TypeInt, Nullable: true, Default: 2},
-		{Name: "compensation_type", Type: field.TypeEnum, Enums: []string{"free", "paid", "food"}},
+		{Name: "compensation_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"free", "paid", "food"}},
 		{Name: "taxi_compensation", Type: field.TypeBool, Default: false},
 		{Name: "notification_frequency", Type: field.TypeEnum, Enums: []string{"immediately", "daily", "weekly", "never"}, Default: "immediately"},
 		{Name: "user_donor_preference", Type: field.TypeString, Unique: true},

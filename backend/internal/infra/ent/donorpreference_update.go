@@ -115,6 +115,12 @@ func (_u *DonorPreferenceUpdate) SetNillableCompensationType(v *donorpreference.
 	return _u
 }
 
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (_u *DonorPreferenceUpdate) ClearCompensationType() *DonorPreferenceUpdate {
+	_u.mutation.ClearCompensationType()
+	return _u
+}
+
 // SetTaxiCompensation sets the "taxi_compensation" field.
 func (_u *DonorPreferenceUpdate) SetTaxiCompensation(v bool) *DonorPreferenceUpdate {
 	_u.mutation.SetTaxiCompensation(v)
@@ -263,6 +269,9 @@ func (_u *DonorPreferenceUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if value, ok := _u.mutation.CompensationType(); ok {
 		_spec.SetField(donorpreference.FieldCompensationType, field.TypeEnum, value)
 	}
+	if _u.mutation.CompensationTypeCleared() {
+		_spec.ClearField(donorpreference.FieldCompensationType, field.TypeEnum)
+	}
 	if value, ok := _u.mutation.TaxiCompensation(); ok {
 		_spec.SetField(donorpreference.FieldTaxiCompensation, field.TypeBool, value)
 	}
@@ -400,6 +409,12 @@ func (_u *DonorPreferenceUpdateOne) SetNillableCompensationType(v *donorpreferen
 	if v != nil {
 		_u.SetCompensationType(*v)
 	}
+	return _u
+}
+
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (_u *DonorPreferenceUpdateOne) ClearCompensationType() *DonorPreferenceUpdateOne {
+	_u.mutation.ClearCompensationType()
 	return _u
 }
 
@@ -580,6 +595,9 @@ func (_u *DonorPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *DonorPr
 	}
 	if value, ok := _u.mutation.CompensationType(); ok {
 		_spec.SetField(donorpreference.FieldCompensationType, field.TypeEnum, value)
+	}
+	if _u.mutation.CompensationTypeCleared() {
+		_spec.ClearField(donorpreference.FieldCompensationType, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.TaxiCompensation(); ok {
 		_spec.SetField(donorpreference.FieldTaxiCompensation, field.TypeBool, value)

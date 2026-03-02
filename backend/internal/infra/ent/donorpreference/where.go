@@ -300,6 +300,16 @@ func CompensationTypeNotIn(vs ...CompensationType) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldNotIn(FieldCompensationType, vs...))
 }
 
+// CompensationTypeIsNil applies the IsNil predicate on the "compensation_type" field.
+func CompensationTypeIsNil() predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldIsNull(FieldCompensationType))
+}
+
+// CompensationTypeNotNil applies the NotNil predicate on the "compensation_type" field.
+func CompensationTypeNotNil() predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldNotNull(FieldCompensationType))
+}
+
 // TaxiCompensationEQ applies the EQ predicate on the "taxi_compensation" field.
 func TaxiCompensationEQ(v bool) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldEQ(FieldTaxiCompensation, v))

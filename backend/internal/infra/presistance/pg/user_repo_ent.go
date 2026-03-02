@@ -81,12 +81,8 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 		prefBuilder := tx.DonorPreference.Create().
 			SetUser(newUser)
 
-		if len(inputuser.DonorPreference.PreferredLocationIDs) > 0 {
-			prefBuilder.SetPreferredLocationIds(inputuser.DonorPreference.PreferredLocationIDs)
-		}
-		if inputuser.DonorPreference.RecoveryPeriodMonths > 0 {
-			prefBuilder.SetRecoveryPeriodMonths(inputuser.DonorPreference.RecoveryPeriodMonths)
-		}
+		prefBuilder.SetPreferredLocationIds(inputuser.DonorPreference.PreferredLocationIDs)
+		prefBuilder.SetRecoveryPeriodMonths(inputuser.DonorPreference.RecoveryPeriodMonths)
 		if inputuser.DonorPreference.CompensationType != "" {
 			prefBuilder.SetCompensationType(donorpreference.CompensationType(inputuser.DonorPreference.CompensationType))
 		}
@@ -221,25 +217,56 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 
 	// Update DonorPreference if provided
 	if input.DonorPreference != nil {
-		prefBuilder := tx.DonorPreference.Update().
-			Where(donorpreference.HasUserWith(entuser.ID(id)))
+		// Check if donor preference exists
+		existingPref, err := tx.DonorPreference.Query().
+			Where(donorpreference.HasUserWith(entuser.ID(id))).
+			Only(ctx)
 
-		if len(input.DonorPreference.PreferredLocationIDs) > 0 {
-			prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
-		}
-		if input.DonorPreference.RecoveryPeriodMonths > 0 {
-			prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
-		}
-		if input.DonorPreference.CompensationType != "" {
-			prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
-		}
-		prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
-		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
-
-		_, err = prefBuilder.Save(ctx)
-		if err != nil {
+		if err != nil && !ent.IsNotFound(err) {
 			tx.Rollback()
-			return fmt.Errorf("failed to update donor preference: %w", err)
+			return fmt.Errorf("failed to query donor preference: %w", err)
+		}
+
+		if existingPref != nil {
+			// Update existing donor preference
+			prefBuilder := tx.DonorPreference.Update().
+				Where(donorpreference.ID(existingPref.ID))
+
+			if len(input.DonorPreference.PreferredLocationIDs) > 0 {
+				prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
+			}
+			if input.DonorPreference.RecoveryPeriodMonths > 0 {
+				prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
+			}
+			if input.DonorPreference.CompensationType != "" {
+				prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
+			}
+			prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
+			prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
+
+			_, err = prefBuilder.Save(ctx)
+			if err != nil {
+				tx.Rollback()
+				return fmt.Errorf("failed to update donor preference: %w", err)
+			}
+		} else {
+			// Create new donor preference if it doesn't exist
+			prefBuilder := tx.DonorPreference.Create().
+				SetUserID(id)
+
+			prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
+			prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
+			if input.DonorPreference.CompensationType != "" {
+				prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
+			}
+			prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
+			prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
+
+			_, err = prefBuilder.Save(ctx)
+			if err != nil {
+				tx.Rollback()
+				return fmt.Errorf("failed to create donor preference: %w", err)
+			}
 		}
 	}
 
@@ -392,7 +419,6 @@ func EntToModel(e *ent.User) *usermodel.User {
 		AllowGeo:         e.AllowGeo,
 		Role:             string(e.Role),
 		Pets:             nil, // Pets are loaded separately via WithPets
-		DonorPreference:  donorPrefToDomain(e.Edges.DonorPreference),
 		CreatedAt:        &e.CreatedAt,
 		UpdatedAt:        &e.UpdatedAt,
 		DeletedAt:        e.DeletedAt,
@@ -410,24 +436,23 @@ func EntToModel(e *ent.User) *usermodel.User {
 	}
 	user.Pets = pets
 
+	// Map DonorPreference with UserID from user
+	if e.Edges.DonorPreference != nil {
+		dp := e.Edges.DonorPreference
+
+		user.DonorPreference = &usermodel.DonorPreference{
+			ID:                    dp.ID,
+			UserID:                e.ID,
+			PreferredLocationIDs:  dp.PreferredLocationIds,
+			RecoveryPeriodMonths:  dp.RecoveryPeriodMonths,
+			CompensationType:      usermodel.CompensationType(dp.CompensationType.String()),
+			TaxiCompensation:      dp.TaxiCompensation,
+			NotificationFrequency: usermodel.NotificationFrequency(dp.NotificationFrequency),
+			CreatedAt:             &dp.CreatedAt,
+			UpdatedAt:             &dp.UpdatedAt,
+			DeletedAt:             dp.DeletedAt,
+		}
+	}
+
 	return user
-}
-
-func donorPrefToDomain(e *ent.DonorPreference) *usermodel.DonorPreference {
-	if e == nil {
-		return nil
-	}
-
-	return &usermodel.DonorPreference{
-		ID:                    e.ID,
-		UserID:                e.Edges.User.ID, // Assuming User is loaded
-		PreferredLocationIDs:  e.PreferredLocationIds,
-		RecoveryPeriodMonths:  e.RecoveryPeriodMonths,
-		CompensationType:      usermodel.CompensationType(e.CompensationType.String()),
-		TaxiCompensation:      e.TaxiCompensation,
-		NotificationFrequency: usermodel.NotificationFrequency(e.NotificationFrequency.String()),
-		CreatedAt:             &e.CreatedAt,
-		UpdatedAt:             &e.UpdatedAt,
-		DeletedAt:             e.DeletedAt,
-	}
 }

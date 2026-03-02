@@ -144,7 +144,7 @@ func (h *UserHandler) Register(api huma.API) {
 func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) (*dto.GetUserByIDOutput, error) {
 	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
 
-	usr, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets)
+	usr, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets, input.WithDonorPreference)
 	if err != nil {
 		return nil, err
 	}
@@ -205,13 +205,30 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 	if input.Body.LocationID != nil {
 		user.LocationID = input.Body.LocationID
 	}
+	if input.Body.DonorPreference != nil {
+		user.DonorPreference = &usermodel.DonorPreference{
+			PreferredLocationIDs: input.Body.DonorPreference.PreferredLocationIDs,
+		}
+		if input.Body.DonorPreference.RecoveryPeriodMonths != nil {
+			user.DonorPreference.RecoveryPeriodMonths = *input.Body.DonorPreference.RecoveryPeriodMonths
+		}
+		if input.Body.DonorPreference.CompensationType != nil {
+			user.DonorPreference.CompensationType = usermodel.CompensationType(*input.Body.DonorPreference.CompensationType)
+		}
+		if input.Body.DonorPreference.TaxiCompensation != nil {
+			user.DonorPreference.TaxiCompensation = *input.Body.DonorPreference.TaxiCompensation
+		}
+		if input.Body.DonorPreference.NotificationFrequency != nil {
+			user.DonorPreference.NotificationFrequency = usermodel.NotificationFrequency(*input.Body.DonorPreference.NotificationFrequency)
+		}
+	}
 
 	if err := h.updateHandler.Handle(ctx, input.ID, user); err != nil {
 		return nil, err
 	}
 
 	// Получаем обновленного пользователя для возврата UpdatedAt
-	usr, err := h.getByIDHandler.Handle(ctx, input.ID, false)
+	usr, err := h.getByIDHandler.Handle(ctx, input.ID, false, false)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +242,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTelegramInput) (*dto.GetUserByTelegramOutput, error) {
 	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
 
-	usr, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets)
+	usr, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets, input.WithDonorPreference)
 	if err != nil {
 		return nil, err
 	}

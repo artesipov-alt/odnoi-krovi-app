@@ -24,7 +24,8 @@ type TelegramIDPath struct {
 
 // UserPreloadQuery представляет параметры для предзагрузки связанных данных
 type UserPreloadQuery struct {
-	WithPets bool `query:"with_pets" doc:"Включить данные о питомцах"`
+	WithPets            bool `query:"with_pets" doc:"Включить данные о питомцах"`
+	WithDonorPreference bool `query:"with_donor_preference" doc:"Включить данные о предпочтениях донора"`
 }
 
 // ============================================
@@ -65,13 +66,14 @@ type UpdateUserInput struct {
 
 // UpdateUserBody представляет тело запроса на обновление пользователя
 type UpdateUserBody struct {
-	FullName   *string   `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
-	Phone      *string   `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
-	Email      *string   `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
-	PhotoURLs  []string  `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
-	AllowGeo   *bool     `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
-	OnBoarding *[]string `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
-	LocationID *string   `json:"locationId,omitempty" doc:"ID локации"`
+	FullName        *string                `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
+	Phone           *string                `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
+	Email           *string                `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
+	PhotoURLs       []string               `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя" validate:"omitempty,dive,max=255"`
+	AllowGeo        *bool                  `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
+	OnBoarding      *[]string              `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
+	LocationID      *string                `json:"locationId,omitempty" doc:"ID локации"`
+	DonorPreference *DonorPreferenceParams `json:"donorPreference,omitempty" doc:"Параметры донора"`
 }
 
 // UpdateUserOutput представляет ответ на обновление пользователя
@@ -196,22 +198,23 @@ type DeletedUsersList struct {
 
 // UserDetail представляет полные данные пользователя
 type UserDetail struct {
-	ID               string      `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
-	TelegramID       int64       `json:"telegramId" doc:"Telegram ID" example:"123456789"`
-	FullName         string      `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
-	Phone            string      `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
-	Email            string      `json:"email,omitempty" doc:"Email" example:"user@example.com"`
-	PhotoURLs        []string    `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
-	OrganizationName string      `json:"organizationName,omitempty" doc:"Название организации"`
-	ConsentPd        bool        `json:"consentPd" doc:"Согласие на обработку персональных данных"`
-	OnBoarding       []string    `json:"onBoarding" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
-	AllowGeo         bool        `json:"allowGeo" doc:"Разрешение использовать геоданные"`
-	LocationID       string      `json:"locationId,omitempty" doc:"ID локации"`
-	Role             string      `json:"role" doc:"Роль пользователя"`
-	Pets             []PetDetail `json:"pets,omitempty" doc:"Список питомцев"`
-	CreatedAt        *time.Time  `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	UpdatedAt        *time.Time  `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	DeletedAt        *time.Time  `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	ID               string          `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
+	TelegramID       int64           `json:"telegramId" doc:"Telegram ID" example:"123456789"`
+	FullName         string          `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
+	Phone            string          `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
+	Email            string          `json:"email,omitempty" doc:"Email" example:"user@example.com"`
+	PhotoURLs        []string        `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
+	OrganizationName string          `json:"organizationName,omitempty" doc:"Название организации"`
+	ConsentPd        bool            `json:"consentPd" doc:"Согласие на обработку персональных данных"`
+	OnBoarding       []string        `json:"onBoarding" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
+	AllowGeo         bool            `json:"allowGeo" doc:"Разрешение использовать геоданные"`
+	LocationID       string          `json:"locationId,omitempty" doc:"ID локации"`
+	Role             string          `json:"role" doc:"Роль пользователя"`
+	Pets             []PetDetail     `json:"pets,omitempty" doc:"Список питомцев"`
+	DonorPreference  DonorPreference `json:"donorPreference" doc:"Параметры донора"`
+	CreatedAt        *time.Time      `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt        *time.Time      `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt        *time.Time      `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // SimpleMessage представляет простое текстовое сообщение
@@ -222,4 +225,27 @@ type SimpleMessage struct {
 // SimpleMessageOutput представляет обертку для простого текстового ответа
 type SimpleMessageOutput struct {
 	Body SimpleMessage
+}
+
+// DonorPreference represents donor's default preferences for blood donation responses
+type DonorPreference struct {
+	ID                    string     `json:"id" doc:"ID параметров донора" example:"DPR-ABCDEABCDE" readOnly:"true"`
+	UserID                string     `json:"userId" doc:"ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
+	PreferredLocationIDs  []string   `json:"preferredLocationIds" doc:"Предпочитаемые ID локаций"`
+	RecoveryPeriodMonths  int        `json:"recoveryPeriodMonths" doc:"Период восстановления в месяцах" minimum:"2" example:"3"`
+	CompensationType      string     `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
+	TaxiCompensation      bool       `json:"taxiCompensation" doc:"Компенсация такси"`
+	NotificationFrequency string     `json:"notificationFrequency" doc:"Частота уведомлений" enum:"immediately,daily,weekly,never"`
+	CreatedAt             *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt             *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt             *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+}
+
+// DonorPreferenceParams holds the parameters for creating or updating a DonorPreference.
+type DonorPreferenceParams struct {
+	PreferredLocationIDs  []string `json:"preferredLocationIds,omitempty" doc:"Предпочитаемые ID локаций"`
+	RecoveryPeriodMonths  *int     `json:"recoveryPeriodMonths,omitempty" doc:"Период восстановления в месяцах" minimum:"2" example:"3"`
+	CompensationType      *string  `json:"compensationType,omitempty" doc:"Тип компенсации" enum:"free,paid,food"`
+	TaxiCompensation      *bool    `json:"taxiCompensation,omitempty" doc:"Компенсация такси"`
+	NotificationFrequency *string  `json:"notificationFrequency,omitempty" doc:"Частота уведомлений" enum:"immediately,daily,weekly,never"`
 }

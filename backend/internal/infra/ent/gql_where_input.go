@@ -1284,10 +1284,12 @@ type DonorPreferenceWhereInput struct {
 	RecoveryPeriodMonthsNotNil bool  `json:"recoveryPeriodMonthsNotNil,omitempty"`
 
 	// "compensation_type" field predicates.
-	CompensationType      *donorpreference.CompensationType  `json:"compensationType,omitempty"`
-	CompensationTypeNEQ   *donorpreference.CompensationType  `json:"compensationTypeNEQ,omitempty"`
-	CompensationTypeIn    []donorpreference.CompensationType `json:"compensationTypeIn,omitempty"`
-	CompensationTypeNotIn []donorpreference.CompensationType `json:"compensationTypeNotIn,omitempty"`
+	CompensationType       *donorpreference.CompensationType  `json:"compensationType,omitempty"`
+	CompensationTypeNEQ    *donorpreference.CompensationType  `json:"compensationTypeNEQ,omitempty"`
+	CompensationTypeIn     []donorpreference.CompensationType `json:"compensationTypeIn,omitempty"`
+	CompensationTypeNotIn  []donorpreference.CompensationType `json:"compensationTypeNotIn,omitempty"`
+	CompensationTypeIsNil  bool                               `json:"compensationTypeIsNil,omitempty"`
+	CompensationTypeNotNil bool                               `json:"compensationTypeNotNil,omitempty"`
 
 	// "taxi_compensation" field predicates.
 	TaxiCompensation    *bool `json:"taxiCompensation,omitempty"`
@@ -1524,6 +1526,12 @@ func (i *DonorPreferenceWhereInput) P() (predicate.DonorPreference, error) {
 	}
 	if len(i.CompensationTypeNotIn) > 0 {
 		predicates = append(predicates, donorpreference.CompensationTypeNotIn(i.CompensationTypeNotIn...))
+	}
+	if i.CompensationTypeIsNil {
+		predicates = append(predicates, donorpreference.CompensationTypeIsNil())
+	}
+	if i.CompensationTypeNotNil {
+		predicates = append(predicates, donorpreference.CompensationTypeNotNil())
 	}
 	if i.TaxiCompensation != nil {
 		predicates = append(predicates, donorpreference.TaxiCompensationEQ(*i.TaxiCompensation))
