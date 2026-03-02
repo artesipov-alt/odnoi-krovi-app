@@ -198,23 +198,23 @@ type DeletedUsersList struct {
 
 // UserDetail представляет полные данные пользователя
 type UserDetail struct {
-	ID               string          `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
-	TelegramID       int64           `json:"telegramId" doc:"Telegram ID" example:"123456789"`
-	FullName         string          `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
-	Phone            string          `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
-	Email            string          `json:"email,omitempty" doc:"Email" example:"user@example.com"`
-	PhotoURLs        []string        `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
-	OrganizationName string          `json:"organizationName,omitempty" doc:"Название организации"`
-	ConsentPd        bool            `json:"consentPd" doc:"Согласие на обработку персональных данных"`
-	OnBoarding       []string        `json:"onBoarding" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
-	AllowGeo         bool            `json:"allowGeo" doc:"Разрешение использовать геоданные"`
-	LocationID       string          `json:"locationId,omitempty" doc:"ID локации"`
-	Role             string          `json:"role" doc:"Роль пользователя"`
-	Pets             []PetDetail     `json:"pets,omitempty" doc:"Список питомцев"`
-	DonorPreference  DonorPreference `json:"donorPreference" doc:"Параметры донора"`
-	CreatedAt        *time.Time      `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	UpdatedAt        *time.Time      `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	DeletedAt        *time.Time      `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	ID               string           `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
+	TelegramID       int64            `json:"telegramId" doc:"Telegram ID" example:"123456789"`
+	FullName         string           `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
+	Phone            string           `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
+	Email            string           `json:"email,omitempty" doc:"Email" example:"user@example.com"`
+	PhotoURLs        []string         `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
+	OrganizationName string           `json:"organizationName,omitempty" doc:"Название организации"`
+	ConsentPd        bool             `json:"consentPd" doc:"Согласие на обработку персональных данных"`
+	OnBoarding       []string         `json:"onBoarding" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
+	AllowGeo         bool             `json:"allowGeo" doc:"Разрешение использовать геоданные"`
+	LocationID       string           `json:"locationId,omitempty" doc:"ID локации"`
+	Role             string           `json:"role" doc:"Роль пользователя"`
+	Pets             []PetDetail      `json:"pets,omitempty" doc:"Список питомцев"`
+	DonorPreference  *DonorPreference `json:"donorPreference,omitempty" doc:"Параметры донора"`
+	CreatedAt        *time.Time       `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt        *time.Time       `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt        *time.Time       `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // SimpleMessage представляет простое текстовое сообщение

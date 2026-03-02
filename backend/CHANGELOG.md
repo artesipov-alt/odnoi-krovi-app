@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.2.4] - 2026-03-03
+
+### Изменено
+- **`DonorPreference` сделан опциональным в DTO пользователя:** Поле `DonorPreference` в DTO `UserDetail` теперь является опциональным.
+- **Обновлен маппер пользователя для обработки `nil` `DonorPreference`:** Логика маппинга пользователя была изменена для корректной обработки случаев, когда `DonorPreference` отсутствует.
+
+### Технические детали
+- В `dto/user.go` поле `DonorPreference` в структуре `UserDetail` изменено на указатель `*DonorPreference` и добавлен тег `json:",omitempty"`.
+- В `internal/mappers/user_mapper.go` обновлена логика маппинга для безопасной обработки `nil` `DonorPreference`.
+- Обновлены соответствующие TypeScript модели для отражения опциональности `DonorPreference`.
+
+
 ## [3.2.3] - 2026-03-02
 
 ### Добавлено

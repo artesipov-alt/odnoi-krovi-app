@@ -58,7 +58,7 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 	}
 
 	if u.DonorPreference != nil {
-		userDTO.DonorPreference = dto.DonorPreference{
+		userDTO.DonorPreference = &dto.DonorPreference{
 			ID:                    u.DonorPreference.ID,
 			UserID:                u.DonorPreference.UserID,
 			PreferredLocationIDs:  u.DonorPreference.PreferredLocationIDs,
