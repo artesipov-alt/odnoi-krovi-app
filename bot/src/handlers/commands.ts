@@ -32,7 +32,7 @@ export const startHandler = async (ctx: Context) => {
       let isUserExist = false;
 
       try {
-        await usersApi.getUserByTelegram({ telegramId });
+        await usersApi.getUserByTelegram({ id: telegramId });
         isUserExist = true;
         pinologger.info({ telegramId }, "User exists");
       } catch (error: any) {
@@ -49,7 +49,7 @@ export const startHandler = async (ctx: Context) => {
           const fullName = getFullName(ctx.from);
 
           await usersApi.registerUserSimple({
-            userRegistrationSimple: {
+            createUserBody: {
               telegramId,
               fullName,
             },
