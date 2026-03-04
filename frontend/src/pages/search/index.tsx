@@ -131,7 +131,7 @@ const Search: FC<Props> = ({ user }) => {
     }
 
     // Онбординг
-    if (!(poolRequest?.onBoarding || []).includes(Onboardings.SEARCH)) {
+    if (!poolRequestIsLoading && !(poolRequest?.onBoarding || []).includes(Onboardings.SEARCH)) {
         return (
             <SearchOnboarding
                 view={View.SEARCH}

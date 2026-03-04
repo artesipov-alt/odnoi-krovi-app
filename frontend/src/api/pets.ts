@@ -43,6 +43,22 @@ export type Analyses = {
     immunodeficiency?: AnalysesItem[];
 };
 
+export type StopFactors = {
+    code: string;
+    description: string;
+};
+
+export type WarnFactors = {
+    code: string;
+    description: string;
+    subDescription: string;
+};
+
+export type DonorRestrictions = {
+    stopFactors?: StopFactors[];
+    warnFactors?: WarnFactors[];
+};
+
 export type Pet = {
     id: string;
     name: string;
@@ -63,6 +79,7 @@ export type Pet = {
     treatments?: Treatments;
     livingCondition?: string;
     reproductiveStatus?: string;
+    donorRestrictions?: DonorRestrictions;
 };
 
 export type GetPetsResponse = Pet[];

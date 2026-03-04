@@ -67,6 +67,10 @@
     padding: 0 12px;
     overflow-x: auto;
     align-content: flex-start;
+
+    &.donorView {
+        height: calc(100vh - 46px - 71px - 32px - 47px);
+    }
 }
 
 .footer {
@@ -209,7 +213,7 @@
     padding: 0 8px;
     color: @white1;
     text-align: center;
-    font-family: Marmelad, sans-serif !important;
+    font-family: Marmelad, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 32px;
@@ -283,6 +287,34 @@
             fill: @red12;
         }
     }
+
+    &.didNotRecover {
+        gap: 8px;
+        background: @blue;
+        color: @grayBg15;
+    }
+
+    &.notReady {
+        gap: 8px;
+        background: @red11;
+        color: @grayBg16;
+
+        & .searchIcon {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    &.donationQuestions {
+        gap: 8px;
+        background: @orange1;
+        color: @border4;
+
+        & .searchIcon {
+            width: 18px;
+            height: 18px;
+        }
+    }
 }
 
 .searchIcon {
@@ -325,4 +357,86 @@
     @media (min-width: 768px) {
         right: -22px;
     }
+}
+
+.tabs {
+    display: flex;
+    height: 50px;
+    margin: 10px 12px 20px;
+    padding: 6px 3px;
+    align-items: center;
+    border-radius: 40px;
+    background: @grayBg11;
+    box-sizing: border-box;
+}
+.tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 50%;
+    height: 43px;
+    border-radius: 40px;
+    color: @textColor1;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 43px;
+
+    &.active {
+        color: @white;
+        background: @common-red;
+
+        & div {
+            background: @red13;
+            border-radius: 50%;
+            opacity: 1
+        }
+    }
+}
+
+.tabCounter {
+    min-width: 20px;
+    height: 20px;
+    background: @grayBg8;
+    border-radius: 50%;
+    color: @grayBg14;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    opacity: .5;
+}
+
+.plannedDonations {
+    height: calc(100vh - 46px - 71px - 32px - 47px);
+}
+
+.recover {
+    flex-shrink: 0;
+    width: 31px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.50);
+    text-align: center;
+}
+
+.recoverDays {
+    margin: 2px 0 0;
+    color: @blue1;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.recoverDescr {
+    margin: -6px 0 0;
+    color: @blue2;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 8px;
+    font-weight: 400;
+    line-height: 15px;
 }
