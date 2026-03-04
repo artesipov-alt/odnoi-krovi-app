@@ -94,9 +94,15 @@ tasks:
     cmds:
       - npm run dev
 
-  dev-bot:
+  dev-tg-bot:
     desc: "Запустить bot в dev режиме"
-    dir: bot
+    dir: tg-bot
+    cmds:
+      - bun run dev
+
+  dev-max-bot:
+    desc: "Запустить bot в dev режиме"
+    dir: max-bot
     cmds:
       - bun run dev
 

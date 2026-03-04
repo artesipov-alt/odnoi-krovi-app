@@ -4,95 +4,94 @@ import { Templates } from "../config/templates";
 import { usersApi, pinologger } from "../instances";
 
 const getMainKeyboard = () => {
-  return new InlineKeyboard()
-    .webApp("🩸 Открыть приложение", Bun.env.MINIAPP_DOMAIN!)
-    .row()
-    .text("❓ Помощь", "help")
-    .text("👤 Профиль", "profile");
+  return Keyboard.inlineKeyboard([
+    [Keyboard.button.link("🩸 Открыть приложение", Bun.env.MINIAPP_DOMAIN!)],
+    [
+      Keyboard.button.callback("❓ Помощь", "help"),
+      Keyboard.button.callback("👤 Профиль", "profile"),
+    ],
+  ]);
 };
 
 const getBackKeyboard = () => {
-  return new InlineKeyboard().text("⬅️ Назад", "back");
+  return Keyboard.inlineKeyboard([
+    [Keyboard.button.callback("⬅️ Назад", "back")],
+  ]);
 };
 
 export const startHandler = async (ctx: Context) => {
   const keyboard = getMainKeyboard();
   const isCommand = ctx.message?.body.text === "/start";
-
-  // Early validation
-  if (!ctx.message?.sender?.user_id) {
-    throw new MaxError(404, {
-      message: "User ID is not available",
-      code: "404",
-    });
-  }
-
-  const maxId = ctx.message.sender.user_id;
+  const maxId = ctx.message!.sender!.user_id!;
 
   if (isCommand) {
     try {
       // Проверяем существование пользователя
       let isUserExist = false;
-
-      try {
-        await usersApi.getUserByTelegram({ id: maxId });
-        isUserExist = true;
-        pinologger.info({ maxId }, "User exists");
-      } catch (error: any) {
-        // Если пользователь не найден (404 или 500), регистрируем его
-        pinologger.warn(
-          { maxId, error: error.message },
-          "User not found, will register",
-        );
-        isUserExist = false;
-      }
+      usersApi
+        .getUserByTelegram({ id: maxId })
+        .then(() => {
+          isUserExist = true;
+          pinologger.info({ maxId }, "User exists");
+        })
+        .catch((error: any) => {
+          // Если пользователь не найден (404 или 500), регистрируем его
+          pinologger.warn(
+            { maxId, error: error.message },
+            "User not found, will register",
+          );
+          isUserExist = false;
+        });
 
       if (!isUserExist) {
-        try {
-          const fullName = getFullName(ctx.from);
-
-          await usersApi.registerUserSimple({
+        const fullName = getFullName(ctx.user);
+        usersApi
+          .registerUserSimple({
             createUserBody: {
-              telegramId,
+              telegramId: maxId,
               fullName,
             },
+          })
+          .then(() => {
+            pinologger.info(
+              { maxId, fullName },
+              "User registered successfully",
+            );
+          })
+          .catch((registerError: any) => {
+            pinologger.error(
+              { maxId, error: registerError.message },
+              "Failed to register user",
+            );
+            // Продолжаем выполнение, даже если регистрация не удалась
           });
-          pinologger.info(
-            { telegramId, fullName },
-            "User registered successfully",
-          );
-        } catch (registerError: any) {
-          pinologger.error(
-            { telegramId, error: registerError.message },
-            "Failed to register user",
-          );
-          // Продолжаем выполнение, даже если регистрация не удалась
-        }
       }
     } catch (error: any) {
       pinologger.error(
-        { telegramId, error: error.message },
+        { maxId, error: error.message },
         "Error in user check/registration",
       );
       // Не бросаем ошибку, показываем пользователю стартовое сообщение
     }
 
     await ctx.reply(Templates.START.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
+      format: "markdown",
+      attachments: [keyboard],
     });
   } else {
-    await ctx.editMessageText(Templates.START.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
+    await ctx.editMessage({
+      text: Templates.START.MESSAGE,
+      format: "markdown",
+      attachments: [keyboard],
     });
   }
 };
 
-/**
- * Extracts full name from Telegram user data with fallback logic
- */
-const getFullName = (user: NonNullable<Context["from"]>): string => {
+// /**
+//  * Extracts full name from user data with fallback logic
+//  */
+const getFullName = (user: Context["user"]): string => {
+  //@ts-ignore
   const { first_name = "", last_name = "", username = "" } = user;
 
   if (first_name || last_name) {
@@ -105,34 +104,36 @@ const getFullName = (user: NonNullable<Context["from"]>): string => {
 export const helpHandler = async (ctx: Context) => {
   const keyboard = getBackKeyboard();
 
-  if (ctx.message?.text === "/help") {
+  if (ctx.message?.body.text === "/help") {
     await ctx.reply(Templates.HELP.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
+      format: "markdown",
+      attachments: [keyboard],
     });
   } else {
-    await ctx.editMessageText(Templates.HELP.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
+    await ctx.editMessage({
+      text: Templates.HELP.MESSAGE,
+      format: "markdown",
+      attachments: [keyboard],
     });
   }
 };
 
 export const profileHandler = async (ctx: Context) => {
-  const keyboard = new InlineKeyboard()
-    .webApp("✏️ Редактировать профиль", Bun.env.MINIAPP_DOMAIN!)
-    .row()
-    .text("⬅️ Назад", "back");
+  const keyboard = Keyboard.inlineKeyboard([
+    [Keyboard.button.link("✏️ Редактировать профиль", Bun.env.MINIAPP_DOMAIN!)],
+    [Keyboard.button.callback("⬅️ Назад", "back")],
+  ]);
 
-  if (ctx.message?.text === "/profile") {
+  if (ctx.message?.body.text === "/profile") {
     await ctx.reply(Templates.PROFILE.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
+      format: "markdown",
+      attachments: [keyboard],
     });
   } else {
-    await ctx.editMessageText(Templates.PROFILE.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
+    await ctx.editMessage({
+      text: Templates.PROFILE.MESSAGE,
+      format: "markdown",
+      attachments: [keyboard],
     });
   }
 };

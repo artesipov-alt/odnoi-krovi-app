@@ -13,16 +13,18 @@ import { errorHandler } from "./src/handlers/errors";
 
 async function main() {
   //Плагины бота
-  bot.use(logger, limitter);
+  bot.use(logger);
 
   // Установка команд бота
   await bot.api.setMyCommands([
-    { command: "start", description: "Запустить бота" },
-    { command: "profile", description: "Профиль пользователя" },
-    { command: "help", description: "Помощь" },
+    { name: "start", description: "Запустить бота" },
+    { name: "profile", description: "Профиль пользователя" },
+    { name: "help", description: "Помощь" },
   ]);
 
-  bot.api.config.use();
+  bot.on(`bot_started`, async (ctx) => {
+    pinologger.info(ctx);
+  });
 
   //Команды бота
   bot.command("start", startHandler);
@@ -32,18 +34,15 @@ async function main() {
   bot.command("api", apiTestHandler);
 
   //Колбэки (нажатия на кнопки)
-  bot.callbackQuery("profile", profileHandler);
-  bot.callbackQuery("help", helpHandler);
-  bot.callbackQuery("back", startHandler);
+  bot.action("profile", profileHandler);
+  bot.action("help", helpHandler);
+  bot.action("back", startHandler);
 
-  const { first_name, last_name, id } = await bot.api.getMe();
+  const { name, username, user_id } = await bot.api.getMyInfo();
 
-  pinologger.info(
-    `Бот ${first_name || id}${last_name ? ` ${last_name}` : ""} запущен`,
-  );
+  pinologger.info(`Бот ${name || username} ${user_id} запущен`);
 
-  //Бот работает через раннер для паралельности задач
-  run(bot);
+  bot.start();
 
   //Обработка ошибок
   bot.catch(errorHandler);

@@ -1,7 +1,7 @@
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFn } from "@maxhub/max-bot-api";
 import { pinologger } from "../instances";
 
-export async function logger(ctx: Context, next: NextFunction) {
+export async function logger(ctx: Context, next: NextFn) {
   const startTime = Date.now();
 
   try {
@@ -9,10 +9,10 @@ export async function logger(ctx: Context, next: NextFunction) {
     const processingTime = Date.now() - startTime;
 
     pinologger.info({
-      updateId: ctx.update.update_id,
-      messageType: getMessageType(ctx),
-      chatId: ctx.chat?.id,
-      user: getUserDisplayName(ctx.from),
+      updateId: ctx.update.timestamp,
+      messageType: ctx.updateType,
+      chatId: ctx.chat?.chat_id,
+      user: getUserDisplayName(ctx.message),
       processingTime: `${processingTime}ms`,
       timestamp: new Date().toISOString(),
     });
@@ -21,27 +21,12 @@ export async function logger(ctx: Context, next: NextFunction) {
   }
 }
 
-function getUserDisplayName(from: Context["from"]): string {
+function getUserDisplayName(from: Context["message"]): string {
   if (!from) return "unknown";
 
-  if (from.first_name || from.last_name) {
-    return [from.first_name, from.last_name].filter(Boolean).join(" ");
+  if (from.sender?.name) {
+    return from.sender.name;
   }
 
-  return from.username || "unknown";
-}
-
-function getMessageType(ctx: Context): string {
-  if (ctx.message?.text) {
-    // Check if it's a command
-    if (ctx.message.text.startsWith("/")) {
-      return "command";
-    }
-    return "text";
-  }
-  if (ctx.message?.photo) return "photo";
-  if (ctx.message?.document) return "document";
-  if (ctx.callbackQuery) return "callback_query";
-  if (ctx.inlineQuery) return "inline_query";
-  return "unknown";
+  return from.sender?.username || "unknown";
 }
