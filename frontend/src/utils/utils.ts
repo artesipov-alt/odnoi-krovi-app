@@ -2,11 +2,13 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
 export enum Variants {
+    DAYS = 'days',
     YEARS = 'years',
     MONTHS = 'months',
 }
 
 const declension = {
+    [Variants.DAYS]: ['день', 'дня', 'дней'],
     [Variants.YEARS]: ['год', 'года', 'лет'],
     [Variants.MONTHS]: ['месяц', 'месяца', 'месяцев'],
 };
