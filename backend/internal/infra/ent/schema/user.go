@@ -1,7 +1,6 @@
 package schema
 
 import (
-	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -20,53 +19,42 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		// telegram_id is the unique identifier from Telegram.
 		field.Int64("telegram_id").
-			Unique().
-			StructTag(`json:"telegramId"`),
+			Unique(),
 		// full_name is the user's full name.
 		field.String("full_name").
 			Optional().
-			MaxLen(255).
-			StructTag(`json:"fullName"`),
+			MaxLen(255),
 		// phone is the user's phone number.
 		field.String("phone").
 			Optional().
-			MaxLen(20).
-			StructTag(`json:"phone"`),
+			MaxLen(20),
 		// email is the user's email address.
 		field.String("email").
 			Optional().
-			MaxLen(255).
-			StructTag(`json:"email"`),
+			MaxLen(255),
 		// organization_name is the name of the user's organization.
 		field.String("organization_name").
 			Optional().
-			MaxLen(255).
-			StructTag(`json:"organizationName"`),
+			MaxLen(255),
 		// consent_pd indicates if the user has consented to personal data processing.
 		field.Bool("consent_pd").
-			Default(false).
-			StructTag(`json:"consentPd"`),
+			Default(false),
 		// on_boarding is a list of onboarding steps completed by the user.
 		field.JSON("on_boarding", []string{}).
-			Optional().
-			StructTag(`json:"onBoarding"`),
+			Optional(),
 		// allow_geo indicates if the user allows geolocation.
 		field.Bool("allow_geo").
-			Default(false).
-			StructTag(`json:"allowGeo"`),
+			Default(false),
 		// location_id is the foreign key to the location.
 		field.String("location_id").
-			Optional().
-			StructTag(`json:"locationId"`),
+			Optional(),
 		// photo_urls is a list of URLs to the user's photos.
 		field.JSON("photo_urls", []string{}).
-			Optional().
-			StructTag(`json:"photoUrls"`),
+			Optional(),
 		// role is the user's role in the system.
 		field.Enum("role").
 			Values("user", "admin").
-			Default("user").
-			StructTag(`json:"role"`),
+			Default("user"),
 	}
 }
 
@@ -83,6 +71,8 @@ func (User) Edges() []ent.Edge {
 		// donor_preference is the edge to the user's donor preferences.
 		edge.To("donor_preference", DonorPreference.Type).
 			Unique(),
+		// identities is the edge to the user's identities.
+		edge.To("identities", UserIdentity.Type),
 	}
 }
 
@@ -98,9 +88,5 @@ func (User) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "users",
 		},
-		entgql.Mutations(
-			entgql.MutationCreate(),
-			entgql.MutationUpdate(),
-		),
 	}
 }
