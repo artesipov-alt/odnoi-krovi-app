@@ -47,22 +47,24 @@ func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest
 	}
 
 	return &model.BloodRequest{
-		ID:                     entReq.ID,
-		PetID:                  entReq.PetID,
-		BloodVolumeNeeded:      entReq.BloodVolumeNeeded,
-		BloodVolumeReserved:    entReq.BloodVolumeReserved,
-		Regions:                entReq.Regions,
-		SmallPetsNotifyAllowed: entReq.SmallPetsNotifyAllowed,
-		Status:                 model.BloodRequestStatus(entReq.Status),
-		Description:            entReq.Description,
-		PhotoURLs:              entReq.PhotoUrls,
-		BloodGroupNames:        entReq.BloodGroupNames,
-		BloodComponentIDs:      entReq.BloodComponentIds,
-		OnBoarding:             entReq.OnBoarding,
-		ResponseIDs:            responseIDs,
-		CreatedAt:              entReq.CreatedAt,
-		UpdatedAt:              entReq.UpdatedAt,
-		DeletedAt:              entReq.DeletedAt,
+		ID:                       entReq.ID,
+		PetID:                    entReq.PetID,
+		BloodVolumeNeeded:        entReq.BloodVolumeNeeded,
+		BloodVolumeReserved:      entReq.BloodVolumeReserved,
+		Regions:                  entReq.Regions,
+		SmallPetsNotifyAllowed:   entReq.SmallPetsNotifyAllowed,
+		Status:                   model.BloodRequestStatus(entReq.Status),
+		Description:              entReq.Description,
+		PhotoURLs:                entReq.PhotoUrls,
+		BloodGroupNames:          entReq.BloodGroupNames,
+		BloodComponentIDs:        entReq.BloodComponentIds,
+		OnBoarding:               entReq.OnBoarding,
+		ResponseIDs:              responseIDs,
+		PrioritySearch:           entReq.PrioritySearch,
+		IncludeUnknownBloodGroup: entReq.IncludeUnknownBloodGroup,
+		CreatedAt:                entReq.CreatedAt,
+		UpdatedAt:                entReq.UpdatedAt,
+		DeletedAt:                entReq.DeletedAt,
 	}
 }
 
@@ -81,6 +83,8 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *model.Blood
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIDs).
 		SetOnBoarding(req.OnBoarding).
+		SetPrioritySearch(req.PrioritySearch).
+		SetIncludeUnknownBloodGroup(req.IncludeUnknownBloodGroup).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -147,7 +151,9 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 		SetPhotoUrls(req.PhotoURLs).
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIDs).
-		SetOnBoarding(req.OnBoarding)
+		SetOnBoarding(req.OnBoarding).
+		SetPrioritySearch(req.PrioritySearch).
+		SetIncludeUnknownBloodGroup(req.IncludeUnknownBloodGroup)
 
 	updatedBloodReq, err := updater.Save(ctx)
 
