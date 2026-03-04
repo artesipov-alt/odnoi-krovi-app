@@ -43,6 +43,18 @@ services:
       - odnoi_net
     restart: unless-stopped
 
+  max-bot:
+    build:
+      context: .
+      dockerfile: max-bot/Dockerfile
+    environment:
+      BOT_TOKEN: ${MAX_BOT_TOKEN}
+      MINIAPP_DOMAIN: https://1krovi.app
+      API_BASE_URL: https://1krovi.app/api
+    networks:
+      - odnoi_net
+    restart: unless-stopped
+
   frontend:
     build:
       context: .

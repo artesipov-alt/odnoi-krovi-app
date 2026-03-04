@@ -7,8 +7,6 @@ import {
 } from "./src/handlers/commands";
 import { bot, pinologger } from "./src/instances";
 import { logger } from "./src/middleware/logger";
-import { run } from "@grammyjs/runner";
-import { limitter } from "./src/middleware/ratelimitter";
 import { errorHandler } from "./src/handlers/errors";
 
 async function main() {

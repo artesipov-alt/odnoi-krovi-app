@@ -22,8 +22,10 @@ jobs:
           files_yaml: |
             backend:
               - backend/**
-            bot:
+            tg-bot:
               - tg-bot/**
+            max-bot:
+              - max-bot/**
             frontend:
               - frontend/**
             microservices:
@@ -66,7 +68,8 @@ jobs:
 
             # Detect which services changed
             BACKEND_CHANGED="${{ steps.changed-files.outputs.backend_any_changed }}"
-            BOT_CHANGED="${{ steps.changed-files.outputs.tg-bot_any_changed }}"
+            TG_BOT_CHANGED="${{ steps.changed-files.outputs.tg-bot_any_changed }}"
+            MAX_BOT_CHANGED="${{ steps.changed-files.outputs.max-bot_any_changed }}"
             FRONTEND_CHANGED="${{ steps.changed-files.outputs.frontend_any_changed }}"
             MICROSERVICES_CHANGED="${{ steps.changed-files.outputs.microservices_any_changed }}"
 
@@ -96,10 +99,16 @@ jobs:
               docker compose up -d backend
             fi
 
-            if [[ "$BOT_CHANGED" == "true" ]]; then
-              echo "Rebuilding bot with cache 🤖"
+            if [[ "$TG_BOT_CHANGED" == "true" ]]; then
+              echo "Rebuilding tg-bot with cache 🤖"
               docker compose build tg-bot
               docker compose up -d tg-bot
+            fi
+
+            if [[ "$MAX_BOT_CHANGED" == "true" ]]; then
+              echo "Rebuilding max-bot with cache 🤖"
+              docker compose build max-bot
+              docker compose up -d max-bot
             fi
 
             if [[ "$FRONTEND_CHANGED" == "true" ]]; then
