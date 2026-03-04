@@ -276,7 +276,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "telegram_id", Type: field.TypeInt64, Unique: true},
+		{Name: "telegram_id", Type: field.TypeInt64, Unique: true, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "phone", Type: field.TypeString, Nullable: true, Size: 20},
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},

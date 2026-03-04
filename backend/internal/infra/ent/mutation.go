@@ -10133,10 +10133,24 @@ func (m *UserMutation) AddedTelegramID() (r int64, exists bool) {
 	return *v, true
 }
 
+// ClearTelegramID clears the value of the "telegram_id" field.
+func (m *UserMutation) ClearTelegramID() {
+	m.telegram_id = nil
+	m.addtelegram_id = nil
+	m.clearedFields[user.FieldTelegramID] = struct{}{}
+}
+
+// TelegramIDCleared returns if the "telegram_id" field was cleared in this mutation.
+func (m *UserMutation) TelegramIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldTelegramID]
+	return ok
+}
+
 // ResetTelegramID resets all changes to the "telegram_id" field.
 func (m *UserMutation) ResetTelegramID() {
 	m.telegram_id = nil
 	m.addtelegram_id = nil
+	delete(m.clearedFields, user.FieldTelegramID)
 }
 
 // SetFullName sets the "full_name" field.
@@ -11101,6 +11115,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldDeletedAt) {
 		fields = append(fields, user.FieldDeletedAt)
 	}
+	if m.FieldCleared(user.FieldTelegramID) {
+		fields = append(fields, user.FieldTelegramID)
+	}
 	if m.FieldCleared(user.FieldFullName) {
 		fields = append(fields, user.FieldFullName)
 	}
@@ -11138,6 +11155,9 @@ func (m *UserMutation) ClearField(name string) error {
 	switch name {
 	case user.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case user.FieldTelegramID:
+		m.ClearTelegramID()
 		return nil
 	case user.FieldFullName:
 		m.ClearFullName()

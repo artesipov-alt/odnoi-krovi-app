@@ -141,6 +141,7 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.Us
 	return EntToModel(user), nil
 }
 
+// DEPRECATED
 func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*usermodel.User, error) {
 	quser := r.client.User.Query().Where(entuser.TelegramID(telegramID))
 
@@ -160,6 +161,22 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 	}
 
 	return EntToModel(user), nil
+}
+
+func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID int64, providerName string) (*usermodel.Identity, error) {
+	qidentity := r.client.UserIdentity.Query().
+		Where(useridentity.ProviderUserID(providerID),
+			useridentity.ProviderEQ(useridentity.Provider(providerName)))
+
+	identity, err := qidentity.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrUserNotFound
+		}
+		return nil, apperrors.Internal(err, "failed to get user by provider ID")
+	}
+
+	return EntIdentityToModel(identity), nil
 }
 
 // ExistsByID checks if a user with the given ID exists
@@ -467,4 +484,17 @@ func EntToModel(e *ent.User) *usermodel.User {
 	}
 
 	return user
+}
+
+func EntIdentityToModel(identity *ent.UserIdentity) *usermodel.Identity {
+	return &usermodel.Identity{
+		ID:             identity.ID,
+		UserID:         identity.UserID,
+		ProviderName:   string(identity.Provider),
+		ProviderUserID: identity.ProviderUserID,
+		Metadata:       identity.Metadata,
+		CreatedAt:      identity.CreatedAt,
+		UpdatedAt:      identity.UpdatedAt,
+		DeletedAt:      identity.DeletedAt,
+	}
 }

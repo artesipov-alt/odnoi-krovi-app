@@ -19,6 +19,7 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		// telegram_id is the unique identifier from Telegram.
 		field.Int64("telegram_id").
+			Optional().
 			Unique(),
 		// full_name is the user's full name.
 		field.String("full_name").

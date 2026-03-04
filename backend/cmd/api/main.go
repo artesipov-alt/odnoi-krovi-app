@@ -122,6 +122,7 @@ func main() {
 
 		// Инициализация user command и query handlers
 		userCreateSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo)
+		userAuthHandler := usercmd.NewAuthHandler(userRepo)
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
@@ -163,6 +164,7 @@ func main() {
 		)
 		userHandler := transport.NewUserHandler(
 			userCreateSimpleHandler,
+			userAuthHandler,
 			userDeleteHandler,
 			userUpdateHandler,
 			userResetHandler,

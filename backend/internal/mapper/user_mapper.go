@@ -90,13 +90,14 @@ func (m *UserMapper) ToResponseSlice(users []*model.User) []dto.UserDetail {
 // FromCreate converts a CreateUserBody DTO to a domain User model using the constructor.
 func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 	params := model.NewUserParams{
-		ProviderID: body.ProviderID,
-		FullName:   body.FullName,
-		Phone:      "", // phone - empty for simple creation
-		Email:      "", // email - empty for simple creation
-		Role:       model.RoleUser,
-		ConsentPd:  false, // consentPd
-		LocationID: nil,   // locationID
+		ProviderID:   body.ProviderID,
+		ProviderName: body.ProviderName,
+		FullName:     body.FullName,
+		Phone:        "", // phone - empty for simple creation
+		Email:        "", // email - empty for simple creation
+		Role:         model.RoleUser,
+		ConsentPd:    false, // consentPd
+		LocationID:   nil,   // locationID
 	}
 
 	prefs := &model.DonorPreferenceParams{

@@ -18,6 +18,7 @@ import (
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
 	createSimpleHandler  *cmd.CreateSimpleHandler
+	authHandler          *cmd.AuthHandler
 	deleteHandler        *cmd.DeleteHandler
 	updateHandler        *cmd.UpdateHandler
 	resetHandler         *cmd.ResetHandler
@@ -32,6 +33,7 @@ type UserHandler struct {
 // NewUserHandler создает новый обработчик пользователей
 func NewUserHandler(
 	createSimpleHandler *cmd.CreateSimpleHandler,
+	authHandler *cmd.AuthHandler,
 	deleteHandler *cmd.DeleteHandler,
 	updateHandler *cmd.UpdateHandler,
 	resetHandler *cmd.ResetHandler,
@@ -43,6 +45,7 @@ func NewUserHandler(
 ) *UserHandler {
 	return &UserHandler{
 		createSimpleHandler:  createSimpleHandler,
+		authHandler:          authHandler,
 		deleteHandler:        deleteHandler,
 		updateHandler:        updateHandler,
 		resetHandler:         resetHandler,
@@ -77,6 +80,17 @@ func (h *UserHandler) Register(api huma.API) {
 		Tags:          []string{"users-v1"},
 		DefaultStatus: http.StatusCreated,
 	}, h.RegisterUserSimple)
+
+	// Аунтификация пользователя
+	huma.Register(api, huma.Operation{
+		OperationID:   "auth-user",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/auth",
+		Summary:       "Аунтификация пользователя",
+		Description:   "Аутентифицирует пользователя в системе",
+		Tags:          []string{"users-v1"},
+		DefaultStatus: http.StatusCreated,
+	}, h.AuthUser)
 
 	// Обновление данных пользователя
 	huma.Register(api, huma.Operation{
@@ -173,6 +187,25 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateU
 	return &dto.CreateUserOutput{Body: dto.CreateUserResult{
 		ID:        u.ID,
 		CreatedAt: u.CreatedAt,
+	}}, nil
+}
+
+func (h *UserHandler) AuthUser(ctx context.Context, input *dto.AuthUserInput) (*dto.AuthUserOutput, error) {
+	// Use mapper to convert DTO to domain model using NewUser constructor
+	idn, err := usermodel.NewIdentity(input.Body.ProviderID, input.Body.ProviderName, input.Body.AuthBotToken)
+	if err != nil {
+		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
+	}
+
+	authdata, err := h.authHandler.Handle(ctx, idn)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.AuthUserOutput{Body: dto.AuthUserResult{
+		UserID:    authdata.UserID,
+		XBToken:   authdata.XBToken,
+		CreatedAt: &authdata.CreatedAt,
 	}}, nil
 }
 

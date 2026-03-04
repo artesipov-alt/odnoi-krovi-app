@@ -290,6 +290,16 @@ func TelegramIDLTE(v int64) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldTelegramID, v))
 }
 
+// TelegramIDIsNil applies the IsNil predicate on the "telegram_id" field.
+func TelegramIDIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldTelegramID))
+}
+
+// TelegramIDNotNil applies the NotNil predicate on the "telegram_id" field.
+func TelegramIDNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldTelegramID))
+}
+
 // FullNameEQ applies the EQ predicate on the "full_name" field.
 func FullNameEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldFullName, v))

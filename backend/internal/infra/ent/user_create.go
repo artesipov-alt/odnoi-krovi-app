@@ -72,6 +72,14 @@ func (_c *UserCreate) SetTelegramID(v int64) *UserCreate {
 	return _c
 }
 
+// SetNillableTelegramID sets the "telegram_id" field if the given value is not nil.
+func (_c *UserCreate) SetNillableTelegramID(v *int64) *UserCreate {
+	if v != nil {
+		_c.SetTelegramID(*v)
+	}
+	return _c
+}
+
 // SetFullName sets the "full_name" field.
 func (_c *UserCreate) SetFullName(v string) *UserCreate {
 	_c.mutation.SetFullName(v)
@@ -332,9 +340,6 @@ func (_c *UserCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "User.updated_at"`)}
-	}
-	if _, ok := _c.mutation.TelegramID(); !ok {
-		return &ValidationError{Name: "telegram_id", err: errors.New(`ent: missing required field "User.telegram_id"`)}
 	}
 	if v, ok := _c.mutation.FullName(); ok {
 		if err := user.FullNameValidator(v); err != nil {

@@ -4679,14 +4679,16 @@ type UserWhereInput struct {
 	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
 	// "telegram_id" field predicates.
-	TelegramID      *int64  `json:"telegramID,omitempty"`
-	TelegramIDNEQ   *int64  `json:"telegramIDNEQ,omitempty"`
-	TelegramIDIn    []int64 `json:"telegramIDIn,omitempty"`
-	TelegramIDNotIn []int64 `json:"telegramIDNotIn,omitempty"`
-	TelegramIDGT    *int64  `json:"telegramIDGT,omitempty"`
-	TelegramIDGTE   *int64  `json:"telegramIDGTE,omitempty"`
-	TelegramIDLT    *int64  `json:"telegramIDLT,omitempty"`
-	TelegramIDLTE   *int64  `json:"telegramIDLTE,omitempty"`
+	TelegramID       *int64  `json:"telegramID,omitempty"`
+	TelegramIDNEQ    *int64  `json:"telegramIDNEQ,omitempty"`
+	TelegramIDIn     []int64 `json:"telegramIDIn,omitempty"`
+	TelegramIDNotIn  []int64 `json:"telegramIDNotIn,omitempty"`
+	TelegramIDGT     *int64  `json:"telegramIDGT,omitempty"`
+	TelegramIDGTE    *int64  `json:"telegramIDGTE,omitempty"`
+	TelegramIDLT     *int64  `json:"telegramIDLT,omitempty"`
+	TelegramIDLTE    *int64  `json:"telegramIDLTE,omitempty"`
+	TelegramIDIsNil  bool    `json:"telegramIDIsNil,omitempty"`
+	TelegramIDNotNil bool    `json:"telegramIDNotNil,omitempty"`
 
 	// "full_name" field predicates.
 	FullName             *string  `json:"fullName,omitempty"`
@@ -5006,6 +5008,12 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 	}
 	if i.TelegramIDLTE != nil {
 		predicates = append(predicates, user.TelegramIDLTE(*i.TelegramIDLTE))
+	}
+	if i.TelegramIDIsNil {
+		predicates = append(predicates, user.TelegramIDIsNil())
+	}
+	if i.TelegramIDNotNil {
+		predicates = append(predicates, user.TelegramIDNotNil())
 	}
 	if i.FullName != nil {
 		predicates = append(predicates, user.FullNameEQ(*i.FullName))
