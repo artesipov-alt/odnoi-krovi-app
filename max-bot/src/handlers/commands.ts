@@ -28,43 +28,43 @@ export const startHandler = async (ctx: Context) => {
     try {
       // Проверяем существование пользователя
       let isUserExist = false;
-      usersApi
-        .getUserByTelegram({ id: maxId })
-        .then(() => {
-          isUserExist = true;
-          pinologger.info({ maxId }, "User exists");
-        })
-        .catch((error: any) => {
-          // Если пользователь не найден (404 или 500), регистрируем его
-          pinologger.warn(
-            { maxId, error: error.message },
-            "User not found, will register",
-          );
-          isUserExist = false;
-        });
+      // usersApi
+      //   .getUserByTelegram({ id: maxId })
+      //   .then(() => {
+      //     isUserExist = true;
+      //     pinologger.info({ maxId }, "User exists");
+      //   })
+      //   .catch((error: any) => {
+      //     // Если пользователь не найден (404 или 500), регистрируем его
+      //     pinologger.warn(
+      //       { maxId, error: error.message },
+      //       "User not found, will register",
+      //     );
+      //     isUserExist = false;
+      //   });
 
       if (!isUserExist) {
-        const fullName = getFullName(ctx.user);
-        usersApi
-          .registerUserSimple({
-            createUserBody: {
-              telegramId: maxId,
-              fullName,
-            },
-          })
-          .then(() => {
-            pinologger.info(
-              { maxId, fullName },
-              "User registered successfully",
-            );
-          })
-          .catch((registerError: any) => {
-            pinologger.error(
-              { maxId, error: registerError.message },
-              "Failed to register user",
-            );
-            // Продолжаем выполнение, даже если регистрация не удалась
-          });
+        // const fullName = getFullName(ctx.user);
+        // usersApi
+        //   .registerUserSimple({
+        //     createUserBody: {
+        //       telegramId: maxId,
+        //       fullName,
+        //     },
+        //   })
+        //   .then(() => {
+        //     pinologger.info(
+        //       { maxId, fullName },
+        //       "User registered successfully",
+        //     );
+        //   })
+        //   .catch((registerError: any) => {
+        //     pinologger.error(
+        //       { maxId, error: registerError.message },
+        //       "Failed to register user",
+        //     );
+        //     // Продолжаем выполнение, даже если регистрация не удалась
+        //   });
       }
     } catch (error: any) {
       pinologger.error(
