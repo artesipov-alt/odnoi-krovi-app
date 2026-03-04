@@ -31,12 +31,12 @@ services:
       timeout: 10s
       retries: 3
 
-  bot:
+  tg-bot:
     build:
       context: .
-      dockerfile: bot/Dockerfile
+      dockerfile: tg-bot/Dockerfile
     environment:
-      BOT_TOKEN: ${PROD_BOT_API_KEY}
+      BOT_TOKEN: ${TG_BOT_TOKEN}
       MINIAPP_DOMAIN: https://1krovi.app
       API_BASE_URL: https://1krovi.app/api
     networks:

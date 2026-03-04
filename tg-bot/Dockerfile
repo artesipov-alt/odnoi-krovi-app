@@ -6,13 +6,13 @@ WORKDIR /app
 
 # Copy the bot folder as-is into /app/bot so relative imports like "../../shared/..." resolve
 # (important: keep original repository layout)
-COPY bot ./bot
+COPY tg-bot ./tg-bot
 
 # Copy shared folder at repository root (so /app/shared exists)
 COPY shared ./shared
 
 # Switch into the bot working directory to install and build
-WORKDIR /app/bot
+WORKDIR /app/tg-bot
 
 # Install dependencies (use frozen lockfile to ensure reproducible builds)
 RUN bun install --frozen-lockfile --no-cache
@@ -24,7 +24,7 @@ RUN bun run build
 FROM oven/bun:1-alpine
 
 # Keep same workdir layout as during build so runtime imports still resolve
-WORKDIR /app/bot
+WORKDIR /app/tg-bot
 
 # Copy built output and package files from builder
 COPY --from=builder /app/bot/dist ./dist

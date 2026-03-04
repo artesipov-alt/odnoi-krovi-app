@@ -62,7 +62,7 @@ tasks:
 
   install-bot:
     desc: "Установить зависимости bot"
-    dir: bot
+    dir: tg-bot
     cmds:
       - bun install
 

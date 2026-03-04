@@ -23,7 +23,7 @@ jobs:
             backend:
               - backend/**
             bot:
-              - bot/**
+              - tg-bot/**
             frontend:
               - frontend/**
             microservices:
@@ -66,7 +66,7 @@ jobs:
 
             # Detect which services changed
             BACKEND_CHANGED="${{ steps.changed-files.outputs.backend_any_changed }}"
-            BOT_CHANGED="${{ steps.changed-files.outputs.bot_any_changed }}"
+            BOT_CHANGED="${{ steps.changed-files.outputs.tg-bot_any_changed }}"
             FRONTEND_CHANGED="${{ steps.changed-files.outputs.frontend_any_changed }}"
             MICROSERVICES_CHANGED="${{ steps.changed-files.outputs.microservices_any_changed }}"
 
@@ -98,8 +98,8 @@ jobs:
 
             if [[ "$BOT_CHANGED" == "true" ]]; then
               echo "Rebuilding bot with cache 🤖"
-              docker compose build bot
-              docker compose up -d bot
+              docker compose build tg-bot
+              docker compose up -d tg-bot
             fi
 
             if [[ "$FRONTEND_CHANGED" == "true" ]]; then

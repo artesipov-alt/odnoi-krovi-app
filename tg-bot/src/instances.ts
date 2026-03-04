@@ -4,7 +4,7 @@ import { Configuration, UsersV1Api } from "../../shared/ts/index";
 import type { Context } from "grammy";
 import pino from "pino";
 
-export const bot = new Bot<Context>(Bun.env.BOT_TOKEN!);
+export const bot = new Bot<Context>(Bun.env.TG_BOT_TOKEN!);
 export const pinologger = pino({
   level: "debug",
   transport: {
