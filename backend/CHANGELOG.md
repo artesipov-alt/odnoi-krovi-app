@@ -5,6 +5,23 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+
+## [3.2.5] - 2026-03-04
+
+### Добавлено
+- **Поля `PrioritySearch` и `IncludeUnknownBloodGroup` в модель заявки на кровь:** Добавлены новые поля `PrioritySearch` (булево) и `IncludeUnknownBloodGroup` (булево) в модель `BloodSearchRequest` для управления приоритетом поиска и включением питомцев с неизвестной группой крови.
+
+### Изменено
+- **Обновлена схема Ent и сгенерированные файлы:** Схема Ent была обновлена для включения новых полей `priority_search` и `include_unknown_blood_group` в сущность `BloodSearchRequest`. Соответствующие сгенерированные файлы Ent были обновлены.
+- **Расширены DTO и обработчики для поддержки новых полей:** DTO `BloodSearchRequest` и связанные обработчики были обновлены для корректной обработки и использования новых полей `PrioritySearch` и `IncludeUnknownBloodGroup`.
+
+### Технические детали
+- В `ent/schema/bloodsearchrequest.go` добавлены поля `field.Bool("priority_search").Default(false)` и `field.Bool("include_unknown_blood_group").Default(false)`.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent.
+- В `dto/blood_search.go` добавлены поля `PrioritySearch bool `json:"prioritySearch"` и `IncludeUnknownBloodGroup bool `json:"includeUnknownBloodGroup"`.
+- В `internal/handlers/blood_search_handler.go` и `internal/services/blood_search_service.go` обновлена логика для обработки новых полей при создании и обновлении заявок.
+
+
 ## [3.2.4] - 2026-03-03
 
 ### Изменено
