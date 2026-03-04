@@ -211,3 +211,23 @@ func (_m *User) DonorPreference(ctx context.Context) (*DonorPreference, error) {
 	}
 	return result, MaskNotFound(err)
 }
+
+func (_m *User) Identities(ctx context.Context) (result []*UserIdentity, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = _m.NamedIdentities(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = _m.Edges.IdentitiesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = _m.QueryIdentities().All(ctx)
+	}
+	return result, err
+}
+
+func (_m *UserIdentity) User(ctx context.Context) (*User, error) {
+	result, err := _m.Edges.UserOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryUser().Only(ctx)
+	}
+	return result, err
+}

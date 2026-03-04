@@ -14,6 +14,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -246,6 +247,21 @@ func (_c *UserCreate) SetNillableDonorPreferenceID(id *string) *UserCreate {
 // SetDonorPreference sets the "donor_preference" edge to the DonorPreference entity.
 func (_c *UserCreate) SetDonorPreference(v *DonorPreference) *UserCreate {
 	return _c.SetDonorPreferenceID(v.ID)
+}
+
+// AddIdentityIDs adds the "identities" edge to the UserIdentity entity by IDs.
+func (_c *UserCreate) AddIdentityIDs(ids ...string) *UserCreate {
+	_c.mutation.AddIdentityIDs(ids...)
+	return _c
+}
+
+// AddIdentities adds the "identities" edges to the UserIdentity entity.
+func (_c *UserCreate) AddIdentities(v ...*UserIdentity) *UserCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddIdentityIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -483,6 +499,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.IdentitiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

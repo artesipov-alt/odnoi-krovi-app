@@ -27,27 +27,27 @@ type User struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// TelegramID holds the value of the "telegram_id" field.
-	TelegramID int64 `json:"telegramId"`
+	TelegramID int64 `json:"telegram_id,omitempty"`
 	// FullName holds the value of the "full_name" field.
-	FullName string `json:"fullName"`
+	FullName string `json:"full_name,omitempty"`
 	// Phone holds the value of the "phone" field.
-	Phone string `json:"phone"`
+	Phone string `json:"phone,omitempty"`
 	// Email holds the value of the "email" field.
-	Email string `json:"email"`
+	Email string `json:"email,omitempty"`
 	// OrganizationName holds the value of the "organization_name" field.
-	OrganizationName string `json:"organizationName"`
+	OrganizationName string `json:"organization_name,omitempty"`
 	// ConsentPd holds the value of the "consent_pd" field.
-	ConsentPd bool `json:"consentPd"`
+	ConsentPd bool `json:"consent_pd,omitempty"`
 	// OnBoarding holds the value of the "on_boarding" field.
-	OnBoarding []string `json:"onBoarding"`
+	OnBoarding []string `json:"on_boarding,omitempty"`
 	// AllowGeo holds the value of the "allow_geo" field.
-	AllowGeo bool `json:"allowGeo"`
+	AllowGeo bool `json:"allow_geo,omitempty"`
 	// LocationID holds the value of the "location_id" field.
-	LocationID string `json:"locationId"`
+	LocationID string `json:"location_id,omitempty"`
 	// PhotoUrls holds the value of the "photo_urls" field.
-	PhotoUrls []string `json:"photoUrls"`
+	PhotoUrls []string `json:"photo_urls,omitempty"`
 	// Role holds the value of the "role" field.
-	Role user.Role `json:"role"`
+	Role user.Role `json:"role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -62,13 +62,16 @@ type UserEdges struct {
 	Location *Location `json:"location,omitempty"`
 	// DonorPreference holds the value of the donor_preference edge.
 	DonorPreference *DonorPreference `json:"donor_preference,omitempty"`
+	// Identities holds the value of the identities edge.
+	Identities []*UserIdentity `json:"identities,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 	// totalCount holds the count of the edges above.
-	totalCount [3]map[string]int
+	totalCount [4]map[string]int
 
-	namedPets map[string][]*Pet
+	namedPets       map[string][]*Pet
+	namedIdentities map[string][]*UserIdentity
 }
 
 // PetsOrErr returns the Pets value or an error if the edge
@@ -100,6 +103,15 @@ func (e UserEdges) DonorPreferenceOrErr() (*DonorPreference, error) {
 		return nil, &NotFoundError{label: donorpreference.Label}
 	}
 	return nil, &NotLoadedError{edge: "donor_preference"}
+}
+
+// IdentitiesOrErr returns the Identities value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) IdentitiesOrErr() ([]*UserIdentity, error) {
+	if e.loadedTypes[3] {
+		return e.Identities, nil
+	}
+	return nil, &NotLoadedError{edge: "identities"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -255,6 +267,11 @@ func (_m *User) QueryDonorPreference() *DonorPreferenceQuery {
 	return NewUserClient(_m.config).QueryDonorPreference(_m)
 }
 
+// QueryIdentities queries the "identities" edge of the User entity.
+func (_m *User) QueryIdentities() *UserIdentityQuery {
+	return NewUserClient(_m.config).QueryIdentities(_m)
+}
+
 // Update returns a builder for updating this User.
 // Note that you need to call User.Unwrap() before calling this method if this User
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -346,6 +363,30 @@ func (_m *User) appendNamedPets(name string, edges ...*Pet) {
 		_m.Edges.namedPets[name] = []*Pet{}
 	} else {
 		_m.Edges.namedPets[name] = append(_m.Edges.namedPets[name], edges...)
+	}
+}
+
+// NamedIdentities returns the Identities named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *User) NamedIdentities(name string) ([]*UserIdentity, error) {
+	if _m.Edges.namedIdentities == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedIdentities[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *User) appendNamedIdentities(name string, edges ...*UserIdentity) {
+	if _m.Edges.namedIdentities == nil {
+		_m.Edges.namedIdentities = make(map[string][]*UserIdentity)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedIdentities[name] = []*UserIdentity{}
+	} else {
+		_m.Edges.namedIdentities[name] = append(_m.Edges.namedIdentities[name], edges...)
 	}
 }
 

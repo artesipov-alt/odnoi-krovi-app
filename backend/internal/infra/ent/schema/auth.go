@@ -18,7 +18,7 @@ type UserIdentity struct {
 func (UserIdentity) Fields() []ent.Field {
 	return []ent.Field{
 		// user_id is the foreign key to the user.
-		field.Int("user_id"),
+		field.String("user_id"),
 		// provider is the identity provider (telegram_bot, telegram_webapp, google, etc.).
 		field.Enum("provider").
 			Values("telegram_bot", "max_bot"),
@@ -48,5 +48,11 @@ func (UserIdentity) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "user_identities",
 		},
+	}
+}
+
+func (UserIdentity) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		StandardMixin{Prefix: IdentityPrefix},
 	}
 }

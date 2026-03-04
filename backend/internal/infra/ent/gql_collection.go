@@ -18,6 +18,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
@@ -1401,6 +1402,19 @@ func (_q *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 				return err
 			}
 			_q.withDonorPreference = query
+
+		case "identities":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&UserIdentityClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, useridentityImplementors)...); err != nil {
+				return err
+			}
+			_q.WithNamedIdentities(alias, func(wq *UserIdentityQuery) {
+				*wq = *query
+			})
 		case "createdAt":
 			if _, ok := fieldSeen[user.FieldCreatedAt]; !ok {
 				selectedFields = append(selectedFields, user.FieldCreatedAt)
@@ -1508,6 +1522,118 @@ func newUserPaginateArgs(rv map[string]any) *userPaginateArgs {
 	}
 	if v, ok := rv[whereField].(*UserWhereInput); ok {
 		args.opts = append(args.opts, WithUserFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (_q *UserIdentityQuery) CollectFields(ctx context.Context, satisfies ...string) (*UserIdentityQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return _q, nil
+	}
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return _q, nil
+}
+
+func (_q *UserIdentityQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(useridentity.Columns))
+		selectedFields = []string{useridentity.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "user":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&UserClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, userImplementors)...); err != nil {
+				return err
+			}
+			_q.withUser = query
+			if _, ok := fieldSeen[useridentity.FieldUserID]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldUserID)
+				fieldSeen[useridentity.FieldUserID] = struct{}{}
+			}
+		case "createdAt":
+			if _, ok := fieldSeen[useridentity.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldCreatedAt)
+				fieldSeen[useridentity.FieldCreatedAt] = struct{}{}
+			}
+		case "updatedAt":
+			if _, ok := fieldSeen[useridentity.FieldUpdatedAt]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldUpdatedAt)
+				fieldSeen[useridentity.FieldUpdatedAt] = struct{}{}
+			}
+		case "deletedAt":
+			if _, ok := fieldSeen[useridentity.FieldDeletedAt]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldDeletedAt)
+				fieldSeen[useridentity.FieldDeletedAt] = struct{}{}
+			}
+		case "userID":
+			if _, ok := fieldSeen[useridentity.FieldUserID]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldUserID)
+				fieldSeen[useridentity.FieldUserID] = struct{}{}
+			}
+		case "provider":
+			if _, ok := fieldSeen[useridentity.FieldProvider]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldProvider)
+				fieldSeen[useridentity.FieldProvider] = struct{}{}
+			}
+		case "providerUserID":
+			if _, ok := fieldSeen[useridentity.FieldProviderUserID]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldProviderUserID)
+				fieldSeen[useridentity.FieldProviderUserID] = struct{}{}
+			}
+		case "metadata":
+			if _, ok := fieldSeen[useridentity.FieldMetadata]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldMetadata)
+				fieldSeen[useridentity.FieldMetadata] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		_q.Select(selectedFields...)
+	}
+	return nil
+}
+
+type useridentityPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []UserIdentityPaginateOption
+}
+
+func newUserIdentityPaginateArgs(rv map[string]any) *useridentityPaginateArgs {
+	args := &useridentityPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*UserIdentityWhereInput); ok {
+		args.opts = append(args.opts, WithUserIdentityFilter(v.Filter))
 	}
 	return args
 }

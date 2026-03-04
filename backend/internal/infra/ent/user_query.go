@@ -17,6 +17,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
 // UserQuery is the builder for querying User entities.
@@ -29,9 +30,11 @@ type UserQuery struct {
 	withPets            *PetQuery
 	withLocation        *LocationQuery
 	withDonorPreference *DonorPreferenceQuery
+	withIdentities      *UserIdentityQuery
 	modifiers           []func(*sql.Selector)
 	loadTotal           []func(context.Context, []*User) error
 	withNamedPets       map[string]*PetQuery
+	withNamedIdentities map[string]*UserIdentityQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -127,6 +130,28 @@ func (_q *UserQuery) QueryDonorPreference() *DonorPreferenceQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(donorpreference.Table, donorpreference.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, user.DonorPreferenceTable, user.DonorPreferenceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryIdentities chains the current query on the "identities" edge.
+func (_q *UserQuery) QueryIdentities() *UserIdentityQuery {
+	query := (&UserIdentityClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(useridentity.Table, useridentity.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.IdentitiesTable, user.IdentitiesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -329,6 +354,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withPets:            _q.withPets.Clone(),
 		withLocation:        _q.withLocation.Clone(),
 		withDonorPreference: _q.withDonorPreference.Clone(),
+		withIdentities:      _q.withIdentities.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -365,6 +391,17 @@ func (_q *UserQuery) WithDonorPreference(opts ...func(*DonorPreferenceQuery)) *U
 		opt(query)
 	}
 	_q.withDonorPreference = query
+	return _q
+}
+
+// WithIdentities tells the query-builder to eager-load the nodes that are connected to
+// the "identities" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithIdentities(opts ...func(*UserIdentityQuery)) *UserQuery {
+	query := (&UserIdentityClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withIdentities = query
 	return _q
 }
 
@@ -446,10 +483,11 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withPets != nil,
 			_q.withLocation != nil,
 			_q.withDonorPreference != nil,
+			_q.withIdentities != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -492,10 +530,24 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := _q.withIdentities; query != nil {
+		if err := _q.loadIdentities(ctx, query, nodes,
+			func(n *User) { n.Edges.Identities = []*UserIdentity{} },
+			func(n *User, e *UserIdentity) { n.Edges.Identities = append(n.Edges.Identities, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range _q.withNamedPets {
 		if err := _q.loadPets(ctx, query, nodes,
 			func(n *User) { n.appendNamedPets(name) },
 			func(n *User, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedIdentities {
+		if err := _q.loadIdentities(ctx, query, nodes,
+			func(n *User) { n.appendNamedIdentities(name) },
+			func(n *User, e *UserIdentity) { n.appendNamedIdentities(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -589,6 +641,36 @@ func (_q *UserQuery) loadDonorPreference(ctx context.Context, query *DonorPrefer
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_donor_preference" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadIdentities(ctx context.Context, query *UserIdentityQuery, nodes []*User, init func(*User), assign func(*User, *UserIdentity)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(useridentity.FieldUserID)
+	}
+	query.Where(predicate.UserIdentity(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.IdentitiesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -693,6 +775,20 @@ func (_q *UserQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *UserQu
 		_q.withNamedPets = make(map[string]*PetQuery)
 	}
 	_q.withNamedPets[name] = query
+	return _q
+}
+
+// WithNamedIdentities tells the query-builder to eager-load the nodes that are connected to the "identities"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNamedIdentities(name string, opts ...func(*UserIdentityQuery)) *UserQuery {
+	query := (&UserIdentityClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedIdentities == nil {
+		_q.withNamedIdentities = make(map[string]*UserIdentityQuery)
+	}
+	_q.withNamedIdentities[name] = query
 	return _q
 }
 

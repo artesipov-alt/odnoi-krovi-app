@@ -20,6 +20,7 @@ import (
 // Prefix constants for ID generation
 const (
 	UserPrefix            = "USR"
+	IdentityPrefix        = "IDN"
 	PetPrefix             = "PET"
 	PetHealthPrefix       = "PHL"
 	PetTreatmentPrefix    = "PTR"

@@ -52,6 +52,8 @@ const (
 	EdgeLocation = "location"
 	// EdgeDonorPreference holds the string denoting the donor_preference edge name in mutations.
 	EdgeDonorPreference = "donor_preference"
+	// EdgeIdentities holds the string denoting the identities edge name in mutations.
+	EdgeIdentities = "identities"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// PetsTable is the table that holds the pets relation/edge.
@@ -75,6 +77,13 @@ const (
 	DonorPreferenceInverseTable = "donor_preferences"
 	// DonorPreferenceColumn is the table column denoting the donor_preference relation/edge.
 	DonorPreferenceColumn = "user_donor_preference"
+	// IdentitiesTable is the table that holds the identities relation/edge.
+	IdentitiesTable = "user_identities"
+	// IdentitiesInverseTable is the table name for the UserIdentity entity.
+	// It exists in this package in order to avoid circular dependency with the "useridentity" package.
+	IdentitiesInverseTable = "user_identities"
+	// IdentitiesColumn is the table column denoting the identities relation/edge.
+	IdentitiesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -256,6 +265,20 @@ func ByDonorPreferenceField(field string, opts ...sql.OrderTermOption) OrderOpti
 		sqlgraph.OrderByNeighborTerms(s, newDonorPreferenceStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByIdentitiesCount orders the results by identities count.
+func ByIdentitiesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newIdentitiesStep(), opts...)
+	}
+}
+
+// ByIdentities orders the results by identities terms.
+func ByIdentities(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newIdentitiesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPetsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -275,6 +298,13 @@ func newDonorPreferenceStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DonorPreferenceInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, DonorPreferenceTable, DonorPreferenceColumn),
+	)
+}
+func newIdentitiesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(IdentitiesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, IdentitiesTable, IdentitiesColumn),
 	)
 }
 

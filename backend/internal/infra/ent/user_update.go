@@ -17,6 +17,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -296,6 +297,21 @@ func (_u *UserUpdate) SetDonorPreference(v *DonorPreference) *UserUpdate {
 	return _u.SetDonorPreferenceID(v.ID)
 }
 
+// AddIdentityIDs adds the "identities" edge to the UserIdentity entity by IDs.
+func (_u *UserUpdate) AddIdentityIDs(ids ...string) *UserUpdate {
+	_u.mutation.AddIdentityIDs(ids...)
+	return _u
+}
+
+// AddIdentities adds the "identities" edges to the UserIdentity entity.
+func (_u *UserUpdate) AddIdentities(v ...*UserIdentity) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddIdentityIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -332,6 +348,27 @@ func (_u *UserUpdate) ClearLocation() *UserUpdate {
 func (_u *UserUpdate) ClearDonorPreference() *UserUpdate {
 	_u.mutation.ClearDonorPreference()
 	return _u
+}
+
+// ClearIdentities clears all "identities" edges to the UserIdentity entity.
+func (_u *UserUpdate) ClearIdentities() *UserUpdate {
+	_u.mutation.ClearIdentities()
+	return _u
+}
+
+// RemoveIdentityIDs removes the "identities" edge to UserIdentity entities by IDs.
+func (_u *UserUpdate) RemoveIdentityIDs(ids ...string) *UserUpdate {
+	_u.mutation.RemoveIdentityIDs(ids...)
+	return _u
+}
+
+// RemoveIdentities removes "identities" edges to UserIdentity entities.
+func (_u *UserUpdate) RemoveIdentities(v ...*UserIdentity) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveIdentityIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -578,6 +615,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.IdentitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedIdentitiesIDs(); len(nodes) > 0 && !_u.mutation.IdentitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.IdentitiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -869,6 +951,21 @@ func (_u *UserUpdateOne) SetDonorPreference(v *DonorPreference) *UserUpdateOne {
 	return _u.SetDonorPreferenceID(v.ID)
 }
 
+// AddIdentityIDs adds the "identities" edge to the UserIdentity entity by IDs.
+func (_u *UserUpdateOne) AddIdentityIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.AddIdentityIDs(ids...)
+	return _u
+}
+
+// AddIdentities adds the "identities" edges to the UserIdentity entity.
+func (_u *UserUpdateOne) AddIdentities(v ...*UserIdentity) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddIdentityIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -905,6 +1002,27 @@ func (_u *UserUpdateOne) ClearLocation() *UserUpdateOne {
 func (_u *UserUpdateOne) ClearDonorPreference() *UserUpdateOne {
 	_u.mutation.ClearDonorPreference()
 	return _u
+}
+
+// ClearIdentities clears all "identities" edges to the UserIdentity entity.
+func (_u *UserUpdateOne) ClearIdentities() *UserUpdateOne {
+	_u.mutation.ClearIdentities()
+	return _u
+}
+
+// RemoveIdentityIDs removes the "identities" edge to UserIdentity entities by IDs.
+func (_u *UserUpdateOne) RemoveIdentityIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.RemoveIdentityIDs(ids...)
+	return _u
+}
+
+// RemoveIdentities removes "identities" edges to UserIdentity entities.
+func (_u *UserUpdateOne) RemoveIdentities(v ...*UserIdentity) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveIdentityIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1181,6 +1299,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.IdentitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedIdentitiesIDs(); len(nodes) > 0 && !_u.mutation.IdentitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.IdentitiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.IdentitiesTable,
+			Columns: []string{user.IdentitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

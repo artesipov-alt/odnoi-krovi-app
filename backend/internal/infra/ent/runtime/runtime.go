@@ -18,6 +18,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -324,6 +325,27 @@ func init() {
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() string)
+	useridentityMixin := schema.UserIdentity{}.Mixin()
+	useridentityMixinInters0 := useridentityMixin[0].Interceptors()
+	useridentity.Interceptors[0] = useridentityMixinInters0[0]
+	useridentityMixinFields0 := useridentityMixin[0].Fields()
+	_ = useridentityMixinFields0
+	useridentityFields := schema.UserIdentity{}.Fields()
+	_ = useridentityFields
+	// useridentityDescCreatedAt is the schema descriptor for created_at field.
+	useridentityDescCreatedAt := useridentityMixinFields0[1].Descriptor()
+	// useridentity.DefaultCreatedAt holds the default value on creation for the created_at field.
+	useridentity.DefaultCreatedAt = useridentityDescCreatedAt.Default.(func() time.Time)
+	// useridentityDescUpdatedAt is the schema descriptor for updated_at field.
+	useridentityDescUpdatedAt := useridentityMixinFields0[2].Descriptor()
+	// useridentity.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	useridentity.DefaultUpdatedAt = useridentityDescUpdatedAt.Default.(func() time.Time)
+	// useridentity.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	useridentity.UpdateDefaultUpdatedAt = useridentityDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// useridentityDescID is the schema descriptor for id field.
+	useridentityDescID := useridentityMixinFields0[0].Descriptor()
+	// useridentity.DefaultID holds the default value on creation for the id field.
+	useridentity.DefaultID = useridentityDescID.Default.(func() string)
 }
 
 const (

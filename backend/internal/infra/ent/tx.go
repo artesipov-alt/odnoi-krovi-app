@@ -36,6 +36,8 @@ type Tx struct {
 	PetTreatment *PetTreatmentClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserIdentity is the client for interacting with the UserIdentity builders.
+	UserIdentity *UserIdentityClient
 
 	// lazily loaded.
 	client     *Client
@@ -179,6 +181,7 @@ func (tx *Tx) init() {
 	tx.PetHealth = NewPetHealthClient(tx.config)
 	tx.PetTreatment = NewPetTreatmentClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserIdentity = NewUserIdentityClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
