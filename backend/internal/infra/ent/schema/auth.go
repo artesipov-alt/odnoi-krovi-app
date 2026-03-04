@@ -23,7 +23,7 @@ func (UserIdentity) Fields() []ent.Field {
 		field.Enum("provider").
 			Values("telegram_bot", "max_bot"),
 		// provider_user_id is the unique identifier from the provider (e.g., Telegram ID).
-		field.String("provider_user_id"),
+		field.Int64("provider_user_id"),
 		// metadata is JSONB for storing additional provider data (username, photo_url, etc.).
 		field.JSON("metadata", map[string]any{}).
 			Optional(),

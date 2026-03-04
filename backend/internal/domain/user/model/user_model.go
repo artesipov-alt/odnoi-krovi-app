@@ -19,6 +19,8 @@ const (
 type User struct {
 	ID               string
 	TelegramID       int64
+	ProviderID       int64
+	ProviderName     string
 	FullName         string
 	Phone            string
 	Email            string
@@ -38,13 +40,14 @@ type User struct {
 
 // NewUserParams holds the parameters for creating a new User
 type NewUserParams struct {
-	TelegramID int64
-	FullName   string
-	Phone      string
-	Email      string
-	Role       UserRole
-	ConsentPd  bool
-	LocationID *string
+	ProviderID   int64
+	ProviderName string
+	FullName     string
+	Phone        string
+	Email        string
+	Role         UserRole
+	ConsentPd    bool
+	LocationID   *string
 }
 
 // CompensationType represents donor's compensation preference
@@ -115,16 +118,17 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 	}
 
 	user := &User{
-		TelegramID: userparams.TelegramID,
-		FullName:   userparams.FullName,
-		Phone:      userparams.Phone,
-		Email:      userparams.Email,
-		Role:       string(userparams.Role),
-		ConsentPd:  userparams.ConsentPd,
-		LocationID: userparams.LocationID,
-		PhotoURLs:  []string{},
-		OnBoarding: []string{},
-		Pets:       []*pet.Pet{},
+		ProviderID:   userparams.ProviderID,
+		ProviderName: userparams.ProviderName,
+		FullName:     userparams.FullName,
+		Phone:        userparams.Phone,
+		Email:        userparams.Email,
+		Role:         string(userparams.Role),
+		ConsentPd:    userparams.ConsentPd,
+		LocationID:   userparams.LocationID,
+		PhotoURLs:    []string{},
+		OnBoarding:   []string{},
+		Pets:         []*pet.Pet{},
 	}
 	if donorparams != nil {
 		user.DonorPreference = &DonorPreference{

@@ -90,7 +90,7 @@ func (m *UserMapper) ToResponseSlice(users []*model.User) []dto.UserDetail {
 // FromCreate converts a CreateUserBody DTO to a domain User model using the constructor.
 func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 	params := model.NewUserParams{
-		TelegramID: body.TelegramID,
+		ProviderID: body.ProviderID,
 		FullName:   body.FullName,
 		Phone:      "", // phone - empty for simple creation
 		Email:      "", // email - empty for simple creation

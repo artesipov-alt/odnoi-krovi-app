@@ -309,7 +309,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "provider", Type: field.TypeEnum, Enums: []string{"telegram_bot", "max_bot"}},
-		{Name: "provider_user_id", Type: field.TypeString},
+		{Name: "provider_user_id", Type: field.TypeInt64},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "user_id", Type: field.TypeString},
 	}

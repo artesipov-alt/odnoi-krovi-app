@@ -13,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
 // EntUserRepository implements UserRepository using ENT
@@ -41,7 +42,6 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 
 	builder := tx.User.
 		Create().
-		SetTelegramID(inputuser.TelegramID).
 		SetFullName(inputuser.FullName).
 		SetRole(entuser.Role(inputuser.Role))
 
@@ -74,6 +74,18 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	if inputuser.ProviderID != 0 {
+		identityBuilder := tx.UserIdentity.Create().
+			SetUser(newUser).
+			SetProviderUserID(inputuser.ProviderID).
+			SetProvider(useridentity.Provider(inputuser.ProviderName))
+		_, err := identityBuilder.Save(ctx)
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to create identity: %w", err)
+		}
 	}
 
 	// Create DonorPreference if provided

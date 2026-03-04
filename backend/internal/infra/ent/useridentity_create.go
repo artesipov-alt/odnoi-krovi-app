@@ -76,7 +76,7 @@ func (_c *UserIdentityCreate) SetProvider(v useridentity.Provider) *UserIdentity
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (_c *UserIdentityCreate) SetProviderUserID(v string) *UserIdentityCreate {
+func (_c *UserIdentityCreate) SetProviderUserID(v int64) *UserIdentityCreate {
 	_c.mutation.SetProviderUserID(v)
 	return _c
 }
@@ -232,7 +232,7 @@ func (_c *UserIdentityCreate) createSpec() (*UserIdentity, *sqlgraph.CreateSpec)
 		_node.Provider = value
 	}
 	if value, ok := _c.mutation.ProviderUserID(); ok {
-		_spec.SetField(useridentity.FieldProviderUserID, field.TypeString, value)
+		_spec.SetField(useridentity.FieldProviderUserID, field.TypeInt64, value)
 		_node.ProviderUserID = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {

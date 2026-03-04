@@ -153,7 +153,7 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 }
 
 func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateUserInput) (*dto.CreateUserOutput, error) {
-	slog.DebugContext(ctx, "registering user simple", "telegram_id", input.Body.TelegramID)
+	slog.DebugContext(ctx, "registering user simple", "telegram_id", input.Body.ProviderID)
 
 	// Use mapper to convert DTO to domain model using NewUser constructor
 	user, err := h.userMapper.FromCreate(input.Body)

@@ -39,8 +39,9 @@ type CreateUserInput struct {
 
 // CreateUserBody представляет тело запроса на создание пользователя
 type CreateUserBody struct {
-	TelegramID int64  `json:"telegramId" doc:"Telegram ID пользователя" format:"int64" example:"123456789" minimum:"1"`
-	FullName   string `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
+	ProviderID   int64  `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
+	ProviderName string `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
+	FullName     string `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
 }
 
 // CreateUserOutput представляет ответ на создание пользователя
@@ -66,10 +67,9 @@ type UpdateUserInput struct {
 
 // UpdateUserBody представляет тело запроса на обновление пользователя
 type UpdateUserBody struct {
-	FullName *string `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
-	Phone    *string `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
-	Email    *string `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
-
+	FullName        *string                `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
+	Phone           *string                `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
+	Email           *string                `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
 	AllowGeo        *bool                  `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
 	OnBoarding      *[]string              `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
 	LocationID      *string                `json:"locationId,omitempty" doc:"ID локации"`
@@ -199,7 +199,7 @@ type DeletedUsersList struct {
 // UserDetail представляет полные данные пользователя
 type UserDetail struct {
 	ID               string           `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
-	TelegramID       int64            `json:"telegramId" doc:"Telegram ID" example:"123456789"`
+	TelegramID       int64            `json:"telegramId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
 	FullName         string           `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
 	Phone            string           `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
 	Email            string           `json:"email,omitempty" doc:"Email" example:"user@example.com"`
