@@ -19,21 +19,23 @@ const (
 
 // BloodRequest represents a request to search for blood donors
 type BloodRequest struct {
-	ID                     string
-	PetID                  string
-	BloodVolumeNeeded      int32
-	BloodVolumeReserved    int32
-	Regions                []string
-	SmallPetsNotifyAllowed bool
-	Status                 BloodRequestStatus
-	Description            string
-	PhotoURLs              []string
-	BloodGroupNames        []string
-	BloodComponentIDs      []string
-	OnBoarding             []string
-	CreatedAt              time.Time
-	UpdatedAt              time.Time
-	DeletedAt              *time.Time
+	ID                       string
+	PetID                    string
+	BloodVolumeNeeded        int32
+	BloodVolumeReserved      int32
+	Regions                  []string
+	SmallPetsNotifyAllowed   bool
+	Status                   BloodRequestStatus
+	Description              string
+	PhotoURLs                []string
+	BloodGroupNames          []string
+	BloodComponentIDs        []string
+	OnBoarding               []string
+	PrioritySearch           bool
+	IncludeUnknownBloodGroup bool
+	CreatedAt                time.Time
+	UpdatedAt                time.Time
+	DeletedAt                *time.Time
 	// Responses are typically loaded separately, but we can keep IDs
 	ResponseIDs []string
 }
@@ -42,18 +44,20 @@ type BloodRequest struct {
 func NewBloodRequest(petID string, bloodVolumeNeeded int32, regions []string) *BloodRequest {
 	now := time.Now()
 	return &BloodRequest{
-		PetID:                  petID,
-		BloodVolumeNeeded:      bloodVolumeNeeded,
-		BloodVolumeReserved:    0,
-		Regions:                regions,
-		SmallPetsNotifyAllowed: true,
-		Status:                 BloodRequestStatusActive,
-		PhotoURLs:              []string{},
-		BloodGroupNames:        []string{},
-		BloodComponentIDs:      []string{},
-		OnBoarding:             []string{},
-		CreatedAt:              now,
-		UpdatedAt:              now,
+		PetID:                    petID,
+		BloodVolumeNeeded:        bloodVolumeNeeded,
+		BloodVolumeReserved:      0,
+		Regions:                  regions,
+		SmallPetsNotifyAllowed:   true,
+		Status:                   BloodRequestStatusActive,
+		PhotoURLs:                []string{},
+		BloodGroupNames:          []string{},
+		BloodComponentIDs:        []string{},
+		OnBoarding:               []string{},
+		PrioritySearch:           false,
+		IncludeUnknownBloodGroup: false,
+		CreatedAt:                now,
+		UpdatedAt:                now,
 	}
 }
 

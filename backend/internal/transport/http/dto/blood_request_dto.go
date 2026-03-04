@@ -40,13 +40,15 @@ type CreateBloodRequestInput struct {
 
 // CreateBloodRequestBody представляет тело запроса на создание заявки
 type CreateBloodRequestBody struct {
-	PetID                  string   `json:"petId" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
-	BloodVolumeNeeded      int32    `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" minimum:"1" example:"100"`
-	Regions                []string `json:"regions" doc:"Список ID регионов" example:"[\"MOSCOW\", \"SPB\"]"`
-	SmallPetsNotifyAllowed bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
-	Description            string   `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
-	BloodGroupNames        []string `json:"bloodGroupNames" doc:"Список групп крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
-	BloodComponentIDs      []string `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
+	PetID                    string   `json:"petId" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
+	BloodVolumeNeeded        int32    `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" minimum:"1" example:"100"`
+	Regions                  []string `json:"regions" doc:"Список ID регионов" example:"[\"MOSCOW\", \"SPB\"]"`
+	SmallPetsNotifyAllowed   bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
+	Description              string   `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
+	BloodGroupNames          []string `json:"bloodGroupNames" doc:"Список групп крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
+	BloodComponentIDs        []string `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
+	PrioritySearch           bool     `json:"prioritySearch" doc:"Приоритетный поиск"`
+	IncludeUnknownBloodGroup bool     `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
 }
 
 // CreateBloodRequestOutput представляет ответ на создание заявки
@@ -74,15 +76,17 @@ type UpdateBloodRequestInput struct {
 
 // UpdateBloodRequestBody представляет тело запроса на обновление заявки
 type UpdateBloodRequestBody struct {
-	BloodVolumeNeeded      *int32   `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" minimum:"1"`
-	BloodVolumeReserved    *int32   `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" minimum:"0"`
-	Regions                []string `json:"regions,omitempty" doc:"Список ID регионов"`
-	SmallPetsNotifyAllowed *bool    `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для мелких питомцев"`
-	Description            *string  `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
-	BloodGroupNames        []string `json:"bloodGroupNames,omitempty" doc:"Список групп крови"`
-	BloodComponentIDs      []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
-	OnBoarding             []string `json:"onBoarding,omitempty" doc:"Список пройденных онбордингов"`
-	Status                 *string  `json:"status,omitempty" doc:"Статус заявки"`
+	BloodVolumeNeeded        *int32   `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" minimum:"1"`
+	BloodVolumeReserved      *int32   `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" minimum:"0"`
+	Regions                  []string `json:"regions,omitempty" doc:"Список ID регионов"`
+	SmallPetsNotifyAllowed   *bool    `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для мелких питомцев"`
+	Description              *string  `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
+	BloodGroupNames          []string `json:"bloodGroupNames,omitempty" doc:"Список групп крови"`
+	BloodComponentIDs        []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
+	OnBoarding               []string `json:"onBoarding,omitempty" doc:"Список пройденных онбордингов"`
+	Status                   *string  `json:"status,omitempty" doc:"Статус заявки"`
+	PrioritySearch           *bool    `json:"prioritySearch" doc:"Приоритетный поиск"`
+	IncludeUnknownBloodGroup *bool    `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
 }
 
 // UpdateBloodRequestOutput представляет ответ на обновление заявки
@@ -207,23 +211,25 @@ type BloodRequestsList struct {
 
 // BloodRequestDetail представляет полные данные заявки
 type BloodRequestDetail struct {
-	ID                     string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
-	PetID                  string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
-	BloodVolumeNeeded      int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
-	BloodVolumeReserved    int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"0"`
-	Regions                []string           `json:"regions" doc:"Список регионов"`
-	SmallPetsNotifyAllowed bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
-	Description            string             `json:"description,omitempty" doc:"Дополнительное описание"`
-	PhotoURLs              []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
-	BloodGroupNames        []string           `json:"bloodGroupNames" doc:"Список групп крови"`
-	BloodComponentIDs      []string           `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
-	OnBoarding             []string           `json:"onBoarding" doc:"Список пройденных онбордингов"`
-	Status                 BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
-	Responses              []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
-	SuitableDonors         int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
-	CreatedAt              *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	UpdatedAt              *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	DeletedAt              *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	ID                       string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	PetID                    string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
+	BloodVolumeNeeded        int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
+	BloodVolumeReserved      int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"0"`
+	Regions                  []string           `json:"regions" doc:"Список регионов"`
+	SmallPetsNotifyAllowed   bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
+	Description              string             `json:"description,omitempty" doc:"Дополнительное описание"`
+	PhotoURLs                []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
+	BloodGroupNames          []string           `json:"bloodGroupNames" doc:"Список групп крови"`
+	BloodComponentIDs        []string           `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
+	OnBoarding               []string           `json:"onBoarding" doc:"Список пройденных онбордингов"`
+	PrioritySearch           bool               `json:"prioritySearch" doc:"Приоритетный поиск"`
+	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
+	Status                   BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Responses                []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
+	SuitableDonors           int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
+	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt                *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // DonorApplication представляет отклик донора

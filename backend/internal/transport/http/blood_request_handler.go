@@ -233,6 +233,12 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 	if input.Body.Status != nil {
 		existing.Status = model.BloodRequestStatus(*input.Body.Status)
 	}
+	if input.Body.PrioritySearch != nil {
+		existing.PrioritySearch = *input.Body.PrioritySearch
+	}
+	if input.Body.IncludeUnknownBloodGroup != nil {
+		existing.IncludeUnknownBloodGroup = *input.Body.IncludeUnknownBloodGroup
+	}
 
 	result, err := h.updateHandler.Handle(ctx, input.ID, existing)
 	if err != nil {

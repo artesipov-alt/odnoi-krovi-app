@@ -46,6 +46,10 @@ const (
 	FieldBloodComponentIds = "blood_component_ids"
 	// FieldOnBoarding holds the string denoting the on_boarding field in the database.
 	FieldOnBoarding = "on_boarding"
+	// FieldPrioritySearch holds the string denoting the priority_search field in the database.
+	FieldPrioritySearch = "priority_search"
+	// FieldIncludeUnknownBloodGroup holds the string denoting the include_unknown_blood_group field in the database.
+	FieldIncludeUnknownBloodGroup = "include_unknown_blood_group"
 	// EdgePet holds the string denoting the pet edge name in mutations.
 	EdgePet = "pet"
 	// EdgeResponses holds the string denoting the responses edge name in mutations.
@@ -85,6 +89,8 @@ var Columns = []string{
 	FieldBloodGroupNames,
 	FieldBloodComponentIds,
 	FieldOnBoarding,
+	FieldPrioritySearch,
+	FieldIncludeUnknownBloodGroup,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -114,6 +120,10 @@ var (
 	DefaultBloodVolumeReserved int32
 	// DefaultSmallPetsNotifyAllowed holds the default value on creation for the "small_pets_notify_allowed" field.
 	DefaultSmallPetsNotifyAllowed bool
+	// DefaultPrioritySearch holds the default value on creation for the "priority_search" field.
+	DefaultPrioritySearch bool
+	// DefaultIncludeUnknownBloodGroup holds the default value on creation for the "include_unknown_blood_group" field.
+	DefaultIncludeUnknownBloodGroup bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -196,6 +206,16 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByPrioritySearch orders the results by the priority_search field.
+func ByPrioritySearch(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrioritySearch, opts...).ToFunc()
+}
+
+// ByIncludeUnknownBloodGroup orders the results by the include_unknown_blood_group field.
+func ByIncludeUnknownBloodGroup(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIncludeUnknownBloodGroup, opts...).ToFunc()
 }
 
 // ByPetField orders the results by pet field.

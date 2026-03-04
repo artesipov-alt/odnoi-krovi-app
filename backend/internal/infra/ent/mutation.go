@@ -939,38 +939,40 @@ func (m *BloodGroupMutation) ResetEdge(name string) error {
 // BloodSearchRequestMutation represents an operation that mutates the BloodSearchRequest nodes in the graph.
 type BloodSearchRequestMutation struct {
 	config
-	op                        Op
-	typ                       string
-	id                        *string
-	created_at                *time.Time
-	updated_at                *time.Time
-	deleted_at                *time.Time
-	blood_volume_needed       *int32
-	addblood_volume_needed    *int32
-	blood_volume_reserved     *int32
-	addblood_volume_reserved  *int32
-	regions                   *[]string
-	appendregions             []string
-	small_pets_notify_allowed *bool
-	status                    *bloodsearchrequest.Status
-	description               *string
-	photo_urls                *[]string
-	appendphoto_urls          []string
-	blood_group_names         *[]string
-	appendblood_group_names   []string
-	blood_component_ids       *[]string
-	appendblood_component_ids []string
-	on_boarding               *[]string
-	appendon_boarding         []string
-	clearedFields             map[string]struct{}
-	pet                       *string
-	clearedpet                bool
-	responses                 map[string]struct{}
-	removedresponses          map[string]struct{}
-	clearedresponses          bool
-	done                      bool
-	oldValue                  func(context.Context) (*BloodSearchRequest, error)
-	predicates                []predicate.BloodSearchRequest
+	op                          Op
+	typ                         string
+	id                          *string
+	created_at                  *time.Time
+	updated_at                  *time.Time
+	deleted_at                  *time.Time
+	blood_volume_needed         *int32
+	addblood_volume_needed      *int32
+	blood_volume_reserved       *int32
+	addblood_volume_reserved    *int32
+	regions                     *[]string
+	appendregions               []string
+	small_pets_notify_allowed   *bool
+	status                      *bloodsearchrequest.Status
+	description                 *string
+	photo_urls                  *[]string
+	appendphoto_urls            []string
+	blood_group_names           *[]string
+	appendblood_group_names     []string
+	blood_component_ids         *[]string
+	appendblood_component_ids   []string
+	on_boarding                 *[]string
+	appendon_boarding           []string
+	priority_search             *bool
+	include_unknown_blood_group *bool
+	clearedFields               map[string]struct{}
+	pet                         *string
+	clearedpet                  bool
+	responses                   map[string]struct{}
+	removedresponses            map[string]struct{}
+	clearedresponses            bool
+	done                        bool
+	oldValue                    func(context.Context) (*BloodSearchRequest, error)
+	predicates                  []predicate.BloodSearchRequest
 }
 
 var _ ent.Mutation = (*BloodSearchRequestMutation)(nil)
@@ -1778,6 +1780,78 @@ func (m *BloodSearchRequestMutation) ResetOnBoarding() {
 	delete(m.clearedFields, bloodsearchrequest.FieldOnBoarding)
 }
 
+// SetPrioritySearch sets the "priority_search" field.
+func (m *BloodSearchRequestMutation) SetPrioritySearch(b bool) {
+	m.priority_search = &b
+}
+
+// PrioritySearch returns the value of the "priority_search" field in the mutation.
+func (m *BloodSearchRequestMutation) PrioritySearch() (r bool, exists bool) {
+	v := m.priority_search
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrioritySearch returns the old "priority_search" field's value of the BloodSearchRequest entity.
+// If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BloodSearchRequestMutation) OldPrioritySearch(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrioritySearch is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrioritySearch requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrioritySearch: %w", err)
+	}
+	return oldValue.PrioritySearch, nil
+}
+
+// ResetPrioritySearch resets all changes to the "priority_search" field.
+func (m *BloodSearchRequestMutation) ResetPrioritySearch() {
+	m.priority_search = nil
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (m *BloodSearchRequestMutation) SetIncludeUnknownBloodGroup(b bool) {
+	m.include_unknown_blood_group = &b
+}
+
+// IncludeUnknownBloodGroup returns the value of the "include_unknown_blood_group" field in the mutation.
+func (m *BloodSearchRequestMutation) IncludeUnknownBloodGroup() (r bool, exists bool) {
+	v := m.include_unknown_blood_group
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIncludeUnknownBloodGroup returns the old "include_unknown_blood_group" field's value of the BloodSearchRequest entity.
+// If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BloodSearchRequestMutation) OldIncludeUnknownBloodGroup(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIncludeUnknownBloodGroup is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIncludeUnknownBloodGroup requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIncludeUnknownBloodGroup: %w", err)
+	}
+	return oldValue.IncludeUnknownBloodGroup, nil
+}
+
+// ResetIncludeUnknownBloodGroup resets all changes to the "include_unknown_blood_group" field.
+func (m *BloodSearchRequestMutation) ResetIncludeUnknownBloodGroup() {
+	m.include_unknown_blood_group = nil
+}
+
 // ClearPet clears the "pet" edge to the Pet entity.
 func (m *BloodSearchRequestMutation) ClearPet() {
 	m.clearedpet = true
@@ -1893,7 +1967,7 @@ func (m *BloodSearchRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BloodSearchRequestMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 16)
 	if m.created_at != nil {
 		fields = append(fields, bloodsearchrequest.FieldCreatedAt)
 	}
@@ -1936,6 +2010,12 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	if m.on_boarding != nil {
 		fields = append(fields, bloodsearchrequest.FieldOnBoarding)
 	}
+	if m.priority_search != nil {
+		fields = append(fields, bloodsearchrequest.FieldPrioritySearch)
+	}
+	if m.include_unknown_blood_group != nil {
+		fields = append(fields, bloodsearchrequest.FieldIncludeUnknownBloodGroup)
+	}
 	return fields
 }
 
@@ -1972,6 +2052,10 @@ func (m *BloodSearchRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.BloodComponentIds()
 	case bloodsearchrequest.FieldOnBoarding:
 		return m.OnBoarding()
+	case bloodsearchrequest.FieldPrioritySearch:
+		return m.PrioritySearch()
+	case bloodsearchrequest.FieldIncludeUnknownBloodGroup:
+		return m.IncludeUnknownBloodGroup()
 	}
 	return nil, false
 }
@@ -2009,6 +2093,10 @@ func (m *BloodSearchRequestMutation) OldField(ctx context.Context, name string) 
 		return m.OldBloodComponentIds(ctx)
 	case bloodsearchrequest.FieldOnBoarding:
 		return m.OldOnBoarding(ctx)
+	case bloodsearchrequest.FieldPrioritySearch:
+		return m.OldPrioritySearch(ctx)
+	case bloodsearchrequest.FieldIncludeUnknownBloodGroup:
+		return m.OldIncludeUnknownBloodGroup(ctx)
 	}
 	return nil, fmt.Errorf("unknown BloodSearchRequest field %s", name)
 }
@@ -2115,6 +2203,20 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOnBoarding(v)
+		return nil
+	case bloodsearchrequest.FieldPrioritySearch:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrioritySearch(v)
+		return nil
+	case bloodsearchrequest.FieldIncludeUnknownBloodGroup:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIncludeUnknownBloodGroup(v)
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest field %s", name)
@@ -2272,6 +2374,12 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 		return nil
 	case bloodsearchrequest.FieldOnBoarding:
 		m.ResetOnBoarding()
+		return nil
+	case bloodsearchrequest.FieldPrioritySearch:
+		m.ResetPrioritySearch()
+		return nil
+	case bloodsearchrequest.FieldIncludeUnknownBloodGroup:
+		m.ResetIncludeUnknownBloodGroup()
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest field %s", name)

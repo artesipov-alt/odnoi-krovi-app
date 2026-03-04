@@ -296,6 +296,16 @@ func (_q *BloodSearchRequestQuery) collectField(ctx context.Context, oneNode boo
 				selectedFields = append(selectedFields, bloodsearchrequest.FieldOnBoarding)
 				fieldSeen[bloodsearchrequest.FieldOnBoarding] = struct{}{}
 			}
+		case "prioritySearch":
+			if _, ok := fieldSeen[bloodsearchrequest.FieldPrioritySearch]; !ok {
+				selectedFields = append(selectedFields, bloodsearchrequest.FieldPrioritySearch)
+				fieldSeen[bloodsearchrequest.FieldPrioritySearch] = struct{}{}
+			}
+		case "includeUnknownBloodGroup":
+			if _, ok := fieldSeen[bloodsearchrequest.FieldIncludeUnknownBloodGroup]; !ok {
+				selectedFields = append(selectedFields, bloodsearchrequest.FieldIncludeUnknownBloodGroup)
+				fieldSeen[bloodsearchrequest.FieldIncludeUnknownBloodGroup] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

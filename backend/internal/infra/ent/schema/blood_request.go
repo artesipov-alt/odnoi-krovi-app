@@ -17,41 +17,34 @@ type BloodSearchRequest struct {
 // Fields of the BloodSearchRequest.
 func (BloodSearchRequest) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("pet_id").
-			StructTag(`json:"petId"`),
-		field.Int32("blood_volume_needed").
-			StructTag(`json:"bloodVolumeNeeded"`),
+		field.String("pet_id"),
+		field.Int32("blood_volume_needed"),
 		field.Int32("blood_volume_reserved").
-			Default(0).
-			StructTag(`json:"bloodVolumeReserved"`),
+			Default(0),
 		field.JSON("regions", []string{}).
-			Annotations(entgql.Type("Int")).
-			StructTag(`json:"regions"`),
+			Annotations(entgql.Type("Int")),
 		field.Bool("small_pets_notify_allowed").
-			Default(true).
-			StructTag(`json:"smallPetsNotifyAllowed"`),
+			Default(true),
 		field.Enum("status").
 			Values("active", "closed", "draft").
-			Default("active").
-			StructTag(`json:"status"`),
+			Default("active"),
 		field.String("description").
-			Optional().
-			StructTag(`json:"description"`),
+			Optional(),
 		field.JSON("photo_urls", []string{}).
 			Annotations(entgql.Type("String")).
-			Optional().
-			StructTag(`json:"photoUrls"`),
+			Optional(),
 		field.JSON("blood_group_names", []string{}).
 			Annotations(entgql.Type("String")).
-			Optional().
-			StructTag(`json:"bloodGroupNames"`),
+			Optional(),
 		field.JSON("blood_component_ids", []string{}).
 			Annotations(entgql.Type("String")).
-			Optional().
-			StructTag(`json:"bloodComponentIds"`),
+			Optional(),
 		field.JSON("on_boarding", []string{}).
-			Optional().
-			StructTag(`json:"onBoarding"`),
+			Optional(),
+		field.Bool("priority_search").
+			Default(false),
+		field.Bool("include_unknown_blood_group").
+			Default(false),
 	}
 }
 

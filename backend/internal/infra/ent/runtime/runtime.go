@@ -89,6 +89,14 @@ func init() {
 	bloodsearchrequestDescSmallPetsNotifyAllowed := bloodsearchrequestFields[4].Descriptor()
 	// bloodsearchrequest.DefaultSmallPetsNotifyAllowed holds the default value on creation for the small_pets_notify_allowed field.
 	bloodsearchrequest.DefaultSmallPetsNotifyAllowed = bloodsearchrequestDescSmallPetsNotifyAllowed.Default.(bool)
+	// bloodsearchrequestDescPrioritySearch is the schema descriptor for priority_search field.
+	bloodsearchrequestDescPrioritySearch := bloodsearchrequestFields[11].Descriptor()
+	// bloodsearchrequest.DefaultPrioritySearch holds the default value on creation for the priority_search field.
+	bloodsearchrequest.DefaultPrioritySearch = bloodsearchrequestDescPrioritySearch.Default.(bool)
+	// bloodsearchrequestDescIncludeUnknownBloodGroup is the schema descriptor for include_unknown_blood_group field.
+	bloodsearchrequestDescIncludeUnknownBloodGroup := bloodsearchrequestFields[12].Descriptor()
+	// bloodsearchrequest.DefaultIncludeUnknownBloodGroup holds the default value on creation for the include_unknown_blood_group field.
+	bloodsearchrequest.DefaultIncludeUnknownBloodGroup = bloodsearchrequestDescIncludeUnknownBloodGroup.Default.(bool)
 	// bloodsearchrequestDescID is the schema descriptor for id field.
 	bloodsearchrequestDescID := bloodsearchrequestMixinFields0[0].Descriptor()
 	// bloodsearchrequest.DefaultID holds the default value on creation for the id field.

@@ -162,6 +162,34 @@ func (_c *BloodSearchRequestCreate) SetOnBoarding(v []string) *BloodSearchReques
 	return _c
 }
 
+// SetPrioritySearch sets the "priority_search" field.
+func (_c *BloodSearchRequestCreate) SetPrioritySearch(v bool) *BloodSearchRequestCreate {
+	_c.mutation.SetPrioritySearch(v)
+	return _c
+}
+
+// SetNillablePrioritySearch sets the "priority_search" field if the given value is not nil.
+func (_c *BloodSearchRequestCreate) SetNillablePrioritySearch(v *bool) *BloodSearchRequestCreate {
+	if v != nil {
+		_c.SetPrioritySearch(*v)
+	}
+	return _c
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (_c *BloodSearchRequestCreate) SetIncludeUnknownBloodGroup(v bool) *BloodSearchRequestCreate {
+	_c.mutation.SetIncludeUnknownBloodGroup(v)
+	return _c
+}
+
+// SetNillableIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field if the given value is not nil.
+func (_c *BloodSearchRequestCreate) SetNillableIncludeUnknownBloodGroup(v *bool) *BloodSearchRequestCreate {
+	if v != nil {
+		_c.SetIncludeUnknownBloodGroup(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *BloodSearchRequestCreate) SetID(v string) *BloodSearchRequestCreate {
 	_c.mutation.SetID(v)
@@ -251,6 +279,14 @@ func (_c *BloodSearchRequestCreate) defaults() {
 		v := bloodsearchrequest.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
+	if _, ok := _c.mutation.PrioritySearch(); !ok {
+		v := bloodsearchrequest.DefaultPrioritySearch
+		_c.mutation.SetPrioritySearch(v)
+	}
+	if _, ok := _c.mutation.IncludeUnknownBloodGroup(); !ok {
+		v := bloodsearchrequest.DefaultIncludeUnknownBloodGroup
+		_c.mutation.SetIncludeUnknownBloodGroup(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := bloodsearchrequest.DefaultID()
 		_c.mutation.SetID(v)
@@ -287,6 +323,12 @@ func (_c *BloodSearchRequestCreate) check() error {
 		if err := bloodsearchrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "BloodSearchRequest.status": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.PrioritySearch(); !ok {
+		return &ValidationError{Name: "priority_search", err: errors.New(`ent: missing required field "BloodSearchRequest.priority_search"`)}
+	}
+	if _, ok := _c.mutation.IncludeUnknownBloodGroup(); !ok {
+		return &ValidationError{Name: "include_unknown_blood_group", err: errors.New(`ent: missing required field "BloodSearchRequest.include_unknown_blood_group"`)}
 	}
 	if len(_c.mutation.PetIDs()) == 0 {
 		return &ValidationError{Name: "pet", err: errors.New(`ent: missing required edge "BloodSearchRequest.pet"`)}
@@ -377,6 +419,14 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	if value, ok := _c.mutation.OnBoarding(); ok {
 		_spec.SetField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON, value)
 		_node.OnBoarding = value
+	}
+	if value, ok := _c.mutation.PrioritySearch(); ok {
+		_spec.SetField(bloodsearchrequest.FieldPrioritySearch, field.TypeBool, value)
+		_node.PrioritySearch = value
+	}
+	if value, ok := _c.mutation.IncludeUnknownBloodGroup(); ok {
+		_spec.SetField(bloodsearchrequest.FieldIncludeUnknownBloodGroup, field.TypeBool, value)
+		_node.IncludeUnknownBloodGroup = value
 	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

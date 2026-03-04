@@ -245,6 +245,34 @@ func (_u *BloodSearchRequestUpdate) ClearOnBoarding() *BloodSearchRequestUpdate 
 	return _u
 }
 
+// SetPrioritySearch sets the "priority_search" field.
+func (_u *BloodSearchRequestUpdate) SetPrioritySearch(v bool) *BloodSearchRequestUpdate {
+	_u.mutation.SetPrioritySearch(v)
+	return _u
+}
+
+// SetNillablePrioritySearch sets the "priority_search" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdate) SetNillablePrioritySearch(v *bool) *BloodSearchRequestUpdate {
+	if v != nil {
+		_u.SetPrioritySearch(*v)
+	}
+	return _u
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (_u *BloodSearchRequestUpdate) SetIncludeUnknownBloodGroup(v bool) *BloodSearchRequestUpdate {
+	_u.mutation.SetIncludeUnknownBloodGroup(v)
+	return _u
+}
+
+// SetNillableIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdate) SetNillableIncludeUnknownBloodGroup(v *bool) *BloodSearchRequestUpdate {
+	if v != nil {
+		_u.SetIncludeUnknownBloodGroup(*v)
+	}
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdate) SetPet(v *Pet) *BloodSearchRequestUpdate {
 	return _u.SetPetID(v.ID)
@@ -442,6 +470,12 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.OnBoardingCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.PrioritySearch(); ok {
+		_spec.SetField(bloodsearchrequest.FieldPrioritySearch, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IncludeUnknownBloodGroup(); ok {
+		_spec.SetField(bloodsearchrequest.FieldIncludeUnknownBloodGroup, field.TypeBool, value)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -751,6 +785,34 @@ func (_u *BloodSearchRequestUpdateOne) ClearOnBoarding() *BloodSearchRequestUpda
 	return _u
 }
 
+// SetPrioritySearch sets the "priority_search" field.
+func (_u *BloodSearchRequestUpdateOne) SetPrioritySearch(v bool) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetPrioritySearch(v)
+	return _u
+}
+
+// SetNillablePrioritySearch sets the "priority_search" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdateOne) SetNillablePrioritySearch(v *bool) *BloodSearchRequestUpdateOne {
+	if v != nil {
+		_u.SetPrioritySearch(*v)
+	}
+	return _u
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (_u *BloodSearchRequestUpdateOne) SetIncludeUnknownBloodGroup(v bool) *BloodSearchRequestUpdateOne {
+	_u.mutation.SetIncludeUnknownBloodGroup(v)
+	return _u
+}
+
+// SetNillableIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field if the given value is not nil.
+func (_u *BloodSearchRequestUpdateOne) SetNillableIncludeUnknownBloodGroup(v *bool) *BloodSearchRequestUpdateOne {
+	if v != nil {
+		_u.SetIncludeUnknownBloodGroup(*v)
+	}
+	return _u
+}
+
 // SetPet sets the "pet" edge to the Pet entity.
 func (_u *BloodSearchRequestUpdateOne) SetPet(v *Pet) *BloodSearchRequestUpdateOne {
 	return _u.SetPetID(v.ID)
@@ -978,6 +1040,12 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.OnBoardingCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldOnBoarding, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.PrioritySearch(); ok {
+		_spec.SetField(bloodsearchrequest.FieldPrioritySearch, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IncludeUnknownBloodGroup(); ok {
+		_spec.SetField(bloodsearchrequest.FieldIncludeUnknownBloodGroup, field.TypeBool, value)
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{

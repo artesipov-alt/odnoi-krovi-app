@@ -43,22 +43,24 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 	}
 
 	return dto.BloodRequestDetail{
-		ID:                     req.ID,
-		PetID:                  req.PetID,
-		BloodVolumeNeeded:      req.BloodVolumeNeeded,
-		BloodVolumeReserved:    req.BloodVolumeReserved,
-		Regions:                req.Regions,
-		SmallPetsNotifyAllowed: req.SmallPetsNotifyAllowed,
-		Description:            req.Description,
-		PhotoURLs:              m.storage.BuildPhotoURLs(req.PhotoURLs, req.UpdatedAt),
-		BloodGroupNames:        req.BloodGroupNames,
-		BloodComponentIDs:      req.BloodComponentIDs,
-		OnBoarding:             req.OnBoarding,
-		Status:                 dto.BloodRequestStatus(req.Status),
-		SuitableDonors:         suitableDonorsCount,
-		CreatedAt:              createdAt,
-		UpdatedAt:              updatedAt,
-		DeletedAt:              deletedAt,
+		ID:                       req.ID,
+		PetID:                    req.PetID,
+		BloodVolumeNeeded:        req.BloodVolumeNeeded,
+		BloodVolumeReserved:      req.BloodVolumeReserved,
+		Regions:                  req.Regions,
+		SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
+		Description:              req.Description,
+		PhotoURLs:                m.storage.BuildPhotoURLs(req.PhotoURLs, req.UpdatedAt),
+		BloodGroupNames:          req.BloodGroupNames,
+		BloodComponentIDs:        req.BloodComponentIDs,
+		OnBoarding:               req.OnBoarding,
+		Status:                   dto.BloodRequestStatus(req.Status),
+		SuitableDonors:           suitableDonorsCount,
+		PrioritySearch:           req.PrioritySearch,
+		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
+		CreatedAt:                createdAt,
+		UpdatedAt:                updatedAt,
+		DeletedAt:                deletedAt,
 	}
 }
 
@@ -87,6 +89,8 @@ func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.
 	req.Description = body.Description
 	req.BloodGroupNames = body.BloodGroupNames
 	req.BloodComponentIDs = body.BloodComponentIDs
+	req.PrioritySearch = body.PrioritySearch
+	req.IncludeUnknownBloodGroup = body.IncludeUnknownBloodGroup
 
 	return req
 }

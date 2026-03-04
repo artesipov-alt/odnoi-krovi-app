@@ -609,6 +609,14 @@ type BloodSearchRequestWhereInput struct {
 	DescriptionEqualFold    *string  `json:"descriptionEqualFold,omitempty"`
 	DescriptionContainsFold *string  `json:"descriptionContainsFold,omitempty"`
 
+	// "priority_search" field predicates.
+	PrioritySearch    *bool `json:"prioritySearch,omitempty"`
+	PrioritySearchNEQ *bool `json:"prioritySearchNEQ,omitempty"`
+
+	// "include_unknown_blood_group" field predicates.
+	IncludeUnknownBloodGroup    *bool `json:"includeUnknownBloodGroup,omitempty"`
+	IncludeUnknownBloodGroupNEQ *bool `json:"includeUnknownBloodGroupNEQ,omitempty"`
+
 	// "pet" edge predicates.
 	HasPet     *bool            `json:"hasPet,omitempty"`
 	HasPetWith []*PetWhereInput `json:"hasPetWith,omitempty"`
@@ -946,6 +954,18 @@ func (i *BloodSearchRequestWhereInput) P() (predicate.BloodSearchRequest, error)
 	}
 	if i.DescriptionContainsFold != nil {
 		predicates = append(predicates, bloodsearchrequest.DescriptionContainsFold(*i.DescriptionContainsFold))
+	}
+	if i.PrioritySearch != nil {
+		predicates = append(predicates, bloodsearchrequest.PrioritySearchEQ(*i.PrioritySearch))
+	}
+	if i.PrioritySearchNEQ != nil {
+		predicates = append(predicates, bloodsearchrequest.PrioritySearchNEQ(*i.PrioritySearchNEQ))
+	}
+	if i.IncludeUnknownBloodGroup != nil {
+		predicates = append(predicates, bloodsearchrequest.IncludeUnknownBloodGroupEQ(*i.IncludeUnknownBloodGroup))
+	}
+	if i.IncludeUnknownBloodGroupNEQ != nil {
+		predicates = append(predicates, bloodsearchrequest.IncludeUnknownBloodGroupNEQ(*i.IncludeUnknownBloodGroupNEQ))
 	}
 
 	if i.HasPet != nil {

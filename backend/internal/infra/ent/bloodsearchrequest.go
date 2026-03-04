@@ -26,27 +26,31 @@ type BloodSearchRequest struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// PetID holds the value of the "pet_id" field.
-	PetID string `json:"petId"`
+	PetID string `json:"pet_id,omitempty"`
 	// BloodVolumeNeeded holds the value of the "blood_volume_needed" field.
-	BloodVolumeNeeded int32 `json:"bloodVolumeNeeded"`
+	BloodVolumeNeeded int32 `json:"blood_volume_needed,omitempty"`
 	// BloodVolumeReserved holds the value of the "blood_volume_reserved" field.
-	BloodVolumeReserved int32 `json:"bloodVolumeReserved"`
+	BloodVolumeReserved int32 `json:"blood_volume_reserved,omitempty"`
 	// Regions holds the value of the "regions" field.
-	Regions []string `json:"regions"`
+	Regions []string `json:"regions,omitempty"`
 	// SmallPetsNotifyAllowed holds the value of the "small_pets_notify_allowed" field.
-	SmallPetsNotifyAllowed bool `json:"smallPetsNotifyAllowed"`
+	SmallPetsNotifyAllowed bool `json:"small_pets_notify_allowed,omitempty"`
 	// Status holds the value of the "status" field.
-	Status bloodsearchrequest.Status `json:"status"`
+	Status bloodsearchrequest.Status `json:"status,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	// PhotoUrls holds the value of the "photo_urls" field.
-	PhotoUrls []string `json:"photoUrls"`
+	PhotoUrls []string `json:"photo_urls,omitempty"`
 	// BloodGroupNames holds the value of the "blood_group_names" field.
-	BloodGroupNames []string `json:"bloodGroupNames"`
+	BloodGroupNames []string `json:"blood_group_names,omitempty"`
 	// BloodComponentIds holds the value of the "blood_component_ids" field.
-	BloodComponentIds []string `json:"bloodComponentIds"`
+	BloodComponentIds []string `json:"blood_component_ids,omitempty"`
 	// OnBoarding holds the value of the "on_boarding" field.
-	OnBoarding []string `json:"onBoarding"`
+	OnBoarding []string `json:"on_boarding,omitempty"`
+	// PrioritySearch holds the value of the "priority_search" field.
+	PrioritySearch bool `json:"priority_search,omitempty"`
+	// IncludeUnknownBloodGroup holds the value of the "include_unknown_blood_group" field.
+	IncludeUnknownBloodGroup bool `json:"include_unknown_blood_group,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BloodSearchRequestQuery when eager-loading is set.
 	Edges        BloodSearchRequestEdges `json:"edges"`
@@ -95,7 +99,7 @@ func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bloodsearchrequest.FieldRegions, bloodsearchrequest.FieldPhotoUrls, bloodsearchrequest.FieldBloodGroupNames, bloodsearchrequest.FieldBloodComponentIds, bloodsearchrequest.FieldOnBoarding:
 			values[i] = new([]byte)
-		case bloodsearchrequest.FieldSmallPetsNotifyAllowed:
+		case bloodsearchrequest.FieldSmallPetsNotifyAllowed, bloodsearchrequest.FieldPrioritySearch, bloodsearchrequest.FieldIncludeUnknownBloodGroup:
 			values[i] = new(sql.NullBool)
 		case bloodsearchrequest.FieldBloodVolumeNeeded, bloodsearchrequest.FieldBloodVolumeReserved:
 			values[i] = new(sql.NullInt64)
@@ -219,6 +223,18 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 					return fmt.Errorf("unmarshal field on_boarding: %w", err)
 				}
 			}
+		case bloodsearchrequest.FieldPrioritySearch:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field priority_search", values[i])
+			} else if value.Valid {
+				_m.PrioritySearch = value.Bool
+			}
+		case bloodsearchrequest.FieldIncludeUnknownBloodGroup:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field include_unknown_blood_group", values[i])
+			} else if value.Valid {
+				_m.IncludeUnknownBloodGroup = value.Bool
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -308,6 +324,12 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("on_boarding=")
 	builder.WriteString(fmt.Sprintf("%v", _m.OnBoarding))
+	builder.WriteString(", ")
+	builder.WriteString("priority_search=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PrioritySearch))
+	builder.WriteString(", ")
+	builder.WriteString("include_unknown_blood_group=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IncludeUnknownBloodGroup))
 	builder.WriteByte(')')
 	return builder.String()
 }

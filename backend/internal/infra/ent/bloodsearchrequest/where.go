@@ -105,6 +105,16 @@ func Description(v string) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldDescription, v))
 }
 
+// PrioritySearch applies equality check predicate on the "priority_search" field. It's identical to PrioritySearchEQ.
+func PrioritySearch(v bool) predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldEQ(FieldPrioritySearch, v))
+}
+
+// IncludeUnknownBloodGroup applies equality check predicate on the "include_unknown_blood_group" field. It's identical to IncludeUnknownBloodGroupEQ.
+func IncludeUnknownBloodGroup(v bool) predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldEQ(FieldIncludeUnknownBloodGroup, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldCreatedAt, v))
@@ -523,6 +533,26 @@ func OnBoardingIsNil() predicate.BloodSearchRequest {
 // OnBoardingNotNil applies the NotNil predicate on the "on_boarding" field.
 func OnBoardingNotNil() predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldNotNull(FieldOnBoarding))
+}
+
+// PrioritySearchEQ applies the EQ predicate on the "priority_search" field.
+func PrioritySearchEQ(v bool) predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldEQ(FieldPrioritySearch, v))
+}
+
+// PrioritySearchNEQ applies the NEQ predicate on the "priority_search" field.
+func PrioritySearchNEQ(v bool) predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldNEQ(FieldPrioritySearch, v))
+}
+
+// IncludeUnknownBloodGroupEQ applies the EQ predicate on the "include_unknown_blood_group" field.
+func IncludeUnknownBloodGroupEQ(v bool) predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldEQ(FieldIncludeUnknownBloodGroup, v))
+}
+
+// IncludeUnknownBloodGroupNEQ applies the NEQ predicate on the "include_unknown_blood_group" field.
+func IncludeUnknownBloodGroupNEQ(v bool) predicate.BloodSearchRequest {
+	return predicate.BloodSearchRequest(sql.FieldNEQ(FieldIncludeUnknownBloodGroup, v))
 }
 
 // HasPet applies the HasEdge predicate on the "pet" edge.

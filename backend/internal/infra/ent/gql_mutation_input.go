@@ -14,21 +14,23 @@ import (
 
 // CreateBloodSearchRequestInput represents a mutation input for creating bloodsearchrequests.
 type CreateBloodSearchRequestInput struct {
-	CreatedAt              *time.Time
-	UpdatedAt              *time.Time
-	DeletedAt              *time.Time
-	BloodVolumeNeeded      int32
-	BloodVolumeReserved    *int32
-	Regions                []string
-	SmallPetsNotifyAllowed *bool
-	Status                 *bloodsearchrequest.Status
-	Description            *string
-	PhotoUrls              []string
-	BloodGroupNames        []string
-	BloodComponentIds      []string
-	OnBoarding             []string
-	PetID                  string
-	ResponseIDs            []string
+	CreatedAt                *time.Time
+	UpdatedAt                *time.Time
+	DeletedAt                *time.Time
+	BloodVolumeNeeded        int32
+	BloodVolumeReserved      *int32
+	Regions                  []string
+	SmallPetsNotifyAllowed   *bool
+	Status                   *bloodsearchrequest.Status
+	Description              *string
+	PhotoUrls                []string
+	BloodGroupNames          []string
+	BloodComponentIds        []string
+	OnBoarding               []string
+	PrioritySearch           *bool
+	IncludeUnknownBloodGroup *bool
+	PetID                    string
+	ResponseIDs              []string
 }
 
 // Mutate applies the CreateBloodSearchRequestInput on the BloodSearchRequestMutation builder.
@@ -70,6 +72,12 @@ func (i *CreateBloodSearchRequestInput) Mutate(m *BloodSearchRequestMutation) {
 	if v := i.OnBoarding; v != nil {
 		m.SetOnBoarding(v)
 	}
+	if v := i.PrioritySearch; v != nil {
+		m.SetPrioritySearch(*v)
+	}
+	if v := i.IncludeUnknownBloodGroup; v != nil {
+		m.SetIncludeUnknownBloodGroup(*v)
+	}
 	m.SetPetID(i.PetID)
 	if v := i.ResponseIDs; len(v) > 0 {
 		m.AddResponseIDs(v...)
@@ -84,33 +92,35 @@ func (c *BloodSearchRequestCreate) SetInput(i CreateBloodSearchRequestInput) *Bl
 
 // UpdateBloodSearchRequestInput represents a mutation input for updating bloodsearchrequests.
 type UpdateBloodSearchRequestInput struct {
-	UpdatedAt               *time.Time
-	ClearDeletedAt          bool
-	DeletedAt               *time.Time
-	BloodVolumeNeeded       *int32
-	BloodVolumeReserved     *int32
-	Regions                 []string
-	AppendRegions           []string
-	SmallPetsNotifyAllowed  *bool
-	Status                  *bloodsearchrequest.Status
-	ClearDescription        bool
-	Description             *string
-	ClearPhotoUrls          bool
-	PhotoUrls               []string
-	AppendPhotoUrls         []string
-	ClearBloodGroupNames    bool
-	BloodGroupNames         []string
-	AppendBloodGroupNames   []string
-	ClearBloodComponentIds  bool
-	BloodComponentIds       []string
-	AppendBloodComponentIds []string
-	ClearOnBoarding         bool
-	OnBoarding              []string
-	AppendOnBoarding        []string
-	PetID                   *string
-	ClearResponses          bool
-	AddResponseIDs          []string
-	RemoveResponseIDs       []string
+	UpdatedAt                *time.Time
+	ClearDeletedAt           bool
+	DeletedAt                *time.Time
+	BloodVolumeNeeded        *int32
+	BloodVolumeReserved      *int32
+	Regions                  []string
+	AppendRegions            []string
+	SmallPetsNotifyAllowed   *bool
+	Status                   *bloodsearchrequest.Status
+	ClearDescription         bool
+	Description              *string
+	ClearPhotoUrls           bool
+	PhotoUrls                []string
+	AppendPhotoUrls          []string
+	ClearBloodGroupNames     bool
+	BloodGroupNames          []string
+	AppendBloodGroupNames    []string
+	ClearBloodComponentIds   bool
+	BloodComponentIds        []string
+	AppendBloodComponentIds  []string
+	ClearOnBoarding          bool
+	OnBoarding               []string
+	AppendOnBoarding         []string
+	PrioritySearch           *bool
+	IncludeUnknownBloodGroup *bool
+	PetID                    *string
+	ClearResponses           bool
+	AddResponseIDs           []string
+	RemoveResponseIDs        []string
 }
 
 // Mutate applies the UpdateBloodSearchRequestInput on the BloodSearchRequestMutation builder.
@@ -183,6 +193,12 @@ func (i *UpdateBloodSearchRequestInput) Mutate(m *BloodSearchRequestMutation) {
 	}
 	if i.AppendOnBoarding != nil {
 		m.AppendOnBoarding(i.OnBoarding)
+	}
+	if v := i.PrioritySearch; v != nil {
+		m.SetPrioritySearch(*v)
+	}
+	if v := i.IncludeUnknownBloodGroup; v != nil {
+		m.SetIncludeUnknownBloodGroup(*v)
 	}
 	if v := i.PetID; v != nil {
 		m.SetPetID(*v)
