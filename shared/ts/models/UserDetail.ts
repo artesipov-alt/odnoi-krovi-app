@@ -131,11 +131,12 @@ export interface UserDetail {
      */
     role: string;
     /**
-     * Telegram ID
+     * ID пользователя в мессенджере
      * @type {number}
      * @memberof UserDetail
+     * @deprecated
      */
-    telegramId: number;
+    telegramId?: number;
     /**
      * Дата обновления
      * @type {Date}
@@ -165,7 +166,6 @@ export function instanceOfUserDetail(value: object): value is UserDetail {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('onBoarding' in value) || value['onBoarding'] === undefined) return false;
     if (!('role' in value) || value['role'] === undefined) return false;
-    if (!('telegramId' in value) || value['telegramId'] === undefined) return false;
     return true;
 }
 
@@ -195,7 +195,7 @@ export function UserDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'phone': json['phone'] == null ? undefined : json['phone'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'role': json['role'],
-        'telegramId': json['telegramId'],
+        'telegramId': json['telegramId'] == null ? undefined : json['telegramId'],
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
     };
 }

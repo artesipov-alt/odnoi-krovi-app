@@ -16,93 +16,84 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateUserBody
+ * @interface AuthUserBody
  */
-export interface CreateUserBody {
+export interface AuthUserBody {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof CreateUserBody
+     * @memberof AuthUserBody
      */
     readonly $schema?: string;
     /**
-     * Полное имя пользователя
+     * Зашифрованный токен бота для сверки
      * @type {string}
-     * @memberof CreateUserBody
+     * @memberof AuthUserBody
      */
-    fullName: string;
-    /**
-     * Метаданные пользователя
-     * @type {{ [key: string]: string; }}
-     * @memberof CreateUserBody
-     */
-    metaData?: { [key: string]: string; };
+    authBotToken?: string;
     /**
      * ID пользователя в мессенджере
      * @type {number}
-     * @memberof CreateUserBody
+     * @memberof AuthUserBody
      */
     providerId: number;
     /**
      * Название мессенджера
      * @type {string}
-     * @memberof CreateUserBody
+     * @memberof AuthUserBody
      */
-    providerName: CreateUserBodyProviderNameEnum;
+    providerName: AuthUserBodyProviderNameEnum;
 }
 
 
 /**
  * @export
  */
-export const CreateUserBodyProviderNameEnum = {
+export const AuthUserBodyProviderNameEnum = {
     TelegramBot: 'telegram_bot',
     MaxBot: 'max_bot'
 } as const;
-export type CreateUserBodyProviderNameEnum = typeof CreateUserBodyProviderNameEnum[keyof typeof CreateUserBodyProviderNameEnum];
+export type AuthUserBodyProviderNameEnum = typeof AuthUserBodyProviderNameEnum[keyof typeof AuthUserBodyProviderNameEnum];
 
 
 /**
- * Check if a given object implements the CreateUserBody interface.
+ * Check if a given object implements the AuthUserBody interface.
  */
-export function instanceOfCreateUserBody(value: object): value is CreateUserBody {
-    if (!('fullName' in value) || value['fullName'] === undefined) return false;
+export function instanceOfAuthUserBody(value: object): value is AuthUserBody {
     if (!('providerId' in value) || value['providerId'] === undefined) return false;
     if (!('providerName' in value) || value['providerName'] === undefined) return false;
     return true;
 }
 
-export function CreateUserBodyFromJSON(json: any): CreateUserBody {
-    return CreateUserBodyFromJSONTyped(json, false);
+export function AuthUserBodyFromJSON(json: any): AuthUserBody {
+    return AuthUserBodyFromJSONTyped(json, false);
 }
 
-export function CreateUserBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserBody {
+export function AuthUserBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): AuthUserBody {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'fullName': json['fullName'],
-        'metaData': json['metaData'] == null ? undefined : json['metaData'],
+        'authBotToken': json['authBotToken'] == null ? undefined : json['authBotToken'],
         'providerId': json['providerId'],
         'providerName': json['providerName'],
     };
 }
 
-export function CreateUserBodyToJSON(json: any): CreateUserBody {
-    return CreateUserBodyToJSONTyped(json, false);
+export function AuthUserBodyToJSON(json: any): AuthUserBody {
+    return AuthUserBodyToJSONTyped(json, false);
 }
 
-export function CreateUserBodyToJSONTyped(value?: Omit<CreateUserBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function AuthUserBodyToJSONTyped(value?: Omit<AuthUserBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'fullName': value['fullName'],
-        'metaData': value['metaData'],
+        'authBotToken': value['authBotToken'],
         'providerId': value['providerId'],
         'providerName': value['providerName'],
     };

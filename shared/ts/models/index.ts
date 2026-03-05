@@ -2,6 +2,8 @@
 /* eslint-disable */
 export * from './AppError';
 export * from './ApplyForBloodRequestBody';
+export * from './AuthUserBody';
+export * from './AuthUserResult';
 export * from './BloodComponentsList';
 export * from './BloodGroupsList';
 export * from './BloodRequestDetail';

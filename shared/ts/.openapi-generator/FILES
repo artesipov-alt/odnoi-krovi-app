@@ -7,6 +7,8 @@ apis/index.ts
 index.ts
 models/AppError.ts
 models/ApplyForBloodRequestBody.ts
+models/AuthUserBody.ts
+models/AuthUserResult.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
 models/BloodRequestDetail.ts

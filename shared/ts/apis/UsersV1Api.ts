@@ -16,6 +16,8 @@
 import * as runtime from '../runtime';
 import type {
   AppError,
+  AuthUserBody,
+  AuthUserResult,
   ConfirmUploadBody,
   ConfirmUploadResult,
   CreateUserBody,
@@ -29,6 +31,10 @@ import type {
 import {
     AppErrorFromJSON,
     AppErrorToJSON,
+    AuthUserBodyFromJSON,
+    AuthUserBodyToJSON,
+    AuthUserResultFromJSON,
+    AuthUserResultToJSON,
     ConfirmUploadBodyFromJSON,
     ConfirmUploadBodyToJSON,
     ConfirmUploadResultFromJSON,
@@ -48,6 +54,10 @@ import {
     UserDetailFromJSON,
     UserDetailToJSON,
 } from '../models/index';
+
+export interface AuthUserRequest {
+    authUserBody: Omit<AuthUserBody, '$schema'>;
+}
 
 export interface ConfirmUploadRequest {
     confirmUploadBody: Omit<ConfirmUploadBody, '$schema'>;
@@ -90,6 +100,47 @@ export interface UpdateUserRequest {
  * 
  */
 export class UsersV1Api extends runtime.BaseAPI {
+
+    /**
+     * Аутентифицирует пользователя в системе
+     * Аунтификация пользователя
+     */
+    async authUserRaw(requestParameters: AuthUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AuthUserResult>> {
+        if (requestParameters['authUserBody'] == null) {
+            throw new runtime.RequiredError(
+                'authUserBody',
+                'Required parameter "authUserBody" was null or undefined when calling authUser().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/v1/user/auth`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AuthUserBodyToJSON(requestParameters['authUserBody']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AuthUserResultFromJSON(jsonValue));
+    }
+
+    /**
+     * Аутентифицирует пользователя в системе
+     * Аунтификация пользователя
+     */
+    async authUser(requestParameters: AuthUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AuthUserResult> {
+        const response = await this.authUserRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Подтверждает загрузку массива фотографий, делает их публичными и обновляет сущность
@@ -276,6 +327,7 @@ export class UsersV1Api extends runtime.BaseAPI {
     /**
      * Возвращает информацию о пользователе по его Telegram ID
      * Получение пользователя по Telegram ID
+     * @deprecated
      */
     async getUserByTelegramRaw(requestParameters: GetUserByTelegramRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDetail>> {
         if (requestParameters['id'] == null) {
@@ -314,6 +366,7 @@ export class UsersV1Api extends runtime.BaseAPI {
     /**
      * Возвращает информацию о пользователе по его Telegram ID
      * Получение пользователя по Telegram ID
+     * @deprecated
      */
     async getUserByTelegram(requestParameters: GetUserByTelegramRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserDetail> {
         const response = await this.getUserByTelegramRaw(requestParameters, initOverrides);
