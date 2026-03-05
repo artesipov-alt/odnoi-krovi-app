@@ -9,7 +9,7 @@ export async function logger(ctx: Context, next: NextFn) {
     const processingTime = Date.now() - startTime;
 
     pinologger.info({
-      updateId: ctx.update.timestamp,
+      updateId: ctx.update?.timestamp || "unknown",
       messageType: ctx.updateType,
       chatId: ctx.chat?.chat_id,
       user: getUserDisplayName(ctx.message),
