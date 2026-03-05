@@ -27,9 +27,9 @@ FROM oven/bun:1-alpine
 WORKDIR /app/max-bot
 
 # Copy built output and package files from builder
-COPY --from=builder /app/bot/dist ./dist
-COPY --from=builder /app/bot/package.json ./package.json
-COPY --from=builder /app/bot/bun.lock ./bun.lock
+COPY --from=builder /app/max-bot/dist ./dist
+COPY --from=builder /app/max-bot/package.json ./package.json
+COPY --from=builder /app/max-bot/bun.lock ./bun.lock
 
 # Install production dependencies only
 RUN bun install --production --no-cache
