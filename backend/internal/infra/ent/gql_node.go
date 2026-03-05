@@ -21,6 +21,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 	"github.com/hashicorp/go-multierror"
 )
 
@@ -93,6 +94,11 @@ var useridentityImplementors = []string{"UserIdentity", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*UserIdentity) IsNode() {}
+
+var utmhistoryImplementors = []string{"UtmHistory", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*UtmHistory) IsNode() {}
 
 var errNodeInvalidID = &NotFoundError{"node"}
 
@@ -265,6 +271,15 @@ func (c *Client) noder(ctx context.Context, table string, id string) (Noder, err
 			Where(useridentity.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, useridentityImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case utmhistory.Table:
+		query := c.UtmHistory.Query().
+			Where(utmhistory.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, utmhistoryImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -538,6 +553,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []string) ([]Node
 		query := c.UserIdentity.Query().
 			Where(useridentity.IDIn(ids...))
 		query, err := query.CollectFields(ctx, useridentityImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case utmhistory.Table:
+		query := c.UtmHistory.Query().
+			Where(utmhistory.IDIn(ids...))
+		query, err := query.CollectFields(ctx, utmhistoryImplementors...)
 		if err != nil {
 			return nil, err
 		}

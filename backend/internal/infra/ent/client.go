@@ -28,6 +28,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // Client is the client that holds all ent builders.
@@ -61,6 +62,8 @@ type Client struct {
 	User *UserClient
 	// UserIdentity is the client for interacting with the UserIdentity builders.
 	UserIdentity *UserIdentityClient
+	// UtmHistory is the client for interacting with the UtmHistory builders.
+	UtmHistory *UtmHistoryClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -85,6 +88,7 @@ func (c *Client) init() {
 	c.PetTreatment = NewPetTreatmentClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserIdentity = NewUserIdentityClient(c.config)
+	c.UtmHistory = NewUtmHistoryClient(c.config)
 }
 
 type (
@@ -190,6 +194,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		PetTreatment:       NewPetTreatmentClient(cfg),
 		User:               NewUserClient(cfg),
 		UserIdentity:       NewUserIdentityClient(cfg),
+		UtmHistory:         NewUtmHistoryClient(cfg),
 	}, nil
 }
 
@@ -222,6 +227,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		PetTreatment:       NewPetTreatmentClient(cfg),
 		User:               NewUserClient(cfg),
 		UserIdentity:       NewUserIdentityClient(cfg),
+		UtmHistory:         NewUtmHistoryClient(cfg),
 	}, nil
 }
 
@@ -253,7 +259,7 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed,
 		c.DonorPreference, c.DonorResponse, c.Location, c.Pet, c.PetAnalysis,
-		c.PetHealth, c.PetTreatment, c.User, c.UserIdentity,
+		c.PetHealth, c.PetTreatment, c.User, c.UserIdentity, c.UtmHistory,
 	} {
 		n.Use(hooks...)
 	}
@@ -265,7 +271,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed,
 		c.DonorPreference, c.DonorResponse, c.Location, c.Pet, c.PetAnalysis,
-		c.PetHealth, c.PetTreatment, c.User, c.UserIdentity,
+		c.PetHealth, c.PetTreatment, c.User, c.UserIdentity, c.UtmHistory,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -300,6 +306,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	case *UserIdentityMutation:
 		return c.UserIdentity.mutate(ctx, m)
+	case *UtmHistoryMutation:
+		return c.UtmHistory.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -2251,6 +2259,22 @@ func (c *UserClient) QueryIdentities(_m *User) *UserIdentityQuery {
 	return query
 }
 
+// QueryUtmHistories queries the utm_histories edge of a User.
+func (c *UserClient) QueryUtmHistories(_m *User) *UtmHistoryQuery {
+	query := (&UtmHistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(utmhistory.Table, utmhistory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.UtmHistoriesTable, user.UtmHistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -2427,16 +2451,166 @@ func (c *UserIdentityClient) mutate(ctx context.Context, m *UserIdentityMutation
 	}
 }
 
+// UtmHistoryClient is a client for the UtmHistory schema.
+type UtmHistoryClient struct {
+	config
+}
+
+// NewUtmHistoryClient returns a client for the UtmHistory from the given config.
+func NewUtmHistoryClient(c config) *UtmHistoryClient {
+	return &UtmHistoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `utmhistory.Hooks(f(g(h())))`.
+func (c *UtmHistoryClient) Use(hooks ...Hook) {
+	c.hooks.UtmHistory = append(c.hooks.UtmHistory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `utmhistory.Intercept(f(g(h())))`.
+func (c *UtmHistoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UtmHistory = append(c.inters.UtmHistory, interceptors...)
+}
+
+// Create returns a builder for creating a UtmHistory entity.
+func (c *UtmHistoryClient) Create() *UtmHistoryCreate {
+	mutation := newUtmHistoryMutation(c.config, OpCreate)
+	return &UtmHistoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UtmHistory entities.
+func (c *UtmHistoryClient) CreateBulk(builders ...*UtmHistoryCreate) *UtmHistoryCreateBulk {
+	return &UtmHistoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UtmHistoryClient) MapCreateBulk(slice any, setFunc func(*UtmHistoryCreate, int)) *UtmHistoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UtmHistoryCreateBulk{err: fmt.Errorf("calling to UtmHistoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UtmHistoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UtmHistoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UtmHistory.
+func (c *UtmHistoryClient) Update() *UtmHistoryUpdate {
+	mutation := newUtmHistoryMutation(c.config, OpUpdate)
+	return &UtmHistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UtmHistoryClient) UpdateOne(_m *UtmHistory) *UtmHistoryUpdateOne {
+	mutation := newUtmHistoryMutation(c.config, OpUpdateOne, withUtmHistory(_m))
+	return &UtmHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UtmHistoryClient) UpdateOneID(id string) *UtmHistoryUpdateOne {
+	mutation := newUtmHistoryMutation(c.config, OpUpdateOne, withUtmHistoryID(id))
+	return &UtmHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UtmHistory.
+func (c *UtmHistoryClient) Delete() *UtmHistoryDelete {
+	mutation := newUtmHistoryMutation(c.config, OpDelete)
+	return &UtmHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UtmHistoryClient) DeleteOne(_m *UtmHistory) *UtmHistoryDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UtmHistoryClient) DeleteOneID(id string) *UtmHistoryDeleteOne {
+	builder := c.Delete().Where(utmhistory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UtmHistoryDeleteOne{builder}
+}
+
+// Query returns a query builder for UtmHistory.
+func (c *UtmHistoryClient) Query() *UtmHistoryQuery {
+	return &UtmHistoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUtmHistory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UtmHistory entity by its id.
+func (c *UtmHistoryClient) Get(ctx context.Context, id string) (*UtmHistory, error) {
+	return c.Query().Where(utmhistory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UtmHistoryClient) GetX(ctx context.Context, id string) *UtmHistory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UtmHistory.
+func (c *UtmHistoryClient) QueryUser(_m *UtmHistory) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(utmhistory.Table, utmhistory.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, utmhistory.UserTable, utmhistory.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UtmHistoryClient) Hooks() []Hook {
+	return c.hooks.UtmHistory
+}
+
+// Interceptors returns the client interceptors.
+func (c *UtmHistoryClient) Interceptors() []Interceptor {
+	inters := c.inters.UtmHistory
+	return append(inters[:len(inters):len(inters)], utmhistory.Interceptors[:]...)
+}
+
+func (c *UtmHistoryClient) mutate(ctx context.Context, m *UtmHistoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UtmHistoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UtmHistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UtmHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UtmHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UtmHistory mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
 		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorPreference,
 		DonorResponse, Location, Pet, PetAnalysis, PetHealth, PetTreatment, User,
-		UserIdentity []ent.Hook
+		UserIdentity, UtmHistory []ent.Hook
 	}
 	inters struct {
 		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorPreference,
 		DonorResponse, Location, Pet, PetAnalysis, PetHealth, PetTreatment, User,
-		UserIdentity []ent.Interceptor
+		UserIdentity, UtmHistory []ent.Interceptor
 	}
 )

@@ -286,6 +286,7 @@ var (
 		{Name: "allow_geo", Type: field.TypeBool, Default: false},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},
+		{Name: "origin_source", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "location_id", Type: field.TypeString, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -296,7 +297,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_ref_locations_users",
-				Columns:    []*schema.Column{UsersColumns[14]},
+				Columns:    []*schema.Column{UsersColumns[15]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -327,6 +328,40 @@ var (
 			},
 		},
 	}
+	// UserUtmHistoryColumns holds the columns for the "user_utm_history" table.
+	UserUtmHistoryColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "utm_source", Type: field.TypeString, Nullable: true},
+		{Name: "utm_medium", Type: field.TypeString, Nullable: true},
+		{Name: "utm_campaign", Type: field.TypeString, Nullable: true},
+		{Name: "utm_content", Type: field.TypeString, Nullable: true},
+		{Name: "utm_term", Type: field.TypeString, Nullable: true},
+		{Name: "user_id", Type: field.TypeString},
+	}
+	// UserUtmHistoryTable holds the schema information for the "user_utm_history" table.
+	UserUtmHistoryTable = &schema.Table{
+		Name:       "user_utm_history",
+		Columns:    UserUtmHistoryColumns,
+		PrimaryKey: []*schema.Column{UserUtmHistoryColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_utm_history_users_utm_histories",
+				Columns:    []*schema.Column{UserUtmHistoryColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "utmhistory_user_id_utm_source_utm_campaign_utm_content",
+				Unique:  true,
+				Columns: []*schema.Column{UserUtmHistoryColumns[9], UserUtmHistoryColumns[4], UserUtmHistoryColumns[6], UserUtmHistoryColumns[7]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		RefBloodcTable,
@@ -342,6 +377,7 @@ var (
 		PetTreatmentsTable,
 		UsersTable,
 		UserIdentitiesTable,
+		UserUtmHistoryTable,
 	}
 )
 
@@ -396,5 +432,9 @@ func init() {
 	UserIdentitiesTable.ForeignKeys[0].RefTable = UsersTable
 	UserIdentitiesTable.Annotation = &entsql.Annotation{
 		Table: "user_identities",
+	}
+	UserUtmHistoryTable.ForeignKeys[0].RefTable = UsersTable
+	UserUtmHistoryTable.Annotation = &entsql.Annotation{
+		Table: "user_utm_history",
 	}
 }

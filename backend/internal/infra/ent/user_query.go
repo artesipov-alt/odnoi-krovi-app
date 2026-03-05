@@ -18,23 +18,26 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx                 *QueryContext
-	order               []user.OrderOption
-	inters              []Interceptor
-	predicates          []predicate.User
-	withPets            *PetQuery
-	withLocation        *LocationQuery
-	withDonorPreference *DonorPreferenceQuery
-	withIdentities      *UserIdentityQuery
-	modifiers           []func(*sql.Selector)
-	loadTotal           []func(context.Context, []*User) error
-	withNamedPets       map[string]*PetQuery
-	withNamedIdentities map[string]*UserIdentityQuery
+	ctx                   *QueryContext
+	order                 []user.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.User
+	withPets              *PetQuery
+	withLocation          *LocationQuery
+	withDonorPreference   *DonorPreferenceQuery
+	withIdentities        *UserIdentityQuery
+	withUtmHistories      *UtmHistoryQuery
+	modifiers             []func(*sql.Selector)
+	loadTotal             []func(context.Context, []*User) error
+	withNamedPets         map[string]*PetQuery
+	withNamedIdentities   map[string]*UserIdentityQuery
+	withNamedUtmHistories map[string]*UtmHistoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -152,6 +155,28 @@ func (_q *UserQuery) QueryIdentities() *UserIdentityQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(useridentity.Table, useridentity.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.IdentitiesTable, user.IdentitiesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUtmHistories chains the current query on the "utm_histories" edge.
+func (_q *UserQuery) QueryUtmHistories() *UtmHistoryQuery {
+	query := (&UtmHistoryClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(utmhistory.Table, utmhistory.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.UtmHistoriesTable, user.UtmHistoriesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -355,6 +380,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withLocation:        _q.withLocation.Clone(),
 		withDonorPreference: _q.withDonorPreference.Clone(),
 		withIdentities:      _q.withIdentities.Clone(),
+		withUtmHistories:    _q.withUtmHistories.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -402,6 +428,17 @@ func (_q *UserQuery) WithIdentities(opts ...func(*UserIdentityQuery)) *UserQuery
 		opt(query)
 	}
 	_q.withIdentities = query
+	return _q
+}
+
+// WithUtmHistories tells the query-builder to eager-load the nodes that are connected to
+// the "utm_histories" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithUtmHistories(opts ...func(*UtmHistoryQuery)) *UserQuery {
+	query := (&UtmHistoryClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withUtmHistories = query
 	return _q
 }
 
@@ -483,11 +520,12 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			_q.withPets != nil,
 			_q.withLocation != nil,
 			_q.withDonorPreference != nil,
 			_q.withIdentities != nil,
+			_q.withUtmHistories != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -537,6 +575,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := _q.withUtmHistories; query != nil {
+		if err := _q.loadUtmHistories(ctx, query, nodes,
+			func(n *User) { n.Edges.UtmHistories = []*UtmHistory{} },
+			func(n *User, e *UtmHistory) { n.Edges.UtmHistories = append(n.Edges.UtmHistories, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range _q.withNamedPets {
 		if err := _q.loadPets(ctx, query, nodes,
 			func(n *User) { n.appendNamedPets(name) },
@@ -548,6 +593,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadIdentities(ctx, query, nodes,
 			func(n *User) { n.appendNamedIdentities(name) },
 			func(n *User, e *UserIdentity) { n.appendNamedIdentities(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedUtmHistories {
+		if err := _q.loadUtmHistories(ctx, query, nodes,
+			func(n *User) { n.appendNamedUtmHistories(name) },
+			func(n *User, e *UtmHistory) { n.appendNamedUtmHistories(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -676,6 +728,36 @@ func (_q *UserQuery) loadIdentities(ctx context.Context, query *UserIdentityQuer
 	}
 	return nil
 }
+func (_q *UserQuery) loadUtmHistories(ctx context.Context, query *UtmHistoryQuery, nodes []*User, init func(*User), assign func(*User, *UtmHistory)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(utmhistory.FieldUserID)
+	}
+	query.Where(predicate.UtmHistory(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.UtmHistoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *UserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -789,6 +871,20 @@ func (_q *UserQuery) WithNamedIdentities(name string, opts ...func(*UserIdentity
 		_q.withNamedIdentities = make(map[string]*UserIdentityQuery)
 	}
 	_q.withNamedIdentities[name] = query
+	return _q
+}
+
+// WithNamedUtmHistories tells the query-builder to eager-load the nodes that are connected to the "utm_histories"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithNamedUtmHistories(name string, opts ...func(*UtmHistoryQuery)) *UserQuery {
+	query := (&UtmHistoryClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedUtmHistories == nil {
+		_q.withNamedUtmHistories = make(map[string]*UtmHistoryQuery)
+	}
+	_q.withNamedUtmHistories[name] = query
 	return _q
 }
 

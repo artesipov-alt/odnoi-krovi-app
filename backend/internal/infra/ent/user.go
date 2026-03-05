@@ -48,6 +48,8 @@ type User struct {
 	PhotoUrls []string `json:"photo_urls,omitempty"`
 	// Role holds the value of the "role" field.
 	Role user.Role `json:"role,omitempty"`
+	// OriginSource holds the value of the "origin_source" field.
+	OriginSource string `json:"origin_source,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -64,14 +66,17 @@ type UserEdges struct {
 	DonorPreference *DonorPreference `json:"donor_preference,omitempty"`
 	// Identities holds the value of the identities edge.
 	Identities []*UserIdentity `json:"identities,omitempty"`
+	// UtmHistories holds the value of the utm_histories edge.
+	UtmHistories []*UtmHistory `json:"utm_histories,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 	// totalCount holds the count of the edges above.
-	totalCount [4]map[string]int
+	totalCount [5]map[string]int
 
-	namedPets       map[string][]*Pet
-	namedIdentities map[string][]*UserIdentity
+	namedPets         map[string][]*Pet
+	namedIdentities   map[string][]*UserIdentity
+	namedUtmHistories map[string][]*UtmHistory
 }
 
 // PetsOrErr returns the Pets value or an error if the edge
@@ -114,6 +119,15 @@ func (e UserEdges) IdentitiesOrErr() ([]*UserIdentity, error) {
 	return nil, &NotLoadedError{edge: "identities"}
 }
 
+// UtmHistoriesOrErr returns the UtmHistories value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UtmHistoriesOrErr() ([]*UtmHistory, error) {
+	if e.loadedTypes[4] {
+		return e.UtmHistories, nil
+	}
+	return nil, &NotLoadedError{edge: "utm_histories"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -125,7 +139,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case user.FieldTelegramID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldID, user.FieldFullName, user.FieldPhone, user.FieldEmail, user.FieldOrganizationName, user.FieldLocationID, user.FieldRole:
+		case user.FieldID, user.FieldFullName, user.FieldPhone, user.FieldEmail, user.FieldOrganizationName, user.FieldLocationID, user.FieldRole, user.FieldOriginSource:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -239,6 +253,12 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Role = user.Role(value.String)
 			}
+		case user.FieldOriginSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field origin_source", values[i])
+			} else if value.Valid {
+				_m.OriginSource = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -270,6 +290,11 @@ func (_m *User) QueryDonorPreference() *DonorPreferenceQuery {
 // QueryIdentities queries the "identities" edge of the User entity.
 func (_m *User) QueryIdentities() *UserIdentityQuery {
 	return NewUserClient(_m.config).QueryIdentities(_m)
+}
+
+// QueryUtmHistories queries the "utm_histories" edge of the User entity.
+func (_m *User) QueryUtmHistories() *UtmHistoryQuery {
+	return NewUserClient(_m.config).QueryUtmHistories(_m)
 }
 
 // Update returns a builder for updating this User.
@@ -338,6 +363,9 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Role))
+	builder.WriteString(", ")
+	builder.WriteString("origin_source=")
+	builder.WriteString(_m.OriginSource)
 	builder.WriteByte(')')
 	return builder.String()
 }
@@ -387,6 +415,30 @@ func (_m *User) appendNamedIdentities(name string, edges ...*UserIdentity) {
 		_m.Edges.namedIdentities[name] = []*UserIdentity{}
 	} else {
 		_m.Edges.namedIdentities[name] = append(_m.Edges.namedIdentities[name], edges...)
+	}
+}
+
+// NamedUtmHistories returns the UtmHistories named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *User) NamedUtmHistories(name string) ([]*UtmHistory, error) {
+	if _m.Edges.namedUtmHistories == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedUtmHistories[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *User) appendNamedUtmHistories(name string, edges ...*UtmHistory) {
+	if _m.Edges.namedUtmHistories == nil {
+		_m.Edges.namedUtmHistories = make(map[string][]*UtmHistory)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedUtmHistories[name] = []*UtmHistory{}
+	} else {
+		_m.Edges.namedUtmHistories[name] = append(_m.Edges.namedUtmHistories[name], edges...)
 	}
 }
 

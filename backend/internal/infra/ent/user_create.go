@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -204,6 +205,20 @@ func (_c *UserCreate) SetNillableRole(v *user.Role) *UserCreate {
 	return _c
 }
 
+// SetOriginSource sets the "origin_source" field.
+func (_c *UserCreate) SetOriginSource(v string) *UserCreate {
+	_c.mutation.SetOriginSource(v)
+	return _c
+}
+
+// SetNillableOriginSource sets the "origin_source" field if the given value is not nil.
+func (_c *UserCreate) SetNillableOriginSource(v *string) *UserCreate {
+	if v != nil {
+		_c.SetOriginSource(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *UserCreate) SetID(v string) *UserCreate {
 	_c.mutation.SetID(v)
@@ -270,6 +285,21 @@ func (_c *UserCreate) AddIdentities(v ...*UserIdentity) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddIdentityIDs(ids...)
+}
+
+// AddUtmHistoryIDs adds the "utm_histories" edge to the UtmHistory entity by IDs.
+func (_c *UserCreate) AddUtmHistoryIDs(ids ...string) *UserCreate {
+	_c.mutation.AddUtmHistoryIDs(ids...)
+	return _c
+}
+
+// AddUtmHistories adds the "utm_histories" edges to the UtmHistory entity.
+func (_c *UserCreate) AddUtmHistories(v ...*UtmHistory) *UserCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUtmHistoryIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -375,6 +405,11 @@ func (_c *UserCreate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.OriginSource(); ok {
+		if err := user.OriginSourceValidator(v); err != nil {
+			return &ValidationError{Name: "origin_source", err: fmt.Errorf(`ent: validator failed for field "User.origin_source": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -462,6 +497,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
 		_node.Role = value
 	}
+	if value, ok := _c.mutation.OriginSource(); ok {
+		_spec.SetField(user.FieldOriginSource, field.TypeString, value)
+		_node.OriginSource = value
+	}
 	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -520,6 +559,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UtmHistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

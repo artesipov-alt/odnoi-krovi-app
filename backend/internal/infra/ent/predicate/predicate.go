@@ -44,3 +44,6 @@ type User func(*sql.Selector)
 
 // UserIdentity is the predicate function for useridentity builders.
 type UserIdentity func(*sql.Selector)
+
+// UtmHistory is the predicate function for utmhistory builders.
+type UtmHistory func(*sql.Selector)

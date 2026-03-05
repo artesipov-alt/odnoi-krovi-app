@@ -18,6 +18,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -264,6 +265,26 @@ func (_u *UserUpdate) SetNillableRole(v *user.Role) *UserUpdate {
 	return _u
 }
 
+// SetOriginSource sets the "origin_source" field.
+func (_u *UserUpdate) SetOriginSource(v string) *UserUpdate {
+	_u.mutation.SetOriginSource(v)
+	return _u
+}
+
+// SetNillableOriginSource sets the "origin_source" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableOriginSource(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetOriginSource(*v)
+	}
+	return _u
+}
+
+// ClearOriginSource clears the value of the "origin_source" field.
+func (_u *UserUpdate) ClearOriginSource() *UserUpdate {
+	_u.mutation.ClearOriginSource()
+	return _u
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by IDs.
 func (_u *UserUpdate) AddPetIDs(ids ...string) *UserUpdate {
 	_u.mutation.AddPetIDs(ids...)
@@ -316,6 +337,21 @@ func (_u *UserUpdate) AddIdentities(v ...*UserIdentity) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddIdentityIDs(ids...)
+}
+
+// AddUtmHistoryIDs adds the "utm_histories" edge to the UtmHistory entity by IDs.
+func (_u *UserUpdate) AddUtmHistoryIDs(ids ...string) *UserUpdate {
+	_u.mutation.AddUtmHistoryIDs(ids...)
+	return _u
+}
+
+// AddUtmHistories adds the "utm_histories" edges to the UtmHistory entity.
+func (_u *UserUpdate) AddUtmHistories(v ...*UtmHistory) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUtmHistoryIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -375,6 +411,27 @@ func (_u *UserUpdate) RemoveIdentities(v ...*UserIdentity) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveIdentityIDs(ids...)
+}
+
+// ClearUtmHistories clears all "utm_histories" edges to the UtmHistory entity.
+func (_u *UserUpdate) ClearUtmHistories() *UserUpdate {
+	_u.mutation.ClearUtmHistories()
+	return _u
+}
+
+// RemoveUtmHistoryIDs removes the "utm_histories" edge to UtmHistory entities by IDs.
+func (_u *UserUpdate) RemoveUtmHistoryIDs(ids ...string) *UserUpdate {
+	_u.mutation.RemoveUtmHistoryIDs(ids...)
+	return _u
+}
+
+// RemoveUtmHistories removes "utm_histories" edges to UtmHistory entities.
+func (_u *UserUpdate) RemoveUtmHistories(v ...*UtmHistory) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUtmHistoryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -438,6 +495,11 @@ func (_u *UserUpdate) check() error {
 	if v, ok := _u.mutation.Role(); ok {
 		if err := user.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.OriginSource(); ok {
+		if err := user.OriginSourceValidator(v); err != nil {
+			return &ValidationError{Name: "origin_source", err: fmt.Errorf(`ent: validator failed for field "User.origin_source": %w`, err)}
 		}
 	}
 	return nil
@@ -527,6 +589,12 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.OriginSource(); ok {
+		_spec.SetField(user.FieldOriginSource, field.TypeString, value)
+	}
+	if _u.mutation.OriginSourceCleared() {
+		_spec.ClearField(user.FieldOriginSource, field.TypeString)
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -669,6 +737,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UtmHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUtmHistoriesIDs(); len(nodes) > 0 && !_u.mutation.UtmHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UtmHistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -927,6 +1040,26 @@ func (_u *UserUpdateOne) SetNillableRole(v *user.Role) *UserUpdateOne {
 	return _u
 }
 
+// SetOriginSource sets the "origin_source" field.
+func (_u *UserUpdateOne) SetOriginSource(v string) *UserUpdateOne {
+	_u.mutation.SetOriginSource(v)
+	return _u
+}
+
+// SetNillableOriginSource sets the "origin_source" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableOriginSource(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetOriginSource(*v)
+	}
+	return _u
+}
+
+// ClearOriginSource clears the value of the "origin_source" field.
+func (_u *UserUpdateOne) ClearOriginSource() *UserUpdateOne {
+	_u.mutation.ClearOriginSource()
+	return _u
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by IDs.
 func (_u *UserUpdateOne) AddPetIDs(ids ...string) *UserUpdateOne {
 	_u.mutation.AddPetIDs(ids...)
@@ -979,6 +1112,21 @@ func (_u *UserUpdateOne) AddIdentities(v ...*UserIdentity) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.AddIdentityIDs(ids...)
+}
+
+// AddUtmHistoryIDs adds the "utm_histories" edge to the UtmHistory entity by IDs.
+func (_u *UserUpdateOne) AddUtmHistoryIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.AddUtmHistoryIDs(ids...)
+	return _u
+}
+
+// AddUtmHistories adds the "utm_histories" edges to the UtmHistory entity.
+func (_u *UserUpdateOne) AddUtmHistories(v ...*UtmHistory) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddUtmHistoryIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1038,6 +1186,27 @@ func (_u *UserUpdateOne) RemoveIdentities(v ...*UserIdentity) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveIdentityIDs(ids...)
+}
+
+// ClearUtmHistories clears all "utm_histories" edges to the UtmHistory entity.
+func (_u *UserUpdateOne) ClearUtmHistories() *UserUpdateOne {
+	_u.mutation.ClearUtmHistories()
+	return _u
+}
+
+// RemoveUtmHistoryIDs removes the "utm_histories" edge to UtmHistory entities by IDs.
+func (_u *UserUpdateOne) RemoveUtmHistoryIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.RemoveUtmHistoryIDs(ids...)
+	return _u
+}
+
+// RemoveUtmHistories removes "utm_histories" edges to UtmHistory entities.
+func (_u *UserUpdateOne) RemoveUtmHistories(v ...*UtmHistory) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveUtmHistoryIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1114,6 +1283,11 @@ func (_u *UserUpdateOne) check() error {
 	if v, ok := _u.mutation.Role(); ok {
 		if err := user.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.OriginSource(); ok {
+		if err := user.OriginSourceValidator(v); err != nil {
+			return &ValidationError{Name: "origin_source", err: fmt.Errorf(`ent: validator failed for field "User.origin_source": %w`, err)}
 		}
 	}
 	return nil
@@ -1220,6 +1394,12 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.OriginSource(); ok {
+		_spec.SetField(user.FieldOriginSource, field.TypeString, value)
+	}
+	if _u.mutation.OriginSourceCleared() {
+		_spec.ClearField(user.FieldOriginSource, field.TypeString)
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1362,6 +1542,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.UtmHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedUtmHistoriesIDs(); len(nodes) > 0 && !_u.mutation.UtmHistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UtmHistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UtmHistoriesTable,
+			Columns: []string{user.UtmHistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

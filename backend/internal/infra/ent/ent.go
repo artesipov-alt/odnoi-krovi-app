@@ -25,6 +25,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -98,6 +99,7 @@ func checkColumn(t, c string) error {
 			pettreatment.Table:       pettreatment.ValidColumn,
 			user.Table:               user.ValidColumn,
 			useridentity.Table:       useridentity.ValidColumn,
+			utmhistory.Table:         utmhistory.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

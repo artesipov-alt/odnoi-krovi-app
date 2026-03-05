@@ -46,6 +46,8 @@ const (
 	FieldPhotoUrls = "photo_urls"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// FieldOriginSource holds the string denoting the origin_source field in the database.
+	FieldOriginSource = "origin_source"
 	// EdgePets holds the string denoting the pets edge name in mutations.
 	EdgePets = "pets"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
@@ -54,6 +56,8 @@ const (
 	EdgeDonorPreference = "donor_preference"
 	// EdgeIdentities holds the string denoting the identities edge name in mutations.
 	EdgeIdentities = "identities"
+	// EdgeUtmHistories holds the string denoting the utm_histories edge name in mutations.
+	EdgeUtmHistories = "utm_histories"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// PetsTable is the table that holds the pets relation/edge.
@@ -84,6 +88,13 @@ const (
 	IdentitiesInverseTable = "user_identities"
 	// IdentitiesColumn is the table column denoting the identities relation/edge.
 	IdentitiesColumn = "user_id"
+	// UtmHistoriesTable is the table that holds the utm_histories relation/edge.
+	UtmHistoriesTable = "user_utm_history"
+	// UtmHistoriesInverseTable is the table name for the UtmHistory entity.
+	// It exists in this package in order to avoid circular dependency with the "utmhistory" package.
+	UtmHistoriesInverseTable = "user_utm_history"
+	// UtmHistoriesColumn is the table column denoting the utm_histories relation/edge.
+	UtmHistoriesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -103,6 +114,7 @@ var Columns = []string{
 	FieldLocationID,
 	FieldPhotoUrls,
 	FieldRole,
+	FieldOriginSource,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -140,6 +152,8 @@ var (
 	DefaultConsentPd bool
 	// DefaultAllowGeo holds the default value on creation for the "allow_geo" field.
 	DefaultAllowGeo bool
+	// OriginSourceValidator is a validator for the "origin_source" field. It is called by the builders before save.
+	OriginSourceValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -238,6 +252,11 @@ func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
 }
 
+// ByOriginSource orders the results by the origin_source field.
+func ByOriginSource(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOriginSource, opts...).ToFunc()
+}
+
 // ByPetsCount orders the results by pets count.
 func ByPetsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -279,6 +298,20 @@ func ByIdentities(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newIdentitiesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUtmHistoriesCount orders the results by utm_histories count.
+func ByUtmHistoriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUtmHistoriesStep(), opts...)
+	}
+}
+
+// ByUtmHistories orders the results by utm_histories terms.
+func ByUtmHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUtmHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPetsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -305,6 +338,13 @@ func newIdentitiesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(IdentitiesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, IdentitiesTable, IdentitiesColumn),
+	)
+}
+func newUtmHistoriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UtmHistoriesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UtmHistoriesTable, UtmHistoriesColumn),
 	)
 }
 

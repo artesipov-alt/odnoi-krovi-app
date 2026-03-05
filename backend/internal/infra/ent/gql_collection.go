@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
@@ -1415,6 +1416,19 @@ func (_q *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			_q.WithNamedIdentities(alias, func(wq *UserIdentityQuery) {
 				*wq = *query
 			})
+
+		case "utmHistories":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&UtmHistoryClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, utmhistoryImplementors)...); err != nil {
+				return err
+			}
+			_q.WithNamedUtmHistories(alias, func(wq *UtmHistoryQuery) {
+				*wq = *query
+			})
 		case "createdAt":
 			if _, ok := fieldSeen[user.FieldCreatedAt]; !ok {
 				selectedFields = append(selectedFields, user.FieldCreatedAt)
@@ -1484,6 +1498,11 @@ func (_q *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			if _, ok := fieldSeen[user.FieldRole]; !ok {
 				selectedFields = append(selectedFields, user.FieldRole)
 				fieldSeen[user.FieldRole] = struct{}{}
+			}
+		case "originSource":
+			if _, ok := fieldSeen[user.FieldOriginSource]; !ok {
+				selectedFields = append(selectedFields, user.FieldOriginSource)
+				fieldSeen[user.FieldOriginSource] = struct{}{}
 			}
 		case "id":
 		case "__typename":
@@ -1634,6 +1653,128 @@ func newUserIdentityPaginateArgs(rv map[string]any) *useridentityPaginateArgs {
 	}
 	if v, ok := rv[whereField].(*UserIdentityWhereInput); ok {
 		args.opts = append(args.opts, WithUserIdentityFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (_q *UtmHistoryQuery) CollectFields(ctx context.Context, satisfies ...string) (*UtmHistoryQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return _q, nil
+	}
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return _q, nil
+}
+
+func (_q *UtmHistoryQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(utmhistory.Columns))
+		selectedFields = []string{utmhistory.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "user":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&UserClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, userImplementors)...); err != nil {
+				return err
+			}
+			_q.withUser = query
+			if _, ok := fieldSeen[utmhistory.FieldUserID]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUserID)
+				fieldSeen[utmhistory.FieldUserID] = struct{}{}
+			}
+		case "createdAt":
+			if _, ok := fieldSeen[utmhistory.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldCreatedAt)
+				fieldSeen[utmhistory.FieldCreatedAt] = struct{}{}
+			}
+		case "updatedAt":
+			if _, ok := fieldSeen[utmhistory.FieldUpdatedAt]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUpdatedAt)
+				fieldSeen[utmhistory.FieldUpdatedAt] = struct{}{}
+			}
+		case "deletedAt":
+			if _, ok := fieldSeen[utmhistory.FieldDeletedAt]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldDeletedAt)
+				fieldSeen[utmhistory.FieldDeletedAt] = struct{}{}
+			}
+		case "userID":
+			if _, ok := fieldSeen[utmhistory.FieldUserID]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUserID)
+				fieldSeen[utmhistory.FieldUserID] = struct{}{}
+			}
+		case "utmSource":
+			if _, ok := fieldSeen[utmhistory.FieldUtmSource]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUtmSource)
+				fieldSeen[utmhistory.FieldUtmSource] = struct{}{}
+			}
+		case "utmMedium":
+			if _, ok := fieldSeen[utmhistory.FieldUtmMedium]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUtmMedium)
+				fieldSeen[utmhistory.FieldUtmMedium] = struct{}{}
+			}
+		case "utmCampaign":
+			if _, ok := fieldSeen[utmhistory.FieldUtmCampaign]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUtmCampaign)
+				fieldSeen[utmhistory.FieldUtmCampaign] = struct{}{}
+			}
+		case "utmContent":
+			if _, ok := fieldSeen[utmhistory.FieldUtmContent]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUtmContent)
+				fieldSeen[utmhistory.FieldUtmContent] = struct{}{}
+			}
+		case "utmTerm":
+			if _, ok := fieldSeen[utmhistory.FieldUtmTerm]; !ok {
+				selectedFields = append(selectedFields, utmhistory.FieldUtmTerm)
+				fieldSeen[utmhistory.FieldUtmTerm] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		_q.Select(selectedFields...)
+	}
+	return nil
+}
+
+type utmhistoryPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []UtmHistoryPaginateOption
+}
+
+func newUtmHistoryPaginateArgs(rv map[string]any) *utmhistoryPaginateArgs {
+	args := &utmhistoryPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*UtmHistoryWhereInput); ok {
+		args.opts = append(args.opts, WithUtmHistoryFilter(v.Filter))
 	}
 	return args
 }

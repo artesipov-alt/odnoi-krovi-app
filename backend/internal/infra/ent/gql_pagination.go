@@ -24,6 +24,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -3339,6 +3340,255 @@ func (_m *UserIdentity) ToEdge(order *UserIdentityOrder) *UserIdentityEdge {
 		order = DefaultUserIdentityOrder
 	}
 	return &UserIdentityEdge{
+		Node:   _m,
+		Cursor: order.Field.toCursor(_m),
+	}
+}
+
+// UtmHistoryEdge is the edge representation of UtmHistory.
+type UtmHistoryEdge struct {
+	Node   *UtmHistory `json:"node"`
+	Cursor Cursor      `json:"cursor"`
+}
+
+// UtmHistoryConnection is the connection containing edges to UtmHistory.
+type UtmHistoryConnection struct {
+	Edges      []*UtmHistoryEdge `json:"edges"`
+	PageInfo   PageInfo          `json:"pageInfo"`
+	TotalCount int               `json:"totalCount"`
+}
+
+func (c *UtmHistoryConnection) build(nodes []*UtmHistory, pager *utmhistoryPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *UtmHistory
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *UtmHistory {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *UtmHistory {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*UtmHistoryEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &UtmHistoryEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// UtmHistoryPaginateOption enables pagination customization.
+type UtmHistoryPaginateOption func(*utmhistoryPager) error
+
+// WithUtmHistoryOrder configures pagination ordering.
+func WithUtmHistoryOrder(order *UtmHistoryOrder) UtmHistoryPaginateOption {
+	if order == nil {
+		order = DefaultUtmHistoryOrder
+	}
+	o := *order
+	return func(pager *utmhistoryPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultUtmHistoryOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithUtmHistoryFilter configures pagination filter.
+func WithUtmHistoryFilter(filter func(*UtmHistoryQuery) (*UtmHistoryQuery, error)) UtmHistoryPaginateOption {
+	return func(pager *utmhistoryPager) error {
+		if filter == nil {
+			return errors.New("UtmHistoryQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type utmhistoryPager struct {
+	reverse bool
+	order   *UtmHistoryOrder
+	filter  func(*UtmHistoryQuery) (*UtmHistoryQuery, error)
+}
+
+func newUtmHistoryPager(opts []UtmHistoryPaginateOption, reverse bool) (*utmhistoryPager, error) {
+	pager := &utmhistoryPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultUtmHistoryOrder
+	}
+	return pager, nil
+}
+
+func (p *utmhistoryPager) applyFilter(query *UtmHistoryQuery) (*UtmHistoryQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *utmhistoryPager) toCursor(_m *UtmHistory) Cursor {
+	return p.order.Field.toCursor(_m)
+}
+
+func (p *utmhistoryPager) applyCursors(query *UtmHistoryQuery, after, before *Cursor) (*UtmHistoryQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultUtmHistoryOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *utmhistoryPager) applyOrder(query *UtmHistoryQuery) *UtmHistoryQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultUtmHistoryOrder.Field {
+		query = query.Order(DefaultUtmHistoryOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *utmhistoryPager) orderExpr(query *UtmHistoryQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultUtmHistoryOrder.Field {
+			b.Comma().Ident(DefaultUtmHistoryOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to UtmHistory.
+func (_m *UtmHistoryQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...UtmHistoryPaginateOption,
+) (*UtmHistoryConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newUtmHistoryPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if _m, err = pager.applyFilter(_m); err != nil {
+		return nil, err
+	}
+	conn := &UtmHistoryConnection{Edges: []*UtmHistoryEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := _m.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if _m, err = pager.applyCursors(_m, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		_m.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := _m.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	_m = pager.applyOrder(_m)
+	nodes, err := _m.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// UtmHistoryOrderField defines the ordering field of UtmHistory.
+type UtmHistoryOrderField struct {
+	// Value extracts the ordering value from the given UtmHistory.
+	Value    func(*UtmHistory) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) utmhistory.OrderOption
+	toCursor func(*UtmHistory) Cursor
+}
+
+// UtmHistoryOrder defines the ordering of UtmHistory.
+type UtmHistoryOrder struct {
+	Direction OrderDirection        `json:"direction"`
+	Field     *UtmHistoryOrderField `json:"field"`
+}
+
+// DefaultUtmHistoryOrder is the default ordering of UtmHistory.
+var DefaultUtmHistoryOrder = &UtmHistoryOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &UtmHistoryOrderField{
+		Value: func(_m *UtmHistory) (ent.Value, error) {
+			return _m.ID, nil
+		},
+		column: utmhistory.FieldID,
+		toTerm: utmhistory.ByID,
+		toCursor: func(_m *UtmHistory) Cursor {
+			return Cursor{ID: _m.ID}
+		},
+	},
+}
+
+// ToEdge converts UtmHistory into UtmHistoryEdge.
+func (_m *UtmHistory) ToEdge(order *UtmHistoryOrder) *UtmHistoryEdge {
+	if order == nil {
+		order = DefaultUtmHistoryOrder
+	}
+	return &UtmHistoryEdge{
 		Node:   _m,
 		Cursor: order.Field.toCursor(_m),
 	}

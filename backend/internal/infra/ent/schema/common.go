@@ -29,6 +29,7 @@ const (
 	BloodSearchPrefix     = "BLS"
 	DonorResponsePrefix   = "RES"
 	DonorPreferencePrefix = "DPR"
+	UtmHistoryPrefix      = "UTH"
 )
 
 // generateID generates a new ID with prefix and nanoID of 10 characters

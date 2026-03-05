@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -321,6 +322,10 @@ func init() {
 	userDescAllowGeo := userFields[7].Descriptor()
 	// user.DefaultAllowGeo holds the default value on creation for the allow_geo field.
 	user.DefaultAllowGeo = userDescAllowGeo.Default.(bool)
+	// userDescOriginSource is the schema descriptor for origin_source field.
+	userDescOriginSource := userFields[11].Descriptor()
+	// user.OriginSourceValidator is a validator for the "origin_source" field. It is called by the builders before save.
+	user.OriginSourceValidator = userDescOriginSource.Validators[0].(func(string) error)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
@@ -346,6 +351,27 @@ func init() {
 	useridentityDescID := useridentityMixinFields0[0].Descriptor()
 	// useridentity.DefaultID holds the default value on creation for the id field.
 	useridentity.DefaultID = useridentityDescID.Default.(func() string)
+	utmhistoryMixin := schema.UtmHistory{}.Mixin()
+	utmhistoryMixinInters0 := utmhistoryMixin[0].Interceptors()
+	utmhistory.Interceptors[0] = utmhistoryMixinInters0[0]
+	utmhistoryMixinFields0 := utmhistoryMixin[0].Fields()
+	_ = utmhistoryMixinFields0
+	utmhistoryFields := schema.UtmHistory{}.Fields()
+	_ = utmhistoryFields
+	// utmhistoryDescCreatedAt is the schema descriptor for created_at field.
+	utmhistoryDescCreatedAt := utmhistoryMixinFields0[1].Descriptor()
+	// utmhistory.DefaultCreatedAt holds the default value on creation for the created_at field.
+	utmhistory.DefaultCreatedAt = utmhistoryDescCreatedAt.Default.(func() time.Time)
+	// utmhistoryDescUpdatedAt is the schema descriptor for updated_at field.
+	utmhistoryDescUpdatedAt := utmhistoryMixinFields0[2].Descriptor()
+	// utmhistory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	utmhistory.DefaultUpdatedAt = utmhistoryDescUpdatedAt.Default.(func() time.Time)
+	// utmhistory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	utmhistory.UpdateDefaultUpdatedAt = utmhistoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// utmhistoryDescID is the schema descriptor for id field.
+	utmhistoryDescID := utmhistoryMixinFields0[0].Descriptor()
+	// utmhistory.DefaultID holds the default value on creation for the id field.
+	utmhistory.DefaultID = utmhistoryDescID.Default.(func() string)
 }
 
 const (

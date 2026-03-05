@@ -165,6 +165,18 @@ func (f UserIdentityFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserIdentityMutation", m)
 }
 
+// The UtmHistoryFunc type is an adapter to allow the use of ordinary
+// function as UtmHistory mutator.
+type UtmHistoryFunc func(context.Context, *ent.UtmHistoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UtmHistoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UtmHistoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UtmHistoryMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

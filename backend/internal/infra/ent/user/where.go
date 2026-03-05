@@ -120,6 +120,11 @@ func LocationID(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldLocationID, v))
 }
 
+// OriginSource applies equality check predicate on the "origin_source" field. It's identical to OriginSourceEQ.
+func OriginSource(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldOriginSource, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -735,6 +740,81 @@ func RoleNotIn(vs ...Role) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldRole, vs...))
 }
 
+// OriginSourceEQ applies the EQ predicate on the "origin_source" field.
+func OriginSourceEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldOriginSource, v))
+}
+
+// OriginSourceNEQ applies the NEQ predicate on the "origin_source" field.
+func OriginSourceNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldOriginSource, v))
+}
+
+// OriginSourceIn applies the In predicate on the "origin_source" field.
+func OriginSourceIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldOriginSource, vs...))
+}
+
+// OriginSourceNotIn applies the NotIn predicate on the "origin_source" field.
+func OriginSourceNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldOriginSource, vs...))
+}
+
+// OriginSourceGT applies the GT predicate on the "origin_source" field.
+func OriginSourceGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldOriginSource, v))
+}
+
+// OriginSourceGTE applies the GTE predicate on the "origin_source" field.
+func OriginSourceGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldOriginSource, v))
+}
+
+// OriginSourceLT applies the LT predicate on the "origin_source" field.
+func OriginSourceLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldOriginSource, v))
+}
+
+// OriginSourceLTE applies the LTE predicate on the "origin_source" field.
+func OriginSourceLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldOriginSource, v))
+}
+
+// OriginSourceContains applies the Contains predicate on the "origin_source" field.
+func OriginSourceContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldOriginSource, v))
+}
+
+// OriginSourceHasPrefix applies the HasPrefix predicate on the "origin_source" field.
+func OriginSourceHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldOriginSource, v))
+}
+
+// OriginSourceHasSuffix applies the HasSuffix predicate on the "origin_source" field.
+func OriginSourceHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldOriginSource, v))
+}
+
+// OriginSourceIsNil applies the IsNil predicate on the "origin_source" field.
+func OriginSourceIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldOriginSource))
+}
+
+// OriginSourceNotNil applies the NotNil predicate on the "origin_source" field.
+func OriginSourceNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldOriginSource))
+}
+
+// OriginSourceEqualFold applies the EqualFold predicate on the "origin_source" field.
+func OriginSourceEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldOriginSource, v))
+}
+
+// OriginSourceContainsFold applies the ContainsFold predicate on the "origin_source" field.
+func OriginSourceContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldOriginSource, v))
+}
+
 // HasPets applies the HasEdge predicate on the "pets" edge.
 func HasPets() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -819,6 +899,29 @@ func HasIdentities() predicate.User {
 func HasIdentitiesWith(preds ...predicate.UserIdentity) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newIdentitiesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasUtmHistories applies the HasEdge predicate on the "utm_histories" edge.
+func HasUtmHistories() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UtmHistoriesTable, UtmHistoriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUtmHistoriesWith applies the HasEdge predicate on the "utm_histories" edge with a given conditions (other predicates).
+func HasUtmHistoriesWith(preds ...predicate.UtmHistory) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newUtmHistoriesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

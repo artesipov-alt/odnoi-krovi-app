@@ -25,6 +25,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 )
 
 const (
@@ -49,6 +50,7 @@ const (
 	TypePetTreatment       = "PetTreatment"
 	TypeUser               = "User"
 	TypeUserIdentity       = "UserIdentity"
+	TypeUtmHistory         = "UtmHistory"
 )
 
 // BloodComponentMutation represents an operation that mutates the BloodComponent nodes in the graph.
@@ -9842,6 +9844,7 @@ type UserMutation struct {
 	photo_urls              *[]string
 	appendphoto_urls        []string
 	role                    *user.Role
+	origin_source           *string
 	clearedFields           map[string]struct{}
 	pets                    map[string]struct{}
 	removedpets             map[string]struct{}
@@ -9853,6 +9856,9 @@ type UserMutation struct {
 	identities              map[string]struct{}
 	removedidentities       map[string]struct{}
 	clearedidentities       bool
+	utm_histories           map[string]struct{}
+	removedutm_histories    map[string]struct{}
+	clearedutm_histories    bool
 	done                    bool
 	oldValue                func(context.Context) (*User, error)
 	predicates              []predicate.User
@@ -10636,6 +10642,55 @@ func (m *UserMutation) ResetRole() {
 	m.role = nil
 }
 
+// SetOriginSource sets the "origin_source" field.
+func (m *UserMutation) SetOriginSource(s string) {
+	m.origin_source = &s
+}
+
+// OriginSource returns the value of the "origin_source" field in the mutation.
+func (m *UserMutation) OriginSource() (r string, exists bool) {
+	v := m.origin_source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOriginSource returns the old "origin_source" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldOriginSource(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOriginSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOriginSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOriginSource: %w", err)
+	}
+	return oldValue.OriginSource, nil
+}
+
+// ClearOriginSource clears the value of the "origin_source" field.
+func (m *UserMutation) ClearOriginSource() {
+	m.origin_source = nil
+	m.clearedFields[user.FieldOriginSource] = struct{}{}
+}
+
+// OriginSourceCleared returns if the "origin_source" field was cleared in this mutation.
+func (m *UserMutation) OriginSourceCleared() bool {
+	_, ok := m.clearedFields[user.FieldOriginSource]
+	return ok
+}
+
+// ResetOriginSource resets all changes to the "origin_source" field.
+func (m *UserMutation) ResetOriginSource() {
+	m.origin_source = nil
+	delete(m.clearedFields, user.FieldOriginSource)
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by ids.
 func (m *UserMutation) AddPetIDs(ids ...string) {
 	if m.pets == nil {
@@ -10810,6 +10865,60 @@ func (m *UserMutation) ResetIdentities() {
 	m.removedidentities = nil
 }
 
+// AddUtmHistoryIDs adds the "utm_histories" edge to the UtmHistory entity by ids.
+func (m *UserMutation) AddUtmHistoryIDs(ids ...string) {
+	if m.utm_histories == nil {
+		m.utm_histories = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.utm_histories[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUtmHistories clears the "utm_histories" edge to the UtmHistory entity.
+func (m *UserMutation) ClearUtmHistories() {
+	m.clearedutm_histories = true
+}
+
+// UtmHistoriesCleared reports if the "utm_histories" edge to the UtmHistory entity was cleared.
+func (m *UserMutation) UtmHistoriesCleared() bool {
+	return m.clearedutm_histories
+}
+
+// RemoveUtmHistoryIDs removes the "utm_histories" edge to the UtmHistory entity by IDs.
+func (m *UserMutation) RemoveUtmHistoryIDs(ids ...string) {
+	if m.removedutm_histories == nil {
+		m.removedutm_histories = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.utm_histories, ids[i])
+		m.removedutm_histories[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUtmHistories returns the removed IDs of the "utm_histories" edge to the UtmHistory entity.
+func (m *UserMutation) RemovedUtmHistoriesIDs() (ids []string) {
+	for id := range m.removedutm_histories {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UtmHistoriesIDs returns the "utm_histories" edge IDs in the mutation.
+func (m *UserMutation) UtmHistoriesIDs() (ids []string) {
+	for id := range m.utm_histories {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUtmHistories resets all changes to the "utm_histories" edge.
+func (m *UserMutation) ResetUtmHistories() {
+	m.utm_histories = nil
+	m.clearedutm_histories = false
+	m.removedutm_histories = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -10844,7 +10953,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -10887,6 +10996,9 @@ func (m *UserMutation) Fields() []string {
 	if m.role != nil {
 		fields = append(fields, user.FieldRole)
 	}
+	if m.origin_source != nil {
+		fields = append(fields, user.FieldOriginSource)
+	}
 	return fields
 }
 
@@ -10923,6 +11035,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.PhotoUrls()
 	case user.FieldRole:
 		return m.Role()
+	case user.FieldOriginSource:
+		return m.OriginSource()
 	}
 	return nil, false
 }
@@ -10960,6 +11074,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPhotoUrls(ctx)
 	case user.FieldRole:
 		return m.OldRole(ctx)
+	case user.FieldOriginSource:
+		return m.OldOriginSource(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -11067,6 +11183,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRole(v)
 		return nil
+	case user.FieldOriginSource:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOriginSource(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -11139,6 +11262,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldPhotoUrls) {
 		fields = append(fields, user.FieldPhotoUrls)
 	}
+	if m.FieldCleared(user.FieldOriginSource) {
+		fields = append(fields, user.FieldOriginSource)
+	}
 	return fields
 }
 
@@ -11179,6 +11305,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldPhotoUrls:
 		m.ClearPhotoUrls()
+		return nil
+	case user.FieldOriginSource:
+		m.ClearOriginSource()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -11230,13 +11359,16 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldRole:
 		m.ResetRole()
 		return nil
+	case user.FieldOriginSource:
+		m.ResetOriginSource()
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.pets != nil {
 		edges = append(edges, user.EdgePets)
 	}
@@ -11248,6 +11380,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.identities != nil {
 		edges = append(edges, user.EdgeIdentities)
+	}
+	if m.utm_histories != nil {
+		edges = append(edges, user.EdgeUtmHistories)
 	}
 	return edges
 }
@@ -11276,18 +11411,27 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeUtmHistories:
+		ids := make([]ent.Value, 0, len(m.utm_histories))
+		for id := range m.utm_histories {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.removedpets != nil {
 		edges = append(edges, user.EdgePets)
 	}
 	if m.removedidentities != nil {
 		edges = append(edges, user.EdgeIdentities)
+	}
+	if m.removedutm_histories != nil {
+		edges = append(edges, user.EdgeUtmHistories)
 	}
 	return edges
 }
@@ -11308,13 +11452,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeUtmHistories:
+		ids := make([]ent.Value, 0, len(m.removedutm_histories))
+		for id := range m.removedutm_histories {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.clearedpets {
 		edges = append(edges, user.EdgePets)
 	}
@@ -11326,6 +11476,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedidentities {
 		edges = append(edges, user.EdgeIdentities)
+	}
+	if m.clearedutm_histories {
+		edges = append(edges, user.EdgeUtmHistories)
 	}
 	return edges
 }
@@ -11342,6 +11495,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.cleareddonor_preference
 	case user.EdgeIdentities:
 		return m.clearedidentities
+	case user.EdgeUtmHistories:
+		return m.clearedutm_histories
 	}
 	return false
 }
@@ -11375,6 +11530,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeIdentities:
 		m.ResetIdentities()
+		return nil
+	case user.EdgeUtmHistories:
+		m.ResetUtmHistories()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)
@@ -12165,4 +12323,939 @@ func (m *UserIdentityMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown UserIdentity edge %s", name)
+}
+
+// UtmHistoryMutation represents an operation that mutates the UtmHistory nodes in the graph.
+type UtmHistoryMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
+	utm_source    *string
+	utm_medium    *string
+	utm_campaign  *string
+	utm_content   *string
+	utm_term      *string
+	clearedFields map[string]struct{}
+	user          *string
+	cleareduser   bool
+	done          bool
+	oldValue      func(context.Context) (*UtmHistory, error)
+	predicates    []predicate.UtmHistory
+}
+
+var _ ent.Mutation = (*UtmHistoryMutation)(nil)
+
+// utmhistoryOption allows management of the mutation configuration using functional options.
+type utmhistoryOption func(*UtmHistoryMutation)
+
+// newUtmHistoryMutation creates new mutation for the UtmHistory entity.
+func newUtmHistoryMutation(c config, op Op, opts ...utmhistoryOption) *UtmHistoryMutation {
+	m := &UtmHistoryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUtmHistory,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUtmHistoryID sets the ID field of the mutation.
+func withUtmHistoryID(id string) utmhistoryOption {
+	return func(m *UtmHistoryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UtmHistory
+		)
+		m.oldValue = func(ctx context.Context) (*UtmHistory, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UtmHistory.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUtmHistory sets the old UtmHistory of the mutation.
+func withUtmHistory(node *UtmHistory) utmhistoryOption {
+	return func(m *UtmHistoryMutation) {
+		m.oldValue = func(context.Context) (*UtmHistory, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UtmHistoryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UtmHistoryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of UtmHistory entities.
+func (m *UtmHistoryMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UtmHistoryMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UtmHistoryMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UtmHistory.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UtmHistoryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UtmHistoryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UtmHistoryMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UtmHistoryMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UtmHistoryMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UtmHistoryMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *UtmHistoryMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *UtmHistoryMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *UtmHistoryMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[utmhistory.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *UtmHistoryMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[utmhistory.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *UtmHistoryMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, utmhistory.FieldDeletedAt)
+}
+
+// SetUserID sets the "user_id" field.
+func (m *UtmHistoryMutation) SetUserID(s string) {
+	m.user = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *UtmHistoryMutation) UserID() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *UtmHistoryMutation) ResetUserID() {
+	m.user = nil
+}
+
+// SetUtmSource sets the "utm_source" field.
+func (m *UtmHistoryMutation) SetUtmSource(s string) {
+	m.utm_source = &s
+}
+
+// UtmSource returns the value of the "utm_source" field in the mutation.
+func (m *UtmHistoryMutation) UtmSource() (r string, exists bool) {
+	v := m.utm_source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUtmSource returns the old "utm_source" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUtmSource(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUtmSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUtmSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUtmSource: %w", err)
+	}
+	return oldValue.UtmSource, nil
+}
+
+// ClearUtmSource clears the value of the "utm_source" field.
+func (m *UtmHistoryMutation) ClearUtmSource() {
+	m.utm_source = nil
+	m.clearedFields[utmhistory.FieldUtmSource] = struct{}{}
+}
+
+// UtmSourceCleared returns if the "utm_source" field was cleared in this mutation.
+func (m *UtmHistoryMutation) UtmSourceCleared() bool {
+	_, ok := m.clearedFields[utmhistory.FieldUtmSource]
+	return ok
+}
+
+// ResetUtmSource resets all changes to the "utm_source" field.
+func (m *UtmHistoryMutation) ResetUtmSource() {
+	m.utm_source = nil
+	delete(m.clearedFields, utmhistory.FieldUtmSource)
+}
+
+// SetUtmMedium sets the "utm_medium" field.
+func (m *UtmHistoryMutation) SetUtmMedium(s string) {
+	m.utm_medium = &s
+}
+
+// UtmMedium returns the value of the "utm_medium" field in the mutation.
+func (m *UtmHistoryMutation) UtmMedium() (r string, exists bool) {
+	v := m.utm_medium
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUtmMedium returns the old "utm_medium" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUtmMedium(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUtmMedium is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUtmMedium requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUtmMedium: %w", err)
+	}
+	return oldValue.UtmMedium, nil
+}
+
+// ClearUtmMedium clears the value of the "utm_medium" field.
+func (m *UtmHistoryMutation) ClearUtmMedium() {
+	m.utm_medium = nil
+	m.clearedFields[utmhistory.FieldUtmMedium] = struct{}{}
+}
+
+// UtmMediumCleared returns if the "utm_medium" field was cleared in this mutation.
+func (m *UtmHistoryMutation) UtmMediumCleared() bool {
+	_, ok := m.clearedFields[utmhistory.FieldUtmMedium]
+	return ok
+}
+
+// ResetUtmMedium resets all changes to the "utm_medium" field.
+func (m *UtmHistoryMutation) ResetUtmMedium() {
+	m.utm_medium = nil
+	delete(m.clearedFields, utmhistory.FieldUtmMedium)
+}
+
+// SetUtmCampaign sets the "utm_campaign" field.
+func (m *UtmHistoryMutation) SetUtmCampaign(s string) {
+	m.utm_campaign = &s
+}
+
+// UtmCampaign returns the value of the "utm_campaign" field in the mutation.
+func (m *UtmHistoryMutation) UtmCampaign() (r string, exists bool) {
+	v := m.utm_campaign
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUtmCampaign returns the old "utm_campaign" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUtmCampaign(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUtmCampaign is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUtmCampaign requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUtmCampaign: %w", err)
+	}
+	return oldValue.UtmCampaign, nil
+}
+
+// ClearUtmCampaign clears the value of the "utm_campaign" field.
+func (m *UtmHistoryMutation) ClearUtmCampaign() {
+	m.utm_campaign = nil
+	m.clearedFields[utmhistory.FieldUtmCampaign] = struct{}{}
+}
+
+// UtmCampaignCleared returns if the "utm_campaign" field was cleared in this mutation.
+func (m *UtmHistoryMutation) UtmCampaignCleared() bool {
+	_, ok := m.clearedFields[utmhistory.FieldUtmCampaign]
+	return ok
+}
+
+// ResetUtmCampaign resets all changes to the "utm_campaign" field.
+func (m *UtmHistoryMutation) ResetUtmCampaign() {
+	m.utm_campaign = nil
+	delete(m.clearedFields, utmhistory.FieldUtmCampaign)
+}
+
+// SetUtmContent sets the "utm_content" field.
+func (m *UtmHistoryMutation) SetUtmContent(s string) {
+	m.utm_content = &s
+}
+
+// UtmContent returns the value of the "utm_content" field in the mutation.
+func (m *UtmHistoryMutation) UtmContent() (r string, exists bool) {
+	v := m.utm_content
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUtmContent returns the old "utm_content" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUtmContent(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUtmContent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUtmContent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUtmContent: %w", err)
+	}
+	return oldValue.UtmContent, nil
+}
+
+// ClearUtmContent clears the value of the "utm_content" field.
+func (m *UtmHistoryMutation) ClearUtmContent() {
+	m.utm_content = nil
+	m.clearedFields[utmhistory.FieldUtmContent] = struct{}{}
+}
+
+// UtmContentCleared returns if the "utm_content" field was cleared in this mutation.
+func (m *UtmHistoryMutation) UtmContentCleared() bool {
+	_, ok := m.clearedFields[utmhistory.FieldUtmContent]
+	return ok
+}
+
+// ResetUtmContent resets all changes to the "utm_content" field.
+func (m *UtmHistoryMutation) ResetUtmContent() {
+	m.utm_content = nil
+	delete(m.clearedFields, utmhistory.FieldUtmContent)
+}
+
+// SetUtmTerm sets the "utm_term" field.
+func (m *UtmHistoryMutation) SetUtmTerm(s string) {
+	m.utm_term = &s
+}
+
+// UtmTerm returns the value of the "utm_term" field in the mutation.
+func (m *UtmHistoryMutation) UtmTerm() (r string, exists bool) {
+	v := m.utm_term
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUtmTerm returns the old "utm_term" field's value of the UtmHistory entity.
+// If the UtmHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UtmHistoryMutation) OldUtmTerm(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUtmTerm is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUtmTerm requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUtmTerm: %w", err)
+	}
+	return oldValue.UtmTerm, nil
+}
+
+// ClearUtmTerm clears the value of the "utm_term" field.
+func (m *UtmHistoryMutation) ClearUtmTerm() {
+	m.utm_term = nil
+	m.clearedFields[utmhistory.FieldUtmTerm] = struct{}{}
+}
+
+// UtmTermCleared returns if the "utm_term" field was cleared in this mutation.
+func (m *UtmHistoryMutation) UtmTermCleared() bool {
+	_, ok := m.clearedFields[utmhistory.FieldUtmTerm]
+	return ok
+}
+
+// ResetUtmTerm resets all changes to the "utm_term" field.
+func (m *UtmHistoryMutation) ResetUtmTerm() {
+	m.utm_term = nil
+	delete(m.clearedFields, utmhistory.FieldUtmTerm)
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *UtmHistoryMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[utmhistory.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *UtmHistoryMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *UtmHistoryMutation) UserIDs() (ids []string) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *UtmHistoryMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the UtmHistoryMutation builder.
+func (m *UtmHistoryMutation) Where(ps ...predicate.UtmHistory) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UtmHistoryMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UtmHistoryMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UtmHistory, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UtmHistoryMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UtmHistoryMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UtmHistory).
+func (m *UtmHistoryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UtmHistoryMutation) Fields() []string {
+	fields := make([]string, 0, 9)
+	if m.created_at != nil {
+		fields = append(fields, utmhistory.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, utmhistory.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, utmhistory.FieldDeletedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, utmhistory.FieldUserID)
+	}
+	if m.utm_source != nil {
+		fields = append(fields, utmhistory.FieldUtmSource)
+	}
+	if m.utm_medium != nil {
+		fields = append(fields, utmhistory.FieldUtmMedium)
+	}
+	if m.utm_campaign != nil {
+		fields = append(fields, utmhistory.FieldUtmCampaign)
+	}
+	if m.utm_content != nil {
+		fields = append(fields, utmhistory.FieldUtmContent)
+	}
+	if m.utm_term != nil {
+		fields = append(fields, utmhistory.FieldUtmTerm)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UtmHistoryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case utmhistory.FieldCreatedAt:
+		return m.CreatedAt()
+	case utmhistory.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case utmhistory.FieldDeletedAt:
+		return m.DeletedAt()
+	case utmhistory.FieldUserID:
+		return m.UserID()
+	case utmhistory.FieldUtmSource:
+		return m.UtmSource()
+	case utmhistory.FieldUtmMedium:
+		return m.UtmMedium()
+	case utmhistory.FieldUtmCampaign:
+		return m.UtmCampaign()
+	case utmhistory.FieldUtmContent:
+		return m.UtmContent()
+	case utmhistory.FieldUtmTerm:
+		return m.UtmTerm()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UtmHistoryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case utmhistory.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case utmhistory.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case utmhistory.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case utmhistory.FieldUserID:
+		return m.OldUserID(ctx)
+	case utmhistory.FieldUtmSource:
+		return m.OldUtmSource(ctx)
+	case utmhistory.FieldUtmMedium:
+		return m.OldUtmMedium(ctx)
+	case utmhistory.FieldUtmCampaign:
+		return m.OldUtmCampaign(ctx)
+	case utmhistory.FieldUtmContent:
+		return m.OldUtmContent(ctx)
+	case utmhistory.FieldUtmTerm:
+		return m.OldUtmTerm(ctx)
+	}
+	return nil, fmt.Errorf("unknown UtmHistory field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UtmHistoryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case utmhistory.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case utmhistory.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case utmhistory.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case utmhistory.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case utmhistory.FieldUtmSource:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUtmSource(v)
+		return nil
+	case utmhistory.FieldUtmMedium:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUtmMedium(v)
+		return nil
+	case utmhistory.FieldUtmCampaign:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUtmCampaign(v)
+		return nil
+	case utmhistory.FieldUtmContent:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUtmContent(v)
+		return nil
+	case utmhistory.FieldUtmTerm:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUtmTerm(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UtmHistory field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UtmHistoryMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UtmHistoryMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UtmHistoryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown UtmHistory numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UtmHistoryMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(utmhistory.FieldDeletedAt) {
+		fields = append(fields, utmhistory.FieldDeletedAt)
+	}
+	if m.FieldCleared(utmhistory.FieldUtmSource) {
+		fields = append(fields, utmhistory.FieldUtmSource)
+	}
+	if m.FieldCleared(utmhistory.FieldUtmMedium) {
+		fields = append(fields, utmhistory.FieldUtmMedium)
+	}
+	if m.FieldCleared(utmhistory.FieldUtmCampaign) {
+		fields = append(fields, utmhistory.FieldUtmCampaign)
+	}
+	if m.FieldCleared(utmhistory.FieldUtmContent) {
+		fields = append(fields, utmhistory.FieldUtmContent)
+	}
+	if m.FieldCleared(utmhistory.FieldUtmTerm) {
+		fields = append(fields, utmhistory.FieldUtmTerm)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UtmHistoryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UtmHistoryMutation) ClearField(name string) error {
+	switch name {
+	case utmhistory.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case utmhistory.FieldUtmSource:
+		m.ClearUtmSource()
+		return nil
+	case utmhistory.FieldUtmMedium:
+		m.ClearUtmMedium()
+		return nil
+	case utmhistory.FieldUtmCampaign:
+		m.ClearUtmCampaign()
+		return nil
+	case utmhistory.FieldUtmContent:
+		m.ClearUtmContent()
+		return nil
+	case utmhistory.FieldUtmTerm:
+		m.ClearUtmTerm()
+		return nil
+	}
+	return fmt.Errorf("unknown UtmHistory nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UtmHistoryMutation) ResetField(name string) error {
+	switch name {
+	case utmhistory.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case utmhistory.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case utmhistory.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case utmhistory.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case utmhistory.FieldUtmSource:
+		m.ResetUtmSource()
+		return nil
+	case utmhistory.FieldUtmMedium:
+		m.ResetUtmMedium()
+		return nil
+	case utmhistory.FieldUtmCampaign:
+		m.ResetUtmCampaign()
+		return nil
+	case utmhistory.FieldUtmContent:
+		m.ResetUtmContent()
+		return nil
+	case utmhistory.FieldUtmTerm:
+		m.ResetUtmTerm()
+		return nil
+	}
+	return fmt.Errorf("unknown UtmHistory field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UtmHistoryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, utmhistory.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UtmHistoryMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case utmhistory.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UtmHistoryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UtmHistoryMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UtmHistoryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, utmhistory.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UtmHistoryMutation) EdgeCleared(name string) bool {
+	switch name {
+	case utmhistory.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UtmHistoryMutation) ClearEdge(name string) error {
+	switch name {
+	case utmhistory.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown UtmHistory unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UtmHistoryMutation) ResetEdge(name string) error {
+	switch name {
+	case utmhistory.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown UtmHistory edge %s", name)
 }

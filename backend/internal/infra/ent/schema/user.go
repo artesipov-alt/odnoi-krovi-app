@@ -56,6 +56,10 @@ func (User) Fields() []ent.Field {
 		field.Enum("role").
 			Values("user", "admin").
 			Default("user"),
+		// origin_source is the origin source string.
+		field.String("origin_source").
+			Optional().
+			MaxLen(255),
 	}
 }
 
@@ -74,6 +78,8 @@ func (User) Edges() []ent.Edge {
 			Unique(),
 		// identities is the edge to the user's identities.
 		edge.To("identities", UserIdentity.Type),
+		// utm_histories is the edge to the user's UTM history.
+		edge.To("utm_histories", UtmHistory.Type),
 	}
 }
 
