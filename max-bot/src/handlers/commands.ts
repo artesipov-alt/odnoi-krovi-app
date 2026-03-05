@@ -131,7 +131,7 @@ export const startHandler = async (ctx: Context) => {
   if (ctx.updateType === "bot_started") {
     maxId = (ctx.update as any).user_id;
     fullName = getFullName((ctx.update as any).user);
-    payload = undefined;
+    payload = (ctx.update as any).payload;
   } else {
     // Early validation for command messages
     if (!ctx.message?.sender?.user_id) {
@@ -139,9 +139,21 @@ export const startHandler = async (ctx: Context) => {
       throw new Error("User ID is not available");
     }
     maxId = Number(ctx.message.sender.user_id);
-    fullName = getFullName(ctx.user);
+    fullName = getFullName(ctx.message.sender);
     payload = extractStartPayload(ctx.message.body.text ?? undefined);
   }
+
+  // Prevent registering the bot itself
+  if (maxId === ctx.botInfo?.user_id) {
+    pinologger.warn({ maxId }, "Attempted to register bot as user, skipping");
+    return;
+  }
+
+  pinologger.info(
+    { maxId, fullName, payload, updateType: ctx.updateType },
+    "Start handler data",
+  );
+  pinologger.info({ ctx }, "Full ctx");
 
   try {
     await checkUserExists(maxId).then((userExists) => {
