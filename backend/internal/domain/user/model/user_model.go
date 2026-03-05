@@ -33,6 +33,7 @@ type User struct {
 	Role             string
 	Pets             []*pet.Pet
 	DonorPreference  *DonorPreference
+	MetaData         map[string]any
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 	DeletedAt        *time.Time
@@ -48,6 +49,7 @@ type NewUserParams struct {
 	Role         UserRole
 	ConsentPd    bool
 	LocationID   *string
+	MetaData     map[string]any
 }
 
 // CompensationType represents donor's compensation preference
@@ -126,6 +128,7 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 		Role:         string(userparams.Role),
 		ConsentPd:    userparams.ConsentPd,
 		LocationID:   userparams.LocationID,
+		MetaData:     userparams.MetaData,
 		PhotoURLs:    []string{},
 		OnBoarding:   []string{},
 		Pets:         []*pet.Pet{},

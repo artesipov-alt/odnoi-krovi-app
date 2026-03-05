@@ -39,9 +39,10 @@ type CreateUserInput struct {
 
 // CreateUserBody представляет тело запроса на создание пользователя
 type CreateUserBody struct {
-	ProviderID   int64  `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
-	ProviderName string `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
-	FullName     string `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
+	ProviderID   int64          `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
+	ProviderName string         `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
+	FullName     string         `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
+	MetaData     map[string]any `json:"metaData,omitempty" doc:"Метаданные пользователя"`
 }
 
 // CreateUserOutput представляет ответ на создание пользователя
@@ -227,7 +228,7 @@ type DeletedUsersList struct {
 // UserDetail представляет полные данные пользователя
 type UserDetail struct {
 	ID               string           `json:"id" doc:"Внутренний ID пользователя" example:"USR-ABCDEABCDE" readOnly:"true"`
-	TelegramID       int64            `json:"telegramId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
+	TelegramID       int64            `json:"telegramId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1" deprecated:"true"`
 	FullName         string           `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
 	Phone            string           `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
 	Email            string           `json:"email,omitempty" doc:"Email" example:"user@example.com"`

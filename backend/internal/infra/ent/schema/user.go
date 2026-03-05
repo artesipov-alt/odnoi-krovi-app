@@ -18,6 +18,7 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		// telegram_id - уникальный идентификатор из Telegram.
+		// DEPRECATED
 		field.Int64("telegram_id").
 			Optional().
 			Unique(),

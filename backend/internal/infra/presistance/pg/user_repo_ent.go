@@ -14,6 +14,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	// расширение для апсерта
 )
 
 // EntUserRepository implements UserRepository using ENT
@@ -69,6 +70,12 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 	if inputuser.AllowGeo {
 		builder.SetAllowGeo(inputuser.AllowGeo)
 	}
+	if inputuser.MetaData != nil {
+		utmData := ExtractMetaDataForUTM(inputuser.MetaData)
+		if utmData != nil {
+			builder.SetOriginSource(utmData.UTMCampaign)
+		}
+	}
 
 	newUser, err := builder.Save(ctx)
 	if err != nil {
@@ -105,6 +112,24 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to create donor preference: %w", err)
+		}
+	}
+
+	if inputuser.MetaData != nil {
+		utmData := ExtractMetaDataForUTM(inputuser.MetaData)
+		if utmData != nil {
+			metaBuilder := tx.UtmHistory.Create().
+				SetUser(newUser).
+				SetUtmSource(utmData.UTMSource).
+				SetUtmMedium(utmData.UTMMedium).
+				SetUtmCampaign(utmData.UTMCampaign).
+				SetUtmContent(utmData.UTMContent).
+				SetUtmTerm(utmData.UTMTerm)
+			_, err := metaBuilder.Save(ctx)
+			if err != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("failed to create utm history: %w", err)
+			}
 		}
 	}
 
@@ -500,4 +525,36 @@ func EntIdentityToModel(identity *ent.UserIdentity) *usermodel.Identity {
 		UpdatedAt:      identity.UpdatedAt,
 		DeletedAt:      identity.DeletedAt,
 	}
+}
+
+type UTMData struct {
+	UTMSource   string
+	UTMMedium   string
+	UTMCampaign string
+	UTMContent  string
+	UTMTerm     string
+}
+
+func ExtractMetaDataForUTM(metadata map[string]any) *UTMData {
+	if metadata == nil {
+		return nil
+	}
+	result := &UTMData{}
+	for key, value := range metadata {
+		if str, ok := value.(string); ok {
+			switch key {
+			case "utm_source":
+				result.UTMSource = str
+			case "utm_medium":
+				result.UTMMedium = str
+			case "utm_campaign":
+				result.UTMCampaign = str
+			case "utm_content":
+				result.UTMContent = str
+			case "utm_term":
+				result.UTMTerm = str
+			}
+		}
+	}
+	return result
 }

@@ -98,6 +98,7 @@ func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 		Role:         model.RoleUser,
 		ConsentPd:    false, // consentPd
 		LocationID:   nil,   // locationID
+		MetaData:     body.MetaData,
 	}
 
 	prefs := &model.DonorPreferenceParams{

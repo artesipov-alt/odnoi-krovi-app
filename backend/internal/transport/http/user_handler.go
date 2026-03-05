@@ -109,6 +109,7 @@ func (h *UserHandler) Register(api huma.API) {
 		Path:        "/v1/user/telegram/{id}",
 		Summary:     "Получение пользователя по Telegram ID",
 		Description: "Возвращает информацию о пользователе по его Telegram ID",
+		Deprecated:  true,
 		Tags:        []string{"users-v1"},
 	}, h.UserByTelegram)
 
