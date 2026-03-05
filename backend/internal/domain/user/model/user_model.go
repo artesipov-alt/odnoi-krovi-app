@@ -147,3 +147,33 @@ func NewDonorPreference() *DonorPreference {
 		NotificationFrequency: NotifyImmediately,
 	}
 }
+
+// Metadata represents user metadata with UTM and other fields
+type UTM struct {
+	Source   string
+	Medium   string
+	Campaign string
+	Content  string
+	Term     string
+}
+
+type Metadata struct {
+	UTMData UTM
+}
+
+func NewUserMetadata(metadata map[string]string) *Metadata {
+	source, medium, campaign, content, term := extractUTMFromMetadata(metadata)
+	return &Metadata{
+		UTMData: UTM{
+			Source:   source,
+			Medium:   medium,
+			Campaign: campaign,
+			Content:  content,
+			Term:     term,
+		},
+	}
+}
+
+func extractUTMFromMetadata(metadata map[string]string) (string, string, string, string, string) {
+	return metadata["utm_source"], metadata["utm_medium"], metadata["utm_campaign"], metadata["utm_content"], metadata["utm_term"]
+}

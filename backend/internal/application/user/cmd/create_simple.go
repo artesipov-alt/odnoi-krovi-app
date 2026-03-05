@@ -18,26 +18,23 @@ func NewCreateSimpleHandler(userepo user.Repository) *CreateSimpleHandler {
 	}
 }
 
-func extractUTMFromMetadata(metadata map[string]string) (string, string, string, string, string) {
-	return metadata["utm_source"], metadata["utm_medium"], metadata["utm_campaign"], metadata["utm_content"], metadata["utm_term"]
-}
-
-func (h *CreateSimpleHandler) Handle(ctx context.Context, user *usermodel.User, prefs *usermodel.DonorPreference) (*usermodel.User, error) {
+func (h *CreateSimpleHandler) Handle(ctx context.Context, user *usermodel.User, prefs *usermodel.DonorPreference, metadata *usermodel.Metadata) (*usermodel.User, error) {
 	// Проверка exists — это координация, не бизнес-логика
 	exists, _ := h.userRepo.ExistsProvider(ctx, user.ProviderID, user.ProviderName)
 	if exists {
 		return nil, apperrors.ErrUserAlreadyExists
 	}
 
-	metadata := user.MetaData
-
 	newuser, err := h.userRepo.Create(ctx, user, prefs)
 	if err != nil {
 		return nil, err
 	}
 
-	source, medium, campaign, content, term := extractUTMFromMetadata(metadata)
-	if err := h.userRepo.SaveUTM(ctx, newuser.ID, &source, &medium, &campaign, &content, &term); err != nil {
+	if err := h.userRepo.SaveUTM(ctx, newuser.ID,
+		&metadata.UTMData.Source, &metadata.UTMData.Medium,
+		&metadata.UTMData.Campaign,
+		&metadata.UTMData.Content,
+		&metadata.UTMData.Term); err != nil {
 		return nil, err
 	}
 
