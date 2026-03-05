@@ -95,7 +95,7 @@ type DonorPreferenceParams struct {
 }
 
 // NewUser creates a new User aggregate with validation
-func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*User, error) {
+func NewUser(userparams NewUserParams) (*User, error) {
 	// Validation
 	if userparams.FullName == "" {
 		return nil, errors.New("full name is required")

@@ -35,6 +35,9 @@ type Repository interface {
 	// UpsertDonorPreference создает или обновляет настройки донора
 	UpsertDonorPreference(ctx context.Context, userID string, prefs *usermodel.DonorPreference) error
 
+	// DeleteDonorPreferenceByUserID удаляет настройки донора по ID пользователя
+	DeleteDonorPreferenceByUserID(ctx context.Context, userID string) error
+
 	// Delete удаляет пользователя по его ID
 	Delete(ctx context.Context, id string) error
 

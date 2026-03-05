@@ -103,5 +103,6 @@ func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 		params.MetaData = *body.MetaData
 	}
 
-	return model.NewUser(params, nil)
+	return model.NewUser(params)
 }
+

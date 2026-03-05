@@ -273,6 +273,25 @@ func (r *EntUserRepository) TransferUserIdentity(ctx context.Context, fromUserID
 	return nil
 }
 
+// DeleteDonorPreferenceByUserID deletes donor preference for a user
+func (r *EntUserRepository) DeleteDonorPreferenceByUserID(ctx context.Context, userID string) error {
+	if userID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+	ctxWithSkip := schema.SkipSoftDelete(ctx)
+
+	_, err := c.DonorPreference.Delete().
+		Where(donorpreference.HasUserWith(entuser.ID(userID))).
+		Exec(ctxWithSkip)
+	if err != nil {
+		return fmt.Errorf("failed to delete donor preference: %w", err)
+	}
+
+	return nil
+}
+
 // DeleteUserHard permanently deletes a user (bypasses soft delete)
 func (r *EntUserRepository) DeleteUserHard(ctx context.Context, id string) error {
 	if id == "" {
@@ -280,8 +299,14 @@ func (r *EntUserRepository) DeleteUserHard(ctx context.Context, id string) error
 	}
 
 	c := r.client(ctx)
-
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
+
+	// First delete donor preferences (foreign key constraint)
+	if err := r.DeleteDonorPreferenceByUserID(ctx, id); err != nil {
+		return err
+	}
+
+	// Then delete the user
 	err := c.User.DeleteOneID(id).Exec(ctxWithSkip)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
