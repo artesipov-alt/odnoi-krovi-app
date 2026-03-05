@@ -8,77 +8,77 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// User holds the schema definition for the User entity.
-// This entity represents a user in the system, linked to Telegram.
+// User определяет схему для сущности User.
+// Эта сущность представляет пользователя в системе, связанного с Telegram.
 type User struct {
 	ent.Schema
 }
 
-// Fields of the User.
+// Поля User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		// telegram_id is the unique identifier from Telegram.
+		// telegram_id - уникальный идентификатор из Telegram.
 		field.Int64("telegram_id").
 			Optional().
 			Unique(),
-		// full_name is the user's full name.
+		// full_name - полное имя пользователя.
 		field.String("full_name").
 			Optional().
 			MaxLen(255),
-		// phone is the user's phone number.
+		// phone - номер телефона пользователя.
 		field.String("phone").
 			Optional().
 			MaxLen(20),
-		// email is the user's email address.
+		// email - адрес электронной почты пользователя.
 		field.String("email").
 			Optional().
 			MaxLen(255),
-		// organization_name is the name of the user's organization.
+		// organization_name - название организации пользователя.
 		field.String("organization_name").
 			Optional().
 			MaxLen(255),
-		// consent_pd indicates if the user has consented to personal data processing.
+		// consent_pd указывает, согласился ли пользователь на обработку персональных данных.
 		field.Bool("consent_pd").
 			Default(false),
-		// on_boarding is a list of onboarding steps completed by the user.
+		// on_boarding - список шагов онбординга, выполненных пользователем.
 		field.JSON("on_boarding", []string{}).
 			Optional(),
-		// allow_geo indicates if the user allows geolocation.
+		// allow_geo указывает, разрешает ли пользователь геолокацию.
 		field.Bool("allow_geo").
 			Default(false),
-		// location_id is the foreign key to the location.
+		// location_id - внешний ключ к локации.
 		field.String("location_id").
 			Optional(),
-		// photo_urls is a list of URLs to the user's photos.
+		// photo_urls - список URL-адресов фотографий пользователя.
 		field.JSON("photo_urls", []string{}).
 			Optional(),
-		// role is the user's role in the system.
+		// role - роль пользователя в системе.
 		field.Enum("role").
 			Values("user", "admin").
 			Default("user"),
-		// origin_source is the origin source string.
+		// origin_source - UTM-метка, указывающая, откуда пришел пользователь.
 		field.String("origin_source").
 			Optional().
 			MaxLen(255),
 	}
 }
 
-// Edges of the User.
+// Связи User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		// pets is the edge to the user's pets.
+		// pets - связь с питомцами пользователя.
 		edge.To("pets", Pet.Type),
-		// location is the edge to the user's location.
+		// location - связь с локацией пользователя.
 		edge.From("location", Location.Type).
 			Ref("users").
 			Unique().
 			Field("location_id"),
-		// donor_preference is the edge to the user's donor preferences.
+		// donor_preference - связь с предпочтениями донора пользователя.
 		edge.To("donor_preference", DonorPreference.Type).
 			Unique(),
-		// identities is the edge to the user's identities.
+		// identities - связь с идентичностями пользователя.
 		edge.To("identities", UserIdentity.Type),
-		// utm_histories is the edge to the user's UTM history.
+		// utm_histories - связь с историей UTM пользователя.
 		edge.To("utm_histories", UtmHistory.Type),
 	}
 }
@@ -89,7 +89,7 @@ func (User) Mixin() []ent.Mixin {
 	}
 }
 
-// Annotations of the User.
+// Аннотации User.
 func (User) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{
