@@ -20,9 +20,7 @@ async function main() {
     { name: "help", description: "Помощь" },
   ]);
 
-  bot.on(`bot_started`, async (ctx) => {
-    pinologger.info(ctx);
-  });
+  bot.on(`bot_started`, startHandler);
 
   //Команды бота
   bot.command("start", startHandler);
