@@ -173,8 +173,10 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateU
 	if err != nil {
 		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
 	}
-
-	metadata := usermodel.NewUserMetadata(input.Body.MetaData)
+	var metadata *usermodel.Metadata
+	if input.Body.MetaData != nil {
+		metadata = usermodel.NewUserMetadata(*input.Body.MetaData)
+	}
 	prefs := usermodel.DefaultDonorPreference()
 
 	u, err := h.createSimpleHandler.Handle(ctx, user, prefs, metadata)

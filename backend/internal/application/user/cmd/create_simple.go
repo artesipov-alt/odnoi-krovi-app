@@ -30,12 +30,14 @@ func (h *CreateSimpleHandler) Handle(ctx context.Context, user *usermodel.User, 
 		return nil, err
 	}
 
-	if err := h.userRepo.SaveUTM(ctx, newuser.ID,
-		&metadata.UTMData.Source, &metadata.UTMData.Medium,
-		&metadata.UTMData.Campaign,
-		&metadata.UTMData.Content,
-		&metadata.UTMData.Term); err != nil {
-		return nil, err
+	if metadata != nil && metadata.UTMData != nil {
+		if err := h.userRepo.SaveUTM(ctx, newuser.ID,
+			&metadata.UTMData.Source, &metadata.UTMData.Medium,
+			&metadata.UTMData.Campaign,
+			&metadata.UTMData.Content,
+			&metadata.UTMData.Term); err != nil {
+			return nil, err
+		}
 	}
 
 	return newuser, err

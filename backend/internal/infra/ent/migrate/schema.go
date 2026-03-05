@@ -356,9 +356,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "utmhistory_user_id_utm_source_utm_campaign_utm_content",
+				Name:    "utmhistory_user_id_utm_campaign",
 				Unique:  true,
-				Columns: []*schema.Column{UserUtmHistoryColumns[9], UserUtmHistoryColumns[4], UserUtmHistoryColumns[6], UserUtmHistoryColumns[7]},
+				Columns: []*schema.Column{UserUtmHistoryColumns[9], UserUtmHistoryColumns[6]},
 			},
 		},
 	}

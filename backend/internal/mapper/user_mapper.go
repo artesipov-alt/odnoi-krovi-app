@@ -98,7 +98,9 @@ func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 		Role:         model.RoleUser,
 		ConsentPd:    false, // consentPd
 		LocationID:   nil,   // locationID
-		MetaData:     body.MetaData,
+	}
+	if body.MetaData != nil {
+		params.MetaData = *body.MetaData
 	}
 
 	return model.NewUser(params, nil)

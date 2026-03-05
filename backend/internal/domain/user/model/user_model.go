@@ -156,13 +156,13 @@ type UTM struct {
 }
 
 type Metadata struct {
-	UTMData UTM
+	UTMData *UTM
 }
 
 func NewUserMetadata(metadata map[string]string) *Metadata {
 	source, medium, campaign, content, term := extractUTMFromMetadata(metadata)
 	return &Metadata{
-		UTMData: UTM{
+		UTMData: &UTM{
 			Source:   source,
 			Medium:   medium,
 			Campaign: campaign,

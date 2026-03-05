@@ -60,7 +60,7 @@ func (UtmHistory) Annotations() []schema.Annotation {
 // Indexes of the UtmHistory.
 func (UtmHistory) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id", "utm_source", "utm_campaign", "utm_content").
+		index.Fields("user_id", "utm_campaign").
 			Unique(),
 	}
 }
