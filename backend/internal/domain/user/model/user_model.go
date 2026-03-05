@@ -119,6 +119,12 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 		return nil, errors.New("phone must be less than 20 characters")
 	}
 
+	// Extract OriginSource from metadata (utm_campaign)
+	originSource := ""
+	if userparams.MetaData != nil {
+		originSource = userparams.MetaData["utm_campaign"]
+	}
+
 	user := &User{
 		ProviderID:   userparams.ProviderID,
 		ProviderName: userparams.ProviderName,
@@ -128,6 +134,7 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 		Role:         string(userparams.Role),
 		ConsentPd:    userparams.ConsentPd,
 		LocationID:   userparams.LocationID,
+		OriginSource: originSource,
 		PhotoURLs:    []string{},
 		OnBoarding:   []string{},
 		Pets:         []*pet.Pet{},

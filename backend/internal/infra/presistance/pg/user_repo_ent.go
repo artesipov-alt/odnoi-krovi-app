@@ -76,6 +76,9 @@ func (r *EntUserRepository) CreateUserWithIdentity(ctx context.Context, inputuse
 	if inputuser.AllowGeo {
 		builder.SetAllowGeo(inputuser.AllowGeo)
 	}
+	if inputuser.OriginSource != "" {
+		builder.SetOriginSource(inputuser.OriginSource)
+	}
 
 	newUser, err := builder.Save(ctx)
 	if err != nil {
@@ -520,6 +523,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 		OnBoarding:       e.OnBoarding,
 		AllowGeo:         e.AllowGeo,
 		Role:             string(e.Role),
+		OriginSource:     e.OriginSource,
 		Pets:             nil, // Pets are loaded separately via WithPets
 		CreatedAt:        &e.CreatedAt,
 		UpdatedAt:        &e.UpdatedAt,
