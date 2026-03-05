@@ -138,7 +138,7 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 }
 
 // NewDonorPreferenceParams creates a new DonorPreferenceParams with default values
-func NewDonorPreference() *DonorPreference {
+func DefaultDonorPreference() *DonorPreference {
 	return &DonorPreference{
 		PreferredLocationIDs:  []string{},
 		RecoveryPeriodMonths:  2,
