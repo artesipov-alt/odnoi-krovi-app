@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
 	// расширение для апсерта
 )
 
@@ -292,6 +293,44 @@ func (r *EntUserRepository) DeleteDonorPreferenceByUserID(ctx context.Context, u
 	return nil
 }
 
+// DeleteUTMHistoryByUserID deletes UTM history for a user
+func (r *EntUserRepository) DeleteUTMHistoryByUserID(ctx context.Context, userID string) error {
+	if userID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+	ctxWithSkip := schema.SkipSoftDelete(ctx)
+
+	_, err := c.UtmHistory.Delete().
+		Where(utmhistory.HasUserWith(entuser.ID(userID))).
+		Exec(ctxWithSkip)
+	if err != nil {
+		return fmt.Errorf("failed to delete UTM history: %w", err)
+	}
+
+	return nil
+}
+
+// TransferUTMHistory transfers UTM history from one user to another
+func (r *EntUserRepository) TransferUTMHistory(ctx context.Context, fromUserID, toUserID string) error {
+	if fromUserID == "" || toUserID == "" {
+		return errors.New("invalid user IDs")
+	}
+
+	c := r.client(ctx)
+
+	_, err := c.UtmHistory.Update().
+		Where(utmhistory.HasUserWith(entuser.ID(fromUserID))).
+		SetUserID(toUserID).
+		Save(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to transfer UTM history: %w", err)
+	}
+
+	return nil
+}
+
 // DeleteUserHard permanently deletes a user (bypasses soft delete)
 func (r *EntUserRepository) DeleteUserHard(ctx context.Context, id string) error {
 	if id == "" {
@@ -519,7 +558,7 @@ func (r *EntUserRepository) SaveUTM(ctx context.Context, userID string, utmSourc
 	}
 
 	err := builder.
-		OnConflict(sql.ConflictColumns("user_id", "utm_campaign")).
+		OnConflict(sql.ConflictColumns("user_id", "utm_campaign", "utm_source")).
 		UpdateNewValues().
 		Exec(ctx)
 

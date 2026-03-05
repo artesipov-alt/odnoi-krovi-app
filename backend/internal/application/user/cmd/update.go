@@ -42,19 +42,22 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.
 					return apperrors.Internal(err, "failed to transfer user identity")
 				}
 
-				// 2. Обновляем существующего пользователя данными из input
+				// 2. Переносим UTM-историю к существующему пользователю (сохраняем аналитику)
+				if err := h.userRepo.TransferUTMHistory(txCtx, id, existingID); err != nil {
+					return apperrors.Internal(err, "failed to transfer UTM history")
+				}
+
+				// 3. Обновляем существующего пользователя данными из input
 				if err := h.userRepo.UpdateUserFields(txCtx, existingID, input); err != nil {
 					return apperrors.Internal(err, "failed to update existing user")
 				}
 
-				// 3. Обновляем/создаем DonorPreference для существующего
-				if input.DonorPreference != nil {
-					if err := h.userRepo.UpsertDonorPreference(txCtx, existingID, input.DonorPreference); err != nil {
-						return apperrors.Internal(err, "failed to upsert donor preference")
-					}
+				// 4. Удаляем настройки донора у текущего пользователя (перед удалением)
+				if err := h.userRepo.DeleteDonorPreferenceByUserID(txCtx, id); err != nil {
+					return apperrors.Internal(err, "failed to delete donor preference")
 				}
 
-				// 4. Удаляем текущего пользователя (полное удаление)
+				// 5. Удаляем текущего пользователя (полное удаление)
 				if err := h.userRepo.DeleteUserHard(txCtx, id); err != nil {
 					return apperrors.Internal(err, "failed to delete current user")
 				}

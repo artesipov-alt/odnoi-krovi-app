@@ -34,6 +34,7 @@ func (User) Fields() []ent.Field {
 		// email - адрес электронной почты пользователя.
 		field.String("email").
 			Optional().
+			Unique().
 			MaxLen(255),
 		// organization_name - название организации пользователя.
 		field.String("organization_name").

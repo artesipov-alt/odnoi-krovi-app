@@ -38,6 +38,12 @@ type Repository interface {
 	// DeleteDonorPreferenceByUserID удаляет настройки донора по ID пользователя
 	DeleteDonorPreferenceByUserID(ctx context.Context, userID string) error
 
+	// DeleteUTMHistoryByUserID удаляет UTM-историю по ID пользователя
+	DeleteUTMHistoryByUserID(ctx context.Context, userID string) error
+
+	// TransferUTMHistory переносит UTM-историю от одного пользователя к другому
+	TransferUTMHistory(ctx context.Context, fromUserID, toUserID string) error
+
 	// Delete удаляет пользователя по его ID
 	Delete(ctx context.Context, id string) error
 
