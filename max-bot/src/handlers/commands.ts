@@ -102,7 +102,9 @@ const getFullName = (user: Context["user"]): string => {
 const sendStartResponse = async (ctx: Context): Promise<void> => {
   const keyboard = getMainKeyboard();
   const messageText = Templates.START.MESSAGE;
-  const isCommand = ctx.message?.body.text?.startsWith("/start");
+  const isCommand =
+    ctx.message?.body.text?.startsWith("/start") ||
+    ctx.updateType === "bot_started";
 
   if (isCommand) {
     await ctx.reply(messageText, {
@@ -121,20 +123,30 @@ const sendStartResponse = async (ctx: Context): Promise<void> => {
 // ============ Handlers ============
 
 export const startHandler = async (ctx: Context) => {
-  // Early validation
-  if (!ctx.message?.sender?.user_id) {
-    pinologger.error("User ID is not available");
-    throw new Error("User ID is not available");
-  }
+  // Extract user data based on event type
+  let maxId: number;
+  let fullName: string;
+  let payload: string | undefined;
 
-  const maxId = Number(ctx.message.sender.user_id);
-  const payload = extractStartPayload(ctx.message.body.text ?? undefined);
+  if (ctx.updateType === "bot_started") {
+    maxId = (ctx.update as any).user_id;
+    fullName = getFullName((ctx.update as any).user);
+    payload = undefined;
+  } else {
+    // Early validation for command messages
+    if (!ctx.message?.sender?.user_id) {
+      pinologger.error("User ID is not available");
+      throw new Error("User ID is not available");
+    }
+    maxId = Number(ctx.message.sender.user_id);
+    fullName = getFullName(ctx.user);
+    payload = extractStartPayload(ctx.message.body.text ?? undefined);
+  }
 
   try {
     await checkUserExists(maxId).then((userExists) => {
       if (userExists) return;
 
-      const fullName = getFullName(ctx.user);
       return registerUser(maxId, fullName, payload).then(() => {
         pinologger.info(
           { maxId, fullName, utmCampaign: payload },
