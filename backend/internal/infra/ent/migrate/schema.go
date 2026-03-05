@@ -278,7 +278,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "telegram_id", Type: field.TypeInt64, Unique: true, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
-		{Name: "phone", Type: field.TypeString, Nullable: true, Size: 20},
+		{Name: "phone", Type: field.TypeString, Unique: true, Nullable: true, Size: 20},
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "organization_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "consent_pd", Type: field.TypeBool, Default: false},

@@ -33,7 +33,6 @@ type User struct {
 	Role             string
 	Pets             []*pet.Pet
 	DonorPreference  *DonorPreference
-	MetaData         map[string]string
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 	DeletedAt        *time.Time
@@ -128,7 +127,6 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 		Role:         string(userparams.Role),
 		ConsentPd:    userparams.ConsentPd,
 		LocationID:   userparams.LocationID,
-		MetaData:     userparams.MetaData,
 		PhotoURLs:    []string{},
 		OnBoarding:   []string{},
 		Pets:         []*pet.Pet{},

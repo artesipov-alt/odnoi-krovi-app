@@ -198,7 +198,8 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 	return exists, nil
 }
 
-// Update updates an existing user in the database
+// Update обновляет существующего пользователя в базе данных.
+// Если телефон уже занят другим пользователем, объединяет аккаунты: переносит UserIdentity к существующему и удаляет текущего.
 func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermodel.User) error {
 	if input == nil {
 		return errors.New("user cannot be nil")
@@ -208,19 +209,111 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 		return errors.New("invalid user ID")
 	}
 
-	// Start transaction
+	// Начинаем транзакцию
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %w", err)
 	}
 
+	// Проверяем, занят ли телефон другим пользователем
+	var existingUserID string
+	if input.Phone != "" {
+		existingUserID, err = r.GetByPhone(ctx, input.Phone)
+		if err != nil && !errors.Is(err, apperrors.ErrUserNotFound) {
+			// Если ошибка не "не найден", откатываем и возвращаем ошибку
+			tx.Rollback()
+			return fmt.Errorf("failed to check phone uniqueness: %w", err)
+		}
+	}
+
+	if existingUserID != "" && existingUserID != id {
+		// Телефон уже занят другим пользователем - объединяем аккаунты
+		// 1. Переносим UserIdentity от текущего пользователя (id) к существующему (existingUserID)
+		_, err = tx.UserIdentity.Update().
+			Where(useridentity.UserID(id)).
+			SetUserID(existingUserID).
+			Save(ctx)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to transfer user identity: %w", err)
+		}
+
+		// 2. Обновляем существующего пользователя данными из input
+		existingBuilder := tx.User.UpdateOneID(existingUserID)
+		if input.FullName != "" {
+			existingBuilder.SetFullName(input.FullName)
+		}
+		if input.Email != "" {
+			existingBuilder.SetEmail(input.Email)
+		}
+		if input.OrganizationName != "" {
+			existingBuilder.SetOrganizationName(input.OrganizationName)
+		}
+		if input.LocationID != nil {
+			existingBuilder.SetLocationID(*input.LocationID)
+		}
+		if len(input.PhotoURLs) > 0 {
+			existingBuilder.SetPhotoUrls(input.PhotoURLs)
+		}
+		if len(input.OnBoarding) > 0 {
+			existingBuilder.SetOnBoarding(input.OnBoarding)
+		}
+		existingBuilder.SetConsentPd(input.ConsentPd)
+		existingBuilder.SetAllowGeo(input.AllowGeo)
+		// Устанавливаем телефон, если он передан (хотя он уже должен быть у существующего)
+		if input.Phone != "" {
+			existingBuilder.SetPhone(input.Phone)
+		}
+
+		_, err = existingBuilder.Save(ctx)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to update existing user: %w", err)
+		}
+
+		// 3. Обновляем DonorPreference для существующего пользователя, если передан
+		if input.DonorPreference != nil {
+			prefBuilder := tx.DonorPreference.Create().
+				SetUserID(existingUserID)
+
+			prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
+			prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
+			if input.DonorPreference.CompensationType != "" {
+				prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
+			}
+			prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
+			prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
+
+			err = prefBuilder.
+				OnConflict(sql.ConflictColumns("user_id")).
+				UpdateNewValues().
+				Exec(ctx)
+			if err != nil {
+				tx.Rollback()
+				return fmt.Errorf("failed to upsert donor preference for existing user: %w", err)
+			}
+		}
+
+		// 4. Удаляем текущего пользователя (полное удаление)
+		ctxWithSkip := schema.SkipSoftDelete(ctx)
+		err = tx.User.DeleteOneID(id).Exec(ctxWithSkip)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to delete current user: %w", err)
+		}
+
+		// Коммитим транзакцию - аккаунты объединены
+		if err := tx.Commit(); err != nil {
+			return fmt.Errorf("failed to commit transaction: %w", err)
+		}
+		return nil // Аккаунты успешно объединены
+	}
+
+	// Обычное обновление, если нет конфликта с телефоном
 	builder := tx.User.UpdateOneID(id)
 
 	if input.FullName != "" {
 		builder.SetFullName(input.FullName)
-	}
-	if input.Phone != "" {
-		builder.SetPhone(input.Phone)
 	}
 	if input.Email != "" {
 		builder.SetEmail(input.Email)
@@ -239,6 +332,10 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 	}
 	builder.SetConsentPd(input.ConsentPd)
 	builder.SetAllowGeo(input.AllowGeo)
+	// Устанавливаем телефон, если передан и нет конфликта
+	if input.Phone != "" {
+		builder.SetPhone(input.Phone)
+	}
 
 	_, err = builder.Save(ctx)
 	if err != nil {
@@ -246,62 +343,30 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	// Update DonorPreference if provided
+	// Обновляем DonorPreference, если передан
 	if input.DonorPreference != nil {
-		// Check if donor preference exists
-		existingPref, err := tx.DonorPreference.Query().
-			Where(donorpreference.HasUserWith(entuser.ID(id))).
-			Only(ctx)
+		prefBuilder := tx.DonorPreference.Create().
+			SetUserID(id)
 
-		if err != nil && !ent.IsNotFound(err) {
-			tx.Rollback()
-			return fmt.Errorf("failed to query donor preference: %w", err)
+		prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
+		prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
+		if input.DonorPreference.CompensationType != "" {
+			prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
 		}
+		prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
+		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
 
-		if existingPref != nil {
-			// Update existing donor preference
-			prefBuilder := tx.DonorPreference.Update().
-				Where(donorpreference.ID(existingPref.ID))
-
-			if len(input.DonorPreference.PreferredLocationIDs) > 0 {
-				prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
-			}
-			if input.DonorPreference.RecoveryPeriodMonths > 0 {
-				prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
-			}
-			if input.DonorPreference.CompensationType != "" {
-				prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
-			}
-			prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
-			prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
-
-			_, err = prefBuilder.Save(ctx)
-			if err != nil {
-				tx.Rollback()
-				return fmt.Errorf("failed to update donor preference: %w", err)
-			}
-		} else {
-			// Create new donor preference if it doesn't exist
-			prefBuilder := tx.DonorPreference.Create().
-				SetUserID(id)
-
-			prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
-			prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
-			if input.DonorPreference.CompensationType != "" {
-				prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
-			}
-			prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
-			prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
-
-			_, err = prefBuilder.Save(ctx)
-			if err != nil {
-				tx.Rollback()
-				return fmt.Errorf("failed to create donor preference: %w", err)
-			}
+		err = prefBuilder.
+			OnConflict(sql.ConflictColumns("user_id")).
+			UpdateNewValues().
+			Exec(ctx)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to upsert donor preference: %w", err)
 		}
 	}
 
-	// Commit transaction
+	// Коммитим транзакцию
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
@@ -328,7 +393,7 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// ExistsByTelegramID checks if a user with the given Telegram ID exists
+// ExistsProvider checks if a user with the given Provider ID exists
 func (r *EntUserRepository) ExistsProvider(ctx context.Context, providerID int64, providerName string) (bool, error) {
 	if providerID <= 0 {
 		return false, errors.New("invalid provider ID")
@@ -346,6 +411,26 @@ func (r *EntUserRepository) ExistsProvider(ctx context.Context, providerID int64
 	}
 
 	return exists, nil
+}
+
+// GetByPhone retrieves a user by phone number
+func (r *EntUserRepository) GetByPhone(ctx context.Context, phone string) (string, error) {
+	if phone == "" {
+		return "", errors.New("invalid phone number")
+	}
+
+	user, err := r.client.User.Query().
+		Where(entuser.Phone(phone)).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return "", apperrors.ErrUserNotFound
+		}
+		return "", apperrors.Internal(err, "failed to get user by phone")
+	}
+
+	return user.ID, nil
 }
 
 // ResetUser resets user's email and phone number by ID

@@ -29,6 +29,7 @@ func (User) Fields() []ent.Field {
 		// phone - номер телефона пользователя.
 		field.String("phone").
 			Optional().
+			Unique().
 			MaxLen(20),
 		// email - адрес электронной почты пользователя.
 		field.String("email").
