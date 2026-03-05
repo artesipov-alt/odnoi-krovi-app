@@ -377,7 +377,7 @@ func (r *EntUserRepository) UpsertDonorPreference(ctx context.Context, userID st
 	prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(prefs.NotificationFrequency))
 
 	err := prefBuilder.
-		OnConflict(sql.ConflictColumns("user_id")).
+		OnConflict(sql.ConflictColumns("user_donor_preference")).
 		UpdateNewValues().
 		Exec(ctx)
 	if err != nil {
