@@ -1,8 +1,8 @@
 {
-  "name": "odnoi-krovi-bot",
+  "name": "odnoi-krovi-max-bot",
   "module": "bot.ts",
   "type": "module",
-  "version": "0.6.0",
+  "version": "0.2.0",
   "scripts": {
     "dev": "bun --env-file=../.env bot.ts",
     "build": "bun run build.ts",
@@ -16,9 +16,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@grammyjs/ratelimiter": "^1.2.1",
-    "@grammyjs/runner": "^2.0.3",
-    "@grammyjs/transformer-throttler": "^1.2.1",
     "@maxhub/max-bot-api": "^0.2.2",
     "grammy": "^1.38.3",
     "pino": "^10.1.0",

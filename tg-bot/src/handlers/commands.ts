@@ -3,6 +3,8 @@ import { BotError, InlineKeyboard } from "grammy";
 import { Templates } from "../config/templates";
 import { usersApi, pinologger } from "../instances";
 
+// ============ Keyboard Builders ============
+
 const getMainKeyboard = () => {
   return new InlineKeyboard()
     .webApp("🩸 Открыть приложение", Bun.env.MINIAPP_DOMAIN!)
@@ -15,75 +17,60 @@ const getBackKeyboard = () => {
   return new InlineKeyboard().text("⬅️ Назад", "back");
 };
 
-export const startHandler = async (ctx: Context) => {
-  const keyboard = getMainKeyboard();
-  const isCommand = ctx.message?.text === "/start";
+// ============ User Service ============
 
-  // Early validation
-  if (!ctx.from?.id) {
-    throw new BotError("User ID is not available", ctx);
-  }
-
-  const telegramId = ctx.from.id;
-
-  if (isCommand) {
-    try {
-      // Проверяем существование пользователя
-      let isUserExist = false;
-
-      try {
-        await usersApi.getUserByTelegram({ id: telegramId });
-        isUserExist = true;
-        pinologger.info({ telegramId }, "User exists");
-      } catch (error: any) {
-        // Если пользователь не найден (404 или 500), регистрируем его
-        pinologger.warn(
-          { telegramId, error: error.message },
-          "User not found, will register",
-        );
-        isUserExist = false;
-      }
-
-      if (!isUserExist) {
-        try {
-          const fullName = getFullName(ctx.from);
-
-          await usersApi.registerUserSimple({
-            createUserBody: {
-              telegramId,
-              fullName,
-            },
-          });
-          pinologger.info(
-            { telegramId, fullName },
-            "User registered successfully",
-          );
-        } catch (registerError: any) {
-          pinologger.error(
-            { telegramId, error: registerError.message },
-            "Failed to register user",
-          );
-          // Продолжаем выполнение, даже если регистрация не удалась
-        }
-      }
-    } catch (error: any) {
-      pinologger.error(
+const checkUserExists = async (telegramId: number): Promise<boolean> => {
+  return usersApi
+    .authUser({
+      authUserBody: {
+        providerId: telegramId,
+        providerName: "telegram_bot",
+      },
+    })
+    .then(() => {
+      pinologger.info({ telegramId }, "User exists");
+      return true;
+    })
+    .catch((error) => {
+      pinologger.warn(
         { telegramId, error: error.message },
-        "Error in user check/registration",
+        "User not found, will register",
       );
-      // Не бросаем ошибку, показываем пользователю стартовое сообщение
-    }
+      return false;
+    });
+};
 
-    await ctx.reply(Templates.START.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
-    });
-  } else {
-    await ctx.editMessageText(Templates.START.MESSAGE, {
-      parse_mode: "Markdown",
-      reply_markup: keyboard,
-    });
-  }
+const registerUser = (
+  telegramId: number,
+  fullName: string,
+  utmCampaign?: string,
+): Promise<unknown> => {
+  return usersApi.registerUserSimple({
+    createUserBody: {
+      fullName,
+      providerId: telegramId,
+      providerName: "telegram_bot",
+      metaData: {
+        utm_campaign: utmCampaign || "organic",
+        utm_source: "telegram_bot",
+      },
+    },
+  });
+};
+
+// ============ Helpers ============
+
+/**
+ * Extracts payload from /start command
+ * Example: "/start ddl042026" -> "ddl042026"
+ */
+const extractStartPayload = (text: string | undefined): string | undefined => {
+  if (!text) return undefined;
+
+  const parts = text.split(" ");
+  if (parts.length < 2) return undefined;
+
+  return parts[1];
 };
 
 /**
@@ -99,10 +86,67 @@ const getFullName = (user: NonNullable<Context["from"]>): string => {
   return username || "Unknown";
 };
 
+/**
+ * Sends start message (reply or edit based on context)
+ */
+const sendStartResponse = async (ctx: Context): Promise<void> => {
+  const keyboard = getMainKeyboard();
+  const messageText = Templates.START.MESSAGE;
+  const isCommand = ctx.message?.text?.startsWith("/start");
+
+  if (isCommand) {
+    await ctx.reply(messageText, {
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+  } else {
+    await ctx.editMessageText(messageText, {
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+  }
+};
+
+// ============ Handlers ============
+
+export const startHandler = async (ctx: Context) => {
+  // Early validation
+  if (!ctx.from?.id) {
+    throw new BotError("User ID is not available", ctx);
+  }
+
+  const telegramId = ctx.from.id;
+  const payload = extractStartPayload(ctx.message?.text);
+
+  try {
+    await checkUserExists(telegramId).then((userExists) => {
+      if (userExists) return;
+
+      const fullName = getFullName(ctx.from!);
+      return registerUser(telegramId, fullName, payload).then(() => {
+        pinologger.info(
+          { telegramId, fullName, utmCampaign: payload },
+          "User registered successfully",
+        );
+      });
+    });
+  } catch (error: any) {
+    pinologger.error(
+      { telegramId, error: error.message },
+      "Error in user check/registration",
+    );
+    // Don't throw - still show welcome message
+  }
+
+  // Always show welcome message
+  await sendStartResponse(ctx);
+};
+
 export const helpHandler = async (ctx: Context) => {
   const keyboard = getBackKeyboard();
+  const isCommand = ctx.message?.text === "/help";
 
-  if (ctx.message?.text === "/help") {
+  if (isCommand) {
     await ctx.reply(Templates.HELP.MESSAGE, {
       parse_mode: "Markdown",
       reply_markup: keyboard,
@@ -121,7 +165,9 @@ export const profileHandler = async (ctx: Context) => {
     .row()
     .text("⬅️ Назад", "back");
 
-  if (ctx.message?.text === "/profile") {
+  const isCommand = ctx.message?.text === "/profile";
+
+  if (isCommand) {
     await ctx.reply(Templates.PROFILE.MESSAGE, {
       parse_mode: "Markdown",
       reply_markup: keyboard,

@@ -1,3 +1,3 @@
-import { apiThrottler } from "@grammyjs/transformer-throttler";
+// import { apiThrottler } from "@grammyjs/transformer-throttler";
 
-export const apiThrottlerMiddleware = apiThrottler();
+// export const apiThrottlerMiddleware = apiThrottler();
