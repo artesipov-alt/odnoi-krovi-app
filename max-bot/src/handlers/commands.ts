@@ -7,7 +7,12 @@ import { usersApi, pinologger } from "../instances";
 
 const getMainKeyboard = () => {
   return Keyboard.inlineKeyboard([
-    [Keyboard.button.link("🩸 Открыть приложение", Bun.env.MINIAPP_DOMAIN!)],
+    [
+      Keyboard.button.link(
+        "🩸 Открыть приложение",
+        "https://max.ru/id3200014662_2_bot?startapp",
+      ),
+    ],
     [
       Keyboard.button.callback("❓ Помощь", "help"),
       Keyboard.button.callback("👤 Профиль", "profile"),
