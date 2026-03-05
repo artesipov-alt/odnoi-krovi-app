@@ -15,7 +15,7 @@ COPY shared ./shared
 WORKDIR /app/max-bot
 
 # Install dependencies (use frozen lockfile to ensure reproducible builds)
-RUN bun install --frozen-lockfile --no-cache
+RUN bun install --no-cache
 
 # Build the project (assumes `build` script in bot/package.json)
 RUN bun run build
