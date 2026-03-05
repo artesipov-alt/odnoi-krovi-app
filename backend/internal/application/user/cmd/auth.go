@@ -17,12 +17,14 @@ func NewAuthHandler(userepo user.Repository) *AuthHandler {
 	}
 }
 
-func (h *AuthHandler) Handle(ctx context.Context, authdata *usermodel.Identity) (*usermodel.Identity, error) {
-	// // Проверка exists — это координация, не бизнес-логика
-	// exists, _ := h.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
-	// if exists {
-	// 	return nil, apperrors.ErrUserAlreadyExists
-	// }
+func (h *AuthHandler) Handle(ctx context.Context, authreq *usermodel.Identity) (*usermodel.Identity, error) {
+	authdata, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, authreq.ProviderName)
+	if err != nil {
+		return nil, err
+	}
+	if authreq.XBToken != "" {
+		authdata.XBToken = authreq.XBToken + "-encrypted_from_backend"
+	}
 
-	return h.userRepo.GetByProvider(ctx, authdata.ProviderUserID, authdata.ProviderName)
+	return authdata, nil
 }

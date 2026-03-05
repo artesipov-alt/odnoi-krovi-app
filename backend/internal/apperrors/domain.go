@@ -5,7 +5,7 @@ package apperrors
 // User domain errors
 var (
 	ErrUserNotFound         = NotFound("пользователь не найден")
-	ErrUserAlreadyExists    = AlreadyExists("пользователь с этим Telegram ID уже существует")
+	ErrUserAlreadyExists    = AlreadyExists("пользователь с этим ID уже существует")
 	ErrInvalidTelegramID    = BadRequest("неверный Telegram ID")
 	ErrUserPhoneRequired    = BadRequest("номер телефона обязателен")
 	ErrUserEmailInvalid     = BadRequest("неверный формат email")

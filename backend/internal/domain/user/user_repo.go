@@ -27,7 +27,7 @@ type Repository interface {
 	Delete(ctx context.Context, id string) error
 
 	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
-	ExistsByTelegramID(ctx context.Context, telegramID int64) (bool, error)
+	ExistsProvider(ctx context.Context, providerID int64, providerName string) (bool, error)
 
 	// ExistsByID проверяет, существует ли пользователь с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)

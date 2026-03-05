@@ -327,17 +327,20 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 }
 
 // ExistsByTelegramID checks if a user with the given Telegram ID exists
-func (r *EntUserRepository) ExistsByTelegramID(ctx context.Context, telegramID int64) (bool, error) {
-	if telegramID <= 0 {
-		return false, errors.New("invalid telegram ID")
+func (r *EntUserRepository) ExistsProvider(ctx context.Context, providerID int64, providerName string) (bool, error) {
+	if providerID <= 0 {
+		return false, errors.New("invalid provider ID")
 	}
 
-	exists, err := r.client.User.Query().
-		Where(entuser.TelegramID(telegramID)).
+	exists, err := r.client.UserIdentity.Query().
+		Where(useridentity.ProviderUserID(providerID),
+			useridentity.ProviderEQ(useridentity.Provider(providerName))).
 		Exist(ctx)
-
 	if err != nil {
-		return false, fmt.Errorf("failed to check user existence by telegram id %d: %w", telegramID, err)
+		if ent.IsNotFound(err) {
+			return false, apperrors.ErrUserNotFound
+		}
+		return false, apperrors.Internal(err, "failed to get user by provider ID")
 	}
 
 	return exists, nil

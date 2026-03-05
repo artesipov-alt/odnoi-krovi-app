@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
@@ -19,10 +20,10 @@ func NewCreateSimpleHandler(userepo user.Repository) *CreateSimpleHandler {
 
 func (h *CreateSimpleHandler) Handle(ctx context.Context, user *usermodel.User) (*usermodel.User, error) {
 	// Проверка exists — это координация, не бизнес-логика
-	// exists, _ := h.userRepo.ExistsByTelegramID(ctx, user.TelegramID)
-	// if exists {
-	// 	return nil, apperrors.ErrUserAlreadyExists
-	// }
+	exists, _ := h.userRepo.ExistsProvider(ctx, user.ProviderID, user.ProviderName)
+	if exists {
+		return nil, apperrors.ErrUserAlreadyExists
+	}
 
 	return h.userRepo.Create(ctx, user)
 }
