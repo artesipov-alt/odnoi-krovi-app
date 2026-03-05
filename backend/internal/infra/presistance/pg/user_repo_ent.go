@@ -20,29 +20,34 @@ import (
 
 // EntUserRepository implements UserRepository using ENT
 type EntUserRepository struct {
-	client *ent.Client
+	db *ent.Client
+}
+
+// client returns the ent.Client from the context if a transaction is active,
+// otherwise returns the default client
+func (r *EntUserRepository) client(ctx context.Context) *ent.Client {
+	if tx := ent.TxFromContext(ctx); tx != nil {
+		return tx.Client()
+	}
+	return r.db
 }
 
 // NewEntUserRepository creates a new ENT user repository
 func NewEntUserRepository(client *ent.Client) *EntUserRepository {
 	return &EntUserRepository{
-		client: client,
+		db: client,
 	}
 }
 
-// Create creates a new user in the database
-func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.User, inputprefs *usermodel.DonorPreference) (*usermodel.User, error) {
+// CreateUserWithIdentity creates a new user in the database along with identity
+func (r *EntUserRepository) CreateUserWithIdentity(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error) {
 	if inputuser == nil {
 		return nil, errors.New("user cannot be nil")
 	}
 
-	// Start transaction
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to start transaction: %w", err)
-	}
+	c := r.client(ctx)
 
-	builder := tx.User.
+	builder := c.User.
 		Create().
 		SetFullName(inputuser.FullName).
 		SetRole(entuser.Role(inputuser.Role))
@@ -74,56 +79,59 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 
 	newUser, err := builder.Save(ctx)
 	if err != nil {
-		tx.Rollback()
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	if inputuser.ProviderID != 0 {
-		identityBuilder := tx.UserIdentity.Create().
+		identityBuilder := c.UserIdentity.Create().
 			SetUser(newUser).
 			SetProviderUserID(inputuser.ProviderID).
 			SetProvider(useridentity.Provider(inputuser.ProviderName))
 		_, err := identityBuilder.Save(ctx)
 		if err != nil {
-			tx.Rollback()
 			return nil, fmt.Errorf("failed to create identity: %w", err)
 		}
 	}
 
-	// Create DonorPreference if provided
-	if inputprefs != nil {
-		prefBuilder := tx.DonorPreference.Create().
-			SetUser(newUser)
-
-		prefBuilder.SetPreferredLocationIds(inputprefs.PreferredLocationIDs)
-		prefBuilder.SetRecoveryPeriodMonths(inputprefs.RecoveryPeriodMonths)
-		if inputprefs.CompensationType != "" {
-			prefBuilder.SetCompensationType(donorpreference.CompensationType(inputprefs.CompensationType))
-		}
-		prefBuilder.SetTaxiCompensation(inputprefs.TaxiCompensation)
-		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(inputprefs.NotificationFrequency))
-
-		_, err = prefBuilder.Save(ctx)
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("failed to create donor preference: %w", err)
-		}
-	}
-
-	// Commit transaction
-	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	// Re-fetch the created user with relations
+	// Re-fetch the created user without relations
 	return r.GetByID(ctx, newUser.ID, user.UserPreloadOptions{
-		WithPets:            false, // Adjust as needed
-		WithDonorPreference: inputuser.DonorPreference != nil,
+		WithPets:            false,
+		WithDonorPreference: false,
 	})
 }
 
+// CreateDonorPreference creates donor preference for a user
+func (r *EntUserRepository) CreateDonorPreference(ctx context.Context, userID string, inputprefs *usermodel.DonorPreference) error {
+	if inputprefs == nil {
+		return errors.New("donor preference cannot be nil")
+	}
+	if userID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+
+	prefBuilder := c.DonorPreference.Create().
+		SetUserID(userID)
+
+	prefBuilder.SetPreferredLocationIds(inputprefs.PreferredLocationIDs)
+	prefBuilder.SetRecoveryPeriodMonths(inputprefs.RecoveryPeriodMonths)
+	if inputprefs.CompensationType != "" {
+		prefBuilder.SetCompensationType(donorpreference.CompensationType(inputprefs.CompensationType))
+	}
+	prefBuilder.SetTaxiCompensation(inputprefs.TaxiCompensation)
+	prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(inputprefs.NotificationFrequency))
+
+	_, err := prefBuilder.Save(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create donor preference: %w", err)
+	}
+
+	return nil
+}
+
 func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.UserPreloadOptions) (*usermodel.User, error) {
-	quser := r.client.User.Query().Where(entuser.ID(id))
+	quser := r.client(ctx).User.Query().Where(entuser.ID(id))
 
 	if opts.WithPets {
 		quser = quser.WithPets()
@@ -145,7 +153,7 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.Us
 
 // DEPRECATED
 func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*usermodel.User, error) {
-	quser := r.client.User.Query().Where(entuser.TelegramID(telegramID))
+	quser := r.client(ctx).User.Query().Where(entuser.TelegramID(telegramID))
 
 	if opts.WithPets {
 		quser = quser.WithPets()
@@ -166,11 +174,10 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 }
 
 func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID int64, providerName string) (*usermodel.Identity, error) {
-	qidentity := r.client.UserIdentity.Query().
+	identity, err := r.client(ctx).UserIdentity.Query().
 		Where(useridentity.ProviderUserID(providerID),
-			useridentity.ProviderEQ(useridentity.Provider(providerName)))
-
-	identity, err := qidentity.Only(ctx)
+			useridentity.ProviderEQ(useridentity.Provider(providerName))).
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrUserNotFound
@@ -187,7 +194,7 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 		return false, errors.New("invalid user ID")
 	}
 
-	exists, err := r.client.User.Query().
+	exists, err := r.client(ctx).User.Query().
 		Where(entuser.ID(id)).
 		Exist(ctx)
 
@@ -198,9 +205,8 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 	return exists, nil
 }
 
-// Update обновляет существующего пользователя в базе данных.
-// Если телефон уже занят другим пользователем, объединяет аккаунты: переносит UserIdentity к существующему и удаляет текущего.
-func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermodel.User) error {
+// UpdateUserFields updates user fields (simple update without transaction handling)
+func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error {
 	if input == nil {
 		return errors.New("user cannot be nil")
 	}
@@ -209,108 +215,9 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 		return errors.New("invalid user ID")
 	}
 
-	// Начинаем транзакцию
-	tx, err := r.client.Tx(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to start transaction: %w", err)
-	}
+	c := r.client(ctx)
 
-	// Проверяем, занят ли телефон другим пользователем
-	var existingUserID string
-	if input.Phone != "" {
-		existingUserID, err = r.GetByPhone(ctx, input.Phone)
-		if err != nil && !errors.Is(err, apperrors.ErrUserNotFound) {
-			// Если ошибка не "не найден", откатываем и возвращаем ошибку
-			tx.Rollback()
-			return fmt.Errorf("failed to check phone uniqueness: %w", err)
-		}
-	}
-
-	if existingUserID != "" && existingUserID != id {
-		// Телефон уже занят другим пользователем - объединяем аккаунты
-		// 1. Переносим UserIdentity от текущего пользователя (id) к существующему (existingUserID)
-		_, err = tx.UserIdentity.Update().
-			Where(useridentity.UserID(id)).
-			SetUserID(existingUserID).
-			Save(ctx)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to transfer user identity: %w", err)
-		}
-
-		// 2. Обновляем существующего пользователя данными из input
-		existingBuilder := tx.User.UpdateOneID(existingUserID)
-		if input.FullName != "" {
-			existingBuilder.SetFullName(input.FullName)
-		}
-		if input.Email != "" {
-			existingBuilder.SetEmail(input.Email)
-		}
-		if input.OrganizationName != "" {
-			existingBuilder.SetOrganizationName(input.OrganizationName)
-		}
-		if input.LocationID != nil {
-			existingBuilder.SetLocationID(*input.LocationID)
-		}
-		if len(input.PhotoURLs) > 0 {
-			existingBuilder.SetPhotoUrls(input.PhotoURLs)
-		}
-		if len(input.OnBoarding) > 0 {
-			existingBuilder.SetOnBoarding(input.OnBoarding)
-		}
-		existingBuilder.SetConsentPd(input.ConsentPd)
-		existingBuilder.SetAllowGeo(input.AllowGeo)
-		// Устанавливаем телефон, если он передан (хотя он уже должен быть у существующего)
-		if input.Phone != "" {
-			existingBuilder.SetPhone(input.Phone)
-		}
-
-		_, err = existingBuilder.Save(ctx)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to update existing user: %w", err)
-		}
-
-		// 3. Обновляем DonorPreference для существующего пользователя, если передан
-		if input.DonorPreference != nil {
-			prefBuilder := tx.DonorPreference.Create().
-				SetUserID(existingUserID)
-
-			prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
-			prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
-			if input.DonorPreference.CompensationType != "" {
-				prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
-			}
-			prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
-			prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
-
-			err = prefBuilder.
-				OnConflict(sql.ConflictColumns("user_id")).
-				UpdateNewValues().
-				Exec(ctx)
-			if err != nil {
-				tx.Rollback()
-				return fmt.Errorf("failed to upsert donor preference for existing user: %w", err)
-			}
-		}
-
-		// 4. Удаляем текущего пользователя (полное удаление)
-		ctxWithSkip := schema.SkipSoftDelete(ctx)
-		err = tx.User.DeleteOneID(id).Exec(ctxWithSkip)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to delete current user: %w", err)
-		}
-
-		// Коммитим транзакцию - аккаунты объединены
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf("failed to commit transaction: %w", err)
-		}
-		return nil // Аккаунты успешно объединены
-	}
-
-	// Обычное обновление, если нет конфликта с телефоном
-	builder := tx.User.UpdateOneID(id)
+	builder := c.User.UpdateOneID(id)
 
 	if input.FullName != "" {
 		builder.SetFullName(input.FullName)
@@ -332,43 +239,82 @@ func (r *EntUserRepository) Update(ctx context.Context, id string, input *usermo
 	}
 	builder.SetConsentPd(input.ConsentPd)
 	builder.SetAllowGeo(input.AllowGeo)
-	// Устанавливаем телефон, если передан и нет конфликта
 	if input.Phone != "" {
 		builder.SetPhone(input.Phone)
 	}
 
-	_, err = builder.Save(ctx)
+	_, err := builder.Save(ctx)
 	if err != nil {
-		tx.Rollback()
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	// Обновляем DonorPreference, если передан
-	if input.DonorPreference != nil {
-		prefBuilder := tx.DonorPreference.Create().
-			SetUserID(id)
+	return nil
+}
 
-		prefBuilder.SetPreferredLocationIds(input.DonorPreference.PreferredLocationIDs)
-		prefBuilder.SetRecoveryPeriodMonths(input.DonorPreference.RecoveryPeriodMonths)
-		if input.DonorPreference.CompensationType != "" {
-			prefBuilder.SetCompensationType(donorpreference.CompensationType(input.DonorPreference.CompensationType))
-		}
-		prefBuilder.SetTaxiCompensation(input.DonorPreference.TaxiCompensation)
-		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(input.DonorPreference.NotificationFrequency))
-
-		err = prefBuilder.
-			OnConflict(sql.ConflictColumns("user_id")).
-			UpdateNewValues().
-			Exec(ctx)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to upsert donor preference: %w", err)
-		}
+// TransferUserIdentity transfers all identities from one user to another
+func (r *EntUserRepository) TransferUserIdentity(ctx context.Context, fromUserID, toUserID string) error {
+	if fromUserID == "" || toUserID == "" {
+		return errors.New("invalid user IDs")
 	}
 
-	// Коммитим транзакцию
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
+	c := r.client(ctx)
+
+	_, err := c.UserIdentity.Update().
+		Where(useridentity.UserID(fromUserID)).
+		SetUserID(toUserID).
+		Save(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to transfer user identity: %w", err)
+	}
+
+	return nil
+}
+
+// DeleteUserHard permanently deletes a user (bypasses soft delete)
+func (r *EntUserRepository) DeleteUserHard(ctx context.Context, id string) error {
+	if id == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+
+	ctxWithSkip := schema.SkipSoftDelete(ctx)
+	err := c.User.DeleteOneID(id).Exec(ctxWithSkip)
+	if err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertDonorPreference creates or updates donor preference for a user
+func (r *EntUserRepository) UpsertDonorPreference(ctx context.Context, userID string, prefs *usermodel.DonorPreference) error {
+	if prefs == nil {
+		return errors.New("donor preference cannot be nil")
+	}
+	if userID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+
+	prefBuilder := c.DonorPreference.Create().
+		SetUserID(userID)
+
+	prefBuilder.SetPreferredLocationIds(prefs.PreferredLocationIDs)
+	prefBuilder.SetRecoveryPeriodMonths(prefs.RecoveryPeriodMonths)
+	if prefs.CompensationType != "" {
+		prefBuilder.SetCompensationType(donorpreference.CompensationType(prefs.CompensationType))
+	}
+	prefBuilder.SetTaxiCompensation(prefs.TaxiCompensation)
+	prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(prefs.NotificationFrequency))
+
+	err := prefBuilder.
+		OnConflict(sql.ConflictColumns("user_id")).
+		UpdateNewValues().
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to upsert donor preference: %w", err)
 	}
 
 	return nil
@@ -381,7 +327,7 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 	}
 
 	// Soft delete via SoftDeleteMixin hook
-	err := r.client.User.DeleteOneID(id).Exec(ctx)
+	err := r.client(ctx).User.DeleteOneID(id).Exec(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -399,7 +345,7 @@ func (r *EntUserRepository) ExistsProvider(ctx context.Context, providerID int64
 		return false, errors.New("invalid provider ID")
 	}
 
-	exists, err := r.client.UserIdentity.Query().
+	exists, err := r.client(ctx).UserIdentity.Query().
 		Where(useridentity.ProviderUserID(providerID),
 			useridentity.ProviderEQ(useridentity.Provider(providerName))).
 		Exist(ctx)
@@ -419,7 +365,7 @@ func (r *EntUserRepository) GetByPhone(ctx context.Context, phone string) (strin
 		return "", errors.New("invalid phone number")
 	}
 
-	user, err := r.client.User.Query().
+	user, err := r.client(ctx).User.Query().
 		Where(entuser.Phone(phone)).
 		Only(ctx)
 
@@ -439,7 +385,7 @@ func (r *EntUserRepository) ResetUser(ctx context.Context, id string) error {
 		return errors.New("invalid user ID")
 	}
 
-	err := r.client.User.UpdateOneID(id).
+	err := r.client(ctx).User.UpdateOneID(id).
 		SetEmail("").
 		SetPhone("").
 		Exec(ctx)
@@ -463,7 +409,7 @@ func (r *EntUserRepository) RestoreUser(ctx context.Context, id string) error {
 	// Use SkipSoftDelete context to find the deleted record
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
-	err := r.client.User.UpdateOneID(id).
+	err := r.client(ctx).User.UpdateOneID(id).
 		ClearDeletedAt().
 		Exec(ctxWithSkip)
 
@@ -482,7 +428,7 @@ func (r *EntUserRepository) GetDeletedUsers(ctx context.Context) ([]*usermodel.U
 	// Use SkipSoftDelete context to see deleted records
 	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
-	users, err := r.client.User.Query().
+	users, err := r.client(ctx).User.Query().
 		Where(entuser.DeletedAtNotNil()).
 		All(ctxWithSkip)
 
@@ -508,7 +454,7 @@ func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths [
 	newPhotoUrls := paths
 
 	// Update user
-	err := r.client.User.UpdateOneID(id).
+	err := r.client(ctx).User.UpdateOneID(id).
 		SetPhotoUrls(newPhotoUrls).
 		Exec(ctx)
 
@@ -525,7 +471,7 @@ func (r *EntUserRepository) SaveUTM(ctx context.Context, userID string, utmSourc
 		return errors.New("invalid user ID")
 	}
 
-	builder := r.client.UtmHistory.Create().
+	builder := r.client(ctx).UtmHistory.Create().
 		SetUserID(userID)
 
 	if utmSource != nil {

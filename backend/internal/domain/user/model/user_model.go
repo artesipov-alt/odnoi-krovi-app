@@ -31,6 +31,7 @@ type User struct {
 	AllowGeo         bool
 	LocationID       *string
 	Role             string
+	OriginSource     string
 	Pets             []*pet.Pet
 	DonorPreference  *DonorPreference
 	CreatedAt        *time.Time

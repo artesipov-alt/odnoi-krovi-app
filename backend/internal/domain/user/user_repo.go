@@ -8,8 +8,11 @@ import (
 
 // Repository определяет интерфейс для операций с данными пользователей
 type Repository interface {
-	// Create создает нового пользователя в базе данных
-	Create(ctx context.Context, inputuser *usermodel.User, inputprefs *usermodel.DonorPreference) (*usermodel.User, error)
+	// CreateUserWithIdentity создает нового пользователя в базе данных вместе с identity
+	CreateUserWithIdentity(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error)
+
+	// CreateDonorPreference создает настройки донора для пользователя
+	CreateDonorPreference(ctx context.Context, userID string, inputprefs *usermodel.DonorPreference) error
 
 	// GetByID возвращает пользователя по ID
 	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*usermodel.User, error)
@@ -20,8 +23,17 @@ type Repository interface {
 	// GetByProviderID возвращает идентификатор пользователя по ID провайдера
 	GetByProvider(ctx context.Context, providerID int64, providerName string) (*usermodel.Identity, error)
 
-	// Update обновляет существующего пользователя в базе данных
-	Update(ctx context.Context, id string, input *usermodel.User) error
+	// UpdateUserFields обновляет поля пользователя (атомарная операция)
+	UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error
+
+	// TransferUserIdentity переносит все identity от одного пользователя к другому
+	TransferUserIdentity(ctx context.Context, fromUserID, toUserID string) error
+
+	// DeleteUserHard полностью удаляет пользователя (обход soft delete)
+	DeleteUserHard(ctx context.Context, id string) error
+
+	// UpsertDonorPreference создает или обновляет настройки донора
+	UpsertDonorPreference(ctx context.Context, userID string, prefs *usermodel.DonorPreference) error
 
 	// Delete удаляет пользователя по его ID
 	Delete(ctx context.Context, id string) error
@@ -40,6 +52,9 @@ type Repository interface {
 
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*usermodel.User, error)
+
+	// GetByPhone возвращает ID пользователя по номеру телефона
+	GetByPhone(ctx context.Context, phone string) (string, error)
 
 	SaveUTM(ctx context.Context, userID string, utmSource, utmMedium, utmCampaign, utmContent, utmTerm *string) error
 
