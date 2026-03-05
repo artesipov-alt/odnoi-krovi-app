@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
@@ -20,6 +22,7 @@ type DonorResponseCreate struct {
 	config
 	mutation *DonorResponseMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -209,6 +212,7 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		_node = &DonorResponse{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(donorresponse.Table, sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -270,11 +274,280 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DonorResponse.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DonorResponseUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *DonorResponseCreate) OnConflict(opts ...sql.ConflictOption) *DonorResponseUpsertOne {
+	_c.conflict = opts
+	return &DonorResponseUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DonorResponse.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *DonorResponseCreate) OnConflictColumns(columns ...string) *DonorResponseUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &DonorResponseUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// DonorResponseUpsertOne is the builder for "upsert"-ing
+	//  one DonorResponse node.
+	DonorResponseUpsertOne struct {
+		create *DonorResponseCreate
+	}
+
+	// DonorResponseUpsert is the "OnConflict" setter.
+	DonorResponseUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *DonorResponseUpsert) SetUpdatedAt(v time.Time) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateUpdatedAt() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *DonorResponseUpsert) SetDeletedAt(v time.Time) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateDeletedAt() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *DonorResponseUpsert) ClearDeletedAt() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldDeletedAt)
+	return u
+}
+
+// SetConditions sets the "conditions" field.
+func (u *DonorResponseUpsert) SetConditions(v []string) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldConditions, v)
+	return u
+}
+
+// UpdateConditions sets the "conditions" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateConditions() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldConditions)
+	return u
+}
+
+// ClearConditions clears the value of the "conditions" field.
+func (u *DonorResponseUpsert) ClearConditions() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldConditions)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *DonorResponseUpsert) SetStatus(v string) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateStatus() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldStatus)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.DonorResponse.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(donorresponse.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *DonorResponseUpsertOne) UpdateNewValues() *DonorResponseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(donorresponse.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(donorresponse.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DonorResponse.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *DonorResponseUpsertOne) Ignore() *DonorResponseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DonorResponseUpsertOne) DoNothing() *DonorResponseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DonorResponseCreate.OnConflict
+// documentation for more info.
+func (u *DonorResponseUpsertOne) Update(set func(*DonorResponseUpsert)) *DonorResponseUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DonorResponseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *DonorResponseUpsertOne) SetUpdatedAt(v time.Time) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateUpdatedAt() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *DonorResponseUpsertOne) SetDeletedAt(v time.Time) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateDeletedAt() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *DonorResponseUpsertOne) ClearDeletedAt() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetConditions sets the "conditions" field.
+func (u *DonorResponseUpsertOne) SetConditions(v []string) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetConditions(v)
+	})
+}
+
+// UpdateConditions sets the "conditions" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateConditions() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateConditions()
+	})
+}
+
+// ClearConditions clears the value of the "conditions" field.
+func (u *DonorResponseUpsertOne) ClearConditions() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearConditions()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *DonorResponseUpsertOne) SetStatus(v string) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateStatus() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// Exec executes the query.
+func (u *DonorResponseUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for DonorResponseCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DonorResponseUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *DonorResponseUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: DonorResponseUpsertOne.ID is not supported by MySQL driver. Use DonorResponseUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *DonorResponseUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // DonorResponseCreateBulk is the builder for creating many DonorResponse entities in bulk.
 type DonorResponseCreateBulk struct {
 	config
 	err      error
 	builders []*DonorResponseCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the DonorResponse entities in the database.
@@ -304,6 +577,7 @@ func (_c *DonorResponseCreateBulk) Save(ctx context.Context) ([]*DonorResponse, 
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -350,6 +624,193 @@ func (_c *DonorResponseCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *DonorResponseCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DonorResponse.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DonorResponseUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *DonorResponseCreateBulk) OnConflict(opts ...sql.ConflictOption) *DonorResponseUpsertBulk {
+	_c.conflict = opts
+	return &DonorResponseUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DonorResponse.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *DonorResponseCreateBulk) OnConflictColumns(columns ...string) *DonorResponseUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &DonorResponseUpsertBulk{
+		create: _c,
+	}
+}
+
+// DonorResponseUpsertBulk is the builder for "upsert"-ing
+// a bulk of DonorResponse nodes.
+type DonorResponseUpsertBulk struct {
+	create *DonorResponseCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.DonorResponse.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(donorresponse.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *DonorResponseUpsertBulk) UpdateNewValues() *DonorResponseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(donorresponse.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(donorresponse.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DonorResponse.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *DonorResponseUpsertBulk) Ignore() *DonorResponseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DonorResponseUpsertBulk) DoNothing() *DonorResponseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DonorResponseCreateBulk.OnConflict
+// documentation for more info.
+func (u *DonorResponseUpsertBulk) Update(set func(*DonorResponseUpsert)) *DonorResponseUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DonorResponseUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *DonorResponseUpsertBulk) SetUpdatedAt(v time.Time) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateUpdatedAt() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *DonorResponseUpsertBulk) SetDeletedAt(v time.Time) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateDeletedAt() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *DonorResponseUpsertBulk) ClearDeletedAt() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetConditions sets the "conditions" field.
+func (u *DonorResponseUpsertBulk) SetConditions(v []string) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetConditions(v)
+	})
+}
+
+// UpdateConditions sets the "conditions" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateConditions() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateConditions()
+	})
+}
+
+// ClearConditions clears the value of the "conditions" field.
+func (u *DonorResponseUpsertBulk) ClearConditions() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearConditions()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *DonorResponseUpsertBulk) SetStatus(v string) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateStatus() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// Exec executes the query.
+func (u *DonorResponseUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the DonorResponseCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for DonorResponseCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DonorResponseUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

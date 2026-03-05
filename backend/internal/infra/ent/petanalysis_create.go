@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -19,6 +21,7 @@ type PetAnalysisCreate struct {
 	config
 	mutation *PetAnalysisMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -235,6 +238,7 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 		_node = &PetAnalysis{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(petanalysis.Table, sqlgraph.NewFieldSpec(petanalysis.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -283,11 +287,345 @@ func (_c *PetAnalysisCreate) createSpec() (*PetAnalysis, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PetAnalysis.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PetAnalysisUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PetAnalysisCreate) OnConflict(opts ...sql.ConflictOption) *PetAnalysisUpsertOne {
+	_c.conflict = opts
+	return &PetAnalysisUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PetAnalysis.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PetAnalysisCreate) OnConflictColumns(columns ...string) *PetAnalysisUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PetAnalysisUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// PetAnalysisUpsertOne is the builder for "upsert"-ing
+	//  one PetAnalysis node.
+	PetAnalysisUpsertOne struct {
+		create *PetAnalysisCreate
+	}
+
+	// PetAnalysisUpsert is the "OnConflict" setter.
+	PetAnalysisUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetAnalysisUpsert) SetUpdatedAt(v time.Time) *PetAnalysisUpsert {
+	u.Set(petanalysis.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetAnalysisUpsert) UpdateUpdatedAt() *PetAnalysisUpsert {
+	u.SetExcluded(petanalysis.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetAnalysisUpsert) SetDeletedAt(v time.Time) *PetAnalysisUpsert {
+	u.Set(petanalysis.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetAnalysisUpsert) UpdateDeletedAt() *PetAnalysisUpsert {
+	u.SetExcluded(petanalysis.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetAnalysisUpsert) ClearDeletedAt() *PetAnalysisUpsert {
+	u.SetNull(petanalysis.FieldDeletedAt)
+	return u
+}
+
+// SetPetID sets the "pet_id" field.
+func (u *PetAnalysisUpsert) SetPetID(v string) *PetAnalysisUpsert {
+	u.Set(petanalysis.FieldPetID, v)
+	return u
+}
+
+// UpdatePetID sets the "pet_id" field to the value that was provided on create.
+func (u *PetAnalysisUpsert) UpdatePetID() *PetAnalysisUpsert {
+	u.SetExcluded(petanalysis.FieldPetID)
+	return u
+}
+
+// SetAnalysisName sets the "analysis_name" field.
+func (u *PetAnalysisUpsert) SetAnalysisName(v petanalysis.AnalysisName) *PetAnalysisUpsert {
+	u.Set(petanalysis.FieldAnalysisName, v)
+	return u
+}
+
+// UpdateAnalysisName sets the "analysis_name" field to the value that was provided on create.
+func (u *PetAnalysisUpsert) UpdateAnalysisName() *PetAnalysisUpsert {
+	u.SetExcluded(petanalysis.FieldAnalysisName)
+	return u
+}
+
+// ClearAnalysisName clears the value of the "analysis_name" field.
+func (u *PetAnalysisUpsert) ClearAnalysisName() *PetAnalysisUpsert {
+	u.SetNull(petanalysis.FieldAnalysisName)
+	return u
+}
+
+// SetAnalysisType sets the "analysis_type" field.
+func (u *PetAnalysisUpsert) SetAnalysisType(v petanalysis.AnalysisType) *PetAnalysisUpsert {
+	u.Set(petanalysis.FieldAnalysisType, v)
+	return u
+}
+
+// UpdateAnalysisType sets the "analysis_type" field to the value that was provided on create.
+func (u *PetAnalysisUpsert) UpdateAnalysisType() *PetAnalysisUpsert {
+	u.SetExcluded(petanalysis.FieldAnalysisType)
+	return u
+}
+
+// ClearAnalysisType clears the value of the "analysis_type" field.
+func (u *PetAnalysisUpsert) ClearAnalysisType() *PetAnalysisUpsert {
+	u.SetNull(petanalysis.FieldAnalysisType)
+	return u
+}
+
+// SetAnalysisDate sets the "analysis_date" field.
+func (u *PetAnalysisUpsert) SetAnalysisDate(v time.Time) *PetAnalysisUpsert {
+	u.Set(petanalysis.FieldAnalysisDate, v)
+	return u
+}
+
+// UpdateAnalysisDate sets the "analysis_date" field to the value that was provided on create.
+func (u *PetAnalysisUpsert) UpdateAnalysisDate() *PetAnalysisUpsert {
+	u.SetExcluded(petanalysis.FieldAnalysisDate)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.PetAnalysis.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(petanalysis.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PetAnalysisUpsertOne) UpdateNewValues() *PetAnalysisUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(petanalysis.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(petanalysis.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PetAnalysis.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PetAnalysisUpsertOne) Ignore() *PetAnalysisUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PetAnalysisUpsertOne) DoNothing() *PetAnalysisUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PetAnalysisCreate.OnConflict
+// documentation for more info.
+func (u *PetAnalysisUpsertOne) Update(set func(*PetAnalysisUpsert)) *PetAnalysisUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PetAnalysisUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetAnalysisUpsertOne) SetUpdatedAt(v time.Time) *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetAnalysisUpsertOne) UpdateUpdatedAt() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetAnalysisUpsertOne) SetDeletedAt(v time.Time) *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetAnalysisUpsertOne) UpdateDeletedAt() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetAnalysisUpsertOne) ClearDeletedAt() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetPetID sets the "pet_id" field.
+func (u *PetAnalysisUpsertOne) SetPetID(v string) *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetPetID(v)
+	})
+}
+
+// UpdatePetID sets the "pet_id" field to the value that was provided on create.
+func (u *PetAnalysisUpsertOne) UpdatePetID() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdatePetID()
+	})
+}
+
+// SetAnalysisName sets the "analysis_name" field.
+func (u *PetAnalysisUpsertOne) SetAnalysisName(v petanalysis.AnalysisName) *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetAnalysisName(v)
+	})
+}
+
+// UpdateAnalysisName sets the "analysis_name" field to the value that was provided on create.
+func (u *PetAnalysisUpsertOne) UpdateAnalysisName() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateAnalysisName()
+	})
+}
+
+// ClearAnalysisName clears the value of the "analysis_name" field.
+func (u *PetAnalysisUpsertOne) ClearAnalysisName() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.ClearAnalysisName()
+	})
+}
+
+// SetAnalysisType sets the "analysis_type" field.
+func (u *PetAnalysisUpsertOne) SetAnalysisType(v petanalysis.AnalysisType) *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetAnalysisType(v)
+	})
+}
+
+// UpdateAnalysisType sets the "analysis_type" field to the value that was provided on create.
+func (u *PetAnalysisUpsertOne) UpdateAnalysisType() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateAnalysisType()
+	})
+}
+
+// ClearAnalysisType clears the value of the "analysis_type" field.
+func (u *PetAnalysisUpsertOne) ClearAnalysisType() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.ClearAnalysisType()
+	})
+}
+
+// SetAnalysisDate sets the "analysis_date" field.
+func (u *PetAnalysisUpsertOne) SetAnalysisDate(v time.Time) *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetAnalysisDate(v)
+	})
+}
+
+// UpdateAnalysisDate sets the "analysis_date" field to the value that was provided on create.
+func (u *PetAnalysisUpsertOne) UpdateAnalysisDate() *PetAnalysisUpsertOne {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateAnalysisDate()
+	})
+}
+
+// Exec executes the query.
+func (u *PetAnalysisUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PetAnalysisCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PetAnalysisUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PetAnalysisUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: PetAnalysisUpsertOne.ID is not supported by MySQL driver. Use PetAnalysisUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PetAnalysisUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PetAnalysisCreateBulk is the builder for creating many PetAnalysis entities in bulk.
 type PetAnalysisCreateBulk struct {
 	config
 	err      error
 	builders []*PetAnalysisCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the PetAnalysis entities in the database.
@@ -317,6 +655,7 @@ func (_c *PetAnalysisCreateBulk) Save(ctx context.Context) ([]*PetAnalysis, erro
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -363,6 +702,228 @@ func (_c *PetAnalysisCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *PetAnalysisCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PetAnalysis.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PetAnalysisUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PetAnalysisCreateBulk) OnConflict(opts ...sql.ConflictOption) *PetAnalysisUpsertBulk {
+	_c.conflict = opts
+	return &PetAnalysisUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PetAnalysis.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PetAnalysisCreateBulk) OnConflictColumns(columns ...string) *PetAnalysisUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PetAnalysisUpsertBulk{
+		create: _c,
+	}
+}
+
+// PetAnalysisUpsertBulk is the builder for "upsert"-ing
+// a bulk of PetAnalysis nodes.
+type PetAnalysisUpsertBulk struct {
+	create *PetAnalysisCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.PetAnalysis.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(petanalysis.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PetAnalysisUpsertBulk) UpdateNewValues() *PetAnalysisUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(petanalysis.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(petanalysis.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PetAnalysis.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PetAnalysisUpsertBulk) Ignore() *PetAnalysisUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PetAnalysisUpsertBulk) DoNothing() *PetAnalysisUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PetAnalysisCreateBulk.OnConflict
+// documentation for more info.
+func (u *PetAnalysisUpsertBulk) Update(set func(*PetAnalysisUpsert)) *PetAnalysisUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PetAnalysisUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetAnalysisUpsertBulk) SetUpdatedAt(v time.Time) *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetAnalysisUpsertBulk) UpdateUpdatedAt() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetAnalysisUpsertBulk) SetDeletedAt(v time.Time) *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetAnalysisUpsertBulk) UpdateDeletedAt() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetAnalysisUpsertBulk) ClearDeletedAt() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetPetID sets the "pet_id" field.
+func (u *PetAnalysisUpsertBulk) SetPetID(v string) *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetPetID(v)
+	})
+}
+
+// UpdatePetID sets the "pet_id" field to the value that was provided on create.
+func (u *PetAnalysisUpsertBulk) UpdatePetID() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdatePetID()
+	})
+}
+
+// SetAnalysisName sets the "analysis_name" field.
+func (u *PetAnalysisUpsertBulk) SetAnalysisName(v petanalysis.AnalysisName) *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetAnalysisName(v)
+	})
+}
+
+// UpdateAnalysisName sets the "analysis_name" field to the value that was provided on create.
+func (u *PetAnalysisUpsertBulk) UpdateAnalysisName() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateAnalysisName()
+	})
+}
+
+// ClearAnalysisName clears the value of the "analysis_name" field.
+func (u *PetAnalysisUpsertBulk) ClearAnalysisName() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.ClearAnalysisName()
+	})
+}
+
+// SetAnalysisType sets the "analysis_type" field.
+func (u *PetAnalysisUpsertBulk) SetAnalysisType(v petanalysis.AnalysisType) *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetAnalysisType(v)
+	})
+}
+
+// UpdateAnalysisType sets the "analysis_type" field to the value that was provided on create.
+func (u *PetAnalysisUpsertBulk) UpdateAnalysisType() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateAnalysisType()
+	})
+}
+
+// ClearAnalysisType clears the value of the "analysis_type" field.
+func (u *PetAnalysisUpsertBulk) ClearAnalysisType() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.ClearAnalysisType()
+	})
+}
+
+// SetAnalysisDate sets the "analysis_date" field.
+func (u *PetAnalysisUpsertBulk) SetAnalysisDate(v time.Time) *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.SetAnalysisDate(v)
+	})
+}
+
+// UpdateAnalysisDate sets the "analysis_date" field to the value that was provided on create.
+func (u *PetAnalysisUpsertBulk) UpdateAnalysisDate() *PetAnalysisUpsertBulk {
+	return u.Update(func(s *PetAnalysisUpsert) {
+		s.UpdateAnalysisDate()
+	})
+}
+
+// Exec executes the query.
+func (u *PetAnalysisUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PetAnalysisCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PetAnalysisCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PetAnalysisUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

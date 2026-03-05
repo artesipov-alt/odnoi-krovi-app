@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
@@ -20,6 +22,7 @@ type BloodSearchRequestCreate struct {
 	config
 	mutation *BloodSearchRequestMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -364,6 +367,7 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_node = &BloodSearchRequest{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bloodsearchrequest.Table, sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -464,11 +468,644 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.BloodSearchRequest.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.BloodSearchRequestUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *BloodSearchRequestCreate) OnConflict(opts ...sql.ConflictOption) *BloodSearchRequestUpsertOne {
+	_c.conflict = opts
+	return &BloodSearchRequestUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.BloodSearchRequest.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *BloodSearchRequestCreate) OnConflictColumns(columns ...string) *BloodSearchRequestUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &BloodSearchRequestUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// BloodSearchRequestUpsertOne is the builder for "upsert"-ing
+	//  one BloodSearchRequest node.
+	BloodSearchRequestUpsertOne struct {
+		create *BloodSearchRequestCreate
+	}
+
+	// BloodSearchRequestUpsert is the "OnConflict" setter.
+	BloodSearchRequestUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *BloodSearchRequestUpsert) SetUpdatedAt(v time.Time) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateUpdatedAt() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *BloodSearchRequestUpsert) SetDeletedAt(v time.Time) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateDeletedAt() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *BloodSearchRequestUpsert) ClearDeletedAt() *BloodSearchRequestUpsert {
+	u.SetNull(bloodsearchrequest.FieldDeletedAt)
+	return u
+}
+
+// SetPetID sets the "pet_id" field.
+func (u *BloodSearchRequestUpsert) SetPetID(v string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldPetID, v)
+	return u
+}
+
+// UpdatePetID sets the "pet_id" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdatePetID() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldPetID)
+	return u
+}
+
+// SetBloodVolumeNeeded sets the "blood_volume_needed" field.
+func (u *BloodSearchRequestUpsert) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldBloodVolumeNeeded, v)
+	return u
+}
+
+// UpdateBloodVolumeNeeded sets the "blood_volume_needed" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateBloodVolumeNeeded() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldBloodVolumeNeeded)
+	return u
+}
+
+// AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
+func (u *BloodSearchRequestUpsert) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsert {
+	u.Add(bloodsearchrequest.FieldBloodVolumeNeeded, v)
+	return u
+}
+
+// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
+func (u *BloodSearchRequestUpsert) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldBloodVolumeReserved, v)
+	return u
+}
+
+// UpdateBloodVolumeReserved sets the "blood_volume_reserved" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateBloodVolumeReserved() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldBloodVolumeReserved)
+	return u
+}
+
+// AddBloodVolumeReserved adds v to the "blood_volume_reserved" field.
+func (u *BloodSearchRequestUpsert) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpsert {
+	u.Add(bloodsearchrequest.FieldBloodVolumeReserved, v)
+	return u
+}
+
+// SetRegions sets the "regions" field.
+func (u *BloodSearchRequestUpsert) SetRegions(v []string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldRegions, v)
+	return u
+}
+
+// UpdateRegions sets the "regions" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateRegions() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldRegions)
+	return u
+}
+
+// SetSmallPetsNotifyAllowed sets the "small_pets_notify_allowed" field.
+func (u *BloodSearchRequestUpsert) SetSmallPetsNotifyAllowed(v bool) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldSmallPetsNotifyAllowed, v)
+	return u
+}
+
+// UpdateSmallPetsNotifyAllowed sets the "small_pets_notify_allowed" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateSmallPetsNotifyAllowed() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldSmallPetsNotifyAllowed)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *BloodSearchRequestUpsert) SetStatus(v bloodsearchrequest.Status) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateStatus() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldStatus)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *BloodSearchRequestUpsert) SetDescription(v string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateDescription() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldDescription)
+	return u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *BloodSearchRequestUpsert) ClearDescription() *BloodSearchRequestUpsert {
+	u.SetNull(bloodsearchrequest.FieldDescription)
+	return u
+}
+
+// SetPhotoUrls sets the "photo_urls" field.
+func (u *BloodSearchRequestUpsert) SetPhotoUrls(v []string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldPhotoUrls, v)
+	return u
+}
+
+// UpdatePhotoUrls sets the "photo_urls" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdatePhotoUrls() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldPhotoUrls)
+	return u
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (u *BloodSearchRequestUpsert) ClearPhotoUrls() *BloodSearchRequestUpsert {
+	u.SetNull(bloodsearchrequest.FieldPhotoUrls)
+	return u
+}
+
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (u *BloodSearchRequestUpsert) SetBloodGroupNames(v []string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldBloodGroupNames, v)
+	return u
+}
+
+// UpdateBloodGroupNames sets the "blood_group_names" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateBloodGroupNames() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldBloodGroupNames)
+	return u
+}
+
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (u *BloodSearchRequestUpsert) ClearBloodGroupNames() *BloodSearchRequestUpsert {
+	u.SetNull(bloodsearchrequest.FieldBloodGroupNames)
+	return u
+}
+
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (u *BloodSearchRequestUpsert) SetBloodComponentIds(v []string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldBloodComponentIds, v)
+	return u
+}
+
+// UpdateBloodComponentIds sets the "blood_component_ids" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateBloodComponentIds() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldBloodComponentIds)
+	return u
+}
+
+// ClearBloodComponentIds clears the value of the "blood_component_ids" field.
+func (u *BloodSearchRequestUpsert) ClearBloodComponentIds() *BloodSearchRequestUpsert {
+	u.SetNull(bloodsearchrequest.FieldBloodComponentIds)
+	return u
+}
+
+// SetOnBoarding sets the "on_boarding" field.
+func (u *BloodSearchRequestUpsert) SetOnBoarding(v []string) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldOnBoarding, v)
+	return u
+}
+
+// UpdateOnBoarding sets the "on_boarding" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateOnBoarding() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldOnBoarding)
+	return u
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (u *BloodSearchRequestUpsert) ClearOnBoarding() *BloodSearchRequestUpsert {
+	u.SetNull(bloodsearchrequest.FieldOnBoarding)
+	return u
+}
+
+// SetPrioritySearch sets the "priority_search" field.
+func (u *BloodSearchRequestUpsert) SetPrioritySearch(v bool) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldPrioritySearch, v)
+	return u
+}
+
+// UpdatePrioritySearch sets the "priority_search" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdatePrioritySearch() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldPrioritySearch)
+	return u
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (u *BloodSearchRequestUpsert) SetIncludeUnknownBloodGroup(v bool) *BloodSearchRequestUpsert {
+	u.Set(bloodsearchrequest.FieldIncludeUnknownBloodGroup, v)
+	return u
+}
+
+// UpdateIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsert) UpdateIncludeUnknownBloodGroup() *BloodSearchRequestUpsert {
+	u.SetExcluded(bloodsearchrequest.FieldIncludeUnknownBloodGroup)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.BloodSearchRequest.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(bloodsearchrequest.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *BloodSearchRequestUpsertOne) UpdateNewValues() *BloodSearchRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(bloodsearchrequest.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(bloodsearchrequest.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.BloodSearchRequest.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *BloodSearchRequestUpsertOne) Ignore() *BloodSearchRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *BloodSearchRequestUpsertOne) DoNothing() *BloodSearchRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the BloodSearchRequestCreate.OnConflict
+// documentation for more info.
+func (u *BloodSearchRequestUpsertOne) Update(set func(*BloodSearchRequestUpsert)) *BloodSearchRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&BloodSearchRequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *BloodSearchRequestUpsertOne) SetUpdatedAt(v time.Time) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateUpdatedAt() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *BloodSearchRequestUpsertOne) SetDeletedAt(v time.Time) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateDeletedAt() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *BloodSearchRequestUpsertOne) ClearDeletedAt() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetPetID sets the "pet_id" field.
+func (u *BloodSearchRequestUpsertOne) SetPetID(v string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetPetID(v)
+	})
+}
+
+// UpdatePetID sets the "pet_id" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdatePetID() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdatePetID()
+	})
+}
+
+// SetBloodVolumeNeeded sets the "blood_volume_needed" field.
+func (u *BloodSearchRequestUpsertOne) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodVolumeNeeded(v)
+	})
+}
+
+// AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
+func (u *BloodSearchRequestUpsertOne) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.AddBloodVolumeNeeded(v)
+	})
+}
+
+// UpdateBloodVolumeNeeded sets the "blood_volume_needed" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateBloodVolumeNeeded() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodVolumeNeeded()
+	})
+}
+
+// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
+func (u *BloodSearchRequestUpsertOne) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodVolumeReserved(v)
+	})
+}
+
+// AddBloodVolumeReserved adds v to the "blood_volume_reserved" field.
+func (u *BloodSearchRequestUpsertOne) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.AddBloodVolumeReserved(v)
+	})
+}
+
+// UpdateBloodVolumeReserved sets the "blood_volume_reserved" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateBloodVolumeReserved() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodVolumeReserved()
+	})
+}
+
+// SetRegions sets the "regions" field.
+func (u *BloodSearchRequestUpsertOne) SetRegions(v []string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetRegions(v)
+	})
+}
+
+// UpdateRegions sets the "regions" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateRegions() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateRegions()
+	})
+}
+
+// SetSmallPetsNotifyAllowed sets the "small_pets_notify_allowed" field.
+func (u *BloodSearchRequestUpsertOne) SetSmallPetsNotifyAllowed(v bool) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetSmallPetsNotifyAllowed(v)
+	})
+}
+
+// UpdateSmallPetsNotifyAllowed sets the "small_pets_notify_allowed" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateSmallPetsNotifyAllowed() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateSmallPetsNotifyAllowed()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *BloodSearchRequestUpsertOne) SetStatus(v bloodsearchrequest.Status) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateStatus() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *BloodSearchRequestUpsertOne) SetDescription(v string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateDescription() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *BloodSearchRequestUpsertOne) ClearDescription() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetPhotoUrls sets the "photo_urls" field.
+func (u *BloodSearchRequestUpsertOne) SetPhotoUrls(v []string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetPhotoUrls(v)
+	})
+}
+
+// UpdatePhotoUrls sets the "photo_urls" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdatePhotoUrls() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdatePhotoUrls()
+	})
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (u *BloodSearchRequestUpsertOne) ClearPhotoUrls() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearPhotoUrls()
+	})
+}
+
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (u *BloodSearchRequestUpsertOne) SetBloodGroupNames(v []string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodGroupNames(v)
+	})
+}
+
+// UpdateBloodGroupNames sets the "blood_group_names" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateBloodGroupNames() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodGroupNames()
+	})
+}
+
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (u *BloodSearchRequestUpsertOne) ClearBloodGroupNames() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearBloodGroupNames()
+	})
+}
+
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (u *BloodSearchRequestUpsertOne) SetBloodComponentIds(v []string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodComponentIds(v)
+	})
+}
+
+// UpdateBloodComponentIds sets the "blood_component_ids" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateBloodComponentIds() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodComponentIds()
+	})
+}
+
+// ClearBloodComponentIds clears the value of the "blood_component_ids" field.
+func (u *BloodSearchRequestUpsertOne) ClearBloodComponentIds() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearBloodComponentIds()
+	})
+}
+
+// SetOnBoarding sets the "on_boarding" field.
+func (u *BloodSearchRequestUpsertOne) SetOnBoarding(v []string) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetOnBoarding(v)
+	})
+}
+
+// UpdateOnBoarding sets the "on_boarding" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateOnBoarding() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateOnBoarding()
+	})
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (u *BloodSearchRequestUpsertOne) ClearOnBoarding() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearOnBoarding()
+	})
+}
+
+// SetPrioritySearch sets the "priority_search" field.
+func (u *BloodSearchRequestUpsertOne) SetPrioritySearch(v bool) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetPrioritySearch(v)
+	})
+}
+
+// UpdatePrioritySearch sets the "priority_search" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdatePrioritySearch() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdatePrioritySearch()
+	})
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (u *BloodSearchRequestUpsertOne) SetIncludeUnknownBloodGroup(v bool) *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetIncludeUnknownBloodGroup(v)
+	})
+}
+
+// UpdateIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertOne) UpdateIncludeUnknownBloodGroup() *BloodSearchRequestUpsertOne {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateIncludeUnknownBloodGroup()
+	})
+}
+
+// Exec executes the query.
+func (u *BloodSearchRequestUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for BloodSearchRequestCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *BloodSearchRequestUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *BloodSearchRequestUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: BloodSearchRequestUpsertOne.ID is not supported by MySQL driver. Use BloodSearchRequestUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *BloodSearchRequestUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // BloodSearchRequestCreateBulk is the builder for creating many BloodSearchRequest entities in bulk.
 type BloodSearchRequestCreateBulk struct {
 	config
 	err      error
 	builders []*BloodSearchRequestCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the BloodSearchRequest entities in the database.
@@ -498,6 +1135,7 @@ func (_c *BloodSearchRequestCreateBulk) Save(ctx context.Context) ([]*BloodSearc
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -544,6 +1182,389 @@ func (_c *BloodSearchRequestCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *BloodSearchRequestCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.BloodSearchRequest.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.BloodSearchRequestUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *BloodSearchRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *BloodSearchRequestUpsertBulk {
+	_c.conflict = opts
+	return &BloodSearchRequestUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.BloodSearchRequest.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *BloodSearchRequestCreateBulk) OnConflictColumns(columns ...string) *BloodSearchRequestUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &BloodSearchRequestUpsertBulk{
+		create: _c,
+	}
+}
+
+// BloodSearchRequestUpsertBulk is the builder for "upsert"-ing
+// a bulk of BloodSearchRequest nodes.
+type BloodSearchRequestUpsertBulk struct {
+	create *BloodSearchRequestCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.BloodSearchRequest.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(bloodsearchrequest.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *BloodSearchRequestUpsertBulk) UpdateNewValues() *BloodSearchRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(bloodsearchrequest.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(bloodsearchrequest.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.BloodSearchRequest.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *BloodSearchRequestUpsertBulk) Ignore() *BloodSearchRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *BloodSearchRequestUpsertBulk) DoNothing() *BloodSearchRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the BloodSearchRequestCreateBulk.OnConflict
+// documentation for more info.
+func (u *BloodSearchRequestUpsertBulk) Update(set func(*BloodSearchRequestUpsert)) *BloodSearchRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&BloodSearchRequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *BloodSearchRequestUpsertBulk) SetUpdatedAt(v time.Time) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateUpdatedAt() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *BloodSearchRequestUpsertBulk) SetDeletedAt(v time.Time) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateDeletedAt() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *BloodSearchRequestUpsertBulk) ClearDeletedAt() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetPetID sets the "pet_id" field.
+func (u *BloodSearchRequestUpsertBulk) SetPetID(v string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetPetID(v)
+	})
+}
+
+// UpdatePetID sets the "pet_id" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdatePetID() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdatePetID()
+	})
+}
+
+// SetBloodVolumeNeeded sets the "blood_volume_needed" field.
+func (u *BloodSearchRequestUpsertBulk) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodVolumeNeeded(v)
+	})
+}
+
+// AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
+func (u *BloodSearchRequestUpsertBulk) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.AddBloodVolumeNeeded(v)
+	})
+}
+
+// UpdateBloodVolumeNeeded sets the "blood_volume_needed" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateBloodVolumeNeeded() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodVolumeNeeded()
+	})
+}
+
+// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
+func (u *BloodSearchRequestUpsertBulk) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodVolumeReserved(v)
+	})
+}
+
+// AddBloodVolumeReserved adds v to the "blood_volume_reserved" field.
+func (u *BloodSearchRequestUpsertBulk) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.AddBloodVolumeReserved(v)
+	})
+}
+
+// UpdateBloodVolumeReserved sets the "blood_volume_reserved" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateBloodVolumeReserved() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodVolumeReserved()
+	})
+}
+
+// SetRegions sets the "regions" field.
+func (u *BloodSearchRequestUpsertBulk) SetRegions(v []string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetRegions(v)
+	})
+}
+
+// UpdateRegions sets the "regions" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateRegions() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateRegions()
+	})
+}
+
+// SetSmallPetsNotifyAllowed sets the "small_pets_notify_allowed" field.
+func (u *BloodSearchRequestUpsertBulk) SetSmallPetsNotifyAllowed(v bool) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetSmallPetsNotifyAllowed(v)
+	})
+}
+
+// UpdateSmallPetsNotifyAllowed sets the "small_pets_notify_allowed" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateSmallPetsNotifyAllowed() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateSmallPetsNotifyAllowed()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *BloodSearchRequestUpsertBulk) SetStatus(v bloodsearchrequest.Status) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateStatus() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *BloodSearchRequestUpsertBulk) SetDescription(v string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateDescription() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *BloodSearchRequestUpsertBulk) ClearDescription() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetPhotoUrls sets the "photo_urls" field.
+func (u *BloodSearchRequestUpsertBulk) SetPhotoUrls(v []string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetPhotoUrls(v)
+	})
+}
+
+// UpdatePhotoUrls sets the "photo_urls" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdatePhotoUrls() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdatePhotoUrls()
+	})
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (u *BloodSearchRequestUpsertBulk) ClearPhotoUrls() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearPhotoUrls()
+	})
+}
+
+// SetBloodGroupNames sets the "blood_group_names" field.
+func (u *BloodSearchRequestUpsertBulk) SetBloodGroupNames(v []string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodGroupNames(v)
+	})
+}
+
+// UpdateBloodGroupNames sets the "blood_group_names" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateBloodGroupNames() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodGroupNames()
+	})
+}
+
+// ClearBloodGroupNames clears the value of the "blood_group_names" field.
+func (u *BloodSearchRequestUpsertBulk) ClearBloodGroupNames() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearBloodGroupNames()
+	})
+}
+
+// SetBloodComponentIds sets the "blood_component_ids" field.
+func (u *BloodSearchRequestUpsertBulk) SetBloodComponentIds(v []string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetBloodComponentIds(v)
+	})
+}
+
+// UpdateBloodComponentIds sets the "blood_component_ids" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateBloodComponentIds() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateBloodComponentIds()
+	})
+}
+
+// ClearBloodComponentIds clears the value of the "blood_component_ids" field.
+func (u *BloodSearchRequestUpsertBulk) ClearBloodComponentIds() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearBloodComponentIds()
+	})
+}
+
+// SetOnBoarding sets the "on_boarding" field.
+func (u *BloodSearchRequestUpsertBulk) SetOnBoarding(v []string) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetOnBoarding(v)
+	})
+}
+
+// UpdateOnBoarding sets the "on_boarding" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateOnBoarding() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateOnBoarding()
+	})
+}
+
+// ClearOnBoarding clears the value of the "on_boarding" field.
+func (u *BloodSearchRequestUpsertBulk) ClearOnBoarding() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.ClearOnBoarding()
+	})
+}
+
+// SetPrioritySearch sets the "priority_search" field.
+func (u *BloodSearchRequestUpsertBulk) SetPrioritySearch(v bool) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetPrioritySearch(v)
+	})
+}
+
+// UpdatePrioritySearch sets the "priority_search" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdatePrioritySearch() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdatePrioritySearch()
+	})
+}
+
+// SetIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field.
+func (u *BloodSearchRequestUpsertBulk) SetIncludeUnknownBloodGroup(v bool) *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.SetIncludeUnknownBloodGroup(v)
+	})
+}
+
+// UpdateIncludeUnknownBloodGroup sets the "include_unknown_blood_group" field to the value that was provided on create.
+func (u *BloodSearchRequestUpsertBulk) UpdateIncludeUnknownBloodGroup() *BloodSearchRequestUpsertBulk {
+	return u.Update(func(s *BloodSearchRequestUpsert) {
+		s.UpdateIncludeUnknownBloodGroup()
+	})
+}
+
+// Exec executes the query.
+func (u *BloodSearchRequestUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BloodSearchRequestCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for BloodSearchRequestCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *BloodSearchRequestUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

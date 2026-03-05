@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -19,6 +21,7 @@ type PetTreatmentCreate struct {
 	config
 	mutation *PetTreatmentMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -235,6 +238,7 @@ func (_c *PetTreatmentCreate) createSpec() (*PetTreatment, *sqlgraph.CreateSpec)
 		_node = &PetTreatment{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(pettreatment.Table, sqlgraph.NewFieldSpec(pettreatment.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -286,11 +290,371 @@ func (_c *PetTreatmentCreate) createSpec() (*PetTreatment, *sqlgraph.CreateSpec)
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PetTreatment.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PetTreatmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PetTreatmentCreate) OnConflict(opts ...sql.ConflictOption) *PetTreatmentUpsertOne {
+	_c.conflict = opts
+	return &PetTreatmentUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PetTreatment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PetTreatmentCreate) OnConflictColumns(columns ...string) *PetTreatmentUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PetTreatmentUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// PetTreatmentUpsertOne is the builder for "upsert"-ing
+	//  one PetTreatment node.
+	PetTreatmentUpsertOne struct {
+		create *PetTreatmentCreate
+	}
+
+	// PetTreatmentUpsert is the "OnConflict" setter.
+	PetTreatmentUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetTreatmentUpsert) SetUpdatedAt(v time.Time) *PetTreatmentUpsert {
+	u.Set(pettreatment.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetTreatmentUpsert) UpdateUpdatedAt() *PetTreatmentUpsert {
+	u.SetExcluded(pettreatment.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetTreatmentUpsert) SetDeletedAt(v time.Time) *PetTreatmentUpsert {
+	u.Set(pettreatment.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetTreatmentUpsert) UpdateDeletedAt() *PetTreatmentUpsert {
+	u.SetExcluded(pettreatment.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetTreatmentUpsert) ClearDeletedAt() *PetTreatmentUpsert {
+	u.SetNull(pettreatment.FieldDeletedAt)
+	return u
+}
+
+// SetRabiesVaccinationDate sets the "rabies_vaccination_date" field.
+func (u *PetTreatmentUpsert) SetRabiesVaccinationDate(v time.Time) *PetTreatmentUpsert {
+	u.Set(pettreatment.FieldRabiesVaccinationDate, v)
+	return u
+}
+
+// UpdateRabiesVaccinationDate sets the "rabies_vaccination_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsert) UpdateRabiesVaccinationDate() *PetTreatmentUpsert {
+	u.SetExcluded(pettreatment.FieldRabiesVaccinationDate)
+	return u
+}
+
+// ClearRabiesVaccinationDate clears the value of the "rabies_vaccination_date" field.
+func (u *PetTreatmentUpsert) ClearRabiesVaccinationDate() *PetTreatmentUpsert {
+	u.SetNull(pettreatment.FieldRabiesVaccinationDate)
+	return u
+}
+
+// SetInfectionVaccinationDate sets the "infection_vaccination_date" field.
+func (u *PetTreatmentUpsert) SetInfectionVaccinationDate(v time.Time) *PetTreatmentUpsert {
+	u.Set(pettreatment.FieldInfectionVaccinationDate, v)
+	return u
+}
+
+// UpdateInfectionVaccinationDate sets the "infection_vaccination_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsert) UpdateInfectionVaccinationDate() *PetTreatmentUpsert {
+	u.SetExcluded(pettreatment.FieldInfectionVaccinationDate)
+	return u
+}
+
+// ClearInfectionVaccinationDate clears the value of the "infection_vaccination_date" field.
+func (u *PetTreatmentUpsert) ClearInfectionVaccinationDate() *PetTreatmentUpsert {
+	u.SetNull(pettreatment.FieldInfectionVaccinationDate)
+	return u
+}
+
+// SetEctoparasiteTreatmentDate sets the "ectoparasite_treatment_date" field.
+func (u *PetTreatmentUpsert) SetEctoparasiteTreatmentDate(v time.Time) *PetTreatmentUpsert {
+	u.Set(pettreatment.FieldEctoparasiteTreatmentDate, v)
+	return u
+}
+
+// UpdateEctoparasiteTreatmentDate sets the "ectoparasite_treatment_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsert) UpdateEctoparasiteTreatmentDate() *PetTreatmentUpsert {
+	u.SetExcluded(pettreatment.FieldEctoparasiteTreatmentDate)
+	return u
+}
+
+// ClearEctoparasiteTreatmentDate clears the value of the "ectoparasite_treatment_date" field.
+func (u *PetTreatmentUpsert) ClearEctoparasiteTreatmentDate() *PetTreatmentUpsert {
+	u.SetNull(pettreatment.FieldEctoparasiteTreatmentDate)
+	return u
+}
+
+// SetDewormingDate sets the "deworming_date" field.
+func (u *PetTreatmentUpsert) SetDewormingDate(v time.Time) *PetTreatmentUpsert {
+	u.Set(pettreatment.FieldDewormingDate, v)
+	return u
+}
+
+// UpdateDewormingDate sets the "deworming_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsert) UpdateDewormingDate() *PetTreatmentUpsert {
+	u.SetExcluded(pettreatment.FieldDewormingDate)
+	return u
+}
+
+// ClearDewormingDate clears the value of the "deworming_date" field.
+func (u *PetTreatmentUpsert) ClearDewormingDate() *PetTreatmentUpsert {
+	u.SetNull(pettreatment.FieldDewormingDate)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.PetTreatment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(pettreatment.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PetTreatmentUpsertOne) UpdateNewValues() *PetTreatmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(pettreatment.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(pettreatment.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PetTreatment.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PetTreatmentUpsertOne) Ignore() *PetTreatmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PetTreatmentUpsertOne) DoNothing() *PetTreatmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PetTreatmentCreate.OnConflict
+// documentation for more info.
+func (u *PetTreatmentUpsertOne) Update(set func(*PetTreatmentUpsert)) *PetTreatmentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PetTreatmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetTreatmentUpsertOne) SetUpdatedAt(v time.Time) *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetTreatmentUpsertOne) UpdateUpdatedAt() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetTreatmentUpsertOne) SetDeletedAt(v time.Time) *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetTreatmentUpsertOne) UpdateDeletedAt() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetTreatmentUpsertOne) ClearDeletedAt() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetRabiesVaccinationDate sets the "rabies_vaccination_date" field.
+func (u *PetTreatmentUpsertOne) SetRabiesVaccinationDate(v time.Time) *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetRabiesVaccinationDate(v)
+	})
+}
+
+// UpdateRabiesVaccinationDate sets the "rabies_vaccination_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertOne) UpdateRabiesVaccinationDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateRabiesVaccinationDate()
+	})
+}
+
+// ClearRabiesVaccinationDate clears the value of the "rabies_vaccination_date" field.
+func (u *PetTreatmentUpsertOne) ClearRabiesVaccinationDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearRabiesVaccinationDate()
+	})
+}
+
+// SetInfectionVaccinationDate sets the "infection_vaccination_date" field.
+func (u *PetTreatmentUpsertOne) SetInfectionVaccinationDate(v time.Time) *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetInfectionVaccinationDate(v)
+	})
+}
+
+// UpdateInfectionVaccinationDate sets the "infection_vaccination_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertOne) UpdateInfectionVaccinationDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateInfectionVaccinationDate()
+	})
+}
+
+// ClearInfectionVaccinationDate clears the value of the "infection_vaccination_date" field.
+func (u *PetTreatmentUpsertOne) ClearInfectionVaccinationDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearInfectionVaccinationDate()
+	})
+}
+
+// SetEctoparasiteTreatmentDate sets the "ectoparasite_treatment_date" field.
+func (u *PetTreatmentUpsertOne) SetEctoparasiteTreatmentDate(v time.Time) *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetEctoparasiteTreatmentDate(v)
+	})
+}
+
+// UpdateEctoparasiteTreatmentDate sets the "ectoparasite_treatment_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertOne) UpdateEctoparasiteTreatmentDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateEctoparasiteTreatmentDate()
+	})
+}
+
+// ClearEctoparasiteTreatmentDate clears the value of the "ectoparasite_treatment_date" field.
+func (u *PetTreatmentUpsertOne) ClearEctoparasiteTreatmentDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearEctoparasiteTreatmentDate()
+	})
+}
+
+// SetDewormingDate sets the "deworming_date" field.
+func (u *PetTreatmentUpsertOne) SetDewormingDate(v time.Time) *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetDewormingDate(v)
+	})
+}
+
+// UpdateDewormingDate sets the "deworming_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertOne) UpdateDewormingDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateDewormingDate()
+	})
+}
+
+// ClearDewormingDate clears the value of the "deworming_date" field.
+func (u *PetTreatmentUpsertOne) ClearDewormingDate() *PetTreatmentUpsertOne {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearDewormingDate()
+	})
+}
+
+// Exec executes the query.
+func (u *PetTreatmentUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PetTreatmentCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PetTreatmentUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PetTreatmentUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: PetTreatmentUpsertOne.ID is not supported by MySQL driver. Use PetTreatmentUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PetTreatmentUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PetTreatmentCreateBulk is the builder for creating many PetTreatment entities in bulk.
 type PetTreatmentCreateBulk struct {
 	config
 	err      error
 	builders []*PetTreatmentCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the PetTreatment entities in the database.
@@ -320,6 +684,7 @@ func (_c *PetTreatmentCreateBulk) Save(ctx context.Context) ([]*PetTreatment, er
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -366,6 +731,242 @@ func (_c *PetTreatmentCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *PetTreatmentCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.PetTreatment.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PetTreatmentUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PetTreatmentCreateBulk) OnConflict(opts ...sql.ConflictOption) *PetTreatmentUpsertBulk {
+	_c.conflict = opts
+	return &PetTreatmentUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.PetTreatment.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PetTreatmentCreateBulk) OnConflictColumns(columns ...string) *PetTreatmentUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PetTreatmentUpsertBulk{
+		create: _c,
+	}
+}
+
+// PetTreatmentUpsertBulk is the builder for "upsert"-ing
+// a bulk of PetTreatment nodes.
+type PetTreatmentUpsertBulk struct {
+	create *PetTreatmentCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.PetTreatment.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(pettreatment.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PetTreatmentUpsertBulk) UpdateNewValues() *PetTreatmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(pettreatment.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(pettreatment.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.PetTreatment.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PetTreatmentUpsertBulk) Ignore() *PetTreatmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PetTreatmentUpsertBulk) DoNothing() *PetTreatmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PetTreatmentCreateBulk.OnConflict
+// documentation for more info.
+func (u *PetTreatmentUpsertBulk) Update(set func(*PetTreatmentUpsert)) *PetTreatmentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PetTreatmentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetTreatmentUpsertBulk) SetUpdatedAt(v time.Time) *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetTreatmentUpsertBulk) UpdateUpdatedAt() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetTreatmentUpsertBulk) SetDeletedAt(v time.Time) *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetTreatmentUpsertBulk) UpdateDeletedAt() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetTreatmentUpsertBulk) ClearDeletedAt() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetRabiesVaccinationDate sets the "rabies_vaccination_date" field.
+func (u *PetTreatmentUpsertBulk) SetRabiesVaccinationDate(v time.Time) *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetRabiesVaccinationDate(v)
+	})
+}
+
+// UpdateRabiesVaccinationDate sets the "rabies_vaccination_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertBulk) UpdateRabiesVaccinationDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateRabiesVaccinationDate()
+	})
+}
+
+// ClearRabiesVaccinationDate clears the value of the "rabies_vaccination_date" field.
+func (u *PetTreatmentUpsertBulk) ClearRabiesVaccinationDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearRabiesVaccinationDate()
+	})
+}
+
+// SetInfectionVaccinationDate sets the "infection_vaccination_date" field.
+func (u *PetTreatmentUpsertBulk) SetInfectionVaccinationDate(v time.Time) *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetInfectionVaccinationDate(v)
+	})
+}
+
+// UpdateInfectionVaccinationDate sets the "infection_vaccination_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertBulk) UpdateInfectionVaccinationDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateInfectionVaccinationDate()
+	})
+}
+
+// ClearInfectionVaccinationDate clears the value of the "infection_vaccination_date" field.
+func (u *PetTreatmentUpsertBulk) ClearInfectionVaccinationDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearInfectionVaccinationDate()
+	})
+}
+
+// SetEctoparasiteTreatmentDate sets the "ectoparasite_treatment_date" field.
+func (u *PetTreatmentUpsertBulk) SetEctoparasiteTreatmentDate(v time.Time) *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetEctoparasiteTreatmentDate(v)
+	})
+}
+
+// UpdateEctoparasiteTreatmentDate sets the "ectoparasite_treatment_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertBulk) UpdateEctoparasiteTreatmentDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateEctoparasiteTreatmentDate()
+	})
+}
+
+// ClearEctoparasiteTreatmentDate clears the value of the "ectoparasite_treatment_date" field.
+func (u *PetTreatmentUpsertBulk) ClearEctoparasiteTreatmentDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearEctoparasiteTreatmentDate()
+	})
+}
+
+// SetDewormingDate sets the "deworming_date" field.
+func (u *PetTreatmentUpsertBulk) SetDewormingDate(v time.Time) *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.SetDewormingDate(v)
+	})
+}
+
+// UpdateDewormingDate sets the "deworming_date" field to the value that was provided on create.
+func (u *PetTreatmentUpsertBulk) UpdateDewormingDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.UpdateDewormingDate()
+	})
+}
+
+// ClearDewormingDate clears the value of the "deworming_date" field.
+func (u *PetTreatmentUpsertBulk) ClearDewormingDate() *PetTreatmentUpsertBulk {
+	return u.Update(func(s *PetTreatmentUpsert) {
+		s.ClearDewormingDate()
+	})
+}
+
+// Exec executes the query.
+func (u *PetTreatmentUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PetTreatmentCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PetTreatmentCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PetTreatmentUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

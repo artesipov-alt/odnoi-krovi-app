@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
@@ -26,6 +28,7 @@ type PetCreate struct {
 	config
 	mutation *PetMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -503,6 +506,7 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_node = &Pet{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(pet.Table, sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -703,11 +707,865 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Pet.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PetUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PetCreate) OnConflict(opts ...sql.ConflictOption) *PetUpsertOne {
+	_c.conflict = opts
+	return &PetUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Pet.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PetCreate) OnConflictColumns(columns ...string) *PetUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PetUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// PetUpsertOne is the builder for "upsert"-ing
+	//  one Pet node.
+	PetUpsertOne struct {
+		create *PetCreate
+	}
+
+	// PetUpsert is the "OnConflict" setter.
+	PetUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetUpsert) SetUpdatedAt(v time.Time) *PetUpsert {
+	u.Set(pet.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetUpsert) UpdateUpdatedAt() *PetUpsert {
+	u.SetExcluded(pet.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetUpsert) SetDeletedAt(v time.Time) *PetUpsert {
+	u.Set(pet.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetUpsert) UpdateDeletedAt() *PetUpsert {
+	u.SetExcluded(pet.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetUpsert) ClearDeletedAt() *PetUpsert {
+	u.SetNull(pet.FieldDeletedAt)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *PetUpsert) SetName(v string) *PetUpsert {
+	u.Set(pet.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PetUpsert) UpdateName() *PetUpsert {
+	u.SetExcluded(pet.FieldName)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *PetUpsert) SetType(v string) *PetUpsert {
+	u.Set(pet.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *PetUpsert) UpdateType() *PetUpsert {
+	u.SetExcluded(pet.FieldType)
+	return u
+}
+
+// SetWeightKg sets the "weight_kg" field.
+func (u *PetUpsert) SetWeightKg(v float64) *PetUpsert {
+	u.Set(pet.FieldWeightKg, v)
+	return u
+}
+
+// UpdateWeightKg sets the "weight_kg" field to the value that was provided on create.
+func (u *PetUpsert) UpdateWeightKg() *PetUpsert {
+	u.SetExcluded(pet.FieldWeightKg)
+	return u
+}
+
+// AddWeightKg adds v to the "weight_kg" field.
+func (u *PetUpsert) AddWeightKg(v float64) *PetUpsert {
+	u.Add(pet.FieldWeightKg, v)
+	return u
+}
+
+// ClearWeightKg clears the value of the "weight_kg" field.
+func (u *PetUpsert) ClearWeightKg() *PetUpsert {
+	u.SetNull(pet.FieldWeightKg)
+	return u
+}
+
+// SetGender sets the "gender" field.
+func (u *PetUpsert) SetGender(v string) *PetUpsert {
+	u.Set(pet.FieldGender, v)
+	return u
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *PetUpsert) UpdateGender() *PetUpsert {
+	u.SetExcluded(pet.FieldGender)
+	return u
+}
+
+// ClearGender clears the value of the "gender" field.
+func (u *PetUpsert) ClearGender() *PetUpsert {
+	u.SetNull(pet.FieldGender)
+	return u
+}
+
+// SetBirthDate sets the "birth_date" field.
+func (u *PetUpsert) SetBirthDate(v time.Time) *PetUpsert {
+	u.Set(pet.FieldBirthDate, v)
+	return u
+}
+
+// UpdateBirthDate sets the "birth_date" field to the value that was provided on create.
+func (u *PetUpsert) UpdateBirthDate() *PetUpsert {
+	u.SetExcluded(pet.FieldBirthDate)
+	return u
+}
+
+// ClearBirthDate clears the value of the "birth_date" field.
+func (u *PetUpsert) ClearBirthDate() *PetUpsert {
+	u.SetNull(pet.FieldBirthDate)
+	return u
+}
+
+// SetChipNumber sets the "chip_number" field.
+func (u *PetUpsert) SetChipNumber(v string) *PetUpsert {
+	u.Set(pet.FieldChipNumber, v)
+	return u
+}
+
+// UpdateChipNumber sets the "chip_number" field to the value that was provided on create.
+func (u *PetUpsert) UpdateChipNumber() *PetUpsert {
+	u.SetExcluded(pet.FieldChipNumber)
+	return u
+}
+
+// ClearChipNumber clears the value of the "chip_number" field.
+func (u *PetUpsert) ClearChipNumber() *PetUpsert {
+	u.SetNull(pet.FieldChipNumber)
+	return u
+}
+
+// SetPhotoUrls sets the "photo_urls" field.
+func (u *PetUpsert) SetPhotoUrls(v []string) *PetUpsert {
+	u.Set(pet.FieldPhotoUrls, v)
+	return u
+}
+
+// UpdatePhotoUrls sets the "photo_urls" field to the value that was provided on create.
+func (u *PetUpsert) UpdatePhotoUrls() *PetUpsert {
+	u.SetExcluded(pet.FieldPhotoUrls)
+	return u
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (u *PetUpsert) ClearPhotoUrls() *PetUpsert {
+	u.SetNull(pet.FieldPhotoUrls)
+	return u
+}
+
+// SetBreedID sets the "breed_id" field.
+func (u *PetUpsert) SetBreedID(v string) *PetUpsert {
+	u.Set(pet.FieldBreedID, v)
+	return u
+}
+
+// UpdateBreedID sets the "breed_id" field to the value that was provided on create.
+func (u *PetUpsert) UpdateBreedID() *PetUpsert {
+	u.SetExcluded(pet.FieldBreedID)
+	return u
+}
+
+// ClearBreedID clears the value of the "breed_id" field.
+func (u *PetUpsert) ClearBreedID() *PetUpsert {
+	u.SetNull(pet.FieldBreedID)
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *PetUpsert) SetUserID(v string) *PetUpsert {
+	u.Set(pet.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *PetUpsert) UpdateUserID() *PetUpsert {
+	u.SetExcluded(pet.FieldUserID)
+	return u
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *PetUpsert) ClearUserID() *PetUpsert {
+	u.SetNull(pet.FieldUserID)
+	return u
+}
+
+// SetHealthID sets the "health_id" field.
+func (u *PetUpsert) SetHealthID(v string) *PetUpsert {
+	u.Set(pet.FieldHealthID, v)
+	return u
+}
+
+// UpdateHealthID sets the "health_id" field to the value that was provided on create.
+func (u *PetUpsert) UpdateHealthID() *PetUpsert {
+	u.SetExcluded(pet.FieldHealthID)
+	return u
+}
+
+// ClearHealthID clears the value of the "health_id" field.
+func (u *PetUpsert) ClearHealthID() *PetUpsert {
+	u.SetNull(pet.FieldHealthID)
+	return u
+}
+
+// SetTreatmentID sets the "treatment_id" field.
+func (u *PetUpsert) SetTreatmentID(v string) *PetUpsert {
+	u.Set(pet.FieldTreatmentID, v)
+	return u
+}
+
+// UpdateTreatmentID sets the "treatment_id" field to the value that was provided on create.
+func (u *PetUpsert) UpdateTreatmentID() *PetUpsert {
+	u.SetExcluded(pet.FieldTreatmentID)
+	return u
+}
+
+// ClearTreatmentID clears the value of the "treatment_id" field.
+func (u *PetUpsert) ClearTreatmentID() *PetUpsert {
+	u.SetNull(pet.FieldTreatmentID)
+	return u
+}
+
+// SetLivingCondition sets the "living_condition" field.
+func (u *PetUpsert) SetLivingCondition(v string) *PetUpsert {
+	u.Set(pet.FieldLivingCondition, v)
+	return u
+}
+
+// UpdateLivingCondition sets the "living_condition" field to the value that was provided on create.
+func (u *PetUpsert) UpdateLivingCondition() *PetUpsert {
+	u.SetExcluded(pet.FieldLivingCondition)
+	return u
+}
+
+// ClearLivingCondition clears the value of the "living_condition" field.
+func (u *PetUpsert) ClearLivingCondition() *PetUpsert {
+	u.SetNull(pet.FieldLivingCondition)
+	return u
+}
+
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (u *PetUpsert) SetReproductiveStatus(v string) *PetUpsert {
+	u.Set(pet.FieldReproductiveStatus, v)
+	return u
+}
+
+// UpdateReproductiveStatus sets the "reproductive_status" field to the value that was provided on create.
+func (u *PetUpsert) UpdateReproductiveStatus() *PetUpsert {
+	u.SetExcluded(pet.FieldReproductiveStatus)
+	return u
+}
+
+// ClearReproductiveStatus clears the value of the "reproductive_status" field.
+func (u *PetUpsert) ClearReproductiveStatus() *PetUpsert {
+	u.SetNull(pet.FieldReproductiveStatus)
+	return u
+}
+
+// SetStopFactors sets the "stop_factors" field.
+func (u *PetUpsert) SetStopFactors(v []string) *PetUpsert {
+	u.Set(pet.FieldStopFactors, v)
+	return u
+}
+
+// UpdateStopFactors sets the "stop_factors" field to the value that was provided on create.
+func (u *PetUpsert) UpdateStopFactors() *PetUpsert {
+	u.SetExcluded(pet.FieldStopFactors)
+	return u
+}
+
+// ClearStopFactors clears the value of the "stop_factors" field.
+func (u *PetUpsert) ClearStopFactors() *PetUpsert {
+	u.SetNull(pet.FieldStopFactors)
+	return u
+}
+
+// SetWarnFactors sets the "warn_factors" field.
+func (u *PetUpsert) SetWarnFactors(v []string) *PetUpsert {
+	u.Set(pet.FieldWarnFactors, v)
+	return u
+}
+
+// UpdateWarnFactors sets the "warn_factors" field to the value that was provided on create.
+func (u *PetUpsert) UpdateWarnFactors() *PetUpsert {
+	u.SetExcluded(pet.FieldWarnFactors)
+	return u
+}
+
+// ClearWarnFactors clears the value of the "warn_factors" field.
+func (u *PetUpsert) ClearWarnFactors() *PetUpsert {
+	u.SetNull(pet.FieldWarnFactors)
+	return u
+}
+
+// SetBloodGroupID sets the "blood_group_id" field.
+func (u *PetUpsert) SetBloodGroupID(v string) *PetUpsert {
+	u.Set(pet.FieldBloodGroupID, v)
+	return u
+}
+
+// UpdateBloodGroupID sets the "blood_group_id" field to the value that was provided on create.
+func (u *PetUpsert) UpdateBloodGroupID() *PetUpsert {
+	u.SetExcluded(pet.FieldBloodGroupID)
+	return u
+}
+
+// ClearBloodGroupID clears the value of the "blood_group_id" field.
+func (u *PetUpsert) ClearBloodGroupID() *PetUpsert {
+	u.SetNull(pet.FieldBloodGroupID)
+	return u
+}
+
+// SetBonuses sets the "bonuses" field.
+func (u *PetUpsert) SetBonuses(v []string) *PetUpsert {
+	u.Set(pet.FieldBonuses, v)
+	return u
+}
+
+// UpdateBonuses sets the "bonuses" field to the value that was provided on create.
+func (u *PetUpsert) UpdateBonuses() *PetUpsert {
+	u.SetExcluded(pet.FieldBonuses)
+	return u
+}
+
+// ClearBonuses clears the value of the "bonuses" field.
+func (u *PetUpsert) ClearBonuses() *PetUpsert {
+	u.SetNull(pet.FieldBonuses)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Pet.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(pet.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PetUpsertOne) UpdateNewValues() *PetUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(pet.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(pet.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Pet.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PetUpsertOne) Ignore() *PetUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PetUpsertOne) DoNothing() *PetUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PetCreate.OnConflict
+// documentation for more info.
+func (u *PetUpsertOne) Update(set func(*PetUpsert)) *PetUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PetUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetUpsertOne) SetUpdatedAt(v time.Time) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateUpdatedAt() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetUpsertOne) SetDeletedAt(v time.Time) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateDeletedAt() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetUpsertOne) ClearDeletedAt() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *PetUpsertOne) SetName(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateName() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *PetUpsertOne) SetType(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateType() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetWeightKg sets the "weight_kg" field.
+func (u *PetUpsertOne) SetWeightKg(v float64) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetWeightKg(v)
+	})
+}
+
+// AddWeightKg adds v to the "weight_kg" field.
+func (u *PetUpsertOne) AddWeightKg(v float64) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.AddWeightKg(v)
+	})
+}
+
+// UpdateWeightKg sets the "weight_kg" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateWeightKg() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateWeightKg()
+	})
+}
+
+// ClearWeightKg clears the value of the "weight_kg" field.
+func (u *PetUpsertOne) ClearWeightKg() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearWeightKg()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *PetUpsertOne) SetGender(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateGender() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// ClearGender clears the value of the "gender" field.
+func (u *PetUpsertOne) ClearGender() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearGender()
+	})
+}
+
+// SetBirthDate sets the "birth_date" field.
+func (u *PetUpsertOne) SetBirthDate(v time.Time) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBirthDate(v)
+	})
+}
+
+// UpdateBirthDate sets the "birth_date" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateBirthDate() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBirthDate()
+	})
+}
+
+// ClearBirthDate clears the value of the "birth_date" field.
+func (u *PetUpsertOne) ClearBirthDate() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBirthDate()
+	})
+}
+
+// SetChipNumber sets the "chip_number" field.
+func (u *PetUpsertOne) SetChipNumber(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetChipNumber(v)
+	})
+}
+
+// UpdateChipNumber sets the "chip_number" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateChipNumber() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateChipNumber()
+	})
+}
+
+// ClearChipNumber clears the value of the "chip_number" field.
+func (u *PetUpsertOne) ClearChipNumber() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearChipNumber()
+	})
+}
+
+// SetPhotoUrls sets the "photo_urls" field.
+func (u *PetUpsertOne) SetPhotoUrls(v []string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetPhotoUrls(v)
+	})
+}
+
+// UpdatePhotoUrls sets the "photo_urls" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdatePhotoUrls() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdatePhotoUrls()
+	})
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (u *PetUpsertOne) ClearPhotoUrls() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearPhotoUrls()
+	})
+}
+
+// SetBreedID sets the "breed_id" field.
+func (u *PetUpsertOne) SetBreedID(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBreedID(v)
+	})
+}
+
+// UpdateBreedID sets the "breed_id" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateBreedID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBreedID()
+	})
+}
+
+// ClearBreedID clears the value of the "breed_id" field.
+func (u *PetUpsertOne) ClearBreedID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBreedID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *PetUpsertOne) SetUserID(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateUserID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *PetUpsertOne) ClearUserID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearUserID()
+	})
+}
+
+// SetHealthID sets the "health_id" field.
+func (u *PetUpsertOne) SetHealthID(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetHealthID(v)
+	})
+}
+
+// UpdateHealthID sets the "health_id" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateHealthID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateHealthID()
+	})
+}
+
+// ClearHealthID clears the value of the "health_id" field.
+func (u *PetUpsertOne) ClearHealthID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearHealthID()
+	})
+}
+
+// SetTreatmentID sets the "treatment_id" field.
+func (u *PetUpsertOne) SetTreatmentID(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetTreatmentID(v)
+	})
+}
+
+// UpdateTreatmentID sets the "treatment_id" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateTreatmentID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateTreatmentID()
+	})
+}
+
+// ClearTreatmentID clears the value of the "treatment_id" field.
+func (u *PetUpsertOne) ClearTreatmentID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearTreatmentID()
+	})
+}
+
+// SetLivingCondition sets the "living_condition" field.
+func (u *PetUpsertOne) SetLivingCondition(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetLivingCondition(v)
+	})
+}
+
+// UpdateLivingCondition sets the "living_condition" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateLivingCondition() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateLivingCondition()
+	})
+}
+
+// ClearLivingCondition clears the value of the "living_condition" field.
+func (u *PetUpsertOne) ClearLivingCondition() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearLivingCondition()
+	})
+}
+
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (u *PetUpsertOne) SetReproductiveStatus(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetReproductiveStatus(v)
+	})
+}
+
+// UpdateReproductiveStatus sets the "reproductive_status" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateReproductiveStatus() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateReproductiveStatus()
+	})
+}
+
+// ClearReproductiveStatus clears the value of the "reproductive_status" field.
+func (u *PetUpsertOne) ClearReproductiveStatus() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearReproductiveStatus()
+	})
+}
+
+// SetStopFactors sets the "stop_factors" field.
+func (u *PetUpsertOne) SetStopFactors(v []string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetStopFactors(v)
+	})
+}
+
+// UpdateStopFactors sets the "stop_factors" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateStopFactors() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateStopFactors()
+	})
+}
+
+// ClearStopFactors clears the value of the "stop_factors" field.
+func (u *PetUpsertOne) ClearStopFactors() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearStopFactors()
+	})
+}
+
+// SetWarnFactors sets the "warn_factors" field.
+func (u *PetUpsertOne) SetWarnFactors(v []string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetWarnFactors(v)
+	})
+}
+
+// UpdateWarnFactors sets the "warn_factors" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateWarnFactors() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateWarnFactors()
+	})
+}
+
+// ClearWarnFactors clears the value of the "warn_factors" field.
+func (u *PetUpsertOne) ClearWarnFactors() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearWarnFactors()
+	})
+}
+
+// SetBloodGroupID sets the "blood_group_id" field.
+func (u *PetUpsertOne) SetBloodGroupID(v string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBloodGroupID(v)
+	})
+}
+
+// UpdateBloodGroupID sets the "blood_group_id" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateBloodGroupID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBloodGroupID()
+	})
+}
+
+// ClearBloodGroupID clears the value of the "blood_group_id" field.
+func (u *PetUpsertOne) ClearBloodGroupID() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBloodGroupID()
+	})
+}
+
+// SetBonuses sets the "bonuses" field.
+func (u *PetUpsertOne) SetBonuses(v []string) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBonuses(v)
+	})
+}
+
+// UpdateBonuses sets the "bonuses" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateBonuses() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBonuses()
+	})
+}
+
+// ClearBonuses clears the value of the "bonuses" field.
+func (u *PetUpsertOne) ClearBonuses() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBonuses()
+	})
+}
+
+// Exec executes the query.
+func (u *PetUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PetCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PetUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PetUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: PetUpsertOne.ID is not supported by MySQL driver. Use PetUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PetUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PetCreateBulk is the builder for creating many Pet entities in bulk.
 type PetCreateBulk struct {
 	config
 	err      error
 	builders []*PetCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Pet entities in the database.
@@ -737,6 +1595,7 @@ func (_c *PetCreateBulk) Save(ctx context.Context) ([]*Pet, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -783,6 +1642,508 @@ func (_c *PetCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *PetCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Pet.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PetUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *PetCreateBulk) OnConflict(opts ...sql.ConflictOption) *PetUpsertBulk {
+	_c.conflict = opts
+	return &PetUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Pet.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *PetCreateBulk) OnConflictColumns(columns ...string) *PetUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &PetUpsertBulk{
+		create: _c,
+	}
+}
+
+// PetUpsertBulk is the builder for "upsert"-ing
+// a bulk of Pet nodes.
+type PetUpsertBulk struct {
+	create *PetCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Pet.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(pet.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *PetUpsertBulk) UpdateNewValues() *PetUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(pet.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(pet.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Pet.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PetUpsertBulk) Ignore() *PetUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PetUpsertBulk) DoNothing() *PetUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PetCreateBulk.OnConflict
+// documentation for more info.
+func (u *PetUpsertBulk) Update(set func(*PetUpsert)) *PetUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PetUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *PetUpsertBulk) SetUpdatedAt(v time.Time) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateUpdatedAt() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *PetUpsertBulk) SetDeletedAt(v time.Time) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateDeletedAt() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *PetUpsertBulk) ClearDeletedAt() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *PetUpsertBulk) SetName(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateName() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *PetUpsertBulk) SetType(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateType() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetWeightKg sets the "weight_kg" field.
+func (u *PetUpsertBulk) SetWeightKg(v float64) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetWeightKg(v)
+	})
+}
+
+// AddWeightKg adds v to the "weight_kg" field.
+func (u *PetUpsertBulk) AddWeightKg(v float64) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.AddWeightKg(v)
+	})
+}
+
+// UpdateWeightKg sets the "weight_kg" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateWeightKg() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateWeightKg()
+	})
+}
+
+// ClearWeightKg clears the value of the "weight_kg" field.
+func (u *PetUpsertBulk) ClearWeightKg() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearWeightKg()
+	})
+}
+
+// SetGender sets the "gender" field.
+func (u *PetUpsertBulk) SetGender(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetGender(v)
+	})
+}
+
+// UpdateGender sets the "gender" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateGender() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateGender()
+	})
+}
+
+// ClearGender clears the value of the "gender" field.
+func (u *PetUpsertBulk) ClearGender() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearGender()
+	})
+}
+
+// SetBirthDate sets the "birth_date" field.
+func (u *PetUpsertBulk) SetBirthDate(v time.Time) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBirthDate(v)
+	})
+}
+
+// UpdateBirthDate sets the "birth_date" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateBirthDate() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBirthDate()
+	})
+}
+
+// ClearBirthDate clears the value of the "birth_date" field.
+func (u *PetUpsertBulk) ClearBirthDate() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBirthDate()
+	})
+}
+
+// SetChipNumber sets the "chip_number" field.
+func (u *PetUpsertBulk) SetChipNumber(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetChipNumber(v)
+	})
+}
+
+// UpdateChipNumber sets the "chip_number" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateChipNumber() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateChipNumber()
+	})
+}
+
+// ClearChipNumber clears the value of the "chip_number" field.
+func (u *PetUpsertBulk) ClearChipNumber() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearChipNumber()
+	})
+}
+
+// SetPhotoUrls sets the "photo_urls" field.
+func (u *PetUpsertBulk) SetPhotoUrls(v []string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetPhotoUrls(v)
+	})
+}
+
+// UpdatePhotoUrls sets the "photo_urls" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdatePhotoUrls() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdatePhotoUrls()
+	})
+}
+
+// ClearPhotoUrls clears the value of the "photo_urls" field.
+func (u *PetUpsertBulk) ClearPhotoUrls() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearPhotoUrls()
+	})
+}
+
+// SetBreedID sets the "breed_id" field.
+func (u *PetUpsertBulk) SetBreedID(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBreedID(v)
+	})
+}
+
+// UpdateBreedID sets the "breed_id" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateBreedID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBreedID()
+	})
+}
+
+// ClearBreedID clears the value of the "breed_id" field.
+func (u *PetUpsertBulk) ClearBreedID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBreedID()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *PetUpsertBulk) SetUserID(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateUserID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *PetUpsertBulk) ClearUserID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearUserID()
+	})
+}
+
+// SetHealthID sets the "health_id" field.
+func (u *PetUpsertBulk) SetHealthID(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetHealthID(v)
+	})
+}
+
+// UpdateHealthID sets the "health_id" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateHealthID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateHealthID()
+	})
+}
+
+// ClearHealthID clears the value of the "health_id" field.
+func (u *PetUpsertBulk) ClearHealthID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearHealthID()
+	})
+}
+
+// SetTreatmentID sets the "treatment_id" field.
+func (u *PetUpsertBulk) SetTreatmentID(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetTreatmentID(v)
+	})
+}
+
+// UpdateTreatmentID sets the "treatment_id" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateTreatmentID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateTreatmentID()
+	})
+}
+
+// ClearTreatmentID clears the value of the "treatment_id" field.
+func (u *PetUpsertBulk) ClearTreatmentID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearTreatmentID()
+	})
+}
+
+// SetLivingCondition sets the "living_condition" field.
+func (u *PetUpsertBulk) SetLivingCondition(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetLivingCondition(v)
+	})
+}
+
+// UpdateLivingCondition sets the "living_condition" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateLivingCondition() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateLivingCondition()
+	})
+}
+
+// ClearLivingCondition clears the value of the "living_condition" field.
+func (u *PetUpsertBulk) ClearLivingCondition() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearLivingCondition()
+	})
+}
+
+// SetReproductiveStatus sets the "reproductive_status" field.
+func (u *PetUpsertBulk) SetReproductiveStatus(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetReproductiveStatus(v)
+	})
+}
+
+// UpdateReproductiveStatus sets the "reproductive_status" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateReproductiveStatus() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateReproductiveStatus()
+	})
+}
+
+// ClearReproductiveStatus clears the value of the "reproductive_status" field.
+func (u *PetUpsertBulk) ClearReproductiveStatus() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearReproductiveStatus()
+	})
+}
+
+// SetStopFactors sets the "stop_factors" field.
+func (u *PetUpsertBulk) SetStopFactors(v []string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetStopFactors(v)
+	})
+}
+
+// UpdateStopFactors sets the "stop_factors" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateStopFactors() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateStopFactors()
+	})
+}
+
+// ClearStopFactors clears the value of the "stop_factors" field.
+func (u *PetUpsertBulk) ClearStopFactors() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearStopFactors()
+	})
+}
+
+// SetWarnFactors sets the "warn_factors" field.
+func (u *PetUpsertBulk) SetWarnFactors(v []string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetWarnFactors(v)
+	})
+}
+
+// UpdateWarnFactors sets the "warn_factors" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateWarnFactors() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateWarnFactors()
+	})
+}
+
+// ClearWarnFactors clears the value of the "warn_factors" field.
+func (u *PetUpsertBulk) ClearWarnFactors() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearWarnFactors()
+	})
+}
+
+// SetBloodGroupID sets the "blood_group_id" field.
+func (u *PetUpsertBulk) SetBloodGroupID(v string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBloodGroupID(v)
+	})
+}
+
+// UpdateBloodGroupID sets the "blood_group_id" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateBloodGroupID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBloodGroupID()
+	})
+}
+
+// ClearBloodGroupID clears the value of the "blood_group_id" field.
+func (u *PetUpsertBulk) ClearBloodGroupID() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBloodGroupID()
+	})
+}
+
+// SetBonuses sets the "bonuses" field.
+func (u *PetUpsertBulk) SetBonuses(v []string) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetBonuses(v)
+	})
+}
+
+// UpdateBonuses sets the "bonuses" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateBonuses() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateBonuses()
+	})
+}
+
+// ClearBonuses clears the value of the "bonuses" field.
+func (u *PetUpsertBulk) ClearBonuses() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearBonuses()
+	})
+}
+
+// Exec executes the query.
+func (u *PetUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PetCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PetCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PetUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

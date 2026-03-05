@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
@@ -19,6 +21,7 @@ type UtmHistoryCreate struct {
 	config
 	mutation *UtmHistoryMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -252,6 +255,7 @@ func (_c *UtmHistoryCreate) createSpec() (*UtmHistory, *sqlgraph.CreateSpec) {
 		_node = &UtmHistory{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(utmhistory.Table, sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -308,11 +312,436 @@ func (_c *UtmHistoryCreate) createSpec() (*UtmHistory, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.UtmHistory.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UtmHistoryUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *UtmHistoryCreate) OnConflict(opts ...sql.ConflictOption) *UtmHistoryUpsertOne {
+	_c.conflict = opts
+	return &UtmHistoryUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.UtmHistory.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *UtmHistoryCreate) OnConflictColumns(columns ...string) *UtmHistoryUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &UtmHistoryUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// UtmHistoryUpsertOne is the builder for "upsert"-ing
+	//  one UtmHistory node.
+	UtmHistoryUpsertOne struct {
+		create *UtmHistoryCreate
+	}
+
+	// UtmHistoryUpsert is the "OnConflict" setter.
+	UtmHistoryUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UtmHistoryUpsert) SetUpdatedAt(v time.Time) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUpdatedAt() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *UtmHistoryUpsert) SetDeletedAt(v time.Time) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateDeletedAt() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *UtmHistoryUpsert) ClearDeletedAt() *UtmHistoryUpsert {
+	u.SetNull(utmhistory.FieldDeletedAt)
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *UtmHistoryUpsert) SetUserID(v string) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUserID() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUserID)
+	return u
+}
+
+// SetUtmSource sets the "utm_source" field.
+func (u *UtmHistoryUpsert) SetUtmSource(v string) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUtmSource, v)
+	return u
+}
+
+// UpdateUtmSource sets the "utm_source" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUtmSource() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUtmSource)
+	return u
+}
+
+// ClearUtmSource clears the value of the "utm_source" field.
+func (u *UtmHistoryUpsert) ClearUtmSource() *UtmHistoryUpsert {
+	u.SetNull(utmhistory.FieldUtmSource)
+	return u
+}
+
+// SetUtmMedium sets the "utm_medium" field.
+func (u *UtmHistoryUpsert) SetUtmMedium(v string) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUtmMedium, v)
+	return u
+}
+
+// UpdateUtmMedium sets the "utm_medium" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUtmMedium() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUtmMedium)
+	return u
+}
+
+// ClearUtmMedium clears the value of the "utm_medium" field.
+func (u *UtmHistoryUpsert) ClearUtmMedium() *UtmHistoryUpsert {
+	u.SetNull(utmhistory.FieldUtmMedium)
+	return u
+}
+
+// SetUtmCampaign sets the "utm_campaign" field.
+func (u *UtmHistoryUpsert) SetUtmCampaign(v string) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUtmCampaign, v)
+	return u
+}
+
+// UpdateUtmCampaign sets the "utm_campaign" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUtmCampaign() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUtmCampaign)
+	return u
+}
+
+// ClearUtmCampaign clears the value of the "utm_campaign" field.
+func (u *UtmHistoryUpsert) ClearUtmCampaign() *UtmHistoryUpsert {
+	u.SetNull(utmhistory.FieldUtmCampaign)
+	return u
+}
+
+// SetUtmContent sets the "utm_content" field.
+func (u *UtmHistoryUpsert) SetUtmContent(v string) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUtmContent, v)
+	return u
+}
+
+// UpdateUtmContent sets the "utm_content" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUtmContent() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUtmContent)
+	return u
+}
+
+// ClearUtmContent clears the value of the "utm_content" field.
+func (u *UtmHistoryUpsert) ClearUtmContent() *UtmHistoryUpsert {
+	u.SetNull(utmhistory.FieldUtmContent)
+	return u
+}
+
+// SetUtmTerm sets the "utm_term" field.
+func (u *UtmHistoryUpsert) SetUtmTerm(v string) *UtmHistoryUpsert {
+	u.Set(utmhistory.FieldUtmTerm, v)
+	return u
+}
+
+// UpdateUtmTerm sets the "utm_term" field to the value that was provided on create.
+func (u *UtmHistoryUpsert) UpdateUtmTerm() *UtmHistoryUpsert {
+	u.SetExcluded(utmhistory.FieldUtmTerm)
+	return u
+}
+
+// ClearUtmTerm clears the value of the "utm_term" field.
+func (u *UtmHistoryUpsert) ClearUtmTerm() *UtmHistoryUpsert {
+	u.SetNull(utmhistory.FieldUtmTerm)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.UtmHistory.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(utmhistory.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *UtmHistoryUpsertOne) UpdateNewValues() *UtmHistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(utmhistory.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(utmhistory.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.UtmHistory.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *UtmHistoryUpsertOne) Ignore() *UtmHistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UtmHistoryUpsertOne) DoNothing() *UtmHistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the UtmHistoryCreate.OnConflict
+// documentation for more info.
+func (u *UtmHistoryUpsertOne) Update(set func(*UtmHistoryUpsert)) *UtmHistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UtmHistoryUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UtmHistoryUpsertOne) SetUpdatedAt(v time.Time) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUpdatedAt() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *UtmHistoryUpsertOne) SetDeletedAt(v time.Time) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateDeletedAt() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *UtmHistoryUpsertOne) ClearDeletedAt() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *UtmHistoryUpsertOne) SetUserID(v string) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUserID() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetUtmSource sets the "utm_source" field.
+func (u *UtmHistoryUpsertOne) SetUtmSource(v string) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmSource(v)
+	})
+}
+
+// UpdateUtmSource sets the "utm_source" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUtmSource() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmSource()
+	})
+}
+
+// ClearUtmSource clears the value of the "utm_source" field.
+func (u *UtmHistoryUpsertOne) ClearUtmSource() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmSource()
+	})
+}
+
+// SetUtmMedium sets the "utm_medium" field.
+func (u *UtmHistoryUpsertOne) SetUtmMedium(v string) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmMedium(v)
+	})
+}
+
+// UpdateUtmMedium sets the "utm_medium" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUtmMedium() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmMedium()
+	})
+}
+
+// ClearUtmMedium clears the value of the "utm_medium" field.
+func (u *UtmHistoryUpsertOne) ClearUtmMedium() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmMedium()
+	})
+}
+
+// SetUtmCampaign sets the "utm_campaign" field.
+func (u *UtmHistoryUpsertOne) SetUtmCampaign(v string) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmCampaign(v)
+	})
+}
+
+// UpdateUtmCampaign sets the "utm_campaign" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUtmCampaign() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmCampaign()
+	})
+}
+
+// ClearUtmCampaign clears the value of the "utm_campaign" field.
+func (u *UtmHistoryUpsertOne) ClearUtmCampaign() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmCampaign()
+	})
+}
+
+// SetUtmContent sets the "utm_content" field.
+func (u *UtmHistoryUpsertOne) SetUtmContent(v string) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmContent(v)
+	})
+}
+
+// UpdateUtmContent sets the "utm_content" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUtmContent() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmContent()
+	})
+}
+
+// ClearUtmContent clears the value of the "utm_content" field.
+func (u *UtmHistoryUpsertOne) ClearUtmContent() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmContent()
+	})
+}
+
+// SetUtmTerm sets the "utm_term" field.
+func (u *UtmHistoryUpsertOne) SetUtmTerm(v string) *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmTerm(v)
+	})
+}
+
+// UpdateUtmTerm sets the "utm_term" field to the value that was provided on create.
+func (u *UtmHistoryUpsertOne) UpdateUtmTerm() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmTerm()
+	})
+}
+
+// ClearUtmTerm clears the value of the "utm_term" field.
+func (u *UtmHistoryUpsertOne) ClearUtmTerm() *UtmHistoryUpsertOne {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmTerm()
+	})
+}
+
+// Exec executes the query.
+func (u *UtmHistoryUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for UtmHistoryCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UtmHistoryUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *UtmHistoryUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: UtmHistoryUpsertOne.ID is not supported by MySQL driver. Use UtmHistoryUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *UtmHistoryUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // UtmHistoryCreateBulk is the builder for creating many UtmHistory entities in bulk.
 type UtmHistoryCreateBulk struct {
 	config
 	err      error
 	builders []*UtmHistoryCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the UtmHistory entities in the database.
@@ -342,6 +771,7 @@ func (_c *UtmHistoryCreateBulk) Save(ctx context.Context) ([]*UtmHistory, error)
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -388,6 +818,277 @@ func (_c *UtmHistoryCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *UtmHistoryCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.UtmHistory.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UtmHistoryUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *UtmHistoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *UtmHistoryUpsertBulk {
+	_c.conflict = opts
+	return &UtmHistoryUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.UtmHistory.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *UtmHistoryCreateBulk) OnConflictColumns(columns ...string) *UtmHistoryUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &UtmHistoryUpsertBulk{
+		create: _c,
+	}
+}
+
+// UtmHistoryUpsertBulk is the builder for "upsert"-ing
+// a bulk of UtmHistory nodes.
+type UtmHistoryUpsertBulk struct {
+	create *UtmHistoryCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.UtmHistory.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(utmhistory.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *UtmHistoryUpsertBulk) UpdateNewValues() *UtmHistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(utmhistory.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(utmhistory.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.UtmHistory.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *UtmHistoryUpsertBulk) Ignore() *UtmHistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UtmHistoryUpsertBulk) DoNothing() *UtmHistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the UtmHistoryCreateBulk.OnConflict
+// documentation for more info.
+func (u *UtmHistoryUpsertBulk) Update(set func(*UtmHistoryUpsert)) *UtmHistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UtmHistoryUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *UtmHistoryUpsertBulk) SetUpdatedAt(v time.Time) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUpdatedAt() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *UtmHistoryUpsertBulk) SetDeletedAt(v time.Time) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateDeletedAt() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *UtmHistoryUpsertBulk) ClearDeletedAt() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *UtmHistoryUpsertBulk) SetUserID(v string) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUserID() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUserID()
+	})
+}
+
+// SetUtmSource sets the "utm_source" field.
+func (u *UtmHistoryUpsertBulk) SetUtmSource(v string) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmSource(v)
+	})
+}
+
+// UpdateUtmSource sets the "utm_source" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUtmSource() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmSource()
+	})
+}
+
+// ClearUtmSource clears the value of the "utm_source" field.
+func (u *UtmHistoryUpsertBulk) ClearUtmSource() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmSource()
+	})
+}
+
+// SetUtmMedium sets the "utm_medium" field.
+func (u *UtmHistoryUpsertBulk) SetUtmMedium(v string) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmMedium(v)
+	})
+}
+
+// UpdateUtmMedium sets the "utm_medium" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUtmMedium() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmMedium()
+	})
+}
+
+// ClearUtmMedium clears the value of the "utm_medium" field.
+func (u *UtmHistoryUpsertBulk) ClearUtmMedium() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmMedium()
+	})
+}
+
+// SetUtmCampaign sets the "utm_campaign" field.
+func (u *UtmHistoryUpsertBulk) SetUtmCampaign(v string) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmCampaign(v)
+	})
+}
+
+// UpdateUtmCampaign sets the "utm_campaign" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUtmCampaign() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmCampaign()
+	})
+}
+
+// ClearUtmCampaign clears the value of the "utm_campaign" field.
+func (u *UtmHistoryUpsertBulk) ClearUtmCampaign() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmCampaign()
+	})
+}
+
+// SetUtmContent sets the "utm_content" field.
+func (u *UtmHistoryUpsertBulk) SetUtmContent(v string) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmContent(v)
+	})
+}
+
+// UpdateUtmContent sets the "utm_content" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUtmContent() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmContent()
+	})
+}
+
+// ClearUtmContent clears the value of the "utm_content" field.
+func (u *UtmHistoryUpsertBulk) ClearUtmContent() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmContent()
+	})
+}
+
+// SetUtmTerm sets the "utm_term" field.
+func (u *UtmHistoryUpsertBulk) SetUtmTerm(v string) *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.SetUtmTerm(v)
+	})
+}
+
+// UpdateUtmTerm sets the "utm_term" field to the value that was provided on create.
+func (u *UtmHistoryUpsertBulk) UpdateUtmTerm() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.UpdateUtmTerm()
+	})
+}
+
+// ClearUtmTerm clears the value of the "utm_term" field.
+func (u *UtmHistoryUpsertBulk) ClearUtmTerm() *UtmHistoryUpsertBulk {
+	return u.Update(func(s *UtmHistoryUpsert) {
+		s.ClearUtmTerm()
+	})
+}
+
+// Exec executes the query.
+func (u *UtmHistoryUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the UtmHistoryCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for UtmHistoryCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UtmHistoryUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -19,6 +21,7 @@ type DonorPreferenceCreate struct {
 	config
 	mutation *DonorPreferenceMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -269,6 +272,7 @@ func (_c *DonorPreferenceCreate) createSpec() (*DonorPreference, *sqlgraph.Creat
 		_node = &DonorPreference{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(donorpreference.Table, sqlgraph.NewFieldSpec(donorpreference.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -325,11 +329,397 @@ func (_c *DonorPreferenceCreate) createSpec() (*DonorPreference, *sqlgraph.Creat
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DonorPreference.Create().
+//		SetCreatedAt(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DonorPreferenceUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *DonorPreferenceCreate) OnConflict(opts ...sql.ConflictOption) *DonorPreferenceUpsertOne {
+	_c.conflict = opts
+	return &DonorPreferenceUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DonorPreference.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *DonorPreferenceCreate) OnConflictColumns(columns ...string) *DonorPreferenceUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &DonorPreferenceUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// DonorPreferenceUpsertOne is the builder for "upsert"-ing
+	//  one DonorPreference node.
+	DonorPreferenceUpsertOne struct {
+		create *DonorPreferenceCreate
+	}
+
+	// DonorPreferenceUpsert is the "OnConflict" setter.
+	DonorPreferenceUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *DonorPreferenceUpsert) SetUpdatedAt(v time.Time) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateUpdatedAt() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *DonorPreferenceUpsert) SetDeletedAt(v time.Time) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateDeletedAt() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *DonorPreferenceUpsert) ClearDeletedAt() *DonorPreferenceUpsert {
+	u.SetNull(donorpreference.FieldDeletedAt)
+	return u
+}
+
+// SetPreferredLocationIds sets the "preferred_location_ids" field.
+func (u *DonorPreferenceUpsert) SetPreferredLocationIds(v []string) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldPreferredLocationIds, v)
+	return u
+}
+
+// UpdatePreferredLocationIds sets the "preferred_location_ids" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdatePreferredLocationIds() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldPreferredLocationIds)
+	return u
+}
+
+// ClearPreferredLocationIds clears the value of the "preferred_location_ids" field.
+func (u *DonorPreferenceUpsert) ClearPreferredLocationIds() *DonorPreferenceUpsert {
+	u.SetNull(donorpreference.FieldPreferredLocationIds)
+	return u
+}
+
+// SetRecoveryPeriodMonths sets the "recovery_period_months" field.
+func (u *DonorPreferenceUpsert) SetRecoveryPeriodMonths(v int) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldRecoveryPeriodMonths, v)
+	return u
+}
+
+// UpdateRecoveryPeriodMonths sets the "recovery_period_months" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateRecoveryPeriodMonths() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldRecoveryPeriodMonths)
+	return u
+}
+
+// AddRecoveryPeriodMonths adds v to the "recovery_period_months" field.
+func (u *DonorPreferenceUpsert) AddRecoveryPeriodMonths(v int) *DonorPreferenceUpsert {
+	u.Add(donorpreference.FieldRecoveryPeriodMonths, v)
+	return u
+}
+
+// ClearRecoveryPeriodMonths clears the value of the "recovery_period_months" field.
+func (u *DonorPreferenceUpsert) ClearRecoveryPeriodMonths() *DonorPreferenceUpsert {
+	u.SetNull(donorpreference.FieldRecoveryPeriodMonths)
+	return u
+}
+
+// SetCompensationType sets the "compensation_type" field.
+func (u *DonorPreferenceUpsert) SetCompensationType(v donorpreference.CompensationType) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldCompensationType, v)
+	return u
+}
+
+// UpdateCompensationType sets the "compensation_type" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateCompensationType() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldCompensationType)
+	return u
+}
+
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (u *DonorPreferenceUpsert) ClearCompensationType() *DonorPreferenceUpsert {
+	u.SetNull(donorpreference.FieldCompensationType)
+	return u
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (u *DonorPreferenceUpsert) SetTaxiCompensation(v bool) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldTaxiCompensation, v)
+	return u
+}
+
+// UpdateTaxiCompensation sets the "taxi_compensation" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateTaxiCompensation() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldTaxiCompensation)
+	return u
+}
+
+// SetNotificationFrequency sets the "notification_frequency" field.
+func (u *DonorPreferenceUpsert) SetNotificationFrequency(v donorpreference.NotificationFrequency) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldNotificationFrequency, v)
+	return u
+}
+
+// UpdateNotificationFrequency sets the "notification_frequency" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateNotificationFrequency() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldNotificationFrequency)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.DonorPreference.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(donorpreference.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *DonorPreferenceUpsertOne) UpdateNewValues() *DonorPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(donorpreference.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(donorpreference.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DonorPreference.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *DonorPreferenceUpsertOne) Ignore() *DonorPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DonorPreferenceUpsertOne) DoNothing() *DonorPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DonorPreferenceCreate.OnConflict
+// documentation for more info.
+func (u *DonorPreferenceUpsertOne) Update(set func(*DonorPreferenceUpsert)) *DonorPreferenceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DonorPreferenceUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *DonorPreferenceUpsertOne) SetUpdatedAt(v time.Time) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateUpdatedAt() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *DonorPreferenceUpsertOne) SetDeletedAt(v time.Time) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateDeletedAt() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *DonorPreferenceUpsertOne) ClearDeletedAt() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetPreferredLocationIds sets the "preferred_location_ids" field.
+func (u *DonorPreferenceUpsertOne) SetPreferredLocationIds(v []string) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetPreferredLocationIds(v)
+	})
+}
+
+// UpdatePreferredLocationIds sets the "preferred_location_ids" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdatePreferredLocationIds() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdatePreferredLocationIds()
+	})
+}
+
+// ClearPreferredLocationIds clears the value of the "preferred_location_ids" field.
+func (u *DonorPreferenceUpsertOne) ClearPreferredLocationIds() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearPreferredLocationIds()
+	})
+}
+
+// SetRecoveryPeriodMonths sets the "recovery_period_months" field.
+func (u *DonorPreferenceUpsertOne) SetRecoveryPeriodMonths(v int) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetRecoveryPeriodMonths(v)
+	})
+}
+
+// AddRecoveryPeriodMonths adds v to the "recovery_period_months" field.
+func (u *DonorPreferenceUpsertOne) AddRecoveryPeriodMonths(v int) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.AddRecoveryPeriodMonths(v)
+	})
+}
+
+// UpdateRecoveryPeriodMonths sets the "recovery_period_months" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateRecoveryPeriodMonths() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateRecoveryPeriodMonths()
+	})
+}
+
+// ClearRecoveryPeriodMonths clears the value of the "recovery_period_months" field.
+func (u *DonorPreferenceUpsertOne) ClearRecoveryPeriodMonths() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearRecoveryPeriodMonths()
+	})
+}
+
+// SetCompensationType sets the "compensation_type" field.
+func (u *DonorPreferenceUpsertOne) SetCompensationType(v donorpreference.CompensationType) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetCompensationType(v)
+	})
+}
+
+// UpdateCompensationType sets the "compensation_type" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateCompensationType() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateCompensationType()
+	})
+}
+
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (u *DonorPreferenceUpsertOne) ClearCompensationType() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearCompensationType()
+	})
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (u *DonorPreferenceUpsertOne) SetTaxiCompensation(v bool) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetTaxiCompensation(v)
+	})
+}
+
+// UpdateTaxiCompensation sets the "taxi_compensation" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateTaxiCompensation() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateTaxiCompensation()
+	})
+}
+
+// SetNotificationFrequency sets the "notification_frequency" field.
+func (u *DonorPreferenceUpsertOne) SetNotificationFrequency(v donorpreference.NotificationFrequency) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetNotificationFrequency(v)
+	})
+}
+
+// UpdateNotificationFrequency sets the "notification_frequency" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateNotificationFrequency() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateNotificationFrequency()
+	})
+}
+
+// Exec executes the query.
+func (u *DonorPreferenceUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for DonorPreferenceCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DonorPreferenceUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *DonorPreferenceUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: DonorPreferenceUpsertOne.ID is not supported by MySQL driver. Use DonorPreferenceUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *DonorPreferenceUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // DonorPreferenceCreateBulk is the builder for creating many DonorPreference entities in bulk.
 type DonorPreferenceCreateBulk struct {
 	config
 	err      error
 	builders []*DonorPreferenceCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the DonorPreference entities in the database.
@@ -359,6 +749,7 @@ func (_c *DonorPreferenceCreateBulk) Save(ctx context.Context) ([]*DonorPreferen
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -405,6 +796,256 @@ func (_c *DonorPreferenceCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *DonorPreferenceCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DonorPreference.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DonorPreferenceUpsert) {
+//			SetCreatedAt(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *DonorPreferenceCreateBulk) OnConflict(opts ...sql.ConflictOption) *DonorPreferenceUpsertBulk {
+	_c.conflict = opts
+	return &DonorPreferenceUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DonorPreference.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *DonorPreferenceCreateBulk) OnConflictColumns(columns ...string) *DonorPreferenceUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &DonorPreferenceUpsertBulk{
+		create: _c,
+	}
+}
+
+// DonorPreferenceUpsertBulk is the builder for "upsert"-ing
+// a bulk of DonorPreference nodes.
+type DonorPreferenceUpsertBulk struct {
+	create *DonorPreferenceCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.DonorPreference.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(donorpreference.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *DonorPreferenceUpsertBulk) UpdateNewValues() *DonorPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(donorpreference.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(donorpreference.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DonorPreference.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *DonorPreferenceUpsertBulk) Ignore() *DonorPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DonorPreferenceUpsertBulk) DoNothing() *DonorPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DonorPreferenceCreateBulk.OnConflict
+// documentation for more info.
+func (u *DonorPreferenceUpsertBulk) Update(set func(*DonorPreferenceUpsert)) *DonorPreferenceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DonorPreferenceUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *DonorPreferenceUpsertBulk) SetUpdatedAt(v time.Time) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateUpdatedAt() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *DonorPreferenceUpsertBulk) SetDeletedAt(v time.Time) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateDeletedAt() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *DonorPreferenceUpsertBulk) ClearDeletedAt() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// SetPreferredLocationIds sets the "preferred_location_ids" field.
+func (u *DonorPreferenceUpsertBulk) SetPreferredLocationIds(v []string) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetPreferredLocationIds(v)
+	})
+}
+
+// UpdatePreferredLocationIds sets the "preferred_location_ids" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdatePreferredLocationIds() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdatePreferredLocationIds()
+	})
+}
+
+// ClearPreferredLocationIds clears the value of the "preferred_location_ids" field.
+func (u *DonorPreferenceUpsertBulk) ClearPreferredLocationIds() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearPreferredLocationIds()
+	})
+}
+
+// SetRecoveryPeriodMonths sets the "recovery_period_months" field.
+func (u *DonorPreferenceUpsertBulk) SetRecoveryPeriodMonths(v int) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetRecoveryPeriodMonths(v)
+	})
+}
+
+// AddRecoveryPeriodMonths adds v to the "recovery_period_months" field.
+func (u *DonorPreferenceUpsertBulk) AddRecoveryPeriodMonths(v int) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.AddRecoveryPeriodMonths(v)
+	})
+}
+
+// UpdateRecoveryPeriodMonths sets the "recovery_period_months" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateRecoveryPeriodMonths() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateRecoveryPeriodMonths()
+	})
+}
+
+// ClearRecoveryPeriodMonths clears the value of the "recovery_period_months" field.
+func (u *DonorPreferenceUpsertBulk) ClearRecoveryPeriodMonths() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearRecoveryPeriodMonths()
+	})
+}
+
+// SetCompensationType sets the "compensation_type" field.
+func (u *DonorPreferenceUpsertBulk) SetCompensationType(v donorpreference.CompensationType) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetCompensationType(v)
+	})
+}
+
+// UpdateCompensationType sets the "compensation_type" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateCompensationType() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateCompensationType()
+	})
+}
+
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (u *DonorPreferenceUpsertBulk) ClearCompensationType() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.ClearCompensationType()
+	})
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (u *DonorPreferenceUpsertBulk) SetTaxiCompensation(v bool) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetTaxiCompensation(v)
+	})
+}
+
+// UpdateTaxiCompensation sets the "taxi_compensation" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateTaxiCompensation() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateTaxiCompensation()
+	})
+}
+
+// SetNotificationFrequency sets the "notification_frequency" field.
+func (u *DonorPreferenceUpsertBulk) SetNotificationFrequency(v donorpreference.NotificationFrequency) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetNotificationFrequency(v)
+	})
+}
+
+// UpdateNotificationFrequency sets the "notification_frequency" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateNotificationFrequency() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateNotificationFrequency()
+	})
+}
+
+// Exec executes the query.
+func (u *DonorPreferenceUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the DonorPreferenceCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for DonorPreferenceCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DonorPreferenceUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

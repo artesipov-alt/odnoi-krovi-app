@@ -9,7 +9,7 @@ import (
 // Repository определяет интерфейс для операций с данными пользователей
 type Repository interface {
 	// Create создает нового пользователя в базе данных
-	Create(ctx context.Context, user *usermodel.User) (*usermodel.User, error)
+	Create(ctx context.Context, inputuser *usermodel.User, inputprefs *usermodel.DonorPreference) (*usermodel.User, error)
 
 	// GetByID возвращает пользователя по ID
 	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*usermodel.User, error)
@@ -40,6 +40,8 @@ type Repository interface {
 
 	// GetDeletedUsers получает всех удаленных пользователей
 	GetDeletedUsers(ctx context.Context) ([]*usermodel.User, error)
+
+	SaveUTM(ctx context.Context, userID string, utmSource, utmMedium, utmCampaign, utmContent, utmTerm *string) error
 
 	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error

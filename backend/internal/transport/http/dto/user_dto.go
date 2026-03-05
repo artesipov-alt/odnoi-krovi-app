@@ -39,10 +39,10 @@ type CreateUserInput struct {
 
 // CreateUserBody представляет тело запроса на создание пользователя
 type CreateUserBody struct {
-	ProviderID   int64          `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
-	ProviderName string         `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
-	FullName     string         `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
-	MetaData     map[string]any `json:"metaData,omitempty" doc:"Метаданные пользователя"`
+	ProviderID   int64             `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
+	ProviderName string            `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
+	FullName     string            `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
+	MetaData     map[string]string `json:"metaData,omitempty" doc:"Метаданные пользователя"`
 }
 
 // CreateUserOutput представляет ответ на создание пользователя

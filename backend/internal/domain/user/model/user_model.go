@@ -33,7 +33,7 @@ type User struct {
 	Role             string
 	Pets             []*pet.Pet
 	DonorPreference  *DonorPreference
-	MetaData         map[string]any
+	MetaData         map[string]string
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 	DeletedAt        *time.Time
@@ -49,7 +49,7 @@ type NewUserParams struct {
 	Role         UserRole
 	ConsentPd    bool
 	LocationID   *string
-	MetaData     map[string]any
+	MetaData     map[string]string
 }
 
 // CompensationType represents donor's compensation preference
@@ -133,15 +133,17 @@ func NewUser(userparams NewUserParams, donorparams *DonorPreferenceParams) (*Use
 		OnBoarding:   []string{},
 		Pets:         []*pet.Pet{},
 	}
-	if donorparams != nil {
-		user.DonorPreference = &DonorPreference{
-			PreferredLocationIDs:  donorparams.PreferredLocationIDs,
-			RecoveryPeriodMonths:  donorparams.RecoveryPeriodMonths,
-			CompensationType:      donorparams.CompensationType,
-			TaxiCompensation:      donorparams.TaxiCompensation,
-			NotificationFrequency: donorparams.NotificationFrequency,
-		}
-	}
 
 	return user, nil
+}
+
+// NewDonorPreferenceParams creates a new DonorPreferenceParams with default values
+func NewDonorPreference() *DonorPreference {
+	return &DonorPreference{
+		PreferredLocationIDs:  []string{},
+		RecoveryPeriodMonths:  2,
+		CompensationType:      "",
+		TaxiCompensation:      false,
+		NotificationFrequency: NotifyImmediately,
+	}
 }

@@ -101,12 +101,5 @@ func (m *UserMapper) FromCreate(body dto.CreateUserBody) (*model.User, error) {
 		MetaData:     body.MetaData,
 	}
 
-	prefs := &model.DonorPreferenceParams{
-		PreferredLocationIDs:  []string{},
-		RecoveryPeriodMonths:  2,
-		CompensationType:      "",
-		TaxiCompensation:      false,
-		NotificationFrequency: model.NotifyImmediately,
-	}
-	return model.NewUser(params, prefs)
+	return model.NewUser(params, nil)
 }

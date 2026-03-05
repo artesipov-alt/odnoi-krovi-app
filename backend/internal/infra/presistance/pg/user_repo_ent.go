@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -30,7 +31,7 @@ func NewEntUserRepository(client *ent.Client) *EntUserRepository {
 }
 
 // Create creates a new user in the database
-func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error) {
+func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.User, inputprefs *usermodel.DonorPreference) (*usermodel.User, error) {
 	if inputuser == nil {
 		return nil, errors.New("user cannot be nil")
 	}
@@ -70,12 +71,6 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 	if inputuser.AllowGeo {
 		builder.SetAllowGeo(inputuser.AllowGeo)
 	}
-	if inputuser.MetaData != nil {
-		utmData := ExtractMetaDataForUTM(inputuser.MetaData)
-		if utmData != nil {
-			builder.SetOriginSource(utmData.UTMCampaign)
-		}
-	}
 
 	newUser, err := builder.Save(ctx)
 	if err != nil {
@@ -96,40 +91,22 @@ func (r *EntUserRepository) Create(ctx context.Context, inputuser *usermodel.Use
 	}
 
 	// Create DonorPreference if provided
-	if inputuser.DonorPreference != nil {
+	if inputprefs != nil {
 		prefBuilder := tx.DonorPreference.Create().
 			SetUser(newUser)
 
-		prefBuilder.SetPreferredLocationIds(inputuser.DonorPreference.PreferredLocationIDs)
-		prefBuilder.SetRecoveryPeriodMonths(inputuser.DonorPreference.RecoveryPeriodMonths)
-		if inputuser.DonorPreference.CompensationType != "" {
-			prefBuilder.SetCompensationType(donorpreference.CompensationType(inputuser.DonorPreference.CompensationType))
+		prefBuilder.SetPreferredLocationIds(inputprefs.PreferredLocationIDs)
+		prefBuilder.SetRecoveryPeriodMonths(inputprefs.RecoveryPeriodMonths)
+		if inputprefs.CompensationType != "" {
+			prefBuilder.SetCompensationType(donorpreference.CompensationType(inputprefs.CompensationType))
 		}
-		prefBuilder.SetTaxiCompensation(inputuser.DonorPreference.TaxiCompensation)
-		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(inputuser.DonorPreference.NotificationFrequency))
+		prefBuilder.SetTaxiCompensation(inputprefs.TaxiCompensation)
+		prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(inputprefs.NotificationFrequency))
 
 		_, err = prefBuilder.Save(ctx)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to create donor preference: %w", err)
-		}
-	}
-
-	if inputuser.MetaData != nil {
-		utmData := ExtractMetaDataForUTM(inputuser.MetaData)
-		if utmData != nil {
-			metaBuilder := tx.UtmHistory.Create().
-				SetUser(newUser).
-				SetUtmSource(utmData.UTMSource).
-				SetUtmMedium(utmData.UTMMedium).
-				SetUtmCampaign(utmData.UTMCampaign).
-				SetUtmContent(utmData.UTMContent).
-				SetUtmTerm(utmData.UTMTerm)
-			_, err := metaBuilder.Save(ctx)
-			if err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("failed to create utm history: %w", err)
-			}
 		}
 	}
 
@@ -457,6 +434,43 @@ func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths [
 	return nil
 }
 
+// SaveUTM saves UTM data for an existing user
+func (r *EntUserRepository) SaveUTM(ctx context.Context, userID string, utmSource, utmMedium, utmCampaign, utmContent, utmTerm *string) error {
+	if userID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	builder := r.client.UtmHistory.Create().
+		SetUserID(userID)
+
+	if utmSource != nil {
+		builder.SetUtmSource(*utmSource)
+	}
+	if utmMedium != nil {
+		builder.SetUtmMedium(*utmMedium)
+	}
+	if utmCampaign != nil {
+		builder.SetUtmCampaign(*utmCampaign)
+	}
+	if utmContent != nil {
+		builder.SetUtmContent(*utmContent)
+	}
+	if utmTerm != nil {
+		builder.SetUtmTerm(*utmTerm)
+	}
+
+	err := builder.
+		OnConflict(sql.ConflictColumns("user_id", "utm_campaign")).
+		UpdateNewValues().
+		Exec(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to save UTM data: %w", err)
+	}
+
+	return nil
+}
+
 // EntToModel converts ent.User to domain model User
 func EntToModel(e *ent.User) *usermodel.User {
 	if e == nil {
@@ -525,36 +539,4 @@ func EntIdentityToModel(identity *ent.UserIdentity) *usermodel.Identity {
 		UpdatedAt:      identity.UpdatedAt,
 		DeletedAt:      identity.DeletedAt,
 	}
-}
-
-type UTMData struct {
-	UTMSource   string
-	UTMMedium   string
-	UTMCampaign string
-	UTMContent  string
-	UTMTerm     string
-}
-
-func ExtractMetaDataForUTM(metadata map[string]any) *UTMData {
-	if metadata == nil {
-		return nil
-	}
-	result := &UTMData{}
-	for key, value := range metadata {
-		if str, ok := value.(string); ok {
-			switch key {
-			case "utm_source":
-				result.UTMSource = str
-			case "utm_medium":
-				result.UTMMedium = str
-			case "utm_campaign":
-				result.UTMCampaign = str
-			case "utm_content":
-				result.UTMContent = str
-			case "utm_term":
-				result.UTMTerm = str
-			}
-		}
-	}
-	return result
 }
