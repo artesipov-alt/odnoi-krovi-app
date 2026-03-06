@@ -296,7 +296,7 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                         onClick={onConfirmButtonClickHandler}
                         className={cn(styles.confirm, { [styles.enabled]: isConfirmButtonActive })}
                     >
-                        Далее
+                        Применить
                     </Button>
                 </div>
             )}
