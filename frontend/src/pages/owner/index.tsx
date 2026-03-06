@@ -1,6 +1,8 @@
+import Button from '@mui/material/Button';
 import cn from 'classnames';
 import { useGetUserById } from 'hooks/useGetUserById';
 import { usePetsQuery } from 'hooks/usePetsQuery';
+import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import BloodFound from 'imgs/svg/bloodFound';
 import BloodSearch from 'imgs/svg/bloodSearch';
 import DonorButton from 'imgs/svg/donorButton';
@@ -8,6 +10,7 @@ import Paw from 'imgs/svg/paw';
 import RecipientButton from 'imgs/svg/recipientButton';
 import RoundCancel from 'imgs/svg/roundCancel';
 import RoundQuestion from 'imgs/svg/roundQuestion';
+import Settings from 'imgs/svg/settings';
 import { FC, MouseEvent, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { TelegramUser } from 'types';
@@ -18,6 +21,7 @@ import { Onboarding, Role } from 'api/user';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
+import DonorPreference, { View as DonorPreferenceView } from './DonorPreference';
 import RecipientOnboarding from './Onboardings/Recipient';
 import styles from './Owner.module.less';
 import PetProfile from './Profiles/Pet';
@@ -49,15 +53,25 @@ const Owner: FC<Props> = ({ user }) => {
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
     const [donorStatus, setDonorStatus] = useState<DonorStatus>({ isOpen: false });
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
+    const [isDonorPreferenceOpen, setIsDonorPreferenceOpen] = useState<boolean>(false);
+    const [isDonorPreferenceOnboardingWasShown, setIsDonorPreferenceOnboardingWasShown] = useState<boolean>(false);
 
     const { data: pets = [], isLoading, refetch } = usePetsQuery(user.id);
     const { data: userData, isLoading: isUserDataLoading, refetch: refetchUserData } = useGetUserById(user.id);
 
     const onButtonClickHandler = (newView: View) => () => {
+        if (newView === view) {
+            return;
+        }
+
         window.location.hash = `#${newView}`;
 
         setView(newView);
         setTab(0);
+
+        if (newView === Role.DONOR && !userData?.donorPreference) {
+            setIsDonorPreferenceOnboardingWasShown(false);
+        }
     };
 
     const onPetProfileToggleHandler = (petData: Pet | null) => () => {
@@ -72,6 +86,14 @@ const Owner: FC<Props> = ({ user }) => {
 
     const onTabClick = (tabId: number) => () => {
         setTab(tabId);
+    };
+
+    const onDonorPreferenceOnboardingCloseHandler = () => {
+        setIsDonorPreferenceOnboardingWasShown(true);
+    };
+
+    const onDonorPreferenceCloseHandler = () => {
+        setIsDonorPreferenceOpen(false);
     };
 
     const onRecipientLabelClickHandler =
@@ -160,6 +182,21 @@ const Owner: FC<Props> = ({ user }) => {
             setDonorStatus({ isOpen: true, status: label });
         };
 
+    const onNotPreferenceClickHandler = () => {
+        setIsDonorPreferenceOpen(true);
+    };
+
+    const refetchUserDataClickHandler = () => {
+        refetchUserData();
+
+        setIsDonorPreferenceOpen(false);
+        setIsDonorPreferenceOpen(false);
+    };
+
+    const onDonateBloodClickHandler = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
     const renderDonorLabel = (petData: Pet, donorRestrictions?: DonorRestrictions) => {
         switch (true) {
             case donorRestrictions?.stopFactors?.length === 1 &&
@@ -209,6 +246,91 @@ const Owner: FC<Props> = ({ user }) => {
             }
         }
     };
+
+    const renderSettingsTab = () => (
+        <div
+            className={cn(styles.pet, {
+                [styles.notPreference]: !userData?.donorPreference,
+                [styles.notCandidats]:
+                    userData?.donorPreference &&
+                    pets?.every(
+                        ({ donorRestrictions }) =>
+                            donorRestrictions?.warnFactors?.length || donorRestrictions?.stopFactors?.length,
+                    ),
+                [styles.isCandidats]:
+                    userData?.donorPreference &&
+                    pets?.some(
+                        ({ donorRestrictions }) =>
+                            !donorRestrictions?.warnFactors?.length && !donorRestrictions?.stopFactors?.length,
+                    ),
+            })}
+        >
+            {!userData?.donorPreference && (
+                <>
+                    <p className={styles.settingTabText}>
+                        Задайте
+                        <br />
+                        параметры
+                        <br />
+                        донорства
+                    </p>
+                    <Button
+                        fullWidth
+                        variant='contained'
+                        className={styles.settingsButton}
+                        onClick={onNotPreferenceClickHandler}
+                    >
+                        <div className={styles.settingsIcon}>
+                            <Settings />
+                        </div>
+                        Настроить
+                    </Button>
+                </>
+            )}
+            {userData?.donorPreference &&
+                pets?.every(
+                    ({ donorRestrictions }) =>
+                        donorRestrictions?.warnFactors?.length || donorRestrictions?.stopFactors?.length,
+                ) && (
+                    <>
+                        <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
+                            <div className={styles.preferencesettings}>
+                                <Settings />
+                            </div>
+                        </div>
+                        <h3 className={styles.notCandidatsTitle}>У вас нет доноров, готовых к донации</h3>
+                        <p className={styles.notCandidatsDescr}>проверьте статус питомцев или добавьте новых</p>
+                    </>
+                )}
+            {userData?.donorPreference &&
+                pets?.some(
+                    ({ donorRestrictions }) =>
+                        !donorRestrictions?.warnFactors?.length && !donorRestrictions?.stopFactors?.length,
+                ) && (
+                    <>
+                        <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
+                            <div className={styles.preferencesettings}>
+                                <Settings />
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className={styles.isCandidatsTitle}>Спасайте жизни - получайте награды </h3>
+                            <Button
+                                fullWidth
+                                variant='contained'
+                                onClick={onDonateBloodClickHandler}
+                                className={styles.isCandidatsButton}
+                            >
+                                Сдать кровь
+                                <div className={styles.candidatsIcon}>
+                                    <BackAngularArrow />
+                                </div>
+                            </Button>
+                        </div>
+                    </>
+                )}
+        </div>
+    );
 
     useLayoutEffect(() => {
         if (window.location.hash === '#recipient') {
@@ -266,6 +388,34 @@ const Owner: FC<Props> = ({ user }) => {
                 />
             );
         }
+    }
+
+    if (
+        view === Role.DONOR &&
+        !isUserDataLoading &&
+        !userData?.donorPreference &&
+        !isDonorPreferenceOnboardingWasShown
+    ) {
+        return (
+            <DonorPreference
+                id={userData?.id}
+                view={DonorPreferenceView.ONBOARDING}
+                refetchUserData={refetchUserDataClickHandler}
+                onClose={onDonorPreferenceOnboardingCloseHandler}
+            />
+        );
+    }
+
+    if (view === Role.DONOR && isDonorPreferenceOpen) {
+        return (
+            <DonorPreference
+                id={userData?.id}
+                preference={userData?.donorPreference}
+                view={DonorPreferenceView.PREFERENCE}
+                onClose={onDonorPreferenceCloseHandler}
+                refetchUserData={refetchUserDataClickHandler}
+            />
+        );
     }
 
     if (
@@ -329,6 +479,7 @@ const Owner: FC<Props> = ({ user }) => {
                         {view === 'donor' && tab === 1 && <div className={styles.plannedDonations} />}
                         {tab === 0 && (
                             <div className={cn(styles.showcase, { [styles.donorView]: view === 'donor' })}>
+                                {view === 'donor' && renderSettingsTab()}
                                 {pets.map((pet) => (
                                     <div key={`${pet.id}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
                                         <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>

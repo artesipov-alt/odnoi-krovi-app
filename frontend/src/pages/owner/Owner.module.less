@@ -168,6 +168,29 @@
         background: url('imgs/dogStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
         background-size: cover;
     }
+
+    &.notPreference {
+        padding: 16px 15px;
+        background: @textColor2;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &.notCandidats {
+        padding: 15px 15px 0;
+        background: @textColor6;
+        box-sizing: border-box;
+    }
+
+    &.isCandidats {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 15px;
+        background: @common-red;
+        box-sizing: border-box;
+    }
 }
 
 .photo {
@@ -439,4 +462,157 @@
     font-size: 8px;
     font-weight: 400;
     line-height: 15px;
+}
+
+.settingTabText {
+    margin: 22px 0 0;
+    color: @white3;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+    opacity: .8;
+}
+
+&.settingsButton {
+    height: 36px;
+    background: @grayBg6 !important;
+    border-radius: 8px !important;
+    color: @textColor2 !important;
+    text-transform: none !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 15px !important;
+    margin-top: auto !important;
+
+    @media (min-width: 500px) {
+        height: 42px !important;
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        line-height: 18px !important;
+    }
+
+    @media (min-width: 768px) {
+        height: 50px !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 20px !important;
+    }
+
+    & .settingsIcon {
+        margin-right: 17px;
+        width: 16px;
+        height: 16px;
+        fill: @textColor6;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}
+
+.notCandidatsButton {
+    display: flex;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: @red14;
+    box-sizing: border-box;
+}
+
+.preferencesettings {
+    margin: auto;
+    width: 16px;
+    height: 16px;
+    fill: @white;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.notCandidatsTitle {
+    margin: 32px 0 9px;
+    color: @white-bg;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+    opacity: .8;
+}
+
+.notCandidatsDescr {
+    color: @white-bg;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    opacity: .6;
+}
+
+.isCandidatsTitle {
+    color: @red1;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.isCandidatsButton {
+    height: 36px;
+    background: @red15 !important;
+    border-radius: 8px !important;
+    color: rgba(242, 222, 228, .8) !important;
+    text-transform: none !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 15px !important;
+    margin-top: auto !important;
+
+    @media (min-width: 500px) {
+        height: 42px !important;
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        line-height: 18px !important;
+    }
+
+    @media (min-width: 768px) {
+        height: 50px !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 20px !important;
+    }
+
+    & .settingsIcon {
+        margin-right: 17px;
+        width: 16px;
+        height: 16px;
+        fill: @textColor6;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+
+    & .candidatsIcon {
+        width: 16px;
+        height: 20px;
+        margin-left: 10px;
+        transform: rotate(180deg);
+        fill: rgba(242, 222, 228, .8);
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
 }
