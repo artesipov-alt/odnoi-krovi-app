@@ -17,6 +17,32 @@ export enum Onboarding {
     FIND_BLOOD = 'FIND_BLOOD',
 }
 
+export enum CompensationType {
+    FREE = 'free',
+    PAID = 'paid',
+    FOOD = 'food',
+}
+
+export enum NotificationFrequency {
+    NEVER = 'never',
+    DAILY = 'daily',
+    WEEKLY = 'weekly',
+    IMMEDIATELY = 'immediately',
+}
+
+export type DonorPreference = {
+    id: string;
+    userId: string;
+    createdAt: string;
+    deletedAt?: string;
+    updatedAt?: string;
+    taxiCompensation: boolean;
+    recoveryPeriodMonths: number;
+    preferredLocationIds: string[];
+    compensationType: CompensationType;
+    notificationFrequency: NotificationFrequency;
+};
+
 export type GetUserResponse = {
     id: string;
     role?: Role;
@@ -31,6 +57,7 @@ export type GetUserResponse = {
     telegramId?: number;
     onBoarding?: Onboarding[];
     organizationName?: string;
+    donorPreference?: DonorPreference;
 };
 
 export type UpdateUserRequest = {
@@ -41,6 +68,14 @@ export type UpdateUserRequest = {
     allowGeo?: boolean;
     locationId?: number;
     onBoarding?: Onboarding[];
+    donorPreference?: Pick<
+        DonorPreference,
+        | 'compensationType'
+        | 'notificationFrequency'
+        | 'preferredLocationIds'
+        | 'recoveryPeriodMonths'
+        | 'taxiCompensation'
+    >;
 };
 
 export type UpdateUserResponse = {
@@ -59,7 +94,7 @@ export const USER_URL = '/v1/user';
 
 export const userApi = (): IUserApi => ({
     getUser(id) {
-        return instance.get(`${USER_URL}/${id}`);
+        return instance.get(`${USER_URL}/${id}?with_donor_preference=true`);
     },
     getUserByTelegramId(id) {
         return instance.get(`${USER_URL}/telegram/${id}`);

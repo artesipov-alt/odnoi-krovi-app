@@ -1,0 +1,322 @@
+@import 'styles/colors';
+
+.onboarding {
+    display: flex;
+    height: 100vh;
+    background: url('imgs/userPreferenseOnboarding.png');
+    background-size: cover;
+
+    & .container {
+        margin: auto;
+    }
+
+    & .title {
+        margin: 0;
+        color: @textColor2;
+        text-align: center;
+        font-family: Marmelad, sans-serif;
+        font-size: 22px;
+        font-weight: 400;
+        line-height: 24px;
+    }
+
+    & .subtitle {
+        margin: 10px 0 27px;
+        color: @textColor1;
+        text-align: center;
+        font-family: Proxima Nova, sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 15px;
+    }
+
+    & .buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+        align-items: center;
+    }
+
+    & .button {
+        height: 60px;
+        width: 256px;
+        font-size: 14px !important;
+        line-height: 16px !important;
+        border-radius: 10px !important;
+        text-transform: none !important;
+        font-family: Marmelad, sans-serif !important;
+        color: @textColor3 !important;
+        background: @common-red !important;
+        box-shadow: none !important;
+
+        & .settingsIcon {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            fill: @white;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+
+        &.close {
+            color: @red1 !important;
+            background: @white !important;
+        }
+    }
+}
+
+.preference {
+    padding: 18px 12px 20px;
+
+    & .header {
+        display: flex;
+        align-items: center;
+        height: 30px;
+        gap: 11px;
+        margin-bottom: 28px;
+    }
+
+    & .back {
+        width: 24px;
+        height: 24px;
+        fill: @red1;
+
+        svg {
+            width: inherit;
+            height: inherit;
+        }
+    }
+
+    & .title {
+        font-size: 22px;
+        font-weight: 400;
+        line-height: 24px;
+        font-family: Marmelad, sans-serif;
+        color: @textColor2;
+    }
+
+    .recoveryItem {
+        padding-bottom: 38px;
+        border-bottom: 1px solid @border3;
+    }
+
+    & .recovery {
+        display: flex;
+        gap: 6px;
+    }
+
+    & .reward {
+        display: flex;
+        gap: 8px;
+    }
+
+    & .rewardItem {
+        width: 33.33%;
+        padding: 8px 0;
+        border-radius: 10px;
+        background: #FFF;
+        text-align: center;
+        box-sizing: border-box;
+
+        &.checked {
+            outline: 2px solid @red2;
+            outline-offset: -2px;
+        }
+
+        &.disabled {
+            opacity: .5;
+        }
+    }
+
+    & .rewardFreeIcon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 15px;
+        border: 2px solid #a3dc95;
+        background: linear-gradient(180deg, #90DF75 0%, #62B655 100%);
+        box-sizing: border-box;
+
+        & .sum {
+            margin: 0;
+            color: @white;
+            font-family: Marmelad, sans-serif;
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+
+        & .descr {
+            margin: 0;
+            color: @white;
+            font-family: Marmelad, sans-serif;
+            font-size: 10px;
+            font-weight: 400;
+            line-height: 18px;
+        }
+    }
+
+    & .rewardNotFreeIcon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 15px;
+        border: 1px solid #828282;
+        background: linear-gradient(180deg, #747474 0%, #1F1F1F 100%);
+        box-sizing: border-box;
+
+        & .descr {
+            margin: 0;
+            color: @white;
+            font-family: Marmelad, sans-serif;
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 14px;
+        }
+    }
+
+    & .rewardFeedIcon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 15px;
+        border: 1px solid #FF9570;
+        background: linear-gradient(180deg, #FF9252 0%, #FF3F15 100%);
+        box-sizing: border-box;
+
+        & .icon {
+            width: 20px;
+            height: 20px;
+            fill: @white;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+    }
+
+    & .rewardItemText {
+        margin: 8px 0 0;
+        color: @textColor1;
+        font-family: Proxima Nova, sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 14px;
+    }
+
+    & .button {
+        height: 50px;
+        width: 50%;
+        border-radius: 50px !important;
+        background: @white !important;
+        color: @textColor4 !important;
+        text-transform: none !important;
+        font-family: Proxima Nova, sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: 15px !important;
+
+        &.fullWidth {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        &.checked {
+            background: @common-red !important;
+            color: @textColor3 !important;
+        }
+    }
+
+    & .taxi {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 40px;
+        padding: 4px 0;
+        margin-bottom: 20px;
+
+        & .taxiTitle {
+            display: flex;
+            gap: 11px;
+            align-items: center;
+        }
+
+        & .taxiDescr {
+            margin: 0;
+            color: @textColor6;
+            font-family: Proxima Nova, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 15px;
+        }
+
+        & .taxiIcon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border-radius: 15px;
+            border: 1px solid #FFCF70;
+            background: linear-gradient(180deg, #FFCF53 0%, #F90 100%);
+            box-sizing: border-box;
+
+            & .icon {
+                width: 20px;
+                height: 20px;
+                fill: @white;
+
+                svg {
+                    width: inherit;
+                    height: inherit;
+                    fill: inherit;
+                }
+            }
+        }
+    }
+
+    & .notifications {
+        margin-bottom: 33px;
+
+        & .notificationsFirst {
+            display: flex;
+            gap: 8px;
+        }
+    }
+
+    .confirm {
+        height: 60px;
+        border-radius: 10px !important;
+        background: @common-red !important;
+        font-family: Marmelad, sans-serif !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 18px !important;
+        color: @textColor3 !important;
+        text-transform: none !important;
+        pointer-events: none;
+        opacity: .4;
+
+        &.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+}
