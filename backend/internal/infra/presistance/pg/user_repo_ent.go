@@ -40,8 +40,8 @@ func NewEntUserRepository(client *ent.Client) *EntUserRepository {
 	}
 }
 
-// CreateUserWithIdentity creates a new user in the database along with identity
-func (r *EntUserRepository) CreateUserWithIdentity(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error) {
+// CreateUser creates a new user in the database along with identity
+func (r *EntUserRepository) CreateUser(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error) {
 	if inputuser == nil {
 		return nil, errors.New("user cannot be nil")
 	}
@@ -86,22 +86,42 @@ func (r *EntUserRepository) CreateUserWithIdentity(ctx context.Context, inputuse
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	if inputuser.ProviderID != 0 {
-		identityBuilder := c.UserIdentity.Create().
-			SetUser(newUser).
-			SetProviderUserID(inputuser.ProviderID).
-			SetProvider(useridentity.Provider(inputuser.ProviderName))
-		_, err := identityBuilder.Save(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create identity: %w", err)
-		}
-	}
-
 	// Re-fetch the created user without relations
 	return r.GetByID(ctx, newUser.ID, user.UserPreloadOptions{
 		WithPets:            false,
 		WithDonorPreference: false,
 	})
+}
+
+// UpsertUserIdentity creates or updates a user identity
+func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *usermodel.Identity) error {
+	if input == nil {
+		return errors.New("user identity cannot be nil")
+	}
+	if input.UserID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+
+	builder := c.UserIdentity.Create().
+		SetUserID(input.UserID).
+		SetProvider(useridentity.Provider(input.ProviderName)).
+		SetProviderUserID(input.ProviderUserID)
+
+	if input.Metadata != nil {
+		builder.SetMetadata(*input.Metadata)
+	}
+
+	err := builder.
+		OnConflict(sql.ConflictColumns("user_id", "provider")).
+		UpdateNewValues().
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to upsert user identity: %w", err)
+	}
+
+	return nil
 }
 
 // CreateDonorPreference creates donor preference for a user
@@ -406,8 +426,8 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// ExistsProvider checks if a user with the given Provider ID exists
-func (r *EntUserRepository) ExistsProvider(ctx context.Context, providerID int64, providerName string) (bool, error) {
+// ExistsByProvider checks if a user with the given Provider ID exists
+func (r *EntUserRepository) ExistsByProvider(ctx context.Context, providerID int64, providerName string) (bool, error) {
 	if providerID <= 0 {
 		return false, errors.New("invalid provider ID")
 	}
@@ -532,29 +552,29 @@ func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths [
 	return nil
 }
 
-// SaveUTM saves UTM data for an existing user
-func (r *EntUserRepository) SaveUTM(ctx context.Context, userID string, utmSource, utmMedium, utmCampaign, utmContent, utmTerm *string) error {
-	if userID == "" {
+// UpsertUTM upserts UTM data for an existing user
+func (r *EntUserRepository) UpsertUTM(ctx context.Context, userID string, metadata *usermodel.Metadata) error {
+	if metadata == nil || userID == "" {
 		return errors.New("invalid user ID")
 	}
 
 	builder := r.client(ctx).UtmHistory.Create().
 		SetUserID(userID)
 
-	if utmSource != nil {
-		builder.SetUtmSource(*utmSource)
+	if metadata.UTMData.Source != "" {
+		builder.SetUtmSource(metadata.UTMData.Source)
 	}
-	if utmMedium != nil {
-		builder.SetUtmMedium(*utmMedium)
+	if metadata.UTMData.Medium != "" {
+		builder.SetUtmMedium(metadata.UTMData.Medium)
 	}
-	if utmCampaign != nil {
-		builder.SetUtmCampaign(*utmCampaign)
+	if metadata.UTMData.Campaign != "" {
+		builder.SetUtmCampaign(metadata.UTMData.Campaign)
 	}
-	if utmContent != nil {
-		builder.SetUtmContent(*utmContent)
+	if metadata.UTMData.Content != "" {
+		builder.SetUtmContent(metadata.UTMData.Content)
 	}
-	if utmTerm != nil {
-		builder.SetUtmTerm(*utmTerm)
+	if metadata.UTMData.Term != "" {
+		builder.SetUtmTerm(metadata.UTMData.Term)
 	}
 
 	err := builder.
@@ -563,7 +583,7 @@ func (r *EntUserRepository) SaveUTM(ctx context.Context, userID string, utmSourc
 		Exec(ctx)
 
 	if err != nil {
-		return fmt.Errorf("failed to save UTM data: %w", err)
+		return fmt.Errorf("failed to upsert UTM data: %w", err)
 	}
 
 	return nil
@@ -633,7 +653,7 @@ func EntIdentityToModel(identity *ent.UserIdentity) *usermodel.Identity {
 		UserID:         identity.UserID,
 		ProviderName:   string(identity.Provider),
 		ProviderUserID: identity.ProviderUserID,
-		Metadata:       identity.Metadata,
+		Metadata:       &identity.Metadata,
 		CreatedAt:      identity.CreatedAt,
 		UpdatedAt:      identity.UpdatedAt,
 		DeletedAt:      identity.DeletedAt,

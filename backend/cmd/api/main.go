@@ -121,8 +121,7 @@ func main() {
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
 		// Инициализация user command и query handlers
-		userCreateSimpleHandler := usercmd.NewCreateSimpleHandler(userRepo, txManager)
-		userAuthHandler := usercmd.NewAuthHandler(userRepo)
+		userAuthHandler := usercmd.NewAuthHandler(userRepo, txManager)
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, txManager)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
@@ -163,7 +162,6 @@ func main() {
 			getBloodGroupsByTypeHandler,
 		)
 		userHandler := transport.NewUserHandler(
-			userCreateSimpleHandler,
 			userAuthHandler,
 			userDeleteHandler,
 			userUpdateHandler,

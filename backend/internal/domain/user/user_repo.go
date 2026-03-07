@@ -8,8 +8,9 @@ import (
 
 // Repository определяет интерфейс для операций с данными пользователей
 type Repository interface {
-	// CreateUserWithIdentity создает нового пользователя в базе данных вместе с identity
-	CreateUserWithIdentity(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error)
+	CreateUser(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error)
+
+	UpsertUserIdentity(ctx context.Context, input *usermodel.Identity) error
 
 	// CreateDonorPreference создает настройки донора для пользователя
 	CreateDonorPreference(ctx context.Context, userID string, inputprefs *usermodel.DonorPreference) error
@@ -48,7 +49,7 @@ type Repository interface {
 	Delete(ctx context.Context, id string) error
 
 	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
-	ExistsProvider(ctx context.Context, providerID int64, providerName string) (bool, error)
+	ExistsByProvider(ctx context.Context, providerID int64, providerName string) (bool, error)
 
 	// ExistsByID проверяет, существует ли пользователь с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)
@@ -65,7 +66,7 @@ type Repository interface {
 	// GetByPhone возвращает ID пользователя по номеру телефона
 	GetByPhone(ctx context.Context, phone string) (string, error)
 
-	SaveUTM(ctx context.Context, userID string, utmSource, utmMedium, utmCampaign, utmContent, utmTerm *string) error
+	UpsertUTM(ctx context.Context, userID string, metadata *usermodel.Metadata) error
 
 	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error

@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // UserIdentity holds the schema definition for the UserIdentity entity.
@@ -54,5 +55,12 @@ func (UserIdentity) Annotations() []schema.Annotation {
 func (UserIdentity) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		StandardMixin{Prefix: IdentityPrefix},
+	}
+}
+
+func (UserIdentity) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("user_id", "provider").
+			Unique(),
 	}
 }

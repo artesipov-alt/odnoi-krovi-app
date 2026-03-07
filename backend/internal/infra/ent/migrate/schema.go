@@ -327,6 +327,13 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "useridentity_user_id_provider",
+				Unique:  true,
+				Columns: []*schema.Column{UserIdentitiesColumns[7], UserIdentitiesColumns[4]},
+			},
+		},
 	}
 	// UserUtmHistoryColumns holds the columns for the "user_utm_history" table.
 	UserUtmHistoryColumns = []*schema.Column{

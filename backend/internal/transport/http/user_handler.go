@@ -17,7 +17,6 @@ import (
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	createSimpleHandler  *cmd.CreateSimpleHandler
 	authHandler          *cmd.AuthHandler
 	deleteHandler        *cmd.DeleteHandler
 	updateHandler        *cmd.UpdateHandler
@@ -32,7 +31,6 @@ type UserHandler struct {
 
 // NewUserHandler создает новый обработчик пользователей
 func NewUserHandler(
-	createSimpleHandler *cmd.CreateSimpleHandler,
 	authHandler *cmd.AuthHandler,
 	deleteHandler *cmd.DeleteHandler,
 	updateHandler *cmd.UpdateHandler,
@@ -44,7 +42,6 @@ func NewUserHandler(
 	storage filestorage.Repository,
 ) *UserHandler {
 	return &UserHandler{
-		createSimpleHandler:  createSimpleHandler,
 		authHandler:          authHandler,
 		deleteHandler:        deleteHandler,
 		updateHandler:        updateHandler,
@@ -69,17 +66,6 @@ func (h *UserHandler) Register(api huma.API) {
 		Description: "Возвращает информацию о пользователе по его идентификатору",
 		Tags:        []string{"users-v1"},
 	}, h.GetUser)
-
-	// Простая регистрация пользователя
-	huma.Register(api, huma.Operation{
-		OperationID:   "register-user-simple",
-		Method:        http.MethodPost,
-		Path:          "/v1/user/register/simple",
-		Summary:       "Простая регистрация пользователя",
-		Description:   "Создает пользователя с Telegram ID и именем (для команды Start)",
-		Tags:          []string{"users-v1"},
-		DefaultStatus: http.StatusCreated,
-	}, h.RegisterUserSimple)
 
 	// Аунтификация пользователя
 	huma.Register(api, huma.Operation{
@@ -167,48 +153,36 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr)}, nil
 }
 
-func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateUserInput) (*dto.CreateUserOutput, error) {
-	// Use mapper to convert DTO to domain model using NewUser constructor
-	user, err := h.userMapper.FromCreate(input.Body)
+func (h *UserHandler) AuthUser(ctx context.Context, input *dto.AuthUserInput) (*dto.AuthUserOutput, error) {
+	idn, err := usermodel.NewIdentity(input.Body.ProviderID, input.Body.ProviderName, input.Body.AppInitData, input.Body.MetaData)
 	if err != nil {
 		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
 	}
+
+	var usrparams usermodel.NewUserParams
+	if input.Body.FullName != nil {
+		usrparams.FullName = *input.Body.FullName
+	}
+
+	usr, err := usermodel.NewUser(usrparams)
+	if err != nil {
+		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
+	}
+
 	var metadata *usermodel.Metadata
 	if input.Body.MetaData != nil {
 		metadata = usermodel.NewUserMetadata(*input.Body.MetaData)
+		usr.OriginSource = metadata.UTMData.Campaign
 	}
 
-	u, err := h.createSimpleHandler.Handle(ctx, user, nil, metadata)
-	if err != nil {
-		return nil, err
-	}
-
-	if u == nil {
-		return nil, apperrors.Internal(nil, "ошибка при создании пользователя")
-	}
-
-	return &dto.CreateUserOutput{Body: dto.CreateUserResult{
-		ID:        u.ID,
-		CreatedAt: u.CreatedAt,
-	}}, nil
-}
-
-func (h *UserHandler) AuthUser(ctx context.Context, input *dto.AuthUserInput) (*dto.AuthUserOutput, error) {
-	// Use mapper to convert DTO to domain model using NewUser constructor
-	idn, err := usermodel.NewIdentity(input.Body.ProviderID, input.Body.ProviderName, input.Body.AuthBotToken)
-	if err != nil {
-		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
-	}
-
-	authdata, err := h.authHandler.Handle(ctx, idn)
+	authdata, err := h.authHandler.Handle(ctx, idn, usr, metadata)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.AuthUserOutput{Body: dto.AuthUserResult{
-		UserID:    authdata.UserID,
-		XBToken:   authdata.XBToken,
-		CreatedAt: &authdata.CreatedAt,
+		UserID: authdata.UserID,
+		Token:  authdata.Token,
 	}}, nil
 }
 

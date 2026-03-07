@@ -19,8 +19,6 @@ const (
 type User struct {
 	ID               string
 	TelegramID       int64
-	ProviderID       int64
-	ProviderName     string
 	FullName         string
 	Phone            string
 	Email            string
@@ -41,15 +39,13 @@ type User struct {
 
 // NewUserParams holds the parameters for creating a new User
 type NewUserParams struct {
-	ProviderID   int64
-	ProviderName string
-	FullName     string
-	Phone        string
-	Email        string
-	Role         UserRole
-	ConsentPd    bool
-	LocationID   *string
-	MetaData     map[string]string
+	FullName   string
+	Phone      string
+	Email      string
+	Role       UserRole
+	ConsentPd  bool
+	LocationID *string
+	MetaData   map[string]any
 }
 
 // CompensationType represents donor's compensation preference
@@ -98,7 +94,7 @@ type DonorPreferenceParams struct {
 func NewUser(userparams NewUserParams) (*User, error) {
 	// Validation
 	if userparams.FullName == "" {
-		return nil, errors.New("full name is required")
+		userparams.FullName = "Пользователь портала"
 	}
 	if len(userparams.FullName) > 100 {
 		return nil, errors.New("full name must be less than 100 characters")
@@ -122,12 +118,12 @@ func NewUser(userparams NewUserParams) (*User, error) {
 	// Extract OriginSource from metadata (utm_campaign)
 	originSource := ""
 	if userparams.MetaData != nil {
-		originSource = userparams.MetaData["utm_campaign"]
+		if val, ok := userparams.MetaData["utm_campaign"]; ok {
+			originSource, _ = val.(string)
+		}
 	}
 
 	user := &User{
-		ProviderID:   userparams.ProviderID,
-		ProviderName: userparams.ProviderName,
 		FullName:     userparams.FullName,
 		Phone:        userparams.Phone,
 		Email:        userparams.Email,
@@ -152,34 +148,4 @@ func DefaultDonorPreference() *DonorPreference {
 		TaxiCompensation:      false,
 		NotificationFrequency: NotifyImmediately,
 	}
-}
-
-// Metadata represents user metadata with UTM and other fields
-type UTM struct {
-	Source   string
-	Medium   string
-	Campaign string
-	Content  string
-	Term     string
-}
-
-type Metadata struct {
-	UTMData *UTM
-}
-
-func NewUserMetadata(metadata map[string]string) *Metadata {
-	source, medium, campaign, content, term := extractUTMFromMetadata(metadata)
-	return &Metadata{
-		UTMData: &UTM{
-			Source:   source,
-			Medium:   medium,
-			Campaign: campaign,
-			Content:  content,
-			Term:     term,
-		},
-	}
-}
-
-func extractUTMFromMetadata(metadata map[string]string) (string, string, string, string, string) {
-	return metadata["utm_source"], metadata["utm_medium"], metadata["utm_campaign"], metadata["utm_content"], metadata["utm_term"]
 }
