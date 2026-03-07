@@ -177,9 +177,8 @@ func (h *UserHandler) RegisterUserSimple(ctx context.Context, input *dto.CreateU
 	if input.Body.MetaData != nil {
 		metadata = usermodel.NewUserMetadata(*input.Body.MetaData)
 	}
-	prefs := usermodel.DefaultDonorPreference()
 
-	u, err := h.createSimpleHandler.Handle(ctx, user, prefs, metadata)
+	u, err := h.createSimpleHandler.Handle(ctx, user, nil, metadata)
 	if err != nil {
 		return nil, err
 	}
