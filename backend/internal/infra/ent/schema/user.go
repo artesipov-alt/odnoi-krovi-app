@@ -57,7 +57,7 @@ func (User) Fields() []ent.Field {
 			Optional(),
 		// role - роль пользователя в системе.
 		field.Enum("role").
-			Values("user", "admin").
+			Values("user", "admin", "clinic").
 			Default("user"),
 		// origin_source - UTM-метка, указывающая, откуда пришел пользователь.
 		field.String("origin_source").

@@ -47,7 +47,7 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		OnBoarding:       u.OnBoarding,
 		AllowGeo:         u.AllowGeo,
 		LocationID:       "",
-		Role:             u.Role,
+		Role:             string(u.Role),
 		CreatedAt:        u.CreatedAt,
 		UpdatedAt:        u.UpdatedAt,
 		DeletedAt:        u.DeletedAt,

@@ -3,9 +3,9 @@ package model
 import "time"
 
 const (
-	RoleClinic  = "CLINIC"
-	RoleAdmin   = "ADMIN"
-	RoleService = "SERVICE"
+	RoleClinic  = "clinic"
+	RoleAdmin   = "admin"
+	RoleService = "service"
 )
 
 const (

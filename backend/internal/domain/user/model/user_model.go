@@ -11,8 +11,9 @@ import (
 type UserRole string
 
 const (
-	RoleUser  UserRole = "user"
-	RoleAdmin UserRole = "admin"
+	RoleUser   UserRole = "user"
+	RoleAdmin  UserRole = "admin"
+	RoleClinic UserRole = "clinic"
 )
 
 // User представляет доменную модель пользователя
@@ -28,7 +29,7 @@ type User struct {
 	OnBoarding       []string
 	AllowGeo         bool
 	LocationID       *string
-	Role             string
+	Role             UserRole
 	OriginSource     string
 	Pets             []*pet.Pet
 	DonorPreference  *DonorPreference
@@ -127,7 +128,7 @@ func NewUser(userparams NewUserParams) (*User, error) {
 		FullName:     userparams.FullName,
 		Phone:        userparams.Phone,
 		Email:        userparams.Email,
-		Role:         string(userparams.Role),
+		Role:         userparams.Role,
 		ConsentPd:    userparams.ConsentPd,
 		LocationID:   userparams.LocationID,
 		OriginSource: originSource,

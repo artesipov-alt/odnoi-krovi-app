@@ -607,7 +607,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 		ConsentPd:        e.ConsentPd,
 		OnBoarding:       e.OnBoarding,
 		AllowGeo:         e.AllowGeo,
-		Role:             string(e.Role),
+		Role:             usermodel.UserRole(e.Role),
 		OriginSource:     e.OriginSource,
 		Pets:             nil, // Pets are loaded separately via WithPets
 		CreatedAt:        &e.CreatedAt,

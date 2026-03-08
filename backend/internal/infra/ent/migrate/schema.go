@@ -304,7 +304,7 @@ var (
 		{Name: "on_boarding", Type: field.TypeJSON, Nullable: true},
 		{Name: "allow_geo", Type: field.TypeBool, Default: false},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
-		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},
+		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin", "clinic"}, Default: "user"},
 		{Name: "origin_source", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "location_id", Type: field.TypeString, Nullable: true},
 	}
