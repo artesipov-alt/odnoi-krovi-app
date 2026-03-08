@@ -179,14 +179,14 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 		}
 	}
 
-	updatedAt, err := h.updateHandler.Handle(ctx, input.ID, user)
+	user, err := h.updateHandler.Handle(ctx, input.ID, user)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.UpdateUserOutput{Body: dto.UpdateUserResult{
-		ID:        input.ID,
-		UpdatedAt: updatedAt,
+		ID:        user.ID,
+		UpdatedAt: user.UpdatedAt,
 	}}, nil
 }
 

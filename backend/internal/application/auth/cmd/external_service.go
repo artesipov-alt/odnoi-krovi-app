@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	auth "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth"
@@ -11,8 +10,6 @@ import (
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
-
-const ClinicPrefix = "CLN"
 
 type ExternalAuthHandler struct {
 	userRepo       user.Repository
@@ -32,7 +29,7 @@ func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppVali
 
 func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
 	// Валидируем и получаем provider name
-	pid, providerName, role := h.appValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
+	_, providerName, role := h.appValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
 	if providerName == "" {
 		return nil, apperrors.ErrInvalidUserData
 	}
@@ -42,7 +39,7 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 	if err != nil {
 		return nil, err
 	}
-	userdata.Role = validateRole(pid)
+	userdata.Role = usermodel.UserRole(role)
 
 	if !exist {
 		// Создаем нового пользователя
@@ -97,12 +94,4 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 
 	authData.AccessToken = h.tokenGenerator.Generate(authData.UserID, role)
 	return authData, nil
-}
-
-func validateRole(id string) usermodel.UserRole {
-	var role usermodel.UserRole
-	if strings.HasPrefix(id, ClinicPrefix) {
-		role = usermodel.RoleClinic
-	}
-	return role
 }

@@ -38,7 +38,7 @@ func (v *AppValidator) ValidateBySecret(ctx context.Context, id string, apikey s
 		return "", "", ""
 	}
 	providerID = id
-	if strings.HasSuffix(id, "_bot") {
+	if strings.HasSuffix(partner.ID, "_bot") {
 		providerName = partner.ID
 	} else {
 		providerName = "service"

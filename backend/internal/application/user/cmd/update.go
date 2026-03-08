@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -24,10 +23,12 @@ func NewUpdateHandler(userRepo user.Repository, txManager *presistance.TxManager
 	}
 }
 
-func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.User) (*time.Time, error) {
-	now := time.Now()
+func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.User) (*usermodel.User, error) {
+	var finalID string
 
 	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		finalID = id // default to original id
+
 		// Если обновляется телефон, проверяем конфликт
 		if input.Phone != "" {
 			existingID, err := h.userRepo.GetByPhone(txCtx, input.Phone)
@@ -62,6 +63,8 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.
 					return apperrors.Internal(err, "failed to delete current user")
 				}
 
+				finalID = existingID // set to existing id after merge
+
 				// Аккаунты объединены
 				return nil
 			}
@@ -89,5 +92,10 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.
 		return nil, err
 	}
 
-	return &now, nil
+	usr, err := h.userRepo.GetByID(ctx, finalID, user.UserPreloadOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return usr, nil
 }
