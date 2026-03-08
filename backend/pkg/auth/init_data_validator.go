@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"strconv"
 	"strings"
+
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 )
 
 type AppValidator struct {
@@ -33,10 +35,18 @@ func (v *AppValidator) ValidateHash(initData string) (providerID int64) {
 	return providerID
 }
 
-func (v *AppValidator) ValidateBySecret(id int64, secret string) (providerID int64) {
+var apiKeys = map[string]string{
+	"max_bot":      "API-MAX",
+	"telegram_bot": "API-TELEGRAM",
+}
+
+func (v *AppValidator) ValidateBySecret(id int64, secret string) (providerID int64, providerName authmodel.ProviderName) {
 	slog.Info("ValidateBySecret", "id", id, "secret", secret, "default-secret", v.secret)
-	if secret != v.secret {
-		return 0
+	switch secret {
+	case apiKeys["max_bot"]:
+		return id, authmodel.ProviderMax
+	case apiKeys["telegram_bot"]:
+		return id, authmodel.ProviderTelegram
 	}
-	return id
+	return 0, ""
 }

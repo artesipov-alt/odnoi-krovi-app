@@ -28,11 +28,10 @@ func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppVali
 }
 
 func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
-	authreq.ProviderUserID = h.appValidator.ValidateBySecret(authreq.ProviderUserID, authreq.ServiceKey)
+	authreq.ProviderUserID, authreq.ProviderName = h.appValidator.ValidateBySecret(authreq.ProviderUserID, authreq.ServiceKey)
 	if authreq.ProviderUserID == 0 {
 		return nil, apperrors.ErrInvalidUserData
 	}
-
 	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
 	if err != nil {
 		return nil, err

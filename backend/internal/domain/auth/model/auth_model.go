@@ -7,8 +7,8 @@ import (
 type ProviderName string
 
 const (
-	ProviderTelegram ProviderName = "telegram_miniapp"
-	ProviderMax      ProviderName = "max_miniapp"
+	ProviderTelegram ProviderName = "telegram_bot"
+	ProviderMax      ProviderName = "max_bot"
 	ProviderService  ProviderName = "service"
 )
 
