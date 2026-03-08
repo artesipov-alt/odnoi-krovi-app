@@ -33,7 +33,7 @@ type UserIdentity struct {
 	// Provider holds the value of the "provider" field.
 	Provider useridentity.Provider `json:"provider,omitempty"`
 	// ProviderUserID holds the value of the "provider_user_id" field.
-	ProviderUserID int64 `json:"provider_user_id,omitempty"`
+	ProviderUserID string `json:"provider_user_id,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -84,9 +84,7 @@ func (*UserIdentity) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case useridentity.FieldMetadata:
 			values[i] = new([]byte)
-		case useridentity.FieldProviderUserID:
-			values[i] = new(sql.NullInt64)
-		case useridentity.FieldID, useridentity.FieldUserID, useridentity.FieldPartnerID, useridentity.FieldProvider:
+		case useridentity.FieldID, useridentity.FieldUserID, useridentity.FieldPartnerID, useridentity.FieldProvider, useridentity.FieldProviderUserID:
 			values[i] = new(sql.NullString)
 		case useridentity.FieldCreatedAt, useridentity.FieldUpdatedAt, useridentity.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -149,10 +147,10 @@ func (_m *UserIdentity) assignValues(columns []string, values []any) error {
 				_m.Provider = useridentity.Provider(value.String)
 			}
 		case useridentity.FieldProviderUserID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field provider_user_id", values[i])
 			} else if value.Valid {
-				_m.ProviderUserID = value.Int64
+				_m.ProviderUserID = value.String
 			}
 		case useridentity.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -229,7 +227,7 @@ func (_m *UserIdentity) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.Provider))
 	builder.WriteString(", ")
 	builder.WriteString("provider_user_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ProviderUserID))
+	builder.WriteString(_m.ProviderUserID)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Metadata))

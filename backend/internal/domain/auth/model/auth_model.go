@@ -17,7 +17,7 @@ type Identity struct {
 	ID             string
 	UserID         string
 	ProviderName   ProviderName
-	ProviderUserID int64
+	ProviderUserID string
 	ServiceKey     string
 	AppInitData    string
 	AccessToken    string

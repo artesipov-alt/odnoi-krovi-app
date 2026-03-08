@@ -329,7 +329,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "provider", Type: field.TypeEnum, Enums: []string{"telegram_bot", "max_bot", "service"}},
-		{Name: "provider_user_id", Type: field.TypeInt64},
+		{Name: "provider_user_id", Type: field.TypeString},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "partner_id", Type: field.TypeString, Nullable: true},
 		{Name: "user_id", Type: field.TypeString},
@@ -355,9 +355,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "useridentity_user_id_provider",
+				Name:    "useridentity_provider_user_id_provider",
 				Unique:  true,
-				Columns: []*schema.Column{UserIdentitiesColumns[8], UserIdentitiesColumns[4]},
+				Columns: []*schema.Column{UserIdentitiesColumns[5], UserIdentitiesColumns[4]},
 			},
 		},
 	}

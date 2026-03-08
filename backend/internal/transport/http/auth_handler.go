@@ -113,6 +113,7 @@ func (h *AuthHandler) MaxSignIn(ctx context.Context, input *dto.MiniAppSignInInp
 }
 
 func (h *AuthHandler) ServiceSignIn(ctx context.Context, input *dto.MessengerSignInInput) (*dto.MessengerSignInOutput, error) {
+
 	idn := &authmodel.Identity{
 		ProviderName:   authmodel.ProviderService,
 		ProviderUserID: input.Body.ProviderID,

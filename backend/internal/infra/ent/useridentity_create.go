@@ -94,7 +94,7 @@ func (_c *UserIdentityCreate) SetProvider(v useridentity.Provider) *UserIdentity
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (_c *UserIdentityCreate) SetProviderUserID(v int64) *UserIdentityCreate {
+func (_c *UserIdentityCreate) SetProviderUserID(v string) *UserIdentityCreate {
 	_c.mutation.SetProviderUserID(v)
 	return _c
 }
@@ -256,7 +256,7 @@ func (_c *UserIdentityCreate) createSpec() (*UserIdentity, *sqlgraph.CreateSpec)
 		_node.Provider = value
 	}
 	if value, ok := _c.mutation.ProviderUserID(); ok {
-		_spec.SetField(useridentity.FieldProviderUserID, field.TypeInt64, value)
+		_spec.SetField(useridentity.FieldProviderUserID, field.TypeString, value)
 		_node.ProviderUserID = value
 	}
 	if value, ok := _c.mutation.Metadata(); ok {
@@ -422,7 +422,7 @@ func (u *UserIdentityUpsert) UpdateProvider() *UserIdentityUpsert {
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (u *UserIdentityUpsert) SetProviderUserID(v int64) *UserIdentityUpsert {
+func (u *UserIdentityUpsert) SetProviderUserID(v string) *UserIdentityUpsert {
 	u.Set(useridentity.FieldProviderUserID, v)
 	return u
 }
@@ -430,12 +430,6 @@ func (u *UserIdentityUpsert) SetProviderUserID(v int64) *UserIdentityUpsert {
 // UpdateProviderUserID sets the "provider_user_id" field to the value that was provided on create.
 func (u *UserIdentityUpsert) UpdateProviderUserID() *UserIdentityUpsert {
 	u.SetExcluded(useridentity.FieldProviderUserID)
-	return u
-}
-
-// AddProviderUserID adds v to the "provider_user_id" field.
-func (u *UserIdentityUpsert) AddProviderUserID(v int64) *UserIdentityUpsert {
-	u.Add(useridentity.FieldProviderUserID, v)
 	return u
 }
 
@@ -593,16 +587,9 @@ func (u *UserIdentityUpsertOne) UpdateProvider() *UserIdentityUpsertOne {
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (u *UserIdentityUpsertOne) SetProviderUserID(v int64) *UserIdentityUpsertOne {
+func (u *UserIdentityUpsertOne) SetProviderUserID(v string) *UserIdentityUpsertOne {
 	return u.Update(func(s *UserIdentityUpsert) {
 		s.SetProviderUserID(v)
-	})
-}
-
-// AddProviderUserID adds v to the "provider_user_id" field.
-func (u *UserIdentityUpsertOne) AddProviderUserID(v int64) *UserIdentityUpsertOne {
-	return u.Update(func(s *UserIdentityUpsert) {
-		s.AddProviderUserID(v)
 	})
 }
 
@@ -937,16 +924,9 @@ func (u *UserIdentityUpsertBulk) UpdateProvider() *UserIdentityUpsertBulk {
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (u *UserIdentityUpsertBulk) SetProviderUserID(v int64) *UserIdentityUpsertBulk {
+func (u *UserIdentityUpsertBulk) SetProviderUserID(v string) *UserIdentityUpsertBulk {
 	return u.Update(func(s *UserIdentityUpsert) {
 		s.SetProviderUserID(v)
-	})
-}
-
-// AddProviderUserID adds v to the "provider_user_id" field.
-func (u *UserIdentityUpsertBulk) AddProviderUserID(v int64) *UserIdentityUpsertBulk {
-	return u.Update(func(s *UserIdentityUpsert) {
-		s.AddProviderUserID(v)
 	})
 }
 

@@ -91,7 +91,7 @@ func PartnerID(v string) predicate.UserIdentity {
 }
 
 // ProviderUserID applies equality check predicate on the "provider_user_id" field. It's identical to ProviderUserIDEQ.
-func ProviderUserID(v int64) predicate.UserIdentity {
+func ProviderUserID(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldEQ(FieldProviderUserID, v))
 }
 
@@ -386,43 +386,68 @@ func ProviderNotIn(vs ...Provider) predicate.UserIdentity {
 }
 
 // ProviderUserIDEQ applies the EQ predicate on the "provider_user_id" field.
-func ProviderUserIDEQ(v int64) predicate.UserIdentity {
+func ProviderUserIDEQ(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldEQ(FieldProviderUserID, v))
 }
 
 // ProviderUserIDNEQ applies the NEQ predicate on the "provider_user_id" field.
-func ProviderUserIDNEQ(v int64) predicate.UserIdentity {
+func ProviderUserIDNEQ(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldNEQ(FieldProviderUserID, v))
 }
 
 // ProviderUserIDIn applies the In predicate on the "provider_user_id" field.
-func ProviderUserIDIn(vs ...int64) predicate.UserIdentity {
+func ProviderUserIDIn(vs ...string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldIn(FieldProviderUserID, vs...))
 }
 
 // ProviderUserIDNotIn applies the NotIn predicate on the "provider_user_id" field.
-func ProviderUserIDNotIn(vs ...int64) predicate.UserIdentity {
+func ProviderUserIDNotIn(vs ...string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldNotIn(FieldProviderUserID, vs...))
 }
 
 // ProviderUserIDGT applies the GT predicate on the "provider_user_id" field.
-func ProviderUserIDGT(v int64) predicate.UserIdentity {
+func ProviderUserIDGT(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldGT(FieldProviderUserID, v))
 }
 
 // ProviderUserIDGTE applies the GTE predicate on the "provider_user_id" field.
-func ProviderUserIDGTE(v int64) predicate.UserIdentity {
+func ProviderUserIDGTE(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldGTE(FieldProviderUserID, v))
 }
 
 // ProviderUserIDLT applies the LT predicate on the "provider_user_id" field.
-func ProviderUserIDLT(v int64) predicate.UserIdentity {
+func ProviderUserIDLT(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldLT(FieldProviderUserID, v))
 }
 
 // ProviderUserIDLTE applies the LTE predicate on the "provider_user_id" field.
-func ProviderUserIDLTE(v int64) predicate.UserIdentity {
+func ProviderUserIDLTE(v string) predicate.UserIdentity {
 	return predicate.UserIdentity(sql.FieldLTE(FieldProviderUserID, v))
+}
+
+// ProviderUserIDContains applies the Contains predicate on the "provider_user_id" field.
+func ProviderUserIDContains(v string) predicate.UserIdentity {
+	return predicate.UserIdentity(sql.FieldContains(FieldProviderUserID, v))
+}
+
+// ProviderUserIDHasPrefix applies the HasPrefix predicate on the "provider_user_id" field.
+func ProviderUserIDHasPrefix(v string) predicate.UserIdentity {
+	return predicate.UserIdentity(sql.FieldHasPrefix(FieldProviderUserID, v))
+}
+
+// ProviderUserIDHasSuffix applies the HasSuffix predicate on the "provider_user_id" field.
+func ProviderUserIDHasSuffix(v string) predicate.UserIdentity {
+	return predicate.UserIdentity(sql.FieldHasSuffix(FieldProviderUserID, v))
+}
+
+// ProviderUserIDEqualFold applies the EqualFold predicate on the "provider_user_id" field.
+func ProviderUserIDEqualFold(v string) predicate.UserIdentity {
+	return predicate.UserIdentity(sql.FieldEqualFold(FieldProviderUserID, v))
+}
+
+// ProviderUserIDContainsFold applies the ContainsFold predicate on the "provider_user_id" field.
+func ProviderUserIDContainsFold(v string) predicate.UserIdentity {
+	return predicate.UserIdentity(sql.FieldContainsFold(FieldProviderUserID, v))
 }
 
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.

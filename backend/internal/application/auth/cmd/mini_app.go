@@ -27,8 +27,9 @@ func NewMiniAppSignInHandler(userepo user.Repository, appValidator auth.AppValid
 }
 
 func (h *MiniAppAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
-	authreq.ProviderUserID = h.appValidator.ValidateHash(authreq.AppInitData)
-	if authreq.ProviderUserID == 0 {
+	var role string
+	authreq.ProviderUserID, role = h.appValidator.ValidateHash(authreq.AppInitData)
+	if authreq.ProviderUserID == "" {
 		return nil, apperrors.ErrInvalidUserData
 	}
 
@@ -63,7 +64,7 @@ func (h *MiniAppAuthHandler) Handle(ctx context.Context, authreq *authmodel.Iden
 		return nil, err
 	}
 
-	authData.AccessToken = h.tokenGenerator.Generate(newAuthData.UserID, "user")
+	authData.AccessToken = h.tokenGenerator.Generate(newAuthData.UserID, role)
 
 	return authData, nil
 }

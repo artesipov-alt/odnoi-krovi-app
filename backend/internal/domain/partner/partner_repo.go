@@ -1,4 +1,4 @@
-package domain
+package partner
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	partnermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/partner/model"
 )
 
-type PartnerRepository interface {
+type Repository interface {
 	CreatePartner(ctx context.Context, name, apiKey, role, status, description string) (*partnermodel.Partner, error)
 	GetByAPIKey(ctx context.Context, apiKey string) (*partnermodel.Partner, error)
 	GetByID(ctx context.Context, id string) (*partnermodel.Partner, error)

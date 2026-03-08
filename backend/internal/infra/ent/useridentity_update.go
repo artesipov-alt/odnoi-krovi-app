@@ -105,23 +105,16 @@ func (_u *UserIdentityUpdate) SetNillableProvider(v *useridentity.Provider) *Use
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (_u *UserIdentityUpdate) SetProviderUserID(v int64) *UserIdentityUpdate {
-	_u.mutation.ResetProviderUserID()
+func (_u *UserIdentityUpdate) SetProviderUserID(v string) *UserIdentityUpdate {
 	_u.mutation.SetProviderUserID(v)
 	return _u
 }
 
 // SetNillableProviderUserID sets the "provider_user_id" field if the given value is not nil.
-func (_u *UserIdentityUpdate) SetNillableProviderUserID(v *int64) *UserIdentityUpdate {
+func (_u *UserIdentityUpdate) SetNillableProviderUserID(v *string) *UserIdentityUpdate {
 	if v != nil {
 		_u.SetProviderUserID(*v)
 	}
-	return _u
-}
-
-// AddProviderUserID adds value to the "provider_user_id" field.
-func (_u *UserIdentityUpdate) AddProviderUserID(v int64) *UserIdentityUpdate {
-	_u.mutation.AddProviderUserID(v)
 	return _u
 }
 
@@ -238,10 +231,7 @@ func (_u *UserIdentityUpdate) sqlSave(ctx context.Context) (_node int, err error
 		_spec.SetField(useridentity.FieldProvider, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.ProviderUserID(); ok {
-		_spec.SetField(useridentity.FieldProviderUserID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedProviderUserID(); ok {
-		_spec.AddField(useridentity.FieldProviderUserID, field.TypeInt64, value)
+		_spec.SetField(useridentity.FieldProviderUserID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(useridentity.FieldMetadata, field.TypeJSON, value)
@@ -402,23 +392,16 @@ func (_u *UserIdentityUpdateOne) SetNillableProvider(v *useridentity.Provider) *
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (_u *UserIdentityUpdateOne) SetProviderUserID(v int64) *UserIdentityUpdateOne {
-	_u.mutation.ResetProviderUserID()
+func (_u *UserIdentityUpdateOne) SetProviderUserID(v string) *UserIdentityUpdateOne {
 	_u.mutation.SetProviderUserID(v)
 	return _u
 }
 
 // SetNillableProviderUserID sets the "provider_user_id" field if the given value is not nil.
-func (_u *UserIdentityUpdateOne) SetNillableProviderUserID(v *int64) *UserIdentityUpdateOne {
+func (_u *UserIdentityUpdateOne) SetNillableProviderUserID(v *string) *UserIdentityUpdateOne {
 	if v != nil {
 		_u.SetProviderUserID(*v)
 	}
-	return _u
-}
-
-// AddProviderUserID adds value to the "provider_user_id" field.
-func (_u *UserIdentityUpdateOne) AddProviderUserID(v int64) *UserIdentityUpdateOne {
-	_u.mutation.AddProviderUserID(v)
 	return _u
 }
 
@@ -565,10 +548,7 @@ func (_u *UserIdentityUpdateOne) sqlSave(ctx context.Context) (_node *UserIdenti
 		_spec.SetField(useridentity.FieldProvider, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.ProviderUserID(); ok {
-		_spec.SetField(useridentity.FieldProviderUserID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedProviderUserID(); ok {
-		_spec.AddField(useridentity.FieldProviderUserID, field.TypeInt64, value)
+		_spec.SetField(useridentity.FieldProviderUserID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Metadata(); ok {
 		_spec.SetField(useridentity.FieldMetadata, field.TypeJSON, value)

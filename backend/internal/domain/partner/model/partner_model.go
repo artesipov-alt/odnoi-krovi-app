@@ -2,6 +2,18 @@ package model
 
 import "time"
 
+const (
+	RoleClinic  = "CLINIC"
+	RoleAdmin   = "ADMIN"
+	RoleService = "SERVICE"
+)
+
+const (
+	StatusActive   = "active"
+	StatusDisabled = "disabled"
+	StatusExpired  = "expired"
+)
+
 type Partner struct {
 	ID          string
 	Name        string

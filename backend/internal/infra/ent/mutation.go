@@ -12460,24 +12460,23 @@ func (m *UserMutation) ResetEdge(name string) error {
 // UserIdentityMutation represents an operation that mutates the UserIdentity nodes in the graph.
 type UserIdentityMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *string
-	created_at          *time.Time
-	updated_at          *time.Time
-	deleted_at          *time.Time
-	provider            *useridentity.Provider
-	provider_user_id    *int64
-	addprovider_user_id *int64
-	metadata            *map[string]interface{}
-	clearedFields       map[string]struct{}
-	user                *string
-	cleareduser         bool
-	partner             *string
-	clearedpartner      bool
-	done                bool
-	oldValue            func(context.Context) (*UserIdentity, error)
-	predicates          []predicate.UserIdentity
+	op               Op
+	typ              string
+	id               *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	deleted_at       *time.Time
+	provider         *useridentity.Provider
+	provider_user_id *string
+	metadata         *map[string]interface{}
+	clearedFields    map[string]struct{}
+	user             *string
+	cleareduser      bool
+	partner          *string
+	clearedpartner   bool
+	done             bool
+	oldValue         func(context.Context) (*UserIdentity, error)
+	predicates       []predicate.UserIdentity
 }
 
 var _ ent.Mutation = (*UserIdentityMutation)(nil)
@@ -12827,13 +12826,12 @@ func (m *UserIdentityMutation) ResetProvider() {
 }
 
 // SetProviderUserID sets the "provider_user_id" field.
-func (m *UserIdentityMutation) SetProviderUserID(i int64) {
-	m.provider_user_id = &i
-	m.addprovider_user_id = nil
+func (m *UserIdentityMutation) SetProviderUserID(s string) {
+	m.provider_user_id = &s
 }
 
 // ProviderUserID returns the value of the "provider_user_id" field in the mutation.
-func (m *UserIdentityMutation) ProviderUserID() (r int64, exists bool) {
+func (m *UserIdentityMutation) ProviderUserID() (r string, exists bool) {
 	v := m.provider_user_id
 	if v == nil {
 		return
@@ -12844,7 +12842,7 @@ func (m *UserIdentityMutation) ProviderUserID() (r int64, exists bool) {
 // OldProviderUserID returns the old "provider_user_id" field's value of the UserIdentity entity.
 // If the UserIdentity object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserIdentityMutation) OldProviderUserID(ctx context.Context) (v int64, err error) {
+func (m *UserIdentityMutation) OldProviderUserID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProviderUserID is only allowed on UpdateOne operations")
 	}
@@ -12858,28 +12856,9 @@ func (m *UserIdentityMutation) OldProviderUserID(ctx context.Context) (v int64, 
 	return oldValue.ProviderUserID, nil
 }
 
-// AddProviderUserID adds i to the "provider_user_id" field.
-func (m *UserIdentityMutation) AddProviderUserID(i int64) {
-	if m.addprovider_user_id != nil {
-		*m.addprovider_user_id += i
-	} else {
-		m.addprovider_user_id = &i
-	}
-}
-
-// AddedProviderUserID returns the value that was added to the "provider_user_id" field in this mutation.
-func (m *UserIdentityMutation) AddedProviderUserID() (r int64, exists bool) {
-	v := m.addprovider_user_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetProviderUserID resets all changes to the "provider_user_id" field.
 func (m *UserIdentityMutation) ResetProviderUserID() {
 	m.provider_user_id = nil
-	m.addprovider_user_id = nil
 }
 
 // SetMetadata sets the "metadata" field.
@@ -13145,7 +13124,7 @@ func (m *UserIdentityMutation) SetField(name string, value ent.Value) error {
 		m.SetProvider(v)
 		return nil
 	case useridentity.FieldProviderUserID:
-		v, ok := value.(int64)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -13165,21 +13144,13 @@ func (m *UserIdentityMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserIdentityMutation) AddedFields() []string {
-	var fields []string
-	if m.addprovider_user_id != nil {
-		fields = append(fields, useridentity.FieldProviderUserID)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserIdentityMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case useridentity.FieldProviderUserID:
-		return m.AddedProviderUserID()
-	}
 	return nil, false
 }
 
@@ -13188,13 +13159,6 @@ func (m *UserIdentityMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserIdentityMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case useridentity.FieldProviderUserID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddProviderUserID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown UserIdentity numeric field %s", name)
 }

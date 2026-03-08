@@ -6035,14 +6035,19 @@ type UserIdentityWhereInput struct {
 	ProviderNotIn []useridentity.Provider `json:"providerNotIn,omitempty"`
 
 	// "provider_user_id" field predicates.
-	ProviderUserID      *int64  `json:"providerUserID,omitempty"`
-	ProviderUserIDNEQ   *int64  `json:"providerUserIDNEQ,omitempty"`
-	ProviderUserIDIn    []int64 `json:"providerUserIDIn,omitempty"`
-	ProviderUserIDNotIn []int64 `json:"providerUserIDNotIn,omitempty"`
-	ProviderUserIDGT    *int64  `json:"providerUserIDGT,omitempty"`
-	ProviderUserIDGTE   *int64  `json:"providerUserIDGTE,omitempty"`
-	ProviderUserIDLT    *int64  `json:"providerUserIDLT,omitempty"`
-	ProviderUserIDLTE   *int64  `json:"providerUserIDLTE,omitempty"`
+	ProviderUserID             *string  `json:"providerUserID,omitempty"`
+	ProviderUserIDNEQ          *string  `json:"providerUserIDNEQ,omitempty"`
+	ProviderUserIDIn           []string `json:"providerUserIDIn,omitempty"`
+	ProviderUserIDNotIn        []string `json:"providerUserIDNotIn,omitempty"`
+	ProviderUserIDGT           *string  `json:"providerUserIDGT,omitempty"`
+	ProviderUserIDGTE          *string  `json:"providerUserIDGTE,omitempty"`
+	ProviderUserIDLT           *string  `json:"providerUserIDLT,omitempty"`
+	ProviderUserIDLTE          *string  `json:"providerUserIDLTE,omitempty"`
+	ProviderUserIDContains     *string  `json:"providerUserIDContains,omitempty"`
+	ProviderUserIDHasPrefix    *string  `json:"providerUserIDHasPrefix,omitempty"`
+	ProviderUserIDHasSuffix    *string  `json:"providerUserIDHasSuffix,omitempty"`
+	ProviderUserIDEqualFold    *string  `json:"providerUserIDEqualFold,omitempty"`
+	ProviderUserIDContainsFold *string  `json:"providerUserIDContainsFold,omitempty"`
 
 	// "user" edge predicates.
 	HasUser     *bool             `json:"hasUser,omitempty"`
@@ -6351,6 +6356,21 @@ func (i *UserIdentityWhereInput) P() (predicate.UserIdentity, error) {
 	}
 	if i.ProviderUserIDLTE != nil {
 		predicates = append(predicates, useridentity.ProviderUserIDLTE(*i.ProviderUserIDLTE))
+	}
+	if i.ProviderUserIDContains != nil {
+		predicates = append(predicates, useridentity.ProviderUserIDContains(*i.ProviderUserIDContains))
+	}
+	if i.ProviderUserIDHasPrefix != nil {
+		predicates = append(predicates, useridentity.ProviderUserIDHasPrefix(*i.ProviderUserIDHasPrefix))
+	}
+	if i.ProviderUserIDHasSuffix != nil {
+		predicates = append(predicates, useridentity.ProviderUserIDHasSuffix(*i.ProviderUserIDHasSuffix))
+	}
+	if i.ProviderUserIDEqualFold != nil {
+		predicates = append(predicates, useridentity.ProviderUserIDEqualFold(*i.ProviderUserIDEqualFold))
+	}
+	if i.ProviderUserIDContainsFold != nil {
+		predicates = append(predicates, useridentity.ProviderUserIDContainsFold(*i.ProviderUserIDContainsFold))
 	}
 
 	if i.HasUser != nil {

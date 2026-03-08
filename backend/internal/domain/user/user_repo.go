@@ -23,7 +23,7 @@ type Repository interface {
 	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*usermodel.User, error)
 
 	// GetByProviderID возвращает идентификатор пользователя по ID провайдера
-	GetByProvider(ctx context.Context, providerID int64, providerName string) (*authmodel.Identity, error)
+	GetByProvider(ctx context.Context, providerID string, providerName string) (*authmodel.Identity, error)
 
 	// UpdateUserFields обновляет поля пользователя (атомарная операция)
 	UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error
@@ -50,7 +50,7 @@ type Repository interface {
 	Delete(ctx context.Context, id string) error
 
 	// ExistsByTelegramID проверяет, существует ли пользователь с заданным Telegram ID
-	ExistsByProvider(ctx context.Context, providerID int64, providerName string) (bool, error)
+	ExistsByProvider(ctx context.Context, providerID string, providerName string) (bool, error)
 
 	// ExistsByID проверяет, существует ли пользователь с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)

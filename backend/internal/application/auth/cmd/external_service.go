@@ -28,33 +28,34 @@ func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppVali
 }
 
 func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
-	authreq.ProviderUserID, authreq.ProviderName = h.appValidator.ValidateBySecret(authreq.ProviderUserID, authreq.ServiceKey)
-	if authreq.ProviderUserID == 0 {
+	// Валидируем и получаем provider name
+	_, providerName, role := h.appValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
+	if providerName == "" {
 		return nil, apperrors.ErrInvalidUserData
 	}
-	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
+	authreq.ProviderName = authmodel.ProviderName(providerName)
+
+	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, providerName)
 	if err != nil {
 		return nil, err
 	}
+
 	if !exist {
+		// Создаем нового пользователя
 		err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-			// 1. Создаем пользователя
 			newuser, err := h.userRepo.CreateUser(txCtx, userdata)
 			if err != nil {
 				return err
 			}
 			authreq.UserID = newuser.ID
-			// 2. Создаем identity пользователя
 			if err := h.userRepo.UpsertUserIdentity(txCtx, authreq); err != nil {
 				return err
 			}
-
 			if metadata != nil {
 				if err := h.userRepo.UpsertUTM(txCtx, newuser.ID, metadata); err != nil {
 					return err
 				}
 			}
-
 			return nil
 		})
 		if err != nil {
@@ -62,25 +63,22 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		}
 	} else {
 		// Пользователь существует - обновляем метаданные и UTM
-		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
+		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(providerName))
 		if err != nil {
 			return nil, err
 		}
 
 		err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-			// Обновляем identity с новыми метаданными
 			authreq.UserID = authData.UserID
+			// Создаем identity пользователя
 			if err := h.userRepo.UpsertUserIdentity(txCtx, authreq); err != nil {
 				return err
 			}
-
-			// Обновляем/создаем UTM метки
 			if metadata != nil {
 				if err := h.userRepo.UpsertUTM(txCtx, authData.UserID, metadata); err != nil {
 					return err
 				}
 			}
-
 			return nil
 		})
 		if err != nil {
@@ -88,12 +86,11 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		}
 	}
 
-	authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
+	authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(providerName))
 	if err != nil {
 		return nil, err
 	}
 
-	authData.AccessToken = h.tokenGenerator.Generate(authData.UserID, "user")
-
+	authData.AccessToken = h.tokenGenerator.Generate(authData.UserID, role)
 	return authData, nil
 }

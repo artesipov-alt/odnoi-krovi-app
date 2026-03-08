@@ -13,7 +13,7 @@ type MessengerSignInInput struct {
 // MessengerSignInBody представляет тело запроса на вход пользователя через мессенджер
 type MessengerSignInBody struct {
 	FullName   *string         `json:"fullName,omitempty" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
-	ProviderID int64           `json:"providerId" doc:"ID провайдера" example:"123456789"`
+	ProviderID string          `json:"providerId" doc:"ID провайдера" example:"123456789"`
 	MetaData   *map[string]any `json:"metaData,omitempty" doc:"Метаданные пользователя"`
 }
 

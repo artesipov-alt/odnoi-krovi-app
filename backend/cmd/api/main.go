@@ -112,6 +112,7 @@ func main() {
 		petRepo := pg.NewEntPetRepository(db)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
+		partnerRepo := pg.NewEntPartnerRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
 
@@ -123,7 +124,7 @@ func main() {
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
 		//Дополнительные сервисы для аунтификации
-		appValidator := auth.NewAppValidator("inbotdata", "veryhot")
+		appValidator := auth.NewAppValidator("inbotdata", partnerRepo)
 		tokenGenerator := auth.NewJWTGenerator("lol")
 
 		externalSignInHandler := authcmd.NewExternalSignInHandler(userRepo, appValidator, tokenGenerator, txManager)

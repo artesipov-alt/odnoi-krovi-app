@@ -198,7 +198,7 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 	return EntToModel(user), nil
 }
 
-func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID int64, providerName string) (*authmodel.Identity, error) {
+func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID string, providerName string) (*authmodel.Identity, error) {
 	identity, err := r.client(ctx).UserIdentity.Query().
 		Where(useridentity.ProviderUserID(providerID),
 			useridentity.ProviderEQ(useridentity.Provider(providerName))).
@@ -428,8 +428,8 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 }
 
 // ExistsByProvider checks if a user with the given Provider ID exists
-func (r *EntUserRepository) ExistsByProvider(ctx context.Context, providerID int64, providerName string) (bool, error) {
-	if providerID <= 0 {
+func (r *EntUserRepository) ExistsByProvider(ctx context.Context, providerID string, providerName string) (bool, error) {
+	if providerID == "" {
 		return false, errors.New("invalid provider ID")
 	}
 
