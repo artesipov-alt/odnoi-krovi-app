@@ -89,8 +89,9 @@ type Provider string
 
 // Provider values.
 const (
-	ProviderTelegramBot Provider = "telegram_bot"
-	ProviderMaxBot      Provider = "max_bot"
+	ProviderTelegramMiniapp Provider = "telegram_miniapp"
+	ProviderMaxMiniapp      Provider = "max_miniapp"
+	ProviderService         Provider = "service"
 )
 
 func (pr Provider) String() string {
@@ -100,7 +101,7 @@ func (pr Provider) String() string {
 // ProviderValidator is a validator for the "provider" field enum values. It is called by the builders before save.
 func ProviderValidator(pr Provider) error {
 	switch pr {
-	case ProviderTelegramBot, ProviderMaxBot:
+	case ProviderTelegramMiniapp, ProviderMaxMiniapp, ProviderService:
 		return nil
 	default:
 		return fmt.Errorf("useridentity: invalid enum value for provider field: %q", pr)

@@ -89,35 +89,6 @@ type UpdateUserResult struct {
 }
 
 // ============================================
-// Auth User
-// ============================================
-
-// AuthUserInput представляет запрос на создание пользователя
-type AuthUserInput struct {
-	Body AuthUserBody
-}
-
-// AuthUserBody представляет тело запроса на создание пользователя
-type AuthUserBody struct {
-	FullName     *string         `json:"fullName,omitempty" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
-	AppInitData  string          `json:"appInitData,omitempty" doc:"Зашифрованный токен бота для сверки"`
-	ProviderName string          `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
-	ProviderID   int64           `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
-	MetaData     *map[string]any `json:"metaData,omitempty" doc:"Метаданные пользователя"`
-}
-
-// AuthUserOutput представляет ответ на создание пользователя
-type AuthUserOutput struct {
-	Body AuthUserResult
-}
-
-// AuthUserResult представляет результат создания пользователя
-type AuthUserResult struct {
-	UserID string `json:"userId" doc:"ID пользователя на портале" example:"USR-ABCDEABCDE"`
-	Token  string `json:"token,omitempty" doc:"JWT токен для аутентификации" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
-}
-
-// ============================================
 // Get User By ID
 // ============================================
 

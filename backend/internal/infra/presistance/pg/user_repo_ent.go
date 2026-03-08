@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
@@ -94,7 +95,7 @@ func (r *EntUserRepository) CreateUser(ctx context.Context, inputuser *usermodel
 }
 
 // UpsertUserIdentity creates or updates a user identity
-func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *usermodel.Identity) error {
+func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *authmodel.Identity) error {
 	if input == nil {
 		return errors.New("user identity cannot be nil")
 	}
@@ -197,7 +198,7 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 	return EntToModel(user), nil
 }
 
-func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID int64, providerName string) (*usermodel.Identity, error) {
+func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID int64, providerName string) (*authmodel.Identity, error) {
 	identity, err := r.client(ctx).UserIdentity.Query().
 		Where(useridentity.ProviderUserID(providerID),
 			useridentity.ProviderEQ(useridentity.Provider(providerName))).
@@ -553,7 +554,7 @@ func (r *EntUserRepository) AddPhotoURLs(ctx context.Context, id string, paths [
 }
 
 // UpsertUTM upserts UTM data for an existing user
-func (r *EntUserRepository) UpsertUTM(ctx context.Context, userID string, metadata *usermodel.Metadata) error {
+func (r *EntUserRepository) UpsertUTM(ctx context.Context, userID string, metadata *authmodel.Metadata) error {
 	if metadata == nil || userID == "" {
 		return errors.New("invalid user ID")
 	}
@@ -647,11 +648,11 @@ func EntToModel(e *ent.User) *usermodel.User {
 	return user
 }
 
-func EntIdentityToModel(identity *ent.UserIdentity) *usermodel.Identity {
-	return &usermodel.Identity{
+func EntIdentityToModel(identity *ent.UserIdentity) *authmodel.Identity {
+	return &authmodel.Identity{
 		ID:             identity.ID,
 		UserID:         identity.UserID,
-		ProviderName:   string(identity.Provider),
+		ProviderName:   authmodel.ProviderName(identity.Provider),
 		ProviderUserID: identity.ProviderUserID,
 		Metadata:       &identity.Metadata,
 		CreatedAt:      identity.CreatedAt,

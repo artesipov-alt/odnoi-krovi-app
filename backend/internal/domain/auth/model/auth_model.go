@@ -4,28 +4,37 @@ import (
 	"time"
 )
 
+type ProviderName string
+
+const (
+	ProviderTelegram ProviderName = "telegram_miniapp"
+	ProviderMax      ProviderName = "max_miniapp"
+	ProviderService  ProviderName = "service"
+)
+
 // Identity представляет доменную модель пользователя
 type Identity struct {
 	ID             string
 	UserID         string
-	ProviderName   string // Assuming useridentity.Provider can be represented as a string
+	ProviderName   ProviderName
 	ProviderUserID int64
+	ServiceKey     string
 	AppInitData    string
-	Token          string
+	AccessToken    string
 	Metadata       *map[string]any
+	ExpiresAt      time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      *time.Time
 }
 
 // NewUser creates a new User aggregate with validation
-func NewIdentity(providerID int64, providerName, appInitData string, metadata *map[string]any) (*Identity, error) {
+func NewIdentity(providerName ProviderName, appInitData string, metadata *map[string]any) (*Identity, error) {
 
 	idn := &Identity{
-		ProviderUserID: providerID,
-		ProviderName:   providerName,
-		AppInitData:    appInitData,
-		Metadata:       metadata,
+		ProviderName: providerName,
+		AppInitData:  appInitData,
+		Metadata:     metadata,
 	}
 
 	return idn, nil

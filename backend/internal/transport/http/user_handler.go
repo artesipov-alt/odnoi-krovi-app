@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
@@ -17,7 +16,6 @@ import (
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	authHandler          *cmd.AuthHandler
 	deleteHandler        *cmd.DeleteHandler
 	updateHandler        *cmd.UpdateHandler
 	resetHandler         *cmd.ResetHandler
@@ -31,7 +29,6 @@ type UserHandler struct {
 
 // NewUserHandler создает новый обработчик пользователей
 func NewUserHandler(
-	authHandler *cmd.AuthHandler,
 	deleteHandler *cmd.DeleteHandler,
 	updateHandler *cmd.UpdateHandler,
 	resetHandler *cmd.ResetHandler,
@@ -42,7 +39,6 @@ func NewUserHandler(
 	storage filestorage.Repository,
 ) *UserHandler {
 	return &UserHandler{
-		authHandler:          authHandler,
 		deleteHandler:        deleteHandler,
 		updateHandler:        updateHandler,
 		resetHandler:         resetHandler,
@@ -66,17 +62,6 @@ func (h *UserHandler) Register(api huma.API) {
 		Description: "Возвращает информацию о пользователе по его идентификатору",
 		Tags:        []string{"users-v1"},
 	}, h.GetUser)
-
-	// Аунтификация пользователя
-	huma.Register(api, huma.Operation{
-		OperationID:   "auth-user",
-		Method:        http.MethodPost,
-		Path:          "/v1/user/auth",
-		Summary:       "Аунтификация пользователя",
-		Description:   "Аутентифицирует пользователя в системе",
-		Tags:          []string{"users-v1"},
-		DefaultStatus: http.StatusCreated,
-	}, h.AuthUser)
 
 	// Обновление данных пользователя
 	huma.Register(api, huma.Operation{
@@ -151,39 +136,6 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 	}
 
 	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr)}, nil
-}
-
-func (h *UserHandler) AuthUser(ctx context.Context, input *dto.AuthUserInput) (*dto.AuthUserOutput, error) {
-	idn, err := usermodel.NewIdentity(input.Body.ProviderID, input.Body.ProviderName, input.Body.AppInitData, input.Body.MetaData)
-	if err != nil {
-		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
-	}
-
-	var usrparams usermodel.NewUserParams
-	if input.Body.FullName != nil {
-		usrparams.FullName = *input.Body.FullName
-	}
-
-	usr, err := usermodel.NewUser(usrparams)
-	if err != nil {
-		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
-	}
-
-	var metadata *usermodel.Metadata
-	if input.Body.MetaData != nil {
-		metadata = usermodel.NewUserMetadata(*input.Body.MetaData)
-		usr.OriginSource = metadata.UTMData.Campaign
-	}
-
-	authdata, err := h.authHandler.Handle(ctx, idn, usr, metadata)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.AuthUserOutput{Body: dto.AuthUserResult{
-		UserID: authdata.UserID,
-		Token:  authdata.Token,
-	}}, nil
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput) (*dto.UpdateUserOutput, error) {

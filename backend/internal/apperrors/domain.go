@@ -12,6 +12,7 @@ var (
 	ErrUserConsentRequired  = BadRequest("требуется согласие на обработку персональных данных")
 	ErrUserLocationRequired = BadRequest("местоположение обязательно")
 	ErrUserInvalidRole      = BadRequest("неверная роль пользователя")
+	ErrInvalidUserData      = BadRequest("невалидные данные пользователя")
 )
 
 // Pet domain errors

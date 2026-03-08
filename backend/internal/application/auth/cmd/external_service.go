@@ -3,25 +3,37 @@ package cmd
 import (
 	"context"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	auth "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth"
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
-type AuthHandler struct {
-	userRepo  user.Repository
-	txManager *presistance.TxManager
+type ExternalAuthHandler struct {
+	userRepo       user.Repository
+	appValidator   auth.AppValidator
+	tokenGenerator auth.TokenGenerator
+	txManager      *presistance.TxManager
 }
 
-func NewAuthHandler(userepo user.Repository, txManager *presistance.TxManager) *AuthHandler {
-	return &AuthHandler{
-		userRepo:  userepo,
-		txManager: txManager,
+func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppValidator, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *ExternalAuthHandler {
+	return &ExternalAuthHandler{
+		userRepo:       userepo,
+		appValidator:   appValidator,
+		tokenGenerator: tokenGenerator,
+		txManager:      txManager,
 	}
 }
 
-func (h *AuthHandler) Handle(ctx context.Context, authreq *usermodel.Identity, userdata *usermodel.User, metadata *usermodel.Metadata) (*usermodel.Identity, error) {
-	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, authreq.ProviderName)
+func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
+	authreq.ProviderUserID = h.appValidator.ValidateBySecret(authreq.ProviderUserID, authreq.ServiceKey)
+	if authreq.ProviderUserID == 0 {
+		return nil, apperrors.ErrInvalidUserData
+	}
+
+	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +63,7 @@ func (h *AuthHandler) Handle(ctx context.Context, authreq *usermodel.Identity, u
 		}
 	} else {
 		// Пользователь существует - обновляем метаданные и UTM
-		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, authreq.ProviderName)
+		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
 		if err != nil {
 			return nil, err
 		}
@@ -77,12 +89,12 @@ func (h *AuthHandler) Handle(ctx context.Context, authreq *usermodel.Identity, u
 		}
 	}
 
-	authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, authreq.ProviderName)
+	authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
 	if err != nil {
 		return nil, err
 	}
 
-	authData.Token = "secret-token-" + authreq.AppInitData
+	authData.AccessToken = h.tokenGenerator.Generate(authData.UserID, "user")
 
 	return authData, nil
 }

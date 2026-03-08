@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
@@ -10,7 +11,7 @@ import (
 type Repository interface {
 	CreateUser(ctx context.Context, inputuser *usermodel.User) (*usermodel.User, error)
 
-	UpsertUserIdentity(ctx context.Context, input *usermodel.Identity) error
+	UpsertUserIdentity(ctx context.Context, input *authmodel.Identity) error
 
 	// CreateDonorPreference создает настройки донора для пользователя
 	CreateDonorPreference(ctx context.Context, userID string, inputprefs *usermodel.DonorPreference) error
@@ -22,7 +23,7 @@ type Repository interface {
 	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*usermodel.User, error)
 
 	// GetByProviderID возвращает идентификатор пользователя по ID провайдера
-	GetByProvider(ctx context.Context, providerID int64, providerName string) (*usermodel.Identity, error)
+	GetByProvider(ctx context.Context, providerID int64, providerName string) (*authmodel.Identity, error)
 
 	// UpdateUserFields обновляет поля пользователя (атомарная операция)
 	UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error
@@ -66,7 +67,7 @@ type Repository interface {
 	// GetByPhone возвращает ID пользователя по номеру телефона
 	GetByPhone(ctx context.Context, phone string) (string, error)
 
-	UpsertUTM(ctx context.Context, userID string, metadata *usermodel.Metadata) error
+	UpsertUTM(ctx context.Context, userID string, metadata *authmodel.Metadata) error
 
 	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error

@@ -18,6 +18,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
@@ -31,6 +32,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 
 	transport "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http"
+	"github.com/artesipov-alt/odnoi-krovi-app/pkg/auth"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
@@ -120,8 +122,13 @@ func main() {
 		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler(bloodInfoRepo)
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
-		// Инициализация user command и query handlers
-		userAuthHandler := usercmd.NewAuthHandler(userRepo, txManager)
+		//Дополнительные сервисы для аунтификации
+		appValidator := auth.NewAppValidator("inbotdata", "veryhot")
+		tokenGenerator := auth.NewJWTGenerator("lol")
+
+		externalSignInHandler := authcmd.NewExternalSignInHandler(userRepo, appValidator, tokenGenerator, txManager)
+		appSgnInHandler := authcmd.NewMiniAppSignInHandler(userRepo, appValidator, tokenGenerator, txManager)
+
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, txManager)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
@@ -154,6 +161,7 @@ func main() {
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация handlers
+		authHandler := transport.NewAuthHandler(appSgnInHandler, externalSignInHandler)
 		referenceHandler := transport.NewReferenceHandler(
 			getAllBreedsHandler,
 			getBreedsByTypeHandler,
@@ -162,7 +170,6 @@ func main() {
 			getBloodGroupsByTypeHandler,
 		)
 		userHandler := transport.NewUserHandler(
-			userAuthHandler,
 			userDeleteHandler,
 			userUpdateHandler,
 			userResetHandler,
@@ -205,6 +212,7 @@ func main() {
 		apperrors.InitHuma(humapi)
 
 		// Регистрация маршрутов
+		authHandler.Register(humapi)
 		userHandler.Register(humapi)
 		petHandler.Register(humapi)
 		bloodRequestHandler.Register(humapi)
