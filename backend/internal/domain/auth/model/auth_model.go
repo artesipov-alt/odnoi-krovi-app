@@ -21,6 +21,7 @@ type Identity struct {
 	ServiceKey     string
 	AppInitData    string
 	AccessToken    string
+	PartnerID      string
 	Metadata       *map[string]any
 	ExpiresAt      time.Time
 	CreatedAt      time.Time

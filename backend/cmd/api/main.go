@@ -162,7 +162,11 @@ func main() {
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
 
 		// Инициализация handlers
-		authHandler := transport.NewAuthHandler(appSgnInHandler, externalSignInHandler)
+		authHandler := transport.NewAuthHandler(
+			appSgnInHandler,
+			externalSignInHandler,
+		)
+
 		referenceHandler := transport.NewReferenceHandler(
 			getAllBreedsHandler,
 			getBreedsByTypeHandler,

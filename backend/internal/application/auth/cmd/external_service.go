@@ -29,17 +29,19 @@ func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppVali
 
 func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
 	// Валидируем и получаем provider name
-	_, providerName, role := h.appValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
+	partnerID, providerName, role := h.appValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
 	if providerName == "" {
 		return nil, apperrors.ErrInvalidUserData
 	}
+
 	authreq.ProviderName = authmodel.ProviderName(providerName)
+	authreq.PartnerID = partnerID
+	userdata.Role = usermodel.UserRole(role)
 
 	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, providerName)
 	if err != nil {
 		return nil, err
 	}
-	userdata.Role = usermodel.UserRole(role)
 
 	if !exist {
 		// Создаем нового пользователя
@@ -64,7 +66,7 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		}
 	} else {
 		// Пользователь существует - обновляем метаданные и UTM
-		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(providerName))
+		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, providerName)
 		if err != nil {
 			return nil, err
 		}
