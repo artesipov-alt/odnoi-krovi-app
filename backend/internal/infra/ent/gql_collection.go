@@ -13,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -732,6 +733,121 @@ func newLocationPaginateArgs(rv map[string]any) *locationPaginateArgs {
 	}
 	if v, ok := rv[whereField].(*LocationWhereInput); ok {
 		args.opts = append(args.opts, WithLocationFilter(v.Filter))
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (_q *PartnerQuery) CollectFields(ctx context.Context, satisfies ...string) (*PartnerQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return _q, nil
+	}
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return _q, nil
+}
+
+func (_q *PartnerQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(partner.Columns))
+		selectedFields = []string{partner.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+
+		case "partnerIdentities":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&UserIdentityClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, useridentityImplementors)...); err != nil {
+				return err
+			}
+			_q.WithNamedPartnerIdentities(alias, func(wq *UserIdentityQuery) {
+				*wq = *query
+			})
+		case "createdAt":
+			if _, ok := fieldSeen[partner.FieldCreatedAt]; !ok {
+				selectedFields = append(selectedFields, partner.FieldCreatedAt)
+				fieldSeen[partner.FieldCreatedAt] = struct{}{}
+			}
+		case "updatedAt":
+			if _, ok := fieldSeen[partner.FieldUpdatedAt]; !ok {
+				selectedFields = append(selectedFields, partner.FieldUpdatedAt)
+				fieldSeen[partner.FieldUpdatedAt] = struct{}{}
+			}
+		case "deletedAt":
+			if _, ok := fieldSeen[partner.FieldDeletedAt]; !ok {
+				selectedFields = append(selectedFields, partner.FieldDeletedAt)
+				fieldSeen[partner.FieldDeletedAt] = struct{}{}
+			}
+		case "name":
+			if _, ok := fieldSeen[partner.FieldName]; !ok {
+				selectedFields = append(selectedFields, partner.FieldName)
+				fieldSeen[partner.FieldName] = struct{}{}
+			}
+		case "role":
+			if _, ok := fieldSeen[partner.FieldRole]; !ok {
+				selectedFields = append(selectedFields, partner.FieldRole)
+				fieldSeen[partner.FieldRole] = struct{}{}
+			}
+		case "status":
+			if _, ok := fieldSeen[partner.FieldStatus]; !ok {
+				selectedFields = append(selectedFields, partner.FieldStatus)
+				fieldSeen[partner.FieldStatus] = struct{}{}
+			}
+		case "description":
+			if _, ok := fieldSeen[partner.FieldDescription]; !ok {
+				selectedFields = append(selectedFields, partner.FieldDescription)
+				fieldSeen[partner.FieldDescription] = struct{}{}
+			}
+		case "lastUsedAt":
+			if _, ok := fieldSeen[partner.FieldLastUsedAt]; !ok {
+				selectedFields = append(selectedFields, partner.FieldLastUsedAt)
+				fieldSeen[partner.FieldLastUsedAt] = struct{}{}
+			}
+		case "id":
+		case "__typename":
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		_q.Select(selectedFields...)
+	}
+	return nil
+}
+
+type partnerPaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []PartnerPaginateOption
+}
+
+func newPartnerPaginateArgs(rv map[string]any) *partnerPaginateArgs {
+	args := &partnerPaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	if v, ok := rv[whereField].(*PartnerWhereInput); ok {
+		args.opts = append(args.opts, WithPartnerFilter(v.Filter))
 	}
 	return args
 }
@@ -1581,6 +1697,21 @@ func (_q *UserIdentityQuery) collectField(ctx context.Context, oneNode bool, opC
 				selectedFields = append(selectedFields, useridentity.FieldUserID)
 				fieldSeen[useridentity.FieldUserID] = struct{}{}
 			}
+
+		case "partner":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = (&PartnerClient{config: _q.config}).Query()
+			)
+			if err := query.collectField(ctx, oneNode, opCtx, field, path, mayAddCondition(satisfies, partnerImplementors)...); err != nil {
+				return err
+			}
+			_q.withPartner = query
+			if _, ok := fieldSeen[useridentity.FieldPartnerID]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldPartnerID)
+				fieldSeen[useridentity.FieldPartnerID] = struct{}{}
+			}
 		case "createdAt":
 			if _, ok := fieldSeen[useridentity.FieldCreatedAt]; !ok {
 				selectedFields = append(selectedFields, useridentity.FieldCreatedAt)
@@ -1600,6 +1731,11 @@ func (_q *UserIdentityQuery) collectField(ctx context.Context, oneNode bool, opC
 			if _, ok := fieldSeen[useridentity.FieldUserID]; !ok {
 				selectedFields = append(selectedFields, useridentity.FieldUserID)
 				fieldSeen[useridentity.FieldUserID] = struct{}{}
+			}
+		case "partnerID":
+			if _, ok := fieldSeen[useridentity.FieldPartnerID]; !ok {
+				selectedFields = append(selectedFields, useridentity.FieldPartnerID)
+				fieldSeen[useridentity.FieldPartnerID] = struct{}{}
 			}
 		case "provider":
 			if _, ok := fieldSeen[useridentity.FieldProvider]; !ok {

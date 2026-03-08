@@ -20,6 +20,9 @@ func (UserIdentity) Fields() []ent.Field {
 	return []ent.Field{
 		// user_id is the foreign key to the user.
 		field.String("user_id"),
+		// partner_id is the foreign key to the partner.
+		field.String("partner_id").
+			Optional(),
 		// provider is the identity provider (telegram_bot, telegram_webapp, google, etc.).
 		field.Enum("provider").
 			Values("telegram_bot", "max_bot", "service"),
@@ -39,6 +42,10 @@ func (UserIdentity) Edges() []ent.Edge {
 			Ref("identities").
 			Field("user_id").
 			Required().
+			Unique(),
+		edge.From("partner", Partner.Type).
+			Ref("partner_identities").
+			Field("partner_id").
 			Unique(),
 	}
 }

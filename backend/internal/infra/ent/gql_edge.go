@@ -88,6 +88,18 @@ func (_m *Location) Users(ctx context.Context) (result []*User, err error) {
 	return result, err
 }
 
+func (_m *Partner) PartnerIdentities(ctx context.Context) (result []*UserIdentity, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = _m.NamedPartnerIdentities(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = _m.Edges.PartnerIdentitiesOrErr()
+	}
+	if IsNotLoaded(err) {
+		result, err = _m.QueryPartnerIdentities().All(ctx)
+	}
+	return result, err
+}
+
 func (_m *Pet) Owner(ctx context.Context) (*User, error) {
 	result, err := _m.Edges.OwnerOrErr()
 	if IsNotLoaded(err) {
@@ -242,6 +254,14 @@ func (_m *UserIdentity) User(ctx context.Context) (*User, error) {
 		result, err = _m.QueryUser().Only(ctx)
 	}
 	return result, err
+}
+
+func (_m *UserIdentity) Partner(ctx context.Context) (*Partner, error) {
+	result, err := _m.Edges.PartnerOrErr()
+	if IsNotLoaded(err) {
+		result, err = _m.QueryPartner().Only(ctx)
+	}
+	return result, MaskNotFound(err)
 }
 
 func (_m *UtmHistory) User(ctx context.Context) (*User, error) {

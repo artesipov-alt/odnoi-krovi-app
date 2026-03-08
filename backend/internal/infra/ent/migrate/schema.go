@@ -148,6 +148,25 @@ var (
 		Columns:    RefLocationsColumns,
 		PrimaryKey: []*schema.Column{RefLocationsColumns[0]},
 	}
+	// PartnersColumns holds the columns for the "partners" table.
+	PartnersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "api_key", Type: field.TypeString, Unique: true},
+		{Name: "role", Type: field.TypeEnum, Enums: []string{"CLINIC", "ADMIN", "SERVICE"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "disabled", "expired"}},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "last_used_at", Type: field.TypeTime, Nullable: true},
+	}
+	// PartnersTable holds the schema information for the "partners" table.
+	PartnersTable = &schema.Table{
+		Name:       "partners",
+		Columns:    PartnersColumns,
+		PrimaryKey: []*schema.Column{PartnersColumns[0]},
+	}
 	// PetsColumns holds the columns for the "pets" table.
 	PetsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -312,6 +331,7 @@ var (
 		{Name: "provider", Type: field.TypeEnum, Enums: []string{"telegram_bot", "max_bot", "service"}},
 		{Name: "provider_user_id", Type: field.TypeInt64},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "partner_id", Type: field.TypeString, Nullable: true},
 		{Name: "user_id", Type: field.TypeString},
 	}
 	// UserIdentitiesTable holds the schema information for the "user_identities" table.
@@ -321,8 +341,14 @@ var (
 		PrimaryKey: []*schema.Column{UserIdentitiesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "user_identities_users_identities",
+				Symbol:     "user_identities_partners_partner_identities",
 				Columns:    []*schema.Column{UserIdentitiesColumns[7]},
+				RefColumns: []*schema.Column{PartnersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "user_identities_users_identities",
+				Columns:    []*schema.Column{UserIdentitiesColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -331,7 +357,7 @@ var (
 			{
 				Name:    "useridentity_user_id_provider",
 				Unique:  true,
-				Columns: []*schema.Column{UserIdentitiesColumns[7], UserIdentitiesColumns[4]},
+				Columns: []*schema.Column{UserIdentitiesColumns[8], UserIdentitiesColumns[4]},
 			},
 		},
 	}
@@ -378,6 +404,7 @@ var (
 		DonorPreferencesTable,
 		DonorResponsesTable,
 		RefLocationsTable,
+		PartnersTable,
 		PetsTable,
 		PetAnalysesTable,
 		PetHealthsTable,
@@ -414,6 +441,9 @@ func init() {
 	RefLocationsTable.Annotation = &entsql.Annotation{
 		Table: "ref_locations",
 	}
+	PartnersTable.Annotation = &entsql.Annotation{
+		Table: "partners",
+	}
 	PetsTable.ForeignKeys[0].RefTable = RefBloodgTable
 	PetsTable.ForeignKeys[1].RefTable = RefBreedsTable
 	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
@@ -436,7 +466,8 @@ func init() {
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
 	}
-	UserIdentitiesTable.ForeignKeys[0].RefTable = UsersTable
+	UserIdentitiesTable.ForeignKeys[0].RefTable = PartnersTable
+	UserIdentitiesTable.ForeignKeys[1].RefTable = UsersTable
 	UserIdentitiesTable.Annotation = &entsql.Annotation{
 		Table: "user_identities",
 	}

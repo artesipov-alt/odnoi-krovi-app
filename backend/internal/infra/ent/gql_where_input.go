@@ -14,6 +14,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -2147,6 +2148,518 @@ func (i *LocationWhereInput) P() (predicate.Location, error) {
 		return predicates[0], nil
 	default:
 		return location.And(predicates...), nil
+	}
+}
+
+// PartnerWhereInput represents a where input for filtering Partner queries.
+type PartnerWhereInput struct {
+	Predicates []predicate.Partner  `json:"-"`
+	Not        *PartnerWhereInput   `json:"not,omitempty"`
+	Or         []*PartnerWhereInput `json:"or,omitempty"`
+	And        []*PartnerWhereInput `json:"and,omitempty"`
+
+	// "id" field predicates.
+	ID             *string  `json:"id,omitempty"`
+	IDNEQ          *string  `json:"idNEQ,omitempty"`
+	IDIn           []string `json:"idIn,omitempty"`
+	IDNotIn        []string `json:"idNotIn,omitempty"`
+	IDGT           *string  `json:"idGT,omitempty"`
+	IDGTE          *string  `json:"idGTE,omitempty"`
+	IDLT           *string  `json:"idLT,omitempty"`
+	IDLTE          *string  `json:"idLTE,omitempty"`
+	IDEqualFold    *string  `json:"idEqualFold,omitempty"`
+	IDContainsFold *string  `json:"idContainsFold,omitempty"`
+
+	// "created_at" field predicates.
+	CreatedAt      *time.Time  `json:"createdAt,omitempty"`
+	CreatedAtNEQ   *time.Time  `json:"createdAtNEQ,omitempty"`
+	CreatedAtIn    []time.Time `json:"createdAtIn,omitempty"`
+	CreatedAtNotIn []time.Time `json:"createdAtNotIn,omitempty"`
+	CreatedAtGT    *time.Time  `json:"createdAtGT,omitempty"`
+	CreatedAtGTE   *time.Time  `json:"createdAtGTE,omitempty"`
+	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
+	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
+
+	// "updated_at" field predicates.
+	UpdatedAt      *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAtNEQ   *time.Time  `json:"updatedAtNEQ,omitempty"`
+	UpdatedAtIn    []time.Time `json:"updatedAtIn,omitempty"`
+	UpdatedAtNotIn []time.Time `json:"updatedAtNotIn,omitempty"`
+	UpdatedAtGT    *time.Time  `json:"updatedAtGT,omitempty"`
+	UpdatedAtGTE   *time.Time  `json:"updatedAtGTE,omitempty"`
+	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
+	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
+
+	// "deleted_at" field predicates.
+	DeletedAt       *time.Time  `json:"deletedAt,omitempty"`
+	DeletedAtNEQ    *time.Time  `json:"deletedAtNEQ,omitempty"`
+	DeletedAtIn     []time.Time `json:"deletedAtIn,omitempty"`
+	DeletedAtNotIn  []time.Time `json:"deletedAtNotIn,omitempty"`
+	DeletedAtGT     *time.Time  `json:"deletedAtGT,omitempty"`
+	DeletedAtGTE    *time.Time  `json:"deletedAtGTE,omitempty"`
+	DeletedAtLT     *time.Time  `json:"deletedAtLT,omitempty"`
+	DeletedAtLTE    *time.Time  `json:"deletedAtLTE,omitempty"`
+	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
+	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
+
+	// "name" field predicates.
+	Name             *string  `json:"name,omitempty"`
+	NameNEQ          *string  `json:"nameNEQ,omitempty"`
+	NameIn           []string `json:"nameIn,omitempty"`
+	NameNotIn        []string `json:"nameNotIn,omitempty"`
+	NameGT           *string  `json:"nameGT,omitempty"`
+	NameGTE          *string  `json:"nameGTE,omitempty"`
+	NameLT           *string  `json:"nameLT,omitempty"`
+	NameLTE          *string  `json:"nameLTE,omitempty"`
+	NameContains     *string  `json:"nameContains,omitempty"`
+	NameHasPrefix    *string  `json:"nameHasPrefix,omitempty"`
+	NameHasSuffix    *string  `json:"nameHasSuffix,omitempty"`
+	NameEqualFold    *string  `json:"nameEqualFold,omitempty"`
+	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
+
+	// "api_key" field predicates.
+	APIKey             *string  `json:"apiKey,omitempty"`
+	APIKeyNEQ          *string  `json:"apiKeyNEQ,omitempty"`
+	APIKeyIn           []string `json:"apiKeyIn,omitempty"`
+	APIKeyNotIn        []string `json:"apiKeyNotIn,omitempty"`
+	APIKeyGT           *string  `json:"apiKeyGT,omitempty"`
+	APIKeyGTE          *string  `json:"apiKeyGTE,omitempty"`
+	APIKeyLT           *string  `json:"apiKeyLT,omitempty"`
+	APIKeyLTE          *string  `json:"apiKeyLTE,omitempty"`
+	APIKeyContains     *string  `json:"apiKeyContains,omitempty"`
+	APIKeyHasPrefix    *string  `json:"apiKeyHasPrefix,omitempty"`
+	APIKeyHasSuffix    *string  `json:"apiKeyHasSuffix,omitempty"`
+	APIKeyEqualFold    *string  `json:"apiKeyEqualFold,omitempty"`
+	APIKeyContainsFold *string  `json:"apiKeyContainsFold,omitempty"`
+
+	// "role" field predicates.
+	Role      *partner.Role  `json:"role,omitempty"`
+	RoleNEQ   *partner.Role  `json:"roleNEQ,omitempty"`
+	RoleIn    []partner.Role `json:"roleIn,omitempty"`
+	RoleNotIn []partner.Role `json:"roleNotIn,omitempty"`
+
+	// "status" field predicates.
+	Status      *partner.Status  `json:"status,omitempty"`
+	StatusNEQ   *partner.Status  `json:"statusNEQ,omitempty"`
+	StatusIn    []partner.Status `json:"statusIn,omitempty"`
+	StatusNotIn []partner.Status `json:"statusNotIn,omitempty"`
+
+	// "description" field predicates.
+	Description             *string  `json:"description,omitempty"`
+	DescriptionNEQ          *string  `json:"descriptionNEQ,omitempty"`
+	DescriptionIn           []string `json:"descriptionIn,omitempty"`
+	DescriptionNotIn        []string `json:"descriptionNotIn,omitempty"`
+	DescriptionGT           *string  `json:"descriptionGT,omitempty"`
+	DescriptionGTE          *string  `json:"descriptionGTE,omitempty"`
+	DescriptionLT           *string  `json:"descriptionLT,omitempty"`
+	DescriptionLTE          *string  `json:"descriptionLTE,omitempty"`
+	DescriptionContains     *string  `json:"descriptionContains,omitempty"`
+	DescriptionHasPrefix    *string  `json:"descriptionHasPrefix,omitempty"`
+	DescriptionHasSuffix    *string  `json:"descriptionHasSuffix,omitempty"`
+	DescriptionIsNil        bool     `json:"descriptionIsNil,omitempty"`
+	DescriptionNotNil       bool     `json:"descriptionNotNil,omitempty"`
+	DescriptionEqualFold    *string  `json:"descriptionEqualFold,omitempty"`
+	DescriptionContainsFold *string  `json:"descriptionContainsFold,omitempty"`
+
+	// "last_used_at" field predicates.
+	LastUsedAt       *time.Time  `json:"lastUsedAt,omitempty"`
+	LastUsedAtNEQ    *time.Time  `json:"lastUsedAtNEQ,omitempty"`
+	LastUsedAtIn     []time.Time `json:"lastUsedAtIn,omitempty"`
+	LastUsedAtNotIn  []time.Time `json:"lastUsedAtNotIn,omitempty"`
+	LastUsedAtGT     *time.Time  `json:"lastUsedAtGT,omitempty"`
+	LastUsedAtGTE    *time.Time  `json:"lastUsedAtGTE,omitempty"`
+	LastUsedAtLT     *time.Time  `json:"lastUsedAtLT,omitempty"`
+	LastUsedAtLTE    *time.Time  `json:"lastUsedAtLTE,omitempty"`
+	LastUsedAtIsNil  bool        `json:"lastUsedAtIsNil,omitempty"`
+	LastUsedAtNotNil bool        `json:"lastUsedAtNotNil,omitempty"`
+
+	// "partner_identities" edge predicates.
+	HasPartnerIdentities     *bool                     `json:"hasPartnerIdentities,omitempty"`
+	HasPartnerIdentitiesWith []*UserIdentityWhereInput `json:"hasPartnerIdentitiesWith,omitempty"`
+}
+
+// AddPredicates adds custom predicates to the where input to be used during the filtering phase.
+func (i *PartnerWhereInput) AddPredicates(predicates ...predicate.Partner) {
+	i.Predicates = append(i.Predicates, predicates...)
+}
+
+// Filter applies the PartnerWhereInput filter on the PartnerQuery builder.
+func (i *PartnerWhereInput) Filter(q *PartnerQuery) (*PartnerQuery, error) {
+	if i == nil {
+		return q, nil
+	}
+	p, err := i.P()
+	if err != nil {
+		if err == ErrEmptyPartnerWhereInput {
+			return q, nil
+		}
+		return nil, err
+	}
+	return q.Where(p), nil
+}
+
+// ErrEmptyPartnerWhereInput is returned in case the PartnerWhereInput is empty.
+var ErrEmptyPartnerWhereInput = errors.New("ent: empty predicate PartnerWhereInput")
+
+// P returns a predicate for filtering partners.
+// An error is returned if the input is empty or invalid.
+func (i *PartnerWhereInput) P() (predicate.Partner, error) {
+	var predicates []predicate.Partner
+	if i.Not != nil {
+		p, err := i.Not.P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'not'", err)
+		}
+		predicates = append(predicates, partner.Not(p))
+	}
+	switch n := len(i.Or); {
+	case n == 1:
+		p, err := i.Or[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'or'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		or := make([]predicate.Partner, 0, n)
+		for _, w := range i.Or {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'or'", err)
+			}
+			or = append(or, p)
+		}
+		predicates = append(predicates, partner.Or(or...))
+	}
+	switch n := len(i.And); {
+	case n == 1:
+		p, err := i.And[0].P()
+		if err != nil {
+			return nil, fmt.Errorf("%w: field 'and'", err)
+		}
+		predicates = append(predicates, p)
+	case n > 1:
+		and := make([]predicate.Partner, 0, n)
+		for _, w := range i.And {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'and'", err)
+			}
+			and = append(and, p)
+		}
+		predicates = append(predicates, partner.And(and...))
+	}
+	predicates = append(predicates, i.Predicates...)
+	if i.ID != nil {
+		predicates = append(predicates, partner.IDEQ(*i.ID))
+	}
+	if i.IDNEQ != nil {
+		predicates = append(predicates, partner.IDNEQ(*i.IDNEQ))
+	}
+	if len(i.IDIn) > 0 {
+		predicates = append(predicates, partner.IDIn(i.IDIn...))
+	}
+	if len(i.IDNotIn) > 0 {
+		predicates = append(predicates, partner.IDNotIn(i.IDNotIn...))
+	}
+	if i.IDGT != nil {
+		predicates = append(predicates, partner.IDGT(*i.IDGT))
+	}
+	if i.IDGTE != nil {
+		predicates = append(predicates, partner.IDGTE(*i.IDGTE))
+	}
+	if i.IDLT != nil {
+		predicates = append(predicates, partner.IDLT(*i.IDLT))
+	}
+	if i.IDLTE != nil {
+		predicates = append(predicates, partner.IDLTE(*i.IDLTE))
+	}
+	if i.IDEqualFold != nil {
+		predicates = append(predicates, partner.IDEqualFold(*i.IDEqualFold))
+	}
+	if i.IDContainsFold != nil {
+		predicates = append(predicates, partner.IDContainsFold(*i.IDContainsFold))
+	}
+	if i.CreatedAt != nil {
+		predicates = append(predicates, partner.CreatedAtEQ(*i.CreatedAt))
+	}
+	if i.CreatedAtNEQ != nil {
+		predicates = append(predicates, partner.CreatedAtNEQ(*i.CreatedAtNEQ))
+	}
+	if len(i.CreatedAtIn) > 0 {
+		predicates = append(predicates, partner.CreatedAtIn(i.CreatedAtIn...))
+	}
+	if len(i.CreatedAtNotIn) > 0 {
+		predicates = append(predicates, partner.CreatedAtNotIn(i.CreatedAtNotIn...))
+	}
+	if i.CreatedAtGT != nil {
+		predicates = append(predicates, partner.CreatedAtGT(*i.CreatedAtGT))
+	}
+	if i.CreatedAtGTE != nil {
+		predicates = append(predicates, partner.CreatedAtGTE(*i.CreatedAtGTE))
+	}
+	if i.CreatedAtLT != nil {
+		predicates = append(predicates, partner.CreatedAtLT(*i.CreatedAtLT))
+	}
+	if i.CreatedAtLTE != nil {
+		predicates = append(predicates, partner.CreatedAtLTE(*i.CreatedAtLTE))
+	}
+	if i.UpdatedAt != nil {
+		predicates = append(predicates, partner.UpdatedAtEQ(*i.UpdatedAt))
+	}
+	if i.UpdatedAtNEQ != nil {
+		predicates = append(predicates, partner.UpdatedAtNEQ(*i.UpdatedAtNEQ))
+	}
+	if len(i.UpdatedAtIn) > 0 {
+		predicates = append(predicates, partner.UpdatedAtIn(i.UpdatedAtIn...))
+	}
+	if len(i.UpdatedAtNotIn) > 0 {
+		predicates = append(predicates, partner.UpdatedAtNotIn(i.UpdatedAtNotIn...))
+	}
+	if i.UpdatedAtGT != nil {
+		predicates = append(predicates, partner.UpdatedAtGT(*i.UpdatedAtGT))
+	}
+	if i.UpdatedAtGTE != nil {
+		predicates = append(predicates, partner.UpdatedAtGTE(*i.UpdatedAtGTE))
+	}
+	if i.UpdatedAtLT != nil {
+		predicates = append(predicates, partner.UpdatedAtLT(*i.UpdatedAtLT))
+	}
+	if i.UpdatedAtLTE != nil {
+		predicates = append(predicates, partner.UpdatedAtLTE(*i.UpdatedAtLTE))
+	}
+	if i.DeletedAt != nil {
+		predicates = append(predicates, partner.DeletedAtEQ(*i.DeletedAt))
+	}
+	if i.DeletedAtNEQ != nil {
+		predicates = append(predicates, partner.DeletedAtNEQ(*i.DeletedAtNEQ))
+	}
+	if len(i.DeletedAtIn) > 0 {
+		predicates = append(predicates, partner.DeletedAtIn(i.DeletedAtIn...))
+	}
+	if len(i.DeletedAtNotIn) > 0 {
+		predicates = append(predicates, partner.DeletedAtNotIn(i.DeletedAtNotIn...))
+	}
+	if i.DeletedAtGT != nil {
+		predicates = append(predicates, partner.DeletedAtGT(*i.DeletedAtGT))
+	}
+	if i.DeletedAtGTE != nil {
+		predicates = append(predicates, partner.DeletedAtGTE(*i.DeletedAtGTE))
+	}
+	if i.DeletedAtLT != nil {
+		predicates = append(predicates, partner.DeletedAtLT(*i.DeletedAtLT))
+	}
+	if i.DeletedAtLTE != nil {
+		predicates = append(predicates, partner.DeletedAtLTE(*i.DeletedAtLTE))
+	}
+	if i.DeletedAtIsNil {
+		predicates = append(predicates, partner.DeletedAtIsNil())
+	}
+	if i.DeletedAtNotNil {
+		predicates = append(predicates, partner.DeletedAtNotNil())
+	}
+	if i.Name != nil {
+		predicates = append(predicates, partner.NameEQ(*i.Name))
+	}
+	if i.NameNEQ != nil {
+		predicates = append(predicates, partner.NameNEQ(*i.NameNEQ))
+	}
+	if len(i.NameIn) > 0 {
+		predicates = append(predicates, partner.NameIn(i.NameIn...))
+	}
+	if len(i.NameNotIn) > 0 {
+		predicates = append(predicates, partner.NameNotIn(i.NameNotIn...))
+	}
+	if i.NameGT != nil {
+		predicates = append(predicates, partner.NameGT(*i.NameGT))
+	}
+	if i.NameGTE != nil {
+		predicates = append(predicates, partner.NameGTE(*i.NameGTE))
+	}
+	if i.NameLT != nil {
+		predicates = append(predicates, partner.NameLT(*i.NameLT))
+	}
+	if i.NameLTE != nil {
+		predicates = append(predicates, partner.NameLTE(*i.NameLTE))
+	}
+	if i.NameContains != nil {
+		predicates = append(predicates, partner.NameContains(*i.NameContains))
+	}
+	if i.NameHasPrefix != nil {
+		predicates = append(predicates, partner.NameHasPrefix(*i.NameHasPrefix))
+	}
+	if i.NameHasSuffix != nil {
+		predicates = append(predicates, partner.NameHasSuffix(*i.NameHasSuffix))
+	}
+	if i.NameEqualFold != nil {
+		predicates = append(predicates, partner.NameEqualFold(*i.NameEqualFold))
+	}
+	if i.NameContainsFold != nil {
+		predicates = append(predicates, partner.NameContainsFold(*i.NameContainsFold))
+	}
+	if i.APIKey != nil {
+		predicates = append(predicates, partner.APIKeyEQ(*i.APIKey))
+	}
+	if i.APIKeyNEQ != nil {
+		predicates = append(predicates, partner.APIKeyNEQ(*i.APIKeyNEQ))
+	}
+	if len(i.APIKeyIn) > 0 {
+		predicates = append(predicates, partner.APIKeyIn(i.APIKeyIn...))
+	}
+	if len(i.APIKeyNotIn) > 0 {
+		predicates = append(predicates, partner.APIKeyNotIn(i.APIKeyNotIn...))
+	}
+	if i.APIKeyGT != nil {
+		predicates = append(predicates, partner.APIKeyGT(*i.APIKeyGT))
+	}
+	if i.APIKeyGTE != nil {
+		predicates = append(predicates, partner.APIKeyGTE(*i.APIKeyGTE))
+	}
+	if i.APIKeyLT != nil {
+		predicates = append(predicates, partner.APIKeyLT(*i.APIKeyLT))
+	}
+	if i.APIKeyLTE != nil {
+		predicates = append(predicates, partner.APIKeyLTE(*i.APIKeyLTE))
+	}
+	if i.APIKeyContains != nil {
+		predicates = append(predicates, partner.APIKeyContains(*i.APIKeyContains))
+	}
+	if i.APIKeyHasPrefix != nil {
+		predicates = append(predicates, partner.APIKeyHasPrefix(*i.APIKeyHasPrefix))
+	}
+	if i.APIKeyHasSuffix != nil {
+		predicates = append(predicates, partner.APIKeyHasSuffix(*i.APIKeyHasSuffix))
+	}
+	if i.APIKeyEqualFold != nil {
+		predicates = append(predicates, partner.APIKeyEqualFold(*i.APIKeyEqualFold))
+	}
+	if i.APIKeyContainsFold != nil {
+		predicates = append(predicates, partner.APIKeyContainsFold(*i.APIKeyContainsFold))
+	}
+	if i.Role != nil {
+		predicates = append(predicates, partner.RoleEQ(*i.Role))
+	}
+	if i.RoleNEQ != nil {
+		predicates = append(predicates, partner.RoleNEQ(*i.RoleNEQ))
+	}
+	if len(i.RoleIn) > 0 {
+		predicates = append(predicates, partner.RoleIn(i.RoleIn...))
+	}
+	if len(i.RoleNotIn) > 0 {
+		predicates = append(predicates, partner.RoleNotIn(i.RoleNotIn...))
+	}
+	if i.Status != nil {
+		predicates = append(predicates, partner.StatusEQ(*i.Status))
+	}
+	if i.StatusNEQ != nil {
+		predicates = append(predicates, partner.StatusNEQ(*i.StatusNEQ))
+	}
+	if len(i.StatusIn) > 0 {
+		predicates = append(predicates, partner.StatusIn(i.StatusIn...))
+	}
+	if len(i.StatusNotIn) > 0 {
+		predicates = append(predicates, partner.StatusNotIn(i.StatusNotIn...))
+	}
+	if i.Description != nil {
+		predicates = append(predicates, partner.DescriptionEQ(*i.Description))
+	}
+	if i.DescriptionNEQ != nil {
+		predicates = append(predicates, partner.DescriptionNEQ(*i.DescriptionNEQ))
+	}
+	if len(i.DescriptionIn) > 0 {
+		predicates = append(predicates, partner.DescriptionIn(i.DescriptionIn...))
+	}
+	if len(i.DescriptionNotIn) > 0 {
+		predicates = append(predicates, partner.DescriptionNotIn(i.DescriptionNotIn...))
+	}
+	if i.DescriptionGT != nil {
+		predicates = append(predicates, partner.DescriptionGT(*i.DescriptionGT))
+	}
+	if i.DescriptionGTE != nil {
+		predicates = append(predicates, partner.DescriptionGTE(*i.DescriptionGTE))
+	}
+	if i.DescriptionLT != nil {
+		predicates = append(predicates, partner.DescriptionLT(*i.DescriptionLT))
+	}
+	if i.DescriptionLTE != nil {
+		predicates = append(predicates, partner.DescriptionLTE(*i.DescriptionLTE))
+	}
+	if i.DescriptionContains != nil {
+		predicates = append(predicates, partner.DescriptionContains(*i.DescriptionContains))
+	}
+	if i.DescriptionHasPrefix != nil {
+		predicates = append(predicates, partner.DescriptionHasPrefix(*i.DescriptionHasPrefix))
+	}
+	if i.DescriptionHasSuffix != nil {
+		predicates = append(predicates, partner.DescriptionHasSuffix(*i.DescriptionHasSuffix))
+	}
+	if i.DescriptionIsNil {
+		predicates = append(predicates, partner.DescriptionIsNil())
+	}
+	if i.DescriptionNotNil {
+		predicates = append(predicates, partner.DescriptionNotNil())
+	}
+	if i.DescriptionEqualFold != nil {
+		predicates = append(predicates, partner.DescriptionEqualFold(*i.DescriptionEqualFold))
+	}
+	if i.DescriptionContainsFold != nil {
+		predicates = append(predicates, partner.DescriptionContainsFold(*i.DescriptionContainsFold))
+	}
+	if i.LastUsedAt != nil {
+		predicates = append(predicates, partner.LastUsedAtEQ(*i.LastUsedAt))
+	}
+	if i.LastUsedAtNEQ != nil {
+		predicates = append(predicates, partner.LastUsedAtNEQ(*i.LastUsedAtNEQ))
+	}
+	if len(i.LastUsedAtIn) > 0 {
+		predicates = append(predicates, partner.LastUsedAtIn(i.LastUsedAtIn...))
+	}
+	if len(i.LastUsedAtNotIn) > 0 {
+		predicates = append(predicates, partner.LastUsedAtNotIn(i.LastUsedAtNotIn...))
+	}
+	if i.LastUsedAtGT != nil {
+		predicates = append(predicates, partner.LastUsedAtGT(*i.LastUsedAtGT))
+	}
+	if i.LastUsedAtGTE != nil {
+		predicates = append(predicates, partner.LastUsedAtGTE(*i.LastUsedAtGTE))
+	}
+	if i.LastUsedAtLT != nil {
+		predicates = append(predicates, partner.LastUsedAtLT(*i.LastUsedAtLT))
+	}
+	if i.LastUsedAtLTE != nil {
+		predicates = append(predicates, partner.LastUsedAtLTE(*i.LastUsedAtLTE))
+	}
+	if i.LastUsedAtIsNil {
+		predicates = append(predicates, partner.LastUsedAtIsNil())
+	}
+	if i.LastUsedAtNotNil {
+		predicates = append(predicates, partner.LastUsedAtNotNil())
+	}
+
+	if i.HasPartnerIdentities != nil {
+		p := partner.HasPartnerIdentities()
+		if !*i.HasPartnerIdentities {
+			p = partner.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasPartnerIdentitiesWith) > 0 {
+		with := make([]predicate.UserIdentity, 0, len(i.HasPartnerIdentitiesWith))
+		for _, w := range i.HasPartnerIdentitiesWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasPartnerIdentitiesWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, partner.HasPartnerIdentitiesWith(with...))
+	}
+	switch len(predicates) {
+	case 0:
+		return nil, ErrEmptyPartnerWhereInput
+	case 1:
+		return predicates[0], nil
+	default:
+		return partner.And(predicates...), nil
 	}
 }
 
@@ -5498,6 +6011,23 @@ type UserIdentityWhereInput struct {
 	UserIDEqualFold    *string  `json:"userIDEqualFold,omitempty"`
 	UserIDContainsFold *string  `json:"userIDContainsFold,omitempty"`
 
+	// "partner_id" field predicates.
+	PartnerID             *string  `json:"partnerID,omitempty"`
+	PartnerIDNEQ          *string  `json:"partnerIDNEQ,omitempty"`
+	PartnerIDIn           []string `json:"partnerIDIn,omitempty"`
+	PartnerIDNotIn        []string `json:"partnerIDNotIn,omitempty"`
+	PartnerIDGT           *string  `json:"partnerIDGT,omitempty"`
+	PartnerIDGTE          *string  `json:"partnerIDGTE,omitempty"`
+	PartnerIDLT           *string  `json:"partnerIDLT,omitempty"`
+	PartnerIDLTE          *string  `json:"partnerIDLTE,omitempty"`
+	PartnerIDContains     *string  `json:"partnerIDContains,omitempty"`
+	PartnerIDHasPrefix    *string  `json:"partnerIDHasPrefix,omitempty"`
+	PartnerIDHasSuffix    *string  `json:"partnerIDHasSuffix,omitempty"`
+	PartnerIDIsNil        bool     `json:"partnerIDIsNil,omitempty"`
+	PartnerIDNotNil       bool     `json:"partnerIDNotNil,omitempty"`
+	PartnerIDEqualFold    *string  `json:"partnerIDEqualFold,omitempty"`
+	PartnerIDContainsFold *string  `json:"partnerIDContainsFold,omitempty"`
+
 	// "provider" field predicates.
 	Provider      *useridentity.Provider  `json:"provider,omitempty"`
 	ProviderNEQ   *useridentity.Provider  `json:"providerNEQ,omitempty"`
@@ -5517,6 +6047,10 @@ type UserIdentityWhereInput struct {
 	// "user" edge predicates.
 	HasUser     *bool             `json:"hasUser,omitempty"`
 	HasUserWith []*UserWhereInput `json:"hasUserWith,omitempty"`
+
+	// "partner" edge predicates.
+	HasPartner     *bool                `json:"hasPartner,omitempty"`
+	HasPartnerWith []*PartnerWhereInput `json:"hasPartnerWith,omitempty"`
 }
 
 // AddPredicates adds custom predicates to the where input to be used during the filtering phase.
@@ -5737,6 +6271,51 @@ func (i *UserIdentityWhereInput) P() (predicate.UserIdentity, error) {
 	if i.UserIDContainsFold != nil {
 		predicates = append(predicates, useridentity.UserIDContainsFold(*i.UserIDContainsFold))
 	}
+	if i.PartnerID != nil {
+		predicates = append(predicates, useridentity.PartnerIDEQ(*i.PartnerID))
+	}
+	if i.PartnerIDNEQ != nil {
+		predicates = append(predicates, useridentity.PartnerIDNEQ(*i.PartnerIDNEQ))
+	}
+	if len(i.PartnerIDIn) > 0 {
+		predicates = append(predicates, useridentity.PartnerIDIn(i.PartnerIDIn...))
+	}
+	if len(i.PartnerIDNotIn) > 0 {
+		predicates = append(predicates, useridentity.PartnerIDNotIn(i.PartnerIDNotIn...))
+	}
+	if i.PartnerIDGT != nil {
+		predicates = append(predicates, useridentity.PartnerIDGT(*i.PartnerIDGT))
+	}
+	if i.PartnerIDGTE != nil {
+		predicates = append(predicates, useridentity.PartnerIDGTE(*i.PartnerIDGTE))
+	}
+	if i.PartnerIDLT != nil {
+		predicates = append(predicates, useridentity.PartnerIDLT(*i.PartnerIDLT))
+	}
+	if i.PartnerIDLTE != nil {
+		predicates = append(predicates, useridentity.PartnerIDLTE(*i.PartnerIDLTE))
+	}
+	if i.PartnerIDContains != nil {
+		predicates = append(predicates, useridentity.PartnerIDContains(*i.PartnerIDContains))
+	}
+	if i.PartnerIDHasPrefix != nil {
+		predicates = append(predicates, useridentity.PartnerIDHasPrefix(*i.PartnerIDHasPrefix))
+	}
+	if i.PartnerIDHasSuffix != nil {
+		predicates = append(predicates, useridentity.PartnerIDHasSuffix(*i.PartnerIDHasSuffix))
+	}
+	if i.PartnerIDIsNil {
+		predicates = append(predicates, useridentity.PartnerIDIsNil())
+	}
+	if i.PartnerIDNotNil {
+		predicates = append(predicates, useridentity.PartnerIDNotNil())
+	}
+	if i.PartnerIDEqualFold != nil {
+		predicates = append(predicates, useridentity.PartnerIDEqualFold(*i.PartnerIDEqualFold))
+	}
+	if i.PartnerIDContainsFold != nil {
+		predicates = append(predicates, useridentity.PartnerIDContainsFold(*i.PartnerIDContainsFold))
+	}
 	if i.Provider != nil {
 		predicates = append(predicates, useridentity.ProviderEQ(*i.Provider))
 	}
@@ -5791,6 +6370,24 @@ func (i *UserIdentityWhereInput) P() (predicate.UserIdentity, error) {
 			with = append(with, p)
 		}
 		predicates = append(predicates, useridentity.HasUserWith(with...))
+	}
+	if i.HasPartner != nil {
+		p := useridentity.HasPartner()
+		if !*i.HasPartner {
+			p = useridentity.Not(p)
+		}
+		predicates = append(predicates, p)
+	}
+	if len(i.HasPartnerWith) > 0 {
+		with := make([]predicate.Partner, 0, len(i.HasPartnerWith))
+		for _, w := range i.HasPartnerWith {
+			p, err := w.P()
+			if err != nil {
+				return nil, fmt.Errorf("%w: field 'HasPartnerWith'", err)
+			}
+			with = append(with, p)
+		}
+		predicates = append(predicates, useridentity.HasPartnerWith(with...))
 	}
 	switch len(predicates) {
 	case 0:

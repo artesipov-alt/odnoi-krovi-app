@@ -27,6 +27,9 @@ type DonorResponse func(*sql.Selector)
 // Location is the predicate function for location builders.
 type Location func(*sql.Selector)
 
+// Partner is the predicate function for partner builders.
+type Partner func(*sql.Selector)
+
 // Pet is the predicate function for pet builders.
 type Pet func(*sql.Selector)
 

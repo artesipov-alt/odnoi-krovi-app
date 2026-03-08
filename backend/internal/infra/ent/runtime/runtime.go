@@ -12,6 +12,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -193,6 +194,27 @@ func init() {
 			return nil
 		}
 	}()
+	partnerMixin := schema.Partner{}.Mixin()
+	partnerMixinInters0 := partnerMixin[0].Interceptors()
+	partner.Interceptors[0] = partnerMixinInters0[0]
+	partnerMixinFields0 := partnerMixin[0].Fields()
+	_ = partnerMixinFields0
+	partnerFields := schema.Partner{}.Fields()
+	_ = partnerFields
+	// partnerDescCreatedAt is the schema descriptor for created_at field.
+	partnerDescCreatedAt := partnerMixinFields0[1].Descriptor()
+	// partner.DefaultCreatedAt holds the default value on creation for the created_at field.
+	partner.DefaultCreatedAt = partnerDescCreatedAt.Default.(func() time.Time)
+	// partnerDescUpdatedAt is the schema descriptor for updated_at field.
+	partnerDescUpdatedAt := partnerMixinFields0[2].Descriptor()
+	// partner.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	partner.DefaultUpdatedAt = partnerDescUpdatedAt.Default.(func() time.Time)
+	// partner.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	partner.UpdateDefaultUpdatedAt = partnerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// partnerDescID is the schema descriptor for id field.
+	partnerDescID := partnerMixinFields0[0].Descriptor()
+	// partner.DefaultID holds the default value on creation for the id field.
+	partner.DefaultID = partnerDescID.Default.(func() string)
 	petMixin := schema.Pet{}.Mixin()
 	petMixinInters0 := petMixin[0].Interceptors()
 	pet.Interceptors[0] = petMixinInters0[0]

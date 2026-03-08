@@ -19,6 +19,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -93,6 +94,7 @@ func checkColumn(t, c string) error {
 			donorpreference.Table:    donorpreference.ValidColumn,
 			donorresponse.Table:      donorresponse.ValidColumn,
 			location.Table:           location.ValidColumn,
+			partner.Table:            partner.ValidColumn,
 			pet.Table:                pet.ValidColumn,
 			petanalysis.Table:        petanalysis.ValidColumn,
 			pethealth.Table:          pethealth.ValidColumn,

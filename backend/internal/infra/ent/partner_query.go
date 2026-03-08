@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -13,60 +14,59 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
 
-// UserIdentityQuery is the builder for querying UserIdentity entities.
-type UserIdentityQuery struct {
+// PartnerQuery is the builder for querying Partner entities.
+type PartnerQuery struct {
 	config
-	ctx         *QueryContext
-	order       []useridentity.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.UserIdentity
-	withUser    *UserQuery
-	withPartner *PartnerQuery
-	modifiers   []func(*sql.Selector)
-	loadTotal   []func(context.Context, []*UserIdentity) error
+	ctx                        *QueryContext
+	order                      []partner.OrderOption
+	inters                     []Interceptor
+	predicates                 []predicate.Partner
+	withPartnerIdentities      *UserIdentityQuery
+	modifiers                  []func(*sql.Selector)
+	loadTotal                  []func(context.Context, []*Partner) error
+	withNamedPartnerIdentities map[string]*UserIdentityQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the UserIdentityQuery builder.
-func (_q *UserIdentityQuery) Where(ps ...predicate.UserIdentity) *UserIdentityQuery {
+// Where adds a new predicate for the PartnerQuery builder.
+func (_q *PartnerQuery) Where(ps ...predicate.Partner) *PartnerQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *UserIdentityQuery) Limit(limit int) *UserIdentityQuery {
+func (_q *PartnerQuery) Limit(limit int) *PartnerQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *UserIdentityQuery) Offset(offset int) *UserIdentityQuery {
+func (_q *PartnerQuery) Offset(offset int) *PartnerQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *UserIdentityQuery) Unique(unique bool) *UserIdentityQuery {
+func (_q *PartnerQuery) Unique(unique bool) *PartnerQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *UserIdentityQuery) Order(o ...useridentity.OrderOption) *UserIdentityQuery {
+func (_q *PartnerQuery) Order(o ...partner.OrderOption) *PartnerQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryUser chains the current query on the "user" edge.
-func (_q *UserIdentityQuery) QueryUser() *UserQuery {
-	query := (&UserClient{config: _q.config}).Query()
+// QueryPartnerIdentities chains the current query on the "partner_identities" edge.
+func (_q *PartnerQuery) QueryPartnerIdentities() *UserIdentityQuery {
+	query := (&UserIdentityClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -76,9 +76,9 @@ func (_q *UserIdentityQuery) QueryUser() *UserQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(useridentity.Table, useridentity.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, useridentity.UserTable, useridentity.UserColumn),
+			sqlgraph.From(partner.Table, partner.FieldID, selector),
+			sqlgraph.To(useridentity.Table, useridentity.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, partner.PartnerIdentitiesTable, partner.PartnerIdentitiesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -86,43 +86,21 @@ func (_q *UserIdentityQuery) QueryUser() *UserQuery {
 	return query
 }
 
-// QueryPartner chains the current query on the "partner" edge.
-func (_q *UserIdentityQuery) QueryPartner() *PartnerQuery {
-	query := (&PartnerClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(useridentity.Table, useridentity.FieldID, selector),
-			sqlgraph.To(partner.Table, partner.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, useridentity.PartnerTable, useridentity.PartnerColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// First returns the first UserIdentity entity from the query.
-// Returns a *NotFoundError when no UserIdentity was found.
-func (_q *UserIdentityQuery) First(ctx context.Context) (*UserIdentity, error) {
+// First returns the first Partner entity from the query.
+// Returns a *NotFoundError when no Partner was found.
+func (_q *PartnerQuery) First(ctx context.Context) (*Partner, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{useridentity.Label}
+		return nil, &NotFoundError{partner.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *UserIdentityQuery) FirstX(ctx context.Context) *UserIdentity {
+func (_q *PartnerQuery) FirstX(ctx context.Context) *Partner {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -130,22 +108,22 @@ func (_q *UserIdentityQuery) FirstX(ctx context.Context) *UserIdentity {
 	return node
 }
 
-// FirstID returns the first UserIdentity ID from the query.
-// Returns a *NotFoundError when no UserIdentity ID was found.
-func (_q *UserIdentityQuery) FirstID(ctx context.Context) (id string, err error) {
+// FirstID returns the first Partner ID from the query.
+// Returns a *NotFoundError when no Partner ID was found.
+func (_q *PartnerQuery) FirstID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{useridentity.Label}
+		err = &NotFoundError{partner.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *UserIdentityQuery) FirstIDX(ctx context.Context) string {
+func (_q *PartnerQuery) FirstIDX(ctx context.Context) string {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -153,10 +131,10 @@ func (_q *UserIdentityQuery) FirstIDX(ctx context.Context) string {
 	return id
 }
 
-// Only returns a single UserIdentity entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one UserIdentity entity is found.
-// Returns a *NotFoundError when no UserIdentity entities are found.
-func (_q *UserIdentityQuery) Only(ctx context.Context) (*UserIdentity, error) {
+// Only returns a single Partner entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Partner entity is found.
+// Returns a *NotFoundError when no Partner entities are found.
+func (_q *PartnerQuery) Only(ctx context.Context) (*Partner, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -165,14 +143,14 @@ func (_q *UserIdentityQuery) Only(ctx context.Context) (*UserIdentity, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{useridentity.Label}
+		return nil, &NotFoundError{partner.Label}
 	default:
-		return nil, &NotSingularError{useridentity.Label}
+		return nil, &NotSingularError{partner.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *UserIdentityQuery) OnlyX(ctx context.Context) *UserIdentity {
+func (_q *PartnerQuery) OnlyX(ctx context.Context) *Partner {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -180,10 +158,10 @@ func (_q *UserIdentityQuery) OnlyX(ctx context.Context) *UserIdentity {
 	return node
 }
 
-// OnlyID is like Only, but returns the only UserIdentity ID in the query.
-// Returns a *NotSingularError when more than one UserIdentity ID is found.
+// OnlyID is like Only, but returns the only Partner ID in the query.
+// Returns a *NotSingularError when more than one Partner ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *UserIdentityQuery) OnlyID(ctx context.Context) (id string, err error) {
+func (_q *PartnerQuery) OnlyID(ctx context.Context) (id string, err error) {
 	var ids []string
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -192,15 +170,15 @@ func (_q *UserIdentityQuery) OnlyID(ctx context.Context) (id string, err error) 
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{useridentity.Label}
+		err = &NotFoundError{partner.Label}
 	default:
-		err = &NotSingularError{useridentity.Label}
+		err = &NotSingularError{partner.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *UserIdentityQuery) OnlyIDX(ctx context.Context) string {
+func (_q *PartnerQuery) OnlyIDX(ctx context.Context) string {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -208,18 +186,18 @@ func (_q *UserIdentityQuery) OnlyIDX(ctx context.Context) string {
 	return id
 }
 
-// All executes the query and returns a list of UserIdentities.
-func (_q *UserIdentityQuery) All(ctx context.Context) ([]*UserIdentity, error) {
+// All executes the query and returns a list of Partners.
+func (_q *PartnerQuery) All(ctx context.Context) ([]*Partner, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*UserIdentity, *UserIdentityQuery]()
-	return withInterceptors[[]*UserIdentity](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Partner, *PartnerQuery]()
+	return withInterceptors[[]*Partner](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *UserIdentityQuery) AllX(ctx context.Context) []*UserIdentity {
+func (_q *PartnerQuery) AllX(ctx context.Context) []*Partner {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -227,20 +205,20 @@ func (_q *UserIdentityQuery) AllX(ctx context.Context) []*UserIdentity {
 	return nodes
 }
 
-// IDs executes the query and returns a list of UserIdentity IDs.
-func (_q *UserIdentityQuery) IDs(ctx context.Context) (ids []string, err error) {
+// IDs executes the query and returns a list of Partner IDs.
+func (_q *PartnerQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(useridentity.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(partner.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *UserIdentityQuery) IDsX(ctx context.Context) []string {
+func (_q *PartnerQuery) IDsX(ctx context.Context) []string {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -249,16 +227,16 @@ func (_q *UserIdentityQuery) IDsX(ctx context.Context) []string {
 }
 
 // Count returns the count of the given query.
-func (_q *UserIdentityQuery) Count(ctx context.Context) (int, error) {
+func (_q *PartnerQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*UserIdentityQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*PartnerQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *UserIdentityQuery) CountX(ctx context.Context) int {
+func (_q *PartnerQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -267,7 +245,7 @@ func (_q *UserIdentityQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *UserIdentityQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *PartnerQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -280,7 +258,7 @@ func (_q *UserIdentityQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *UserIdentityQuery) ExistX(ctx context.Context) bool {
+func (_q *PartnerQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -288,45 +266,33 @@ func (_q *UserIdentityQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the UserIdentityQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the PartnerQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *UserIdentityQuery) Clone() *UserIdentityQuery {
+func (_q *PartnerQuery) Clone() *PartnerQuery {
 	if _q == nil {
 		return nil
 	}
-	return &UserIdentityQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]useridentity.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.UserIdentity{}, _q.predicates...),
-		withUser:    _q.withUser.Clone(),
-		withPartner: _q.withPartner.Clone(),
+	return &PartnerQuery{
+		config:                _q.config,
+		ctx:                   _q.ctx.Clone(),
+		order:                 append([]partner.OrderOption{}, _q.order...),
+		inters:                append([]Interceptor{}, _q.inters...),
+		predicates:            append([]predicate.Partner{}, _q.predicates...),
+		withPartnerIdentities: _q.withPartnerIdentities.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserIdentityQuery) WithUser(opts ...func(*UserQuery)) *UserIdentityQuery {
-	query := (&UserClient{config: _q.config}).Query()
+// WithPartnerIdentities tells the query-builder to eager-load the nodes that are connected to
+// the "partner_identities" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PartnerQuery) WithPartnerIdentities(opts ...func(*UserIdentityQuery)) *PartnerQuery {
+	query := (&UserIdentityClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withUser = query
-	return _q
-}
-
-// WithPartner tells the query-builder to eager-load the nodes that are connected to
-// the "partner" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserIdentityQuery) WithPartner(opts ...func(*PartnerQuery)) *UserIdentityQuery {
-	query := (&PartnerClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withPartner = query
+	_q.withPartnerIdentities = query
 	return _q
 }
 
@@ -340,15 +306,15 @@ func (_q *UserIdentityQuery) WithPartner(opts ...func(*PartnerQuery)) *UserIdent
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.UserIdentity.Query().
-//		GroupBy(useridentity.FieldCreatedAt).
+//	client.Partner.Query().
+//		GroupBy(partner.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *UserIdentityQuery) GroupBy(field string, fields ...string) *UserIdentityGroupBy {
+func (_q *PartnerQuery) GroupBy(field string, fields ...string) *PartnerGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &UserIdentityGroupBy{build: _q}
+	grbuild := &PartnerGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = useridentity.Label
+	grbuild.label = partner.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -362,23 +328,23 @@ func (_q *UserIdentityQuery) GroupBy(field string, fields ...string) *UserIdenti
 //		CreatedAt time.Time `json:"createdAt"`
 //	}
 //
-//	client.UserIdentity.Query().
-//		Select(useridentity.FieldCreatedAt).
+//	client.Partner.Query().
+//		Select(partner.FieldCreatedAt).
 //		Scan(ctx, &v)
-func (_q *UserIdentityQuery) Select(fields ...string) *UserIdentitySelect {
+func (_q *PartnerQuery) Select(fields ...string) *PartnerSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &UserIdentitySelect{UserIdentityQuery: _q}
-	sbuild.label = useridentity.Label
+	sbuild := &PartnerSelect{PartnerQuery: _q}
+	sbuild.label = partner.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a UserIdentitySelect configured with the given aggregations.
-func (_q *UserIdentityQuery) Aggregate(fns ...AggregateFunc) *UserIdentitySelect {
+// Aggregate returns a PartnerSelect configured with the given aggregations.
+func (_q *PartnerQuery) Aggregate(fns ...AggregateFunc) *PartnerSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *UserIdentityQuery) prepareQuery(ctx context.Context) error {
+func (_q *PartnerQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -390,7 +356,7 @@ func (_q *UserIdentityQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !useridentity.ValidColumn(f) {
+		if !partner.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -404,20 +370,19 @@ func (_q *UserIdentityQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *UserIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*UserIdentity, error) {
+func (_q *PartnerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Partner, error) {
 	var (
-		nodes       = []*UserIdentity{}
+		nodes       = []*Partner{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
-			_q.withUser != nil,
-			_q.withPartner != nil,
+		loadedTypes = [1]bool{
+			_q.withPartnerIdentities != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*UserIdentity).scanValues(nil, columns)
+		return (*Partner).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &UserIdentity{config: _q.config}
+		node := &Partner{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -434,15 +399,17 @@ func (_q *UserIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withUser; query != nil {
-		if err := _q.loadUser(ctx, query, nodes, nil,
-			func(n *UserIdentity, e *User) { n.Edges.User = e }); err != nil {
+	if query := _q.withPartnerIdentities; query != nil {
+		if err := _q.loadPartnerIdentities(ctx, query, nodes,
+			func(n *Partner) { n.Edges.PartnerIdentities = []*UserIdentity{} },
+			func(n *Partner, e *UserIdentity) { n.Edges.PartnerIdentities = append(n.Edges.PartnerIdentities, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := _q.withPartner; query != nil {
-		if err := _q.loadPartner(ctx, query, nodes, nil,
-			func(n *UserIdentity, e *Partner) { n.Edges.Partner = e }); err != nil {
+	for name, query := range _q.withNamedPartnerIdentities {
+		if err := _q.loadPartnerIdentities(ctx, query, nodes,
+			func(n *Partner) { n.appendNamedPartnerIdentities(name) },
+			func(n *Partner, e *UserIdentity) { n.appendNamedPartnerIdentities(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -454,66 +421,38 @@ func (_q *UserIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	return nodes, nil
 }
 
-func (_q *UserIdentityQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*UserIdentity, init func(*UserIdentity), assign func(*UserIdentity, *User)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*UserIdentity)
+func (_q *PartnerQuery) loadPartnerIdentities(ctx context.Context, query *UserIdentityQuery, nodes []*Partner, init func(*Partner), assign func(*Partner, *UserIdentity)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Partner)
 	for i := range nodes {
-		fk := nodes[i].UserID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(useridentity.FieldPartnerID)
 	}
-	query.Where(user.IDIn(ids...))
+	query.Where(predicate.UserIdentity(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(partner.PartnerIdentitiesColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.PartnerID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "partner_id" returned %v for node %v`, fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (_q *UserIdentityQuery) loadPartner(ctx context.Context, query *PartnerQuery, nodes []*UserIdentity, init func(*UserIdentity), assign func(*UserIdentity, *Partner)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*UserIdentity)
-	for i := range nodes {
-		fk := nodes[i].PartnerID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(partner.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "partner_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
 
-func (_q *UserIdentityQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *PartnerQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	if len(_q.modifiers) > 0 {
 		_spec.Modifiers = _q.modifiers
@@ -525,8 +464,8 @@ func (_q *UserIdentityQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *UserIdentityQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(useridentity.Table, useridentity.Columns, sqlgraph.NewFieldSpec(useridentity.FieldID, field.TypeString))
+func (_q *PartnerQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(partner.Table, partner.Columns, sqlgraph.NewFieldSpec(partner.FieldID, field.TypeString))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -535,17 +474,11 @@ func (_q *UserIdentityQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, useridentity.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, partner.FieldID)
 		for i := range fields {
-			if fields[i] != useridentity.FieldID {
+			if fields[i] != partner.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withUser != nil {
-			_spec.Node.AddColumnOnce(useridentity.FieldUserID)
-		}
-		if _q.withPartner != nil {
-			_spec.Node.AddColumnOnce(useridentity.FieldPartnerID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
@@ -571,12 +504,12 @@ func (_q *UserIdentityQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *UserIdentityQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *PartnerQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(useridentity.Table)
+	t1 := builder.Table(partner.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = useridentity.Columns
+		columns = partner.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -603,28 +536,42 @@ func (_q *UserIdentityQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// UserIdentityGroupBy is the group-by builder for UserIdentity entities.
-type UserIdentityGroupBy struct {
+// WithNamedPartnerIdentities tells the query-builder to eager-load the nodes that are connected to the "partner_identities"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *PartnerQuery) WithNamedPartnerIdentities(name string, opts ...func(*UserIdentityQuery)) *PartnerQuery {
+	query := (&UserIdentityClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedPartnerIdentities == nil {
+		_q.withNamedPartnerIdentities = make(map[string]*UserIdentityQuery)
+	}
+	_q.withNamedPartnerIdentities[name] = query
+	return _q
+}
+
+// PartnerGroupBy is the group-by builder for Partner entities.
+type PartnerGroupBy struct {
 	selector
-	build *UserIdentityQuery
+	build *PartnerQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *UserIdentityGroupBy) Aggregate(fns ...AggregateFunc) *UserIdentityGroupBy {
+func (_g *PartnerGroupBy) Aggregate(fns ...AggregateFunc) *PartnerGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *UserIdentityGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *PartnerGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*UserIdentityQuery, *UserIdentityGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*PartnerQuery, *PartnerGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *UserIdentityGroupBy) sqlScan(ctx context.Context, root *UserIdentityQuery, v any) error {
+func (_g *PartnerGroupBy) sqlScan(ctx context.Context, root *PartnerQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -651,28 +598,28 @@ func (_g *UserIdentityGroupBy) sqlScan(ctx context.Context, root *UserIdentityQu
 	return sql.ScanSlice(rows, v)
 }
 
-// UserIdentitySelect is the builder for selecting fields of UserIdentity entities.
-type UserIdentitySelect struct {
-	*UserIdentityQuery
+// PartnerSelect is the builder for selecting fields of Partner entities.
+type PartnerSelect struct {
+	*PartnerQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *UserIdentitySelect) Aggregate(fns ...AggregateFunc) *UserIdentitySelect {
+func (_s *PartnerSelect) Aggregate(fns ...AggregateFunc) *PartnerSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *UserIdentitySelect) Scan(ctx context.Context, v any) error {
+func (_s *PartnerSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*UserIdentityQuery, *UserIdentitySelect](ctx, _s.UserIdentityQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*PartnerQuery, *PartnerSelect](ctx, _s.PartnerQuery, _s, _s.inters, v)
 }
 
-func (_s *UserIdentitySelect) sqlScan(ctx context.Context, root *UserIdentityQuery, v any) error {
+func (_s *PartnerSelect) sqlScan(ctx context.Context, root *PartnerQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

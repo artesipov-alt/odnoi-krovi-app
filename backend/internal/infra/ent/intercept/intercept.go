@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -270,6 +271,33 @@ func (f TraverseLocation) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.LocationQuery", q)
 }
 
+// The PartnerFunc type is an adapter to allow the use of ordinary function as a Querier.
+type PartnerFunc func(context.Context, *ent.PartnerQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f PartnerFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.PartnerQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.PartnerQuery", q)
+}
+
+// The TraversePartner type is an adapter to allow the use of ordinary function as Traverser.
+type TraversePartner func(context.Context, *ent.PartnerQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraversePartner) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraversePartner) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.PartnerQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.PartnerQuery", q)
+}
+
 // The PetFunc type is an adapter to allow the use of ordinary function as a Querier.
 type PetFunc func(context.Context, *ent.PetQuery) (ent.Value, error)
 
@@ -476,6 +504,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.DonorResponseQuery, predicate.DonorResponse, donorresponse.OrderOption]{typ: ent.TypeDonorResponse, tq: q}, nil
 	case *ent.LocationQuery:
 		return &query[*ent.LocationQuery, predicate.Location, location.OrderOption]{typ: ent.TypeLocation, tq: q}, nil
+	case *ent.PartnerQuery:
+		return &query[*ent.PartnerQuery, predicate.Partner, partner.OrderOption]{typ: ent.TypePartner, tq: q}, nil
 	case *ent.PetQuery:
 		return &query[*ent.PetQuery, predicate.Pet, pet.OrderOption]{typ: ent.TypePet, tq: q}, nil
 	case *ent.PetAnalysisQuery:

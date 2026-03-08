@@ -21,6 +21,7 @@ import (
 const (
 	UserPrefix            = "USR"
 	IdentityPrefix        = "IDN"
+	PartnerPrefix         = "PRT"
 	PetPrefix             = "PET"
 	PetHealthPrefix       = "PHL"
 	PetTreatmentPrefix    = "PTR"

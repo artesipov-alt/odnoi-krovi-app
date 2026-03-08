@@ -15,6 +15,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -64,6 +65,11 @@ var locationImplementors = []string{"Location", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
 func (*Location) IsNode() {}
+
+var partnerImplementors = []string{"Partner", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*Partner) IsNode() {}
 
 var petImplementors = []string{"Pet", "Node"}
 
@@ -217,6 +223,15 @@ func (c *Client) noder(ctx context.Context, table string, id string) (Noder, err
 			Where(location.ID(id))
 		if fc := graphql.GetFieldContext(ctx); fc != nil {
 			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, locationImplementors...); err != nil {
+				return nil, err
+			}
+		}
+		return query.Only(ctx)
+	case partner.Table:
+		query := c.Partner.Query().
+			Where(partner.ID(id))
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, partnerImplementors...); err != nil {
 				return nil, err
 			}
 		}
@@ -457,6 +472,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []string) ([]Node
 		query := c.Location.Query().
 			Where(location.IDIn(ids...))
 		query, err := query.CollectFields(ctx, locationImplementors...)
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case partner.Table:
+		query := c.Partner.Query().
+			Where(partner.IDIn(ids...))
+		query, err := query.CollectFields(ctx, partnerImplementors...)
 		if err != nil {
 			return nil, err
 		}

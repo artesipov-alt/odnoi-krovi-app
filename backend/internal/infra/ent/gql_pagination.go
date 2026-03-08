@@ -18,6 +18,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -1846,6 +1847,255 @@ func (_m *Location) ToEdge(order *LocationOrder) *LocationEdge {
 		order = DefaultLocationOrder
 	}
 	return &LocationEdge{
+		Node:   _m,
+		Cursor: order.Field.toCursor(_m),
+	}
+}
+
+// PartnerEdge is the edge representation of Partner.
+type PartnerEdge struct {
+	Node   *Partner `json:"node"`
+	Cursor Cursor   `json:"cursor"`
+}
+
+// PartnerConnection is the connection containing edges to Partner.
+type PartnerConnection struct {
+	Edges      []*PartnerEdge `json:"edges"`
+	PageInfo   PageInfo       `json:"pageInfo"`
+	TotalCount int            `json:"totalCount"`
+}
+
+func (c *PartnerConnection) build(nodes []*Partner, pager *partnerPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *Partner
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *Partner {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *Partner {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*PartnerEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &PartnerEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// PartnerPaginateOption enables pagination customization.
+type PartnerPaginateOption func(*partnerPager) error
+
+// WithPartnerOrder configures pagination ordering.
+func WithPartnerOrder(order *PartnerOrder) PartnerPaginateOption {
+	if order == nil {
+		order = DefaultPartnerOrder
+	}
+	o := *order
+	return func(pager *partnerPager) error {
+		if err := o.Direction.Validate(); err != nil {
+			return err
+		}
+		if o.Field == nil {
+			o.Field = DefaultPartnerOrder.Field
+		}
+		pager.order = &o
+		return nil
+	}
+}
+
+// WithPartnerFilter configures pagination filter.
+func WithPartnerFilter(filter func(*PartnerQuery) (*PartnerQuery, error)) PartnerPaginateOption {
+	return func(pager *partnerPager) error {
+		if filter == nil {
+			return errors.New("PartnerQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type partnerPager struct {
+	reverse bool
+	order   *PartnerOrder
+	filter  func(*PartnerQuery) (*PartnerQuery, error)
+}
+
+func newPartnerPager(opts []PartnerPaginateOption, reverse bool) (*partnerPager, error) {
+	pager := &partnerPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	if pager.order == nil {
+		pager.order = DefaultPartnerOrder
+	}
+	return pager, nil
+}
+
+func (p *partnerPager) applyFilter(query *PartnerQuery) (*PartnerQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *partnerPager) toCursor(_m *Partner) Cursor {
+	return p.order.Field.toCursor(_m)
+}
+
+func (p *partnerPager) applyCursors(query *PartnerQuery, after, before *Cursor) (*PartnerQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultPartnerOrder.Field.column, p.order.Field.column, direction) {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *partnerPager) applyOrder(query *PartnerQuery) *PartnerQuery {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
+	if p.order.Field != DefaultPartnerOrder.Field {
+		query = query.Order(DefaultPartnerOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return query
+}
+
+func (p *partnerPager) orderExpr(query *PartnerQuery) sql.Querier {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(p.order.Field.column)
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
+		if p.order.Field != DefaultPartnerOrder.Field {
+			b.Comma().Ident(DefaultPartnerOrder.Field.column).Pad().WriteString(string(direction))
+		}
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to Partner.
+func (_m *PartnerQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...PartnerPaginateOption,
+) (*PartnerConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newPartnerPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if _m, err = pager.applyFilter(_m); err != nil {
+		return nil, err
+	}
+	conn := &PartnerConnection{Edges: []*PartnerEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := _m.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if _m, err = pager.applyCursors(_m, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		_m.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := _m.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	_m = pager.applyOrder(_m)
+	nodes, err := _m.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// PartnerOrderField defines the ordering field of Partner.
+type PartnerOrderField struct {
+	// Value extracts the ordering value from the given Partner.
+	Value    func(*Partner) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) partner.OrderOption
+	toCursor func(*Partner) Cursor
+}
+
+// PartnerOrder defines the ordering of Partner.
+type PartnerOrder struct {
+	Direction OrderDirection     `json:"direction"`
+	Field     *PartnerOrderField `json:"field"`
+}
+
+// DefaultPartnerOrder is the default ordering of Partner.
+var DefaultPartnerOrder = &PartnerOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &PartnerOrderField{
+		Value: func(_m *Partner) (ent.Value, error) {
+			return _m.ID, nil
+		},
+		column: partner.FieldID,
+		toTerm: partner.ByID,
+		toCursor: func(_m *Partner) Cursor {
+			return Cursor{ID: _m.ID}
+		},
+	},
+}
+
+// ToEdge converts Partner into PartnerEdge.
+func (_m *Partner) ToEdge(order *PartnerOrder) *PartnerEdge {
+	if order == nil {
+		order = DefaultPartnerOrder
+	}
+	return &PartnerEdge{
 		Node:   _m,
 		Cursor: order.Field.toCursor(_m),
 	}

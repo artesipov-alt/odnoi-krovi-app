@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
@@ -27,6 +28,8 @@ type UserIdentity struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"user_id,omitempty"`
+	// PartnerID holds the value of the "partner_id" field.
+	PartnerID string `json:"partner_id,omitempty"`
 	// Provider holds the value of the "provider" field.
 	Provider useridentity.Provider `json:"provider,omitempty"`
 	// ProviderUserID holds the value of the "provider_user_id" field.
@@ -43,11 +46,13 @@ type UserIdentity struct {
 type UserIdentityEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// Partner holds the value of the partner edge.
+	Partner *Partner `json:"partner,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 	// totalCount holds the count of the edges above.
-	totalCount [1]map[string]int
+	totalCount [2]map[string]int
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -61,6 +66,17 @@ func (e UserIdentityEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
+// PartnerOrErr returns the Partner value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserIdentityEdges) PartnerOrErr() (*Partner, error) {
+	if e.Partner != nil {
+		return e.Partner, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: partner.Label}
+	}
+	return nil, &NotLoadedError{edge: "partner"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*UserIdentity) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -70,7 +86,7 @@ func (*UserIdentity) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case useridentity.FieldProviderUserID:
 			values[i] = new(sql.NullInt64)
-		case useridentity.FieldID, useridentity.FieldUserID, useridentity.FieldProvider:
+		case useridentity.FieldID, useridentity.FieldUserID, useridentity.FieldPartnerID, useridentity.FieldProvider:
 			values[i] = new(sql.NullString)
 		case useridentity.FieldCreatedAt, useridentity.FieldUpdatedAt, useridentity.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -120,6 +136,12 @@ func (_m *UserIdentity) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UserID = value.String
 			}
+		case useridentity.FieldPartnerID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field partner_id", values[i])
+			} else if value.Valid {
+				_m.PartnerID = value.String
+			}
 		case useridentity.FieldProvider:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field provider", values[i])
@@ -158,6 +180,11 @@ func (_m *UserIdentity) QueryUser() *UserQuery {
 	return NewUserIdentityClient(_m.config).QueryUser(_m)
 }
 
+// QueryPartner queries the "partner" edge of the UserIdentity entity.
+func (_m *UserIdentity) QueryPartner() *PartnerQuery {
+	return NewUserIdentityClient(_m.config).QueryPartner(_m)
+}
+
 // Update returns a builder for updating this UserIdentity.
 // Note that you need to call UserIdentity.Unwrap() before calling this method if this UserIdentity
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -194,6 +221,9 @@ func (_m *UserIdentity) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(_m.UserID)
+	builder.WriteString(", ")
+	builder.WriteString("partner_id=")
+	builder.WriteString(_m.PartnerID)
 	builder.WriteString(", ")
 	builder.WriteString("provider=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Provider))

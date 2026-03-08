@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
@@ -69,6 +70,26 @@ func (_u *UserIdentityUpdate) SetNillableUserID(v *string) *UserIdentityUpdate {
 	return _u
 }
 
+// SetPartnerID sets the "partner_id" field.
+func (_u *UserIdentityUpdate) SetPartnerID(v string) *UserIdentityUpdate {
+	_u.mutation.SetPartnerID(v)
+	return _u
+}
+
+// SetNillablePartnerID sets the "partner_id" field if the given value is not nil.
+func (_u *UserIdentityUpdate) SetNillablePartnerID(v *string) *UserIdentityUpdate {
+	if v != nil {
+		_u.SetPartnerID(*v)
+	}
+	return _u
+}
+
+// ClearPartnerID clears the value of the "partner_id" field.
+func (_u *UserIdentityUpdate) ClearPartnerID() *UserIdentityUpdate {
+	_u.mutation.ClearPartnerID()
+	return _u
+}
+
 // SetProvider sets the "provider" field.
 func (_u *UserIdentityUpdate) SetProvider(v useridentity.Provider) *UserIdentityUpdate {
 	_u.mutation.SetProvider(v)
@@ -121,6 +142,11 @@ func (_u *UserIdentityUpdate) SetUser(v *User) *UserIdentityUpdate {
 	return _u.SetUserID(v.ID)
 }
 
+// SetPartner sets the "partner" edge to the Partner entity.
+func (_u *UserIdentityUpdate) SetPartner(v *Partner) *UserIdentityUpdate {
+	return _u.SetPartnerID(v.ID)
+}
+
 // Mutation returns the UserIdentityMutation object of the builder.
 func (_u *UserIdentityUpdate) Mutation() *UserIdentityMutation {
 	return _u.mutation
@@ -129,6 +155,12 @@ func (_u *UserIdentityUpdate) Mutation() *UserIdentityMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *UserIdentityUpdate) ClearUser() *UserIdentityUpdate {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearPartner clears the "partner" edge to the Partner entity.
+func (_u *UserIdentityUpdate) ClearPartner() *UserIdentityUpdate {
+	_u.mutation.ClearPartner()
 	return _u
 }
 
@@ -246,6 +278,35 @@ func (_u *UserIdentityUpdate) sqlSave(ctx context.Context) (_node int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.PartnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   useridentity.PartnerTable,
+			Columns: []string{useridentity.PartnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(partner.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PartnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   useridentity.PartnerTable,
+			Columns: []string{useridentity.PartnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(partner.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{useridentity.Label}
@@ -306,6 +367,26 @@ func (_u *UserIdentityUpdateOne) SetNillableUserID(v *string) *UserIdentityUpdat
 	return _u
 }
 
+// SetPartnerID sets the "partner_id" field.
+func (_u *UserIdentityUpdateOne) SetPartnerID(v string) *UserIdentityUpdateOne {
+	_u.mutation.SetPartnerID(v)
+	return _u
+}
+
+// SetNillablePartnerID sets the "partner_id" field if the given value is not nil.
+func (_u *UserIdentityUpdateOne) SetNillablePartnerID(v *string) *UserIdentityUpdateOne {
+	if v != nil {
+		_u.SetPartnerID(*v)
+	}
+	return _u
+}
+
+// ClearPartnerID clears the value of the "partner_id" field.
+func (_u *UserIdentityUpdateOne) ClearPartnerID() *UserIdentityUpdateOne {
+	_u.mutation.ClearPartnerID()
+	return _u
+}
+
 // SetProvider sets the "provider" field.
 func (_u *UserIdentityUpdateOne) SetProvider(v useridentity.Provider) *UserIdentityUpdateOne {
 	_u.mutation.SetProvider(v)
@@ -358,6 +439,11 @@ func (_u *UserIdentityUpdateOne) SetUser(v *User) *UserIdentityUpdateOne {
 	return _u.SetUserID(v.ID)
 }
 
+// SetPartner sets the "partner" edge to the Partner entity.
+func (_u *UserIdentityUpdateOne) SetPartner(v *Partner) *UserIdentityUpdateOne {
+	return _u.SetPartnerID(v.ID)
+}
+
 // Mutation returns the UserIdentityMutation object of the builder.
 func (_u *UserIdentityUpdateOne) Mutation() *UserIdentityMutation {
 	return _u.mutation
@@ -366,6 +452,12 @@ func (_u *UserIdentityUpdateOne) Mutation() *UserIdentityMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *UserIdentityUpdateOne) ClearUser() *UserIdentityUpdateOne {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearPartner clears the "partner" edge to the Partner entity.
+func (_u *UserIdentityUpdateOne) ClearPartner() *UserIdentityUpdateOne {
+	_u.mutation.ClearPartner()
 	return _u
 }
 
@@ -506,6 +598,35 @@ func (_u *UserIdentityUpdateOne) sqlSave(ctx context.Context) (_node *UserIdenti
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PartnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   useridentity.PartnerTable,
+			Columns: []string{useridentity.PartnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(partner.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PartnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   useridentity.PartnerTable,
+			Columns: []string{useridentity.PartnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(partner.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

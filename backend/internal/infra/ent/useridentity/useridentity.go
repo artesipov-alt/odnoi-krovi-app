@@ -26,6 +26,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldPartnerID holds the string denoting the partner_id field in the database.
+	FieldPartnerID = "partner_id"
 	// FieldProvider holds the string denoting the provider field in the database.
 	FieldProvider = "provider"
 	// FieldProviderUserID holds the string denoting the provider_user_id field in the database.
@@ -34,6 +36,8 @@ const (
 	FieldMetadata = "metadata"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgePartner holds the string denoting the partner edge name in mutations.
+	EdgePartner = "partner"
 	// Table holds the table name of the useridentity in the database.
 	Table = "user_identities"
 	// UserTable is the table that holds the user relation/edge.
@@ -43,6 +47,13 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// PartnerTable is the table that holds the partner relation/edge.
+	PartnerTable = "user_identities"
+	// PartnerInverseTable is the table name for the Partner entity.
+	// It exists in this package in order to avoid circular dependency with the "partner" package.
+	PartnerInverseTable = "partners"
+	// PartnerColumn is the table column denoting the partner relation/edge.
+	PartnerColumn = "partner_id"
 )
 
 // Columns holds all SQL columns for useridentity fields.
@@ -52,6 +63,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldUserID,
+	FieldPartnerID,
 	FieldProvider,
 	FieldProviderUserID,
 	FieldMetadata,
@@ -136,6 +148,11 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
+// ByPartnerID orders the results by the partner_id field.
+func ByPartnerID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPartnerID, opts...).ToFunc()
+}
+
 // ByProvider orders the results by the provider field.
 func ByProvider(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProvider, opts...).ToFunc()
@@ -152,11 +169,25 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByPartnerField orders the results by partner field.
+func ByPartnerField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPartnerStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newPartnerStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PartnerInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, PartnerTable, PartnerColumn),
 	)
 }
 

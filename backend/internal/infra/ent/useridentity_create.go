@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 )
@@ -72,6 +73,20 @@ func (_c *UserIdentityCreate) SetUserID(v string) *UserIdentityCreate {
 	return _c
 }
 
+// SetPartnerID sets the "partner_id" field.
+func (_c *UserIdentityCreate) SetPartnerID(v string) *UserIdentityCreate {
+	_c.mutation.SetPartnerID(v)
+	return _c
+}
+
+// SetNillablePartnerID sets the "partner_id" field if the given value is not nil.
+func (_c *UserIdentityCreate) SetNillablePartnerID(v *string) *UserIdentityCreate {
+	if v != nil {
+		_c.SetPartnerID(*v)
+	}
+	return _c
+}
+
 // SetProvider sets the "provider" field.
 func (_c *UserIdentityCreate) SetProvider(v useridentity.Provider) *UserIdentityCreate {
 	_c.mutation.SetProvider(v)
@@ -107,6 +122,11 @@ func (_c *UserIdentityCreate) SetNillableID(v *string) *UserIdentityCreate {
 // SetUser sets the "user" edge to the User entity.
 func (_c *UserIdentityCreate) SetUser(v *User) *UserIdentityCreate {
 	return _c.SetUserID(v.ID)
+}
+
+// SetPartner sets the "partner" edge to the Partner entity.
+func (_c *UserIdentityCreate) SetPartner(v *Partner) *UserIdentityCreate {
+	return _c.SetPartnerID(v.ID)
 }
 
 // Mutation returns the UserIdentityMutation object of the builder.
@@ -260,6 +280,23 @@ func (_c *UserIdentityCreate) createSpec() (*UserIdentity, *sqlgraph.CreateSpec)
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := _c.mutation.PartnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   useridentity.PartnerTable,
+			Columns: []string{useridentity.PartnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(partner.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.PartnerID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -351,6 +388,24 @@ func (u *UserIdentityUpsert) SetUserID(v string) *UserIdentityUpsert {
 // UpdateUserID sets the "user_id" field to the value that was provided on create.
 func (u *UserIdentityUpsert) UpdateUserID() *UserIdentityUpsert {
 	u.SetExcluded(useridentity.FieldUserID)
+	return u
+}
+
+// SetPartnerID sets the "partner_id" field.
+func (u *UserIdentityUpsert) SetPartnerID(v string) *UserIdentityUpsert {
+	u.Set(useridentity.FieldPartnerID, v)
+	return u
+}
+
+// UpdatePartnerID sets the "partner_id" field to the value that was provided on create.
+func (u *UserIdentityUpsert) UpdatePartnerID() *UserIdentityUpsert {
+	u.SetExcluded(useridentity.FieldPartnerID)
+	return u
+}
+
+// ClearPartnerID clears the value of the "partner_id" field.
+func (u *UserIdentityUpsert) ClearPartnerID() *UserIdentityUpsert {
+	u.SetNull(useridentity.FieldPartnerID)
 	return u
 }
 
@@ -499,6 +554,27 @@ func (u *UserIdentityUpsertOne) SetUserID(v string) *UserIdentityUpsertOne {
 func (u *UserIdentityUpsertOne) UpdateUserID() *UserIdentityUpsertOne {
 	return u.Update(func(s *UserIdentityUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetPartnerID sets the "partner_id" field.
+func (u *UserIdentityUpsertOne) SetPartnerID(v string) *UserIdentityUpsertOne {
+	return u.Update(func(s *UserIdentityUpsert) {
+		s.SetPartnerID(v)
+	})
+}
+
+// UpdatePartnerID sets the "partner_id" field to the value that was provided on create.
+func (u *UserIdentityUpsertOne) UpdatePartnerID() *UserIdentityUpsertOne {
+	return u.Update(func(s *UserIdentityUpsert) {
+		s.UpdatePartnerID()
+	})
+}
+
+// ClearPartnerID clears the value of the "partner_id" field.
+func (u *UserIdentityUpsertOne) ClearPartnerID() *UserIdentityUpsertOne {
+	return u.Update(func(s *UserIdentityUpsert) {
+		s.ClearPartnerID()
 	})
 }
 
@@ -822,6 +898,27 @@ func (u *UserIdentityUpsertBulk) SetUserID(v string) *UserIdentityUpsertBulk {
 func (u *UserIdentityUpsertBulk) UpdateUserID() *UserIdentityUpsertBulk {
 	return u.Update(func(s *UserIdentityUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetPartnerID sets the "partner_id" field.
+func (u *UserIdentityUpsertBulk) SetPartnerID(v string) *UserIdentityUpsertBulk {
+	return u.Update(func(s *UserIdentityUpsert) {
+		s.SetPartnerID(v)
+	})
+}
+
+// UpdatePartnerID sets the "partner_id" field to the value that was provided on create.
+func (u *UserIdentityUpsertBulk) UpdatePartnerID() *UserIdentityUpsertBulk {
+	return u.Update(func(s *UserIdentityUpsert) {
+		s.UpdatePartnerID()
+	})
+}
+
+// ClearPartnerID clears the value of the "partner_id" field.
+func (u *UserIdentityUpsertBulk) ClearPartnerID() *UserIdentityUpsertBulk {
+	return u.Update(func(s *UserIdentityUpsert) {
+		s.ClearPartnerID()
 	})
 }
 

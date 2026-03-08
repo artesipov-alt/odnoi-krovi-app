@@ -26,6 +26,8 @@ type Tx struct {
 	DonorResponse *DonorResponseClient
 	// Location is the client for interacting with the Location builders.
 	Location *LocationClient
+	// Partner is the client for interacting with the Partner builders.
+	Partner *PartnerClient
 	// Pet is the client for interacting with the Pet builders.
 	Pet *PetClient
 	// PetAnalysis is the client for interacting with the PetAnalysis builders.
@@ -178,6 +180,7 @@ func (tx *Tx) init() {
 	tx.DonorPreference = NewDonorPreferenceClient(tx.config)
 	tx.DonorResponse = NewDonorResponseClient(tx.config)
 	tx.Location = NewLocationClient(tx.config)
+	tx.Partner = NewPartnerClient(tx.config)
 	tx.Pet = NewPetClient(tx.config)
 	tx.PetAnalysis = NewPetAnalysisClient(tx.config)
 	tx.PetHealth = NewPetHealthClient(tx.config)
