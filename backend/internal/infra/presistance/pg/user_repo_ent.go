@@ -115,7 +115,7 @@ func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *authm
 	}
 
 	err := builder.
-		OnConflict(sql.ConflictColumns("user_id", "provider")).
+		OnConflict(sql.ConflictColumns("provider_user_id", "provider")).
 		UpdateNewValues().
 		Exec(ctx)
 	if err != nil {
