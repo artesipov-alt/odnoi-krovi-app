@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	auth "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth"
@@ -12,41 +13,59 @@ import (
 
 type MiniAppAuthHandler struct {
 	userRepo       user.Repository
-	appValidator   auth.AppValidator
+	maxValidator   auth.AppValidator
+	tgValidator    auth.AppValidator
 	tokenGenerator auth.TokenGenerator
 	txManager      *presistance.TxManager
 }
 
-func NewMiniAppSignInHandler(userepo user.Repository, appValidator auth.AppValidator, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *MiniAppAuthHandler {
+func NewMiniAppSignInHandler(userepo user.Repository, tgValidator auth.AppValidator, maxValidator auth.AppValidator, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *MiniAppAuthHandler {
 	return &MiniAppAuthHandler{
 		userRepo:       userepo,
-		appValidator:   appValidator,
+		maxValidator:   maxValidator,
+		tgValidator:    tgValidator,
 		tokenGenerator: tokenGenerator,
 		txManager:      txManager,
 	}
 }
 
 func (h *MiniAppAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
-	var role string
-	authreq.ProviderUserID, role = h.appValidator.ValidateHash(authreq.AppInitData)
-	if authreq.ProviderUserID == "" {
+	var validator auth.AppValidator
+	providerName := authreq.ProviderName
+
+	switch providerName {
+	case authmodel.ProviderMax:
+		validator = h.maxValidator
+	case authmodel.ProviderTelegram:
+		validator = h.tgValidator
+	default:
 		return nil, apperrors.ErrInvalidUserData
 	}
 
-	// Пользователь существует - обновляем метаданные и UTM
+	// Валидируем Web App initData
+	webAppData, err := validator.ValidateWebAppInitData(ctx, authreq.AppInitData)
+	if err != nil {
+		return nil, apperrors.ErrInvalidUserData
+	}
+
+	if webAppData.User == nil {
+		return nil, apperrors.ErrInvalidUserData
+	}
+	authreq.ProviderUserID = webAppData.User.ID
+
+	role := "user"
+
 	authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(authreq.ProviderName))
 	if err != nil {
 		return nil, err
 	}
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		// Обновляем identity с новыми метаданными
 		authreq.UserID = authData.UserID
 		if err := h.userRepo.UpsertUserIdentity(txCtx, authreq); err != nil {
 			return err
 		}
 
-		// Обновляем/создаем UTM метки
 		if metadata != nil {
 			if err := h.userRepo.UpsertUTM(txCtx, authData.UserID, metadata); err != nil {
 				return err
@@ -64,7 +83,9 @@ func (h *MiniAppAuthHandler) Handle(ctx context.Context, authreq *authmodel.Iden
 		return nil, err
 	}
 
-	authData.AccessToken = h.tokenGenerator.Generate(newAuthData.UserID, role)
+	accessToken, expiresAt := h.tokenGenerator.Generate(newAuthData.UserID, role, time.Now())
+	newAuthData.AccessToken = accessToken
+	newAuthData.ExpiresAt = expiresAt
 
-	return authData, nil
+	return newAuthData, nil
 }

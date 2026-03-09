@@ -17,6 +17,7 @@ require (
 	github.com/aws/smithy-go v1.24.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/danielgtaylor/huma/v2 v2.34.1
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/lib/pq v1.10.9

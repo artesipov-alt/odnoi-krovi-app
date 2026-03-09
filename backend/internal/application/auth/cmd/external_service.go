@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	auth "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth"
@@ -13,15 +14,15 @@ import (
 
 type ExternalAuthHandler struct {
 	userRepo       user.Repository
-	appValidator   auth.AppValidator
+	apiValidator   auth.ApiKeysValidator
 	tokenGenerator auth.TokenGenerator
 	txManager      *presistance.TxManager
 }
 
-func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppValidator, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *ExternalAuthHandler {
+func NewExternalSignInHandler(userepo user.Repository, apiValidator auth.ApiKeysValidator, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *ExternalAuthHandler {
 	return &ExternalAuthHandler{
 		userRepo:       userepo,
-		appValidator:   appValidator,
+		apiValidator:   apiValidator,
 		tokenGenerator: tokenGenerator,
 		txManager:      txManager,
 	}
@@ -29,7 +30,7 @@ func NewExternalSignInHandler(userepo user.Repository, appValidator auth.AppVali
 
 func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
 	// Валидируем и получаем provider name
-	partnerID, providerName, role := h.appValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
+	partnerID, providerName, role := h.apiValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
 	if providerName == "" {
 		return nil, apperrors.ErrInvalidUserData
 	}
@@ -94,6 +95,8 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		return nil, err
 	}
 
-	authData.AccessToken = h.tokenGenerator.Generate(authData.UserID, role)
+	accessToken, expiresAt := h.tokenGenerator.Generate(authData.UserID, role, time.Now())
+	authData.AccessToken = accessToken
+	authData.ExpiresAt = expiresAt
 	return authData, nil
 }
