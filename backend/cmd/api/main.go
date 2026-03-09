@@ -124,7 +124,7 @@ func main() {
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
 		//Дополнительные сервисы для аунтификации
-		appValidator := auth.NewAppValidator("some-init-data", partnerRepo)
+		appValidator := auth.NewAppValidator("some_init_data", partnerRepo)
 		tokenGenerator := auth.NewJWTGenerator("some-token")
 
 		externalSignInHandler := authcmd.NewExternalSignInHandler(userRepo, appValidator, tokenGenerator, txManager)
