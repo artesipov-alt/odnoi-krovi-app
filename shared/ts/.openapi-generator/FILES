@@ -1,3 +1,4 @@
+apis/AuthV1Api.ts
 apis/BloodRequestV1Api.ts
 apis/DevApi.ts
 apis/PetsV1Api.ts
@@ -7,8 +8,6 @@ apis/index.ts
 index.ts
 models/AppError.ts
 models/ApplyForBloodRequestBody.ts
-models/AuthUserBody.ts
-models/AuthUserResult.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
@@ -19,8 +18,6 @@ models/CreateBloodRequestBody.ts
 models/CreateBloodRequestResult.ts
 models/CreatePetBody.ts
 models/CreatePetResult.ts
-models/CreateUserBody.ts
-models/CreateUserResult.ts
 models/DeleteBloodRequestResult.ts
 models/DeletePetResult.ts
 models/DeleteUserResult.ts
@@ -36,6 +33,10 @@ models/GendersList.ts
 models/HealthStatusesList.ts
 models/LivingConditionsList.ts
 models/LocationsList.ts
+models/MessengerSignInBody.ts
+models/MessengerSignInResult.ts
+models/MiniAppSignInBody.ts
+models/MiniAppSignInResult.ts
 models/PetAnalysis.ts
 models/PetAnalysisGroup.ts
 models/PetDetail.ts

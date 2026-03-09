@@ -2,8 +2,6 @@
 /* eslint-disable */
 export * from './AppError';
 export * from './ApplyForBloodRequestBody';
-export * from './AuthUserBody';
-export * from './AuthUserResult';
 export * from './BloodComponentsList';
 export * from './BloodGroupsList';
 export * from './BloodRequestDetail';
@@ -14,8 +12,6 @@ export * from './CreateBloodRequestBody';
 export * from './CreateBloodRequestResult';
 export * from './CreatePetBody';
 export * from './CreatePetResult';
-export * from './CreateUserBody';
-export * from './CreateUserResult';
 export * from './DeleteBloodRequestResult';
 export * from './DeletePetResult';
 export * from './DeleteUserResult';
@@ -31,6 +27,10 @@ export * from './GendersList';
 export * from './HealthStatusesList';
 export * from './LivingConditionsList';
 export * from './LocationsList';
+export * from './MessengerSignInBody';
+export * from './MessengerSignInResult';
+export * from './MiniAppSignInBody';
+export * from './MiniAppSignInResult';
 export * from './PetAnalysis';
 export * from './PetAnalysisGroup';
 export * from './PetDetail';

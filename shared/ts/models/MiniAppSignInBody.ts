@@ -13,48 +13,46 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-
 /**
  * 
  * @export
- * @interface LivingConditionsList
+ * @interface MiniAppSignInBody
  */
-export interface LivingConditionsList {
+export interface MiniAppSignInBody {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof LivingConditionsList
+     * @memberof MiniAppSignInBody
      */
     readonly $schema?: string;
     /**
-     * Список условий проживания
-     * @type {Array<ReferenceItem>}
-     * @memberof LivingConditionsList
+     * Зашифрованный токен бота для сверки
+     * @type {string}
+     * @memberof MiniAppSignInBody
      */
-    data: Array<ReferenceItem>;
+    appInitData: string;
+    /**
+     * Метаданные пользователя
+     * @type {{ [key: string]: any; }}
+     * @memberof MiniAppSignInBody
+     */
+    metaData?: { [key: string]: any; };
 }
 
 /**
- * Check if a given object implements the LivingConditionsList interface.
+ * Check if a given object implements the MiniAppSignInBody interface.
  */
-export function instanceOfLivingConditionsList(value: object): value is LivingConditionsList {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfMiniAppSignInBody(value: object): value is MiniAppSignInBody {
+    if (!('appInitData' in value) || value['appInitData'] === undefined) return false;
     return true;
 }
 
-export function LivingConditionsListFromJSON(json: any): LivingConditionsList {
-    return LivingConditionsListFromJSONTyped(json, false);
+export function MiniAppSignInBodyFromJSON(json: any): MiniAppSignInBody {
+    return MiniAppSignInBodyFromJSONTyped(json, false);
 }
 
-export function LivingConditionsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): LivingConditionsList {
+export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): MiniAppSignInBody {
     if (json == null) {
         return json;
     }
@@ -62,15 +60,16 @@ export function LivingConditionsListFromJSONTyped(json: any, ignoreDiscriminator
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'appInitData': json['appInitData'],
+        'metaData': json['metaData'] == null ? undefined : json['metaData'],
     };
 }
 
-export function LivingConditionsListToJSON(json: any): LivingConditionsList {
-    return LivingConditionsListToJSONTyped(json, false);
+export function MiniAppSignInBodyToJSON(json: any): MiniAppSignInBody {
+    return MiniAppSignInBodyToJSONTyped(json, false);
 }
 
-export function LivingConditionsListToJSONTyped(value?: Omit<LivingConditionsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,7 +77,8 @@ export function LivingConditionsListToJSONTyped(value?: Omit<LivingConditionsLis
     return {
         
             ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'appInitData': value['appInitData'],
+        'metaData': value['metaData'],
     };
 }
 

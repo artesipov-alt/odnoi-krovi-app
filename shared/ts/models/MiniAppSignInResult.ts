@@ -16,65 +16,57 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface AppError
+ * @interface MiniAppSignInResult
  */
-export interface AppError {
+export interface MiniAppSignInResult {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof AppError
+     * @memberof MiniAppSignInResult
      */
     readonly $schema?: string;
     /**
-     * 
+     * Access токен для аутентификации
      * @type {string}
-     * @memberof AppError
+     * @memberof MiniAppSignInResult
      */
-    code: string;
+    accessToken?: string;
     /**
-     * 
-     * @type {{ [key: string]: any; }}
-     * @memberof AppError
-     */
-    details: { [key: string]: any; };
-    /**
-     * 
-     * @type {number}
-     * @memberof AppError
-     */
-    hTTPStatus: number;
-    /**
-     * 
-     * @type {any}
-     * @memberof AppError
-     */
-    internal: any | null;
-    /**
-     * 
+     * Время истечения токена
      * @type {string}
-     * @memberof AppError
+     * @memberof MiniAppSignInResult
      */
-    message: string;
+    expiresAt: string;
+    /**
+     * Тип токена
+     * @type {string}
+     * @memberof MiniAppSignInResult
+     */
+    tokenType: string;
+    /**
+     * ID пользователя на портале
+     * @type {string}
+     * @memberof MiniAppSignInResult
+     */
+    userId: string;
 }
 
 /**
- * Check if a given object implements the AppError interface.
+ * Check if a given object implements the MiniAppSignInResult interface.
  */
-export function instanceOfAppError(value: object): value is AppError {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('details' in value) || value['details'] === undefined) return false;
-    if (!('hTTPStatus' in value) || value['hTTPStatus'] === undefined) return false;
-    if (!('internal' in value) || value['internal'] === undefined) return false;
-    if (!('message' in value) || value['message'] === undefined) return false;
+export function instanceOfMiniAppSignInResult(value: object): value is MiniAppSignInResult {
+    if (!('expiresAt' in value) || value['expiresAt'] === undefined) return false;
+    if (!('tokenType' in value) || value['tokenType'] === undefined) return false;
+    if (!('userId' in value) || value['userId'] === undefined) return false;
     return true;
 }
 
-export function AppErrorFromJSON(json: any): AppError {
-    return AppErrorFromJSONTyped(json, false);
+export function MiniAppSignInResultFromJSON(json: any): MiniAppSignInResult {
+    return MiniAppSignInResultFromJSONTyped(json, false);
 }
 
-export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppError {
+export function MiniAppSignInResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): MiniAppSignInResult {
     if (json == null) {
         return json;
     }
@@ -82,19 +74,18 @@ export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'code': json['Code'],
-        'details': json['Details'],
-        'hTTPStatus': json['HTTPStatus'],
-        'internal': json['Internal'],
-        'message': json['Message'],
+        'accessToken': json['accessToken'] == null ? undefined : json['accessToken'],
+        'expiresAt': json['expiresAt'],
+        'tokenType': json['tokenType'],
+        'userId': json['userId'],
     };
 }
 
-export function AppErrorToJSON(json: any): AppError {
-    return AppErrorToJSONTyped(json, false);
+export function MiniAppSignInResultToJSON(json: any): MiniAppSignInResult {
+    return MiniAppSignInResultToJSONTyped(json, false);
 }
 
-export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function MiniAppSignInResultToJSONTyped(value?: Omit<MiniAppSignInResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -102,11 +93,10 @@ export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ig
     return {
         
             ...value,
-        'Code': value['code'],
-        'Details': value['details'],
-        'HTTPStatus': value['hTTPStatus'],
-        'Internal': value['internal'],
-        'Message': value['message'],
+        'accessToken': value['accessToken'],
+        'expiresAt': value['expiresAt'],
+        'tokenType': value['tokenType'],
+        'userId': value['userId'],
     };
 }
 

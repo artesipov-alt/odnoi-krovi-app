@@ -13,48 +13,52 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-
 /**
  * 
  * @export
- * @interface LivingConditionsList
+ * @interface MessengerSignInBody
  */
-export interface LivingConditionsList {
+export interface MessengerSignInBody {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof LivingConditionsList
+     * @memberof MessengerSignInBody
      */
     readonly $schema?: string;
     /**
-     * Список условий проживания
-     * @type {Array<ReferenceItem>}
-     * @memberof LivingConditionsList
+     * Полное имя пользователя
+     * @type {string}
+     * @memberof MessengerSignInBody
      */
-    data: Array<ReferenceItem>;
+    fullName?: string;
+    /**
+     * Метаданные пользователя
+     * @type {{ [key: string]: any; }}
+     * @memberof MessengerSignInBody
+     */
+    metaData?: { [key: string]: any; };
+    /**
+     * ID провайдера
+     * @type {string}
+     * @memberof MessengerSignInBody
+     */
+    providerId: string;
 }
 
 /**
- * Check if a given object implements the LivingConditionsList interface.
+ * Check if a given object implements the MessengerSignInBody interface.
  */
-export function instanceOfLivingConditionsList(value: object): value is LivingConditionsList {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfMessengerSignInBody(value: object): value is MessengerSignInBody {
+    if (!('providerId' in value) || value['providerId'] === undefined) return false;
     return true;
 }
 
-export function LivingConditionsListFromJSON(json: any): LivingConditionsList {
-    return LivingConditionsListFromJSONTyped(json, false);
+export function MessengerSignInBodyFromJSON(json: any): MessengerSignInBody {
+    return MessengerSignInBodyFromJSONTyped(json, false);
 }
 
-export function LivingConditionsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): LivingConditionsList {
+export function MessengerSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): MessengerSignInBody {
     if (json == null) {
         return json;
     }
@@ -62,15 +66,17 @@ export function LivingConditionsListFromJSONTyped(json: any, ignoreDiscriminator
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'fullName': json['fullName'] == null ? undefined : json['fullName'],
+        'metaData': json['metaData'] == null ? undefined : json['metaData'],
+        'providerId': json['providerId'],
     };
 }
 
-export function LivingConditionsListToJSON(json: any): LivingConditionsList {
-    return LivingConditionsListToJSONTyped(json, false);
+export function MessengerSignInBodyToJSON(json: any): MessengerSignInBody {
+    return MessengerSignInBodyToJSONTyped(json, false);
 }
 
-export function LivingConditionsListToJSONTyped(value?: Omit<LivingConditionsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function MessengerSignInBodyToJSONTyped(value?: Omit<MessengerSignInBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,7 +84,9 @@ export function LivingConditionsListToJSONTyped(value?: Omit<LivingConditionsLis
     return {
         
             ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'fullName': value['fullName'],
+        'metaData': value['metaData'],
+        'providerId': value['providerId'],
     };
 }
 
