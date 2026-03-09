@@ -5,6 +5,16 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.3.5] - 2026-03-10
+
+### Изменено
+- **Обновление конфигурационных значений аутентификации:** Изменён секрет JWT на "some-token". Изменены данные инициализации валидатора с "inbotdata" на "some-init-data". Сделано поле partner ID опциональным в upsert для UserIdentity.
+
+### Технические детали
+- В конфигурационных файлах изменён секрет JWT на "some-token".
+- В `internal/validators/secret_validator.go` обновлены данные инициализации с "inbotdata" на "some-init-data".
+- В `ent/schema/user_identity.go` поле partner ID сделано опциональным в логике upsert.
+
 ## [3.3.4] - 2026-03-09
 
 ### Добавлено
