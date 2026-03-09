@@ -37,6 +37,7 @@ services:
       dockerfile: tg-bot/Dockerfile
     environment:
       TG_BOT_TOKEN: ${TG_BOT_TOKEN}
+      INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
       MINIAPP_DOMAIN: https://1krovi.app
       API_BASE_URL: https://1krovi.app/api
     networks:
@@ -49,6 +50,7 @@ services:
       dockerfile: max-bot/Dockerfile
     environment:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
+      INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
       MINIAPP_DOMAIN: https://1krovi.app
       API_BASE_URL: https://1krovi.app/api
     networks:
