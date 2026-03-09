@@ -125,7 +125,7 @@ func main() {
 
 		//Дополнительные сервисы для аунтификации
 		appValidator := auth.NewAppValidator("some_init_data", partnerRepo)
-		tokenGenerator := auth.NewJWTGenerator("some-token")
+		tokenGenerator := auth.NewJWTGenerator("some_token")
 
 		externalSignInHandler := authcmd.NewExternalSignInHandler(userRepo, appValidator, tokenGenerator, txManager)
 		appSgnInHandler := authcmd.NewMiniAppSignInHandler(userRepo, appValidator, tokenGenerator, txManager)
