@@ -19,43 +19,23 @@ const getBackKeyboard = () => {
 
 // ============ User Service ============
 
-const checkUserExists = async (telegramId: number): Promise<boolean> => {
-  return usersApi
-    .authUser({
-      authUserBody: {
-        providerId: telegramId,
-        providerName: "telegram_bot",
-      },
-    })
-    .then(() => {
-      pinologger.info({ telegramId }, "User exists");
-      return true;
-    })
-    .catch((error) => {
-      pinologger.warn(
-        { telegramId, error: error.message },
-        "User not found, will register",
-      );
-      return false;
-    });
-};
-
-const registerUser = (
+const authUser = async (
   telegramId: number,
   fullName: string,
   utmCampaign?: string,
-): Promise<unknown> => {
-  return usersApi.registerUserSimple({
-    createUserBody: {
+): Promise<void> => {
+  await usersApi.authUserViaService({
+    xInternalKey: Bun.env.INTERNAL_TG_BOT_SECRET,
+    messengerSignInBody: {
+      providerId: String(telegramId),
       fullName,
-      providerId: telegramId,
-      providerName: "telegram_bot",
       metaData: {
         utm_campaign: utmCampaign || "organic",
         utm_source: "telegram_bot",
       },
     },
   });
+  pinologger.info({ telegramId, fullName, utmCampaign }, "User authenticated");
 };
 
 // ============ Helpers ============
@@ -118,22 +98,14 @@ export const startHandler = async (ctx: Context) => {
   const telegramId = ctx.from.id;
   const payload = extractStartPayload(ctx.message?.text);
 
-  try {
-    await checkUserExists(telegramId).then((userExists) => {
-      if (userExists) return;
+  const fullName = getFullName(ctx.from!);
 
-      const fullName = getFullName(ctx.from!);
-      return registerUser(telegramId, fullName, payload).then(() => {
-        pinologger.info(
-          { telegramId, fullName, utmCampaign: payload },
-          "User registered successfully",
-        );
-      });
-    });
+  try {
+    await authUser(telegramId, fullName, payload);
   } catch (error: any) {
     pinologger.error(
       { telegramId, error: error.message },
-      "Error in user check/registration",
+      "Error in user authentication",
     );
     // Don't throw - still show welcome message
   }
@@ -181,10 +153,7 @@ export const profileHandler = async (ctx: Context) => {
 };
 
 export const apiTestHandler = async (ctx: Context) => {
-  const data = await usersApi.getUserById({
-    id: "",
-  });
-  await ctx.reply(data.fullName!);
+  await ctx.reply("API test handler not implemented for AuthV1Api");
 };
 
 export const errCommandTest = async (ctx: Context) => {

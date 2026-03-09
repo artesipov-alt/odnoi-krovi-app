@@ -28,43 +28,23 @@ const getBackKeyboard = () => {
 
 // ============ User Service ============
 
-const checkUserExists = async (maxId: number): Promise<boolean> => {
-  return usersApi
-    .authUser({
-      authUserBody: {
-        providerId: maxId,
-        providerName: "max_bot",
-      },
-    })
-    .then(() => {
-      pinologger.info({ maxId }, "User exists");
-      return true;
-    })
-    .catch((error) => {
-      pinologger.warn(
-        { maxId, error: error.message },
-        "User not found, will register",
-      );
-      return false;
-    });
-};
-
-const registerUser = (
+const authUser = async (
   maxId: number,
   fullName: string,
   utmCampaign?: string,
-): Promise<unknown> => {
-  return usersApi.registerUserSimple({
-    createUserBody: {
+): Promise<void> => {
+  await usersApi.authUserViaService({
+    xInternalKey: Bun.env.INTERNAL_MAX_BOT_SECRET,
+    messengerSignInBody: {
+      providerId: String(maxId),
       fullName,
-      providerId: maxId,
-      providerName: "max_bot",
       metaData: {
         utm_campaign: utmCampaign || "organic",
         utm_source: "max_bot",
       },
     },
   });
+  pinologger.info({ maxId, fullName }, "User authenticated");
 };
 
 // ============ Helpers ============
@@ -156,20 +136,11 @@ export const startHandler = async (ctx: Context) => {
   pinologger.info({ ctx }, "Full ctx");
 
   try {
-    await checkUserExists(maxId).then((userExists) => {
-      if (userExists) return;
-
-      return registerUser(maxId, fullName, payload).then(() => {
-        pinologger.info(
-          { maxId, fullName, utmCampaign: payload },
-          "User registered successfully",
-        );
-      });
-    });
+    await authUser(maxId, fullName, payload);
   } catch (error: any) {
     pinologger.error(
       { maxId, error: error.message },
-      "Error in user check/registration",
+      "Error in user authentication",
     );
     // Don't throw - still show welcome message
   }
@@ -219,10 +190,7 @@ export const profileHandler = async (ctx: Context) => {
 };
 
 export const apiTestHandler = async (ctx: Context) => {
-  const data = await usersApi.getUserById({
-    id: "",
-  });
-  await ctx.reply(data.fullName!);
+  await ctx.reply("API test handler not implemented for AuthV1Api");
 };
 
 export const errCommandTest = async (ctx: Context) => {
