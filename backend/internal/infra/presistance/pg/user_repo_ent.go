@@ -107,9 +107,12 @@ func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *authm
 
 	builder := c.UserIdentity.Create().
 		SetUserID(input.UserID).
-		SetPartnerID(input.PartnerID).
 		SetProvider(useridentity.Provider(input.ProviderName)).
 		SetProviderUserID(input.ProviderUserID)
+
+	if input.PartnerID != "" {
+		builder.SetPartnerID(input.PartnerID)
+	}
 
 	if input.Metadata != nil {
 		builder.SetMetadata(*input.Metadata)
