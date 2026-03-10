@@ -82,16 +82,37 @@ func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData stri
 		return v.validateMaxInitData(initData)
 	}
 
-	// Для Telegram используем библиотеку init-data-golang
-	expIn := 24 * time.Hour
-	if err := initdata.Validate(initData, v.botToken, expIn); err != nil {
-		return nil, fmt.Errorf("invalid init data: %w", err)
-	}
+	// Проверяем, какой тип подписи используется в initData
+	// Если есть поле "signature" - используем third-party валидацию (Ed25519)
+	// Если есть только "hash" - используем старую валидацию (HMAC-SHA256)
+	hasSignature := strings.Contains(initData, "signature=")
 
-	// Парсим данные после успешной валидации
-	parsed, err := initdata.Parse(initData)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse init data: %w", err)
+	expIn := 24 * time.Hour
+	var parsed initdata.InitData
+	var err error
+
+	if hasSignature {
+		// Third-party валидация (Ed25519) - использует Bot ID
+		botID, err := extractBotID(v.botToken)
+		if err != nil {
+			return nil, fmt.Errorf("failed to extract bot ID from token: %w", err)
+		}
+		if err := initdata.ValidateThirdParty(initData, botID, expIn); err != nil {
+			return nil, fmt.Errorf("invalid init data (third-party): %w", err)
+		}
+		parsed, err = initdata.Parse(initData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse init data: %w", err)
+		}
+	} else {
+		// Старая валидация (HMAC-SHA256) - использует Bot Token
+		if err := initdata.Validate(initData, v.botToken, expIn); err != nil {
+			return nil, fmt.Errorf("invalid init data: %w", err)
+		}
+		parsed, err = initdata.Parse(initData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse init data: %w", err)
+		}
 	}
 
 	result := &WebAppInitData{
@@ -141,6 +162,19 @@ func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData stri
 	}
 
 	return result, nil
+}
+
+// extractBotID извлекает ID бота из токена (формат: "123456789:ABCdefGHIjklMNOpqrsTUVwxyz")
+func extractBotID(token string) (int64, error) {
+	parts := strings.Split(token, ":")
+	if len(parts) != 2 || parts[0] == "" {
+		return 0, fmt.Errorf("invalid token format: expected 'botID:botToken', got '%s'", token)
+	}
+	botID, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse bot ID: %w", err)
+	}
+	return botID, nil
 }
 
 // validateMaxInitData валидирует initData для Max (оставляем старую логику)
