@@ -34,7 +34,7 @@ func DefaultCorsHandler(env, miniappDomain string) func(http.Handler) http.Handl
 	return cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Internal-Key"},
 		AllowCredentials: true,                 // Позволяет передавать куки/авторизацию
 		Debug:            env == "development", // Включает подробные логи CORS в консоль
 	}).Handler
