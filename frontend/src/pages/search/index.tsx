@@ -8,7 +8,6 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { TelegramUser } from 'types';
 
 import { Onboardings } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
@@ -24,7 +23,7 @@ import SearchOnboarding, { View } from './Onboarding';
 import styles from './Search.module.less';
 
 type Props = {
-    user: TelegramUser;
+    userId: string;
 };
 
 const tabs = [
@@ -32,7 +31,7 @@ const tabs = [
     { title: 'Пакеты крови', ind: 1 },
 ];
 
-const Search: FC<Props> = ({ user }) => {
+const Search: FC<Props> = ({ userId }) => {
     const [searchParams] = useSearchParams();
     const { id } = useParams<{ id?: string; bloodFound?: string }>();
 
@@ -46,7 +45,7 @@ const Search: FC<Props> = ({ user }) => {
         refetch: petsRefetch,
         isError: petsIsError,
         isLoading: petsIsLoading,
-    } = usePetsQuery(user.id); // ?
+    } = usePetsQuery(userId); // ?
 
     const [tab, setTab] = useState(0);
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);

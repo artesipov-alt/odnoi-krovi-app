@@ -13,7 +13,6 @@ import RoundQuestion from 'imgs/svg/roundQuestion';
 import Settings from 'imgs/svg/settings';
 import { FC, MouseEvent, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { TelegramUser } from 'types';
 import { getCorrectDeclension, Variants } from 'utils/utils';
 
 import { DonorRestrictions, Pet } from 'api/pets';
@@ -30,7 +29,7 @@ import DonationQuestions from './Statuses/DonationQuestions';
 import NotReady from './Statuses/NotReady';
 
 type Props = {
-    user: TelegramUser;
+    userId: string;
 };
 
 type View = Role.DONOR | Role.RECIPIENT | Role.BLOOD_FOUND | Role.NONE;
@@ -45,7 +44,7 @@ const tabs = [
     { title: 'Планируемые донации', ind: 1 },
 ];
 
-const Owner: FC<Props> = ({ user }) => {
+const Owner: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
 
     const [tab, setTab] = useState(0);
@@ -56,8 +55,8 @@ const Owner: FC<Props> = ({ user }) => {
     const [isDonorPreferenceOpen, setIsDonorPreferenceOpen] = useState<boolean>(false);
     const [isDonorPreferenceOnboardingWasShown, setIsDonorPreferenceOnboardingWasShown] = useState<boolean>(false);
 
-    const { data: pets = [], isLoading, refetch } = usePetsQuery(user.id);
-    const { data: userData, isLoading: isUserDataLoading, refetch: refetchUserData } = useGetUserById(user.id);
+    const { data: pets = [], isLoading, refetch } = usePetsQuery(userId);
+    const { data: userData, isLoading: isUserDataLoading, refetch: refetchUserData } = useGetUserById(userId);
 
     const onButtonClickHandler = (newView: View) => () => {
         if (newView === view) {
@@ -253,10 +252,7 @@ const Owner: FC<Props> = ({ user }) => {
                 [styles.notPreference]: !userData?.donorPreference,
                 [styles.notCandidats]:
                     userData?.donorPreference &&
-                    pets?.every(
-                        ({ donorRestrictions }) =>
-                            donorRestrictions?.warnFactors?.length || donorRestrictions?.stopFactors?.length,
-                    ),
+                    pets?.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length),
                 [styles.isCandidats]:
                     userData?.donorPreference &&
                     pets?.some(
@@ -288,10 +284,7 @@ const Owner: FC<Props> = ({ user }) => {
                 </>
             )}
             {userData?.donorPreference &&
-                pets?.every(
-                    ({ donorRestrictions }) =>
-                        donorRestrictions?.warnFactors?.length || donorRestrictions?.stopFactors?.length,
-                ) && (
+                pets?.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length) && (
                     <>
                         <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
                             <div className={styles.preferencesettings}>
@@ -424,7 +417,7 @@ const Owner: FC<Props> = ({ user }) => {
     ) {
         return (
             <RecipientOnboarding
-                id={user.id}
+                id={userId}
                 onboardings={userData?.onBoarding}
                 onConfirmButtonClick={refetchUserData}
             />
@@ -443,7 +436,7 @@ const Owner: FC<Props> = ({ user }) => {
         <Layout>
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.length })}>
                 <div className={styles.header}>
-                    <div className={styles.avatar}>{user.fullName.charAt(0).toUpperCase()}</div>
+                    <div className={styles.avatar}>{userData?.fullName.charAt(0).toUpperCase()}</div>
                 </div>
                 {(isLoading || isUserDataLoading) && (
                     <div className={styles.loading}>

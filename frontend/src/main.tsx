@@ -8,13 +8,13 @@ import { queryClient } from 'api/queryClient';
 import ErrorBoundary from 'components/ErrorBoundary/ErrorBoundary';
 
 import App from './App';
-import { TelegramProvider } from './TelegramProvider';
+// import { TelegramProvider } from './TelegramProvider';
 
 const rootElement = document.getElementById('root');
 
 const root = ReactDOM.createRoot(rootElement!);
 root.render(
-    <TelegramProvider>
+    // <TelegramProvider>
         <BrowserRouter>
             <ErrorBoundary>
                 <QueryClientProvider client={queryClient}>
@@ -22,5 +22,5 @@ root.render(
                 </QueryClientProvider>
             </ErrorBoundary>
         </BrowserRouter>
-    </TelegramProvider>,
+    // </TelegramProvider>,
 );

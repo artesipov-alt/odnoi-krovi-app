@@ -1,5 +1,4 @@
 import { FC, useLayoutEffect, useState } from 'react';
-import { TelegramUser } from 'types';
 
 import Layout from 'components/Layout';
 
@@ -16,10 +15,10 @@ enum View {
 }
 
 type Props = {
-    user: TelegramUser;
+    userId: string;
 };
 
-const Adding: FC<Props> = ({ user }) => {
+const Adding: FC<Props> = ({ userId }) => {
     const [view, setView] = useState<View>(View.START);
     const [petIdForSearch, setPetIdForSearch] = useState<string | undefined>();
 
@@ -38,13 +37,13 @@ const Adding: FC<Props> = ({ user }) => {
     const renderContent = () => {
         switch (view) {
             case View.RECIPIENT: {
-                return <Recipient onBackToStart={onBackToStartClickHandler} userId={user.id} />;
+                return <Recipient onBackToStart={onBackToStartClickHandler} userId={userId} />;
             }
             case View.DONOR: {
-                return <Donor onBackToStart={onBackToStartClickHandler} userId={user.id} />;
+                return <Donor onBackToStart={onBackToStartClickHandler} userId={userId} />;
             }
             case View.START_SEARCH: {
-                return <Search petId={petIdForSearch} userId={user.id} />;
+                return <Search petId={petIdForSearch} userId={userId} />;
             }
             default: {
                 return (
