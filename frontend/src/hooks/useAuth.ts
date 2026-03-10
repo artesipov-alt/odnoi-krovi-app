@@ -34,7 +34,7 @@ export const useAuth = (): UserAuth => {
             signinData = await signinTg({ appInitData: window.Telegram.WebApp.initData });
         }
 
-        if (!window.WebApp.initData) {
+        if (!window.WebApp?.initData) {
             isWebAppNotFind = true;
         } else {
             signinData = await signinMax({ appInitData: window.WebApp.initData });
