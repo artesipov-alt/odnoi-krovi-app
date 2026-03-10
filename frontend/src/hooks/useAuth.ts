@@ -28,7 +28,7 @@ export const useAuth = (): UserAuth => {
         let isWebAppNotFind = false;
         let signinData: null | { data: SigninResponse } = null;
 
-        if (!window.Telegram?.WebApp?.initDataUnsafe?.user) {
+        if (!window.Telegram?.WebApp?.initData) {
             isWebAppNotFind = true;
         } else {
             signinData = await signinTg({ appInitData: window.Telegram.WebApp.initData });
