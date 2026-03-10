@@ -5049,6 +5049,7 @@ type PartnerMutation struct {
 	updated_at                *time.Time
 	deleted_at                *time.Time
 	name                      *string
+	provider_name             *partner.ProviderName
 	api_key                   *string
 	role                      *partner.Role
 	status                    *partner.Status
@@ -5322,6 +5323,55 @@ func (m *PartnerMutation) OldName(ctx context.Context) (v string, err error) {
 // ResetName resets all changes to the "name" field.
 func (m *PartnerMutation) ResetName() {
 	m.name = nil
+}
+
+// SetProviderName sets the "provider_name" field.
+func (m *PartnerMutation) SetProviderName(pn partner.ProviderName) {
+	m.provider_name = &pn
+}
+
+// ProviderName returns the value of the "provider_name" field in the mutation.
+func (m *PartnerMutation) ProviderName() (r partner.ProviderName, exists bool) {
+	v := m.provider_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProviderName returns the old "provider_name" field's value of the Partner entity.
+// If the Partner object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PartnerMutation) OldProviderName(ctx context.Context) (v partner.ProviderName, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProviderName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProviderName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProviderName: %w", err)
+	}
+	return oldValue.ProviderName, nil
+}
+
+// ClearProviderName clears the value of the "provider_name" field.
+func (m *PartnerMutation) ClearProviderName() {
+	m.provider_name = nil
+	m.clearedFields[partner.FieldProviderName] = struct{}{}
+}
+
+// ProviderNameCleared returns if the "provider_name" field was cleared in this mutation.
+func (m *PartnerMutation) ProviderNameCleared() bool {
+	_, ok := m.clearedFields[partner.FieldProviderName]
+	return ok
+}
+
+// ResetProviderName resets all changes to the "provider_name" field.
+func (m *PartnerMutation) ResetProviderName() {
+	m.provider_name = nil
+	delete(m.clearedFields, partner.FieldProviderName)
 }
 
 // SetAPIKey sets the "api_key" field.
@@ -5618,7 +5668,7 @@ func (m *PartnerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PartnerMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, partner.FieldCreatedAt)
 	}
@@ -5630,6 +5680,9 @@ func (m *PartnerMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, partner.FieldName)
+	}
+	if m.provider_name != nil {
+		fields = append(fields, partner.FieldProviderName)
 	}
 	if m.api_key != nil {
 		fields = append(fields, partner.FieldAPIKey)
@@ -5662,6 +5715,8 @@ func (m *PartnerMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case partner.FieldName:
 		return m.Name()
+	case partner.FieldProviderName:
+		return m.ProviderName()
 	case partner.FieldAPIKey:
 		return m.APIKey()
 	case partner.FieldRole:
@@ -5689,6 +5744,8 @@ func (m *PartnerMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDeletedAt(ctx)
 	case partner.FieldName:
 		return m.OldName(ctx)
+	case partner.FieldProviderName:
+		return m.OldProviderName(ctx)
 	case partner.FieldAPIKey:
 		return m.OldAPIKey(ctx)
 	case partner.FieldRole:
@@ -5735,6 +5792,13 @@ func (m *PartnerMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case partner.FieldProviderName:
+		v, ok := value.(partner.ProviderName)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProviderName(v)
 		return nil
 	case partner.FieldAPIKey:
 		v, ok := value.(string)
@@ -5804,6 +5868,9 @@ func (m *PartnerMutation) ClearedFields() []string {
 	if m.FieldCleared(partner.FieldDeletedAt) {
 		fields = append(fields, partner.FieldDeletedAt)
 	}
+	if m.FieldCleared(partner.FieldProviderName) {
+		fields = append(fields, partner.FieldProviderName)
+	}
 	if m.FieldCleared(partner.FieldDescription) {
 		fields = append(fields, partner.FieldDescription)
 	}
@@ -5826,6 +5893,9 @@ func (m *PartnerMutation) ClearField(name string) error {
 	switch name {
 	case partner.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case partner.FieldProviderName:
+		m.ClearProviderName()
 		return nil
 	case partner.FieldDescription:
 		m.ClearDescription()
@@ -5852,6 +5922,9 @@ func (m *PartnerMutation) ResetField(name string) error {
 		return nil
 	case partner.FieldName:
 		m.ResetName()
+		return nil
+	case partner.FieldProviderName:
+		m.ResetProviderName()
 		return nil
 	case partner.FieldAPIKey:
 		m.ResetAPIKey()

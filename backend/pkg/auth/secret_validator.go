@@ -85,6 +85,8 @@ func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData stri
 		return nil, errors.New("missing hash parameter")
 	}
 	delete(rawParams, "hash")
+	// Удаляем signature, так как он не должен участвовать в проверке хеша
+	delete(rawParams, "signature")
 
 	authDateStr, ok := rawParams["auth_date"]
 	if !ok {

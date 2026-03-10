@@ -26,6 +26,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldProviderName holds the string denoting the provider_name field in the database.
+	FieldProviderName = "provider_name"
 	// FieldAPIKey holds the string denoting the api_key field in the database.
 	FieldAPIKey = "api_key"
 	// FieldRole holds the string denoting the role field in the database.
@@ -56,6 +58,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldName,
+	FieldProviderName,
 	FieldAPIKey,
 	FieldRole,
 	FieldStatus,
@@ -90,14 +93,38 @@ var (
 	DefaultID func() string
 )
 
+// ProviderName defines the type for the "provider_name" enum field.
+type ProviderName string
+
+// ProviderName values.
+const (
+	ProviderNameTelegramBot ProviderName = "telegram_bot"
+	ProviderNameMaxBot      ProviderName = "max_bot"
+	ProviderNameService     ProviderName = "service"
+)
+
+func (pn ProviderName) String() string {
+	return string(pn)
+}
+
+// ProviderNameValidator is a validator for the "provider_name" field enum values. It is called by the builders before save.
+func ProviderNameValidator(pn ProviderName) error {
+	switch pn {
+	case ProviderNameTelegramBot, ProviderNameMaxBot, ProviderNameService:
+		return nil
+	default:
+		return fmt.Errorf("partner: invalid enum value for provider_name field: %q", pn)
+	}
+}
+
 // Role defines the type for the "role" enum field.
 type Role string
 
 // Role values.
 const (
-	RoleCLINIC  Role = "CLINIC"
-	RoleADMIN   Role = "ADMIN"
-	RoleSERVICE Role = "SERVICE"
+	RoleClinic  Role = "clinic"
+	RoleAdmin   Role = "admin"
+	RoleService Role = "service"
 )
 
 func (r Role) String() string {
@@ -107,7 +134,7 @@ func (r Role) String() string {
 // RoleValidator is a validator for the "role" field enum values. It is called by the builders before save.
 func RoleValidator(r Role) error {
 	switch r {
-	case RoleCLINIC, RoleADMIN, RoleSERVICE:
+	case RoleClinic, RoleAdmin, RoleService:
 		return nil
 	default:
 		return fmt.Errorf("partner: invalid enum value for role field: %q", r)
@@ -166,6 +193,11 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
+// ByProviderName orders the results by the provider_name field.
+func ByProviderName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProviderName, opts...).ToFunc()
+}
+
 // ByAPIKey orders the results by the api_key field.
 func ByAPIKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAPIKey, opts...).ToFunc()
@@ -210,6 +242,24 @@ func newPartnerIdentitiesStep() *sqlgraph.Step {
 		sqlgraph.To(PartnerIdentitiesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, PartnerIdentitiesTable, PartnerIdentitiesColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e ProviderName) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *ProviderName) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = ProviderName(str)
+	if err := ProviderNameValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid ProviderName", str)
+	}
+	return nil
 }
 
 // MarshalGQL implements graphql.Marshaler interface.

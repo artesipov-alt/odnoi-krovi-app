@@ -73,6 +73,10 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		}
 
 		err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+			if err := h.userRepo.UpdateUserFields(txCtx, authData.UserID, userdata); err != nil {
+				return err
+			}
+
 			authreq.UserID = authData.UserID
 			// Создаем identity пользователя
 			if err := h.userRepo.UpsertUserIdentity(txCtx, authreq); err != nil {

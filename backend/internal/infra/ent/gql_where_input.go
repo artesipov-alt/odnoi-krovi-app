@@ -2217,6 +2217,14 @@ type PartnerWhereInput struct {
 	NameEqualFold    *string  `json:"nameEqualFold,omitempty"`
 	NameContainsFold *string  `json:"nameContainsFold,omitempty"`
 
+	// "provider_name" field predicates.
+	ProviderName       *partner.ProviderName  `json:"providerName,omitempty"`
+	ProviderNameNEQ    *partner.ProviderName  `json:"providerNameNEQ,omitempty"`
+	ProviderNameIn     []partner.ProviderName `json:"providerNameIn,omitempty"`
+	ProviderNameNotIn  []partner.ProviderName `json:"providerNameNotIn,omitempty"`
+	ProviderNameIsNil  bool                   `json:"providerNameIsNil,omitempty"`
+	ProviderNameNotNil bool                   `json:"providerNameNotNil,omitempty"`
+
 	// "api_key" field predicates.
 	APIKey             *string  `json:"apiKey,omitempty"`
 	APIKeyNEQ          *string  `json:"apiKeyNEQ,omitempty"`
@@ -2495,6 +2503,24 @@ func (i *PartnerWhereInput) P() (predicate.Partner, error) {
 	}
 	if i.NameContainsFold != nil {
 		predicates = append(predicates, partner.NameContainsFold(*i.NameContainsFold))
+	}
+	if i.ProviderName != nil {
+		predicates = append(predicates, partner.ProviderNameEQ(*i.ProviderName))
+	}
+	if i.ProviderNameNEQ != nil {
+		predicates = append(predicates, partner.ProviderNameNEQ(*i.ProviderNameNEQ))
+	}
+	if len(i.ProviderNameIn) > 0 {
+		predicates = append(predicates, partner.ProviderNameIn(i.ProviderNameIn...))
+	}
+	if len(i.ProviderNameNotIn) > 0 {
+		predicates = append(predicates, partner.ProviderNameNotIn(i.ProviderNameNotIn...))
+	}
+	if i.ProviderNameIsNil {
+		predicates = append(predicates, partner.ProviderNameIsNil())
+	}
+	if i.ProviderNameNotNil {
+		predicates = append(predicates, partner.ProviderNameNotNil())
 	}
 	if i.APIKey != nil {
 		predicates = append(predicates, partner.APIKeyEQ(*i.APIKey))

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/partner"
 )
@@ -21,10 +20,5 @@ func (a ApiKeysValidator) ValidateBySecret(ctx context.Context, id string, apike
 	if err != nil {
 		return "", "", ""
 	}
-	if strings.HasSuffix(partner.ID, "_bot") {
-		providerName = partner.ID
-	} else {
-		providerName = "service"
-	}
-	return partner.ID, providerName, partner.Role
+	return partner.ID, partner.ProviderName, partner.Role
 }

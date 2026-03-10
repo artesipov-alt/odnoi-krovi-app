@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
@@ -121,14 +120,9 @@ func (h *AuthHandler) ServiceSignIn(ctx context.Context, input *dto.MessengerSig
 		Metadata:       input.Body.MetaData,
 	}
 
-	var usrparams usermodel.NewUserParams
+	usr := &usermodel.User{}
 	if input.Body.FullName != nil {
-		usrparams.FullName = *input.Body.FullName
-	}
-
-	usr, err := usermodel.NewUser(usrparams)
-	if err != nil {
-		return nil, apperrors.Validation("invalid user data", map[string]any{"error": err.Error()})
+		usr.FullName = *input.Body.FullName
 	}
 
 	var metadata *authmodel.Metadata
