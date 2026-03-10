@@ -15,7 +15,7 @@ const Final: FC<Props> = ({ onBackToStart, photo }) => {
     const navigate = useNavigate();
 
     const onBackToSearchClickHandler = () => {
-        navigate('/owner');
+        navigate('/owner#donor');
     };
 
     return (

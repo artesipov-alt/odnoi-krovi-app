@@ -5,7 +5,6 @@ import { ChangeEvent, FC, useState } from 'react';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import { TelegramUser } from 'types';
 
 import { updateUser } from 'api/apiServices/updateUser';
 import Layout from 'components/Layout';
@@ -13,7 +12,8 @@ import Layout from 'components/Layout';
 import styles from './Registration.module.less';
 
 type Props = {
-    user: TelegramUser;
+    userId: string;
+    fullName: string;
 };
 
 type Input = {
@@ -24,12 +24,12 @@ type Input = {
 const docsLink = 'https://однойкрови.рф/docs';
 const emailRegexp = /^\w+([+.-]?\w+)*@\w+([.-]?\w+)*(\.\w+)+$/i;
 
-const Registration: FC<Props> = ({ user }) => {
+const Registration: FC<Props> = ({ userId, fullName }) => {
     const navigate = useNavigate();
 
     const [phone, setPhone] = useState<Input>({ value: '' });
     const [email, setEmail] = useState<Input>({ value: '' });
-    const [name, setName] = useState<Input>({ value: user.fullName });
+    const [name, setName] = useState<Input>({ value: fullName });
 
     const isValidEmail = () => email.value.match(emailRegexp);
 
@@ -101,7 +101,7 @@ const Registration: FC<Props> = ({ user }) => {
         }
 
         const { data, error } = await updateUser({
-            id: user.id,
+            id: userId,
             phone: phone.value,
             email: email.value,
             fullName: name.value,
@@ -120,7 +120,7 @@ const Registration: FC<Props> = ({ user }) => {
         <Layout>
             <div className={styles.header}>
                 <h2 className={styles.title}>Добро пожаловать,</h2>
-                <h4 className={styles.subTitle}>{user.fullName}</h4>
+                <h4 className={styles.subTitle}>{fullName}</h4>
             </div>
             <div className={styles.form}>
                 <TextField

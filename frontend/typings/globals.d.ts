@@ -1,3 +1,4 @@
 declare interface Window {
-    Telegram: any;
+    WebApp?: any;
+    Telegram?: any;
 }

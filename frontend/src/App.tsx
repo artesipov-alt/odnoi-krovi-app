@@ -8,23 +8,37 @@ import Adding from './pages/adding';
 import Owner from './pages/owner';
 import Registration from './pages/registration';
 import Search from './pages/search';
-import { useTelegram } from './TelegramProvider';
+// import { useTelegram } from './TelegramProvider';
+import { useGetUserById } from './hooks/useGetUserById';
+import { useAuth } from './hooks/useAuth';
 
 const App: FC = () => {
-    const { isRegistered, user } = useTelegram();
+    // const { isRegistered, user } = useAuth();
+    const { userId } = useAuth();
 
-    if (!user) {
+    const { data: user, isLoading } = useGetUserById(userId);
+
+    if (!user || isLoading) {
         return null;
     }
 
     return (
         <>
             <Routes>
-                <Route path='/owner' element={<Owner user={user} />} />
-                <Route path='/adding' element={<Adding user={user} />} />
-                <Route path='/search/:id' element={<Search user={user} />} />
-                <Route path='/registration' element={<Registration user={user} />} />
-                <Route path='/' element={isRegistered ? <Navigate to='/owner' /> : <Registration user={user} />} />
+                <Route path='/owner' element={<Owner userId={user.id} />} />
+                <Route path='/adding' element={<Adding userId={user.id} />} />
+                <Route path='/search/:id' element={<Search userId={user.id} />} />
+                <Route path='/registration' element={<Registration userId={user.id} fullName={user.fullName} />} />
+                <Route
+                    path='/'
+                    element={
+                        user.phone ? (
+                            <Navigate to='/owner' />
+                        ) : (
+                            <Registration userId={user.id} fullName={user.fullName} />
+                        )
+                    }
+                />
             </Routes>
             <ToastContainer
                 draggable
