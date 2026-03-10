@@ -24,6 +24,7 @@ require (
 	github.com/rs/cors v1.11.1
 	github.com/samber/slog-http v1.11.1
 	github.com/spf13/cobra v1.9.1
+	github.com/telegram-mini-apps/init-data-golang v1.5.0
 	github.com/vektah/gqlparser/v2 v2.5.23
 )
 
