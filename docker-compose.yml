@@ -21,6 +21,8 @@ services:
       MINIAPP_DOMAIN: https://1krovi.app
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       S3_REGION: ${S3_REGION:-ru-central1}
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
     ports:
       - "3000:3000"
     networks:
