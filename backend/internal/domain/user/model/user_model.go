@@ -140,6 +140,24 @@ func NewUser(userparams NewUserParams) (*User, error) {
 	return user, nil
 }
 
+func NewDefaultUser(fullName string, originSource string) (*User, error) {
+
+	if fullName == "" {
+		fullName = "Пользователь портала"
+	}
+	if originSource == "" {
+		originSource = "self"
+	}
+	return &User{
+		FullName:     fullName,
+		OriginSource: originSource,
+	}, nil
+}
+
+func (u *User) SetRole(role string) {
+	u.Role = UserRole(role)
+}
+
 // NewDonorPreferenceParams creates a new DonorPreferenceParams with default values
 func DefaultDonorPreference() *DonorPreference {
 	return &DonorPreference{

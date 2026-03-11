@@ -1,29 +1,30 @@
 package dto
 
 // ============================================
-// SignIn User (for Messengers)
+// SignIn User (for Service)
 // ============================================
 
-// MessengerSignInInput представляет запрос на вход пользователя через мессенджер
-type MessengerSignInInput struct {
+// ServiceSignInInput представляет запрос на вход пользователя через сервис
+type ServiceSignInInput struct {
 	InternalKey string `header:"X-Internal-Key" doc:"Секретный ключ для ботов и клиник"`
-	Body        MessengerSignInBody
+	Body        ServiceSignInBody
 }
 
-// MessengerSignInBody представляет тело запроса на вход пользователя через мессенджер
-type MessengerSignInBody struct {
-	FullName   *string         `json:"fullName,omitempty" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
-	ProviderID string          `json:"providerId" doc:"ID провайдера" example:"123456789"`
-	MetaData   *map[string]any `json:"metaData,omitempty" doc:"Метаданные пользователя"`
+// ServiceSignInBody представляет тело запроса на вход пользователя через сервис
+type ServiceSignInBody struct {
+	FullName     string          `json:"fullName,omitempty" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
+	ProviderID   string          `json:"providerId" doc:"ID провайдера" example:"123456789"`
+	ProviderName string          `json:"providerName" doc:"Имя провайдера" enum:"telegram_bot,max_bot,service"`
+	MetaData     *map[string]any `json:"metaData,omitempty" doc:"Метаданные пользователя"`
 }
 
-// MessengerSignInOutput представляет ответ на вход пользователя
-type MessengerSignInOutput struct {
-	Body MessengerSignInResult
+// ServiceSignInOutput представляет ответ на вход пользователя
+type ServiceSignInOutput struct {
+	Body ServiceSignInResult
 }
 
-// MessengerSignInResult представляет результат входа пользователя
-type MessengerSignInResult struct {
+// ServiceSignInResult представляет результат входа пользователя
+type ServiceSignInResult struct {
 	UserID      string `json:"userId" doc:"ID пользователя на портале" example:"USR-ABCDEABCDE"`
 	AccessToken string `json:"accessToken,omitempty" doc:"Access токен для аутентификации" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 	TokenType   string `json:"tokenType" doc:"Тип токена" example:"Bearer"`

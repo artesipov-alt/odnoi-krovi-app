@@ -155,7 +155,6 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "provider_name", Type: field.TypeEnum, Nullable: true, Enums: []string{"telegram_bot", "max_bot", "service"}},
 		{Name: "api_key", Type: field.TypeString, Unique: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"clinic", "admin", "service"}},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "disabled", "expired"}},

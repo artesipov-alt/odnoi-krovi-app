@@ -295,36 +295,6 @@ func NameContainsFold(v string) predicate.Partner {
 	return predicate.Partner(sql.FieldContainsFold(FieldName, v))
 }
 
-// ProviderNameEQ applies the EQ predicate on the "provider_name" field.
-func ProviderNameEQ(v ProviderName) predicate.Partner {
-	return predicate.Partner(sql.FieldEQ(FieldProviderName, v))
-}
-
-// ProviderNameNEQ applies the NEQ predicate on the "provider_name" field.
-func ProviderNameNEQ(v ProviderName) predicate.Partner {
-	return predicate.Partner(sql.FieldNEQ(FieldProviderName, v))
-}
-
-// ProviderNameIn applies the In predicate on the "provider_name" field.
-func ProviderNameIn(vs ...ProviderName) predicate.Partner {
-	return predicate.Partner(sql.FieldIn(FieldProviderName, vs...))
-}
-
-// ProviderNameNotIn applies the NotIn predicate on the "provider_name" field.
-func ProviderNameNotIn(vs ...ProviderName) predicate.Partner {
-	return predicate.Partner(sql.FieldNotIn(FieldProviderName, vs...))
-}
-
-// ProviderNameIsNil applies the IsNil predicate on the "provider_name" field.
-func ProviderNameIsNil() predicate.Partner {
-	return predicate.Partner(sql.FieldIsNull(FieldProviderName))
-}
-
-// ProviderNameNotNil applies the NotNil predicate on the "provider_name" field.
-func ProviderNameNotNil() predicate.Partner {
-	return predicate.Partner(sql.FieldNotNull(FieldProviderName))
-}
-
 // APIKeyEQ applies the EQ predicate on the "api_key" field.
 func APIKeyEQ(v string) predicate.Partner {
 	return predicate.Partner(sql.FieldEQ(FieldAPIKey, v))

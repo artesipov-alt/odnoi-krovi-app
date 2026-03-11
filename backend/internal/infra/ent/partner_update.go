@@ -69,26 +69,6 @@ func (_u *PartnerUpdate) SetNillableName(v *string) *PartnerUpdate {
 	return _u
 }
 
-// SetProviderName sets the "provider_name" field.
-func (_u *PartnerUpdate) SetProviderName(v partner.ProviderName) *PartnerUpdate {
-	_u.mutation.SetProviderName(v)
-	return _u
-}
-
-// SetNillableProviderName sets the "provider_name" field if the given value is not nil.
-func (_u *PartnerUpdate) SetNillableProviderName(v *partner.ProviderName) *PartnerUpdate {
-	if v != nil {
-		_u.SetProviderName(*v)
-	}
-	return _u
-}
-
-// ClearProviderName clears the value of the "provider_name" field.
-func (_u *PartnerUpdate) ClearProviderName() *PartnerUpdate {
-	_u.mutation.ClearProviderName()
-	return _u
-}
-
 // SetAPIKey sets the "api_key" field.
 func (_u *PartnerUpdate) SetAPIKey(v string) *PartnerUpdate {
 	_u.mutation.SetAPIKey(v)
@@ -250,11 +230,6 @@ func (_u *PartnerUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PartnerUpdate) check() error {
-	if v, ok := _u.mutation.ProviderName(); ok {
-		if err := partner.ProviderNameValidator(v); err != nil {
-			return &ValidationError{Name: "provider_name", err: fmt.Errorf(`ent: validator failed for field "Partner.provider_name": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Role(); ok {
 		if err := partner.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "Partner.role": %w`, err)}
@@ -291,12 +266,6 @@ func (_u *PartnerUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(partner.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.ProviderName(); ok {
-		_spec.SetField(partner.FieldProviderName, field.TypeEnum, value)
-	}
-	if _u.mutation.ProviderNameCleared() {
-		_spec.ClearField(partner.FieldProviderName, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.APIKey(); ok {
 		_spec.SetField(partner.FieldAPIKey, field.TypeString, value)
@@ -421,26 +390,6 @@ func (_u *PartnerUpdateOne) SetNillableName(v *string) *PartnerUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
 	}
-	return _u
-}
-
-// SetProviderName sets the "provider_name" field.
-func (_u *PartnerUpdateOne) SetProviderName(v partner.ProviderName) *PartnerUpdateOne {
-	_u.mutation.SetProviderName(v)
-	return _u
-}
-
-// SetNillableProviderName sets the "provider_name" field if the given value is not nil.
-func (_u *PartnerUpdateOne) SetNillableProviderName(v *partner.ProviderName) *PartnerUpdateOne {
-	if v != nil {
-		_u.SetProviderName(*v)
-	}
-	return _u
-}
-
-// ClearProviderName clears the value of the "provider_name" field.
-func (_u *PartnerUpdateOne) ClearProviderName() *PartnerUpdateOne {
-	_u.mutation.ClearProviderName()
 	return _u
 }
 
@@ -618,11 +567,6 @@ func (_u *PartnerUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PartnerUpdateOne) check() error {
-	if v, ok := _u.mutation.ProviderName(); ok {
-		if err := partner.ProviderNameValidator(v); err != nil {
-			return &ValidationError{Name: "provider_name", err: fmt.Errorf(`ent: validator failed for field "Partner.provider_name": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Role(); ok {
 		if err := partner.RoleValidator(v); err != nil {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "Partner.role": %w`, err)}
@@ -676,12 +620,6 @@ func (_u *PartnerUpdateOne) sqlSave(ctx context.Context) (_node *Partner, err er
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(partner.FieldName, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.ProviderName(); ok {
-		_spec.SetField(partner.FieldProviderName, field.TypeEnum, value)
-	}
-	if _u.mutation.ProviderNameCleared() {
-		_spec.ClearField(partner.FieldProviderName, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.APIKey(); ok {
 		_spec.SetField(partner.FieldAPIKey, field.TypeString, value)

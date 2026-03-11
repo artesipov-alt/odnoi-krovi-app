@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	initdata "github.com/telegram-mini-apps/init-data-golang"
 )
 
@@ -22,8 +23,8 @@ import (
 type Provider string
 
 const (
-	ProviderTelegram Provider = "telegram"
-	ProviderMax      Provider = "max"
+	ProviderTelegram Provider = "telegram_bot"
+	ProviderMax      Provider = "max_bot"
 )
 
 // ParseProvider преобразует строку в Provider
@@ -59,27 +60,35 @@ type WebAppUserInfo struct {
 
 // AppValidator валидирует данные для конкретного провайдера.
 type AppValidator struct {
-	botToken string
-	provider Provider
+	maxBotToken string
+	tgBotToken  string
 }
 
 // NewAppValidator создает валидатор для конкретного провайдера.
-func NewAppValidator(botToken string, provider Provider) *AppValidator {
+func NewAppValidator(maxBotToken, telegramBotToken string) *AppValidator {
 	return &AppValidator{
-		botToken: botToken,
-		provider: provider,
+		maxBotToken: maxBotToken,
+		tgBotToken:  telegramBotToken,
 	}
 }
 
 // ValidateWebAppInitData валидирует initData.
-func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData string) (*WebAppInitData, error) {
+func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData string, provider authmodel.ProviderName) (*WebAppInitData, error) {
 	if initData == "" {
 		return nil, errors.New("initData is empty")
 	}
 
-	// Для Max используем старую логику валидации
-	if v.provider == ProviderMax {
+	p := Provider(provider)
+	var botToken string
+
+	switch p {
+	case ProviderTelegram:
+		botToken = v.tgBotToken
+	case ProviderMax:
+		// Для Max используем старую логику валидации
 		return v.validateMaxInitData(initData)
+	default:
+		return nil, fmt.Errorf("unsupported provider: %s", provider)
 	}
 
 	// Проверяем, какой тип подписи используется в initData
@@ -93,7 +102,7 @@ func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData stri
 
 	if hasSignature {
 		// Third-party валидация (Ed25519) - использует Bot ID
-		botID, err := extractBotID(v.botToken)
+		botID, err := extractBotID(botToken)
 		if err != nil {
 			return nil, fmt.Errorf("failed to extract bot ID from token: %w", err)
 		}
@@ -106,7 +115,7 @@ func (v *AppValidator) ValidateWebAppInitData(ctx context.Context, initData stri
 		}
 	} else {
 		// Старая валидация (HMAC-SHA256) - использует Bot Token
-		if err := initdata.Validate(initData, v.botToken, expIn); err != nil {
+		if err := initdata.Validate(initData, botToken, expIn); err != nil {
 			return nil, fmt.Errorf("invalid init data: %w", err)
 		}
 		parsed, err = initdata.Parse(initData)
@@ -215,7 +224,7 @@ func (v *AppValidator) validateMaxInitData(initData string) (*WebAppInitData, er
 	}
 	dataCheckString := joinStrings(checkStrings, "\n")
 
-	secretKey := v.computeSecretKey()
+	secretKey := v.computeSecretKey(ProviderMax) // Pass provider to computeSecretKey
 
 	h := hmac.New(sha256.New, secretKey)
 	h.Write([]byte(dataCheckString))
@@ -267,21 +276,21 @@ func (v *AppValidator) validateMaxInitData(initData string) (*WebAppInitData, er
 }
 
 // computeSecretKey вычисляет secret_key в зависимости от провайдера.
-func (v *AppValidator) computeSecretKey() []byte {
-	switch v.provider {
+func (v *AppValidator) computeSecretKey(p Provider) []byte {
+	var botToken string
+	switch p {
 	case ProviderTelegram:
-		h := hmac.New(sha256.New, []byte(v.botToken))
-		h.Write([]byte("WebAppData"))
-		return h.Sum(nil)
+		botToken = v.tgBotToken
 	case ProviderMax:
-		h := hmac.New(sha256.New, []byte("WebAppData"))
-		h.Write([]byte(v.botToken))
-		return h.Sum(nil)
+		botToken = v.maxBotToken
 	default:
-		h := hmac.New(sha256.New, []byte(v.botToken))
-		h.Write([]byte("WebAppData"))
-		return h.Sum(nil)
+		// Should not happen with current logic, but as a fallback
+		botToken = v.tgBotToken
 	}
+
+	h := hmac.New(sha256.New, []byte(botToken))
+	h.Write([]byte("WebAppData"))
+	return h.Sum(nil)
 }
 
 func parseRawQuery(qs string) (map[string]string, error) {
@@ -317,7 +326,9 @@ func (v *AppValidator) ValidateMock(initData string) (providerID string, role st
 	if len(splited) < 2 {
 		return "", ""
 	}
-	if splited[1] != v.botToken {
+	// This mock validation should probably be updated to consider the provider
+	// For now, it uses tgBotToken as a default for comparison
+	if splited[1] != v.tgBotToken { // Assuming mock is for Telegram or a generic token
 		return "", ""
 	}
 	providerID = splited[0]

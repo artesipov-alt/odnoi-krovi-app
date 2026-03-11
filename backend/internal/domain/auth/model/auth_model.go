@@ -41,6 +41,52 @@ func NewIdentity(providerName ProviderName, appInitData string, metadata *map[st
 	return idn, nil
 }
 
+// NewUser creates a new User aggregate with validation
+func NewServiceIdentity(providerID, providerName, apiKey string, metadata *map[string]any) (*Identity, error) {
+	idn := &Identity{
+		ProviderName:   ProviderName(providerName),
+		ProviderUserID: providerID,
+		ServiceKey:     apiKey,
+		Metadata:       metadata,
+	}
+
+	return idn, nil
+}
+
+// NewUser creates a new User aggregate with validation
+func NewMiniAppIdentity(providerName ProviderName, appInitData string, metadata *map[string]any) (*Identity, error) {
+	idn := &Identity{
+		ProviderName: providerName,
+		AppInitData:  appInitData,
+		Metadata:     metadata,
+	}
+
+	return idn, nil
+}
+
+func (i *Identity) SetPartnerID(partnerID string) {
+	i.PartnerID = partnerID
+}
+
+func (i *Identity) SetSystemUserID(userID string) {
+	i.UserID = userID
+}
+
+func (i *Identity) SetJWTData(accessToken string, expiresAt time.Time) {
+	i.AccessToken = accessToken
+	i.ExpiresAt = expiresAt
+}
+
+func (i *Identity) SetProviderID(providerID string) {
+	i.ProviderUserID = providerID
+}
+
+// ====================================================================================================
+//
+//                                             UTM-Метки
+//
+// ====================================================================================================
+
 // Metadata represents user metadata with UTM and other fields
 type UTM struct {
 	Source   string
@@ -54,7 +100,7 @@ type Metadata struct {
 	UTMData *UTM
 }
 
-func NewUserMetadata(metadata map[string]any) *Metadata {
+func NewUserMetadata(metadata map[string]any) (*Metadata, error) {
 	source, medium, campaign, content, term := extractUTMFromMetadata(metadata)
 	return &Metadata{
 		UTMData: &UTM{
@@ -64,7 +110,14 @@ func NewUserMetadata(metadata map[string]any) *Metadata {
 			Content:  content,
 			Term:     term,
 		},
+	}, nil
+}
+
+func (m *Metadata) GetCampaign() string {
+	if m == nil || m.UTMData == nil {
+		return ""
 	}
+	return m.UTMData.Campaign
 }
 
 func extractUTMFromMetadata(metadata map[string]any) (string, string, string, string, string) {

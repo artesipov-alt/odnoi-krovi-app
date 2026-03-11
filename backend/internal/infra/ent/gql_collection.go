@@ -791,11 +791,6 @@ func (_q *PartnerQuery) collectField(ctx context.Context, oneNode bool, opCtx *g
 				selectedFields = append(selectedFields, partner.FieldName)
 				fieldSeen[partner.FieldName] = struct{}{}
 			}
-		case "providerName":
-			if _, ok := fieldSeen[partner.FieldProviderName]; !ok {
-				selectedFields = append(selectedFields, partner.FieldProviderName)
-				fieldSeen[partner.FieldProviderName] = struct{}{}
-			}
 		case "role":
 			if _, ok := fieldSeen[partner.FieldRole]; !ok {
 				selectedFields = append(selectedFields, partner.FieldRole)

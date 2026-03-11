@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	auth "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/partner"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
@@ -14,32 +14,30 @@ import (
 
 type ExternalAuthHandler struct {
 	userRepo       user.Repository
-	apiValidator   auth.ApiKeysValidator
+	partnerRepo    partner.Repository
 	tokenGenerator auth.TokenGenerator
 	txManager      *presistance.TxManager
 }
 
-func NewExternalSignInHandler(userepo user.Repository, apiValidator auth.ApiKeysValidator, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *ExternalAuthHandler {
+func NewExternalSignInHandler(userepo user.Repository, partnerRepo partner.Repository, tokenGenerator auth.TokenGenerator, txManager *presistance.TxManager) *ExternalAuthHandler {
 	return &ExternalAuthHandler{
 		userRepo:       userepo,
-		apiValidator:   apiValidator,
+		partnerRepo:    partnerRepo,
 		tokenGenerator: tokenGenerator,
 		txManager:      txManager,
 	}
 }
 
-func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
-	// Валидируем и получаем provider name
-	partnerID, providerName, role := h.apiValidator.ValidateBySecret(ctx, authreq.ProviderUserID, authreq.ServiceKey)
-	if providerName == "" {
-		return nil, apperrors.ErrInvalidUserData
+func (h *ExternalAuthHandler) Handle(ctx context.Context, idndata *authmodel.Identity, userdata *usermodel.User, metadata *authmodel.Metadata) (*authmodel.Identity, error) {
+	partner, err := h.partnerRepo.GetByAPIKey(ctx, idndata.ServiceKey)
+	if err != nil {
+		return nil, err
 	}
 
-	authreq.ProviderName = authmodel.ProviderName(providerName)
-	authreq.PartnerID = partnerID
-	userdata.Role = usermodel.UserRole(role)
+	idndata.SetPartnerID(partner.ID)
+	userdata.SetRole(partner.Role)
 
-	exist, err := h.userRepo.ExistsByProvider(ctx, authreq.ProviderUserID, providerName)
+	exist, err := h.userRepo.ExistsByProvider(ctx, idndata.ProviderUserID, idndata.ProviderName)
 	if err != nil {
 		return nil, err
 	}
@@ -51,8 +49,7 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 			if err != nil {
 				return err
 			}
-			authreq.UserID = newuser.ID
-			if err := h.userRepo.UpsertUserIdentity(txCtx, authreq); err != nil {
+			if err := h.userRepo.UpsertUserIdentity(txCtx, newuser.ID, idndata, metadata); err != nil {
 				return err
 			}
 			if metadata != nil {
@@ -67,23 +64,19 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		}
 	} else {
 		// Пользователь существует - обновляем метаданные и UTM
-		authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, providerName)
+		idn, err := h.userRepo.GetByProvider(ctx, idndata.ProviderUserID, idndata.ProviderName)
 		if err != nil {
 			return nil, err
 		}
 
 		err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-			if err := h.userRepo.UpdateUserFields(txCtx, authData.UserID, userdata); err != nil {
-				return err
-			}
-
-			authreq.UserID = authData.UserID
+			idndata.SetSystemUserID(idn.UserID)
 			// Создаем identity пользователя
-			if err := h.userRepo.UpsertUserIdentity(txCtx, authreq); err != nil {
+			if err := h.userRepo.UpsertUserIdentity(txCtx, idn.UserID, idndata, metadata); err != nil {
 				return err
 			}
 			if metadata != nil {
-				if err := h.userRepo.UpsertUTM(txCtx, authData.UserID, metadata); err != nil {
+				if err := h.userRepo.UpsertUTM(txCtx, idn.UserID, metadata); err != nil {
 					return err
 				}
 			}
@@ -94,13 +87,13 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, authreq *authmodel.Ide
 		}
 	}
 
-	authData, err := h.userRepo.GetByProvider(ctx, authreq.ProviderUserID, string(providerName))
+	idn, err := h.userRepo.GetByProvider(ctx, idndata.ProviderUserID, idndata.ProviderName)
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, expiresAt := h.tokenGenerator.Generate(authData.UserID, role, time.Now())
-	authData.AccessToken = accessToken
-	authData.ExpiresAt = expiresAt
-	return authData, nil
+	accessToken, expiresAt := h.tokenGenerator.Generate(idn.UserID, string(userdata.Role), time.Now())
+	idn.SetJWTData(accessToken, expiresAt)
+
+	return idn, nil
 }

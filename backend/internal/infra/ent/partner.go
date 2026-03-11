@@ -25,8 +25,6 @@ type Partner struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// ProviderName holds the value of the "provider_name" field.
-	ProviderName partner.ProviderName `json:"provider_name,omitempty"`
 	// APIKey holds the value of the "api_key" field.
 	APIKey string `json:"-"`
 	// Role holds the value of the "role" field.
@@ -70,7 +68,7 @@ func (*Partner) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case partner.FieldID, partner.FieldName, partner.FieldProviderName, partner.FieldAPIKey, partner.FieldRole, partner.FieldStatus, partner.FieldDescription:
+		case partner.FieldID, partner.FieldName, partner.FieldAPIKey, partner.FieldRole, partner.FieldStatus, partner.FieldDescription:
 			values[i] = new(sql.NullString)
 		case partner.FieldCreatedAt, partner.FieldUpdatedAt, partner.FieldDeletedAt, partner.FieldLastUsedAt:
 			values[i] = new(sql.NullTime)
@@ -119,12 +117,6 @@ func (_m *Partner) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
-			}
-		case partner.FieldProviderName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field provider_name", values[i])
-			} else if value.Valid {
-				_m.ProviderName = partner.ProviderName(value.String)
 			}
 		case partner.FieldAPIKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -210,9 +202,6 @@ func (_m *Partner) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
-	builder.WriteString(", ")
-	builder.WriteString("provider_name=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ProviderName))
 	builder.WriteString(", ")
 	builder.WriteString("api_key=<sensitive>")
 	builder.WriteString(", ")

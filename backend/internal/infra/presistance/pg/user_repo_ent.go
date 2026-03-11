@@ -95,18 +95,18 @@ func (r *EntUserRepository) CreateUser(ctx context.Context, inputuser *usermodel
 }
 
 // UpsertUserIdentity creates or updates a user identity
-func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *authmodel.Identity) error {
+func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, userID string, input *authmodel.Identity, metadata *authmodel.Metadata) error {
 	if input == nil {
 		return errors.New("user identity cannot be nil")
 	}
-	if input.UserID == "" {
+	if userID == "" {
 		return errors.New("invalid user ID")
 	}
 
 	c := r.client(ctx)
 
 	builder := c.UserIdentity.Create().
-		SetUserID(input.UserID).
+		SetUserID(userID).
 		SetProvider(useridentity.Provider(input.ProviderName)).
 		SetProviderUserID(input.ProviderUserID)
 
@@ -114,8 +114,14 @@ func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, input *authm
 		builder.SetPartnerID(input.PartnerID)
 	}
 
-	if input.Metadata != nil {
-		builder.SetMetadata(*input.Metadata)
+	if metadata != nil && metadata.UTMData != nil {
+		metadataMap := make(map[string]interface{})
+		metadataMap["utm_source"] = metadata.UTMData.Source
+		metadataMap["utm_medium"] = metadata.UTMData.Medium
+		metadataMap["utm_campaign"] = metadata.UTMData.Campaign
+		metadataMap["utm_content"] = metadata.UTMData.Content
+		metadataMap["utm_term"] = metadata.UTMData.Term
+		builder.SetMetadata(metadataMap)
 	}
 
 	err := builder.
@@ -202,7 +208,7 @@ func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64,
 	return EntToModel(user), nil
 }
 
-func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID string, providerName string) (*authmodel.Identity, error) {
+func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID string, providerName authmodel.ProviderName) (*authmodel.Identity, error) {
 	identity, err := r.client(ctx).UserIdentity.Query().
 		Where(useridentity.ProviderUserID(providerID),
 			useridentity.ProviderEQ(useridentity.Provider(providerName))).
@@ -432,7 +438,7 @@ func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 }
 
 // ExistsByProvider checks if a user with the given Provider ID exists
-func (r *EntUserRepository) ExistsByProvider(ctx context.Context, providerID string, providerName string) (bool, error) {
+func (r *EntUserRepository) ExistsByProvider(ctx context.Context, providerID string, providerName authmodel.ProviderName) (bool, error) {
 	if providerID == "" {
 		return false, errors.New("invalid provider ID")
 	}

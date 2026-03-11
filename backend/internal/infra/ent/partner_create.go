@@ -72,20 +72,6 @@ func (_c *PartnerCreate) SetName(v string) *PartnerCreate {
 	return _c
 }
 
-// SetProviderName sets the "provider_name" field.
-func (_c *PartnerCreate) SetProviderName(v partner.ProviderName) *PartnerCreate {
-	_c.mutation.SetProviderName(v)
-	return _c
-}
-
-// SetNillableProviderName sets the "provider_name" field if the given value is not nil.
-func (_c *PartnerCreate) SetNillableProviderName(v *partner.ProviderName) *PartnerCreate {
-	if v != nil {
-		_c.SetProviderName(*v)
-	}
-	return _c
-}
-
 // SetAPIKey sets the "api_key" field.
 func (_c *PartnerCreate) SetAPIKey(v string) *PartnerCreate {
 	_c.mutation.SetAPIKey(v)
@@ -221,11 +207,6 @@ func (_c *PartnerCreate) check() error {
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Partner.name"`)}
 	}
-	if v, ok := _c.mutation.ProviderName(); ok {
-		if err := partner.ProviderNameValidator(v); err != nil {
-			return &ValidationError{Name: "provider_name", err: fmt.Errorf(`ent: validator failed for field "Partner.provider_name": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.APIKey(); !ok {
 		return &ValidationError{Name: "api_key", err: errors.New(`ent: missing required field "Partner.api_key"`)}
 	}
@@ -296,10 +277,6 @@ func (_c *PartnerCreate) createSpec() (*Partner, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(partner.FieldName, field.TypeString, value)
 		_node.Name = value
-	}
-	if value, ok := _c.mutation.ProviderName(); ok {
-		_spec.SetField(partner.FieldProviderName, field.TypeEnum, value)
-		_node.ProviderName = value
 	}
 	if value, ok := _c.mutation.APIKey(); ok {
 		_spec.SetField(partner.FieldAPIKey, field.TypeString, value)
@@ -428,24 +405,6 @@ func (u *PartnerUpsert) SetName(v string) *PartnerUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *PartnerUpsert) UpdateName() *PartnerUpsert {
 	u.SetExcluded(partner.FieldName)
-	return u
-}
-
-// SetProviderName sets the "provider_name" field.
-func (u *PartnerUpsert) SetProviderName(v partner.ProviderName) *PartnerUpsert {
-	u.Set(partner.FieldProviderName, v)
-	return u
-}
-
-// UpdateProviderName sets the "provider_name" field to the value that was provided on create.
-func (u *PartnerUpsert) UpdateProviderName() *PartnerUpsert {
-	u.SetExcluded(partner.FieldProviderName)
-	return u
-}
-
-// ClearProviderName clears the value of the "provider_name" field.
-func (u *PartnerUpsert) ClearProviderName() *PartnerUpsert {
-	u.SetNull(partner.FieldProviderName)
 	return u
 }
 
@@ -618,27 +577,6 @@ func (u *PartnerUpsertOne) SetName(v string) *PartnerUpsertOne {
 func (u *PartnerUpsertOne) UpdateName() *PartnerUpsertOne {
 	return u.Update(func(s *PartnerUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetProviderName sets the "provider_name" field.
-func (u *PartnerUpsertOne) SetProviderName(v partner.ProviderName) *PartnerUpsertOne {
-	return u.Update(func(s *PartnerUpsert) {
-		s.SetProviderName(v)
-	})
-}
-
-// UpdateProviderName sets the "provider_name" field to the value that was provided on create.
-func (u *PartnerUpsertOne) UpdateProviderName() *PartnerUpsertOne {
-	return u.Update(func(s *PartnerUpsert) {
-		s.UpdateProviderName()
-	})
-}
-
-// ClearProviderName clears the value of the "provider_name" field.
-func (u *PartnerUpsertOne) ClearProviderName() *PartnerUpsertOne {
-	return u.Update(func(s *PartnerUpsert) {
-		s.ClearProviderName()
 	})
 }
 
@@ -990,27 +928,6 @@ func (u *PartnerUpsertBulk) SetName(v string) *PartnerUpsertBulk {
 func (u *PartnerUpsertBulk) UpdateName() *PartnerUpsertBulk {
 	return u.Update(func(s *PartnerUpsert) {
 		s.UpdateName()
-	})
-}
-
-// SetProviderName sets the "provider_name" field.
-func (u *PartnerUpsertBulk) SetProviderName(v partner.ProviderName) *PartnerUpsertBulk {
-	return u.Update(func(s *PartnerUpsert) {
-		s.SetProviderName(v)
-	})
-}
-
-// UpdateProviderName sets the "provider_name" field to the value that was provided on create.
-func (u *PartnerUpsertBulk) UpdateProviderName() *PartnerUpsertBulk {
-	return u.Update(func(s *PartnerUpsert) {
-		s.UpdateProviderName()
-	})
-}
-
-// ClearProviderName clears the value of the "provider_name" field.
-func (u *PartnerUpsertBulk) ClearProviderName() *PartnerUpsertBulk {
-	return u.Update(func(s *PartnerUpsert) {
-		s.ClearProviderName()
 	})
 }
 

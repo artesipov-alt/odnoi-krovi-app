@@ -94,14 +94,13 @@ func (r *EntPartnerRepository) GetPartnerIdentities(ctx context.Context, partner
 
 func EntPartnerToModel(p *ent.Partner) *partnermodel.Partner {
 	model := &partnermodel.Partner{
-		ID:           p.ID,
-		Name:         p.Name,
-		APIKey:       p.APIKey,
-		ProviderName: string(p.ProviderName),
-		Role:         string(p.Role),
-		Status:       string(p.Status),
-		Description:  &p.Description,
-		LastUsedAt:   &p.LastUsedAt,
+		ID:          p.ID,
+		Name:        p.Name,
+		APIKey:      p.APIKey,
+		Role:        string(p.Role),
+		Status:      string(p.Status),
+		Description: &p.Description,
+		LastUsedAt:  &p.LastUsedAt,
 	}
 	return model
 }

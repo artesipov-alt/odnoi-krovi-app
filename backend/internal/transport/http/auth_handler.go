@@ -62,15 +62,17 @@ func (h *AuthHandler) Register(api huma.API) {
 }
 
 func (h *AuthHandler) TelegramSignIn(ctx context.Context, input *dto.MiniAppSignInInput) (*dto.MiniAppSignInOutput, error) {
-	idn := &authmodel.Identity{
-		ProviderName: authmodel.ProviderTelegram,
-		AppInitData:  input.Body.AppInitData,
-		Metadata:     input.Body.MetaData,
+	idn, err := authmodel.NewMiniAppIdentity(authmodel.ProviderTelegram, input.Body.AppInitData, input.Body.MetaData)
+	if err != nil {
+		return nil, err
 	}
 
 	var metadata *authmodel.Metadata
 	if input.Body.MetaData != nil {
-		metadata = authmodel.NewUserMetadata(*input.Body.MetaData)
+		metadata, err = authmodel.NewUserMetadata(*input.Body.MetaData)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	authdata, err := h.appAuthHandler.Handle(ctx, idn, metadata)
@@ -87,15 +89,17 @@ func (h *AuthHandler) TelegramSignIn(ctx context.Context, input *dto.MiniAppSign
 }
 
 func (h *AuthHandler) MaxSignIn(ctx context.Context, input *dto.MiniAppSignInInput) (*dto.MiniAppSignInOutput, error) {
-	idn := &authmodel.Identity{
-		ProviderName: authmodel.ProviderMax,
-		AppInitData:  input.Body.AppInitData,
-		Metadata:     input.Body.MetaData,
+	idn, err := authmodel.NewMiniAppIdentity(authmodel.ProviderMax, input.Body.AppInitData, input.Body.MetaData)
+	if err != nil {
+		return nil, err
 	}
 
 	var metadata *authmodel.Metadata
 	if input.Body.MetaData != nil {
-		metadata = authmodel.NewUserMetadata(*input.Body.MetaData)
+		metadata, err = authmodel.NewUserMetadata(*input.Body.MetaData)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	authdata, err := h.appAuthHandler.Handle(ctx, idn, metadata)
@@ -111,24 +115,24 @@ func (h *AuthHandler) MaxSignIn(ctx context.Context, input *dto.MiniAppSignInInp
 	}}, nil
 }
 
-func (h *AuthHandler) ServiceSignIn(ctx context.Context, input *dto.MessengerSignInInput) (*dto.MessengerSignInOutput, error) {
+func (h *AuthHandler) ServiceSignIn(ctx context.Context, input *dto.ServiceSignInInput) (*dto.ServiceSignInOutput, error) {
 
-	idn := &authmodel.Identity{
-		ProviderName:   authmodel.ProviderService,
-		ProviderUserID: input.Body.ProviderID,
-		ServiceKey:     input.InternalKey,
-		Metadata:       input.Body.MetaData,
-	}
-
-	usr := &usermodel.User{}
-	if input.Body.FullName != nil {
-		usr.FullName = *input.Body.FullName
+	idn, err := authmodel.NewServiceIdentity(input.Body.ProviderID, input.Body.ProviderName, input.InternalKey, input.Body.MetaData)
+	if err != nil {
+		return nil, err
 	}
 
 	var metadata *authmodel.Metadata
 	if input.Body.MetaData != nil {
-		metadata = authmodel.NewUserMetadata(*input.Body.MetaData)
-		usr.OriginSource = metadata.UTMData.Campaign
+		metadata, err = authmodel.NewUserMetadata(*input.Body.MetaData)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	usr, err := usermodel.NewDefaultUser(input.Body.FullName, metadata.GetCampaign())
+	if err != nil {
+		return nil, err
 	}
 
 	authdata, err := h.externalAuthHandler.Handle(ctx, idn, usr, metadata)
@@ -136,7 +140,7 @@ func (h *AuthHandler) ServiceSignIn(ctx context.Context, input *dto.MessengerSig
 		return nil, err
 	}
 
-	return &dto.MessengerSignInOutput{Body: dto.MessengerSignInResult{
+	return &dto.ServiceSignInOutput{Body: dto.ServiceSignInResult{
 		UserID:      authdata.UserID,
 		AccessToken: authdata.AccessToken,
 		TokenType:   "Bearer",

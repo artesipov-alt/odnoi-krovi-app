@@ -20,9 +20,6 @@ func (Partner) Fields() []ent.Field {
 		// name is a human-readable name (e.g., "Клиника на Пушкина" or "Бот Макс").
 		field.String("name"),
 		// provider_name is the name of the provider associated with this partner.
-		field.Enum("provider_name").
-			Values("telegram_bot", "max_bot", "service").
-			Optional(),
 		// api_key is the secret key, stored as plain text for now with a unique index.
 		field.String("api_key").
 			Unique().
