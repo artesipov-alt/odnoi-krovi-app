@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import cn from 'classnames';
+import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { ChangeEvent, FC, useState } from 'react';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router';
@@ -35,6 +36,8 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     const [name, setName] = useState<Input>({ value: fullName });
 
     const [isLoading, setIsLoading] = useState(false);
+
+    useBodyScrollLock(isLoading);
 
     const isValidEmail = () => email.value.match(emailRegexp);
 
