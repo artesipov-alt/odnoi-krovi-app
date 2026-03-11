@@ -44,6 +44,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [desiredBloodGroups, setDesiredBloodGroups] = useState<string[]>([]);
     const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
+    const [includeUnknownBloodGroup, setIncludeUnknownBloodGroup] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -77,6 +78,8 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
             bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
             poolInfo: {
                 description,
+                prioritySearch: false,
+                includeUnknownBloodGroup,
                 bloodVolumeNeeded: Number(bloodVolume),
                 regions: locations as unknown as number[],
                 smallPetsNotifyAllowed: notifyOfSmallDonors,
@@ -160,6 +163,10 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         setNotifyOfSmallDonors(isChecked);
     };
 
+    const onChangeIncludeUnknownBloodGroupHandler = (isChecked: boolean) => {
+        setIncludeUnknownBloodGroup(isChecked);
+    };
+
     const onDescriptionChangeHandler = (newDescr: string) => {
         setDescription(newDescr);
     };
@@ -239,10 +246,12 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                                 onChangeLocations={onChangeLocationsHandler}
                                 onChangeBloodVolume={onChangeBloodVolumeHandler}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
+                                includeUnknownBloodGroup={includeUnknownBloodGroup}
                                 onChangeBloodComponents={onChangeBloodComponentsHandler}
                                 onChangeNotifyOfSmallDonors={onChangeNotifyOfSmallDonors}
                                 bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                                 onChangeDesiredBloodGroups={onChangeDesiredBloodGroupHandler}
+                                onChangeIncludeUnknownBloodGroup={onChangeIncludeUnknownBloodGroupHandler}
                             />
                         )}
                         {step === 3 && (

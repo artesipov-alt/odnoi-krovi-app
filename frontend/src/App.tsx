@@ -5,7 +5,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
 import { useAuth } from './hooks/useAuth';
-// import { useTelegram } from './TelegramProvider';
 import { useGetUserById } from './hooks/useGetUserById';
 import Adding from './pages/adding';
 import Owner from './pages/owner';
@@ -13,7 +12,6 @@ import Registration from './pages/registration';
 import Search from './pages/search';
 
 const App: FC = () => {
-    // const { isRegistered, user } = useAuth();
     const { userId, initialize } = useAuth();
 
     const { data: user, isLoading } = useGetUserById(userId);
