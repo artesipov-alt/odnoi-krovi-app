@@ -41,7 +41,7 @@ export const useAuth = (): UserAuth => {
             signinData = await signinMax({ appInitData: window.WebApp.initData });
         }
 
-        // signinData = await signinExtServ({ providerId: '248185030', providerName: 'telegram_bot' });
+        signinData = await signinExtServ({ providerId: '248185030', providerName: 'telegram_bot' });
 
         if (!signinData && isWebAppNotFind) {
             throw new Error('WebApp SDK не найден');

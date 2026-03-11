@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { updateUser } from 'api/apiServices/updateUser';
 import { queryClient } from 'api/queryClient';
 import Layout from 'components/Layout';
+import Loading from 'components/Loading';
 
 import styles from './Registration.module.less';
 
@@ -32,6 +33,8 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     const [phone, setPhone] = useState<Input>({ value: '' });
     const [email, setEmail] = useState<Input>({ value: '' });
     const [name, setName] = useState<Input>({ value: fullName });
+
+    const [isLoading, setIsLoading] = useState(true);
 
     const isValidEmail = () => email.value.match(emailRegexp);
 
@@ -102,6 +105,8 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
             return;
         }
 
+        setIsLoading(true);
+
         const { data, error } = await updateUser({
             id: userId,
             phone: phone.value,
@@ -111,6 +116,8 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
 
         if (!data || error) {
             toast.warn(error); // TODO ?
+
+            setIsLoading(false);
 
             return;
         }
@@ -194,6 +201,11 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
                         </a>
                     </p>
                 </div>
+                {isLoading && (
+                    <div className={styles.loading}>
+                        <Loading size={90} thickness={4} />
+                    </div>
+                )}
             </div>
         </Layout>
     );
