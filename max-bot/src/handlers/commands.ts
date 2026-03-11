@@ -35,7 +35,7 @@ const authUser = async (
 ): Promise<void> => {
   await usersApi.authUserViaService({
     xInternalKey: Bun.env.INTERNAL_MAX_BOT_SECRET,
-    messengerSignInBody: {
+    serviceSignInBody: {
       providerId: String(maxId),
       fullName,
       metaData: {
