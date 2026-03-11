@@ -4,17 +4,17 @@ import { FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
+import { useAuth } from './hooks/useAuth';
+// import { useTelegram } from './TelegramProvider';
+import { useGetUserById } from './hooks/useGetUserById';
 import Adding from './pages/adding';
 import Owner from './pages/owner';
 import Registration from './pages/registration';
 import Search from './pages/search';
-// import { useTelegram } from './TelegramProvider';
-import { useGetUserById } from './hooks/useGetUserById';
-import { useAuth } from './hooks/useAuth';
 
 const App: FC = () => {
     // const { isRegistered, user } = useAuth();
-    const { userId } = useAuth();
+    const { userId, initialize } = useAuth();
 
     const { data: user, isLoading } = useGetUserById(userId);
 
@@ -28,14 +28,17 @@ const App: FC = () => {
                 <Route path='/owner' element={<Owner userId={user.id} />} />
                 <Route path='/adding' element={<Adding userId={user.id} />} />
                 <Route path='/search/:id' element={<Search userId={user.id} />} />
-                <Route path='/registration' element={<Registration userId={user.id} fullName={user.fullName} />} />
+                <Route
+                    path='/registration'
+                    element={<Registration initialize={initialize} userId={user.id} fullName={user.fullName} />}
+                />
                 <Route
                     path='/'
                     element={
                         user.phone ? (
                             <Navigate to='/owner' />
                         ) : (
-                            <Registration userId={user.id} fullName={user.fullName} />
+                            <Registration initialize={initialize} userId={user.id} fullName={user.fullName} />
                         )
                     }
                 />

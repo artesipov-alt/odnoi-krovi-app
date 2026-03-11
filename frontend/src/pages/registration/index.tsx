@@ -7,14 +7,15 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { updateUser } from 'api/apiServices/updateUser';
+import { queryClient } from 'api/queryClient';
 import Layout from 'components/Layout';
 
 import styles from './Registration.module.less';
-import { queryClient } from '../../api/queryClient';
 
 type Props = {
     userId: string;
     fullName: string;
+    initialize: () => Promise<void>;
 };
 
 type Input = {
@@ -25,7 +26,7 @@ type Input = {
 const docsLink = 'https://однойкрови.рф/docs';
 const emailRegexp = /^\w+([+.-]?\w+)*@\w+([.-]?\w+)*(\.\w+)+$/i;
 
-const Registration: FC<Props> = ({ userId, fullName }) => {
+const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     const navigate = useNavigate();
 
     const [phone, setPhone] = useState<Input>({ value: '' });
@@ -115,6 +116,7 @@ const Registration: FC<Props> = ({ userId, fullName }) => {
         }
 
         await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
+        await initialize();
 
         navigate('/owner');
     };
