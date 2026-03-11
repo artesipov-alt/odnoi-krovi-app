@@ -255,10 +255,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     pets?.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length),
                 [styles.isCandidats]:
                     userData?.donorPreference &&
-                    pets?.some(
-                        ({ donorRestrictions }) =>
-                            !donorRestrictions?.warnFactors?.length && !donorRestrictions?.stopFactors?.length,
-                    ),
+                    pets?.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length),
             })}
         >
             {!userData?.donorPreference && (
@@ -296,10 +293,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </>
                 )}
             {userData?.donorPreference &&
-                pets?.some(
-                    ({ donorRestrictions }) =>
-                        !donorRestrictions?.warnFactors?.length && !donorRestrictions?.stopFactors?.length,
-                ) && (
+                pets?.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length) && (
                     <>
                         <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
                             <div className={styles.preferencesettings}>
