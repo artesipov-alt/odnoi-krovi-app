@@ -33,8 +33,6 @@ models/GendersList.ts
 models/HealthStatusesList.ts
 models/LivingConditionsList.ts
 models/LocationsList.ts
-models/MessengerSignInBody.ts
-models/MessengerSignInResult.ts
 models/MiniAppSignInBody.ts
 models/MiniAppSignInResult.ts
 models/PetAnalysis.ts
@@ -49,6 +47,8 @@ models/ReproductiveStatusesList.ts
 models/ResetUserResult.ts
 models/RestoreUserResult.ts
 models/RestrictionFactor.ts
+models/ServiceSignInBody.ts
+models/ServiceSignInResult.ts
 models/UpdateBloodRequestBody.ts
 models/UpdateBloodRequestResult.ts
 models/UpdatePetBody.ts

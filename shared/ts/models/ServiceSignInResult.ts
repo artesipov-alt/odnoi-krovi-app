@@ -16,57 +16,57 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface MiniAppSignInResult
+ * @interface ServiceSignInResult
  */
-export interface MiniAppSignInResult {
+export interface ServiceSignInResult {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof MiniAppSignInResult
+     * @memberof ServiceSignInResult
      */
     readonly $schema?: string;
     /**
      * Access токен для аутентификации
      * @type {string}
-     * @memberof MiniAppSignInResult
+     * @memberof ServiceSignInResult
      */
     accessToken?: string;
     /**
      * Время истечения токена
      * @type {string}
-     * @memberof MiniAppSignInResult
+     * @memberof ServiceSignInResult
      */
     expiresAt: string;
     /**
      * Тип токена
      * @type {string}
-     * @memberof MiniAppSignInResult
+     * @memberof ServiceSignInResult
      */
     tokenType: string;
     /**
      * ID пользователя на портале
      * @type {string}
-     * @memberof MiniAppSignInResult
+     * @memberof ServiceSignInResult
      */
     userId: string;
 }
 
 /**
- * Check if a given object implements the MiniAppSignInResult interface.
+ * Check if a given object implements the ServiceSignInResult interface.
  */
-export function instanceOfMiniAppSignInResult(value: object): value is MiniAppSignInResult {
+export function instanceOfServiceSignInResult(value: object): value is ServiceSignInResult {
     if (!('expiresAt' in value) || value['expiresAt'] === undefined) return false;
     if (!('tokenType' in value) || value['tokenType'] === undefined) return false;
     if (!('userId' in value) || value['userId'] === undefined) return false;
     return true;
 }
 
-export function MiniAppSignInResultFromJSON(json: any): MiniAppSignInResult {
-    return MiniAppSignInResultFromJSONTyped(json, false);
+export function ServiceSignInResultFromJSON(json: any): ServiceSignInResult {
+    return ServiceSignInResultFromJSONTyped(json, false);
 }
 
-export function MiniAppSignInResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): MiniAppSignInResult {
+export function ServiceSignInResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): ServiceSignInResult {
     if (json == null) {
         return json;
     }
@@ -81,11 +81,11 @@ export function MiniAppSignInResultFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function MiniAppSignInResultToJSON(json: any): MiniAppSignInResult {
-    return MiniAppSignInResultToJSONTyped(json, false);
+export function ServiceSignInResultToJSON(json: any): ServiceSignInResult {
+    return ServiceSignInResultToJSONTyped(json, false);
 }
 
-export function MiniAppSignInResultToJSONTyped(value?: Omit<MiniAppSignInResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ServiceSignInResultToJSONTyped(value?: Omit<ServiceSignInResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }

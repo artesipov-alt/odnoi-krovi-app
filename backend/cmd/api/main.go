@@ -124,7 +124,8 @@ func main() {
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
 
 		//Дополнительные сервисы для аунтификации
-		miniAppDataValidator := auth.NewAppValidator(os.Getenv("TG_BOT_TOKEN"), os.Getenv("MAX_BOT_TOKEN"))
+		// miniAppDataValidator := auth.NewAppValidator(os.Getenv("TG_BOT_TOKEN"), os.Getenv("MAX_BOT_TOKEN"))
+		miniAppDataValidator := auth.NewSimpleValidator()
 		tokenGenerator := auth.NewJWTGenerator(os.Getenv("JWT_SECRET_KEY"), "odnoi-krovi-backend", 24*time.Hour)
 
 		externalSignInHandler := authcmd.NewExternalSignInHandler(userRepo, partnerRepo, tokenGenerator, txManager)

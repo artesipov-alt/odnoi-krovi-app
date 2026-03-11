@@ -5,6 +5,22 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.3.12] - 2026-03-11
+
+### Изменено
+- **Рефакторинг валидации аутентификации и упрощение схемы партнера:**
+  - **Замена `MiniAppValidator` на `SimpleValidator` и удаление `ApiKeysValidator`:** Валидаторы для Telegram и Max теперь объединены в единый `SimpleValidator`. `ApiKeysValidator` был удален.
+  - **Удаление поля `provider_name` из схемы `Partner`:** Поле `provider_name` и связанный с ним код были удалены из схемы `Partner`, что упрощает управление партнерами.
+  - **Обновление обработчиков аутентификации:** Обработчики аутентификации были обновлены для использования нового унифицированного подхода к валидации.
+  - **Очистка неиспользуемого кода:** Удален неиспользуемый код и упрощено управление идентификаторами для повышения эффективности и читаемости.
+
+### Технические детали
+- В `internal/validators/` `telegram_validator.go` и `max_validator.go` были объединены в `simple_validator.go`. `api_key_validator.go` был удален.
+- В `ent/schema/partner.go` удалено поле `provider_name`.
+- В `internal/handlers/auth_handler.go` и `internal/services/auth_service.go` обновлена логика для использования `SimpleValidator`.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent после изменения схемы `Partner`.
+
+
 ## [3.3.6] - 2026-03-09
 
 ### Изменено

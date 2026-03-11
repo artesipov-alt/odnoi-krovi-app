@@ -9,12 +9,7 @@ import (
 )
 
 type MiniAppValidator interface {
-	ValidateMock(initData string) (providerID string, role string)
 	ValidateWebAppInitData(ctx context.Context, initData string, providerName authmodel.ProviderName) (*auth.WebAppInitData, error)
-}
-
-type ApiKeysValidator interface {
-	ValidateBySecret(ctx context.Context, id, providerName, apikey string) (providerID string, role string)
 }
 
 type TokenGenerator interface {

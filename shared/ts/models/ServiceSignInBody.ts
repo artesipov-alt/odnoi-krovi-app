@@ -16,43 +16,68 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface MiniAppSignInBody
+ * @interface ServiceSignInBody
  */
-export interface MiniAppSignInBody {
+export interface ServiceSignInBody {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof MiniAppSignInBody
+     * @memberof ServiceSignInBody
      */
     readonly $schema?: string;
     /**
-     * Зашифрованный токен бота для сверки
+     * Полное имя пользователя
      * @type {string}
-     * @memberof MiniAppSignInBody
+     * @memberof ServiceSignInBody
      */
-    appInitData: string;
+    fullName?: string;
     /**
      * Метаданные пользователя
      * @type {{ [key: string]: any; }}
-     * @memberof MiniAppSignInBody
+     * @memberof ServiceSignInBody
      */
     metaData?: { [key: string]: any; };
+    /**
+     * ID провайдера
+     * @type {string}
+     * @memberof ServiceSignInBody
+     */
+    providerId: string;
+    /**
+     * Имя провайдера
+     * @type {string}
+     * @memberof ServiceSignInBody
+     */
+    providerName: ServiceSignInBodyProviderNameEnum;
 }
 
+
 /**
- * Check if a given object implements the MiniAppSignInBody interface.
+ * @export
  */
-export function instanceOfMiniAppSignInBody(value: object): value is MiniAppSignInBody {
-    if (!('appInitData' in value) || value['appInitData'] === undefined) return false;
+export const ServiceSignInBodyProviderNameEnum = {
+    TelegramBot: 'telegram_bot',
+    MaxBot: 'max_bot',
+    Service: 'service'
+} as const;
+export type ServiceSignInBodyProviderNameEnum = typeof ServiceSignInBodyProviderNameEnum[keyof typeof ServiceSignInBodyProviderNameEnum];
+
+
+/**
+ * Check if a given object implements the ServiceSignInBody interface.
+ */
+export function instanceOfServiceSignInBody(value: object): value is ServiceSignInBody {
+    if (!('providerId' in value) || value['providerId'] === undefined) return false;
+    if (!('providerName' in value) || value['providerName'] === undefined) return false;
     return true;
 }
 
-export function MiniAppSignInBodyFromJSON(json: any): MiniAppSignInBody {
-    return MiniAppSignInBodyFromJSONTyped(json, false);
+export function ServiceSignInBodyFromJSON(json: any): ServiceSignInBody {
+    return ServiceSignInBodyFromJSONTyped(json, false);
 }
 
-export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): MiniAppSignInBody {
+export function ServiceSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ServiceSignInBody {
     if (json == null) {
         return json;
     }
@@ -60,16 +85,18 @@ export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: b
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'appInitData': json['appInitData'],
+        'fullName': json['fullName'] == null ? undefined : json['fullName'],
         'metaData': json['metaData'] == null ? undefined : json['metaData'],
+        'providerId': json['providerId'],
+        'providerName': json['providerName'],
     };
 }
 
-export function MiniAppSignInBodyToJSON(json: any): MiniAppSignInBody {
-    return MiniAppSignInBodyToJSONTyped(json, false);
+export function ServiceSignInBodyToJSON(json: any): ServiceSignInBody {
+    return ServiceSignInBodyToJSONTyped(json, false);
 }
 
-export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ServiceSignInBodyToJSONTyped(value?: Omit<ServiceSignInBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -77,8 +104,10 @@ export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$s
     return {
         
             ...value,
-        'appInitData': value['appInitData'],
+        'fullName': value['fullName'],
         'metaData': value['metaData'],
+        'providerId': value['providerId'],
+        'providerName': value['providerName'],
     };
 }
 
