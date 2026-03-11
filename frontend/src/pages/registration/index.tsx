@@ -34,7 +34,7 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     const [email, setEmail] = useState<Input>({ value: '' });
     const [name, setName] = useState<Input>({ value: fullName });
 
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const isValidEmail = () => email.value.match(emailRegexp);
 
