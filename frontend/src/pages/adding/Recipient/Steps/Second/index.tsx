@@ -27,6 +27,7 @@ type Props = {
     bloodComponentsDict: Dict[];
     desiredBloodGroups: string[];
     notifyOfSmallDonors: boolean;
+    includeUnknownBloodGroup: boolean;
     bloodGroupDict: BloodAndBreedGroupsDict;
     onConfirmButtonClick: (step: number) => void;
     onChangeBloodVolume: (volume: string) => void;
@@ -34,6 +35,7 @@ type Props = {
     onChangeNotifyOfSmallDonors: (isChecked: boolean) => void;
     onChangeDesiredBloodGroups: (bloodGroups: string[]) => void;
     onChangeBloodComponents: (bloodComponents: string[]) => void;
+    onChangeIncludeUnknownBloodGroup: (isChecked: boolean) => void;
 };
 
 const Second: FC<Props> = ({
@@ -52,8 +54,10 @@ const Second: FC<Props> = ({
     onChangeBloodVolume,
     onConfirmButtonClick,
     onChangeBloodComponents,
+    includeUnknownBloodGroup,
     onChangeDesiredBloodGroups,
     onChangeNotifyOfSmallDonors,
+    onChangeIncludeUnknownBloodGroup,
 }) => {
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(false);
 
@@ -135,6 +139,10 @@ const Second: FC<Props> = ({
         onChangeNotifyOfSmallDonors(isChecked);
     };
 
+    const onChangeUnknownBloodGroupSwitcher = (_, isChecked) => {
+        onChangeIncludeUnknownBloodGroup(isChecked);
+    };
+
     const onConfirmButtonClickHandler = () => {
         onConfirmButtonClick(2);
     };
@@ -146,39 +154,54 @@ const Second: FC<Props> = ({
     return (
         <>
             <FormItem title='Какую группу ищете?'>
-                <div className={styles.bloodGroups}>
-                    {bloodGroupDict[petType]?.map(({ label, value }) => {
-                        const isGroupChecked = desiredBloodGroups.includes(value);
+                <div>
+                    <div className={styles.bloodGroups}>
+                        {bloodGroupDict[petType]?.map(({ label, value }) => {
+                            const isGroupChecked = desiredBloodGroups.includes(value);
 
-                        return (
-                            <div
-                                key={value}
-                                onClick={onChangeDesiredBloodGroupHandler(value)}
-                                className={cn(styles.bloodItem, { [styles.checked]: isGroupChecked })}
-                            >
-                                <span>{label}</span>
-                                {isGroupChecked && value === bloodGroup && (
-                                    <div className={styles.lockIcon}>
-                                        <Lock />
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                            return (
+                                <div
+                                    key={value}
+                                    onClick={onChangeDesiredBloodGroupHandler(value)}
+                                    className={cn(styles.bloodItem, { [styles.checked]: isGroupChecked })}
+                                >
+                                    <span>{label}</span>
+                                    {isGroupChecked && value === bloodGroup && (
+                                        <div className={styles.lockIcon}>
+                                            <Lock />
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className={styles.unknownBloodGroup}>
+                        <div className={cn(styles.labelWrapper, { [styles.noMargin]: true })}>
+                            <p className={cn(styles.label, { [styles.noMargin]: true })}>
+                                Искать доноров с неизвестной группой
+                            </p>
+                            <Switch checked={includeUnknownBloodGroup} onChange={onChangeUnknownBloodGroupSwitcher} />
+                        </div>
+                        <p className={styles.donorDescr}>Определите группу донора перед переливанием в ветклинике</p>
+                    </div>
                 </div>
-                {((petType === PetType.CAT && desiredBloodGroups.length > 1) ||
-                    (petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === 'BLG-2')) && (
+                {((petType === PetType.CAT && (desiredBloodGroups.length > 1 || includeUnknownBloodGroup)) ||
+                    (petType === PetType.DOG &&
+                        (desiredBloodGroups.length > 1 || includeUnknownBloodGroup) &&
+                        `${bloodGroup}` === 'BLG-2')) && (
                     <Alert
                         className={cn(styles.alert, { [styles.isTopMargin]: true })}
                         text='Переливание неподходящей группы крови может быть ОПАСНО! Проконсультируйтесь с врачом!'
                     />
                 )}
-                {petType === PetType.DOG && desiredBloodGroups.length > 1 && `${bloodGroup}` === 'BLG-1' && (
-                    <Alert
-                        className={cn(styles.alert, { [styles.isTopMargin]: true })}
-                        text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу (DEA 1 +), чтобы не создавать дефицит для других собак.'
-                    />
-                )}
+                {petType === PetType.DOG &&
+                    (desiredBloodGroups.length > 1 || includeUnknownBloodGroup) &&
+                    `${bloodGroup}` === 'BLG-1' && (
+                        <Alert
+                            className={cn(styles.alert, { [styles.isTopMargin]: true })}
+                            text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу (DEA 1 +), чтобы не создавать дефицит для других собак.'
+                        />
+                    )}
             </FormItem>
             <FormItem title='Какие компоненты нужны?' subtitle='до 3 компонентов'>
                 <Multiselect

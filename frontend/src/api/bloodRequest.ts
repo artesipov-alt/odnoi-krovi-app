@@ -17,10 +17,12 @@ export type AddToPoolRequest = {
     petId: string;
     regions: number[];
     description?: string;
+    prioritySearch: boolean;
     bloodGroupNames: string[];
     bloodVolumeNeeded: number;
     bloodComponentIds: number[];
     smallPetsNotifyAllowed: boolean;
+    includeUnknownBloodGroup: boolean;
 };
 
 export type AddToPoolResponse = {
