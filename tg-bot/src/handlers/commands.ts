@@ -27,6 +27,7 @@ const authUser = async (
   await usersApi.authUserViaService({
     xInternalKey: Bun.env.INTERNAL_TG_BOT_SECRET,
     serviceSignInBody: {
+      providerName: "telegram_bot",
       providerId: String(telegramId),
       fullName,
       metaData: {
