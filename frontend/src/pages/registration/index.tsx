@@ -10,6 +10,7 @@ import { updateUser } from 'api/apiServices/updateUser';
 import Layout from 'components/Layout';
 
 import styles from './Registration.module.less';
+import { queryClient } from '../../api/queryClient';
 
 type Props = {
     userId: string;
@@ -112,6 +113,8 @@ const Registration: FC<Props> = ({ userId, fullName }) => {
 
             return;
         }
+
+        await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
 
         navigate('/owner');
     };
