@@ -17,6 +17,7 @@ type TelegramAuth = {
 
 type UserAuth = {
     userId: string;
+    initialize: () => Promise<void>;
 };
 
 export const useAuth = (): UserAuth => {
@@ -40,7 +41,7 @@ export const useAuth = (): UserAuth => {
             signinData = await signinMax({ appInitData: window.WebApp.initData });
         }
 
-        // signinData = await signinExtServ({ providerId: '248185030' });
+        // signinData = await signinExtServ({ providerId: '248185030', providerName: 'telegram_bot' });
 
         if (!signinData && isWebAppNotFind) {
             throw new Error('WebApp SDK не найден');
@@ -80,5 +81,5 @@ export const useAuth = (): UserAuth => {
         initialize();
     }, [initialize]);
 
-    return { userId };
+    return { userId, initialize };
 };

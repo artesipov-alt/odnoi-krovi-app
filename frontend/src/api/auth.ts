@@ -15,6 +15,7 @@ export type SigninResponse = {
 
 export type ExternalServiceRequest = {
     providerId: string;
+    providerName: string;
 };
 
 export interface IAuthApi {
