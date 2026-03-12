@@ -85,16 +85,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		DefaultStatus: http.StatusCreated,
 	}, h.AddPetToBloodRequestPool)
 
-	// // Получить список заявок на поиск крови
-	// huma.Register(api, huma.Operation{
-	// 	OperationID: "get-pets-from-blood-request-pool",
-	// 	Method:      http.MethodPost,
-	// 	Path:        "/v1/blood-request/pool/search",
-	// 	Summary:     "Получить список заявок на поиск крови",
-	// 	Description: "Возвращает список заявок по фильтрам",
-	// 	Tags:        []string{"blood-request-v1"},
-	// }, h.GetPetsFromBloodRequestPool)
-
 	// Получить заявку по ID
 	huma.Register(api, huma.Operation{
 		OperationID: "get-blood-request-by-id",
@@ -250,31 +240,6 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 		UpdatedAt: &result.UpdatedAt,
 	}}, nil
 }
-
-// func (h *BloodRequestHandler) GetPetsFromBloodRequestPool(ctx context.Context, input *struct {
-// 	Body dto.BloodSearchFilterRequest
-// }) (*dto.BloodRequestsResponse, error) {
-// 	slog.DebugContext(ctx, "getting pets from blood request pool", "filters", input.Body)
-// 	filters := make(map[string]any)
-// 	if input.Body.PetID != "" {
-// 		filters["pet_id"] = input.Body.PetID
-// 	}
-// 	if input.Body.Status != "" {
-// 		filters["status"] = input.Body.Status
-// 	}
-
-// 	requests, err := h.svc.ListRequests(ctx, input.Body.Limit, input.Body.Offset, filters)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	dtos := make([]dto.BloodSearchPetRequest, len(requests))
-// 	for i, req := range requests {
-// 		dtos[i] = mapBloodRequestToDTO(req)
-// 	}
-
-// 	return &dto.BloodRequestsResponse{Body: dtos}, nil
-// }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.GetBloodRequestByIDInput) (*dto.GetBloodRequestByIDOutput, error) {
 	bloodReq, err := h.getByIDHandler.Handle(ctx, input.ID)

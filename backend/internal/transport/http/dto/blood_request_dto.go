@@ -178,34 +178,6 @@ type DonorResponseResult struct {
 }
 
 // ============================================
-// List Blood Requests
-// ============================================
-
-// ListBloodRequestsInput представляет запрос на список заявок
-type ListBloodRequestsInput struct {
-	Body ListBloodRequestsFilter
-}
-
-// ListBloodRequestsFilter представляет фильтр для списка заявок
-type ListBloodRequestsFilter struct {
-	PetID  string             `json:"petId,omitempty" doc:"ID питомца для фильтрации"`
-	Status BloodRequestStatus `json:"status,omitempty" doc:"Статус заявки" enum:"active,closed,draft"`
-	Limit  int                `json:"limit,omitempty" doc:"Максимальное количество результатов" minimum:"1" maximum:"100"`
-	Offset int                `json:"offset,omitempty" doc:"Смещение для пагинации" minimum:"0"`
-}
-
-// ListBloodRequestsOutput представляет ответ со списком заявок
-type ListBloodRequestsOutput struct {
-	Body BloodRequestsList
-}
-
-// BloodRequestsList представляет список заявок
-type BloodRequestsList struct {
-	Items []BloodRequestDetail `json:"items" doc:"Список заявок"`
-	Total int                  `json:"total" doc:"Общее количество заявок"`
-}
-
-// ============================================
 // Common Types
 // ============================================
 

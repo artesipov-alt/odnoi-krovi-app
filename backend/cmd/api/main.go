@@ -206,6 +206,9 @@ func main() {
 			bloodListHandler,
 			fileStorage,
 		)
+		//TODO
+		donorHandler := transport.NewDonorHandler()
+
 		fileHandler := transport.NewFileHandler(
 			fileGetPresignedHandler,
 			fileConfirmUploadHandler,
@@ -221,6 +224,7 @@ func main() {
 		authHandler.Register(humapi)
 		userHandler.Register(humapi)
 		petHandler.Register(humapi)
+		donorHandler.Register(humapi)
 		bloodRequestHandler.Register(humapi)
 		fileHandler.Register(humapi)
 		referenceHandler.Register(humapi)
