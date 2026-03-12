@@ -5,6 +5,31 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.4.0] - 2026-03-12
+
+### Изменено
+- **Рефакторинг обработки заявок на кровь и удаление обработчика списка:**
+  - Удален неиспользуемый `bloodListHandler` и связанный с ним код.
+  - Файл `list_requests.go` переименован и перемещен в пакет `donor`.
+  - `ListRequestsHandler` обновлен для использования доменной модели донора и репозитория питомцев.
+  - Упрощена логика удаления заявок на кровь в обработчике удаления питомцев.
+  - Удален неиспользуемый `bloodrequest_service.go`.
+  - Интерфейс `BloodRequestRepository` обновлен для использования доменной модели донора.
+  - Добавлены новые определения доменной модели донора.
+  - `EntBloodRequestRepository` обновлен для использования новой доменной модели донора.
+  - `listHandler` удален из инициализации `BloodRequestHandler`.
+
+### Технические детали
+- Удален `bloodListHandler` из `internal/handlers/bloodsearch/query/list_requests_handler.go` и `internal/handlers/bloodsearch/query/query.go`.
+- `internal/handlers/bloodsearch/query/list_requests.go` переименован и перемещен в `internal/handlers/donor/query/list_requests.go`.
+- В `internal/handlers/donor/query/list_requests_handler.go` обновлена логика для использования `domain.Donor` и `pet.Repository`.
+- В `internal/handlers/pet/cmd/delete_handler.go` упрощена логика удаления связанных заявок на кровь.
+- Удален `internal/domain/bloodsearch/bloodrequest_service.go`.
+- В `internal/repositories/bloodsearch/blood_request_repository.go` обновлен интерфейс `BloodRequestRepository` для работы с `domain.Donor`.
+- В `internal/domain/donor/model.go` добавлены новые определения доменной модели донора.
+- В `internal/repositories/bloodsearch/ent_blood_request_repository.go` обновлена реализация для использования `domain.Donor`.
+- В `internal/handlers/bloodsearch/blood_search_handler.go` удален `listHandler` из инициализации.
+
 ## [3.3.13] - 2026-03-12
 
 ### Изменено

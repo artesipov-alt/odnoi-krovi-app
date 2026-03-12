@@ -16,60 +16,69 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface MiniAppSignInBody
+ * @interface MatchingDonor
  */
-export interface MiniAppSignInBody {
+export interface MatchingDonor {
     [key: string]: any | any;
     /**
-     * A URL to the JSON Schema for this object.
+     * Группа крови донора
      * @type {string}
-     * @memberof MiniAppSignInBody
+     * @memberof MatchingDonor
      */
-    readonly $schema?: string;
+    donorBloodGroup: string;
     /**
-     * Зашифрованный токен бота для сверки
+     * ID питомца донора
      * @type {string}
-     * @memberof MiniAppSignInBody
+     * @memberof MatchingDonor
      */
-    appInitData: string;
+    petId: string;
     /**
-     * Метаданные пользователя
-     * @type {{ [key: string]: any; }}
-     * @memberof MiniAppSignInBody
+     * Имя питомца донора
+     * @type {string}
+     * @memberof MatchingDonor
      */
-    metaData?: { [key: string]: any; };
+    petName: string;
+    /**
+     * Список URL фотографий донора
+     * @type {Array<string>}
+     * @memberof MatchingDonor
+     */
+    photoUrls?: Array<string>;
 }
 
 /**
- * Check if a given object implements the MiniAppSignInBody interface.
+ * Check if a given object implements the MatchingDonor interface.
  */
-export function instanceOfMiniAppSignInBody(value: object): value is MiniAppSignInBody {
-    if (!('appInitData' in value) || value['appInitData'] === undefined) return false;
+export function instanceOfMatchingDonor(value: object): value is MatchingDonor {
+    if (!('donorBloodGroup' in value) || value['donorBloodGroup'] === undefined) return false;
+    if (!('petId' in value) || value['petId'] === undefined) return false;
+    if (!('petName' in value) || value['petName'] === undefined) return false;
     return true;
 }
 
-export function MiniAppSignInBodyFromJSON(json: any): MiniAppSignInBody {
-    return MiniAppSignInBodyFromJSONTyped(json, false);
+export function MatchingDonorFromJSON(json: any): MatchingDonor {
+    return MatchingDonorFromJSONTyped(json, false);
 }
 
-export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): MiniAppSignInBody {
+export function MatchingDonorFromJSONTyped(json: any, ignoreDiscriminator: boolean): MatchingDonor {
     if (json == null) {
         return json;
     }
     return {
         
             ...json,
-        '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'appInitData': json['appInitData'],
-        'metaData': json['metaData'] == null ? undefined : json['metaData'],
+        'donorBloodGroup': json['donorBloodGroup'],
+        'petId': json['petId'],
+        'petName': json['petName'],
+        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
     };
 }
 
-export function MiniAppSignInBodyToJSON(json: any): MiniAppSignInBody {
-    return MiniAppSignInBodyToJSONTyped(json, false);
+export function MatchingDonorToJSON(json: any): MatchingDonor {
+    return MatchingDonorToJSONTyped(json, false);
 }
 
-export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function MatchingDonorToJSONTyped(value?: MatchingDonor | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -77,8 +86,10 @@ export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$s
     return {
         
             ...value,
-        'appInitData': value['appInitData'],
-        'metaData': value['metaData'],
+        'donorBloodGroup': value['donorBloodGroup'],
+        'petId': value['petId'],
+        'petName': value['petName'],
+        'photoUrls': value['photoUrls'],
     };
 }
 

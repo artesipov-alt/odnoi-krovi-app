@@ -13,46 +13,55 @@
  */
 
 import { mapValues } from '../runtime';
+import type { RecipientDetail } from './RecipientDetail';
+import {
+    RecipientDetailFromJSON,
+    RecipientDetailFromJSONTyped,
+    RecipientDetailToJSON,
+    RecipientDetailToJSONTyped,
+} from './RecipientDetail';
+
 /**
  * 
  * @export
- * @interface MiniAppSignInBody
+ * @interface RecipientsList
  */
-export interface MiniAppSignInBody {
+export interface RecipientsList {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof MiniAppSignInBody
+     * @memberof RecipientsList
      */
     readonly $schema?: string;
     /**
-     * Зашифрованный токен бота для сверки
-     * @type {string}
-     * @memberof MiniAppSignInBody
+     * Список реципиентов
+     * @type {Array<RecipientDetail>}
+     * @memberof RecipientsList
      */
-    appInitData: string;
+    items: Array<RecipientDetail>;
     /**
-     * Метаданные пользователя
-     * @type {{ [key: string]: any; }}
-     * @memberof MiniAppSignInBody
+     * Общее количество реципиентов
+     * @type {number}
+     * @memberof RecipientsList
      */
-    metaData?: { [key: string]: any; };
+    total: number;
 }
 
 /**
- * Check if a given object implements the MiniAppSignInBody interface.
+ * Check if a given object implements the RecipientsList interface.
  */
-export function instanceOfMiniAppSignInBody(value: object): value is MiniAppSignInBody {
-    if (!('appInitData' in value) || value['appInitData'] === undefined) return false;
+export function instanceOfRecipientsList(value: object): value is RecipientsList {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('total' in value) || value['total'] === undefined) return false;
     return true;
 }
 
-export function MiniAppSignInBodyFromJSON(json: any): MiniAppSignInBody {
-    return MiniAppSignInBodyFromJSONTyped(json, false);
+export function RecipientsListFromJSON(json: any): RecipientsList {
+    return RecipientsListFromJSONTyped(json, false);
 }
 
-export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): MiniAppSignInBody {
+export function RecipientsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): RecipientsList {
     if (json == null) {
         return json;
     }
@@ -60,16 +69,16 @@ export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: b
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'appInitData': json['appInitData'],
-        'metaData': json['metaData'] == null ? undefined : json['metaData'],
+        'items': ((json['items'] as Array<any>).map(RecipientDetailFromJSON)),
+        'total': json['total'],
     };
 }
 
-export function MiniAppSignInBodyToJSON(json: any): MiniAppSignInBody {
-    return MiniAppSignInBodyToJSONTyped(json, false);
+export function RecipientsListToJSON(json: any): RecipientsList {
+    return RecipientsListToJSONTyped(json, false);
 }
 
-export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function RecipientsListToJSONTyped(value?: Omit<RecipientsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -77,8 +86,8 @@ export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$s
     return {
         
             ...value,
-        'appInitData': value['appInitData'],
-        'metaData': value['metaData'],
+        'items': ((value['items'] as Array<any>).map(RecipientDetailToJSON)),
+        'total': value['total'],
     };
 }
 
