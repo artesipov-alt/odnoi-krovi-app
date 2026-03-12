@@ -4,10 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 )
@@ -30,6 +34,47 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 	return &EntBloodRequestRepository{
 		db: client,
 	}
+}
+
+// mapToRecipient maps ent.BloodSearchRequest to donormodel.Recipient
+func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, donors []*petmodel.Pet) *donormodel.Recipient {
+	if req == nil {
+		return nil
+	}
+
+	recipient := &donormodel.Recipient{
+		ID:                   req.ID,
+		PetID:                req.PetID,
+		BloodVolumeRemaining: req.BloodVolumeNeeded - req.BloodVolumeReserved,
+		PhotoURLs:            req.PhotoUrls,
+		PrioritySearch:       req.PrioritySearch,
+		Status:               string(req.Status),
+	}
+
+	if req.Edges.Pet != nil {
+		recipient.PetName = req.Edges.Pet.Name
+		if req.Edges.Pet.Edges.BloodGroupRef != nil {
+			recipient.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
+		}
+	}
+
+	// Find matching donors
+	var matching []donormodel.MatchingDonorReadModel
+	for _, donor := range donors {
+		if donor.BloodGroupName != nil {
+			if slices.Contains(req.BloodGroupNames, *donor.BloodGroupName) {
+				matching = append(matching, donormodel.MatchingDonorReadModel{
+					PetID:           donor.ID,
+					PetName:         donor.Name,
+					DonorBloodGroup: *donor.BloodGroupName,
+					PhotoURLs:       donor.PhotoURLs,
+				})
+			}
+		}
+	}
+	recipient.MatchingDonors = matching
+
+	return recipient
 }
 
 // bloodReqToDomainModel converts ENT BloodSearchRequest to domain BloodRequest
@@ -181,11 +226,61 @@ func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) List(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
-	// pquery := r.client(ctx).Pet.Query()
-	// pquery.Where(pet.UserID(userID)).
+func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequest, error) {
+	requests, err := r.client(ctx).BloodSearchRequest.Query().
+		Where(
+			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
+		).
+		WithResponses().
+		Limit(filters.Limit).
+		Offset(filters.Offset).
+		All(ctx)
 
-	return []*donormodel.Recipient{}, nil
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*bloodreqmodel.BloodRequest, len(requests))
+	for i, req := range requests {
+		result[i] = r.bloodReqToDomainModel(req)
+	}
+
+	return result, nil
+}
+
+// AdptiveList возвращает список заявок с фильтрацией и пагинацией
+func (r *EntBloodRequestRepository) AdptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+	var bloodgroups []any
+	for _, donor := range donors {
+		if donor.BloodGroupName != nil {
+			bloodgroups = append(bloodgroups, *donor.BloodGroupName)
+		}
+	}
+
+	requests, err := r.client(ctx).BloodSearchRequest.Query().
+		Where(
+			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
+			func(s *sql.Selector) {
+				s.Where(sqljson.ValueIn("blood_group_names", bloodgroups))
+			},
+		).
+		WithPet(func(pq *ent.PetQuery) {
+			pq.WithBloodGroupRef()
+		}).
+		Limit(filters.Limit).
+		Offset(filters.Offset).
+		All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*donormodel.Recipient, len(requests))
+	for i, req := range requests {
+		result[i] = r.mapToRecipient(req, donors)
+	}
+
+	return result, nil
 }
 
 // ExistsByPetID проверяет существование активной заявки для питомца

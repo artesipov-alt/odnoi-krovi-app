@@ -115,7 +115,7 @@ func (r *EntUserRepository) UpsertUserIdentity(ctx context.Context, userID strin
 	}
 
 	if metadata != nil && metadata.UTMData != nil {
-		metadataMap := make(map[string]interface{})
+		metadataMap := make(map[string]any)
 		metadataMap["utm_source"] = metadata.UTMData.Source
 		metadataMap["utm_medium"] = metadata.UTMData.Medium
 		metadataMap["utm_campaign"] = metadata.UTMData.Campaign

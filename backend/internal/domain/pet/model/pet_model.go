@@ -674,3 +674,14 @@ func (p *Pet) UpdateFrom(other *Pet) error {
 
 	return nil
 }
+
+// FilterDonors возвращает массив питомцев со статусом Donor
+func FilterDonors(pets []*Pet) []*Pet {
+	var donors []*Pet
+	for _, p := range pets {
+		if p.PetStatus == PetStatusDonor {
+			donors = append(donors, p)
+		}
+	}
+	return donors
+}

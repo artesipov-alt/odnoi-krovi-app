@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 type ListRequestsHandler struct {
@@ -36,7 +37,9 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		pets[i].CalculateDonorStatus()
 	}
 
-	requests, err := h.bloodRepo.List(ctx, userID, filters)
+	potentialDonors := petmodel.FilterDonors(pets)
+
+	requests, err := h.bloodRepo.AdptiveList(ctx, potentialDonors, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")
 	}

@@ -3,23 +3,24 @@ package bloodsearch
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
 type BloodRequestRepository interface {
 	// Create создает новую заявку на поиск крови
-	Create(ctx context.Context, req *model.BloodRequest) (*model.BloodRequest, error)
+	Create(ctx context.Context, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error)
 
 	// GetByID возвращает заявку по её идентификатору
-	GetByID(ctx context.Context, id string) (*model.BloodRequest, error)
+	GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error)
 
 	// GetByPetID возвращает заявку по идентификатору питомца
-	GetByPetID(ctx context.Context, petID string) (*model.BloodRequest, error)
+	GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequest, error)
 
 	// Update обновляет информацию о заявке
-	Update(ctx context.Context, id string, req *model.BloodRequest) (*model.BloodRequest, error)
+	Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
@@ -28,7 +29,9 @@ type BloodRequestRepository interface {
 	Delete(ctx context.Context, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
-	List(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error)
+	List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequest, error)
+
+	AdptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error)
 
 	// ExistsByPetID проверяет существование активной заявки для питомца
 	ExistsByPetID(ctx context.Context, petID string) (bool, error)
@@ -45,12 +48,12 @@ type BloodRequestRepository interface {
 
 // DonorResponseRepository определяет интерфейс для работы с откликами доноров
 type DonorResponseRepository interface {
-	CreateDonorResponse(ctx context.Context, resp *model.DonorResponse) (*model.DonorResponse, error)
-	GetDonorResponseByID(ctx context.Context, id string) (*model.DonorResponse, error)
+	CreateDonorResponse(ctx context.Context, resp *bloodreqmodel.DonorResponse) (*bloodreqmodel.DonorResponse, error)
+	GetDonorResponseByID(ctx context.Context, id string) (*bloodreqmodel.DonorResponse, error)
 	UpdateDonorResponseStatus(ctx context.Context, id, status string) error
 	DeleteDonorResponse(ctx context.Context, id string) error
-	GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*model.DonorResponse, error)
-	GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*model.DonorResponse, error)
+	GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*bloodreqmodel.DonorResponse, error)
+	GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*bloodreqmodel.DonorResponse, error)
 	ExistsByID(ctx context.Context, id string) (bool, error)
 	ExistsByRequestID(ctx context.Context, reqID string) (bool, error)
 	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
