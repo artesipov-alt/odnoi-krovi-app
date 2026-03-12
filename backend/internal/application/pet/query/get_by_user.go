@@ -49,7 +49,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			return nil, err
 		}
-
+		pets[i].RecalculateFactors(time.Now())
 		// Calculate status using domain method
 		hasActiveRequest := bloodReq != nil
 		hasResponses := hasActiveRequest && len(bloodReq.ResponseIDs) > 0

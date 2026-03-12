@@ -5,6 +5,16 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.3.13] - 2026-03-12
+
+### Изменено
+- **Пересчет факторов питомца в query-обработчиках:**
+  - Метод `RecalculateFactors` теперь вызывается для каждого питомца в обработчиках `GetByID` и `GetByUser` для обеспечения актуальности факторов.
+
+### Технические детали
+- В `internal/handlers/pet/query/get_by_id_handler.go` и `internal/handlers/pet/query/get_by_user_handler.go` добавлена логика вызова `pet.RecalculateFactors()` после получения питомца(ов) из репозитория.
+
+
 ## [3.3.12] - 2026-03-11
 
 ### Изменено

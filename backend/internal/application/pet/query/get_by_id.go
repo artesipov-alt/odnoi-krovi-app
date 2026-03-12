@@ -33,7 +33,7 @@ func (h *GetByIDHandler) Handle(ctx context.Context, petID string, opts pet.PetP
 	if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 		return nil, err
 	}
-
+	p.RecalculateFactors(time.Now())
 	// Calculate status using domain method
 	hasActiveRequest := bloodReq != nil
 	hasResponses := hasActiveRequest && len(bloodReq.ResponseIDs) > 0
