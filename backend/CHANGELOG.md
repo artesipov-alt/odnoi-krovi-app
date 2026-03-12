@@ -5,6 +5,27 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.4.4] - 2026-03-13
+
+### Добавлено
+- **Поля статуса поиска крови в модели питомца:** Добавлены новые поля `SearchingBlood` (булево) и `HaveBloodReqApplication` (булево) в модель `Pet` для отслеживания статуса поиска крови.
+- **Новое значение `RECIPIENT_LIST` в перечислении онбординга:** Добавлено новое значение `RECIPIENT_LIST` в перечисление `OnBoarding` для расширения возможностей онбординга.
+
+### Изменено
+- **Обновлена версия API до 3.4.4:** Версия API обновлена до 3.4.4.
+- **Обновлена схема Ent и сгенерированные файлы:** Схема Ent была обновлена для включения новых полей `searching_blood` и `have_blood_req_application` в сущность `Pet`, а также для добавления нового значения в перечисление `OnBoarding`. Соответствующие сгенерированные файлы Ent были обновлены.
+- **Расширены DTO и обработчики для поддержки новых полей и значения:** DTO `Pet` и связанные обработчики были обновлены для корректной обработки и использования новых полей и значения перечисления.
+
+### Технические детали
+- В `ent/schema/pet.go` добавлены поля `field.Bool("searching_blood").Default(false)` и `field.Bool("have_blood_req_application").Default(false)`.
+- В `ent/schema/bloodsearchrequest.go` (или соответствующем файле, где определено перечисление `OnBoarding`) добавлено значение `RECIPIENT_LIST` в перечисление.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent.
+- В `dto/pet.go` добавлены поля `SearchingBlood bool `json:"searchingBlood"` и `HaveBloodReqApplication bool `json:"haveBloodReqApplication"`.
+- В `dto/blood_search.go` обновлено перечисление `OnBoarding` для включения `RECIPIENT_LIST`.
+- В `internal/handlers/pet/query/get_by_id_handler.go` и `internal/handlers/pet/query/get_by_user_handler.go` обновлена логика для включения новых полей в ответы.
+- В конфигурации Huma API обновлена версия до 3.4.4.
+
+
 ## [3.4.3] - 2026-03-12
 
 ### Удалено

@@ -60,29 +60,31 @@ const (
 
 // Pet представляет доменную модель питомца
 type Pet struct {
-	ID                 string
-	Name               string
-	PetStatus          PetStatus
-	Type               PetType
-	WeightKg           float64
-	Gender             Gender
-	BirthDate          *time.Time
-	ChipNumber         string
-	PhotoURLs          []string
-	LivingCondition    LivingCondition
-	ReproductiveStatus ReproductiveStatus
-	OwnerID            string
-	BreedRefID         *string
-	BloodGroupName     *string
-	StopFactors        []string
-	WarnFactors        []string
-	Bonuses            []string
-	Health             *PetHealth
-	Treatments         *PetTreatment
-	Analyses           []*PetAnalysis
-	CreatedAt          *time.Time
-	UpdatedAt          *time.Time
-	DeletedAt          *time.Time
+	ID                      string
+	Name                    string
+	PetStatus               PetStatus
+	Type                    PetType
+	WeightKg                float64
+	Gender                  Gender
+	BirthDate               *time.Time
+	ChipNumber              string
+	PhotoURLs               []string
+	LivingCondition         LivingCondition
+	ReproductiveStatus      ReproductiveStatus
+	OwnerID                 string
+	BreedRefID              *string
+	BloodGroupName          *string
+	SearchingBlood          bool
+	HaveBloodReqApplication bool
+	StopFactors             []string
+	WarnFactors             []string
+	Bonuses                 []string
+	Health                  *PetHealth
+	Treatments              *PetTreatment
+	Analyses                []*PetAnalysis
+	CreatedAt               *time.Time
+	UpdatedAt               *time.Time
+	DeletedAt               *time.Time
 }
 
 // PetHealth представляет здоровье питомца
@@ -359,7 +361,7 @@ func (p *Pet) GetStopFactors(now time.Time) []FactorCode {
 	if code := p.checkDonationHistory(now); code != "" {
 		factors = append(factors, code)
 	}
-	if p.PetStatus == PetStatusRecipient || p.PetStatus == PetStatusBloodFound {
+	if p.SearchingBlood || p.HaveBloodReqApplication {
 		factors = append(factors, StopFactorCurrentlyRecipient)
 	}
 	return factors
@@ -584,7 +586,12 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 
 // CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
 func (p *Pet) CalculateDonorStatus() {
-	// Проверяем стоп-факторы
+	if p.SearchingBlood && !p.HaveBloodReqApplication {
+		p.PetStatus = PetStatusRecipient
+	}
+	if p.HaveBloodReqApplication {
+		p.PetStatus = PetStatusRecipient
+	}
 	if len(p.StopFactors) == 0 {
 		p.PetStatus = PetStatusDonor
 	}

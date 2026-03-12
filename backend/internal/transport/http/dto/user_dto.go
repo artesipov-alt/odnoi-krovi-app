@@ -72,7 +72,7 @@ type UpdateUserBody struct {
 	Phone           *string                `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
 	Email           *string                `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
 	AllowGeo        *bool                  `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
-	OnBoarding      *[]string              `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD"`
+	OnBoarding      *[]string              `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD,RECIPIENT_LIST"`
 	LocationID      *string                `json:"locationId,omitempty" doc:"ID локации"`
 	DonorPreference *DonorPreferenceParams `json:"donorPreference,omitempty" doc:"Параметры донора"`
 }

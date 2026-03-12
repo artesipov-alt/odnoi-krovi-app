@@ -90,9 +90,9 @@ func petToDomain(e *ent.Pet) *model.Pet {
 	}
 
 	if e.Edges.BloodSearchRequest != nil {
-		pet.PetStatus = model.PetStatusRecipient
+		pet.SearchingBlood = true
 		if len(e.Edges.BloodSearchRequest.Edges.Responses) > 0 {
-			pet.PetStatus = model.PetStatusBloodFound
+			pet.HaveBloodReqApplication = true
 		}
 	}
 
