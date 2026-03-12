@@ -85,8 +85,8 @@ type UpdateBloodRequestBody struct {
 	BloodComponentIDs        []string `json:"bloodComponentIds,omitempty" doc:"Список ID компонентов крови"`
 	OnBoarding               []string `json:"onBoarding,omitempty" doc:"Список пройденных онбордингов"`
 	Status                   *string  `json:"status,omitempty" doc:"Статус заявки"`
-	PrioritySearch           *bool    `json:"prioritySearch" doc:"Приоритетный поиск"`
-	IncludeUnknownBloodGroup *bool    `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
+	PrioritySearch           *bool    `json:"prioritySearch,omitempty" doc:"Приоритетный поиск"`
+	IncludeUnknownBloodGroup *bool    `json:"includeUnknownBloodGroup,omitempty" doc:"Включить неизвестную группу крови"`
 }
 
 // UpdateBloodRequestOutput представляет ответ на обновление заявки

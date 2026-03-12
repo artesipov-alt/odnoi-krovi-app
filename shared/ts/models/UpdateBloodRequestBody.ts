@@ -61,7 +61,7 @@ export interface UpdateBloodRequestBody {
      * @type {boolean}
      * @memberof UpdateBloodRequestBody
      */
-    includeUnknownBloodGroup: boolean;
+    includeUnknownBloodGroup?: boolean;
     /**
      * Список пройденных онбордингов
      * @type {Array<string>}
@@ -73,7 +73,7 @@ export interface UpdateBloodRequestBody {
      * @type {boolean}
      * @memberof UpdateBloodRequestBody
      */
-    prioritySearch: boolean;
+    prioritySearch?: boolean;
     /**
      * Список ID регионов
      * @type {Array<string>}
@@ -98,8 +98,6 @@ export interface UpdateBloodRequestBody {
  * Check if a given object implements the UpdateBloodRequestBody interface.
  */
 export function instanceOfUpdateBloodRequestBody(value: object): value is UpdateBloodRequestBody {
-    if (!('includeUnknownBloodGroup' in value) || value['includeUnknownBloodGroup'] === undefined) return false;
-    if (!('prioritySearch' in value) || value['prioritySearch'] === undefined) return false;
     return true;
 }
 
@@ -120,9 +118,9 @@ export function UpdateBloodRequestBodyFromJSONTyped(json: any, ignoreDiscriminat
         'bloodVolumeNeeded': json['bloodVolumeNeeded'] == null ? undefined : json['bloodVolumeNeeded'],
         'bloodVolumeReserved': json['bloodVolumeReserved'] == null ? undefined : json['bloodVolumeReserved'],
         'description': json['description'] == null ? undefined : json['description'],
-        'includeUnknownBloodGroup': json['includeUnknownBloodGroup'],
+        'includeUnknownBloodGroup': json['includeUnknownBloodGroup'] == null ? undefined : json['includeUnknownBloodGroup'],
         'onBoarding': json['onBoarding'] == null ? undefined : json['onBoarding'],
-        'prioritySearch': json['prioritySearch'],
+        'prioritySearch': json['prioritySearch'] == null ? undefined : json['prioritySearch'],
         'regions': json['regions'] == null ? undefined : json['regions'],
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'] == null ? undefined : json['smallPetsNotifyAllowed'],
         'status': json['status'] == null ? undefined : json['status'],
