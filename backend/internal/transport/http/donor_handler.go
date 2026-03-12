@@ -25,7 +25,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-recipients",
 		Method:      http.MethodGet,
-		Path:        "/v1/donor/{id}/recipients-list",
+		Path:        "/v1/donor/{id}/recipient-list",
 		Summary:     "Получить список заявок на поиск крови",
 		Description: "Возвращает список реципиентов по фильтрам",
 		Tags:        []string{"donor-v1"},
