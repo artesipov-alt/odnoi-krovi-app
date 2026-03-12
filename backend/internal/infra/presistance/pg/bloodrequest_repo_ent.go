@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"slices"
 
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -61,15 +59,23 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 	// Find matching donors
 	var matching []donormodel.MatchingDonorReadModel
 	for _, donor := range donors {
+		matched := false
 		if donor.BloodGroupName != nil {
-			if slices.Contains(req.BloodGroupNames, *donor.BloodGroupName) {
-				matching = append(matching, donormodel.MatchingDonorReadModel{
-					PetID:           donor.ID,
-					PetName:         donor.Name,
-					DonorBloodGroup: *donor.BloodGroupName,
-					PhotoURLs:       donor.PhotoURLs,
-				})
+			matched = slices.Contains(req.BloodGroupNames, *donor.BloodGroupName)
+		} else if req.IncludeUnknownBloodGroup {
+			matched = true
+		}
+		if matched {
+			donorBloodGroup := ""
+			if donor.BloodGroupName != nil {
+				donorBloodGroup = *donor.BloodGroupName
 			}
+			matching = append(matching, donormodel.MatchingDonorReadModel{
+				PetID:           donor.ID,
+				PetName:         donor.Name,
+				DonorBloodGroup: donorBloodGroup,
+				PhotoURLs:       donor.PhotoURLs,
+			})
 		}
 	}
 	recipient.MatchingDonors = matching
@@ -250,20 +256,8 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 
 // AdptiveList возвращает список заявок с фильтрацией и пагинацией
 func (r *EntBloodRequestRepository) AdptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
-	var bloodgroups []any
-	for _, donor := range donors {
-		if donor.BloodGroupName != nil {
-			bloodgroups = append(bloodgroups, *donor.BloodGroupName)
-		}
-	}
-
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
-		Where(
-			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
-			func(s *sql.Selector) {
-				s.Where(sqljson.ValueIn("blood_group_names", bloodgroups))
-			},
-		).
+		Where(bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status))).
 		WithPet(func(pq *ent.PetQuery) {
 			pq.WithBloodGroupRef()
 		}).
