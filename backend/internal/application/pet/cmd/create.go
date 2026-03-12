@@ -31,8 +31,9 @@ func (h *CreateHandler) Handle(ctx context.Context, userID string, petInput *mod
 		return nil, apperrors.ErrUserNotFound
 	}
 
-	// Set the owner ID for the pet
-	petInput.OwnerID = userID
+	if err := petInput.SetOwnerID(userID); err != nil {
+		return nil, apperrors.Internal(err, "failed to set owner ID")
+	}
 
 	newPet, err := h.petRepo.Create(ctx, petInput)
 	if err != nil {

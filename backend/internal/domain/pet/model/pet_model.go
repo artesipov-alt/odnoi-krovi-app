@@ -177,6 +177,14 @@ func NewPet(
 	return pet, nil
 }
 
+func (p *Pet) SetOwnerID(id string) error {
+	if id == "" {
+		return errors.New("owner ID cannot be empty")
+	}
+	p.OwnerID = id
+	return nil
+}
+
 // FactorCode — общий тип-код для факторов и предупреждений
 type FactorCode string
 

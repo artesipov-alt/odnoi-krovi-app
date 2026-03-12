@@ -32,10 +32,12 @@ func NewGetByUserHandler(
 }
 
 func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
-	_, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{})
+	exists, err := h.userRepo.ExistsByID(ctx, userID)
 	if err != nil {
-		// Репозиторий уже возвращает доменные ошибки
 		return nil, err
+	}
+	if !exists {
+		return nil, apperrors.ErrUserNotFound
 	}
 
 	pets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
