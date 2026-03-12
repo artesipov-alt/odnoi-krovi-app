@@ -5,6 +5,22 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.4.3] - 2026-03-12
+
+### Удалено
+- **Удаление интеграции с Telegram и факторов питомца:**
+  - Удалено поле `TelegramID` из модели пользователя и связанный обработчик запросов.
+  - Удалены поля `stop_factors` и `warn_factors` из модели питомца.
+  - Очищены связанные определения GraphQL и схемы API.
+
+### Технические детали
+- В `ent/schema/user.go` удалено поле `TelegramID`.
+- В `internal/handlers/user/query/get_by_telegram_id_handler.go` удален обработчик `GetByTelegramIDHandler`.
+- В `ent/schema/pet.go` удалены поля `stop_factors` и `warn_factors`.
+- Обновлены соответствующие GraphQL схемы и резолверы для удаления `TelegramID`, `stop_factors` и `warn_factors`.
+- Обновлены DTO и валидация для отражения этих изменений.
+
+
 ## [3.4.2] - 2026-03-12
 
 ### Изменено
