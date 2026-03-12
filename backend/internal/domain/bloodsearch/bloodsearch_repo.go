@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
@@ -27,7 +28,7 @@ type BloodRequestRepository interface {
 	Delete(ctx context.Context, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
-	List(ctx context.Context, limit, offset int, filters map[string]any) ([]*model.BloodRequest, error)
+	List(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error)
 
 	// ExistsByPetID проверяет существование активной заявки для питомца
 	ExistsByPetID(ctx context.Context, petID string) (bool, error)

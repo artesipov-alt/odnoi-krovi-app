@@ -33,16 +33,13 @@ func (h *DeleteHandler) Handle(ctx context.Context, petID string) error {
 	}
 
 	// Получаем все заявки на поиск крови, связанные с этим питомцем
-	bloodRequests, err := h.bloodReqRepo.List(ctx, 0, 0, map[string]any{"pet_id": petID})
+	bloodRequest, err := h.bloodReqRepo.GetByPetID(ctx, petID)
 	if err != nil {
 		return apperrors.Internal(err, "failed to list blood requests for pet")
 	}
 
-	// Удаляем каждую связанную заявку
-	for _, req := range bloodRequests {
-		if err := h.bloodReqRepo.Delete(ctx, req.ID); err != nil {
-			slog.WarnContext(ctx, "Failed to delete blood request for pet", "blood_request_id", req.ID, "pet_id", petID, "error", err)
-		}
+	if err := h.bloodReqRepo.Delete(ctx, bloodRequest.ID); err != nil {
+		slog.WarnContext(ctx, "Failed to delete blood request for pet", "blood_request_id", bloodRequest.ID, "pet_id", petID, "error", err)
 	}
 
 	if err := h.petWriteRepo.Delete(ctx, petID); err != nil {

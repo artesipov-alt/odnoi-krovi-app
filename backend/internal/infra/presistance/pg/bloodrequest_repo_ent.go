@@ -6,7 +6,8 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 )
@@ -32,7 +33,7 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 }
 
 // toDomainModel converts ENT BloodSearchRequest to domain BloodRequest
-func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest) *model.BloodRequest {
+func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodRequest {
 	if entReq == nil {
 		return nil
 	}
@@ -46,14 +47,14 @@ func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest
 		}
 	}
 
-	return &model.BloodRequest{
+	return &bloodreqmodel.BloodRequest{
 		ID:                       entReq.ID,
 		PetID:                    entReq.PetID,
 		BloodVolumeNeeded:        entReq.BloodVolumeNeeded,
 		BloodVolumeReserved:      entReq.BloodVolumeReserved,
 		Regions:                  entReq.Regions,
 		SmallPetsNotifyAllowed:   entReq.SmallPetsNotifyAllowed,
-		Status:                   model.BloodRequestStatus(entReq.Status),
+		Status:                   bloodreqmodel.BloodRequestStatus(entReq.Status),
 		Description:              entReq.Description,
 		PhotoURLs:                entReq.PhotoUrls,
 		BloodGroupNames:          entReq.BloodGroupNames,
@@ -69,7 +70,7 @@ func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest
 }
 
 // Create создает новую заявку на поиск крови
-func (r *EntBloodRequestRepository) Create(ctx context.Context, req *model.BloodRequest) (*model.BloodRequest, error) {
+func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error) {
 	newBloodReq, err := r.client(ctx).BloodSearchRequest.
 		Create().
 		SetPetID(req.PetID).
@@ -93,7 +94,7 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *model.Blood
 }
 
 // GetByID возвращает заявку по её идентификатору
-func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*model.BloodRequest, error) {
+func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error) {
 	reqQuery := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.ID(id)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
@@ -113,7 +114,7 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*mo
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
-func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*model.BloodRequest, error) {
+func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequest, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.PetID(petID)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
@@ -132,7 +133,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 }
 
 // Update обновляет информацию о заявке
-func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *model.BloodRequest) (*model.BloodRequest, error) {
+func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error) {
 	if req == nil {
 		return nil, errors.New("blood request cannot be nil")
 	}
@@ -180,35 +181,11 @@ func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) List(ctx context.Context, limit, offset int, filters map[string]any) ([]*model.BloodRequest, error) {
-	query := r.client(ctx).BloodSearchRequest.Query()
+func (r *EntBloodRequestRepository) List(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+	// pquery := r.client(ctx).Pet.Query()
+	// pquery.Where(pet.UserID(userID)).
 
-	if status, ok := filters["status"].(string); ok {
-		query = query.Where(bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(status)))
-	}
-
-	if petID, ok := filters["pet_id"].(string); ok {
-		query = query.Where(bloodsearchrequest.PetID(petID))
-	}
-
-	if limit > 0 {
-		query = query.Limit(limit)
-	}
-	if offset > 0 {
-		query = query.Offset(offset)
-	}
-
-	entReqs, err := query.All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]*model.BloodRequest, len(entReqs))
-	for i, entReq := range entReqs {
-		result[i] = r.toDomainModel(entReq)
-	}
-
-	return result, nil
+	return []*donormodel.Recipient{}, nil
 }
 
 // ExistsByPetID проверяет существование активной заявки для питомца

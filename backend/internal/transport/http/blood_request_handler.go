@@ -41,7 +41,6 @@ type BloodRequestHandler struct {
 	applyHandler        *bloodcmd.ApplyForRequestHandler
 	getByIDHandler      *bloodquery.GetByIDHandler
 	getByPetIDHandler   *bloodquery.GetByPetIDHandler
-	listHandler         *bloodquery.ListRequestsHandler
 	bloodRequestMapper  *mapper.BloodRequestMapper
 	storage             filestorage.Repository
 }
@@ -55,7 +54,7 @@ func NewBloodRequestHandler(
 	applyHandler *bloodcmd.ApplyForRequestHandler,
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
-	listHandler *bloodquery.ListRequestsHandler,
+
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
@@ -66,9 +65,9 @@ func NewBloodRequestHandler(
 		applyHandler:        applyHandler,
 		getByIDHandler:      getByIDHandler,
 		getByPetIDHandler:   getByPetIDHandler,
-		listHandler:         listHandler,
-		bloodRequestMapper:  mapper.NewBloodRequestMapper(storage),
-		storage:             storage,
+
+		bloodRequestMapper: mapper.NewBloodRequestMapper(storage),
+		storage:            storage,
 	}
 }
 
