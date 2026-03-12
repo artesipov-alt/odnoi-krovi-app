@@ -21,6 +21,7 @@ import (
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
+	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
@@ -139,6 +140,8 @@ func main() {
 		userGetByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
+		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo)
+
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
@@ -205,7 +208,7 @@ func main() {
 			fileStorage,
 		)
 		//TODO
-		donorHandler := transport.NewDonorHandler()
+		donorHandler := transport.NewDonorHandler(donorGetRecipientsListHandler)
 
 		fileHandler := transport.NewFileHandler(
 			fileGetPresignedHandler,

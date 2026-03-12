@@ -96,7 +96,7 @@ func petToDomain(e *ent.Pet) *model.Pet {
 
 	if e.Edges.BloodSearchRequest != nil {
 		pet.PetStatus = model.PetStatusRecipient
-		if e.Edges.BloodSearchRequest.Edges.Responses != nil {
+		if len(e.Edges.BloodSearchRequest.Edges.Responses) > 0 {
 			pet.PetStatus = model.PetStatusBloodFound
 		}
 	}
@@ -293,6 +293,11 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 			pquery = pquery.WithAnalyses()
 		}
 	}
+	if opts.WithBloodReq {
+		pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
+			bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
+		})
+	}
 
 	entPet, err := pquery.Only(ctx)
 	if err != nil {
@@ -322,11 +327,12 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 		if opts.WithAnalyses {
 			pquery = pquery.WithAnalyses()
 		}
-		if opts.WithBloodReq {
-			pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
-				bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
-			})
-		}
+	}
+
+	if opts.WithBloodReq {
+		pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
+			bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
+		})
 	}
 
 	pets, err := pquery.All(ctx)

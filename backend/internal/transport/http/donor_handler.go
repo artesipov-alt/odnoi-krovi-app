@@ -4,18 +4,22 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 
 	"github.com/danielgtaylor/huma/v2"
 )
 
 type DonorHandler struct {
-	recipientsListHandler *any
+	recipientsListHandler *query.ListRequestsHandler
 }
 
-// NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
-func NewDonorHandler() *DonorHandler {
-	return &DonorHandler{}
+// NewDonorHandler creates a new handler for donor-related operations.
+func NewDonorHandler(recipientsListHandler *query.ListRequestsHandler) *DonorHandler {
+	return &DonorHandler{
+		recipientsListHandler: recipientsListHandler,
+	}
 }
 
 // Register регистрирует маршруты заявок на поиск крови в Huma API
@@ -34,5 +38,38 @@ func (h *DonorHandler) Register(api huma.API) {
 }
 
 func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetRecipientsListInput) (*dto.ListRecipientsOutput, error) {
-	return &dto.ListRecipientsOutput{Body: dto.RecipientsList{}}, nil
+	result, err := h.recipientsListHandler.Handle(ctx, input.UserIDPath.ID, model.DonorPreloadFilter{
+		Status: string(input.Status),
+		Limit:  input.Limit,
+		Offset: input.Offset,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]dto.RecipientDetail, len(result))
+	for i, r := range result {
+		matching := make([]dto.MatchingDonor, len(r.MatchingDonors))
+		for j, md := range r.MatchingDonors {
+			matching[j] = dto.MatchingDonor{
+				PetID:           md.PetID,
+				PetName:         md.PetName,
+				DonorBloodGroup: md.DonorBloodGroup,
+				PhotoURLs:       md.PhotoURLs,
+			}
+		}
+		items[i] = dto.RecipientDetail{
+			ID:                   r.ID,
+			PetID:                r.PetID,
+			PetName:              r.PetName,
+			BloodVolumeRemaining: r.BloodVolumeRemaining,
+			PhotoURLs:            r.PhotoURLs,
+			BloodGroupName:       r.BloodGroupName,
+			PrioritySearch:       r.PrioritySearch,
+			Status:               dto.BloodRequestStatus(r.Status),
+			MatchingDonors:       matching,
+		}
+	}
+
+	return &dto.ListRecipientsOutput{Body: dto.RecipientsList{Items: items, Total: len(items)}}, nil
 }

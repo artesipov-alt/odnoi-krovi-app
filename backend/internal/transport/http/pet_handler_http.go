@@ -163,6 +163,7 @@ func (h *PetHandler) GetPet(ctx context.Context, input *dto.GetPetByIDInput) (*d
 		WithTreatments: input.WithTreatments,
 		WithAnalyses:   input.WithAnalysis,
 		WithBonuses:    input.WithBonuses,
+		WithBloodReq:   true,
 		WithAll:        input.WithAll,
 	}
 
@@ -183,6 +184,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 		WithTreatments: input.WithTreatments,
 		WithAnalyses:   input.WithAnalysis,
 		WithBonuses:    input.WithBonuses,
+		WithBloodReq:   true,
 		WithAll:        input.WithAll,
 	}
 
