@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -37,9 +36,6 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, petInput *model.P
 	if err := existingPet.UpdateFrom(petInput); err != nil {
 		return nil, apperrors.Internal(err, "failed to apply pet updates")
 	}
-
-	// Recalculate factors using aggregate method (encapsulates domain logic)
-	existingPet.RecalculateFactors(time.Now())
 
 	updatedPet, err := h.petWriteRepo.Update(ctx, id, existingPet)
 	if err != nil {

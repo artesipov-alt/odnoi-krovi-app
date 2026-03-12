@@ -231,18 +231,6 @@ func (_c *PetCreate) SetNillableReproductiveStatus(v *string) *PetCreate {
 	return _c
 }
 
-// SetStopFactors sets the "stop_factors" field.
-func (_c *PetCreate) SetStopFactors(v []string) *PetCreate {
-	_c.mutation.SetStopFactors(v)
-	return _c
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (_c *PetCreate) SetWarnFactors(v []string) *PetCreate {
-	_c.mutation.SetWarnFactors(v)
-	return _c
-}
-
 // SetBloodGroupID sets the "blood_group_id" field.
 func (_c *PetCreate) SetBloodGroupID(v string) *PetCreate {
 	_c.mutation.SetBloodGroupID(v)
@@ -558,14 +546,6 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.ReproductiveStatus(); ok {
 		_spec.SetField(pet.FieldReproductiveStatus, field.TypeString, value)
 		_node.ReproductiveStatus = value
-	}
-	if value, ok := _c.mutation.StopFactors(); ok {
-		_spec.SetField(pet.FieldStopFactors, field.TypeJSON, value)
-		_node.StopFactors = value
-	}
-	if value, ok := _c.mutation.WarnFactors(); ok {
-		_spec.SetField(pet.FieldWarnFactors, field.TypeJSON, value)
-		_node.WarnFactors = value
 	}
 	if value, ok := _c.mutation.Bonuses(); ok {
 		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
@@ -1014,42 +994,6 @@ func (u *PetUpsert) ClearReproductiveStatus() *PetUpsert {
 	return u
 }
 
-// SetStopFactors sets the "stop_factors" field.
-func (u *PetUpsert) SetStopFactors(v []string) *PetUpsert {
-	u.Set(pet.FieldStopFactors, v)
-	return u
-}
-
-// UpdateStopFactors sets the "stop_factors" field to the value that was provided on create.
-func (u *PetUpsert) UpdateStopFactors() *PetUpsert {
-	u.SetExcluded(pet.FieldStopFactors)
-	return u
-}
-
-// ClearStopFactors clears the value of the "stop_factors" field.
-func (u *PetUpsert) ClearStopFactors() *PetUpsert {
-	u.SetNull(pet.FieldStopFactors)
-	return u
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (u *PetUpsert) SetWarnFactors(v []string) *PetUpsert {
-	u.Set(pet.FieldWarnFactors, v)
-	return u
-}
-
-// UpdateWarnFactors sets the "warn_factors" field to the value that was provided on create.
-func (u *PetUpsert) UpdateWarnFactors() *PetUpsert {
-	u.SetExcluded(pet.FieldWarnFactors)
-	return u
-}
-
-// ClearWarnFactors clears the value of the "warn_factors" field.
-func (u *PetUpsert) ClearWarnFactors() *PetUpsert {
-	u.SetNull(pet.FieldWarnFactors)
-	return u
-}
-
 // SetBloodGroupID sets the "blood_group_id" field.
 func (u *PetUpsert) SetBloodGroupID(v string) *PetUpsert {
 	u.Set(pet.FieldBloodGroupID, v)
@@ -1435,48 +1379,6 @@ func (u *PetUpsertOne) UpdateReproductiveStatus() *PetUpsertOne {
 func (u *PetUpsertOne) ClearReproductiveStatus() *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
 		s.ClearReproductiveStatus()
-	})
-}
-
-// SetStopFactors sets the "stop_factors" field.
-func (u *PetUpsertOne) SetStopFactors(v []string) *PetUpsertOne {
-	return u.Update(func(s *PetUpsert) {
-		s.SetStopFactors(v)
-	})
-}
-
-// UpdateStopFactors sets the "stop_factors" field to the value that was provided on create.
-func (u *PetUpsertOne) UpdateStopFactors() *PetUpsertOne {
-	return u.Update(func(s *PetUpsert) {
-		s.UpdateStopFactors()
-	})
-}
-
-// ClearStopFactors clears the value of the "stop_factors" field.
-func (u *PetUpsertOne) ClearStopFactors() *PetUpsertOne {
-	return u.Update(func(s *PetUpsert) {
-		s.ClearStopFactors()
-	})
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (u *PetUpsertOne) SetWarnFactors(v []string) *PetUpsertOne {
-	return u.Update(func(s *PetUpsert) {
-		s.SetWarnFactors(v)
-	})
-}
-
-// UpdateWarnFactors sets the "warn_factors" field to the value that was provided on create.
-func (u *PetUpsertOne) UpdateWarnFactors() *PetUpsertOne {
-	return u.Update(func(s *PetUpsert) {
-		s.UpdateWarnFactors()
-	})
-}
-
-// ClearWarnFactors clears the value of the "warn_factors" field.
-func (u *PetUpsertOne) ClearWarnFactors() *PetUpsertOne {
-	return u.Update(func(s *PetUpsert) {
-		s.ClearWarnFactors()
 	})
 }
 
@@ -2038,48 +1940,6 @@ func (u *PetUpsertBulk) UpdateReproductiveStatus() *PetUpsertBulk {
 func (u *PetUpsertBulk) ClearReproductiveStatus() *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
 		s.ClearReproductiveStatus()
-	})
-}
-
-// SetStopFactors sets the "stop_factors" field.
-func (u *PetUpsertBulk) SetStopFactors(v []string) *PetUpsertBulk {
-	return u.Update(func(s *PetUpsert) {
-		s.SetStopFactors(v)
-	})
-}
-
-// UpdateStopFactors sets the "stop_factors" field to the value that was provided on create.
-func (u *PetUpsertBulk) UpdateStopFactors() *PetUpsertBulk {
-	return u.Update(func(s *PetUpsert) {
-		s.UpdateStopFactors()
-	})
-}
-
-// ClearStopFactors clears the value of the "stop_factors" field.
-func (u *PetUpsertBulk) ClearStopFactors() *PetUpsertBulk {
-	return u.Update(func(s *PetUpsert) {
-		s.ClearStopFactors()
-	})
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (u *PetUpsertBulk) SetWarnFactors(v []string) *PetUpsertBulk {
-	return u.Update(func(s *PetUpsert) {
-		s.SetWarnFactors(v)
-	})
-}
-
-// UpdateWarnFactors sets the "warn_factors" field to the value that was provided on create.
-func (u *PetUpsertBulk) UpdateWarnFactors() *PetUpsertBulk {
-	return u.Update(func(s *PetUpsert) {
-		s.UpdateWarnFactors()
-	})
-}
-
-// ClearWarnFactors clears the value of the "warn_factors" field.
-func (u *PetUpsertBulk) ClearWarnFactors() *PetUpsertBulk {
-	return u.Update(func(s *PetUpsert) {
-		s.ClearWarnFactors()
 	})
 }
 

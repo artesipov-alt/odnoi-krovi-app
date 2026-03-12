@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -34,9 +33,6 @@ func (h *CreateHandler) Handle(ctx context.Context, userID string, petInput *mod
 
 	// Set the owner ID for the pet
 	petInput.OwnerID = userID
-
-	// Recalculate factors using aggregate method (encapsulates domain logic)
-	petInput.RecalculateFactors(time.Now())
 
 	newPet, err := h.petRepo.Create(ctx, petInput)
 	if err != nil {

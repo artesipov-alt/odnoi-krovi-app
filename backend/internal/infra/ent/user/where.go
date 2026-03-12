@@ -80,11 +80,6 @@ func DeletedAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// TelegramID applies equality check predicate on the "telegram_id" field. It's identical to TelegramIDEQ.
-func TelegramID(v int64) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldTelegramID, v))
-}
-
 // FullName applies equality check predicate on the "full_name" field. It's identical to FullNameEQ.
 func FullName(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldFullName, v))
@@ -253,56 +248,6 @@ func DeletedAtIsNil() predicate.User {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.User {
 	return predicate.User(sql.FieldNotNull(FieldDeletedAt))
-}
-
-// TelegramIDEQ applies the EQ predicate on the "telegram_id" field.
-func TelegramIDEQ(v int64) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldTelegramID, v))
-}
-
-// TelegramIDNEQ applies the NEQ predicate on the "telegram_id" field.
-func TelegramIDNEQ(v int64) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldTelegramID, v))
-}
-
-// TelegramIDIn applies the In predicate on the "telegram_id" field.
-func TelegramIDIn(vs ...int64) predicate.User {
-	return predicate.User(sql.FieldIn(FieldTelegramID, vs...))
-}
-
-// TelegramIDNotIn applies the NotIn predicate on the "telegram_id" field.
-func TelegramIDNotIn(vs ...int64) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldTelegramID, vs...))
-}
-
-// TelegramIDGT applies the GT predicate on the "telegram_id" field.
-func TelegramIDGT(v int64) predicate.User {
-	return predicate.User(sql.FieldGT(FieldTelegramID, v))
-}
-
-// TelegramIDGTE applies the GTE predicate on the "telegram_id" field.
-func TelegramIDGTE(v int64) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldTelegramID, v))
-}
-
-// TelegramIDLT applies the LT predicate on the "telegram_id" field.
-func TelegramIDLT(v int64) predicate.User {
-	return predicate.User(sql.FieldLT(FieldTelegramID, v))
-}
-
-// TelegramIDLTE applies the LTE predicate on the "telegram_id" field.
-func TelegramIDLTE(v int64) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldTelegramID, v))
-}
-
-// TelegramIDIsNil applies the IsNil predicate on the "telegram_id" field.
-func TelegramIDIsNil() predicate.User {
-	return predicate.User(sql.FieldIsNull(FieldTelegramID))
-}
-
-// TelegramIDNotNil applies the NotNil predicate on the "telegram_id" field.
-func TelegramIDNotNil() predicate.User {
-	return predicate.User(sql.FieldNotNull(FieldTelegramID))
 }
 
 // FullNameEQ applies the EQ predicate on the "full_name" field.

@@ -35,6 +35,12 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		photoURLs = m.storage.BuildPhotoURLs(u.PhotoURLs, *u.CreatedAt)
 	}
 
+	// Map pets
+	var pets []dto.PetDetail
+	for _, p := range u.Pets {
+		pets = append(pets, m.petMapper.ToResponse(*p))
+	}
+
 	userDTO := dto.UserDetail{
 		ID:               u.ID,
 		TelegramID:       u.TelegramID,
@@ -48,6 +54,7 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		AllowGeo:         u.AllowGeo,
 		LocationID:       "",
 		Role:             string(u.Role),
+		Pets:             pets,
 		CreatedAt:        u.CreatedAt,
 		UpdatedAt:        u.UpdatedAt,
 		DeletedAt:        u.DeletedAt,

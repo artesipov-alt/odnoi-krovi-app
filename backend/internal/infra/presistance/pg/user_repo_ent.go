@@ -186,28 +186,6 @@ func (r *EntUserRepository) GetByID(ctx context.Context, id string, opts user.Us
 	return EntToModel(user), nil
 }
 
-// DEPRECATED
-func (r *EntUserRepository) GetByTelegram(ctx context.Context, telegramID int64, opts user.UserPreloadOptions) (*usermodel.User, error) {
-	quser := r.client(ctx).User.Query().Where(entuser.TelegramID(telegramID))
-
-	if opts.WithPets {
-		quser = quser.WithPets()
-	}
-	if opts.WithDonorPreference {
-		quser = quser.WithDonorPreference()
-	}
-
-	user, err := quser.Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, apperrors.ErrUserNotFound
-		}
-		return nil, apperrors.Internal(err, "failed to get user by Telegram ID")
-	}
-
-	return EntToModel(user), nil
-}
-
 func (r *EntUserRepository) GetByProvider(ctx context.Context, providerID string, providerName authmodel.ProviderName) (*authmodel.Identity, error) {
 	identity, err := r.client(ctx).UserIdentity.Query().
 		Where(useridentity.ProviderUserID(providerID),
@@ -608,7 +586,6 @@ func EntToModel(e *ent.User) *usermodel.User {
 
 	user := &usermodel.User{
 		ID:               e.ID,
-		TelegramID:       e.TelegramID,
 		FullName:         e.FullName,
 		Phone:            e.Phone,
 		Email:            e.Email,
@@ -619,7 +596,6 @@ func EntToModel(e *ent.User) *usermodel.User {
 		AllowGeo:         e.AllowGeo,
 		Role:             usermodel.UserRole(e.Role),
 		OriginSource:     e.OriginSource,
-		Pets:             nil, // Pets are loaded separately via WithPets
 		CreatedAt:        &e.CreatedAt,
 		UpdatedAt:        &e.UpdatedAt,
 		DeletedAt:        e.DeletedAt,

@@ -19,9 +19,6 @@ type Repository interface {
 	// GetByID возвращает пользователя по ID
 	GetByID(ctx context.Context, id string, opts UserPreloadOptions) (*usermodel.User, error)
 
-	// GetByTelegram возвращает пользователя по Telegram ID
-	GetByTelegram(ctx context.Context, telegramID int64, opts UserPreloadOptions) (*usermodel.User, error)
-
 	// GetByProviderID возвращает идентификатор пользователя по ID провайдера
 	GetByProvider(ctx context.Context, providerID string, providerName authmodel.ProviderName) (*authmodel.Identity, error)
 

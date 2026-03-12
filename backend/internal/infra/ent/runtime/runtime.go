@@ -321,31 +321,31 @@ func init() {
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// userDescFullName is the schema descriptor for full_name field.
-	userDescFullName := userFields[1].Descriptor()
+	userDescFullName := userFields[0].Descriptor()
 	// user.FullNameValidator is a validator for the "full_name" field. It is called by the builders before save.
 	user.FullNameValidator = userDescFullName.Validators[0].(func(string) error)
 	// userDescPhone is the schema descriptor for phone field.
-	userDescPhone := userFields[2].Descriptor()
+	userDescPhone := userFields[1].Descriptor()
 	// user.PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
 	user.PhoneValidator = userDescPhone.Validators[0].(func(string) error)
 	// userDescEmail is the schema descriptor for email field.
-	userDescEmail := userFields[3].Descriptor()
+	userDescEmail := userFields[2].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
 	// userDescOrganizationName is the schema descriptor for organization_name field.
-	userDescOrganizationName := userFields[4].Descriptor()
+	userDescOrganizationName := userFields[3].Descriptor()
 	// user.OrganizationNameValidator is a validator for the "organization_name" field. It is called by the builders before save.
 	user.OrganizationNameValidator = userDescOrganizationName.Validators[0].(func(string) error)
 	// userDescConsentPd is the schema descriptor for consent_pd field.
-	userDescConsentPd := userFields[5].Descriptor()
+	userDescConsentPd := userFields[4].Descriptor()
 	// user.DefaultConsentPd holds the default value on creation for the consent_pd field.
 	user.DefaultConsentPd = userDescConsentPd.Default.(bool)
 	// userDescAllowGeo is the schema descriptor for allow_geo field.
-	userDescAllowGeo := userFields[7].Descriptor()
+	userDescAllowGeo := userFields[6].Descriptor()
 	// user.DefaultAllowGeo holds the default value on creation for the allow_geo field.
 	user.DefaultAllowGeo = userDescAllowGeo.Default.(bool)
 	// userDescOriginSource is the schema descriptor for origin_source field.
-	userDescOriginSource := userFields[11].Descriptor()
+	userDescOriginSource := userFields[10].Descriptor()
 	// user.OriginSourceValidator is a validator for the "origin_source" field. It is called by the builders before save.
 	user.OriginSourceValidator = userDescOriginSource.Validators[0].(func(string) error)
 	// userDescID is the schema descriptor for id field.

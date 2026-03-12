@@ -5976,10 +5976,6 @@ type PetMutation struct {
 	appendphoto_urls            []string
 	living_condition            *string
 	reproductive_status         *string
-	stop_factors                *[]string
-	appendstop_factors          []string
-	warn_factors                *[]string
-	appendwarn_factors          []string
 	bonuses                     *[]string
 	appendbonuses               []string
 	clearedFields               map[string]struct{}
@@ -6879,136 +6875,6 @@ func (m *PetMutation) ResetReproductiveStatus() {
 	delete(m.clearedFields, pet.FieldReproductiveStatus)
 }
 
-// SetStopFactors sets the "stop_factors" field.
-func (m *PetMutation) SetStopFactors(s []string) {
-	m.stop_factors = &s
-	m.appendstop_factors = nil
-}
-
-// StopFactors returns the value of the "stop_factors" field in the mutation.
-func (m *PetMutation) StopFactors() (r []string, exists bool) {
-	v := m.stop_factors
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldStopFactors returns the old "stop_factors" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldStopFactors(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldStopFactors is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldStopFactors requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldStopFactors: %w", err)
-	}
-	return oldValue.StopFactors, nil
-}
-
-// AppendStopFactors adds s to the "stop_factors" field.
-func (m *PetMutation) AppendStopFactors(s []string) {
-	m.appendstop_factors = append(m.appendstop_factors, s...)
-}
-
-// AppendedStopFactors returns the list of values that were appended to the "stop_factors" field in this mutation.
-func (m *PetMutation) AppendedStopFactors() ([]string, bool) {
-	if len(m.appendstop_factors) == 0 {
-		return nil, false
-	}
-	return m.appendstop_factors, true
-}
-
-// ClearStopFactors clears the value of the "stop_factors" field.
-func (m *PetMutation) ClearStopFactors() {
-	m.stop_factors = nil
-	m.appendstop_factors = nil
-	m.clearedFields[pet.FieldStopFactors] = struct{}{}
-}
-
-// StopFactorsCleared returns if the "stop_factors" field was cleared in this mutation.
-func (m *PetMutation) StopFactorsCleared() bool {
-	_, ok := m.clearedFields[pet.FieldStopFactors]
-	return ok
-}
-
-// ResetStopFactors resets all changes to the "stop_factors" field.
-func (m *PetMutation) ResetStopFactors() {
-	m.stop_factors = nil
-	m.appendstop_factors = nil
-	delete(m.clearedFields, pet.FieldStopFactors)
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (m *PetMutation) SetWarnFactors(s []string) {
-	m.warn_factors = &s
-	m.appendwarn_factors = nil
-}
-
-// WarnFactors returns the value of the "warn_factors" field in the mutation.
-func (m *PetMutation) WarnFactors() (r []string, exists bool) {
-	v := m.warn_factors
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldWarnFactors returns the old "warn_factors" field's value of the Pet entity.
-// If the Pet object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldWarnFactors(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldWarnFactors is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldWarnFactors requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldWarnFactors: %w", err)
-	}
-	return oldValue.WarnFactors, nil
-}
-
-// AppendWarnFactors adds s to the "warn_factors" field.
-func (m *PetMutation) AppendWarnFactors(s []string) {
-	m.appendwarn_factors = append(m.appendwarn_factors, s...)
-}
-
-// AppendedWarnFactors returns the list of values that were appended to the "warn_factors" field in this mutation.
-func (m *PetMutation) AppendedWarnFactors() ([]string, bool) {
-	if len(m.appendwarn_factors) == 0 {
-		return nil, false
-	}
-	return m.appendwarn_factors, true
-}
-
-// ClearWarnFactors clears the value of the "warn_factors" field.
-func (m *PetMutation) ClearWarnFactors() {
-	m.warn_factors = nil
-	m.appendwarn_factors = nil
-	m.clearedFields[pet.FieldWarnFactors] = struct{}{}
-}
-
-// WarnFactorsCleared returns if the "warn_factors" field was cleared in this mutation.
-func (m *PetMutation) WarnFactorsCleared() bool {
-	_, ok := m.clearedFields[pet.FieldWarnFactors]
-	return ok
-}
-
-// ResetWarnFactors resets all changes to the "warn_factors" field.
-func (m *PetMutation) ResetWarnFactors() {
-	m.warn_factors = nil
-	m.appendwarn_factors = nil
-	delete(m.clearedFields, pet.FieldWarnFactors)
-}
-
 // SetBloodGroupID sets the "blood_group_id" field.
 func (m *PetMutation) SetBloodGroupID(s string) {
 	m.blood_group_ref = &s
@@ -7491,7 +7357,7 @@ func (m *PetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, pet.FieldCreatedAt)
 	}
@@ -7540,12 +7406,6 @@ func (m *PetMutation) Fields() []string {
 	if m.reproductive_status != nil {
 		fields = append(fields, pet.FieldReproductiveStatus)
 	}
-	if m.stop_factors != nil {
-		fields = append(fields, pet.FieldStopFactors)
-	}
-	if m.warn_factors != nil {
-		fields = append(fields, pet.FieldWarnFactors)
-	}
 	if m.blood_group_ref != nil {
 		fields = append(fields, pet.FieldBloodGroupID)
 	}
@@ -7592,10 +7452,6 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.LivingCondition()
 	case pet.FieldReproductiveStatus:
 		return m.ReproductiveStatus()
-	case pet.FieldStopFactors:
-		return m.StopFactors()
-	case pet.FieldWarnFactors:
-		return m.WarnFactors()
 	case pet.FieldBloodGroupID:
 		return m.BloodGroupID()
 	case pet.FieldBonuses:
@@ -7641,10 +7497,6 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldLivingCondition(ctx)
 	case pet.FieldReproductiveStatus:
 		return m.OldReproductiveStatus(ctx)
-	case pet.FieldStopFactors:
-		return m.OldStopFactors(ctx)
-	case pet.FieldWarnFactors:
-		return m.OldWarnFactors(ctx)
 	case pet.FieldBloodGroupID:
 		return m.OldBloodGroupID(ctx)
 	case pet.FieldBonuses:
@@ -7770,20 +7622,6 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReproductiveStatus(v)
 		return nil
-	case pet.FieldStopFactors:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetStopFactors(v)
-		return nil
-	case pet.FieldWarnFactors:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetWarnFactors(v)
-		return nil
 	case pet.FieldBloodGroupID:
 		v, ok := value.(string)
 		if !ok {
@@ -7879,12 +7717,6 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldReproductiveStatus) {
 		fields = append(fields, pet.FieldReproductiveStatus)
 	}
-	if m.FieldCleared(pet.FieldStopFactors) {
-		fields = append(fields, pet.FieldStopFactors)
-	}
-	if m.FieldCleared(pet.FieldWarnFactors) {
-		fields = append(fields, pet.FieldWarnFactors)
-	}
 	if m.FieldCleared(pet.FieldBloodGroupID) {
 		fields = append(fields, pet.FieldBloodGroupID)
 	}
@@ -7940,12 +7772,6 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldReproductiveStatus:
 		m.ClearReproductiveStatus()
-		return nil
-	case pet.FieldStopFactors:
-		m.ClearStopFactors()
-		return nil
-	case pet.FieldWarnFactors:
-		m.ClearWarnFactors()
 		return nil
 	case pet.FieldBloodGroupID:
 		m.ClearBloodGroupID()
@@ -8008,12 +7834,6 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldReproductiveStatus:
 		m.ResetReproductiveStatus()
-		return nil
-	case pet.FieldStopFactors:
-		m.ResetStopFactors()
-		return nil
-	case pet.FieldWarnFactors:
-		m.ResetWarnFactors()
 		return nil
 	case pet.FieldBloodGroupID:
 		m.ResetBloodGroupID()
@@ -10750,8 +10570,6 @@ type UserMutation struct {
 	created_at              *time.Time
 	updated_at              *time.Time
 	deleted_at              *time.Time
-	telegram_id             *int64
-	addtelegram_id          *int64
 	full_name               *string
 	phone                   *string
 	email                   *string
@@ -11006,76 +10824,6 @@ func (m *UserMutation) DeletedAtCleared() bool {
 func (m *UserMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	delete(m.clearedFields, user.FieldDeletedAt)
-}
-
-// SetTelegramID sets the "telegram_id" field.
-func (m *UserMutation) SetTelegramID(i int64) {
-	m.telegram_id = &i
-	m.addtelegram_id = nil
-}
-
-// TelegramID returns the value of the "telegram_id" field in the mutation.
-func (m *UserMutation) TelegramID() (r int64, exists bool) {
-	v := m.telegram_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldTelegramID returns the old "telegram_id" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldTelegramID(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTelegramID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTelegramID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTelegramID: %w", err)
-	}
-	return oldValue.TelegramID, nil
-}
-
-// AddTelegramID adds i to the "telegram_id" field.
-func (m *UserMutation) AddTelegramID(i int64) {
-	if m.addtelegram_id != nil {
-		*m.addtelegram_id += i
-	} else {
-		m.addtelegram_id = &i
-	}
-}
-
-// AddedTelegramID returns the value that was added to the "telegram_id" field in this mutation.
-func (m *UserMutation) AddedTelegramID() (r int64, exists bool) {
-	v := m.addtelegram_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearTelegramID clears the value of the "telegram_id" field.
-func (m *UserMutation) ClearTelegramID() {
-	m.telegram_id = nil
-	m.addtelegram_id = nil
-	m.clearedFields[user.FieldTelegramID] = struct{}{}
-}
-
-// TelegramIDCleared returns if the "telegram_id" field was cleared in this mutation.
-func (m *UserMutation) TelegramIDCleared() bool {
-	_, ok := m.clearedFields[user.FieldTelegramID]
-	return ok
-}
-
-// ResetTelegramID resets all changes to the "telegram_id" field.
-func (m *UserMutation) ResetTelegramID() {
-	m.telegram_id = nil
-	m.addtelegram_id = nil
-	delete(m.clearedFields, user.FieldTelegramID)
 }
 
 // SetFullName sets the "full_name" field.
@@ -11872,7 +11620,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -11881,9 +11629,6 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, user.FieldDeletedAt)
-	}
-	if m.telegram_id != nil {
-		fields = append(fields, user.FieldTelegramID)
 	}
 	if m.full_name != nil {
 		fields = append(fields, user.FieldFullName)
@@ -11932,8 +11677,6 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case user.FieldDeletedAt:
 		return m.DeletedAt()
-	case user.FieldTelegramID:
-		return m.TelegramID()
 	case user.FieldFullName:
 		return m.FullName()
 	case user.FieldPhone:
@@ -11971,8 +11714,6 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldUpdatedAt(ctx)
 	case user.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case user.FieldTelegramID:
-		return m.OldTelegramID(ctx)
 	case user.FieldFullName:
 		return m.OldFullName(ctx)
 	case user.FieldPhone:
@@ -12024,13 +11765,6 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
-		return nil
-	case user.FieldTelegramID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTelegramID(v)
 		return nil
 	case user.FieldFullName:
 		v, ok := value.(string)
@@ -12116,21 +11850,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserMutation) AddedFields() []string {
-	var fields []string
-	if m.addtelegram_id != nil {
-		fields = append(fields, user.FieldTelegramID)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case user.FieldTelegramID:
-		return m.AddedTelegramID()
-	}
 	return nil, false
 }
 
@@ -12139,13 +11865,6 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case user.FieldTelegramID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTelegramID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -12156,9 +11875,6 @@ func (m *UserMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(user.FieldDeletedAt) {
 		fields = append(fields, user.FieldDeletedAt)
-	}
-	if m.FieldCleared(user.FieldTelegramID) {
-		fields = append(fields, user.FieldTelegramID)
 	}
 	if m.FieldCleared(user.FieldFullName) {
 		fields = append(fields, user.FieldFullName)
@@ -12201,9 +11917,6 @@ func (m *UserMutation) ClearField(name string) error {
 	case user.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
-	case user.FieldTelegramID:
-		m.ClearTelegramID()
-		return nil
 	case user.FieldFullName:
 		m.ClearFullName()
 		return nil
@@ -12244,9 +11957,6 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldDeletedAt:
 		m.ResetDeletedAt()
-		return nil
-	case user.FieldTelegramID:
-		m.ResetTelegramID()
 		return nil
 	case user.FieldFullName:
 		m.ResetFullName()

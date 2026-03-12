@@ -105,7 +105,7 @@ type CreatePetBody struct {
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
 	Bonuses            []string          `json:"bonuses,omitempty" doc:"Дополнительная информация"`
-	PetStatus          string            `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient,none" example:"none"`
+	PetStatus          string            `json:"petStatus,omitempty" doc:"Статус питомца" enum:"donor,recipient,none" deprecated:"true" example:"none"`
 }
 
 // CreatePetOutput представляет ответ на создание питомца

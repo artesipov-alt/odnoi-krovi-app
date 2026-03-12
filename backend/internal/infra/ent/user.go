@@ -26,8 +26,6 @@ type User struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
-	// TelegramID holds the value of the "telegram_id" field.
-	TelegramID int64 `json:"telegram_id,omitempty"`
 	// FullName holds the value of the "full_name" field.
 	FullName string `json:"full_name,omitempty"`
 	// Phone holds the value of the "phone" field.
@@ -137,8 +135,6 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case user.FieldConsentPd, user.FieldAllowGeo:
 			values[i] = new(sql.NullBool)
-		case user.FieldTelegramID:
-			values[i] = new(sql.NullInt64)
 		case user.FieldID, user.FieldFullName, user.FieldPhone, user.FieldEmail, user.FieldOrganizationName, user.FieldLocationID, user.FieldRole, user.FieldOriginSource:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
@@ -182,12 +178,6 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
-			}
-		case user.FieldTelegramID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field telegram_id", values[i])
-			} else if value.Valid {
-				_m.TelegramID = value.Int64
 			}
 		case user.FieldFullName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -330,9 +320,6 @@ func (_m *User) String() string {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
-	builder.WriteString(", ")
-	builder.WriteString("telegram_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.TelegramID))
 	builder.WriteString(", ")
 	builder.WriteString("full_name=")
 	builder.WriteString(_m.FullName)

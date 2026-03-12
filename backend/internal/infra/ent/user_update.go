@@ -60,33 +60,6 @@ func (_u *UserUpdate) ClearDeletedAt() *UserUpdate {
 	return _u
 }
 
-// SetTelegramID sets the "telegram_id" field.
-func (_u *UserUpdate) SetTelegramID(v int64) *UserUpdate {
-	_u.mutation.ResetTelegramID()
-	_u.mutation.SetTelegramID(v)
-	return _u
-}
-
-// SetNillableTelegramID sets the "telegram_id" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableTelegramID(v *int64) *UserUpdate {
-	if v != nil {
-		_u.SetTelegramID(*v)
-	}
-	return _u
-}
-
-// AddTelegramID adds value to the "telegram_id" field.
-func (_u *UserUpdate) AddTelegramID(v int64) *UserUpdate {
-	_u.mutation.AddTelegramID(v)
-	return _u
-}
-
-// ClearTelegramID clears the value of the "telegram_id" field.
-func (_u *UserUpdate) ClearTelegramID() *UserUpdate {
-	_u.mutation.ClearTelegramID()
-	return _u
-}
-
 // SetFullName sets the "full_name" field.
 func (_u *UserUpdate) SetFullName(v string) *UserUpdate {
 	_u.mutation.SetFullName(v)
@@ -526,15 +499,6 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.TelegramID(); ok {
-		_spec.SetField(user.FieldTelegramID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedTelegramID(); ok {
-		_spec.AddField(user.FieldTelegramID, field.TypeInt64, value)
-	}
-	if _u.mutation.TelegramIDCleared() {
-		_spec.ClearField(user.FieldTelegramID, field.TypeInt64)
-	}
 	if value, ok := _u.mutation.FullName(); ok {
 		_spec.SetField(user.FieldFullName, field.TypeString, value)
 	}
@@ -832,33 +796,6 @@ func (_u *UserUpdateOne) SetNillableDeletedAt(v *time.Time) *UserUpdateOne {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (_u *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
 	_u.mutation.ClearDeletedAt()
-	return _u
-}
-
-// SetTelegramID sets the "telegram_id" field.
-func (_u *UserUpdateOne) SetTelegramID(v int64) *UserUpdateOne {
-	_u.mutation.ResetTelegramID()
-	_u.mutation.SetTelegramID(v)
-	return _u
-}
-
-// SetNillableTelegramID sets the "telegram_id" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableTelegramID(v *int64) *UserUpdateOne {
-	if v != nil {
-		_u.SetTelegramID(*v)
-	}
-	return _u
-}
-
-// AddTelegramID adds value to the "telegram_id" field.
-func (_u *UserUpdateOne) AddTelegramID(v int64) *UserUpdateOne {
-	_u.mutation.AddTelegramID(v)
-	return _u
-}
-
-// ClearTelegramID clears the value of the "telegram_id" field.
-func (_u *UserUpdateOne) ClearTelegramID() *UserUpdateOne {
-	_u.mutation.ClearTelegramID()
 	return _u
 }
 
@@ -1330,15 +1267,6 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.TelegramID(); ok {
-		_spec.SetField(user.FieldTelegramID, field.TypeInt64, value)
-	}
-	if value, ok := _u.mutation.AddedTelegramID(); ok {
-		_spec.AddField(user.FieldTelegramID, field.TypeInt64, value)
-	}
-	if _u.mutation.TelegramIDCleared() {
-		_spec.ClearField(user.FieldTelegramID, field.TypeInt64)
 	}
 	if value, ok := _u.mutation.FullName(); ok {
 		_spec.SetField(user.FieldFullName, field.TypeString, value)

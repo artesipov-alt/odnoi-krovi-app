@@ -16,15 +16,14 @@ import (
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	deleteHandler        *cmd.DeleteHandler
-	updateHandler        *cmd.UpdateHandler
-	resetHandler         *cmd.ResetHandler
-	restoreHandler       *cmd.RestoreHandler
-	getByIDHandler       *query.GetByIDHandler
-	getByTelegramHandler *query.GetByTelegramHandler
-	getDeletedHandler    *query.GetDeletedUsersHandler
-	userMapper           *mapper.UserMapper
-	storage              filestorage.Repository
+	deleteHandler     *cmd.DeleteHandler
+	updateHandler     *cmd.UpdateHandler
+	resetHandler      *cmd.ResetHandler
+	restoreHandler    *cmd.RestoreHandler
+	getByIDHandler    *query.GetByIDHandler
+	getDeletedHandler *query.GetDeletedUsersHandler
+	userMapper        *mapper.UserMapper
+	storage           filestorage.Repository
 }
 
 // NewUserHandler создает новый обработчик пользователей
@@ -34,20 +33,18 @@ func NewUserHandler(
 	resetHandler *cmd.ResetHandler,
 	restoreHandler *cmd.RestoreHandler,
 	getByIDHandler *query.GetByIDHandler,
-	getByTelegramHandler *query.GetByTelegramHandler,
 	getDeletedHandler *query.GetDeletedUsersHandler,
 	storage filestorage.Repository,
 ) *UserHandler {
 	return &UserHandler{
-		deleteHandler:        deleteHandler,
-		updateHandler:        updateHandler,
-		resetHandler:         resetHandler,
-		restoreHandler:       restoreHandler,
-		getByIDHandler:       getByIDHandler,
-		getByTelegramHandler: getByTelegramHandler,
-		getDeletedHandler:    getDeletedHandler,
-		userMapper:           mapper.NewUserMapper(mapper.NewPetMapper(storage), storage),
-		storage:              storage,
+		deleteHandler:     deleteHandler,
+		updateHandler:     updateHandler,
+		resetHandler:      resetHandler,
+		restoreHandler:    restoreHandler,
+		getByIDHandler:    getByIDHandler,
+		getDeletedHandler: getDeletedHandler,
+		userMapper:        mapper.NewUserMapper(mapper.NewPetMapper(storage), storage),
+		storage:           storage,
 	}
 }
 
@@ -72,17 +69,6 @@ func (h *UserHandler) Register(api huma.API) {
 		Description: "Обновляет информацию о пользователе",
 		Tags:        []string{"users-v1"},
 	}, h.UpdateUser)
-
-	// Получение пользователя по Telegram ID
-	huma.Register(api, huma.Operation{
-		OperationID: "get-user-by-telegram",
-		Method:      http.MethodGet,
-		Path:        "/v1/user/telegram/{id}",
-		Summary:     "Получение пользователя по Telegram ID",
-		Description: "Возвращает информацию о пользователе по его Telegram ID",
-		Deprecated:  true,
-		Tags:        []string{"users-v1"},
-	}, h.UserByTelegram)
 
 	// Удаление пользователя по ID
 	huma.Register(api, huma.Operation{
@@ -188,17 +174,6 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 		ID:        user.ID,
 		UpdatedAt: user.UpdatedAt,
 	}}, nil
-}
-
-func (h *UserHandler) UserByTelegram(ctx context.Context, input *dto.GetUserByTelegramInput) (*dto.GetUserByTelegramOutput, error) {
-	slog.DebugContext(ctx, "getting user by telegram", "telegram_id", input.ID)
-
-	usr, err := h.getByTelegramHandler.Handle(ctx, input.ID, input.WithPets, input.WithDonorPreference)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.GetUserByTelegramOutput{Body: h.userMapper.ToResponse(usr)}, nil
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.DeleteUserInput) (*dto.DeleteUserOutput, error) {

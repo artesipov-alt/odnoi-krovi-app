@@ -316,42 +316,6 @@ func (_u *PetUpdate) ClearReproductiveStatus() *PetUpdate {
 	return _u
 }
 
-// SetStopFactors sets the "stop_factors" field.
-func (_u *PetUpdate) SetStopFactors(v []string) *PetUpdate {
-	_u.mutation.SetStopFactors(v)
-	return _u
-}
-
-// AppendStopFactors appends value to the "stop_factors" field.
-func (_u *PetUpdate) AppendStopFactors(v []string) *PetUpdate {
-	_u.mutation.AppendStopFactors(v)
-	return _u
-}
-
-// ClearStopFactors clears the value of the "stop_factors" field.
-func (_u *PetUpdate) ClearStopFactors() *PetUpdate {
-	_u.mutation.ClearStopFactors()
-	return _u
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (_u *PetUpdate) SetWarnFactors(v []string) *PetUpdate {
-	_u.mutation.SetWarnFactors(v)
-	return _u
-}
-
-// AppendWarnFactors appends value to the "warn_factors" field.
-func (_u *PetUpdate) AppendWarnFactors(v []string) *PetUpdate {
-	_u.mutation.AppendWarnFactors(v)
-	return _u
-}
-
-// ClearWarnFactors clears the value of the "warn_factors" field.
-func (_u *PetUpdate) ClearWarnFactors() *PetUpdate {
-	_u.mutation.ClearWarnFactors()
-	return _u
-}
-
 // SetBloodGroupID sets the "blood_group_id" field.
 func (_u *PetUpdate) SetBloodGroupID(v string) *PetUpdate {
 	_u.mutation.SetBloodGroupID(v)
@@ -725,28 +689,6 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ReproductiveStatusCleared() {
 		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeString)
-	}
-	if value, ok := _u.mutation.StopFactors(); ok {
-		_spec.SetField(pet.FieldStopFactors, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedStopFactors(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldStopFactors, value)
-		})
-	}
-	if _u.mutation.StopFactorsCleared() {
-		_spec.ClearField(pet.FieldStopFactors, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.WarnFactors(); ok {
-		_spec.SetField(pet.FieldWarnFactors, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedWarnFactors(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldWarnFactors, value)
-		})
-	}
-	if _u.mutation.WarnFactorsCleared() {
-		_spec.ClearField(pet.FieldWarnFactors, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Bonuses(); ok {
 		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
@@ -1322,42 +1264,6 @@ func (_u *PetUpdateOne) ClearReproductiveStatus() *PetUpdateOne {
 	return _u
 }
 
-// SetStopFactors sets the "stop_factors" field.
-func (_u *PetUpdateOne) SetStopFactors(v []string) *PetUpdateOne {
-	_u.mutation.SetStopFactors(v)
-	return _u
-}
-
-// AppendStopFactors appends value to the "stop_factors" field.
-func (_u *PetUpdateOne) AppendStopFactors(v []string) *PetUpdateOne {
-	_u.mutation.AppendStopFactors(v)
-	return _u
-}
-
-// ClearStopFactors clears the value of the "stop_factors" field.
-func (_u *PetUpdateOne) ClearStopFactors() *PetUpdateOne {
-	_u.mutation.ClearStopFactors()
-	return _u
-}
-
-// SetWarnFactors sets the "warn_factors" field.
-func (_u *PetUpdateOne) SetWarnFactors(v []string) *PetUpdateOne {
-	_u.mutation.SetWarnFactors(v)
-	return _u
-}
-
-// AppendWarnFactors appends value to the "warn_factors" field.
-func (_u *PetUpdateOne) AppendWarnFactors(v []string) *PetUpdateOne {
-	_u.mutation.AppendWarnFactors(v)
-	return _u
-}
-
-// ClearWarnFactors clears the value of the "warn_factors" field.
-func (_u *PetUpdateOne) ClearWarnFactors() *PetUpdateOne {
-	_u.mutation.ClearWarnFactors()
-	return _u
-}
-
 // SetBloodGroupID sets the "blood_group_id" field.
 func (_u *PetUpdateOne) SetBloodGroupID(v string) *PetUpdateOne {
 	_u.mutation.SetBloodGroupID(v)
@@ -1761,28 +1667,6 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.ReproductiveStatusCleared() {
 		_spec.ClearField(pet.FieldReproductiveStatus, field.TypeString)
-	}
-	if value, ok := _u.mutation.StopFactors(); ok {
-		_spec.SetField(pet.FieldStopFactors, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedStopFactors(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldStopFactors, value)
-		})
-	}
-	if _u.mutation.StopFactorsCleared() {
-		_spec.ClearField(pet.FieldStopFactors, field.TypeJSON)
-	}
-	if value, ok := _u.mutation.WarnFactors(); ok {
-		_spec.SetField(pet.FieldWarnFactors, field.TypeJSON, value)
-	}
-	if value, ok := _u.mutation.AppendedWarnFactors(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldWarnFactors, value)
-		})
-	}
-	if _u.mutation.WarnFactorsCleared() {
-		_spec.ClearField(pet.FieldWarnFactors, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Bonuses(); ok {
 		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)

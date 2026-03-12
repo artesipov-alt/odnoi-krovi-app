@@ -5192,18 +5192,6 @@ type UserWhereInput struct {
 	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
 	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
-	// "telegram_id" field predicates.
-	TelegramID       *int64  `json:"telegramID,omitempty"`
-	TelegramIDNEQ    *int64  `json:"telegramIDNEQ,omitempty"`
-	TelegramIDIn     []int64 `json:"telegramIDIn,omitempty"`
-	TelegramIDNotIn  []int64 `json:"telegramIDNotIn,omitempty"`
-	TelegramIDGT     *int64  `json:"telegramIDGT,omitempty"`
-	TelegramIDGTE    *int64  `json:"telegramIDGTE,omitempty"`
-	TelegramIDLT     *int64  `json:"telegramIDLT,omitempty"`
-	TelegramIDLTE    *int64  `json:"telegramIDLTE,omitempty"`
-	TelegramIDIsNil  bool    `json:"telegramIDIsNil,omitempty"`
-	TelegramIDNotNil bool    `json:"telegramIDNotNil,omitempty"`
-
 	// "full_name" field predicates.
 	FullName             *string  `json:"fullName,omitempty"`
 	FullNameNEQ          *string  `json:"fullNameNEQ,omitempty"`
@@ -5519,36 +5507,6 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 	}
 	if i.DeletedAtNotNil {
 		predicates = append(predicates, user.DeletedAtNotNil())
-	}
-	if i.TelegramID != nil {
-		predicates = append(predicates, user.TelegramIDEQ(*i.TelegramID))
-	}
-	if i.TelegramIDNEQ != nil {
-		predicates = append(predicates, user.TelegramIDNEQ(*i.TelegramIDNEQ))
-	}
-	if len(i.TelegramIDIn) > 0 {
-		predicates = append(predicates, user.TelegramIDIn(i.TelegramIDIn...))
-	}
-	if len(i.TelegramIDNotIn) > 0 {
-		predicates = append(predicates, user.TelegramIDNotIn(i.TelegramIDNotIn...))
-	}
-	if i.TelegramIDGT != nil {
-		predicates = append(predicates, user.TelegramIDGT(*i.TelegramIDGT))
-	}
-	if i.TelegramIDGTE != nil {
-		predicates = append(predicates, user.TelegramIDGTE(*i.TelegramIDGTE))
-	}
-	if i.TelegramIDLT != nil {
-		predicates = append(predicates, user.TelegramIDLT(*i.TelegramIDLT))
-	}
-	if i.TelegramIDLTE != nil {
-		predicates = append(predicates, user.TelegramIDLTE(*i.TelegramIDLTE))
-	}
-	if i.TelegramIDIsNil {
-		predicates = append(predicates, user.TelegramIDIsNil())
-	}
-	if i.TelegramIDNotNil {
-		predicates = append(predicates, user.TelegramIDNotNil())
 	}
 	if i.FullName != nil {
 		predicates = append(predicates, user.FullNameEQ(*i.FullName))

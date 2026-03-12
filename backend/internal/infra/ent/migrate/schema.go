@@ -182,8 +182,6 @@ var (
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "living_condition", Type: field.TypeString, Nullable: true},
 		{Name: "reproductive_status", Type: field.TypeString, Nullable: true},
-		{Name: "stop_factors", Type: field.TypeJSON, Nullable: true},
-		{Name: "warn_factors", Type: field.TypeJSON, Nullable: true},
 		{Name: "bonuses", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_group_id", Type: field.TypeString, Nullable: true},
 		{Name: "breed_id", Type: field.TypeString, Nullable: true},
@@ -199,31 +197,31 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "pets_ref_bloodg_pets",
-				Columns:    []*schema.Column{PetsColumns[16]},
+				Columns:    []*schema.Column{PetsColumns[14]},
 				RefColumns: []*schema.Column{RefBloodgColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_ref_breeds_pets",
-				Columns:    []*schema.Column{PetsColumns[17]},
+				Columns:    []*schema.Column{PetsColumns[15]},
 				RefColumns: []*schema.Column{RefBreedsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_healths_owner",
-				Columns:    []*schema.Column{PetsColumns[18]},
+				Columns:    []*schema.Column{PetsColumns[16]},
 				RefColumns: []*schema.Column{PetHealthsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_treatments_owner",
-				Columns:    []*schema.Column{PetsColumns[19]},
+				Columns:    []*schema.Column{PetsColumns[17]},
 				RefColumns: []*schema.Column{PetTreatmentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_users_pets",
-				Columns:    []*schema.Column{PetsColumns[20]},
+				Columns:    []*schema.Column{PetsColumns[18]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -295,7 +293,6 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "telegram_id", Type: field.TypeInt64, Unique: true, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "phone", Type: field.TypeString, Unique: true, Nullable: true, Size: 20},
 		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true, Size: 255},
@@ -316,7 +313,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_ref_locations_users",
-				Columns:    []*schema.Column{UsersColumns[15]},
+				Columns:    []*schema.Column{UsersColumns[14]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

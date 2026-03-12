@@ -5,9 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqljson"
-
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -42,8 +39,6 @@ func petToDomain(e *ent.Pet) *model.Pet {
 		ReproductiveStatus: model.ReproductiveStatus(e.ReproductiveStatus),
 		OwnerID:            e.UserID,
 		BreedRefID:         e.BreedID,
-		StopFactors:        e.StopFactors,
-		WarnFactors:        e.WarnFactors,
 		Bonuses:            e.Bonuses,
 		CreatedAt:          &e.CreatedAt,
 		UpdatedAt:          &e.UpdatedAt,
@@ -146,8 +141,6 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 		SetType(string(petDomain.Type)).
 		SetWeightKg(petDomain.WeightKg).
 		SetUserID(petDomain.OwnerID).
-		SetStopFactors(petDomain.StopFactors).
-		SetWarnFactors(petDomain.WarnFactors).
 		SetBonuses(petDomain.Bonuses)
 
 	if petDomain.Gender != "" {
@@ -380,12 +373,6 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 	}
 	if petDomain.ReproductiveStatus != "" {
 		updater.SetReproductiveStatus(string(petDomain.ReproductiveStatus))
-	}
-	if petDomain.StopFactors != nil {
-		updater.SetStopFactors(petDomain.StopFactors)
-	}
-	if petDomain.WarnFactors != nil {
-		updater.SetWarnFactors(petDomain.WarnFactors)
 	}
 	if petDomain.BreedRefID != nil {
 		updater.SetBreedRefID(*petDomain.BreedRefID)
@@ -651,18 +638,18 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 }
 
 func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups []string) (int, error) {
-	count, err := r.client.Pet.Query().
-		Where(
-			func(s *sql.Selector) {
-				s.Where(sqljson.LenEQ(entpet.FieldStopFactors, 0))
-			},
-			entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
-		).
-		Count(ctx)
-	if err != nil {
-		return 0, apperrors.Internal(err, "failed to count suitable donors")
-	}
-	return count, nil
+	// count, err := r.client.Pet.Query().
+	// 	Where(
+	// 		func(s *sql.Selector) {
+	// 			s.Where(sqljson.LenEQ(entpet.FieldStopFactors, 0))
+	// 		},
+	// 		entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
+	// 	).
+	// 	Count(ctx)
+	// if err != nil {
+	// 	return 0, apperrors.Internal(err, "failed to count suitable donors")
+	// }
+	return 0, nil
 }
 
 // Exists проверяет существование питомца (алиас для ExistsByID для совместимости с PetReadRepository)

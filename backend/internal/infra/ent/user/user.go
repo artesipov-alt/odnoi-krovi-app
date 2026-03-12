@@ -24,8 +24,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldTelegramID holds the string denoting the telegram_id field in the database.
-	FieldTelegramID = "telegram_id"
 	// FieldFullName holds the string denoting the full_name field in the database.
 	FieldFullName = "full_name"
 	// FieldPhone holds the string denoting the phone field in the database.
@@ -103,7 +101,6 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldTelegramID,
 	FieldFullName,
 	FieldPhone,
 	FieldEmail,
@@ -206,11 +203,6 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
-}
-
-// ByTelegramID orders the results by the telegram_id field.
-func ByTelegramID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTelegramID, opts...).ToFunc()
 }
 
 // ByFullName orders the results by the full_name field.

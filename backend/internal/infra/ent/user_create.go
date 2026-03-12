@@ -70,20 +70,6 @@ func (_c *UserCreate) SetNillableDeletedAt(v *time.Time) *UserCreate {
 	return _c
 }
 
-// SetTelegramID sets the "telegram_id" field.
-func (_c *UserCreate) SetTelegramID(v int64) *UserCreate {
-	_c.mutation.SetTelegramID(v)
-	return _c
-}
-
-// SetNillableTelegramID sets the "telegram_id" field if the given value is not nil.
-func (_c *UserCreate) SetNillableTelegramID(v *int64) *UserCreate {
-	if v != nil {
-		_c.SetTelegramID(*v)
-	}
-	return _c
-}
-
 // SetFullName sets the "full_name" field.
 func (_c *UserCreate) SetFullName(v string) *UserCreate {
 	_c.mutation.SetFullName(v)
@@ -461,10 +447,6 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := _c.mutation.TelegramID(); ok {
-		_spec.SetField(user.FieldTelegramID, field.TypeInt64, value)
-		_node.TelegramID = value
-	}
 	if value, ok := _c.mutation.FullName(); ok {
 		_spec.SetField(user.FieldFullName, field.TypeString, value)
 		_node.FullName = value
@@ -665,30 +647,6 @@ func (u *UserUpsert) UpdateDeletedAt() *UserUpsert {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (u *UserUpsert) ClearDeletedAt() *UserUpsert {
 	u.SetNull(user.FieldDeletedAt)
-	return u
-}
-
-// SetTelegramID sets the "telegram_id" field.
-func (u *UserUpsert) SetTelegramID(v int64) *UserUpsert {
-	u.Set(user.FieldTelegramID, v)
-	return u
-}
-
-// UpdateTelegramID sets the "telegram_id" field to the value that was provided on create.
-func (u *UserUpsert) UpdateTelegramID() *UserUpsert {
-	u.SetExcluded(user.FieldTelegramID)
-	return u
-}
-
-// AddTelegramID adds v to the "telegram_id" field.
-func (u *UserUpsert) AddTelegramID(v int64) *UserUpsert {
-	u.Add(user.FieldTelegramID, v)
-	return u
-}
-
-// ClearTelegramID clears the value of the "telegram_id" field.
-func (u *UserUpsert) ClearTelegramID() *UserUpsert {
-	u.SetNull(user.FieldTelegramID)
 	return u
 }
 
@@ -955,34 +913,6 @@ func (u *UserUpsertOne) UpdateDeletedAt() *UserUpsertOne {
 func (u *UserUpsertOne) ClearDeletedAt() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearDeletedAt()
-	})
-}
-
-// SetTelegramID sets the "telegram_id" field.
-func (u *UserUpsertOne) SetTelegramID(v int64) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.SetTelegramID(v)
-	})
-}
-
-// AddTelegramID adds v to the "telegram_id" field.
-func (u *UserUpsertOne) AddTelegramID(v int64) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.AddTelegramID(v)
-	})
-}
-
-// UpdateTelegramID sets the "telegram_id" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateTelegramID() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateTelegramID()
-	})
-}
-
-// ClearTelegramID clears the value of the "telegram_id" field.
-func (u *UserUpsertOne) ClearTelegramID() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.ClearTelegramID()
 	})
 }
 
@@ -1446,34 +1376,6 @@ func (u *UserUpsertBulk) UpdateDeletedAt() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearDeletedAt() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearDeletedAt()
-	})
-}
-
-// SetTelegramID sets the "telegram_id" field.
-func (u *UserUpsertBulk) SetTelegramID(v int64) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.SetTelegramID(v)
-	})
-}
-
-// AddTelegramID adds v to the "telegram_id" field.
-func (u *UserUpsertBulk) AddTelegramID(v int64) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.AddTelegramID(v)
-	})
-}
-
-// UpdateTelegramID sets the "telegram_id" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateTelegramID() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateTelegramID()
-	})
-}
-
-// ClearTelegramID clears the value of the "telegram_id" field.
-func (u *UserUpsertBulk) ClearTelegramID() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.ClearTelegramID()
 	})
 }
 

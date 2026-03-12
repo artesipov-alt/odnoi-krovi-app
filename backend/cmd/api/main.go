@@ -137,7 +137,6 @@ func main() {
 		userResetHandler := usercmd.NewResetHandler(userRepo)
 		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)
 		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo)
-		userGetByTelegramHandler := userquery.NewGetByTelegramHandler(userRepo)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
 		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo)
@@ -183,7 +182,6 @@ func main() {
 			userResetHandler,
 			userRestoreHandler,
 			userGetByIDHandler,
-			userGetByTelegramHandler,
 			userGetDeletedHandler,
 			fileStorage,
 		)

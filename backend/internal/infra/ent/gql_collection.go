@@ -1065,16 +1065,6 @@ func (_q *PetQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, pet.FieldReproductiveStatus)
 				fieldSeen[pet.FieldReproductiveStatus] = struct{}{}
 			}
-		case "stopFactors":
-			if _, ok := fieldSeen[pet.FieldStopFactors]; !ok {
-				selectedFields = append(selectedFields, pet.FieldStopFactors)
-				fieldSeen[pet.FieldStopFactors] = struct{}{}
-			}
-		case "warnFactors":
-			if _, ok := fieldSeen[pet.FieldWarnFactors]; !ok {
-				selectedFields = append(selectedFields, pet.FieldWarnFactors)
-				fieldSeen[pet.FieldWarnFactors] = struct{}{}
-			}
 		case "bloodGroupID":
 			if _, ok := fieldSeen[pet.FieldBloodGroupID]; !ok {
 				selectedFields = append(selectedFields, pet.FieldBloodGroupID)
@@ -1559,11 +1549,6 @@ func (_q *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			if _, ok := fieldSeen[user.FieldDeletedAt]; !ok {
 				selectedFields = append(selectedFields, user.FieldDeletedAt)
 				fieldSeen[user.FieldDeletedAt] = struct{}{}
-			}
-		case "telegramID":
-			if _, ok := fieldSeen[user.FieldTelegramID]; !ok {
-				selectedFields = append(selectedFields, user.FieldTelegramID)
-				fieldSeen[user.FieldTelegramID] = struct{}{}
 			}
 		case "fullName":
 			if _, ok := fieldSeen[user.FieldFullName]; !ok {
