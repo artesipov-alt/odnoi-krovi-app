@@ -14,6 +14,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -31,6 +32,7 @@ func petToDomain(e *ent.Pet) *model.Pet {
 		ID:                 e.ID,
 		Name:               e.Name,
 		Type:               model.PetType(e.Type),
+		PetStatus:          model.PetStatusNone,
 		WeightKg:           e.WeightKg,
 		Gender:             model.Gender(e.Gender),
 		BirthDate:          e.BirthDate,
@@ -89,6 +91,13 @@ func petToDomain(e *ent.Pet) *model.Pet {
 				AnalysisType: string(a.AnalysisType),
 				AnalysisDate: a.AnalysisDate,
 			}
+		}
+	}
+
+	if e.Edges.BloodSearchRequest != nil {
+		pet.PetStatus = model.PetStatusRecipient
+		if e.Edges.BloodSearchRequest.Edges.Responses != nil {
+			pet.PetStatus = model.PetStatusBloodFound
 		}
 	}
 
@@ -312,6 +321,11 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 		}
 		if opts.WithAnalyses {
 			pquery = pquery.WithAnalyses()
+		}
+		if opts.WithBloodReq {
+			pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
+				bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
+			})
 		}
 	}
 

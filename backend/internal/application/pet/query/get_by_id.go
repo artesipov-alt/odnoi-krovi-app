@@ -2,10 +2,8 @@ package query
 
 import (
 	"context"
-	"errors"
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -29,15 +27,8 @@ func (h *GetByIDHandler) Handle(ctx context.Context, petID string, opts pet.PetP
 		return nil, err
 	}
 
-	bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, petID)
-	if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-		return nil, err
-	}
 	p.RecalculateFactors(time.Now())
-	// Calculate status using domain method
-	hasActiveRequest := bloodReq != nil
-	hasResponses := hasActiveRequest && len(bloodReq.ResponseIDs) > 0
-	p.PetStatus = p.CalculateStatus(time.Now(), hasActiveRequest, hasResponses)
+	p.CalculateDonorStatus()
 
 	return p, nil
 }

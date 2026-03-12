@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -22,6 +23,19 @@ func NewListRequestsHandler(bloodRepo bloodsearch.BloodRequestRepository, petRep
 }
 
 func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
+		WithAll:      true,
+		WithBloodReq: true,
+	})
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get pets")
+	}
+
+	for i, _ := range pets {
+		pets[i].RecalculateFactors(time.Now())
+		pets[i].CalculateDonorStatus()
+	}
+
 	requests, err := h.bloodRepo.List(ctx, userID, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")

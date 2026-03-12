@@ -359,6 +359,9 @@ func (p *Pet) GetStopFactors(now time.Time) []FactorCode {
 	if code := p.checkDonationHistory(now); code != "" {
 		factors = append(factors, code)
 	}
+	if p.PetStatus == PetStatusRecipient || p.PetStatus == PetStatusBloodFound {
+		factors = append(factors, StopFactorCurrentlyRecipient)
+	}
 	return factors
 }
 
@@ -579,153 +582,24 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 	return ""
 }
 
-// IsStaticStopFactor проверяет, является ли фактор статическим (хранится в БД)
-func IsStaticStopFactor(code FactorCode) bool {
-	switch code {
-	case StopFactorNoPhoto,
-		StopFactorNoInfectionVaccination,
-		StopFactorNoRabiesVaccination,
-		StopFactorNoDeworming,
-		StopFactorNoEctoparasiteTreatment,
-		StopFactorHasDiseases,
-		StopFactorTransfused:
-		return true
-	default:
-		return false
-	}
-}
-
-// IsDynamicStopFactor проверяет, является ли фактор динамическим (вычисляется на лету)
-func IsDynamicStopFactor(code FactorCode) bool {
-	return !IsStaticStopFactor(code)
-}
-
-// GetStaticStopFactors возвращает только статические стоп-факторы (для сохранения в БД)
-func (p *Pet) GetStaticStopFactors() []FactorCode {
-	var factors []FactorCode
-
-	if code := p.checkPhoto(); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkNoInfectionVaccination(); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkNoRabiesVaccination(); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkNoDeworming(); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkNoEctoparasiteTreatment(); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkStopHealth(); code != "" {
-		factors = append(factors, code)
-	}
-
-	return factors
-}
-
-// GetDynamicStopFactors возвращает только динамические стоп-факторы (зависят от времени)
-func (p *Pet) GetDynamicStopFactors(now time.Time) []FactorCode {
-	var factors []FactorCode
-
-	if code := p.checkVaccinationExpired(now); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkVaccinationTooRecent(now); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkDewormingExpired(now); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkEctoparasiteTreatmentExpired(now); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkStopAge(now); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkReproductiveStatus(); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkDonationHistory(now); code != "" {
-		factors = append(factors, code)
-	}
-
-	return factors
-}
-
-// ActualStopFactors возвращает полный список стоп-факторов (статические + динамические + от активной заявки)
-func (p *Pet) ActualStopFactors(now time.Time, hasActiveRequest bool) []FactorCode {
-	// Статические факторы (из БД)
-	factors := make([]FactorCode, 0, len(p.StopFactors))
-	for _, sf := range p.StopFactors {
-		factors = append(factors, FactorCode(sf))
-	}
-
-	// Динамические факторы (вычисляются на лету)
-	dynamicFactors := p.GetDynamicStopFactors(now)
-	factors = append(factors, dynamicFactors...)
-
-	// Фактор от активной заявки
-	if hasActiveRequest {
-		factors = append(factors, StopFactorCurrentlyRecipient)
-	}
-
-	return factors
-}
-
-// CalculateStatus вычисляет статус питомца на основе стоп-факторов и активной заявки
-func (p *Pet) CalculateStatus(now time.Time, hasActiveRequest bool, hasResponses bool) PetStatus {
-	// Если есть активная заявка с откликами - кровь найдена
-	if hasActiveRequest && hasResponses {
-		return PetStatusBloodFound
-	}
-
-	// Если есть активная заявка без откликов - реципиент
-	if hasActiveRequest {
-		return PetStatusRecipient
-	}
-
+// CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
+func (p *Pet) CalculateDonorStatus() {
 	// Проверяем стоп-факторы
-	stopFactors := p.ActualStopFactors(now, false)
-	if len(stopFactors) > 0 {
-		return PetStatusNone
+	if len(p.StopFactors) == 0 {
+		p.PetStatus = PetStatusDonor
 	}
-
-	// Нет стоп-факторов - может быть донором
-	return PetStatusDonor
 }
 
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
 // Этот метод инкапсулирует логику обновления факторов внутри агрегата
+// RecalculateFactors пересчитывает стоп-факторы и факторы-предупреждения
 func (p *Pet) RecalculateFactors(now time.Time) {
-	// Обновляем статические факторы
-	staticFactors := p.GetStaticStopFactors()
-	p.StopFactors = make([]string, len(staticFactors))
-	for i, f := range staticFactors {
-		p.StopFactors[i] = string(f)
-	}
-
-	// Обновляем факторы-предупреждения
-	warnFactors := p.GetWarnFactors(now)
-	p.WarnFactors = make([]string, len(warnFactors))
-	for i, f := range warnFactors {
-		p.WarnFactors[i] = string(f)
-	}
-}
-
-// UpdateStopFactors обновляет только стоп-факторы на основе текущего состояния агрегата
-func (p *Pet) UpdateStopFactors() {
-	stopFactors := p.GetStaticStopFactors()
+	stopFactors := p.GetStopFactors(now)
 	p.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {
 		p.StopFactors[i] = string(f)
 	}
-}
 
-// UpdateWarnFactors обновляет только факторы-предупреждения на основе текущего состояния
-func (p *Pet) UpdateWarnFactors(now time.Time) {
 	warnFactors := p.GetWarnFactors(now)
 	p.WarnFactors = make([]string, len(warnFactors))
 	for i, f := range warnFactors {

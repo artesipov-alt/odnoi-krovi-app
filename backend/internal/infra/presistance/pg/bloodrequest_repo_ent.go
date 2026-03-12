@@ -32,8 +32,8 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 	}
 }
 
-// toDomainModel converts ENT BloodSearchRequest to domain BloodRequest
-func (r *EntBloodRequestRepository) toDomainModel(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodRequest {
+// bloodReqToDomainModel converts ENT BloodSearchRequest to domain BloodRequest
+func (r *EntBloodRequestRepository) bloodReqToDomainModel(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodRequest {
 	if entReq == nil {
 		return nil
 	}
@@ -90,7 +90,7 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmod
 	if err != nil {
 		return nil, err
 	}
-	return r.toDomainModel(newBloodReq), nil
+	return r.bloodReqToDomainModel(newBloodReq), nil
 }
 
 // GetByID возвращает заявку по её идентификатору
@@ -110,7 +110,7 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bl
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query")
 	}
-	return r.toDomainModel(req), nil
+	return r.bloodReqToDomainModel(req), nil
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
@@ -129,7 +129,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query by pet ID")
 	}
-	return r.toDomainModel(req), nil
+	return r.bloodReqToDomainModel(req), nil
 }
 
 // Update обновляет информацию о заявке
@@ -165,7 +165,7 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
 
-	return r.toDomainModel(updatedBloodReq), nil
+	return r.bloodReqToDomainModel(updatedBloodReq), nil
 }
 
 // UpdateStatus обновляет статус заявки

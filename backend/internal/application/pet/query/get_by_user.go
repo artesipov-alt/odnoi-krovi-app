@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -45,15 +44,8 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 
 	for i := range pets {
-		bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, pets[i].ID)
-		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-			return nil, err
-		}
 		pets[i].RecalculateFactors(time.Now())
-		// Calculate status using domain method
-		hasActiveRequest := bloodReq != nil
-		hasResponses := hasActiveRequest && len(bloodReq.ResponseIDs) > 0
-		pets[i].PetStatus = pets[i].CalculateStatus(time.Now(), hasActiveRequest, hasResponses)
+		pets[i].CalculateDonorStatus()
 	}
 
 	return pets, nil
