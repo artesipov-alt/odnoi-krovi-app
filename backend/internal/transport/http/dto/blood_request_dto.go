@@ -148,36 +148,6 @@ type DeleteBloodRequestResult struct {
 }
 
 // ============================================
-// Apply For Blood Request (Donor Response)
-// ============================================
-
-// ApplyForBloodRequestInput представляет запрос на отклик донора
-type ApplyForBloodRequestInput struct {
-	BloodRequestIDPath
-	Body ApplyForBloodRequestBody
-}
-
-// ApplyForBloodRequestBody представляет тело запроса на отклик
-type ApplyForBloodRequestBody struct {
-	DonorID    string   `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
-	Conditions []string `json:"conditions,omitempty" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
-}
-
-// ApplyForBloodRequestOutput представляет ответ на отклик
-type ApplyForBloodRequestOutput struct {
-	Body DonorResponseResult
-}
-
-// DonorResponseResult представляет результат создания отклика
-type DonorResponseResult struct {
-	ID        string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
-	RequestID string              `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
-	DonorID   string              `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
-	Status    DonorResponseStatus `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
-	CreatedAt *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
-}
-
-// ============================================
 // Common Types
 // ============================================
 
@@ -203,29 +173,3 @@ type BloodRequestDetail struct {
 	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt                *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
-
-// DonorApplication представляет отклик донора
-type DonorApplication struct {
-	ID              string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
-	RequestID       string              `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
-	DonorID         string              `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
-	DonorName       string              `json:"donorName" doc:"Имя донора" example:"Барсик"`
-	DonorPhotos     []string            `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
-	DonorBloodGroup string              `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
-	Amount          int32               `json:"amount" doc:"Объем крови в мл" example:"450"`
-	WarnFactors     []string            `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
-	Conditions      []string            `json:"conditions" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
-	Status          DonorResponseStatus `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
-	CreatedAt       *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt       *time.Time          `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
-}
-
-// DonorResponseStatus представляет статус отклика донора
-type DonorResponseStatus string
-
-const (
-	DonorResponseStatusPending  DonorResponseStatus = "pending"
-	DonorResponseStatusAccepted DonorResponseStatus = "accepted"
-	DonorResponseStatusDeclined DonorResponseStatus = "declined"
-	DonorResponseStatusDonated  DonorResponseStatus = "donated"
-)

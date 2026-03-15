@@ -111,16 +111,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.UpdateBloodRequest)
 
-	// // Получить список доноров по ID заявки
-	// huma.Register(api, huma.Operation{
-	// 	OperationID: "get-donors-by-req-id",
-	// 	Method:      http.MethodGet,
-	// 	Path:        "/v1/blood-request/donors/{id}",
-	// 	Summary:     "Получить список доноров по ID заявки",
-	// 	Description: "Возвращает список доноров откликнувшихся на заявку",
-	// 	Tags:        []string{"blood-request-v1"},
-	// }, h.GetDonorsByID)
-
 	// Удалить заявку
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-blood-request",
@@ -225,15 +215,6 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 
 	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }
-
-// func (h *BloodRequestHandler) GetDonorsByID(ctx context.Context, input *dto.IDPathStr) (*dto.PetsResponse, error) {
-// 	slog.DebugContext(ctx, "getting donors by ID", "request_id", input.ID)
-
-// 	// Create a slice of dto.Pet
-// 	pets := []dto.Pet{mocks.Pet1, mocks.Pet2}
-
-// 	return &dto.PetsResponse{Body: pets}, nil
-// }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.DeleteBloodRequestInput) (*dto.DeleteBloodRequestOutput, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
