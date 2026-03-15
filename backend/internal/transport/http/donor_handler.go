@@ -62,6 +62,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			ID:                   r.ID,
 			PetID:                r.PetID,
 			PetName:              r.PetName,
+			PetType:              string(r.PetType),
 			BloodVolumeRemaining: r.BloodVolumeRemaining,
 			PhotoURLs:            r.PhotoURLs,
 			BloodGroupName:       r.BloodGroupName,

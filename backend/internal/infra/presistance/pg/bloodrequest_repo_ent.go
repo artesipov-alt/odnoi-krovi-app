@@ -51,6 +51,7 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 
 	if req.Edges.Pet != nil {
 		recipient.PetName = req.Edges.Pet.Name
+		recipient.PetType = petmodel.PetType(req.Edges.Pet.Type)
 		if req.Edges.Pet.Edges.BloodGroupRef != nil {
 			recipient.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
 		}

@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.4.6] - 2026-03-14
+
+### Добавлено
+- **Поле `PetType` в модели получателя и DTO:** Добавлено поле `PetType` в модель `Recipient` и соответствующее DTO. Это поле включает валидацию перечисления для значений "dog" и "cat".
+
+### Изменено
+- **Расширение модели `Recipient` и DTO:** Модель `Recipient` и DTO были расширены для включения нового поля `PetType`.
+- **Обновление маппинга через все слои:** Поле `PetType` теперь маппится через все слои приложения, от базы данных до HTTP-ответа.
+- **Валидация перечисления в DTO:** В DTO добавлена валидация перечисления для `PetType` со значениями "dog" и "cat".
+
+### Технические детали
+- В `ent/schema/recipient.go` добавлено поле `field.Enum("pet_type").Values("dog", "cat")`.
+- В `dto/recipient.go` добавлено поле `PetType string `json:"petType" validate:"oneof=dog cat"``.
+- В `internal/mappers/recipient_mapper.go` обновлена логика маппинга для включения `PetType`.
+- В `internal/handlers/recipient/query/get_by_id_handler.go` и других соответствующих обработчиках обновлена логика для включения `PetType` в ответы.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent.
+
+
 ## [3.4.4] - 2026-03-13
 
 ### Добавлено

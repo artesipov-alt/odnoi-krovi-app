@@ -33,6 +33,7 @@ type RecipientDetail struct {
 	ID                   string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
 	PetID                string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
 	PetName              string             `json:"petName" doc:"Имя питомца" example:"Шарик"`
+	PetType              string             `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	BloodVolumeRemaining int32              `json:"bloodVolumeRemaining" doc:"Необходимый остаток объема крови в мл" example:"100"`
 	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	BloodGroupName       string             `json:"bloodGroupName" doc:"Группа крови реципиента"`

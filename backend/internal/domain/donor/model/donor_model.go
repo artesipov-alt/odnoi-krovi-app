@@ -1,10 +1,13 @@
 package model
 
+import petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+
 // Recipient представляет модель чтения для списка реципиентов
 type Recipient struct {
 	ID                   string
 	PetID                string
 	PetName              string
+	PetType              petmodel.PetType
 	BloodVolumeRemaining int32
 	PhotoURLs            []string
 	BloodGroupName       string
