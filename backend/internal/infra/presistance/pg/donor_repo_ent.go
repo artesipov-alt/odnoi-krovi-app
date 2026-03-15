@@ -4,6 +4,7 @@ import (
 	"context"
 
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -74,6 +75,38 @@ func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, i
 		return nil, err
 	}
 	return r.toDomainModel(entResp), nil
+}
+
+func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string) (*donormodel.Recipient, error) {
+	blreq, err := r.db.BloodSearchRequest.Query().
+		Where(bloodsearchrequest.IDEQ(id)).
+		WithPet(func(pq *ent.PetQuery) {
+			pq.WithBloodGroupRef()
+			pq.WithOwner(
+				func(uq *ent.UserQuery) {
+					uq.WithDonorPreference()
+				},
+			)
+		}).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	recipient := &donormodel.Recipient{
+		ID:                  blreq.ID,
+		PetID:               blreq.PetID,
+		PetName:             blreq.Edges.Pet.Name,
+		SearchingBloodNames: blreq.BloodGroupNames,
+		PetType:             petmodel.PetType(blreq.Edges.Pet.Type),
+		SearchRegions:       blreq.Regions,
+		BloodGroupName:      blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
+		PrioritySearch:      blreq.PrioritySearch,
+		OwnerName:           blreq.Edges.Pet.Edges.Owner.FullName,
+		Status:              string(blreq.Status),
+	}
+
+	return recipient, nil
 }
 
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id, status string) error {

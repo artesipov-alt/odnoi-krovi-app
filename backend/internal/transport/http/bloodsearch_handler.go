@@ -62,9 +62,8 @@ func NewBloodRequestHandler(
 		deleteHandler:       deleteHandler,
 		getByIDHandler:      getByIDHandler,
 		getByPetIDHandler:   getByPetIDHandler,
-
-		bloodRequestMapper: mapper.NewBloodRequestMapper(storage),
-		storage:            storage,
+		bloodRequestMapper:  mapper.NewBloodRequestMapper(storage),
+		storage:             storage,
 	}
 }
 
@@ -125,8 +124,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *dto.CreateBloodRequestInput) (*dto.CreateBloodRequestOutput, error) {
-	slog.DebugContext(ctx, "adding pet to blood request pool", "pet_id", input.Body.PetID)
-
 	bloodReq := h.bloodRequestMapper.FromCreate(input.Body)
 
 	result, err := h.createHandler.Handle(ctx, bloodReq)

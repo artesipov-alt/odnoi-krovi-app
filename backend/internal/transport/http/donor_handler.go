@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -13,18 +14,21 @@ import (
 )
 
 type DonorHandler struct {
-	recipientsListHandler *query.ListRequestsHandler
-	applyHandler          *cmd.ApplyForRequestHandler
+	recipientsListHandler   *query.ListRequestsHandler
+	recipientDetailsHandler *query.RecipientDetailHandler
+	applyHandler            *cmd.ApplyForRequestHandler
 }
 
 // NewDonorHandler creates a new handler for donor-related operations.
 func NewDonorHandler(
 	recipientsListHandler *query.ListRequestsHandler,
+	recipientDetailsHandler *query.RecipientDetailHandler,
 	applyHandler *cmd.ApplyForRequestHandler,
 ) *DonorHandler {
 	return &DonorHandler{
-		recipientsListHandler: recipientsListHandler,
-		applyHandler:          applyHandler,
+		recipientsListHandler:   recipientsListHandler,
+		recipientDetailsHandler: recipientDetailsHandler,
+		applyHandler:            applyHandler,
 	}
 }
 
@@ -40,6 +44,16 @@ func (h *DonorHandler) Register(api huma.API) {
 		Description: "Возвращает список реципиентов по фильтрам",
 		Tags:        []string{"donor-v1"},
 	}, h.GetRecipientsList)
+
+	// Получить детальную заявку на поиск крови
+	huma.Register(api, huma.Operation{
+		OperationID: "get-recipient-details",
+		Method:      http.MethodGet,
+		Path:        "/v1/donor/recipient-details/{id}",
+		Summary:     "Получить детальные данные по заявке на поиск крови",
+		Description: "Возвращает детальную информацию по заявке на поиск крови",
+		Tags:        []string{"donor-v1"},
+	}, h.GetRecipientDetails)
 
 	// Откликнуться на заявку
 	huma.Register(api, huma.Operation{
@@ -90,6 +104,57 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 	}
 
 	return &dto.ListRecipientsOutput{Body: dto.RecipientsList{Items: items, Total: len(items)}}, nil
+}
+
+func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ dto.BloodRequestIDPath }) (*dto.RecipientDetailsOutput, error) {
+	userID := ctx.Value("userID").(string)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
+
+	recipient, err := h.recipientDetailsHandler.Handle(ctx, input.BloodRequestIDPath.ID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	matchingDonors := make([]dto.MatchingDonor, len(recipient.MatchingDonors))
+	for i, md := range recipient.MatchingDonors {
+		matchingDonors[i] = dto.MatchingDonor{
+			PetID:           md.PetID,
+			PetName:         md.PetName,
+			PetType:         string(md.PetType),
+			DonorBloodGroup: md.DonorBloodGroup,
+			PhotoURLs:       md.PhotoURLs,
+		}
+	}
+
+	var defaultPrefs *dto.DefaultDonorPrefs
+	if recipient.DefaultDonorPrefs != nil {
+		defaultPrefs = &dto.DefaultDonorPrefs{
+			CompensationType: string(recipient.DefaultDonorPrefs.CompensationType),
+			Bonuses:          recipient.DefaultDonorPrefs.Bonuses,
+			TaxiCompensation: recipient.DefaultDonorPrefs.TaxiCompensation,
+		}
+	}
+
+	recipientDetail := dto.RecipientDetail{
+		ID:                   recipient.ID,
+		PetID:                recipient.PetID,
+		PetName:              recipient.PetName,
+		PetType:              string(recipient.PetType),
+		OwnerName:            recipient.OwnerName,
+		SearchRegions:        recipient.SearchRegions,
+		BloodVolumeRemaining: recipient.BloodVolumeRemaining,
+		SearchingBloodNames:  recipient.SearchingBloodNames,
+		PhotoURLs:            recipient.PhotoURLs,
+		BloodGroupName:       recipient.BloodGroupName,
+		PrioritySearch:       recipient.PrioritySearch,
+		Status:               dto.BloodRequestStatus(recipient.Status),
+		MatchingDonors:       matchingDonors,
+		DefaultDonorPrefs:    defaultPrefs,
+	}
+
+	return &dto.RecipientDetailsOutput{Body: recipientDetail}, nil
 }
 
 func (h *DonorHandler) ApplyForBloodRequest(ctx context.Context, input *dto.ApplyForBloodRequestInput) (*dto.ApplyForBloodRequestOutput, error) {
