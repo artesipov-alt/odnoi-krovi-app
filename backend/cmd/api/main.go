@@ -21,6 +21,7 @@ import (
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
+	donorcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
@@ -140,6 +141,7 @@ func main() {
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
 		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo)
+		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo)
 
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
@@ -155,7 +157,6 @@ func main() {
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(*txManager, bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, *txManager)
-		bloodApplyHandler := bloodcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
 
@@ -200,13 +201,14 @@ func main() {
 			bloodUpdateHandler,
 			bloodUpdateStatusHandler,
 			bloodDeleteHandler,
-			bloodApplyHandler,
 			bloodGetByIDHandler,
 			bloodGetByPetIDHandler,
 			fileStorage,
 		)
-		//TODO
-		donorHandler := transport.NewDonorHandler(donorGetRecipientsListHandler)
+		donorHandler := transport.NewDonorHandler(
+			donorGetRecipientsListHandler,
+			donorApplyBloodHandler,
+		)
 
 		fileHandler := transport.NewFileHandler(
 			fileGetPresignedHandler,

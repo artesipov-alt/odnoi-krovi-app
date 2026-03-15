@@ -45,17 +45,3 @@ type BloodRequestRepository interface {
 	// AddPhotoURLs добавляет новые пути к фотографиям заявки
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
 }
-
-// DonorResponseRepository определяет интерфейс для работы с откликами доноров
-type DonorResponseRepository interface {
-	CreateDonorResponse(ctx context.Context, resp *bloodreqmodel.DonorResponse) (*bloodreqmodel.DonorResponse, error)
-	GetDonorResponseByID(ctx context.Context, id string) (*bloodreqmodel.DonorResponse, error)
-	UpdateDonorResponseStatus(ctx context.Context, id, status string) error
-	DeleteDonorResponse(ctx context.Context, id string) error
-	GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*bloodreqmodel.DonorResponse, error)
-	GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*bloodreqmodel.DonorResponse, error)
-	ExistsByID(ctx context.Context, id string) (bool, error)
-	ExistsByRequestID(ctx context.Context, reqID string) (bool, error)
-	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
-	Count(ctx context.Context) (int, error)
-}

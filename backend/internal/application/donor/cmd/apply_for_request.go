@@ -5,20 +5,23 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 )
 
 type ApplyForRequestHandler struct {
 	bloodRepo bloodsearch.BloodRequestRepository
 	petRepo   pet.Repository
-	donorRepo bloodsearch.DonorResponseRepository
+	donorRepo donor.Repository
 }
 
 func NewApplyForRequestHandler(
 	bloodRepo bloodsearch.BloodRequestRepository,
 	petRepo pet.Repository,
-	donorRepo bloodsearch.DonorResponseRepository,
+	donorRepo donor.Repository,
 ) *ApplyForRequestHandler {
 	return &ApplyForRequestHandler{
 		bloodRepo: bloodRepo,
@@ -33,7 +36,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID stri
 	if err != nil {
 		return nil, err
 	}
-	if req.Status != model.BloodRequestStatusActive {
+	if req.Status != bloodmodel.BloodRequestStatusActive {
 		return nil, apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
 	}
 
@@ -58,7 +61,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID stri
 	}
 
 	// Create domain model using constructor
-	resp, err := model.NewDonorResponse(reqID, donorID, conditions)
+	resp, err := donormodel.NewDonorResponse(reqID, donorID, conditions)
 	if err != nil {
 		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}

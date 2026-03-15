@@ -1,32 +1,44 @@
 package model
 
-import petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+import (
+	"errors"
+	"time"
+)
 
-// Recipient представляет модель чтения для списка реципиентов
-type Recipient struct {
-	ID                   string
-	PetID                string
-	PetName              string
-	PetType              petmodel.PetType
-	BloodVolumeRemaining int32
-	PhotoURLs            []string
-	BloodGroupName       string
-	PrioritySearch       bool
-	Status               string
-	MatchingDonors       []MatchingDonorReadModel
+// DonorResponseStatus представляет статус отклика донора
+type DonorResponseStatus string
+
+const (
+	DonorResponseStatusActive    DonorResponseStatus = "active"
+	DonorResponseStatusAccepted  DonorResponseStatus = "accepted"
+	DonorResponseStatusRejected  DonorResponseStatus = "rejected"
+	DonorResponseStatusCancelled DonorResponseStatus = "cancelled"
+)
+
+// DonorResponse представляет отклик донора на заявку поиска крови
+type DonorResponse struct {
+	ID         string
+	RequestID  string
+	DonorID    string
+	Conditions []string
+	Status     DonorResponseStatus
+	CreatedAt  *time.Time
+	UpdatedAt  *time.Time
+	DeletedAt  *time.Time
 }
 
-// DonorPreloadFilter представляет параметры для предзагрузки связанных данных
-type DonorPreloadFilter struct {
-	Status string
-	Limit  int
-	Offset int
-}
-
-// MatchingDonorReadModel представляет модель чтения для подходящего донора
-type MatchingDonorReadModel struct {
-	PetID           string
-	PetName         string
-	DonorBloodGroup string
-	PhotoURLs       []string
+// NewDonorResponse creates a new donor response with validation
+func NewDonorResponse(requestID, donorID string, conditions []string) (*DonorResponse, error) {
+	if requestID == "" {
+		return nil, errors.New("request ID is required")
+	}
+	if donorID == "" {
+		return nil, errors.New("donor ID is required")
+	}
+	return &DonorResponse{
+		RequestID:  requestID,
+		DonorID:    donorID,
+		Conditions: conditions,
+		Status:     DonorResponseStatusActive,
+	}, nil
 }

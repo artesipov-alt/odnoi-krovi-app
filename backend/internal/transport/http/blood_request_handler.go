@@ -38,7 +38,6 @@ type BloodRequestHandler struct {
 	updateHandler       *bloodcmd.UpdateRequestHandler
 	updateStatusHandler *bloodcmd.UpdateStatusHandler
 	deleteHandler       *bloodcmd.DeleteRequestHandler
-	applyHandler        *bloodcmd.ApplyForRequestHandler
 	getByIDHandler      *bloodquery.GetByIDHandler
 	getByPetIDHandler   *bloodquery.GetByPetIDHandler
 	bloodRequestMapper  *mapper.BloodRequestMapper
@@ -51,7 +50,6 @@ func NewBloodRequestHandler(
 	updateHandler *bloodcmd.UpdateRequestHandler,
 	updateStatusHandler *bloodcmd.UpdateStatusHandler,
 	deleteHandler *bloodcmd.DeleteRequestHandler,
-	applyHandler *bloodcmd.ApplyForRequestHandler,
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
 
@@ -62,7 +60,6 @@ func NewBloodRequestHandler(
 		updateHandler:       updateHandler,
 		updateStatusHandler: updateStatusHandler,
 		deleteHandler:       deleteHandler,
-		applyHandler:        applyHandler,
 		getByIDHandler:      getByIDHandler,
 		getByPetIDHandler:   getByPetIDHandler,
 
@@ -103,17 +100,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Description: "Возвращает информацию о конкретной заявке",
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByPetID)
-
-	// Откликнуться на заявку
-	huma.Register(api, huma.Operation{
-		OperationID:   "apply-for-blood-request", // More descriptive OperationID
-		Method:        http.MethodPost,
-		Path:          "/v1/blood-request/apply/{id}", // RESTful path for applying to a specific request
-		Summary:       "Откликнуться на заявку на поиск крови",
-		Description:   "Позволяет донору откликнуться на существующую заявку на поиск крови.",
-		Tags:          []string{"blood-request-v1"},
-		DefaultStatus: http.StatusCreated, // Applying usually creates a new application record
-	}, h.ApplyForBloodRequest)
 
 	// Обновить заявку
 	huma.Register(api, huma.Operation{
@@ -164,25 +150,6 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		Status:    dto.BloodRequestStatus(result.Status),
 		CreatedAt: &result.CreatedAt,
 	}}, nil
-}
-
-func (h *BloodRequestHandler) ApplyForBloodRequest(ctx context.Context, input *dto.ApplyForBloodRequestInput) (*dto.ApplyForBloodRequestOutput, error) {
-	slog.DebugContext(ctx, "applying for blood request", "request_id", input.ID, "donor_id", input.Body.DonorID)
-
-	resp, err := h.applyHandler.Handle(ctx, input.ID, input.Body.DonorID, input.Body.Conditions)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.ApplyForBloodRequestOutput{
-		Body: dto.DonorResponseResult{
-			ID:        resp.ID,
-			RequestID: resp.RequestID,
-			DonorID:   resp.DonorID,
-			Status:    dto.DonorResponseStatus(resp.Status),
-			CreatedAt: &resp.CreatedAt,
-		},
-	}, nil
 }
 
 func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto.UpdateBloodRequestInput) (*dto.UpdateBloodRequestOutput, error) {
