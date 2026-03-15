@@ -164,11 +164,11 @@ func (h *DonorHandler) ApplyForBloodRequest(ctx context.Context, input *dto.Appl
 	}
 
 	return &dto.ApplyForBloodRequestOutput{
-		Body: dto.DonorResponseResult{
+		Body: dto.DonorApplicationResult{
 			ID:        resp.ID,
 			RequestID: resp.RequestID,
 			DonorID:   resp.DonorID,
-			Status:    dto.DonorResponseStatus(resp.Status),
+			Status:    string(resp.Status),
 			CreatedAt: resp.CreatedAt,
 		},
 	}, nil
