@@ -5,6 +5,23 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.4.9] - 2026-03-17
+
+### Изменено
+- **Рефакторинг модели `DonorPreference` для упрощения опций компенсации:**
+  - Массив `conditions` в модели `DonorPreference` заменен на отдельные поля `compensation_type` (перечисление) и `taxi_compensation` (булево).
+  - Все поля в `DefaultDonorPrefs` теперь обязательны.
+  - Удалено поле `petType` из модели `MatchingDonor`.
+  - Обновлены связанные перечисления и логика валидации.
+
+### Технические детали
+- В `ent/schema/donor_preference.go` удалено поле `conditions`, добавлены `field.Enum("compensation_type").Values(...)` и `field.Bool("taxi_compensation")`.
+- В `internal/domain/donor/model.go` (или соответствующем файле) обновлена структура `DefaultDonorPrefs` для обеспечения обязательности всех полей.
+- В `internal/domain/donor/model.go` (или соответствующем файле) удалено поле `petType` из модели `MatchingDonor`.
+- В `dto/donor_preference.go` обновлены DTO для отражения изменений в полях компенсации и удалении `petType`.
+- Обновлены соответствующие обработчики и сервисы, которые взаимодействуют с `DonorPreference` и `MatchingDonor`, для использования новых полей и валидации.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent.
+
 
 ## [3.4.8] - 2026-03-16
 
