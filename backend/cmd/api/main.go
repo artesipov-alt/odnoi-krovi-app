@@ -211,6 +211,7 @@ func main() {
 			donorGetRecipientsListHandler,
 			donorGetRecipientDetailsHandler,
 			donorApplyBloodHandler,
+			fileStorage,
 		)
 
 		fileHandler := transport.NewFileHandler(

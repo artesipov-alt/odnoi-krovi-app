@@ -49,7 +49,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	potentialDonors := petmodel.FilterDonors(pets)
 
 	for _, donorPet := range potentialDonors {
-		recipient.AddMatchingDonor(donorPet.Name, *donorPet.BloodGroupName, donorPet.PhotoURLs)
+		recipient.AddMatchingDonor(donorPet)
 	}
 
 	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{

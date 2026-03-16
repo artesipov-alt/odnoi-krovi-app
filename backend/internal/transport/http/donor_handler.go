@@ -3,11 +3,13 @@ package http
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 
@@ -18,6 +20,7 @@ type DonorHandler struct {
 	recipientsListHandler   *query.ListRequestsHandler
 	recipientDetailsHandler *query.RecipientDetailHandler
 	applyHandler            *cmd.ApplyForRequestHandler
+	storage                 filestorage.Repository
 }
 
 // NewDonorHandler creates a new handler for donor-related operations.
@@ -25,11 +28,13 @@ func NewDonorHandler(
 	recipientsListHandler *query.ListRequestsHandler,
 	recipientDetailsHandler *query.RecipientDetailHandler,
 	applyHandler *cmd.ApplyForRequestHandler,
+	storage filestorage.Repository,
 ) *DonorHandler {
 	return &DonorHandler{
 		recipientsListHandler:   recipientsListHandler,
 		recipientDetailsHandler: recipientDetailsHandler,
 		applyHandler:            applyHandler,
+		storage:                 storage,
 	}
 }
 
@@ -77,7 +82,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 	if err != nil {
 		return nil, err
 	}
-
+	now := time.Now()
 	items := make([]dto.RecipientDetail, len(result))
 	for i, r := range result {
 		matching := make([]dto.MatchingDonor, len(r.MatchingDonors))
@@ -86,7 +91,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 				PetID:           md.PetID,
 				PetName:         md.PetName,
 				DonorBloodGroup: md.DonorBloodGroup,
-				PhotoURLs:       md.PhotoURLs,
+				PhotoURLs:       h.storage.BuildPhotoURLs(md.PhotoURLs, now),
 			}
 		}
 		items[i] = dto.RecipientDetail{
@@ -95,7 +100,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			PetName:              r.PetName,
 			PetType:              string(r.PetType),
 			BloodVolumeRemaining: r.BloodVolumeRemaining,
-			PhotoURLs:            r.PhotoURLs,
+			PhotoURLs:            h.storage.BuildPhotoURLs(r.PhotoURLs, now),
 			BloodGroupName:       r.BloodGroupName,
 			PrioritySearch:       r.PrioritySearch,
 			Status:               dto.BloodRequestStatus(r.Status),

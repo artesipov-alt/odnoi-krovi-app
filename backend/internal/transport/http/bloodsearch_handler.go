@@ -15,23 +15,6 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
-// calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)
-// Для собак: не более 17.6 мл/кг
-// Для кошек: не более 13.2 мл/кг
-func calculateDonationAmount(petType string, weightKg float64) int32 {
-	var limitPerKg float64
-	switch petType {
-	case "dog":
-		limitPerKg = 17.6
-	case "cat":
-		limitPerKg = 13.2
-	default:
-		return 0
-	}
-	amount := limitPerKg * weightKg
-	return int32(amount)
-}
-
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
 	createHandler       *bloodcmd.CreateRequestHandler
