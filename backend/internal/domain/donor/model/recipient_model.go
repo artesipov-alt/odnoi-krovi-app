@@ -45,10 +45,9 @@ type MatchingDonorReadModel struct {
 	PhotoURLs       []string
 }
 
-func (r *Recipient) AddMatchingDonor(donorName, donorBloodGroup string, donorType petmodel.PetType, photoURLs []string) {
+func (r *Recipient) AddMatchingDonor(donorName, donorBloodGroup string, photoURLs []string) {
 	r.MatchingDonors = append(r.MatchingDonors, MatchingDonorReadModel{
 		PetName:         donorName,
-		PetType:         donorType,
 		DonorBloodGroup: donorBloodGroup,
 		PhotoURLs:       photoURLs,
 	})

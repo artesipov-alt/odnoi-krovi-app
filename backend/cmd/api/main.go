@@ -249,7 +249,7 @@ func main() {
 		server.Use(
 			sloghttp.Recovery,
 			config.DefaultCorsHandler(env, miniappDomain),
-			middleware.AuthMiddleware(tokenGenerator, "/v1/auth"),
+			middleware.AuthMiddleware(tokenGenerator, "/api/v1/auth", "/api/docs", "/api/openapi.json"),
 			sloghttp.New(slog.Default()),
 		)
 

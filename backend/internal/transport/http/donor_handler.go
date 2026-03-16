@@ -35,12 +35,11 @@ func NewDonorHandler(
 
 // Register регистрирует маршруты заявок на поиск крови в Huma API
 func (h *DonorHandler) Register(api huma.API) {
-
 	// Получить список заявок на поиск крови
 	huma.Register(api, huma.Operation{
 		OperationID: "get-recipients",
 		Method:      http.MethodGet,
-		Path:        "/v1/donor/{id}/recipient-list",
+		Path:        "/v1/donor/recipient-list/{id}", // Изменено
 		Summary:     "Получить список заявок на поиск крови",
 		Description: "Возвращает список реципиентов по фильтрам",
 		Tags:        []string{"donor-v1"},
@@ -50,7 +49,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-recipient-details",
 		Method:      http.MethodGet,
-		Path:        "/v1/donor/recipient-details/{id}",
+		Path:        "/v1/donor/recipient-details/{id}", // Изменено
 		Summary:     "Получить детальные данные по заявке на поиск крови",
 		Description: "Возвращает детальную информацию по заявке на поиск крови",
 		Tags:        []string{"donor-v1"},
@@ -60,7 +59,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "apply-for-blood-request",
 		Method:        http.MethodPost,
-		Path:          "/v1/donor/apply-request/{id}",
+		Path:          "/v1/donor/recipient/{id}/apply", // Изменено
 		Summary:       "Откликнуться на заявку на поиск крови",
 		Description:   "Позволяет донору откликнуться на существующую заявку на поиск крови.",
 		Tags:          []string{"donor-v1"},

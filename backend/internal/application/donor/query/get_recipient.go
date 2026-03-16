@@ -10,6 +10,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type RecipientDetailHandler struct {
@@ -48,7 +49,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	potentialDonors := petmodel.FilterDonors(pets)
 
 	for _, donorPet := range potentialDonors {
-		recipient.AddMatchingDonor(donorPet.Name, *donorPet.BloodGroupName, donorPet.Type, donorPet.PhotoURLs)
+		recipient.AddMatchingDonor(donorPet.Name, *donorPet.BloodGroupName, donorPet.PhotoURLs)
 	}
 
 	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{
@@ -58,7 +59,18 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		return nil, apperrors.Internal(err, "failed to get user for recipient details")
 	}
 
-	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)
+	//Настройки донора всегда должны быть так что убрать
+	var compType usermodel.CompensationType
+	var taxiComp bool
+	if user.DonorPreference != nil {
+		compType = user.DonorPreference.CompensationType
+		taxiComp = user.DonorPreference.TaxiCompensation
+	} else {
+		defaultPref := usermodel.DefaultDonorPreference()
+		compType = defaultPref.CompensationType
+		taxiComp = defaultPref.TaxiCompensation
+	}
+	recipient.SetDefaultPrefs(compType, taxiComp)
 
 	return recipient, nil
 }

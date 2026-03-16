@@ -16,69 +16,77 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateBloodRequestResult
+ * @interface DonorApplicationResult
  */
-export interface CreateBloodRequestResult {
+export interface DonorApplicationResult {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof CreateBloodRequestResult
+     * @memberof DonorApplicationResult
      */
     readonly $schema?: string;
     /**
      * Дата создания
      * @type {Date}
-     * @memberof CreateBloodRequestResult
+     * @memberof DonorApplicationResult
      */
     createdAt?: Date;
     /**
-     * ID созданной заявки
+     * ID донора
      * @type {string}
-     * @memberof CreateBloodRequestResult
+     * @memberof DonorApplicationResult
+     */
+    donorId: string;
+    /**
+     * ID отклика
+     * @type {string}
+     * @memberof DonorApplicationResult
      */
     id: string;
     /**
-     * ID питомца
+     * ID заявки
      * @type {string}
-     * @memberof CreateBloodRequestResult
+     * @memberof DonorApplicationResult
      */
-    petId: string;
+    requestId: string;
     /**
-     * Статус заявки
+     * Статус отклика
      * @type {string}
-     * @memberof CreateBloodRequestResult
+     * @memberof DonorApplicationResult
      */
-    status: CreateBloodRequestResultStatusEnum;
+    status: DonorApplicationResultStatusEnum;
 }
 
 
 /**
  * @export
  */
-export const CreateBloodRequestResultStatusEnum = {
-    Active: 'active',
-    Closed: 'closed',
-    Draft: 'draft'
+export const DonorApplicationResultStatusEnum = {
+    Pending: 'pending',
+    Accepted: 'accepted',
+    Declined: 'declined',
+    Donated: 'donated'
 } as const;
-export type CreateBloodRequestResultStatusEnum = typeof CreateBloodRequestResultStatusEnum[keyof typeof CreateBloodRequestResultStatusEnum];
+export type DonorApplicationResultStatusEnum = typeof DonorApplicationResultStatusEnum[keyof typeof DonorApplicationResultStatusEnum];
 
 
 /**
- * Check if a given object implements the CreateBloodRequestResult interface.
+ * Check if a given object implements the DonorApplicationResult interface.
  */
-export function instanceOfCreateBloodRequestResult(value: object): value is CreateBloodRequestResult {
+export function instanceOfDonorApplicationResult(value: object): value is DonorApplicationResult {
+    if (!('donorId' in value) || value['donorId'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('petId' in value) || value['petId'] === undefined) return false;
+    if (!('requestId' in value) || value['requestId'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     return true;
 }
 
-export function CreateBloodRequestResultFromJSON(json: any): CreateBloodRequestResult {
-    return CreateBloodRequestResultFromJSONTyped(json, false);
+export function DonorApplicationResultFromJSON(json: any): DonorApplicationResult {
+    return DonorApplicationResultFromJSONTyped(json, false);
 }
 
-export function CreateBloodRequestResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateBloodRequestResult {
+export function DonorApplicationResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): DonorApplicationResult {
     if (json == null) {
         return json;
     }
@@ -87,17 +95,18 @@ export function CreateBloodRequestResultFromJSONTyped(json: any, ignoreDiscrimin
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
+        'donorId': json['donorId'],
         'id': json['id'],
-        'petId': json['petId'],
+        'requestId': json['requestId'],
         'status': json['status'],
     };
 }
 
-export function CreateBloodRequestResultToJSON(json: any): CreateBloodRequestResult {
-    return CreateBloodRequestResultToJSONTyped(json, false);
+export function DonorApplicationResultToJSON(json: any): DonorApplicationResult {
+    return DonorApplicationResultToJSONTyped(json, false);
 }
 
-export function CreateBloodRequestResultToJSONTyped(value?: Omit<CreateBloodRequestResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function DonorApplicationResultToJSONTyped(value?: Omit<DonorApplicationResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -106,8 +115,9 @@ export function CreateBloodRequestResultToJSONTyped(value?: Omit<CreateBloodRequ
         
             ...value,
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
+        'donorId': value['donorId'],
         'id': value['id'],
-        'petId': value['petId'],
+        'requestId': value['requestId'],
         'status': value['status'],
     };
 }

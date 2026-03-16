@@ -19,14 +19,15 @@ models/CreateBloodRequestBody.ts
 models/CreateBloodRequestResult.ts
 models/CreatePetBody.ts
 models/CreatePetResult.ts
+models/DefaultDonorPrefs.ts
 models/DeleteBloodRequestResult.ts
 models/DeletePetResult.ts
 models/DeleteUserResult.ts
 models/DeletedUsersList.ts
 models/DonorApplication.ts
+models/DonorApplicationResult.ts
 models/DonorPreference.ts
 models/DonorPreferenceParams.ts
-models/DonorResponseResult.ts
 models/DonorRestrictions.ts
 models/DonorRestrictionsDetail.ts
 models/FactorDescription.ts
