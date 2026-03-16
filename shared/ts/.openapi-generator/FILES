@@ -7,6 +7,7 @@ apis/ReferenceV1Api.ts
 apis/UsersV1Api.ts
 apis/index.ts
 index.ts
+models/AdvancedInfo.ts
 models/AppError.ts
 models/ApplyForBloodRequestBody.ts
 models/BloodComponentsList.ts

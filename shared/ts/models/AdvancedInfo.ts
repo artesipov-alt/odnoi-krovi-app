@@ -13,64 +13,55 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-
 /**
  * 
  * @export
- * @interface LocationsList
+ * @interface AdvancedInfo
  */
-export interface LocationsList {
+export interface AdvancedInfo {
     [key: string]: any | any;
     /**
-     * A URL to the JSON Schema for this object.
+     * Дополнительное описание
      * @type {string}
-     * @memberof LocationsList
+     * @memberof AdvancedInfo
      */
-    readonly $schema?: string;
+    description?: string;
     /**
-     * Список локаций
-     * @type {Array<ReferenceItem>}
-     * @memberof LocationsList
+     * Список URL фотографий
+     * @type {Array<string>}
+     * @memberof AdvancedInfo
      */
-    data: Array<ReferenceItem>;
+    photoUrls?: Array<string>;
 }
 
 /**
- * Check if a given object implements the LocationsList interface.
+ * Check if a given object implements the AdvancedInfo interface.
  */
-export function instanceOfLocationsList(value: object): value is LocationsList {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfAdvancedInfo(value: object): value is AdvancedInfo {
     return true;
 }
 
-export function LocationsListFromJSON(json: any): LocationsList {
-    return LocationsListFromJSONTyped(json, false);
+export function AdvancedInfoFromJSON(json: any): AdvancedInfo {
+    return AdvancedInfoFromJSONTyped(json, false);
 }
 
-export function LocationsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationsList {
+export function AdvancedInfoFromJSONTyped(json: any, ignoreDiscriminator: boolean): AdvancedInfo {
     if (json == null) {
         return json;
     }
     return {
         
             ...json,
-        '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'description': json['description'] == null ? undefined : json['description'],
+        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
     };
 }
 
-export function LocationsListToJSON(json: any): LocationsList {
-    return LocationsListToJSONTyped(json, false);
+export function AdvancedInfoToJSON(json: any): AdvancedInfo {
+    return AdvancedInfoToJSONTyped(json, false);
 }
 
-export function LocationsListToJSONTyped(value?: Omit<LocationsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function AdvancedInfoToJSONTyped(value?: AdvancedInfo | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,7 +69,8 @@ export function LocationsListToJSONTyped(value?: Omit<LocationsList, '$schema'> 
     return {
         
             ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'description': value['description'],
+        'photoUrls': value['photoUrls'],
     };
 }
 

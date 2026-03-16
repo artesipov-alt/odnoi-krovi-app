@@ -38,6 +38,7 @@ type RecipientDetail struct {
 	BloodGroupName       string             `json:"bloodGroupName" doc:"Группа крови реципиента"`
 	PrioritySearch       bool               `json:"prioritySearch,omitempty" doc:"Приоритетный поиск"`
 	Status               BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	AdvancedInfo         *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
 	MatchingDonors       []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
 	DefaultDonorPrefs    *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
 }
@@ -49,6 +50,12 @@ type DefaultDonorPrefs struct {
 	TaxiCompensation bool     `json:"taxiCompensation" doc:"Компенсация такси"`
 }
 
+// AdvancedInfo представляет дополнительную информацию
+type AdvancedInfo struct {
+	Description string   `json:"description,omitempty" doc:"Дополнительное описание"`
+	PhotoURLs   []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
+}
+
 // ListRecipientsOutput представляет ответ со списком реципиентов
 type RecipientDetailsOutput struct {
 	Body RecipientDetail
@@ -58,6 +65,7 @@ type RecipientDetailsOutput struct {
 type MatchingDonor struct {
 	PetID           string   `json:"petId" doc:"ID питомца донора" example:"PET-ABCDEABCDE"`
 	PetName         string   `json:"petName" doc:"Имя питомца донора" example:"Рекс"`
+	Amount          int32    `json:"amount" doc:"Количество возможной крови для донорства" example:"1"`
 	DonorBloodGroup string   `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
 	PhotoURLs       []string `json:"photoUrls,omitempty" doc:"Список URL фотографий донора"`
 }

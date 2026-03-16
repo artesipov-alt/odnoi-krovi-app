@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AdvancedInfo';
 export * from './AppError';
 export * from './ApplyForBloodRequestBody';
 export * from './BloodComponentsList';

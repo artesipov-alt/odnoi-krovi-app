@@ -121,14 +121,15 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ d
 	if err != nil {
 		return nil, err
 	}
-
+	now := time.Now()
 	matchingDonors := make([]dto.MatchingDonor, len(recipient.MatchingDonors))
 	for i, md := range recipient.MatchingDonors {
 		matchingDonors[i] = dto.MatchingDonor{
 			PetID:           md.PetID,
 			PetName:         md.PetName,
+			Amount:          md.Amount,
 			DonorBloodGroup: md.DonorBloodGroup,
-			PhotoURLs:       md.PhotoURLs,
+			PhotoURLs:       h.storage.BuildPhotoURLs(md.PhotoURLs, now),
 		}
 	}
 
@@ -150,7 +151,7 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ d
 		SearchRegions:        recipient.SearchRegions,
 		BloodVolumeRemaining: recipient.BloodVolumeRemaining,
 		SearchingBloodNames:  recipient.SearchingBloodNames,
-		PhotoURLs:            recipient.PhotoURLs,
+		PhotoURLs:            h.storage.BuildPhotoURLs(recipient.PhotoURLs, now),
 		BloodGroupName:       recipient.BloodGroupName,
 		PrioritySearch:       recipient.PrioritySearch,
 		Status:               dto.BloodRequestStatus(recipient.Status),
