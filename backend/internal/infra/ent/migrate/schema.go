@@ -112,7 +112,8 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "conditions", Type: field.TypeJSON, Nullable: true},
+		{Name: "compensation_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"free", "paid", "food"}},
+		{Name: "taxi_compensation", Type: field.TypeBool, Nullable: true},
 		{Name: "status", Type: field.TypeString},
 		{Name: "blood_search_request_responses", Type: field.TypeString},
 		{Name: "donor_response_donor", Type: field.TypeString},
@@ -125,13 +126,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "donor_responses_blood_requests_responses",
-				Columns:    []*schema.Column{DonorResponsesColumns[6]},
+				Columns:    []*schema.Column{DonorResponsesColumns[7]},
 				RefColumns: []*schema.Column{BloodRequestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "donor_responses_pets_donor",
-				Columns:    []*schema.Column{DonorResponsesColumns[7]},
+				Columns:    []*schema.Column{DonorResponsesColumns[8]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

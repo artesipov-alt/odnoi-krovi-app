@@ -67,9 +67,31 @@ func (_c *DonorResponseCreate) SetNillableDeletedAt(v *time.Time) *DonorResponse
 	return _c
 }
 
-// SetConditions sets the "conditions" field.
-func (_c *DonorResponseCreate) SetConditions(v []string) *DonorResponseCreate {
-	_c.mutation.SetConditions(v)
+// SetCompensationType sets the "compensation_type" field.
+func (_c *DonorResponseCreate) SetCompensationType(v donorresponse.CompensationType) *DonorResponseCreate {
+	_c.mutation.SetCompensationType(v)
+	return _c
+}
+
+// SetNillableCompensationType sets the "compensation_type" field if the given value is not nil.
+func (_c *DonorResponseCreate) SetNillableCompensationType(v *donorresponse.CompensationType) *DonorResponseCreate {
+	if v != nil {
+		_c.SetCompensationType(*v)
+	}
+	return _c
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (_c *DonorResponseCreate) SetTaxiCompensation(v bool) *DonorResponseCreate {
+	_c.mutation.SetTaxiCompensation(v)
+	return _c
+}
+
+// SetNillableTaxiCompensation sets the "taxi_compensation" field if the given value is not nil.
+func (_c *DonorResponseCreate) SetNillableTaxiCompensation(v *bool) *DonorResponseCreate {
+	if v != nil {
+		_c.SetTaxiCompensation(*v)
+	}
 	return _c
 }
 
@@ -172,6 +194,11 @@ func (_c *DonorResponseCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DonorResponse.updated_at"`)}
 	}
+	if v, ok := _c.mutation.CompensationType(); ok {
+		if err := donorresponse.CompensationTypeValidator(v); err != nil {
+			return &ValidationError{Name: "compensation_type", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.compensation_type": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DonorResponse.status"`)}
 	}
@@ -229,9 +256,13 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		_spec.SetField(donorresponse.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := _c.mutation.Conditions(); ok {
-		_spec.SetField(donorresponse.FieldConditions, field.TypeJSON, value)
-		_node.Conditions = value
+	if value, ok := _c.mutation.CompensationType(); ok {
+		_spec.SetField(donorresponse.FieldCompensationType, field.TypeEnum, value)
+		_node.CompensationType = value
+	}
+	if value, ok := _c.mutation.TaxiCompensation(); ok {
+		_spec.SetField(donorresponse.FieldTaxiCompensation, field.TypeBool, value)
+		_node.TaxiCompensation = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
@@ -353,21 +384,39 @@ func (u *DonorResponseUpsert) ClearDeletedAt() *DonorResponseUpsert {
 	return u
 }
 
-// SetConditions sets the "conditions" field.
-func (u *DonorResponseUpsert) SetConditions(v []string) *DonorResponseUpsert {
-	u.Set(donorresponse.FieldConditions, v)
+// SetCompensationType sets the "compensation_type" field.
+func (u *DonorResponseUpsert) SetCompensationType(v donorresponse.CompensationType) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldCompensationType, v)
 	return u
 }
 
-// UpdateConditions sets the "conditions" field to the value that was provided on create.
-func (u *DonorResponseUpsert) UpdateConditions() *DonorResponseUpsert {
-	u.SetExcluded(donorresponse.FieldConditions)
+// UpdateCompensationType sets the "compensation_type" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateCompensationType() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldCompensationType)
 	return u
 }
 
-// ClearConditions clears the value of the "conditions" field.
-func (u *DonorResponseUpsert) ClearConditions() *DonorResponseUpsert {
-	u.SetNull(donorresponse.FieldConditions)
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (u *DonorResponseUpsert) ClearCompensationType() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldCompensationType)
+	return u
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (u *DonorResponseUpsert) SetTaxiCompensation(v bool) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldTaxiCompensation, v)
+	return u
+}
+
+// UpdateTaxiCompensation sets the "taxi_compensation" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateTaxiCompensation() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldTaxiCompensation)
+	return u
+}
+
+// ClearTaxiCompensation clears the value of the "taxi_compensation" field.
+func (u *DonorResponseUpsert) ClearTaxiCompensation() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldTaxiCompensation)
 	return u
 }
 
@@ -469,24 +518,45 @@ func (u *DonorResponseUpsertOne) ClearDeletedAt() *DonorResponseUpsertOne {
 	})
 }
 
-// SetConditions sets the "conditions" field.
-func (u *DonorResponseUpsertOne) SetConditions(v []string) *DonorResponseUpsertOne {
+// SetCompensationType sets the "compensation_type" field.
+func (u *DonorResponseUpsertOne) SetCompensationType(v donorresponse.CompensationType) *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
-		s.SetConditions(v)
+		s.SetCompensationType(v)
 	})
 }
 
-// UpdateConditions sets the "conditions" field to the value that was provided on create.
-func (u *DonorResponseUpsertOne) UpdateConditions() *DonorResponseUpsertOne {
+// UpdateCompensationType sets the "compensation_type" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateCompensationType() *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
-		s.UpdateConditions()
+		s.UpdateCompensationType()
 	})
 }
 
-// ClearConditions clears the value of the "conditions" field.
-func (u *DonorResponseUpsertOne) ClearConditions() *DonorResponseUpsertOne {
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (u *DonorResponseUpsertOne) ClearCompensationType() *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
-		s.ClearConditions()
+		s.ClearCompensationType()
+	})
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (u *DonorResponseUpsertOne) SetTaxiCompensation(v bool) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetTaxiCompensation(v)
+	})
+}
+
+// UpdateTaxiCompensation sets the "taxi_compensation" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateTaxiCompensation() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateTaxiCompensation()
+	})
+}
+
+// ClearTaxiCompensation clears the value of the "taxi_compensation" field.
+func (u *DonorResponseUpsertOne) ClearTaxiCompensation() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearTaxiCompensation()
 	})
 }
 
@@ -757,24 +827,45 @@ func (u *DonorResponseUpsertBulk) ClearDeletedAt() *DonorResponseUpsertBulk {
 	})
 }
 
-// SetConditions sets the "conditions" field.
-func (u *DonorResponseUpsertBulk) SetConditions(v []string) *DonorResponseUpsertBulk {
+// SetCompensationType sets the "compensation_type" field.
+func (u *DonorResponseUpsertBulk) SetCompensationType(v donorresponse.CompensationType) *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
-		s.SetConditions(v)
+		s.SetCompensationType(v)
 	})
 }
 
-// UpdateConditions sets the "conditions" field to the value that was provided on create.
-func (u *DonorResponseUpsertBulk) UpdateConditions() *DonorResponseUpsertBulk {
+// UpdateCompensationType sets the "compensation_type" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateCompensationType() *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
-		s.UpdateConditions()
+		s.UpdateCompensationType()
 	})
 }
 
-// ClearConditions clears the value of the "conditions" field.
-func (u *DonorResponseUpsertBulk) ClearConditions() *DonorResponseUpsertBulk {
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (u *DonorResponseUpsertBulk) ClearCompensationType() *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
-		s.ClearConditions()
+		s.ClearCompensationType()
+	})
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (u *DonorResponseUpsertBulk) SetTaxiCompensation(v bool) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetTaxiCompensation(v)
+	})
+}
+
+// UpdateTaxiCompensation sets the "taxi_compensation" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateTaxiCompensation() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateTaxiCompensation()
+	})
+}
+
+// ClearTaxiCompensation clears the value of the "taxi_compensation" field.
+func (u *DonorResponseUpsertBulk) ClearTaxiCompensation() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearTaxiCompensation()
 	})
 }
 

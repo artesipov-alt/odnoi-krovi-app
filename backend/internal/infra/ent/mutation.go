@@ -3885,23 +3885,23 @@ func (m *DonorPreferenceMutation) ResetEdge(name string) error {
 // DonorResponseMutation represents an operation that mutates the DonorResponse nodes in the graph.
 type DonorResponseMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *string
-	created_at       *time.Time
-	updated_at       *time.Time
-	deleted_at       *time.Time
-	conditions       *[]string
-	appendconditions []string
-	status           *string
-	clearedFields    map[string]struct{}
-	request          *string
-	clearedrequest   bool
-	donor            *string
-	cleareddonor     bool
-	done             bool
-	oldValue         func(context.Context) (*DonorResponse, error)
-	predicates       []predicate.DonorResponse
+	op                Op
+	typ               string
+	id                *string
+	created_at        *time.Time
+	updated_at        *time.Time
+	deleted_at        *time.Time
+	compensation_type *donorresponse.CompensationType
+	taxi_compensation *bool
+	status            *string
+	clearedFields     map[string]struct{}
+	request           *string
+	clearedrequest    bool
+	donor             *string
+	cleareddonor      bool
+	done              bool
+	oldValue          func(context.Context) (*DonorResponse, error)
+	predicates        []predicate.DonorResponse
 }
 
 var _ ent.Mutation = (*DonorResponseMutation)(nil)
@@ -4129,69 +4129,102 @@ func (m *DonorResponseMutation) ResetDeletedAt() {
 	delete(m.clearedFields, donorresponse.FieldDeletedAt)
 }
 
-// SetConditions sets the "conditions" field.
-func (m *DonorResponseMutation) SetConditions(s []string) {
-	m.conditions = &s
-	m.appendconditions = nil
+// SetCompensationType sets the "compensation_type" field.
+func (m *DonorResponseMutation) SetCompensationType(dt donorresponse.CompensationType) {
+	m.compensation_type = &dt
 }
 
-// Conditions returns the value of the "conditions" field in the mutation.
-func (m *DonorResponseMutation) Conditions() (r []string, exists bool) {
-	v := m.conditions
+// CompensationType returns the value of the "compensation_type" field in the mutation.
+func (m *DonorResponseMutation) CompensationType() (r donorresponse.CompensationType, exists bool) {
+	v := m.compensation_type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldConditions returns the old "conditions" field's value of the DonorResponse entity.
+// OldCompensationType returns the old "compensation_type" field's value of the DonorResponse entity.
 // If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DonorResponseMutation) OldConditions(ctx context.Context) (v []string, err error) {
+func (m *DonorResponseMutation) OldCompensationType(ctx context.Context) (v donorresponse.CompensationType, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldConditions is only allowed on UpdateOne operations")
+		return v, errors.New("OldCompensationType is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldConditions requires an ID field in the mutation")
+		return v, errors.New("OldCompensationType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldConditions: %w", err)
+		return v, fmt.Errorf("querying old value for OldCompensationType: %w", err)
 	}
-	return oldValue.Conditions, nil
+	return oldValue.CompensationType, nil
 }
 
-// AppendConditions adds s to the "conditions" field.
-func (m *DonorResponseMutation) AppendConditions(s []string) {
-	m.appendconditions = append(m.appendconditions, s...)
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (m *DonorResponseMutation) ClearCompensationType() {
+	m.compensation_type = nil
+	m.clearedFields[donorresponse.FieldCompensationType] = struct{}{}
 }
 
-// AppendedConditions returns the list of values that were appended to the "conditions" field in this mutation.
-func (m *DonorResponseMutation) AppendedConditions() ([]string, bool) {
-	if len(m.appendconditions) == 0 {
-		return nil, false
-	}
-	return m.appendconditions, true
-}
-
-// ClearConditions clears the value of the "conditions" field.
-func (m *DonorResponseMutation) ClearConditions() {
-	m.conditions = nil
-	m.appendconditions = nil
-	m.clearedFields[donorresponse.FieldConditions] = struct{}{}
-}
-
-// ConditionsCleared returns if the "conditions" field was cleared in this mutation.
-func (m *DonorResponseMutation) ConditionsCleared() bool {
-	_, ok := m.clearedFields[donorresponse.FieldConditions]
+// CompensationTypeCleared returns if the "compensation_type" field was cleared in this mutation.
+func (m *DonorResponseMutation) CompensationTypeCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldCompensationType]
 	return ok
 }
 
-// ResetConditions resets all changes to the "conditions" field.
-func (m *DonorResponseMutation) ResetConditions() {
-	m.conditions = nil
-	m.appendconditions = nil
-	delete(m.clearedFields, donorresponse.FieldConditions)
+// ResetCompensationType resets all changes to the "compensation_type" field.
+func (m *DonorResponseMutation) ResetCompensationType() {
+	m.compensation_type = nil
+	delete(m.clearedFields, donorresponse.FieldCompensationType)
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (m *DonorResponseMutation) SetTaxiCompensation(b bool) {
+	m.taxi_compensation = &b
+}
+
+// TaxiCompensation returns the value of the "taxi_compensation" field in the mutation.
+func (m *DonorResponseMutation) TaxiCompensation() (r bool, exists bool) {
+	v := m.taxi_compensation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaxiCompensation returns the old "taxi_compensation" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldTaxiCompensation(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaxiCompensation is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaxiCompensation requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaxiCompensation: %w", err)
+	}
+	return oldValue.TaxiCompensation, nil
+}
+
+// ClearTaxiCompensation clears the value of the "taxi_compensation" field.
+func (m *DonorResponseMutation) ClearTaxiCompensation() {
+	m.taxi_compensation = nil
+	m.clearedFields[donorresponse.FieldTaxiCompensation] = struct{}{}
+}
+
+// TaxiCompensationCleared returns if the "taxi_compensation" field was cleared in this mutation.
+func (m *DonorResponseMutation) TaxiCompensationCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldTaxiCompensation]
+	return ok
+}
+
+// ResetTaxiCompensation resets all changes to the "taxi_compensation" field.
+func (m *DonorResponseMutation) ResetTaxiCompensation() {
+	m.taxi_compensation = nil
+	delete(m.clearedFields, donorresponse.FieldTaxiCompensation)
 }
 
 // SetStatus sets the "status" field.
@@ -4342,7 +4375,7 @@ func (m *DonorResponseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorResponseMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, donorresponse.FieldCreatedAt)
 	}
@@ -4352,8 +4385,11 @@ func (m *DonorResponseMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, donorresponse.FieldDeletedAt)
 	}
-	if m.conditions != nil {
-		fields = append(fields, donorresponse.FieldConditions)
+	if m.compensation_type != nil {
+		fields = append(fields, donorresponse.FieldCompensationType)
+	}
+	if m.taxi_compensation != nil {
+		fields = append(fields, donorresponse.FieldTaxiCompensation)
 	}
 	if m.status != nil {
 		fields = append(fields, donorresponse.FieldStatus)
@@ -4372,8 +4408,10 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case donorresponse.FieldDeletedAt:
 		return m.DeletedAt()
-	case donorresponse.FieldConditions:
-		return m.Conditions()
+	case donorresponse.FieldCompensationType:
+		return m.CompensationType()
+	case donorresponse.FieldTaxiCompensation:
+		return m.TaxiCompensation()
 	case donorresponse.FieldStatus:
 		return m.Status()
 	}
@@ -4391,8 +4429,10 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case donorresponse.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case donorresponse.FieldConditions:
-		return m.OldConditions(ctx)
+	case donorresponse.FieldCompensationType:
+		return m.OldCompensationType(ctx)
+	case donorresponse.FieldTaxiCompensation:
+		return m.OldTaxiCompensation(ctx)
 	case donorresponse.FieldStatus:
 		return m.OldStatus(ctx)
 	}
@@ -4425,12 +4465,19 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeletedAt(v)
 		return nil
-	case donorresponse.FieldConditions:
-		v, ok := value.([]string)
+	case donorresponse.FieldCompensationType:
+		v, ok := value.(donorresponse.CompensationType)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetConditions(v)
+		m.SetCompensationType(v)
+		return nil
+	case donorresponse.FieldTaxiCompensation:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaxiCompensation(v)
 		return nil
 	case donorresponse.FieldStatus:
 		v, ok := value.(string)
@@ -4472,8 +4519,11 @@ func (m *DonorResponseMutation) ClearedFields() []string {
 	if m.FieldCleared(donorresponse.FieldDeletedAt) {
 		fields = append(fields, donorresponse.FieldDeletedAt)
 	}
-	if m.FieldCleared(donorresponse.FieldConditions) {
-		fields = append(fields, donorresponse.FieldConditions)
+	if m.FieldCleared(donorresponse.FieldCompensationType) {
+		fields = append(fields, donorresponse.FieldCompensationType)
+	}
+	if m.FieldCleared(donorresponse.FieldTaxiCompensation) {
+		fields = append(fields, donorresponse.FieldTaxiCompensation)
 	}
 	return fields
 }
@@ -4492,8 +4542,11 @@ func (m *DonorResponseMutation) ClearField(name string) error {
 	case donorresponse.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
-	case donorresponse.FieldConditions:
-		m.ClearConditions()
+	case donorresponse.FieldCompensationType:
+		m.ClearCompensationType()
+		return nil
+	case donorresponse.FieldTaxiCompensation:
+		m.ClearTaxiCompensation()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse nullable field %s", name)
@@ -4512,8 +4565,11 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 	case donorresponse.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
-	case donorresponse.FieldConditions:
-		m.ResetConditions()
+	case donorresponse.FieldCompensationType:
+		m.ResetCompensationType()
+		return nil
+	case donorresponse.FieldTaxiCompensation:
+		m.ResetTaxiCompensation()
 		return nil
 	case donorresponse.FieldStatus:
 		m.ResetStatus()

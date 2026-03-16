@@ -3,7 +3,6 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -26,8 +25,10 @@ type DonorResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
-	// Conditions holds the value of the "conditions" field.
-	Conditions []string `json:"conditions,omitempty"`
+	// CompensationType holds the value of the "compensation_type" field.
+	CompensationType donorresponse.CompensationType `json:"compensation_type,omitempty"`
+	// TaxiCompensation holds the value of the "taxi_compensation" field.
+	TaxiCompensation bool `json:"taxi_compensation,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -78,9 +79,9 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case donorresponse.FieldConditions:
-			values[i] = new([]byte)
-		case donorresponse.FieldID, donorresponse.FieldStatus:
+		case donorresponse.FieldTaxiCompensation:
+			values[i] = new(sql.NullBool)
+		case donorresponse.FieldID, donorresponse.FieldCompensationType, donorresponse.FieldStatus:
 			values[i] = new(sql.NullString)
 		case donorresponse.FieldCreatedAt, donorresponse.FieldUpdatedAt, donorresponse.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -128,13 +129,17 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
-		case donorresponse.FieldConditions:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field conditions", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Conditions); err != nil {
-					return fmt.Errorf("unmarshal field conditions: %w", err)
-				}
+		case donorresponse.FieldCompensationType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field compensation_type", values[i])
+			} else if value.Valid {
+				_m.CompensationType = donorresponse.CompensationType(value.String)
+			}
+		case donorresponse.FieldTaxiCompensation:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field taxi_compensation", values[i])
+			} else if value.Valid {
+				_m.TaxiCompensation = value.Bool
 			}
 		case donorresponse.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -213,8 +218,11 @@ func (_m *DonorResponse) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("conditions=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Conditions))
+	builder.WriteString("compensation_type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CompensationType))
+	builder.WriteString(", ")
+	builder.WriteString("taxi_compensation=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TaxiCompensation))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

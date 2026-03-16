@@ -38,13 +38,14 @@ func (r *EntDonorResponseRepository) toDomainModel(entResp *ent.DonorResponse) *
 	}
 
 	return &donormodel.DonorResponse{
-		ID:         entResp.ID,
-		RequestID:  entResp.Edges.Request.ID,
-		DonorID:    entResp.Edges.Donor.ID,
-		Conditions: entResp.Conditions,
-		Status:     donormodel.DonorResponseStatus(entResp.Status),
-		CreatedAt:  &entResp.CreatedAt,
-		UpdatedAt:  &entResp.UpdatedAt,
+		ID:               entResp.ID,
+		RequestID:        entResp.Edges.Request.ID,
+		DonorID:          entResp.Edges.Donor.ID,
+		CompensationType: string(entResp.CompensationType),
+		TaxiCompensation: entResp.TaxiCompensation,
+		Status:           donormodel.DonorResponseStatus(entResp.Status),
+		CreatedAt:        &entResp.CreatedAt,
+		UpdatedAt:        &entResp.UpdatedAt,
 	}
 }
 
@@ -53,7 +54,8 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 		Create().
 		SetRequestID(resp.RequestID).
 		SetDonorID(resp.DonorID).
-		SetConditions(resp.Conditions).
+		SetCompensationType(donorresponse.CompensationType(resp.CompensationType)).
+		SetTaxiCompensation(resp.TaxiCompensation).
 		SetStatus(string(resp.Status)).
 		Save(ctx)
 	if err != nil {

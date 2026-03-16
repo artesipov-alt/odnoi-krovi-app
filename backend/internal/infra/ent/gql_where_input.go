@@ -1654,6 +1654,20 @@ type DonorResponseWhereInput struct {
 	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
 	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
+	// "compensation_type" field predicates.
+	CompensationType       *donorresponse.CompensationType  `json:"compensationType,omitempty"`
+	CompensationTypeNEQ    *donorresponse.CompensationType  `json:"compensationTypeNEQ,omitempty"`
+	CompensationTypeIn     []donorresponse.CompensationType `json:"compensationTypeIn,omitempty"`
+	CompensationTypeNotIn  []donorresponse.CompensationType `json:"compensationTypeNotIn,omitempty"`
+	CompensationTypeIsNil  bool                             `json:"compensationTypeIsNil,omitempty"`
+	CompensationTypeNotNil bool                             `json:"compensationTypeNotNil,omitempty"`
+
+	// "taxi_compensation" field predicates.
+	TaxiCompensation       *bool `json:"taxiCompensation,omitempty"`
+	TaxiCompensationNEQ    *bool `json:"taxiCompensationNEQ,omitempty"`
+	TaxiCompensationIsNil  bool  `json:"taxiCompensationIsNil,omitempty"`
+	TaxiCompensationNotNil bool  `json:"taxiCompensationNotNil,omitempty"`
+
 	// "status" field predicates.
 	Status             *string  `json:"status,omitempty"`
 	StatusNEQ          *string  `json:"statusNEQ,omitempty"`
@@ -1856,6 +1870,36 @@ func (i *DonorResponseWhereInput) P() (predicate.DonorResponse, error) {
 	}
 	if i.DeletedAtNotNil {
 		predicates = append(predicates, donorresponse.DeletedAtNotNil())
+	}
+	if i.CompensationType != nil {
+		predicates = append(predicates, donorresponse.CompensationTypeEQ(*i.CompensationType))
+	}
+	if i.CompensationTypeNEQ != nil {
+		predicates = append(predicates, donorresponse.CompensationTypeNEQ(*i.CompensationTypeNEQ))
+	}
+	if len(i.CompensationTypeIn) > 0 {
+		predicates = append(predicates, donorresponse.CompensationTypeIn(i.CompensationTypeIn...))
+	}
+	if len(i.CompensationTypeNotIn) > 0 {
+		predicates = append(predicates, donorresponse.CompensationTypeNotIn(i.CompensationTypeNotIn...))
+	}
+	if i.CompensationTypeIsNil {
+		predicates = append(predicates, donorresponse.CompensationTypeIsNil())
+	}
+	if i.CompensationTypeNotNil {
+		predicates = append(predicates, donorresponse.CompensationTypeNotNil())
+	}
+	if i.TaxiCompensation != nil {
+		predicates = append(predicates, donorresponse.TaxiCompensationEQ(*i.TaxiCompensation))
+	}
+	if i.TaxiCompensationNEQ != nil {
+		predicates = append(predicates, donorresponse.TaxiCompensationNEQ(*i.TaxiCompensationNEQ))
+	}
+	if i.TaxiCompensationIsNil {
+		predicates = append(predicates, donorresponse.TaxiCompensationIsNil())
+	}
+	if i.TaxiCompensationNotNil {
+		predicates = append(predicates, donorresponse.TaxiCompensationNotNil())
 	}
 	if i.Status != nil {
 		predicates = append(predicates, donorresponse.StatusEQ(*i.Status))

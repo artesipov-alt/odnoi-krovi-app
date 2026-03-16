@@ -30,7 +30,7 @@ func NewApplyForRequestHandler(
 	}
 }
 
-func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID string, conditions []string) (*model.DonorResponse, error) {
+func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, compensationType string, taxiCompensation bool) (*model.DonorResponse, error) {
 	// Проверяем существование и статус заявки
 	req, err := h.bloodRepo.GetByID(ctx, reqID)
 	if err != nil {
@@ -61,7 +61,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID stri
 	}
 
 	// Create domain model using constructor
-	resp, err := donormodel.NewDonorResponse(reqID, donorID, conditions)
+	resp, err := donormodel.NewDonorResponse(reqID, donorID, compensationType, taxiCompensation)
 	if err != nil {
 		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}

@@ -13,18 +13,19 @@ type DonorApplicationIDPath struct {
 
 // DonorApplication представляет отклик донора
 type DonorApplication struct {
-	ID              string     `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
-	RequestID       string     `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
-	DonorID         string     `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
-	DonorName       string     `json:"donorName" doc:"Имя донора" example:"Барсик"`
-	DonorPhotos     []string   `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
-	DonorBloodGroup string     `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
-	Amount          int32      `json:"amount" doc:"Объем крови в мл" example:"450"`
-	WarnFactors     []string   `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
-	Conditions      []string   `json:"conditions" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
-	Status          string     `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
-	CreatedAt       *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt       *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
+	ID               string     `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
+	RequestID        string     `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	DonorID          string     `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
+	DonorName        string     `json:"donorName" doc:"Имя донора" example:"Барсик"`
+	DonorPhotos      []string   `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
+	DonorBloodGroup  string     `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
+	Amount           int32      `json:"amount" doc:"Объем крови в мл" example:"450"`
+	WarnFactors      []string   `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
+	CompensationType string     `json:"compensationType,omitempty" doc:"Условия донации" enum:"free,paid,food"`
+	TaxiCompensation bool       `json:"taxiCompensation,omitempty" doc:"Компенсация такси" example:"true"`
+	Status           string     `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
+	CreatedAt        *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+	UpdatedAt        *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
 }
 
 // ============================================
@@ -38,10 +39,11 @@ type CreateDonorApplicationInput struct {
 
 // CreateDonorApplicationBody представляет тело запроса на создание отклика
 type CreateDonorApplicationBody struct {
-	RequestID  string   `json:"requestId" doc:"ID заявки на поиск крови" minLength:"1" example:"BLS-ABCDEABCDE"`
-	DonorID    string   `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
-	Conditions []string `json:"conditions,omitempty" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
-	Amount     int32    `json:"amount,omitempty" doc:"Объем крови в мл" minimum:"1" maximum:"500" example:"450"`
+	RequestID        string `json:"requestId" doc:"ID заявки на поиск крови" minLength:"1" example:"BLS-ABCDEABCDE"`
+	DonorID          string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
+	CompensationType string `json:"compensationType,omitempty" doc:"Условия донации" enum:"free,paid,food"`
+	TaxiCompensation bool   `json:"taxiCompensation,omitempty" doc:"Компенсация такси" example:"true"`
+	Amount           int32  `json:"amount,omitempty" doc:"Объем крови в мл" minimum:"1" maximum:"500" example:"450"`
 }
 
 // CreateDonorApplicationOutput представляет ответ на создание отклика
@@ -159,8 +161,9 @@ type ApplyForBloodRequestInput struct {
 
 // ApplyForBloodRequestBody представляет тело запроса на отклик
 type ApplyForBloodRequestBody struct {
-	DonorID    string   `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
-	Conditions []string `json:"conditions,omitempty" doc:"Условия донации" enum:"free,paid,food,taxi_compensation"`
+	DonorID          string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
+	CompensationType string `json:"compensationType,omitempty" doc:"Условия донации" enum:"free,paid,food"`
+	TaxiCompensation bool   `json:"taxiCompensation,omitempty" doc:"Компенсация такси" example:"true"`
 }
 
 // ApplyForBloodRequestOutput представляет ответ на отклик

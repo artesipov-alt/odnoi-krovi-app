@@ -44,9 +44,9 @@ type RecipientDetail struct {
 
 // DefaultPrefsпредставляет предпочтения реципиента по умолчанию
 type DefaultDonorPrefs struct {
-	CompensationType string   `json:"compensationType,omitempty" doc:"Тип компенсации" enum:"free,paid,food"`
-	Bonuses          []string `json:"bonuses,omitempty" doc:"Бонусы за донорство"`
-	TaxiCompensation bool     `json:"taxiCompensation,omitempty" doc:"Компенсация такси"`
+	CompensationType string   `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
+	Bonuses          []string `json:"bonuses" doc:"Бонусы за донорство"`
+	TaxiCompensation bool     `json:"taxiCompensation" doc:"Компенсация такси"`
 }
 
 // ListRecipientsOutput представляет ответ со списком реципиентов
@@ -58,7 +58,6 @@ type RecipientDetailsOutput struct {
 type MatchingDonor struct {
 	PetID           string   `json:"petId" doc:"ID питомца донора" example:"PET-ABCDEABCDE"`
 	PetName         string   `json:"petName" doc:"Имя питомца донора" example:"Рекс"`
-	PetType         string   `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	DonorBloodGroup string   `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
 	PhotoURLs       []string `json:"photoUrls,omitempty" doc:"Список URL фотографий донора"`
 }

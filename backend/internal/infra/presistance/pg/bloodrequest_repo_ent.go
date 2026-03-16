@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -79,6 +80,8 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 			})
 		}
 	}
+
+	slog.Info("", "matching", matching)
 	recipient.MatchingDonors = matching
 
 	return recipient

@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -57,21 +56,43 @@ func (_u *DonorResponseUpdate) ClearDeletedAt() *DonorResponseUpdate {
 	return _u
 }
 
-// SetConditions sets the "conditions" field.
-func (_u *DonorResponseUpdate) SetConditions(v []string) *DonorResponseUpdate {
-	_u.mutation.SetConditions(v)
+// SetCompensationType sets the "compensation_type" field.
+func (_u *DonorResponseUpdate) SetCompensationType(v donorresponse.CompensationType) *DonorResponseUpdate {
+	_u.mutation.SetCompensationType(v)
 	return _u
 }
 
-// AppendConditions appends value to the "conditions" field.
-func (_u *DonorResponseUpdate) AppendConditions(v []string) *DonorResponseUpdate {
-	_u.mutation.AppendConditions(v)
+// SetNillableCompensationType sets the "compensation_type" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableCompensationType(v *donorresponse.CompensationType) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetCompensationType(*v)
+	}
 	return _u
 }
 
-// ClearConditions clears the value of the "conditions" field.
-func (_u *DonorResponseUpdate) ClearConditions() *DonorResponseUpdate {
-	_u.mutation.ClearConditions()
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (_u *DonorResponseUpdate) ClearCompensationType() *DonorResponseUpdate {
+	_u.mutation.ClearCompensationType()
+	return _u
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (_u *DonorResponseUpdate) SetTaxiCompensation(v bool) *DonorResponseUpdate {
+	_u.mutation.SetTaxiCompensation(v)
+	return _u
+}
+
+// SetNillableTaxiCompensation sets the "taxi_compensation" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableTaxiCompensation(v *bool) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetTaxiCompensation(*v)
+	}
+	return _u
+}
+
+// ClearTaxiCompensation clears the value of the "taxi_compensation" field.
+func (_u *DonorResponseUpdate) ClearTaxiCompensation() *DonorResponseUpdate {
+	_u.mutation.ClearTaxiCompensation()
 	return _u
 }
 
@@ -166,6 +187,11 @@ func (_u *DonorResponseUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DonorResponseUpdate) check() error {
+	if v, ok := _u.mutation.CompensationType(); ok {
+		if err := donorresponse.CompensationTypeValidator(v); err != nil {
+			return &ValidationError{Name: "compensation_type", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.compensation_type": %w`, err)}
+		}
+	}
 	if _u.mutation.RequestCleared() && len(_u.mutation.RequestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DonorResponse.request"`)
 	}
@@ -196,16 +222,17 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(donorresponse.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.Conditions(); ok {
-		_spec.SetField(donorresponse.FieldConditions, field.TypeJSON, value)
+	if value, ok := _u.mutation.CompensationType(); ok {
+		_spec.SetField(donorresponse.FieldCompensationType, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.AppendedConditions(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, donorresponse.FieldConditions, value)
-		})
+	if _u.mutation.CompensationTypeCleared() {
+		_spec.ClearField(donorresponse.FieldCompensationType, field.TypeEnum)
 	}
-	if _u.mutation.ConditionsCleared() {
-		_spec.ClearField(donorresponse.FieldConditions, field.TypeJSON)
+	if value, ok := _u.mutation.TaxiCompensation(); ok {
+		_spec.SetField(donorresponse.FieldTaxiCompensation, field.TypeBool, value)
+	}
+	if _u.mutation.TaxiCompensationCleared() {
+		_spec.ClearField(donorresponse.FieldTaxiCompensation, field.TypeBool)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
@@ -314,21 +341,43 @@ func (_u *DonorResponseUpdateOne) ClearDeletedAt() *DonorResponseUpdateOne {
 	return _u
 }
 
-// SetConditions sets the "conditions" field.
-func (_u *DonorResponseUpdateOne) SetConditions(v []string) *DonorResponseUpdateOne {
-	_u.mutation.SetConditions(v)
+// SetCompensationType sets the "compensation_type" field.
+func (_u *DonorResponseUpdateOne) SetCompensationType(v donorresponse.CompensationType) *DonorResponseUpdateOne {
+	_u.mutation.SetCompensationType(v)
 	return _u
 }
 
-// AppendConditions appends value to the "conditions" field.
-func (_u *DonorResponseUpdateOne) AppendConditions(v []string) *DonorResponseUpdateOne {
-	_u.mutation.AppendConditions(v)
+// SetNillableCompensationType sets the "compensation_type" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableCompensationType(v *donorresponse.CompensationType) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetCompensationType(*v)
+	}
 	return _u
 }
 
-// ClearConditions clears the value of the "conditions" field.
-func (_u *DonorResponseUpdateOne) ClearConditions() *DonorResponseUpdateOne {
-	_u.mutation.ClearConditions()
+// ClearCompensationType clears the value of the "compensation_type" field.
+func (_u *DonorResponseUpdateOne) ClearCompensationType() *DonorResponseUpdateOne {
+	_u.mutation.ClearCompensationType()
+	return _u
+}
+
+// SetTaxiCompensation sets the "taxi_compensation" field.
+func (_u *DonorResponseUpdateOne) SetTaxiCompensation(v bool) *DonorResponseUpdateOne {
+	_u.mutation.SetTaxiCompensation(v)
+	return _u
+}
+
+// SetNillableTaxiCompensation sets the "taxi_compensation" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableTaxiCompensation(v *bool) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetTaxiCompensation(*v)
+	}
+	return _u
+}
+
+// ClearTaxiCompensation clears the value of the "taxi_compensation" field.
+func (_u *DonorResponseUpdateOne) ClearTaxiCompensation() *DonorResponseUpdateOne {
+	_u.mutation.ClearTaxiCompensation()
 	return _u
 }
 
@@ -436,6 +485,11 @@ func (_u *DonorResponseUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DonorResponseUpdateOne) check() error {
+	if v, ok := _u.mutation.CompensationType(); ok {
+		if err := donorresponse.CompensationTypeValidator(v); err != nil {
+			return &ValidationError{Name: "compensation_type", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.compensation_type": %w`, err)}
+		}
+	}
 	if _u.mutation.RequestCleared() && len(_u.mutation.RequestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DonorResponse.request"`)
 	}
@@ -483,16 +537,17 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(donorresponse.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := _u.mutation.Conditions(); ok {
-		_spec.SetField(donorresponse.FieldConditions, field.TypeJSON, value)
+	if value, ok := _u.mutation.CompensationType(); ok {
+		_spec.SetField(donorresponse.FieldCompensationType, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.AppendedConditions(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, donorresponse.FieldConditions, value)
-		})
+	if _u.mutation.CompensationTypeCleared() {
+		_spec.ClearField(donorresponse.FieldCompensationType, field.TypeEnum)
 	}
-	if _u.mutation.ConditionsCleared() {
-		_spec.ClearField(donorresponse.FieldConditions, field.TypeJSON)
+	if value, ok := _u.mutation.TaxiCompensation(); ok {
+		_spec.SetField(donorresponse.FieldTaxiCompensation, field.TypeBool, value)
+	}
+	if _u.mutation.TaxiCompensationCleared() {
+		_spec.ClearField(donorresponse.FieldTaxiCompensation, field.TypeBool)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)

@@ -80,6 +80,11 @@ func DeletedAt(v time.Time) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// TaxiCompensation applies equality check predicate on the "taxi_compensation" field. It's identical to TaxiCompensationEQ.
+func TaxiCompensation(v bool) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldTaxiCompensation, v))
+}
+
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldStatus, v))
@@ -215,14 +220,54 @@ func DeletedAtNotNil() predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// ConditionsIsNil applies the IsNil predicate on the "conditions" field.
-func ConditionsIsNil() predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldIsNull(FieldConditions))
+// CompensationTypeEQ applies the EQ predicate on the "compensation_type" field.
+func CompensationTypeEQ(v CompensationType) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldCompensationType, v))
 }
 
-// ConditionsNotNil applies the NotNil predicate on the "conditions" field.
-func ConditionsNotNil() predicate.DonorResponse {
-	return predicate.DonorResponse(sql.FieldNotNull(FieldConditions))
+// CompensationTypeNEQ applies the NEQ predicate on the "compensation_type" field.
+func CompensationTypeNEQ(v CompensationType) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldCompensationType, v))
+}
+
+// CompensationTypeIn applies the In predicate on the "compensation_type" field.
+func CompensationTypeIn(vs ...CompensationType) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIn(FieldCompensationType, vs...))
+}
+
+// CompensationTypeNotIn applies the NotIn predicate on the "compensation_type" field.
+func CompensationTypeNotIn(vs ...CompensationType) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotIn(FieldCompensationType, vs...))
+}
+
+// CompensationTypeIsNil applies the IsNil predicate on the "compensation_type" field.
+func CompensationTypeIsNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIsNull(FieldCompensationType))
+}
+
+// CompensationTypeNotNil applies the NotNil predicate on the "compensation_type" field.
+func CompensationTypeNotNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotNull(FieldCompensationType))
+}
+
+// TaxiCompensationEQ applies the EQ predicate on the "taxi_compensation" field.
+func TaxiCompensationEQ(v bool) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldTaxiCompensation, v))
+}
+
+// TaxiCompensationNEQ applies the NEQ predicate on the "taxi_compensation" field.
+func TaxiCompensationNEQ(v bool) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldTaxiCompensation, v))
+}
+
+// TaxiCompensationIsNil applies the IsNil predicate on the "taxi_compensation" field.
+func TaxiCompensationIsNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIsNull(FieldTaxiCompensation))
+}
+
+// TaxiCompensationNotNil applies the NotNil predicate on the "taxi_compensation" field.
+func TaxiCompensationNotNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotNull(FieldTaxiCompensation))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

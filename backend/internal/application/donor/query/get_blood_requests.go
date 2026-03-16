@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -35,9 +36,12 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	for i, _ := range pets {
 		pets[i].RecalculateFactors(time.Now())
 		pets[i].CalculateDonorStatus()
+		slog.Info("", "petStatus", pets[i].PetStatus)
+		slog.Info("", "petName", pets[i].StopFactors)
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)
+	slog.Info("", "potentialDonors", potentialDonors)
 
 	requests, err := h.bloodRepo.AdptiveList(ctx, potentialDonors, filters)
 	if err != nil {

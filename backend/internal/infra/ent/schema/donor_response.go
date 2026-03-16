@@ -16,7 +16,8 @@ type DonorResponse struct {
 // Fields of the BloodSearchRequest.
 func (DonorResponse) Fields() []ent.Field {
 	return []ent.Field{
-		field.JSON("conditions", []string{}).Optional(),
+		field.Enum("compensation_type").Values("free", "paid", "food").Optional(),
+		field.Bool("taxi_compensation").Optional(),
 		field.String("status"),
 	}
 }

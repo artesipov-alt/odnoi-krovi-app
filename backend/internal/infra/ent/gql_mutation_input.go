@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 )
@@ -347,13 +348,14 @@ func (c *DonorPreferenceUpdateOne) SetInput(i UpdateDonorPreferenceInput) *Donor
 
 // CreateDonorResponseInput represents a mutation input for creating donorresponses.
 type CreateDonorResponseInput struct {
-	CreatedAt  *time.Time
-	UpdatedAt  *time.Time
-	DeletedAt  *time.Time
-	Conditions []string
-	Status     string
-	RequestID  string
-	DonorID    string
+	CreatedAt        *time.Time
+	UpdatedAt        *time.Time
+	DeletedAt        *time.Time
+	CompensationType *donorresponse.CompensationType
+	TaxiCompensation *bool
+	Status           string
+	RequestID        string
+	DonorID          string
 }
 
 // Mutate applies the CreateDonorResponseInput on the DonorResponseMutation builder.
@@ -367,8 +369,11 @@ func (i *CreateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	if v := i.DeletedAt; v != nil {
 		m.SetDeletedAt(*v)
 	}
-	if v := i.Conditions; v != nil {
-		m.SetConditions(v)
+	if v := i.CompensationType; v != nil {
+		m.SetCompensationType(*v)
+	}
+	if v := i.TaxiCompensation; v != nil {
+		m.SetTaxiCompensation(*v)
 	}
 	m.SetStatus(i.Status)
 	m.SetRequestID(i.RequestID)
@@ -383,15 +388,16 @@ func (c *DonorResponseCreate) SetInput(i CreateDonorResponseInput) *DonorRespons
 
 // UpdateDonorResponseInput represents a mutation input for updating donorresponses.
 type UpdateDonorResponseInput struct {
-	UpdatedAt        *time.Time
-	ClearDeletedAt   bool
-	DeletedAt        *time.Time
-	ClearConditions  bool
-	Conditions       []string
-	AppendConditions []string
-	Status           *string
-	RequestID        *string
-	DonorID          *string
+	UpdatedAt             *time.Time
+	ClearDeletedAt        bool
+	DeletedAt             *time.Time
+	ClearCompensationType bool
+	CompensationType      *donorresponse.CompensationType
+	ClearTaxiCompensation bool
+	TaxiCompensation      *bool
+	Status                *string
+	RequestID             *string
+	DonorID               *string
 }
 
 // Mutate applies the UpdateDonorResponseInput on the DonorResponseMutation builder.
@@ -405,14 +411,17 @@ func (i *UpdateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	if v := i.DeletedAt; v != nil {
 		m.SetDeletedAt(*v)
 	}
-	if i.ClearConditions {
-		m.ClearConditions()
+	if i.ClearCompensationType {
+		m.ClearCompensationType()
 	}
-	if v := i.Conditions; v != nil {
-		m.SetConditions(v)
+	if v := i.CompensationType; v != nil {
+		m.SetCompensationType(*v)
 	}
-	if i.AppendConditions != nil {
-		m.AppendConditions(i.Conditions)
+	if i.ClearTaxiCompensation {
+		m.ClearTaxiCompensation()
+	}
+	if v := i.TaxiCompensation; v != nil {
+		m.SetTaxiCompensation(*v)
 	}
 	if v := i.Status; v != nil {
 		m.SetStatus(*v)

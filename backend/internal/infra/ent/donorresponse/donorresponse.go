@@ -3,6 +3,9 @@
 package donorresponse
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -21,8 +24,10 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldConditions holds the string denoting the conditions field in the database.
-	FieldConditions = "conditions"
+	// FieldCompensationType holds the string denoting the compensation_type field in the database.
+	FieldCompensationType = "compensation_type"
+	// FieldTaxiCompensation holds the string denoting the taxi_compensation field in the database.
+	FieldTaxiCompensation = "taxi_compensation"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// EdgeRequest holds the string denoting the request edge name in mutations.
@@ -53,7 +58,8 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldConditions,
+	FieldCompensationType,
+	FieldTaxiCompensation,
 	FieldStatus,
 }
 
@@ -96,6 +102,30 @@ var (
 	DefaultID func() string
 )
 
+// CompensationType defines the type for the "compensation_type" enum field.
+type CompensationType string
+
+// CompensationType values.
+const (
+	CompensationTypeFree CompensationType = "free"
+	CompensationTypePaid CompensationType = "paid"
+	CompensationTypeFood CompensationType = "food"
+)
+
+func (ct CompensationType) String() string {
+	return string(ct)
+}
+
+// CompensationTypeValidator is a validator for the "compensation_type" field enum values. It is called by the builders before save.
+func CompensationTypeValidator(ct CompensationType) error {
+	switch ct {
+	case CompensationTypeFree, CompensationTypePaid, CompensationTypeFood:
+		return nil
+	default:
+		return fmt.Errorf("donorresponse: invalid enum value for compensation_type field: %q", ct)
+	}
+}
+
 // OrderOption defines the ordering options for the DonorResponse queries.
 type OrderOption func(*sql.Selector)
 
@@ -117,6 +147,16 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByCompensationType orders the results by the compensation_type field.
+func ByCompensationType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompensationType, opts...).ToFunc()
+}
+
+// ByTaxiCompensation orders the results by the taxi_compensation field.
+func ByTaxiCompensation(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTaxiCompensation, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.
@@ -150,4 +190,22 @@ func newDonorStep() *sqlgraph.Step {
 		sqlgraph.To(DonorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, DonorTable, DonorColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e CompensationType) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *CompensationType) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = CompensationType(str)
+	if err := CompensationTypeValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid CompensationType", str)
+	}
+	return nil
 }

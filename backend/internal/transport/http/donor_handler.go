@@ -122,7 +122,6 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ d
 		matchingDonors[i] = dto.MatchingDonor{
 			PetID:           md.PetID,
 			PetName:         md.PetName,
-			PetType:         string(md.PetType),
 			DonorBloodGroup: md.DonorBloodGroup,
 			PhotoURLs:       md.PhotoURLs,
 		}
@@ -158,7 +157,7 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ d
 }
 
 func (h *DonorHandler) ApplyForBloodRequest(ctx context.Context, input *dto.ApplyForBloodRequestInput) (*dto.ApplyForBloodRequestOutput, error) {
-	resp, err := h.applyHandler.Handle(ctx, input.ID, input.Body.DonorID, input.Body.Conditions)
+	resp, err := h.applyHandler.Handle(ctx, input.ID, input.Body.DonorID, input.Body.CompensationType, input.Body.TaxiCompensation)
 	if err != nil {
 		return nil, err
 	}
