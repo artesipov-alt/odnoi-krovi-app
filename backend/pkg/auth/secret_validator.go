@@ -295,8 +295,8 @@ func (v *AppValidator) computeSecretKey(p Provider) []byte {
 
 func parseRawQuery(qs string) (map[string]string, error) {
 	result := make(map[string]string)
-	pairs := strings.Split(qs, "&")
-	for _, pair := range pairs {
+	pairs := strings.SplitSeq(qs, "&")
+	for pair := range pairs {
 		if pair == "" {
 			continue
 		}
@@ -313,11 +313,12 @@ func joinStrings(ss []string, sep string) string {
 	if len(ss) == 0 {
 		return ""
 	}
-	result := ss[0]
+	var result strings.Builder
+	result.WriteString(ss[0])
 	for i := 1; i < len(ss); i++ {
-		result += sep + ss[i]
+		result.WriteString(sep + ss[i])
 	}
-	return result
+	return result.String()
 }
 
 // ValidateMock оставлена для совместимости.

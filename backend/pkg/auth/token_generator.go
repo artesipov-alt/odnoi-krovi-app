@@ -66,7 +66,7 @@ func (g *JWTGenerator) Generate(entityID, role string, now time.Time) (string, t
 func (g *JWTGenerator) Validate(tokenString string) (entityID string, role string, err error) {
 	claims := &Claims{}
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
 		// Проверяем, что используется ожидаемый алгоритм подписи
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")

@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+
+## [3.4.8] - 2026-03-16
+
+### Добавлено
+- **Middleware аутентификации с контролем доступа на основе ролей (RBAC):**
+  - Реализован JWT-аутентификационный middleware с возможностью исключения определенных путей.
+  - Добавлены вспомогательные функции для извлечения ID пользователя и его роли из контекста запроса.
+  - Включены middleware для проверки требований к ролям (`RequireRole`, `RequireAnyRole`).
+  - Обновлена цепочка middleware сервера для включения аутентификационного middleware.
+  - Прямой доступ к контексту для получения ID пользователя заменен на использование `middleware.GetUserID` в обработчиках.
+
+### Технические детали
+- В `internal/middleware/auth_middleware.go` реализован `AuthMiddleware` для проверки JWT-токенов и `ExcludePaths` для определения исключений.
+- В `internal/middleware/auth_middleware.go` добавлены функции `GetUserIDFromContext` и `GetUserRoleFromContext`.
+- В `internal/middleware/role_middleware.go` реализованы `RequireRole` и `RequireAnyRole` для проверки ролей пользователя.
+- В `internal/server/server.go` обновлена инициализация сервера для включения `AuthMiddleware` в цепочку.
+- В `internal/handlers/...` и `internal/services/...` прямой доступ к `ctx.Value("userID")` заменен на `middleware.GetUserIDFromContext(ctx)`.
+
 ## [3.4.7] - 2026-03-15
 
 ### Добавлено

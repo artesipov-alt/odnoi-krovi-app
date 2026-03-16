@@ -9,6 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -107,7 +108,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 }
 
 func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ dto.BloodRequestIDPath }) (*dto.RecipientDetailsOutput, error) {
-	userID := ctx.Value("userID").(string)
+	userID := middleware.GetUserID(ctx)
 	if userID == "" {
 		return nil, apperrors.Unauthorized("user ID is missing in context")
 	}

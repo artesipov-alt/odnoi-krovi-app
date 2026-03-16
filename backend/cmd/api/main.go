@@ -34,6 +34,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 
 	transport "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/auth"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
@@ -244,10 +245,12 @@ func main() {
 		server := config.NewServer(options.Port, rootMux)
 
 		// Применяем middleware с использованием метода Use
+		// Порядок: Recovery -> CORS -> Auth -> Logging -> Mux
 		server.Use(
 			sloghttp.Recovery,
-			sloghttp.New(slog.Default()),
 			config.DefaultCorsHandler(env, miniappDomain),
+			middleware.AuthMiddleware(tokenGenerator, "/v1/auth"),
+			sloghttp.New(slog.Default()),
 		)
 
 		// Tell the CLI how to start your server.
