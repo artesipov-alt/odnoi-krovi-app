@@ -32,8 +32,8 @@ type RecipientDetail struct {
 	PetType              string             `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	OwnerName            string             `json:"ownerName,omitempty" doc:"Имя владельца" example:"Иван Иванов"`
 	SearchRegions        []string           `json:"regions,omitempty" doc:"Список регионов" example:"[\"MSK\", \"MO\"]"`
-	BloodVolumeNeeded    int32              `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"200"`
-	BloodVolumeReserved  int32              `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" example:"50"`
+	BloodVolumeNeeded    int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"200"`
+	BloodVolumeReserved  int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
 	BloodVolumeRemaining int32              `json:"bloodVolumeRemaining,omitempty" doc:"Необходимый остаток объема крови в мл" example:"100"`
 	SearchingBloodNames  []string           `json:"searchingBloodNames,omitempty" doc:"Список искомых групп крови" example:"[\"DEA 1+\", \"A\"]"`
 	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
