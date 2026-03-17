@@ -45,7 +45,6 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 		ID:                   req.ID,
 		PetID:                req.PetID,
 		BloodVolumeRemaining: req.BloodVolumeNeeded - req.BloodVolumeReserved,
-		PhotoURLs:            req.PhotoUrls,
 		PrioritySearch:       req.PrioritySearch,
 		Status:               string(req.Status),
 	}
@@ -53,6 +52,7 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 	if req.Edges.Pet != nil {
 		recipient.PetName = req.Edges.Pet.Name
 		recipient.PetType = petmodel.PetType(req.Edges.Pet.Type)
+		recipient.PhotoURLs = req.Edges.Pet.PhotoUrls
 		if req.Edges.Pet.Edges.BloodGroupRef != nil {
 			recipient.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
 		}

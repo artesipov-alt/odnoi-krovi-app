@@ -143,20 +143,25 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ d
 	}
 
 	recipientDetail := dto.RecipientDetail{
-		ID:                   recipient.ID,
-		PetID:                recipient.PetID,
-		PetName:              recipient.PetName,
-		PetType:              string(recipient.PetType),
-		OwnerName:            recipient.OwnerName,
-		SearchRegions:        recipient.SearchRegions,
-		BloodVolumeRemaining: recipient.BloodVolumeRemaining,
-		SearchingBloodNames:  recipient.SearchingBloodNames,
-		PhotoURLs:            h.storage.BuildPhotoURLs(recipient.PhotoURLs, now),
-		BloodGroupName:       recipient.BloodGroupName,
-		PrioritySearch:       recipient.PrioritySearch,
-		Status:               dto.BloodRequestStatus(recipient.Status),
-		MatchingDonors:       matchingDonors,
-		DefaultDonorPrefs:    defaultPrefs,
+		ID:                  recipient.ID,
+		PetID:               recipient.PetID,
+		PetName:             recipient.PetName,
+		PetType:             string(recipient.PetType),
+		OwnerName:           recipient.OwnerName,
+		SearchRegions:       recipient.SearchRegions,
+		BloodVolumeNeeded:   recipient.BloodVolumeNeeded,
+		BloodVolumeReserved: recipient.BloodVolumeReserved,
+		SearchingBloodNames: recipient.SearchingBloodNames,
+		PhotoURLs:           h.storage.BuildPhotoURLs(recipient.PhotoURLs, now),
+		BloodGroupName:      recipient.BloodGroupName,
+		PrioritySearch:      recipient.PrioritySearch,
+		Status:              dto.BloodRequestStatus(recipient.Status),
+		MatchingDonors:      matchingDonors,
+		DefaultDonorPrefs:   defaultPrefs,
+		AdvancedInfo: &dto.AdvancedInfo{
+			Description: recipient.AdvancedInfo.Description,
+			PhotoURLs:   h.storage.BuildPhotoURLs(recipient.AdvancedInfo.PhotoURLs, now),
+		},
 	}
 
 	return &dto.RecipientDetailsOutput{Body: recipientDetail}, nil

@@ -15,12 +15,20 @@ type Recipient struct {
 	SearchRegions        []string
 	SearchingBloodNames  []string
 	BloodVolumeRemaining int32
+	BloodVolumeNeeded    int32
+	BloodVolumeReserved  int32
 	PhotoURLs            []string
 	BloodGroupName       string
 	PrioritySearch       bool
 	Status               string
 	MatchingDonors       []MatchingDonorReadModel
 	DefaultDonorPrefs    *DefaultDonorPrefs
+	AdvancedInfo         *AdvancedInfo
+}
+
+type AdvancedInfo struct {
+	Description string
+	PhotoURLs   []string
 }
 
 type DefaultDonorPrefs struct {
@@ -48,6 +56,7 @@ type MatchingDonorReadModel struct {
 func (r *Recipient) AddMatchingDonor(pet *petmodel.Pet) {
 	r.MatchingDonors = append(r.MatchingDonors, MatchingDonorReadModel{
 		PetName:         pet.Name,
+		PetID:           pet.ID,
 		DonorBloodGroup: *pet.BloodGroupName,
 		PhotoURLs:       pet.PhotoURLs,
 		Amount:          CalculateDonationAmount(string(pet.Type), pet.WeightKg),

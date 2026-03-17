@@ -96,18 +96,23 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 	}
 
 	recipient := &donormodel.Recipient{
-		ID:                   blreq.ID,
-		PetID:                blreq.PetID,
-		PetName:              blreq.Edges.Pet.Name,
-		SearchingBloodNames:  blreq.BloodGroupNames,
-		PetType:              petmodel.PetType(blreq.Edges.Pet.Type),
-		SearchRegions:        blreq.Regions,
-		BloodGroupName:       blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
-		PhotoURLs:            blreq.PhotoUrls,
-		BloodVolumeRemaining: blreq.BloodVolumeNeeded - blreq.BloodVolumeReserved,
-		PrioritySearch:       blreq.PrioritySearch,
-		OwnerName:            blreq.Edges.Pet.Edges.Owner.FullName,
-		Status:               string(blreq.Status),
+		ID:                  blreq.ID,
+		PetID:               blreq.PetID,
+		PetName:             blreq.Edges.Pet.Name,
+		SearchingBloodNames: blreq.BloodGroupNames,
+		PetType:             petmodel.PetType(blreq.Edges.Pet.Type),
+		SearchRegions:       blreq.Regions,
+		BloodGroupName:      blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
+		PhotoURLs:           blreq.Edges.Pet.PhotoUrls,
+		BloodVolumeNeeded:   blreq.BloodVolumeNeeded,
+		BloodVolumeReserved: blreq.BloodVolumeReserved,
+		PrioritySearch:      blreq.PrioritySearch,
+		OwnerName:           blreq.Edges.Pet.Edges.Owner.FullName,
+		Status:              string(blreq.Status),
+		AdvancedInfo: &donormodel.AdvancedInfo{
+			Description: blreq.Description,
+			PhotoURLs:   blreq.PhotoUrls,
+		},
 	}
 
 	return recipient, nil

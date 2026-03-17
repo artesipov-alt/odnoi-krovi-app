@@ -10,7 +10,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type RecipientDetailHandler struct {
@@ -59,18 +58,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		return nil, apperrors.Internal(err, "failed to get user for recipient details")
 	}
 
-	//Настройки донора всегда должны быть так что убрать
-	var compType usermodel.CompensationType
-	var taxiComp bool
-	if user.DonorPreference != nil {
-		compType = user.DonorPreference.CompensationType
-		taxiComp = user.DonorPreference.TaxiCompensation
-	} else {
-		defaultPref := usermodel.DefaultDonorPreference()
-		compType = defaultPref.CompensationType
-		taxiComp = defaultPref.TaxiCompensation
-	}
-	recipient.SetDefaultPrefs(compType, taxiComp)
+	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)
 
 	return recipient, nil
 }

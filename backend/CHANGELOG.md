@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.4.11] - 2026-03-19
+
+### Изменено
+- **Расширение модели получателя с дополнительной информацией и отслеживанием объема крови:**
+  - В модель `Recipient` добавлены поля `BloodVolumeNeeded` и `BloodVolumeReserved` для отслеживания необходимого и зарезервированного объема крови.
+  - В модель `Recipient` введена вложенная структура `AdvancedInfo`, содержащая `description` и `photos`.
+  - Фотографии питомца теперь перемещены в `AdvancedInfo`, а основные `PhotoURLs` получателя используют фотографии питомца.
+  - В `MatchingDonorReadModel` добавлено поле `PetID` для лучшей идентификации.
+  - Упрощена логика обработки предпочтений по умолчанию в обработчике получения получателя.
+
+### Технические детали
+- В `internal/domain/recipient/model.go` (или соответствующем файле) добавлены поля `BloodVolumeNeeded` (float64) и `BloodVolumeReserved` (float64), а также структура `AdvancedInfo` с полями `description` (string) и `photos` ([]string).
+- В `internal/domain/recipient/model.go` (или соответствующем файле) логика `PhotoURLs` обновлена для использования `AdvancedInfo.photos`.
+- В `internal/domain/donor/model.go` (или соответствующем файле) в `MatchingDonorReadModel` добавлено поле `PetID` (string).
+- В `internal/handlers/donor/query/recipient_detail_handler.go` (или соответствующем файле) упрощена логика инициализации и возврата предпочтений по умолчанию.
+- Обновлены соответствующие DTO и мапперы для отражения изменений в модели `Recipient` и `MatchingDonorReadModel`.
+
+
 ## [3.4.10] - 2026-03-18
 
 ### Изменено
