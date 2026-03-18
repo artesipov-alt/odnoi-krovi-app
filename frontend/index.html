@@ -5,24 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="only light">
     <title>Odnoi Krovi</title>
-      <script src="https://st.max.ru/js/max-web-app.js"></script>
-      <script>
-          function loadTelegramScript() {
-              if (!window.WebApp) {
-                  const script = document.createElement('script');
-                  script.src = 'https://telegram.org/js/telegram-web-app.js';
-                  script.async = true;
-                  script.onload = () => {
-                      console.log('Telegram WebApp script loaded');
-                  };
-                  document.head.appendChild(script);
-              } else {
-                  console.log('WebApp already exists (e.g., from MAX). Skipping Telegram script.');
-              }
-          }
+    <!--      <script src="https://telegram.org/js/telegram-web-app.js"></script>-->
+    <!--      <script src="https://st.max.ru/js/max-web-app.js"></script>-->
+    <script>
+        // Устанавливаем таймаут на загрузку Telegram
+        const telegramTimeout = setTimeout(() => {
+            if (!window.Telegram?.WebApp) {
+                console.warn("Telegram не загрузился за отведённое время. Загружаем max...");
 
-          loadTelegramScript();
-      </script>
+                loadMaxScript();
+            }
+        }, 3000); // 5 секунд
+
+        // Функция загрузки max-скрипта
+        function loadMaxScript() {
+            const script = document.createElement('script');
+            script.src = 'https://st.max.ru/js/max-web-app.js';
+            script.onload = () => console.log('max-web-app.js успешно загружен');
+            script.onerror = () => console.error('Не удалось загрузить max-web-app.js');
+            document.head.appendChild(script);
+        }
+
+        // Попытка загрузить Telegram WebApp
+        if (!window.Telegram?.WebApp) {
+            const tgScript = document.createElement('script');
+            tgScript.src = 'https://telegram.org/js/telegram-web-app.js';
+            tgScript.onload = () => {
+                clearTimeout(telegramTimeout);
+                console.log('Telegram WebApp успешно загружен');
+            };
+            tgScript.onerror = () => {
+                clearTimeout(telegramTimeout);
+                loadMaxScript();
+            };
+            document.head.appendChild(tgScript);
+        } else {
+            clearTimeout(telegramTimeout);
+        }
+    </script>
   </head>
   <body>
     <div id="root"></div>
