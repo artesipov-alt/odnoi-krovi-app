@@ -33,6 +33,7 @@ models/DonorRestrictions.ts
 models/DonorRestrictionsDetail.ts
 models/FactorDescription.ts
 models/GendersList.ts
+models/GetPetsByUserResult.ts
 models/HealthStatusesList.ts
 models/LivingConditionsList.ts
 models/LocationsList.ts

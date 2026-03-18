@@ -5,6 +5,27 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.5.0] - 2026-03-18
+
+### Добавлено
+- **Новые статусы питомцев и статус ответа донора в виде перечисления:**
+  - Добавлены новые статусы питомцев: 'recovering' и 'planned_donation'.
+  - Добавлено поле 'planingDonation' в модель Pet.
+  - Добавлена опция предварительной загрузки 'WithDonorApplication'.
+  - Статус ответа донора преобразован в перечисление со значениями: active, accepted, rejected, cancelled.
+
+### Изменено
+- **Расширение GetPetsByUser дополнительными метаданными:**
+  - Ответ теперь включает общее количество питомцев и запланированных донаций для пользователя.
+
+### Технические детали
+- В `ent/schema/pet.go` добавлены новые статусы 'recovering' и 'planned_donation' в перечисление статусов питомцев.
+- В `internal/domain/pet/model.go` добавлено поле 'planingDonation' в модель Pet.
+- В `internal/repositories/pet/ent_pet_repository.go` добавлена опция предварительной загрузки 'WithDonorApplication'.
+- В `ent/schema/donor_response.go` статус ответа донора преобразован в перечисление с значениями active, accepted, rejected, cancelled.
+- В `internal/handlers/pet/query/get_by_user_handler.go` обновлена логика для включения общего количества питомцев и запланированных донаций в ответ.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent.
+
 ## [3.4.11] - 2026-03-19
 
 ### Изменено

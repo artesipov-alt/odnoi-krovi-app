@@ -26,6 +26,7 @@ export * from './DonorRestrictions';
 export * from './DonorRestrictionsDetail';
 export * from './FactorDescription';
 export * from './GendersList';
+export * from './GetPetsByUserResult';
 export * from './HealthStatusesList';
 export * from './LivingConditionsList';
 export * from './LocationsList';
