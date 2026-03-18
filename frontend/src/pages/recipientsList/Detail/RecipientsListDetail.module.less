@@ -1,0 +1,689 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding: 0 13px 23px;
+}
+
+.loading {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    margin: 10px 0 12px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.name {
+    flex-grow: 1;
+    padding: 0 11px;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    color: @textColor2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.blurIconWrapper {
+    display: flex;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: @white;
+    border-radius: 25px;
+}
+
+.blurIcon {
+    margin: auto;
+    width: 21px;
+    height: 21px;
+    fill: @textColor1;
+
+    &.isBlur {
+        width: 18px;
+        height: 17px;
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.main {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 50%;
+    max-width: 280px;
+}
+
+.leftItem {
+    flex-grow: 0;
+    height: 55px;
+    padding: 0 18px;
+    border-radius: 6px;
+    background: @white;
+    box-sizing: border-box;
+
+    &.owner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        & .icon {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(0deg, #AD6262 0%, #AD6262 100%);
+            text-align: center;
+            color: @white-bg;
+            border-radius: 25px;
+            line-height: 28px;
+            font-size: 18px;
+        }
+
+        & .descr {
+            margin: 0;
+            color: @textColor4;
+            font-family: Proxima Nova, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            line-height: 10px;
+        }
+
+        & .text {
+            margin: 0;
+            color: @textColor1;
+            font-family: Marmelad, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+        }
+    }
+
+    &.blood {
+        padding: 12px 18px;
+        box-sizing: border-box;
+
+        & .subTitle {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        & .icon {
+            display: flex;
+            width: 8px;
+            height: 11px;
+            fill: @grayBg13;
+            opacity: 0.5;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+
+        & .text {
+            margin: 0;
+            color: @textColor4;
+            font-family: Proxima Nova, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            line-height: 10px;
+        }
+
+        & .bloodInfo {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            color: @textColor4;
+            font-size: 10px;
+            margin-top: 6px;
+        }
+
+        & .bloodGroup {
+            display: inline-block;
+            padding: 3px 5.5px;
+            border-radius: 30px;
+            background: @red2;
+            color: @white1;
+            font-family: Marmelad, sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            line-height: 10px;
+
+            &.needed {
+                color: @textColor1;
+                background: @red5;
+            }
+        }
+    }
+
+    &.location {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        & .icon {
+            display: flex;
+            width: 8px;
+            height: 11px;
+            fill: @grayBg12;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+
+        & .text {
+            color: @textColor1;
+            font-family: Marmelad, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+        }
+    }
+}
+
+.avatarWrapper {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    box-sizing: border-box;
+}
+
+.avatar {
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+    border: 17px solid @white;
+    box-sizing: border-box;
+
+    &.blured {
+        filter: blur(16px);
+    }
+}
+
+.neededVolume {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 38px;
+    color: @textColor4;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 15px;
+    background: @white;
+    border-radius: 50%;
+    padding-top: 8px;
+    box-sizing: border-box;
+
+    span {
+        display: block;
+        font-size: 9px;
+        line-height: 10px;
+    }
+}
+
+.accordionText {
+    color: @textColor6;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    margin-top: 14px;
+    overflow-wrap: break-word;
+}
+
+.bloodRequestPhoto {
+    width: 82px;
+    height: 104px;
+    margin-top: 14px;
+    border-radius: 10px;
+}
+
+.settings {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.setting {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    width: 50%;
+    padding: 0 13px;
+    border-radius: 10px;
+    background: @white;
+
+    & .text {
+        color: @textColor1;
+        font-family: Marmelad, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 16px;
+    }
+
+    &:first-child {
+        opacity: .4;
+    }
+}
+
+.icons {
+    display: flex;
+    margin-right: -5px;
+}
+
+.bonusIcon {
+    width: 34px;
+    height: 34px;
+
+    &:last-child {
+        transform: translateX(-5px);
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.rewardTitle {
+    margin: 28px 0 12px;
+    color: @textColor2;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.reward {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 21px;
+}
+
+.rewardItem {
+    width: 33.33%;
+    padding: 8px 0;
+    border-radius: 10px;
+    background: #FFF;
+    text-align: center;
+    box-sizing: border-box;
+
+    &.checked {
+        outline: 2px solid @red2;
+        outline-offset: -2px;
+    }
+
+    &.disabled {
+        opacity: .5;
+    }
+}
+
+.rewardFreeIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 2px solid #a3dc95;
+    background: linear-gradient(180deg, #90DF75 0%, #62B655 100%);
+    box-sizing: border-box;
+
+    & .sum {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+
+    & .descr {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 10px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+}
+
+.rewardNotFreeIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #828282;
+    background: linear-gradient(180deg, #747474 0%, #1F1F1F 100%);
+    box-sizing: border-box;
+
+    & .descr {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 14px;
+    }
+}
+
+.rewardFeedIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #FF9570;
+    background: linear-gradient(180deg, #FF9252 0%, #FF3F15 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+    }
+
+    & .icon {
+        width: 20px;
+        height: 20px;
+        fill: @white;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}
+
+.rewardItemText {
+    margin: 8px 0 0;
+    color: @textColor1;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+}
+
+.taxi {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 33px;
+
+    & .taxiTitle {
+        display: flex;
+        gap: 11px;
+        align-items: center;
+    }
+
+    & .taxiDescr {
+        margin: 0;
+        color: @textColor6;
+        font-family: Proxima Nova, sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 15px;
+    }
+}
+
+.taxiIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #FFCF70;
+    background: linear-gradient(180deg, #FFCF53 0%, #F90 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        transform: translateX(-5px);
+        border-radius: 12px;
+    }
+
+    & .icon {
+        width: 20px;
+        height: 20px;
+        fill: @white;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}
+
+.confirmButton {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+    pointer-events: none;
+    opacity: .4;
+
+    &.enabled {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.donors {
+    padding: 14px;
+    margin: 8px 0;
+    border-radius: 8px;
+    background: @white;
+}
+
+.donorDescr {
+    margin: 0 0 20px;
+    color: @textColor1;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.showcase {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(2, minmax(100px, 2fr));
+    align-content: flex-start;
+}
+
+.pet {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1.27; /* пропорции например: 1 / 1 */
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.photo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.photoFooter {
+    width: calc(100% - 12px);
+    position: absolute;
+    bottom: 10px;
+    left: 6px;
+    z-index: 2;
+}
+
+.domorName {
+    color: @white;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 20px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.donorBloodInfo {
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    display: flex;
+}
+
+.donorBloodGroup {
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    color: @white1;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 32px;
+    border-radius: 25px;
+    background: @red2;
+    box-sizing: border-box;
+}
+
+.bloodVolume {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    min-width: 30px;
+    padding: 10px 5px 0;
+    margin-left: -5px;
+    color: @red1;
+    font-family: Marmelad, sans-serif;
+    border-radius: 25px;
+    background: @orange3;
+    box-sizing: border-box;
+}
+
+.bloodVolumeNumber {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 5px;
+}
+
+.bloodVolumeDescr {
+    margin: 0;
+    font-size: 9px;
+    font-weight: 400;
+}
+
+.checkItem {
+    position: absolute;
+    top: 8px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    border: 2px solid @textColor2;
+    background: @white;
+    border-radius: 25px;
+    z-index: 100;
+
+    &.checked {
+        background: @common-red;
+        border: 2px solid @common-red;
+
+        &:after {
+            content: "\2714";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: @white;
+        }
+    }
+}
+
+.gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    border-radius: 12px;
+    background: linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
+    z-index: 1;
+}
+
+.curtainSubtitle {
+    margin-top: 10px;
+    color: @textColor7;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    opacity: .6;
+}

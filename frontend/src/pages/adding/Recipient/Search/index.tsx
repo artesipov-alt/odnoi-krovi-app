@@ -50,13 +50,13 @@ const Search: FC<Props> = ({ petId, userId }) => {
     const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
     const [includeUnknownBloodGroup, setIncludeUnknownBloodGroup] = useState(false);
 
-    const { data: pets = [], isLoading: isPetsLoading, refetch } = usePetsQuery(userId);
+    const { data: pets, isLoading: isPetsLoading, refetch } = usePetsQuery(userId);
     const { data: locationsDict = [], isError: isErrorLocations } = useLocationsQuery();
     const { data: bloodComponentsDict = [], isError: isErrorBloodComponents } = useBloodComponentsQuery();
     const { data: { bloodGroupDict = {} } = {}, isError: isErrorPetTypesAndBloodGroups } =
         usePetTypesAndBloodGroupsQuery();
 
-    const selectedPet = useMemo(() => pets?.find((pet) => pet.id === petId), [petId, pets]);
+    const selectedPet = useMemo(() => pets?.pets?.find((pet) => pet.id === petId), [petId, pets]);
 
     const showToast = useCallback(
         (text: string) => {
@@ -218,7 +218,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
         }
     }, [isErrorPetTypesAndBloodGroups, showToast]);
 
-    if (!pets?.length) {
+    if (!pets?.pets?.length) {
         return null;
     }
 

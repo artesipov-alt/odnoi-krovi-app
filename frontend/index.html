@@ -5,8 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="only light">
     <title>Odnoi Krovi</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://st.max.ru/js/max-web-app.js"></script>
+      <script src="https://st.max.ru/js/max-web-app.js"></script>
+      <script>
+          function loadTelegramScript() {
+              if (!window.WebApp) {
+                  const script = document.createElement('script');
+                  script.src = 'https://telegram.org/js/telegram-web-app.js';
+                  script.async = true;
+                  script.onload = () => {
+                      console.log('Telegram WebApp script loaded');
+                  };
+                  document.head.appendChild(script);
+              } else {
+                  console.log('WebApp already exists (e.g., from MAX). Skipping Telegram script.');
+              }
+          }
+
+          loadTelegramScript();
+      </script>
   </head>
   <body>
     <div id="root"></div>

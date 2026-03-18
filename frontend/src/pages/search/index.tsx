@@ -40,12 +40,7 @@ const Search: FC<Props> = ({ userId }) => {
     const isBloodFound = searchParams.get('bloodFound');
     const isPacketsBloodFound = false;
 
-    const {
-        data: pets = [],
-        refetch: petsRefetch,
-        isError: petsIsError,
-        isLoading: petsIsLoading,
-    } = usePetsQuery(userId); // ?
+    const { data: pets, refetch: petsRefetch, isError: petsIsError, isLoading: petsIsLoading } = usePetsQuery(userId); // ?
 
     const [tab, setTab] = useState(0);
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
@@ -96,7 +91,7 @@ const Search: FC<Props> = ({ userId }) => {
     };
 
     useEffect(() => {
-        setSelectedPet(pets?.find((pet) => pet.id === id) || null);
+        setSelectedPet(pets?.pets.find((pet) => pet.id === id) || null);
     }, [id, pets]);
 
     useEffect(() => {

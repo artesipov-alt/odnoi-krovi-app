@@ -8,6 +8,7 @@ import { useAuth } from './hooks/useAuth';
 import { useGetUserById } from './hooks/useGetUserById';
 import Adding from './pages/adding';
 import Owner from './pages/owner';
+import RecipientsList from './pages/recipientsList';
 import Registration from './pages/registration';
 import Search from './pages/search';
 
@@ -26,6 +27,7 @@ const App: FC = () => {
                 <Route path='/owner' element={<Owner userId={user.id} />} />
                 <Route path='/adding' element={<Adding userId={user.id} />} />
                 <Route path='/search/:id' element={<Search userId={user.id} />} />
+                <Route path='/recipientsList' element={<RecipientsList userId={user.id} />} />
                 <Route
                     path='/registration'
                     element={<Registration initialize={initialize} userId={user.id} fullName={user.fullName} />}

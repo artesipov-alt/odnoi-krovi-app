@@ -1,0 +1,378 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding-top: 10px;
+}
+
+.loading {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.tabs {
+    flex-grow: 1;
+    display: flex;
+    height: 50px;
+    padding: 6px 3px;
+    align-items: center;
+    border-radius: 40px;
+    background: @grayBg11;
+    box-sizing: border-box;
+}
+.tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 50%;
+    height: 43px;
+    border-radius: 40px;
+    color: @textColor1;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 43px;
+
+    &.active {
+        color: @white;
+        background: @common-red;
+    }
+}
+
+.settings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin: 12px;
+}
+
+.settingsText {
+    margin: 0;
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+}
+
+.settingsButtons {
+    display: flex;
+    gap: 5px;
+}
+
+.settingsButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 95px;
+    height: 35px;
+    border-radius: 25px;
+    background: @white;
+
+    &.blur {
+        &.active {
+            & .settingsIcon {
+                fill: @grayBg21;
+
+                svg {
+                    fill: inherit;
+                }
+            }
+        }
+
+        & .settingsIcon {
+            width: 14px;
+            height: 17px;
+            fill: @border3;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+    }
+
+    &.show {
+        &.active {
+            & .settingsIcon {
+                fill: @grayBg21;
+
+                svg {
+                    fill: inherit;
+                }
+            }
+        }
+
+        & .settingsIcon {
+            width: 17px;
+            height: 17px;
+            fill: @grayBg19;
+
+            svg {
+                width: inherit;
+                height: inherit;
+                fill: inherit;
+            }
+        }
+    }
+
+    p {
+        margin: 0;
+        color: @textColor4;
+        font-family: Proxima Nova, sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 15px;
+    }
+
+    &.active {
+        background: @black;
+
+        p {
+            color: @grayBg20;
+        }
+    }
+}
+
+.content {
+    height: calc(100vh - 10px - 50px - 35px - 24px);
+    overflow-x: auto;
+
+    &.short {
+        height: calc(100vh - 10px - 50px);
+        background: url('imgs/noRecListBg.png') no-repeat bottom;
+        //background-size: contain;
+        background-origin: border-box;
+        box-sizing: border-box;
+    }
+
+    &.clinic {
+        height: calc(100vh - 10px - 50px);
+    }
+}
+
+.noListTitle {
+    margin: 185px 0 25px;
+    padding: 0 12px;
+    color: @textColor2;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+
+    &.isClinics {
+        margin: 121px 0 14px;
+    }
+}
+
+.noListDescr {
+    margin: 0 0 80px;
+    color: @textColor7;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    opacity: .6;
+
+    &.isClinics {
+        margin: 0;
+    }
+}
+
+.noListImg {
+    display: block;
+    width: 100%;
+    margin-bottom: 115px;
+}
+
+.clinkcsImg {
+    display: block;
+    width: 100%;
+}
+
+.showcase {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(2, minmax(100px, 2fr));
+    align-content: flex-start;
+    padding: 0 12px;
+}
+
+.pet {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1.27; /* пропорции например: 1 / 1 */
+    object-fit: cover;
+    border-radius: 12px;
+
+    &.cat {
+        background: url('imgs/catStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
+        background-size: cover;
+    }
+
+    &.dog {
+        background: url('imgs/dogStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
+        background-size: cover;
+    }
+}
+
+.photo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+
+    &.blured {
+        filter: blur(16px);
+    }
+}
+
+.photoFooter {
+    width: calc(100% - 12px);
+    position: absolute;
+    bottom: 10px;
+    left: 6px;
+    z-index: 2;
+}
+
+.name {
+    color: @white;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 20px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bloodGroup {
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    color: @white1;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 32px;
+    border-radius: 25px;
+    background: @red2;
+    box-sizing: border-box;
+}
+
+.bloodVolume {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 40px;
+    min-width: 40px;
+    padding: 10px 5px 0;
+    color: @red1;
+    font-family: Marmelad, sans-serif;
+    border-radius: 0 12px 0 13px;
+    background: @orange3;
+    box-sizing: border-box;
+}
+
+.bloodVolumeNumber {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 5px;
+}
+
+.bloodVolumeDescr {
+    margin: 0;
+    font-size: 9px;
+    font-weight: 400;
+}
+
+.matchingDonors {
+    display: inline-block;
+    margin-top: 5px;
+    height: 37px;
+    min-width: 37px;
+    padding: 0 8px;
+    color: @textColor9;
+    text-align: center;
+    line-height: 37px;
+    border-radius: 25px;
+    background: @orangeBg1;
+    box-sizing: border-box;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    border-radius: 12px;
+    background: linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
+    z-index: 1;
+}
+
+.clinicButton {
+    margin: 30px 27px -170px;
+
+    @media (orientation: landscape) {
+        margin-bottom: -500px;
+    }
+}
+
+.confirm {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+}

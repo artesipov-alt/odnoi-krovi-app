@@ -1,0 +1,89 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding: 17px 0 30px;
+}
+
+.header {
+    display: flex;
+    gap: 4px;
+    padding: 0 23px;
+}
+
+.tab {
+    width: 50%;
+    height: 4px;
+    border-radius: 10px;
+    background: @border3;
+
+    &.checked {
+        background: @textColor2;
+    }
+}
+
+.title {
+    margin: 54px 0;
+    padding: 0 35px;
+    color: @textColor2;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+
+    &.second {
+        margin: 23px 0 10px;
+    }
+}
+
+.description {
+    margin-bottom: 37px;
+    padding: 0 25px;
+    color: @textColor1;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.img {
+    display: block;
+    width: 100%;
+
+    &.second {
+        padding: 0 10px;
+        margin-bottom: 90px;
+        box-sizing: border-box;
+    }
+}
+
+.logo {
+    width: 82px;
+    height: 82px;
+    margin: 81px auto 0;
+    fill: @textColor2;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.button {
+    padding: 0 26px;
+    margin: 10px 0 16px;
+}
+
+.confirm {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+}
