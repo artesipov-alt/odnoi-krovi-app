@@ -30,7 +30,7 @@ type DonorResponse struct {
 	// TaxiCompensation holds the value of the "taxi_compensation" field.
 	TaxiCompensation bool `json:"taxi_compensation,omitempty"`
 	// Status holds the value of the "status" field.
-	Status string `json:"status,omitempty"`
+	Status donorresponse.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorResponseQuery when eager-loading is set.
 	Edges                          DonorResponseEdges `json:"edges"`
@@ -145,7 +145,7 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.Status = value.String
+				_m.Status = donorresponse.Status(value.String)
 			}
 		case donorresponse.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -225,7 +225,7 @@ func (_m *DonorResponse) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.TaxiCompensation))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(_m.Status)
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

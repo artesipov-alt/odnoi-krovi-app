@@ -3893,7 +3893,7 @@ type DonorResponseMutation struct {
 	deleted_at        *time.Time
 	compensation_type *donorresponse.CompensationType
 	taxi_compensation *bool
-	status            *string
+	status            *donorresponse.Status
 	clearedFields     map[string]struct{}
 	request           *string
 	clearedrequest    bool
@@ -4228,12 +4228,12 @@ func (m *DonorResponseMutation) ResetTaxiCompensation() {
 }
 
 // SetStatus sets the "status" field.
-func (m *DonorResponseMutation) SetStatus(s string) {
-	m.status = &s
+func (m *DonorResponseMutation) SetStatus(d donorresponse.Status) {
+	m.status = &d
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *DonorResponseMutation) Status() (r string, exists bool) {
+func (m *DonorResponseMutation) Status() (r donorresponse.Status, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -4244,7 +4244,7 @@ func (m *DonorResponseMutation) Status() (r string, exists bool) {
 // OldStatus returns the old "status" field's value of the DonorResponse entity.
 // If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DonorResponseMutation) OldStatus(ctx context.Context) (v string, err error) {
+func (m *DonorResponseMutation) OldStatus(ctx context.Context) (v donorresponse.Status, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -4480,7 +4480,7 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		m.SetTaxiCompensation(v)
 		return nil
 	case donorresponse.FieldStatus:
-		v, ok := value.(string)
+		v, ok := value.(donorresponse.Status)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

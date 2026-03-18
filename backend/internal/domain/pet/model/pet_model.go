@@ -9,10 +9,12 @@ import (
 type PetStatus string
 
 const (
-	PetStatusNone       PetStatus = "none"
-	PetStatusDonor      PetStatus = "donor"
-	PetStatusRecipient  PetStatus = "recipient"
-	PetStatusBloodFound PetStatus = "blood_found"
+	PetStatusNone            PetStatus = "none"
+	PetStatusDonor           PetStatus = "donor"
+	PetStatusRecipient       PetStatus = "recipient"
+	PetStatusBloodFound      PetStatus = "blood_found"
+	PetStatusRecovering      PetStatus = "recovering"
+	PetStatusPlannedDonation PetStatus = "planned_donation"
 )
 
 // PetType представляет тип животного
@@ -76,6 +78,7 @@ type Pet struct {
 	BloodGroupName          *string
 	SearchingBlood          bool
 	HaveBloodReqApplication bool
+	PlaningDonation         bool
 	StopFactors             []string
 	WarnFactors             []string
 	Bonuses                 []string
@@ -602,6 +605,9 @@ func (p *Pet) CalculateDonorStatus() {
 	}
 	if len(p.StopFactors) == 0 {
 		p.PetStatus = PetStatusDonor
+	}
+	if p.PlaningDonation {
+		p.PetStatus = PetStatusPlannedDonation
 	}
 }
 

@@ -180,12 +180,13 @@ func (h *PetHandler) GetPet(ctx context.Context, input *dto.GetPetByIDInput) (*d
 // GetUserPets возвращает всех питомцев пользователя
 func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserInput) (*dto.GetPetsByUserOutput, error) {
 	opts := pet.PetPreloadOptions{
-		WithHealth:     input.WithHealth,
-		WithTreatments: input.WithTreatments,
-		WithAnalyses:   input.WithAnalysis,
-		WithBonuses:    input.WithBonuses,
-		WithBloodReq:   true,
-		WithAll:        input.WithAll,
+		WithHealth:           input.WithHealth,
+		WithTreatments:       input.WithTreatments,
+		WithAnalyses:         input.WithAnalysis,
+		WithBonuses:          input.WithBonuses,
+		WithBloodReq:         true,
+		WithDonorApplication: true,
+		WithAll:              input.WithAll,
 	}
 
 	pets, err := h.getByUserHandler.Handle(ctx, input.UserID, opts)

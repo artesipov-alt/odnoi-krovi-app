@@ -114,7 +114,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "compensation_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"free", "paid", "food"}},
 		{Name: "taxi_compensation", Type: field.TypeBool, Nullable: true},
-		{Name: "status", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "accepted", "rejected", "cancelled"}},
 		{Name: "blood_search_request_responses", Type: field.TypeString},
 		{Name: "donor_response_donor", Type: field.TypeString},
 	}

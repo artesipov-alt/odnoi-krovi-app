@@ -96,7 +96,7 @@ func (_c *DonorResponseCreate) SetNillableTaxiCompensation(v *bool) *DonorRespon
 }
 
 // SetStatus sets the "status" field.
-func (_c *DonorResponseCreate) SetStatus(v string) *DonorResponseCreate {
+func (_c *DonorResponseCreate) SetStatus(v donorresponse.Status) *DonorResponseCreate {
 	_c.mutation.SetStatus(v)
 	return _c
 }
@@ -202,6 +202,11 @@ func (_c *DonorResponseCreate) check() error {
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "DonorResponse.status"`)}
 	}
+	if v, ok := _c.mutation.Status(); ok {
+		if err := donorresponse.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.status": %w`, err)}
+		}
+	}
 	if len(_c.mutation.RequestIDs()) == 0 {
 		return &ValidationError{Name: "request", err: errors.New(`ent: missing required edge "DonorResponse.request"`)}
 	}
@@ -265,7 +270,7 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		_node.TaxiCompensation = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
-		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
+		_spec.SetField(donorresponse.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
 	if nodes := _c.mutation.RequestIDs(); len(nodes) > 0 {
@@ -421,7 +426,7 @@ func (u *DonorResponseUpsert) ClearTaxiCompensation() *DonorResponseUpsert {
 }
 
 // SetStatus sets the "status" field.
-func (u *DonorResponseUpsert) SetStatus(v string) *DonorResponseUpsert {
+func (u *DonorResponseUpsert) SetStatus(v donorresponse.Status) *DonorResponseUpsert {
 	u.Set(donorresponse.FieldStatus, v)
 	return u
 }
@@ -561,7 +566,7 @@ func (u *DonorResponseUpsertOne) ClearTaxiCompensation() *DonorResponseUpsertOne
 }
 
 // SetStatus sets the "status" field.
-func (u *DonorResponseUpsertOne) SetStatus(v string) *DonorResponseUpsertOne {
+func (u *DonorResponseUpsertOne) SetStatus(v donorresponse.Status) *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.SetStatus(v)
 	})
@@ -870,7 +875,7 @@ func (u *DonorResponseUpsertBulk) ClearTaxiCompensation() *DonorResponseUpsertBu
 }
 
 // SetStatus sets the "status" field.
-func (u *DonorResponseUpsertBulk) SetStatus(v string) *DonorResponseUpsertBulk {
+func (u *DonorResponseUpsertBulk) SetStatus(v donorresponse.Status) *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.SetStatus(v)
 	})

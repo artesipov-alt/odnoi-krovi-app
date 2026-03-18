@@ -97,13 +97,13 @@ func (_u *DonorResponseUpdate) ClearTaxiCompensation() *DonorResponseUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (_u *DonorResponseUpdate) SetStatus(v string) *DonorResponseUpdate {
+func (_u *DonorResponseUpdate) SetStatus(v donorresponse.Status) *DonorResponseUpdate {
 	_u.mutation.SetStatus(v)
 	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_u *DonorResponseUpdate) SetNillableStatus(v *string) *DonorResponseUpdate {
+func (_u *DonorResponseUpdate) SetNillableStatus(v *donorresponse.Status) *DonorResponseUpdate {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
@@ -192,6 +192,11 @@ func (_u *DonorResponseUpdate) check() error {
 			return &ValidationError{Name: "compensation_type", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.compensation_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := donorresponse.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.status": %w`, err)}
+		}
+	}
 	if _u.mutation.RequestCleared() && len(_u.mutation.RequestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DonorResponse.request"`)
 	}
@@ -235,7 +240,7 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 		_spec.ClearField(donorresponse.FieldTaxiCompensation, field.TypeBool)
 	}
 	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
+		_spec.SetField(donorresponse.FieldStatus, field.TypeEnum, value)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -382,13 +387,13 @@ func (_u *DonorResponseUpdateOne) ClearTaxiCompensation() *DonorResponseUpdateOn
 }
 
 // SetStatus sets the "status" field.
-func (_u *DonorResponseUpdateOne) SetStatus(v string) *DonorResponseUpdateOne {
+func (_u *DonorResponseUpdateOne) SetStatus(v donorresponse.Status) *DonorResponseUpdateOne {
 	_u.mutation.SetStatus(v)
 	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_u *DonorResponseUpdateOne) SetNillableStatus(v *string) *DonorResponseUpdateOne {
+func (_u *DonorResponseUpdateOne) SetNillableStatus(v *donorresponse.Status) *DonorResponseUpdateOne {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
@@ -490,6 +495,11 @@ func (_u *DonorResponseUpdateOne) check() error {
 			return &ValidationError{Name: "compensation_type", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.compensation_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Status(); ok {
+		if err := donorresponse.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "DonorResponse.status": %w`, err)}
+		}
+	}
 	if _u.mutation.RequestCleared() && len(_u.mutation.RequestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DonorResponse.request"`)
 	}
@@ -550,7 +560,7 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 		_spec.ClearField(donorresponse.FieldTaxiCompensation, field.TypeBool)
 	}
 	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(donorresponse.FieldStatus, field.TypeString, value)
+		_spec.SetField(donorresponse.FieldStatus, field.TypeEnum, value)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{

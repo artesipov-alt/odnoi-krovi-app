@@ -12,6 +12,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	entdonorapply "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -94,6 +95,10 @@ func petToDomain(e *ent.Pet) *model.Pet {
 		if len(e.Edges.BloodSearchRequest.Edges.Responses) > 0 {
 			pet.HaveBloodReqApplication = true
 		}
+	}
+
+	if len(e.Edges.Donations) > 0 {
+		pet.PlaningDonation = true
 	}
 
 	return pet
@@ -256,18 +261,6 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 	})
 }
 
-// GetPet возвращает питомца по его ID с возможностью предварительной загрузки связанных данных
-// Deprecated: используйте GetByID
-func (r *EntPetRepository) GetPet(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
-	return r.GetByID(ctx, id, opts)
-}
-
-// GetPetsByUser возвращает запрос для предварительной загрузки питомцев по ID пользователя
-// Deprecated: используйте GetByUserID
-func (r *EntPetRepository) GetPetsByUser(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
-	return r.GetByUserID(ctx, userID, opts)
-}
-
 // GetByID получает питомца по ID с опциями загрузки связанных данных
 func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.ID(id)).WithBreedRef().WithBloodGroupRef()
@@ -325,6 +318,12 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 	if opts.WithBloodReq {
 		pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
 			bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
+		})
+	}
+
+	if opts.WithDonorApplication {
+		pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
+			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusActive))
 		})
 	}
 

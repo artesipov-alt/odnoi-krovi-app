@@ -48,12 +48,13 @@ type PetPhotoRepository interface {
 
 // PetPreloadOptions определяет опции для загрузки связанных данных
 type PetPreloadOptions struct {
-	WithHealth     bool
-	WithTreatments bool
-	WithAnalyses   bool
-	WithBonuses    bool
-	WithBloodReq   bool
-	WithAll        bool
+	WithHealth           bool
+	WithTreatments       bool
+	WithAnalyses         bool
+	WithBonuses          bool
+	WithBloodReq         bool
+	WithDonorApplication bool
+	WithAll              bool
 }
 
 // Repository объединяет все интерфейсы для обратной совместимости

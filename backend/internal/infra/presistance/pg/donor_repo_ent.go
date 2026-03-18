@@ -56,7 +56,7 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 		SetDonorID(resp.DonorID).
 		SetCompensationType(donorresponse.CompensationType(resp.CompensationType)).
 		SetTaxiCompensation(resp.TaxiCompensation).
-		SetStatus(string(resp.Status)).
+		SetStatus(donorresponse.Status(resp.Status)).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id, status string) error {
 	return r.client(ctx).DonorResponse.
 		UpdateOneID(id).
-		SetStatus(status).
+		SetStatus(donorresponse.Status(status)).
 		Exec(ctx)
 }
 

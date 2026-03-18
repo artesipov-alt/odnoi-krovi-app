@@ -191,7 +191,7 @@ type PetDetail struct {
 	ReproductiveStatus string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
 	BreedID            string             `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
 	BloodGroup         string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
-	PetStatus          string             `json:"petStatus" doc:"Статус питомца" enum:"donor,recipient,none,blood_found" example:"donor"`
+	PetStatus          string             `json:"petStatus" doc:"Статус питомца" enum:"none,donor,recipient,blood_found,recovering,planned_donation" example:"donor"`
 	DonorRestrictions  *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и предупреждения"`
 	Health             *PetHealth         `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment      `json:"treatments,omitempty" doc:"Информация о лечении"`

@@ -353,7 +353,7 @@ type CreateDonorResponseInput struct {
 	DeletedAt        *time.Time
 	CompensationType *donorresponse.CompensationType
 	TaxiCompensation *bool
-	Status           string
+	Status           donorresponse.Status
 	RequestID        string
 	DonorID          string
 }
@@ -395,7 +395,7 @@ type UpdateDonorResponseInput struct {
 	CompensationType      *donorresponse.CompensationType
 	ClearTaxiCompensation bool
 	TaxiCompensation      *bool
-	Status                *string
+	Status                *donorresponse.Status
 	RequestID             *string
 	DonorID               *string
 }

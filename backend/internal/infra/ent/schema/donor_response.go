@@ -18,7 +18,7 @@ func (DonorResponse) Fields() []ent.Field {
 	return []ent.Field{
 		field.Enum("compensation_type").Values("free", "paid", "food").Optional(),
 		field.Bool("taxi_compensation").Optional(),
-		field.String("status"),
+		field.Enum("status").Values("active", "accepted", "rejected", "cancelled"),
 	}
 }
 
