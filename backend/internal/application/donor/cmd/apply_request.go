@@ -10,12 +10,14 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
 type ApplyForRequestHandler struct {
 	bloodRepo bloodsearch.BloodRequestRepository
 	petRepo   pet.Repository
 	donorRepo donor.Repository
+	txManager *presistance.TxManager
 }
 
 func NewApplyForRequestHandler(
@@ -41,23 +43,14 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 
 	// Проверяем существование донора
-	donorExists, err := h.petRepo.ExistsByID(ctx, donorID)
+	donorPet, err := h.petRepo.GetByID(ctx, donorID, pet.PetPreloadOptions{
+		WithDonorApplication: true,
+	})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check donor existence")
 	}
-	if !donorExists {
-		return nil, apperrors.ErrPetNotFound
-	}
-
-	// Проверяем, нет ли уже отклика от этого донора на эту заявку
-	responses, err := h.donorRepo.GetDonorResponsesByDonorID(ctx, donorID)
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to check existing responses")
-	}
-	for _, resp := range responses {
-		if resp.RequestID == reqID {
-			return nil, apperrors.ErrDonorResponseAlreadyExists
-		}
+	if donorPet.PlaningDonation {
+		return nil, apperrors.ErrDonorResponseAlreadyExists
 	}
 
 	// Create domain model using constructor
@@ -66,10 +59,23 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}
 
-	created, err := h.donorRepo.CreateDonorResponse(ctx, resp)
+	req.ReserveVolume(donorPet.CalculateDonationAmount())
+
+	var donorResponse *donormodel.DonorResponse
+	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		donorResponse, err = h.donorRepo.CreateDonorResponse(txCtx, resp)
+		if err != nil {
+			return err
+		}
+		if err := h.bloodRepo.UpdateReservedVolume(txCtx, reqID, req.BloodVolumeReserved, string(req.Status)); err != nil {
+			return err
+		}
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	return created, nil
+	return donorResponse, nil
 }

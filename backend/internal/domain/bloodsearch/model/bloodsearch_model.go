@@ -42,7 +42,6 @@ type BloodRequest struct {
 
 // NewBloodRequest creates a new blood request with default values
 func NewBloodRequest(petID string, bloodVolumeNeeded int32, regions []string) *BloodRequest {
-	now := time.Now()
 	return &BloodRequest{
 		PetID:                    petID,
 		BloodVolumeNeeded:        bloodVolumeNeeded,
@@ -56,8 +55,6 @@ func NewBloodRequest(petID string, bloodVolumeNeeded int32, regions []string) *B
 		OnBoarding:               []string{},
 		PrioritySearch:           false,
 		IncludeUnknownBloodGroup: false,
-		CreatedAt:                now,
-		UpdatedAt:                now,
 	}
 }
 
@@ -69,36 +66,26 @@ func (b *BloodRequest) IsActive() bool {
 // Close marks the request as closed
 func (b *BloodRequest) Close() {
 	b.Status = BloodRequestStatusClosed
-	b.UpdatedAt = time.Now()
 }
 
 // ReserveVolume reserves blood volume
 func (b *BloodRequest) ReserveVolume(amount int32) error {
-	if b.BloodVolumeReserved+amount > b.BloodVolumeNeeded {
-		return ErrInsufficientVolume
-	}
-
 	b.BloodVolumeReserved += amount
-	b.UpdatedAt = time.Now()
-
 	// Auto-close if fully reserved
 	if b.BloodVolumeReserved >= b.BloodVolumeNeeded {
 		b.Status = BloodRequestStatusClosed
 	}
-
 	return nil
 }
 
 // AddPhoto adds a photo URL to the request
 func (b *BloodRequest) AddPhoto(url string) {
 	b.PhotoURLs = append(b.PhotoURLs, url)
-	b.UpdatedAt = time.Now()
 }
 
 // SetBloodGroups sets compatible blood groups
 func (b *BloodRequest) SetBloodGroups(groups []string) {
 	b.BloodGroupNames = groups
-	b.UpdatedAt = time.Now()
 }
 
 // BloodRequestFilter represents filter options for listing requests

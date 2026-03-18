@@ -230,6 +230,14 @@ func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string,
 		Exec(ctx)
 }
 
+// UpdateReservedVolume обновляет зарезервированный объём и статус заявки
+func (r *EntBloodRequestRepository) UpdateReservedVolume(ctx context.Context, id string, reservedVolume int32, status string) error {
+	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
+		SetBloodVolumeReserved(reservedVolume).
+		SetStatus(bloodsearchrequest.Status(status)).
+		Exec(ctx)
+}
+
 // Delete удаляет заявку из хранилища (soft delete)
 func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error {
 	return r.client(ctx).BloodSearchRequest.DeleteOneID(id).Exec(ctx)

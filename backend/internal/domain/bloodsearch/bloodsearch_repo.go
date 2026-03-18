@@ -25,6 +25,9 @@ type BloodRequestRepository interface {
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status string) error
 
+	// UpdateReservedVolume обновляет зарезервированный объём и статус заявки
+	UpdateReservedVolume(ctx context.Context, id string, reservedVolume int32, status string) error
+
 	// Delete удаляет заявку из хранилища (soft delete)
 	Delete(ctx context.Context, id string) error
 

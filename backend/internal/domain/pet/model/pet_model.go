@@ -706,3 +706,20 @@ func FilterDonors(pets []*Pet) []*Pet {
 	}
 	return donors
 }
+
+// calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)
+// Для собак: не более 17.6 мл/кг
+// Для кошек: не более 13.2 мл/кг
+func (p *Pet) CalculateDonationAmount() int32 {
+	var limitPerKg float64
+	switch p.Type {
+	case "dog":
+		limitPerKg = 17.6
+	case "cat":
+		limitPerKg = 13.2
+	default:
+		return 0
+	}
+	amount := limitPerKg * p.WeightKg
+	return int32(amount)
+}
