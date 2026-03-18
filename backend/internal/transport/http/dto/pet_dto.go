@@ -212,9 +212,16 @@ type GetPetsByUserInput struct {
 	PetPreloadQuery
 }
 
-// GetPetsByUserOutput представляет ответ со списком питомцев
+// GetPetsByUserOutput представляет ответ со списком питомцев и общей информацией
 type GetPetsByUserOutput struct {
-	Body []PetDetail
+	Body GetPetsByUserResult
+}
+
+// GetPetsByUserResult представляет результат получения питомцев пользователя
+type GetPetsByUserResult struct {
+	Pets           []PetDetail `json:"pets" doc:"Список питомцев"`
+	TotalPets      int         `json:"totalPets" doc:"Общее количество питомцев у пользователя" example:"5"`
+	TotalDonations int         `json:"totalDonations,omitempty" doc:"Общее количество планируемых донаций питомцев пользователя" example:"12"` // Добавлено по запросу
 }
 
 // ============================================

@@ -194,7 +194,11 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 	}
 
 	return &dto.GetPetsByUserOutput{
-		Body: h.petMapper.ToResponseSlice(pets),
+		Body: dto.GetPetsByUserResult{
+			Pets:           h.petMapper.ToResponseSlice(pets),
+			TotalPets:      len(pets),
+			TotalDonations: 0,
+		},
 	}, nil
 }
 
