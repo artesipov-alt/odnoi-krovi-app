@@ -82,7 +82,11 @@ export type Pet = {
     donorRestrictions?: DonorRestrictions;
 };
 
-export type GetPetsResponse = Pet[];
+export type GetPetsResponse = {
+    pets: Pet[];
+    totalPets: number;
+    totalDonations: number;
+};
 
 export type CreatePetRequest = Omit<Pet, 'id'> & { userId: string };
 

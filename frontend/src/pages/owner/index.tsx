@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router';
 import { getCorrectDeclension, Variants } from 'utils/utils';
 
 import { DonorRestrictions, Pet } from 'api/pets';
+import { queryClient } from 'api/queryClient';
 import { Onboarding, Role } from 'api/user';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
@@ -55,7 +56,7 @@ const Owner: FC<Props> = ({ userId }) => {
     const [isDonorPreferenceOpen, setIsDonorPreferenceOpen] = useState<boolean>(false);
     const [isDonorPreferenceOnboardingWasShown, setIsDonorPreferenceOnboardingWasShown] = useState<boolean>(false);
 
-    const { data: pets = [], isLoading, refetch } = usePetsQuery(userId);
+    const { data: pets, isLoading, refetch } = usePetsQuery(userId);
     const { data: userData, isLoading: isUserDataLoading, refetch: refetchUserData } = useGetUserById(userId);
 
     const onButtonClickHandler = (newView: View) => () => {
@@ -192,12 +193,17 @@ const Owner: FC<Props> = ({ userId }) => {
         setIsDonorPreferenceOpen(false);
     };
 
-    const onDonateBloodClickHandler = (e: React.MouseEvent) => {
+    const onDonateBloodClickHandler = async (e: MouseEvent) => {
         e.stopPropagation();
+
+        await queryClient.invalidateQueries({ queryKey: ['recipientsList', userId] });
+
+        navigate('/recipientsList');
     };
 
     const renderDonorLabel = (petData: Pet, donorRestrictions?: DonorRestrictions) => {
         switch (true) {
+            // заменить на статус
             case donorRestrictions?.stopFactors?.length === 1 &&
                 donorRestrictions?.stopFactors[0].code === 'STOP_DONATION_TOO_RECENT': {
                 return (
@@ -252,10 +258,10 @@ const Owner: FC<Props> = ({ userId }) => {
                 [styles.notPreference]: !userData?.donorPreference,
                 [styles.notCandidats]:
                     userData?.donorPreference &&
-                    pets?.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length),
+                    pets?.pets.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length),
                 [styles.isCandidats]:
                     userData?.donorPreference &&
-                    pets?.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length),
+                    pets?.pets.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length),
             })}
         >
             {!userData?.donorPreference && (
@@ -281,7 +287,7 @@ const Owner: FC<Props> = ({ userId }) => {
                 </>
             )}
             {userData?.donorPreference &&
-                pets?.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length) && (
+                pets?.pets.every(({ donorRestrictions }) => donorRestrictions?.stopFactors?.length) && (
                     <>
                         <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
                             <div className={styles.preferencesettings}>
@@ -293,7 +299,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </>
                 )}
             {userData?.donorPreference &&
-                pets?.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length) && (
+                pets?.pets.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length) && (
                     <>
                         <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
                             <div className={styles.preferencesettings}>
@@ -332,6 +338,13 @@ const Owner: FC<Props> = ({ userId }) => {
             return;
         }
 
+        if (window.location.hash === '#donorDonations') {
+            setTab(1);
+            setView(Role.DONOR);
+
+            return;
+        }
+
         window.location.hash = '#recipient';
     }, []);
 
@@ -344,7 +357,7 @@ const Owner: FC<Props> = ({ userId }) => {
 
         setSelectedPet((prevState) => {
             if (prevState) {
-                return pets?.find((pet) => pet.id === prevState.id) || null;
+                return pets?.pets.find((pet) => pet.id === prevState.id) || null;
             }
 
             return prevState;
@@ -428,7 +441,7 @@ const Owner: FC<Props> = ({ userId }) => {
 
     return (
         <Layout>
-            <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.length })}>
+            <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.pets.length })}>
                 <div className={styles.header}>
                     <div className={styles.avatar}>{userData?.fullName.charAt(0).toUpperCase()}</div>
                 </div>
@@ -437,7 +450,7 @@ const Owner: FC<Props> = ({ userId }) => {
                         <Loading size={90} thickness={4} />
                     </div>
                 )}
-                {!(isLoading || isUserDataLoading) && !pets?.length && (
+                {!(isLoading || isUserDataLoading) && !pets?.pets.length && (
                     <div className={styles.button} onClick={onAddPetClickHandler}>
                         <div className={styles.pawIcon}>
                             <Paw />
@@ -446,7 +459,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </div>
                 )}
                 {/* При переключении между вкладками перезапрашивать ли запросы на поиск крови??? */}
-                {!(isLoading || isUserDataLoading) && !!pets?.length && (
+                {!(isLoading || isUserDataLoading) && !!pets?.pets.length && (
                     <>
                         {view === 'donor' && (
                             <div className={styles.tabs}>
@@ -457,8 +470,8 @@ const Owner: FC<Props> = ({ userId }) => {
                                         className={cn(styles.tab, { [styles.active]: tab === ind })}
                                     >
                                         {title}
-                                        {ind === 0 && renderTabCounter(pets.length)}
-                                        {/* {ind === 1 && isPacketsBloodFound && renderTabCounter()} */}
+                                        {ind === 0 && renderTabCounter(pets.totalPets)}
+                                        {ind === 1 && !!pets.totalDonations && renderTabCounter(pets.totalDonations)}
                                     </div>
                                 ))}
                             </div>
@@ -467,7 +480,7 @@ const Owner: FC<Props> = ({ userId }) => {
                         {tab === 0 && (
                             <div className={cn(styles.showcase, { [styles.donorView]: view === 'donor' })}>
                                 {view === 'donor' && renderSettingsTab()}
-                                {pets.map((pet) => (
+                                {pets.pets.map((pet) => (
                                     <div key={`${pet.id}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
                                         <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>
                                             {!!pet.photoUrls?.[0] && (

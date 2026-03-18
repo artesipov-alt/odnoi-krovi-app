@@ -15,6 +15,7 @@ export enum Role {
 export enum Onboarding {
     START = 'START',
     FIND_BLOOD = 'FIND_BLOOD',
+    RECIPIENT_LIST = 'RECIPIENT_LIST',
 }
 
 export enum CompensationType {
