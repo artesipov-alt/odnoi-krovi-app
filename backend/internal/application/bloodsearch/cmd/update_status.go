@@ -11,11 +11,11 @@ import (
 )
 
 type UpdateStatusHandler struct {
-	txManager presistance.TxManager
+	txManager *presistance.TxManager
 	bloodRepo bloodsearch.BloodRequestRepository
 }
 
-func NewUpdateStatusHandler(txManager presistance.TxManager, bloodRepo bloodsearch.BloodRequestRepository) *UpdateStatusHandler {
+func NewUpdateStatusHandler(txManager *presistance.TxManager, bloodRepo bloodsearch.BloodRequestRepository) *UpdateStatusHandler {
 	return &UpdateStatusHandler{
 		txManager: txManager,
 		bloodRepo: bloodRepo,

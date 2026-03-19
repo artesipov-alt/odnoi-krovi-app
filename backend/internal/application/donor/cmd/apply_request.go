@@ -24,11 +24,13 @@ func NewApplyForRequestHandler(
 	bloodRepo bloodsearch.BloodRequestRepository,
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
+	txManager *presistance.TxManager,
 ) *ApplyForRequestHandler {
 	return &ApplyForRequestHandler{
 		bloodRepo: bloodRepo,
 		petRepo:   petRepo,
 		donorRepo: donorRepo,
+		txManager: txManager,
 	}
 }
 
