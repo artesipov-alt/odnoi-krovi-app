@@ -1,29 +1,32 @@
 package model
 
 import (
+	"slices"
+
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 // Recipient представляет модель чтения реципиент
 type Recipient struct {
-	ID                   string
-	PetID                string
-	PetName              string
-	PetType              petmodel.PetType
-	OwnerName            string
-	SearchRegions        []string
-	SearchingBloodNames  []string
-	BloodVolumeRemaining int32
-	BloodVolumeNeeded    int32
-	BloodVolumeReserved  int32
-	PhotoURLs            []string
-	BloodGroupName       string
-	PrioritySearch       bool
-	Status               string
-	MatchingDonors       []MatchingDonorReadModel
-	DefaultDonorPrefs    *DefaultDonorPrefs
-	AdvancedInfo         *AdvancedInfo
+	ID                       string
+	PetID                    string
+	PetName                  string
+	PetType                  petmodel.PetType
+	OwnerName                string
+	SearchRegions            []string
+	SearchingBloodNames      []string
+	BloodVolumeRemaining     int32
+	BloodVolumeNeeded        int32
+	BloodVolumeReserved      int32
+	PhotoURLs                []string
+	BloodGroupName           string
+	PrioritySearch           bool
+	IncludeUnknownBloodGroup bool
+	Status                   string
+	MatchingDonors           []MatchingDonorReadModel
+	DefaultDonorPrefs        *DefaultDonorPrefs
+	AdvancedInfo             *AdvancedInfo
 }
 
 type AdvancedInfo struct {
@@ -54,13 +57,25 @@ type MatchingDonorReadModel struct {
 }
 
 func (r *Recipient) AddMatchingDonor(pet *petmodel.Pet) {
-	r.MatchingDonors = append(r.MatchingDonors, MatchingDonorReadModel{
-		PetName:         pet.Name,
-		PetID:           pet.ID,
-		DonorBloodGroup: *pet.BloodGroupName,
-		PhotoURLs:       pet.PhotoURLs,
-		Amount:          pet.CalculateDonationAmount(),
-	})
+	matched := false
+	if pet.BloodGroupName != nil {
+		matched = slices.Contains(r.SearchingBloodNames, *pet.BloodGroupName)
+	} else if r.IncludeUnknownBloodGroup {
+		matched = true
+	}
+	if matched {
+		donorBloodGroup := ""
+		if pet.BloodGroupName != nil {
+			donorBloodGroup = *pet.BloodGroupName
+		}
+		r.MatchingDonors = append(r.MatchingDonors, MatchingDonorReadModel{
+			PetName:         pet.Name,
+			PetID:           pet.ID,
+			DonorBloodGroup: donorBloodGroup,
+			PhotoURLs:       pet.PhotoURLs,
+			Amount:          pet.CalculateDonationAmount(),
+		})
+	}
 }
 
 func (r *Recipient) SetDefaultPrefs(compensationType usermodel.CompensationType, taxiCompensation bool) {

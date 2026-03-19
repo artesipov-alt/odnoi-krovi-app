@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
-	"slices"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -42,11 +40,13 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 	}
 
 	recipient := &donormodel.Recipient{
-		ID:                   req.ID,
-		PetID:                req.PetID,
-		BloodVolumeRemaining: req.BloodVolumeNeeded - req.BloodVolumeReserved,
-		PrioritySearch:       req.PrioritySearch,
-		Status:               string(req.Status),
+		ID:                       req.ID,
+		PetID:                    req.PetID,
+		BloodVolumeRemaining:     req.BloodVolumeNeeded - req.BloodVolumeReserved,
+		PrioritySearch:           req.PrioritySearch,
+		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
+		SearchingBloodNames:      req.BloodGroupNames,
+		Status:                   string(req.Status),
 	}
 
 	if req.Edges.Pet != nil {
@@ -59,30 +59,9 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 	}
 
 	// Find matching donors
-	var matching []donormodel.MatchingDonorReadModel
 	for _, donor := range donors {
-		matched := false
-		if donor.BloodGroupName != nil {
-			matched = slices.Contains(req.BloodGroupNames, *donor.BloodGroupName)
-		} else if req.IncludeUnknownBloodGroup {
-			matched = true
-		}
-		if matched {
-			donorBloodGroup := ""
-			if donor.BloodGroupName != nil {
-				donorBloodGroup = *donor.BloodGroupName
-			}
-			matching = append(matching, donormodel.MatchingDonorReadModel{
-				PetID:           donor.ID,
-				PetName:         donor.Name,
-				DonorBloodGroup: donorBloodGroup,
-				PhotoURLs:       donor.PhotoURLs,
-			})
-		}
+		recipient.AddMatchingDonor(donor)
 	}
-
-	slog.Info("", "matching", matching)
-	recipient.MatchingDonors = matching
 
 	return recipient
 }
