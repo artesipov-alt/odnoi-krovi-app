@@ -313,7 +313,7 @@ const RecipientsListDetail: FC<Props> = ({ id, isBlurByDefault, onClose }) => {
                                 <div className={styles.photo}>
                                     <img alt={petName} src={photoUrls[0]} className={styles.img} />
                                     <div className={styles.donorBloodInfo}>
-                                        <div className={styles.donorBloodGroup}>{donorBloodGroup}</div>
+                                        <div className={styles.donorBloodGroup}>{donorBloodGroup || '?'}</div>
                                         <div className={styles.bloodVolume}>
                                             <p className={styles.bloodVolumeNumber}>{amount}</p>
                                             <p className={styles.bloodVolumeDescr}>мл</p>
