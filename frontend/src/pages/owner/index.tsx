@@ -115,9 +115,9 @@ const Owner: FC<Props> = ({ userId }) => {
 
     const renderTabCounter = (count: number) => <div className={styles.tabCounter}>{count}</div>;
 
-    const renderRecipientLabel = (petsStatus: Role, petId: string) => {
+    const renderRecipientLabel = (petStatus: Role, petId: string) => {
         switch (true) {
-            case petsStatus === Role.RECIPIENT: {
+            case petStatus === Role.RECIPIENT: {
                 return (
                     <div
                         onClick={onRecipientLabelClickHandler('activeSearch', petId)}
@@ -132,7 +132,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </div>
                 );
             }
-            case petsStatus === Role.BLOOD_FOUND: {
+            case petStatus === Role.BLOOD_FOUND: {
                 return (
                     <div
                         onClick={onRecipientLabelClickHandler('bloodFound', petId)}
@@ -145,7 +145,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </div>
                 );
             }
-            case petsStatus === Role.NONE || petsStatus === Role.DONOR: {
+            case petStatus === Role.NONE || petStatus === Role.DONOR: {
                 return (
                     <div
                         onClick={onRecipientLabelClickHandler('startSearch', petId)}
@@ -203,9 +203,7 @@ const Owner: FC<Props> = ({ userId }) => {
 
     const renderDonorLabel = (petData: Pet, donorRestrictions?: DonorRestrictions) => {
         switch (true) {
-            // заменить на статус
-            case donorRestrictions?.stopFactors?.length === 1 &&
-                donorRestrictions?.stopFactors[0].code === 'STOP_DONATION_TOO_RECENT': {
+            case petData.petStatus === Role.RECOVERING: {
                 return (
                     <div
                         onClick={onDonorLabelClickHandler('didNotRecover', petData)}

@@ -112,7 +112,8 @@ const RecipientsListDetail: FC<Props> = ({ id, isBlurByDefault, onClose }) => {
         setIsConfirmed(true);
 
         const response = await bloodSearchApply({
-            id: checkedDonor,
+            id,
+            donorId: checkedDonor,
             compensationType: (reward || recipient?.defaultPrefs?.compensationType)!,
             taxiCompensation: (isTaxi !== null ? isTaxi : recipient?.defaultPrefs?.taxiCompensation)!,
         });
@@ -269,16 +270,37 @@ const RecipientsListDetail: FC<Props> = ({ id, isBlurByDefault, onClose }) => {
                         условия
                     </p>
                     <div className={styles.icons}>
-                        <div className={cn(styles.rewardFeedIcon, { [styles.button]: true })}>
-                            <div className={styles.icon}>
-                                <Bone />
+                        {(reward === null
+                            ? recipient.defaultPrefs?.compensationType === CompensationType.FOOD
+                            : reward === CompensationType.FOOD) && (
+                            <div className={cn(styles.rewardFeedIcon, { [styles.button]: true })}>
+                                <div className={styles.icon}>
+                                    <Bone />
+                                </div>
                             </div>
-                        </div>
-                        <div className={cn(styles.taxiIcon, { [styles.button]: true })}>
-                            <div className={styles.icon}>
-                                <Taxi />
+                        )}
+                        {(reward === null
+                            ? recipient.defaultPrefs?.compensationType === CompensationType.FREE
+                            : reward === CompensationType.FREE) && (
+                            <div className={cn(styles.rewardFreeIcon, { [styles.button]: true })}>
+                                <p className={styles.sum}>0</p>
+                                <p className={styles.descr}>₽</p>
                             </div>
-                        </div>
+                        )}
+                        {(reward === null
+                            ? recipient.defaultPrefs?.compensationType === CompensationType.PAID
+                            : reward === CompensationType.PAID) && (
+                            <div className={cn(styles.rewardNotFreeIcon, { [styles.button]: true })}>
+                                <p className={styles.descr}>₽</p>
+                            </div>
+                        )}
+                        {(isTaxi === null ? recipient.defaultPrefs?.taxiCompensation : isTaxi) && (
+                            <div className={cn(styles.taxiIcon, { [styles.button]: true })}>
+                                <div className={styles.icon}>
+                                    <Taxi />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -291,7 +313,7 @@ const RecipientsListDetail: FC<Props> = ({ id, isBlurByDefault, onClose }) => {
                                 <div className={styles.photo}>
                                     <img alt={petName} src={photoUrls[0]} className={styles.img} />
                                     <div className={styles.donorBloodInfo}>
-                                        <div className={styles.donorBloodGroup}>{donorBloodGroup}</div>
+                                        <div className={styles.donorBloodGroup}>{donorBloodGroup || '?'}</div>
                                         <div className={styles.bloodVolume}>
                                             <p className={styles.bloodVolumeNumber}>{amount}</p>
                                             <p className={styles.bloodVolumeDescr}>мл</p>

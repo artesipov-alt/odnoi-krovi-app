@@ -292,3 +292,166 @@
     line-height: 11px;
 }
 
+.label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 13px;
+    height: 49px;
+    border-radius: 8px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 15px;
+
+    &.activeSearch {
+        background: @red1;
+        color: @white2;
+    }
+
+    &.bloodFound {
+        background: @red11;
+        color: @border4;
+
+        & .searchIcon {
+            fill: @red12;
+        }
+    }
+
+    &.didNotRecover {
+        gap: 8px;
+        background: @blue;
+        color: @grayBg15;
+    }
+
+    &.notReady {
+        gap: 8px;
+        background: @red11;
+        color: @grayBg16;
+
+        & .searchIcon {
+            height: 22px;
+        }
+    }
+
+    &.donationQuestions {
+        gap: 8px;
+        background: @orange1;
+        color: @border4;
+
+        & .searchIcon {
+            height: 22px;
+        }
+    }
+
+    &.pause {
+        gap: 8px;
+        background: @grayBg24;
+        color: @white;
+
+        & .statusLabelIcon {
+            width: 22px;
+            height: 22px;
+        }
+    }
+}
+
+.statusLabelIcon {
+    width: 13px;
+    height: 13px;
+    fill: @white-bg;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.labelText {
+    position: relative;
+}
+
+.labelArrow {
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-58%);
+    margin: 0;
+
+    @media (min-width: 500px) {
+        right: -20px;
+    }
+
+    @media (min-width: 768px) {
+        right: -22px;
+    }
+}
+
+.noEditLabel {
+    border-radius: 8px;
+    background: @grayBg11;
+    padding: 8px 10px;
+    margin-bottom: 13px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 12px;
+}
+
+.noEditLabelTitle {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+.lockIcon {
+    width: 12px;
+    height: 14px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @grayBg23;
+    }
+}
+
+.lockTitle {
+    color: @grayBg22;
+    margin: 0;
+}
+
+.noEditLabelText {
+    color: @textColor4;
+    margin: 0;
+}
+
+.recover {
+    flex-shrink: 0;
+    width: 31px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.50);
+    text-align: center;
+}
+
+.recoverDays {
+    margin: 2px 0 0;
+    color: @blue1;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.recoverDescr {
+    margin: -6px 0 0;
+    color: @blue2;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 8px;
+    font-weight: 400;
+    line-height: 15px;
+}

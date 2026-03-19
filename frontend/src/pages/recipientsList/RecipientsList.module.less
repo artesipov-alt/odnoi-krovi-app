@@ -230,6 +230,7 @@
     aspect-ratio: 1 / 1.27; /* пропорции например: 1 / 1 */
     object-fit: cover;
     border-radius: 12px;
+    overflow: hidden;
 
     &.cat {
         background: url('imgs/catStub.png') no-repeat, linear-gradient(182deg, rgba(0, 0, 0, 0.00) 44.37%, rgba(0, 0, 0, 0.54) 98.41%);
@@ -258,6 +259,10 @@
 
     &.blured {
         filter: blur(16px);
+        will-change: filter;
+        box-shadow: none;
+        overflow: hidden;
+        transform: translateZ(0);
     }
 }
 
