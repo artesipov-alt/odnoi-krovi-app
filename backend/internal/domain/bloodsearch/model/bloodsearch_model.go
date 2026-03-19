@@ -33,11 +33,28 @@ type BloodRequest struct {
 	OnBoarding               []string
 	PrioritySearch           bool
 	IncludeUnknownBloodGroup bool
-	CreatedAt                time.Time
-	UpdatedAt                time.Time
+	CreatedAt                *time.Time
+	UpdatedAt                *time.Time
 	DeletedAt                *time.Time
-	// Responses are typically loaded separately, but we can keep IDs
-	ResponseIDs []string
+	DonorApplications        []DonorApplication
+}
+
+// DonorApplication представляет отклик донора
+type DonorApplication struct {
+	ID               string
+	RequestID        string
+	DonorID          string
+	DonorName        string
+	DonorPhotos      []string
+	DonorBloodGroup  string
+	Amount           int32
+	WarnFactors      []string
+	CompensationType string
+	TaxiCompensation bool
+	Status           string
+	CreatedAt        *time.Time
+	UpdatedAt        *time.Time
+	DeletedAt        *time.Time
 }
 
 // NewBloodRequest creates a new blood request with default values

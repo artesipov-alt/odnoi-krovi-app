@@ -72,12 +72,24 @@ func (r *EntBloodRequestRepository) bloodReqToDomainModel(entReq *ent.BloodSearc
 		return nil
 	}
 
-	// Extract response IDs from loaded edges
-	var responseIDs []string
+	// Map responses to DonorApplications
+	var donorApps []bloodreqmodel.DonorApplication
 	if entReq.Edges.Responses != nil {
-		responseIDs = make([]string, len(entReq.Edges.Responses))
+		donorApps = make([]bloodreqmodel.DonorApplication, len(entReq.Edges.Responses))
 		for i, resp := range entReq.Edges.Responses {
-			responseIDs[i] = resp.ID
+			app := bloodreqmodel.DonorApplication{
+				ID:               resp.ID,
+				RequestID:        entReq.ID,
+				DonorID:          resp.Edges.Donor.ID,
+				DonorName:        resp.Edges.Donor.Name,
+				DonorPhotos:      resp.Edges.Donor.PhotoUrls,
+				DonorBloodGroup:  resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup,
+				Amount:           0,
+				WarnFactors:      []string{},
+				CompensationType: string(resp.CompensationType),
+				TaxiCompensation: resp.TaxiCompensation,
+			}
+			donorApps[i] = app
 		}
 	}
 
@@ -94,11 +106,11 @@ func (r *EntBloodRequestRepository) bloodReqToDomainModel(entReq *ent.BloodSearc
 		BloodGroupNames:          entReq.BloodGroupNames,
 		BloodComponentIDs:        entReq.BloodComponentIds,
 		OnBoarding:               entReq.OnBoarding,
-		ResponseIDs:              responseIDs,
+		DonorApplications:        donorApps,
 		PrioritySearch:           entReq.PrioritySearch,
 		IncludeUnknownBloodGroup: entReq.IncludeUnknownBloodGroup,
-		CreatedAt:                entReq.CreatedAt,
-		UpdatedAt:                entReq.UpdatedAt,
+		CreatedAt:                &entReq.CreatedAt,
+		UpdatedAt:                &entReq.UpdatedAt,
 		DeletedAt:                entReq.DeletedAt,
 	}
 }

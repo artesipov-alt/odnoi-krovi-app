@@ -40,6 +40,9 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		return nil, apperrors.ErrUserNotFound
 	}
 
+	opts.WithBloodReq = true
+	opts.WithDonorApplication = true
+
 	pets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")

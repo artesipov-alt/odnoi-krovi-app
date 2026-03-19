@@ -601,7 +601,7 @@ func (p *Pet) CalculateDonorStatus() {
 		p.PetStatus = PetStatusRecipient
 	}
 	if p.HaveBloodReqApplication {
-		p.PetStatus = PetStatusRecipient
+		p.PetStatus = PetStatusBloodFound
 	}
 	if len(p.StopFactors) == 0 {
 		p.PetStatus = PetStatusDonor

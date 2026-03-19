@@ -118,7 +118,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 		ID:        result.ID,
 		PetID:     result.PetID,
 		Status:    dto.BloodRequestStatus(result.Status),
-		CreatedAt: &result.CreatedAt,
+		CreatedAt: result.CreatedAt,
 	}}, nil
 }
 
@@ -173,7 +173,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 
 	return &dto.UpdateBloodRequestOutput{Body: dto.UpdateBloodRequestResult{
 		ID:        result.ID,
-		UpdatedAt: &result.UpdatedAt,
+		UpdatedAt: result.UpdatedAt,
 	}}, nil
 }
 

@@ -2,8 +2,6 @@
 package mapper
 
 import (
-	"time"
-
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -27,19 +25,31 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		return dto.BloodRequestDetail{}
 	}
 
-	var createdAt, updatedAt, deletedAt *time.Time
-
-	if !req.CreatedAt.IsZero() {
-		createdAt = &req.CreatedAt
-	}
-	if !req.UpdatedAt.IsZero() {
-		updatedAt = &req.UpdatedAt
-	}
-	deletedAt = req.DeletedAt
-
 	suitableDonorsCount := 0
 	if suitableDonors != nil {
 		suitableDonorsCount = *suitableDonors
+	}
+
+	var donorApplications []dto.DonorApplication
+	if len(req.DonorApplications) != 0 {
+		donorApplications = make([]dto.DonorApplication, 0, len(req.DonorApplications))
+		for _, app := range req.DonorApplications {
+			donorApplications = append(donorApplications, dto.DonorApplication{
+				ID:               app.ID,
+				RequestID:        app.RequestID,
+				DonorID:          app.DonorID,
+				DonorName:        app.DonorName,
+				DonorPhotos:      m.storage.BuildPhotoURLs(app.DonorPhotos, *req.UpdatedAt),
+				DonorBloodGroup:  app.DonorBloodGroup,
+				Amount:           app.Amount,
+				WarnFactors:      app.WarnFactors,
+				CompensationType: app.CompensationType,
+				TaxiCompensation: app.TaxiCompensation,
+				Status:           app.Status,
+				CreatedAt:        app.CreatedAt,
+				UpdatedAt:        app.UpdatedAt,
+			})
+		}
 	}
 
 	return dto.BloodRequestDetail{
@@ -50,7 +60,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		Regions:                  req.Regions,
 		SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
 		Description:              req.Description,
-		PhotoURLs:                m.storage.BuildPhotoURLs(req.PhotoURLs, req.UpdatedAt),
+		PhotoURLs:                m.storage.BuildPhotoURLs(req.PhotoURLs, *req.UpdatedAt),
 		BloodGroupNames:          req.BloodGroupNames,
 		BloodComponentIDs:        req.BloodComponentIDs,
 		OnBoarding:               req.OnBoarding,
@@ -58,9 +68,10 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		SuitableDonors:           suitableDonorsCount,
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
-		CreatedAt:                createdAt,
-		UpdatedAt:                updatedAt,
-		DeletedAt:                deletedAt,
+		Responses:                donorApplications,
+		CreatedAt:                req.CreatedAt,
+		UpdatedAt:                req.UpdatedAt,
+		DeletedAt:                req.DeletedAt,
 	}
 }
 
