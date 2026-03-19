@@ -19,6 +19,8 @@
 
         // Функция загрузки max-скрипта
         function loadMaxScript() {
+            clearTimeout(telegramTimeout);
+
             const script = document.createElement('script');
             script.src = 'https://st.max.ru/js/max-web-app.js';
             script.onload = () => console.log('max-web-app.js успешно загружен');
