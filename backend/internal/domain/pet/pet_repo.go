@@ -31,7 +31,7 @@ type PetWriteRepository interface {
 	Update(ctx context.Context, id string, pet *model.Pet) (*model.Pet, error)
 
 	// Delete удаляет питомца (soft delete)
-	Delete(ctx context.Context, id string) error
+	DeleteWithRelations(ctx context.Context, id string) error
 }
 
 // PetStatsRepository определяет операции для статистики и поиска доноров

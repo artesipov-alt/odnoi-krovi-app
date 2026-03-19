@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -538,14 +539,68 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 }
 
 // Delete удаляет питомца по его ID (мягкое удаление)
-func (r *EntPetRepository) Delete(ctx context.Context, id string) error {
+func (r *EntPetRepository) DeleteWithRelations(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("неверный ID питомца")
 	}
 
-	// Мягкое удаление через хук SoftDeleteMixin
-	err := r.client.Pet.DeleteOneID(id).Exec(ctx)
+	// Get the pet to access related IDs
+	petEnt, err := r.client.Pet.Get(ctx, id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("питомец с ID %s не найден", id)
+		}
+		return fmt.Errorf("не удалось получить питомца: %w", err)
+	}
 
+	// Delete health if exists
+	if petEnt.HealthID != "" {
+		err = r.client.PetHealth.DeleteOneID(petEnt.HealthID).Exec(ctx)
+		if err != nil && !ent.IsNotFound(err) {
+			return fmt.Errorf("не удалось удалить здоровье питомца: %w", err)
+		}
+	}
+
+	// Delete treatment if exists
+	if petEnt.TreatmentID != "" {
+		err = r.client.PetTreatment.DeleteOneID(petEnt.TreatmentID).Exec(ctx)
+		if err != nil && !ent.IsNotFound(err) {
+			return fmt.Errorf("не удалось удалить лечение питомца: %w", err)
+		}
+	}
+
+	// Delete analyses
+	_, err = r.client.PetAnalysis.Delete().Where(petanalysis.PetID(id)).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось удалить анализы питомца: %w", err)
+	}
+
+	// Delete donor responses where this pet is the donor
+	_, err = r.client.DonorResponse.Delete().Where(sql.FieldEQ("donor_response_donor", id)).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось удалить отклики донора: %w", err)
+	}
+
+	// Delete blood request and responses if exists
+	bloodReq, err := r.client.BloodSearchRequest.Query().Where(entbloodreq.PetID(id)).Only(ctx)
+	if err != nil && !ent.IsNotFound(err) {
+		return fmt.Errorf("не удалось получить заявку на кровь: %w", err)
+	}
+	if bloodReq != nil {
+		// Delete responses
+		_, err = r.client.DonorResponse.Delete().Where(sql.FieldEQ("blood_search_request_responses", bloodReq.ID)).Exec(ctx)
+		if err != nil {
+			return fmt.Errorf("не удалось удалить отклики доноров: %w", err)
+		}
+		// Delete blood request
+		err = r.client.BloodSearchRequest.DeleteOneID(bloodReq.ID).Exec(ctx)
+		if err != nil {
+			return fmt.Errorf("не удалось удалить заявку на кровь: %w", err)
+		}
+	}
+
+	// Мягкое удаление через хук SoftDeleteMixin
+	err = r.client.Pet.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return fmt.Errorf("питомец с ID %s не найден", id)

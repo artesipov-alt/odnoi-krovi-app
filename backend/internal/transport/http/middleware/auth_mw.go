@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"os"
 	"slices"
 	"strings"
 
@@ -29,6 +30,11 @@ const (
 func AuthMiddleware(jwtGenerator *auth.JWTGenerator, excludedPaths ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if os.Getenv("ENV") == "dev" || os.Getenv("ENV") == "development" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			// Проверяем, нужно ли пропустить аутентификацию для этого пути
 			path := r.URL.Path
 			for _, excluded := range excludedPaths {

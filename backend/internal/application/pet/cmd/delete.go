@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -32,17 +31,7 @@ func (h *DeleteHandler) Handle(ctx context.Context, petID string) error {
 		return apperrors.ErrPetNotFound
 	}
 
-	// Получаем все заявки на поиск крови, связанные с этим питомцем
-	bloodRequest, err := h.bloodReqRepo.GetByPetID(ctx, petID)
-	if err != nil {
-		return apperrors.Internal(err, "failed to list blood requests for pet")
-	}
-
-	if err := h.bloodReqRepo.Delete(ctx, bloodRequest.ID); err != nil {
-		slog.WarnContext(ctx, "Failed to delete blood request for pet", "blood_request_id", bloodRequest.ID, "pet_id", petID, "error", err)
-	}
-
-	if err := h.petWriteRepo.Delete(ctx, petID); err != nil {
+	if err := h.petWriteRepo.DeleteWithRelations(ctx, petID); err != nil {
 		return apperrors.Internal(err, "failed to delete pet")
 	}
 
