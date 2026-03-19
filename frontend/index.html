@@ -12,9 +12,9 @@
         const telegramTimeout = setTimeout(() => {
             if (!window.Telegram?.WebApp) {
                 console.warn("Telegram не загрузился за отведённое время. Загружаем max...");
-
-                loadMaxScript();
             }
+
+            loadMaxScript();
         }, 3000); // 5 секунд
 
         // Функция загрузки max-скрипта
