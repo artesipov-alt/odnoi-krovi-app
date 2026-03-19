@@ -146,6 +146,18 @@ const Owner: FC<Props> = ({ userId }) => {
                     </div>
                 );
             }
+            case petStatus === Role.PLANNED_DONATION: {
+                return (
+                    <>
+                        <div className={cn(styles.label, { [styles.pause]: true })}>
+                            <div className={styles.statusLabelIcon}>
+                                <Pause />
+                            </div>
+                            <div className={styles.labelText}>Планируется донация</div>
+                        </div>
+                    </>
+                );
+            }
             case petStatus === Role.NONE || petStatus === Role.DONOR: {
                 return (
                     <div
