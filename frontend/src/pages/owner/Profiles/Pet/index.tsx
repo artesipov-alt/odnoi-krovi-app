@@ -12,16 +12,23 @@ import Analizes from 'imgs/svg/analizes';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import Basket from 'imgs/svg/basket';
 import Blood from 'imgs/svg/blood';
+import BloodFound from 'imgs/svg/bloodFound';
+import BloodSearch from 'imgs/svg/bloodSearch';
 import DonorButton from 'imgs/svg/donorButton';
 import Edit from 'imgs/svg/edit';
 import Health from 'imgs/svg/health';
 import Info from 'imgs/svg/info';
+import Lock from 'imgs/svg/lock';
 import Params from 'imgs/svg/params';
+import Pause from 'imgs/svg/pause';
 import Processing from 'imgs/svg/processing';
 import RecipientButton from 'imgs/svg/recipientButton';
+import RoundCancel from 'imgs/svg/roundCancel';
+import RoundQuestion from 'imgs/svg/roundQuestion';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
+import { getCorrectDeclension, Variants } from 'utils/utils';
 
 import { addPhoto } from 'api/apiServices/addPhoto';
 import { deletePetById } from 'api/apiServices/deletePetById';
@@ -91,6 +98,7 @@ const PetProfile: FC<Props> = ({
     chipNumber,
     treatments = {},
     livingCondition,
+    donorRestrictions,
     reproductiveStatus,
 }) => {
     const navigate = useNavigate();
@@ -241,6 +249,116 @@ const PetProfile: FC<Props> = ({
         showToast('Не удалось обновить параметры, попробуйте еще раз');
     };
 
+    const renderNotEditLabel = (labelType?: Role) => (
+        <div className={styles.noEditLabel}>
+            <div className={styles.noEditLabelTitle}>
+                <div className={styles.lockIcon}>
+                    <Lock />
+                </div>
+                <p className={styles.lockTitle}>
+                    {labelType === Role.RECOVERING && 'Вы недавно провели донацию'}
+                    {labelType === Role.PLANNED_DONATION && 'Вы запланировали донацию'}
+                    {!labelType && 'Вы ищете кровь'}
+                </p>
+            </div>
+            <p className={styles.noEditLabelText}>
+                {labelType === Role.RECOVERING && 'Вносить изменения в профиль питомца можно после восстановления'}
+                {labelType === Role.PLANNED_DONATION &&
+                    'Вносить изменения в профиль питомца можно после восстановления или отмены донации'}
+                {!labelType && 'Вы не можете редактировать питомца'}
+            </p>
+        </div>
+    );
+
+    const renderLabel = () => {
+        switch (true) {
+            case petStatus === Role.RECIPIENT: {
+                return (
+                    <>
+                        <div className={cn(styles.label, { [styles.activeSearch]: true })}>
+                            <div className={styles.statusLabelIcon}>
+                                <BloodSearch />
+                            </div>
+                            <div className={styles.labelText}>
+                                Идет поиск <p className={styles.labelArrow}>⟶</p>
+                            </div>
+                        </div>
+                        {renderNotEditLabel()}
+                    </>
+                );
+            }
+
+            case petStatus === Role.BLOOD_FOUND: {
+                return (
+                    <>
+                        <div className={cn(styles.label, { [styles.bloodFound]: true })}>
+                            <div className={styles.statusLabelIcon}>
+                                <BloodFound />
+                            </div>
+                            <div className={styles.labelText}>Нашли кровь</div>
+                        </div>
+                        {renderNotEditLabel()}
+                    </>
+                );
+            }
+
+            case petStatus === Role.PLANNED_DONATION: {
+                return (
+                    <>
+                        <div className={cn(styles.label, { [styles.pause]: true })}>
+                            <div className={styles.statusLabelIcon}>
+                                <Pause />
+                            </div>
+                            <div className={styles.labelText}>Планируется донация</div>
+                        </div>
+                        {renderNotEditLabel(Role.PLANNED_DONATION)}
+                    </>
+                );
+            }
+
+            case petStatus === Role.RECOVERING: {
+                return (
+                    <>
+                        <div className={cn(styles.label, { [styles.didNotRecover]: true })}>
+                            <div className={styles.recover}>
+                                <p className={styles.recoverDays}>15</p>
+                                <p className={styles.recoverDescr}>{getCorrectDeclension(Variants.DAYS, 15)}</p>
+                                {/* TODO заменить на дни до восстановления */}
+                            </div>
+                            <div className={styles.labelText}>До восстановления</div>
+                        </div>
+                        {renderNotEditLabel(Role.RECOVERING)}
+                    </>
+                );
+            }
+
+            case !!donorRestrictions?.stopFactors?.length: {
+                return (
+                    <div className={cn(styles.label, { [styles.notReady]: true })}>
+                        <div className={styles.searchIcon}>
+                            <RoundCancel />
+                        </div>
+                        <div className={styles.labelText}>Не готов к донации</div>
+                    </div>
+                );
+            }
+
+            case !!donorRestrictions?.warnFactors?.length: {
+                return (
+                    <div className={cn(styles.label, { [styles.donationQuestions]: true })}>
+                        <div className={styles.searchIcon}>
+                            <RoundQuestion />
+                        </div>
+                        <div className={styles.labelText}>Вопросы к донорству</div>
+                    </div>
+                );
+            }
+            default: {
+                return null;
+            }
+        }
+    };
+
     useEffect(() => {
         const onOutsideClickHandler = () => {
             setIsOpenTooltip(false);
@@ -366,7 +484,7 @@ const PetProfile: FC<Props> = ({
                 </div>
                 <h2 className={styles.title}>{isEditMode ? 'Редактирование питомца' : name.toUpperCase()}</h2>
                 <div className={cn(styles.buttons, { [styles.isEditMode]: isEditMode })}>
-                    {petStatus === Role.NONE && (
+                    {(petStatus === Role.NONE || petStatus === Role.DONOR) && (
                         <div className={styles.button}>
                             <div onClick={toggleEditMode} className={cn(styles.icon, { [styles.edit]: true })}>
                                 <Edit />
@@ -395,6 +513,7 @@ const PetProfile: FC<Props> = ({
                     />
                 </div>
                 <div className={styles.labels}>
+                    {renderLabel()}
                     {petStatus === Role.DONOR && (
                         <div className={styles.donation}>
                             <div className={styles.labelIcon}>

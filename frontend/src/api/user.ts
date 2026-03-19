@@ -9,7 +9,9 @@ export enum Role {
     DONOR = 'donor',
     CLINIC = 'clinic',
     RECIPIENT = 'recipient',
+    RECOVERING = 'recovering',
     BLOOD_FOUND = 'blood_found',
+    PLANNED_DONATION = 'planned_donation',
 }
 
 export enum Onboarding {

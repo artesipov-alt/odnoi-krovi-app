@@ -1,3 +1,4 @@
+import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import {
     BloodAndBreedGroupsDict,
     useBloodComponentsQuery,
@@ -52,6 +53,8 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const { data: bloodComponentsDict = [], isError: isErrorBloodComponents } = useBloodComponentsQuery();
     const { data: { petTypesDict = [], bloodGroupDict = {} } = {}, isError: isErrorPetTypesAndBloodGroups } =
         usePetTypesAndBloodGroupsQuery();
+
+    useBodyScrollLock(isLoading);
 
     const showToast = useCallback(
         (text: string) => {

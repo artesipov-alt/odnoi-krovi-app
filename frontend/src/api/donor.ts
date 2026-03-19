@@ -74,6 +74,7 @@ export type GetRecipientDetailsResponse = {
 
 export type BloodSearchApplyRequest = {
     id: string;
+    donorId: string;
     taxiCompensation: boolean;
     compensationType: CompensationType;
 };
@@ -102,6 +103,6 @@ export const donorApi = (): IDonorApi => ({
         return instance.get(`${DONOR_URL}/recipient-details/${id}`);
     },
     bloodSearchApply({ id, ...params }) {
-        return instance.post(`${DONOR_URL}/recipient/${id}`, params);
+        return instance.post(`${DONOR_URL}/recipient/${id}/apply`, params);
     },
 });
