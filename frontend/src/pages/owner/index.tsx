@@ -28,6 +28,7 @@ import PetProfile from './Profiles/Pet';
 import DidNotRecover from './Statuses/DidNotRecover';
 import DonationQuestions from './Statuses/DonationQuestions';
 import NotReady from './Statuses/NotReady';
+import Pause from '../../imgs/svg/pause';
 
 type Props = {
     userId: string;
@@ -216,6 +217,18 @@ const Owner: FC<Props> = ({ userId }) => {
                         </div>
                         <div className={styles.labelText}>До восстановления</div>
                     </div>
+                );
+            }
+            case petData.petStatus === Role.PLANNED_DONATION: {
+                return (
+                    <>
+                        <div className={cn(styles.label, { [styles.pause]: true })}>
+                            <div className={styles.statusLabelIcon}>
+                                <Pause />
+                            </div>
+                            <div className={styles.labelText}>Планируется донация</div>
+                        </div>
+                    </>
                 );
             }
             case !!donorRestrictions?.stopFactors?.length: {
