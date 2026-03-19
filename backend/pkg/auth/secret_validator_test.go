@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -13,12 +14,12 @@ import (
 // TestTelegramInitDataValidation тестирует валидацию init data от Telegram
 func TestTelegramInitDataValidation(t *testing.T) {
 	// Реальный токен из .env
-	botToken := "8323747031:AAF6sWc6DMvO9gbZFonEGXBn8o9whKlMCfc"
+	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 
 	// Реальная init data от пользователя (из запроса)
 	// Примечание: auth_date = 1773181118 - это 2026-03-11, данные будущего
 	// Для теста нужно использовать актуальные данные
-	testInitData := `user=%7B%22id%22%3A995757392%2C%22first_name%22%3A%22R.%22%2C%22last_name%22%3A%22Mayer%22%2C%22username%22%3A%22rmay1er%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2F61_IP8jS1dJRgKRMdts4CNV11dzmjv4DC5Hj-YA3jug.svg%22%7D&chat_instance=-879101738005798226&chat_type=sender&auth_date=1773181118&signature=ipNWqxO48nlsHfOmlHs9oOVJQ2Ux764JavhmPLeNi1INl9ETZztf1WILQcPOrWKO8yVqi91PmYOJDPVbazJ5BQ&hash=4a44dba9f501f2eeb541c7c413275c277be49cf11a5bd0376e9e798da51be634`
+	testInitData := `user=%7B%22id%22%3A995757392%2C%22first_name%22%3A%22R.%22%2C%22last_name%22%3A%22Mayer%22%2C%22username%22%3A%22rmay1er%22%2C%22languaget_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2F61_IP8jS1dJRgKRMdts4CNV11dzmjv4DC5Hj-YA3jug.svg%22%7D&chat_instance=-879101738005798226&chat_type=sender&auth_date=1773181118&signature=ipNWqxO48nlsHfOmlHs9oOVJQ2Ux764JavhmPLeNi1INl9ETZztf1WILQcPOrWKO8yVqi91PmYOJDPVbazJ5BQ&hash=4a44dba9f501f2eeb541c7c413275c277be49cf11a5bd0376e9e798da51be634`
 
 	// NewAppValidator теперь принимает maxBotToken и telegramBotToken
 	// Передаем botToken как telegramBotToken, а maxBotToken оставляем пустым или другим
@@ -48,7 +49,7 @@ func TestTelegramInitDataValidation(t *testing.T) {
 
 // TestTelegramInitDataValidationWithFreshData тестирует с актуальными данными
 func TestTelegramInitDataValidationWithFreshData(t *testing.T) {
-	botToken := "8323747031:AAF6sWc6DMvO9gbZFonEGXBn8o9whKlMCfc"
+	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	validator := NewAppValidator("", botToken) // maxBotToken пустой, telegramBotToken заполнен
 	ctx := context.Background()
 
@@ -148,7 +149,7 @@ func TestExtractBotID(t *testing.T) {
 	}{
 		{
 			name:      "valid token",
-			token:     "8323747031:AAF6sWc6DMvO9gbZFonEGXBn8o9whKlMCfc",
+			token:     os.Getenv("TELEGRAM_BOT_TOKEN"),
 			wantBotID: 8323747031,
 			wantErr:   false,
 		},
