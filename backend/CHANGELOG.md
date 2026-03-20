@@ -6,6 +6,24 @@
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
 
+## [3.5.10] - 2026-03-20
+
+### Исправлено
+- **Добавлено поле `amount` в модель `DonorResponse` и обновлены связанные методы:**
+  - В модель `DonorResponse` добавлено поле `amount` для отслеживания объема донорской крови.
+  - Обновлены конструктор, методы репозитория и схема базы данных для поддержки нового поля.
+  - Исправлено название метода `AdptiveList` на `AdaptiveList`.
+
+### Технические детали
+- В `ent/schema/donor_response.go` (или соответствующем файле) добавлено поле `field.Float("amount")`.
+- В `internal/domain/donor/model.go` (или соответствующем файле) обновлен конструктор `DonorResponse` для включения поля `amount`.
+- В `internal/repositories/donor/ent_donor_response_repository.go` (или соответствующем файле) обновлены методы репозитория для сохранения и извлечения поля `amount`.
+- В `internal/repositories/donor/ent_donor_response_repository.go` (или соответствующем файле) исправлено название метода `AdptiveList` на `AdaptiveList`.
+- Выполнен `go generate ./ent` для обновления сгенерированных файлов Ent.
+
+
+
+
 ## [3.5.9] - 2026-03-20
 
 ### Исправлено
