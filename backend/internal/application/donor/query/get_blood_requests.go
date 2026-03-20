@@ -39,14 +39,21 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 	potentialDonors := petmodel.FilterDonors(pets)
 
-	allRequests, err := h.bloodRepo.AdaptiveList(ctx, potentialDonors, filters)
+	allRequests, err := h.bloodRepo.AdaptiveList(ctx, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")
 	}
 
+	// Find matching donors
+	for _, recipient := range allRequests {
+		for _, donor := range potentialDonors {
+			recipient.MatchDonor(donor)
+		}
+	}
+
 	var requestsWithDonors []*donormodel.Recipient
 	for _, request := range allRequests {
-		if len(request.MatchingDonors) >= 1 {
+		if len(request.MatchingDonors) != 0 {
 			requestsWithDonors = append(requestsWithDonors, request)
 		}
 	}

@@ -5,14 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
-	"github.com/lib/pq"
 )
 
 // EntBloodRequestRepository implements BloodRequestRepository using ENT
@@ -36,7 +34,7 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 }
 
 // mapToRecipient maps ent.BloodSearchRequest to donormodel.Recipient
-func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, donors []*petmodel.Pet) *donormodel.Recipient {
+func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest) *donormodel.Recipient {
 	if req == nil {
 		return nil
 	}
@@ -58,11 +56,6 @@ func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest, 
 		if req.Edges.Pet.Edges.BloodGroupRef != nil {
 			recipient.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
 		}
-	}
-
-	// Find matching donors
-	for _, donor := range donors {
-		recipient.AddMatchingDonor(donor)
 	}
 
 	return recipient
@@ -259,29 +252,10 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 }
 
 // AdptiveList возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
-	bloodGroupsMap := make(map[string]struct{})
-	for _, donor := range donors {
-		if donor.BloodGroupName != nil {
-			bloodGroupsMap[*donor.BloodGroupName] = struct{}{}
-		}
-	}
-
-	if len(bloodGroupsMap) == 0 {
-		return []*donormodel.Recipient{}, nil
-	}
-
-	bloodGroups := make([]string, 0, len(bloodGroupsMap))
-	for bg := range bloodGroupsMap {
-		bloodGroups = append(bloodGroups, bg)
-	}
-
+func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
-			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
-			func(s *sql.Selector) {
-				s.Where(sql.ExprP(fmt.Sprintf("%s ?| $1", bloodsearchrequest.FieldBloodGroupNames), pq.Array(bloodGroups)))
-			},
+			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
 		).
 		WithPet(func(pq *ent.PetQuery) {
 			pq.WithBloodGroupRef()
@@ -296,7 +270,7 @@ func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, donors []*
 
 	result := make([]*donormodel.Recipient, len(requests))
 	for i, req := range requests {
-		result[i] = r.mapToRecipient(req, donors)
+		result[i] = r.mapToRecipient(req)
 	}
 
 	return result, nil

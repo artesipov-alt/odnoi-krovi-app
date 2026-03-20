@@ -56,7 +56,7 @@ type MatchingDonorReadModel struct {
 	PhotoURLs       []string
 }
 
-func (r *Recipient) AddMatchingDonor(pet *petmodel.Pet) {
+func (r *Recipient) MatchDonor(pet *petmodel.Pet) {
 	matched := false
 	if pet.BloodGroupName != nil {
 		matched = slices.Contains(r.SearchingBloodNames, *pet.BloodGroupName)
