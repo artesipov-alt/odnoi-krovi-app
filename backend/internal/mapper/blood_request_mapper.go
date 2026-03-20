@@ -45,7 +45,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 				WarnFactors:      app.WarnFactors,
 				CompensationType: app.CompensationType,
 				TaxiCompensation: app.TaxiCompensation,
-				Status:           app.Status,
+				Status:           string(app.Status),
 				CreatedAt:        app.CreatedAt,
 				UpdatedAt:        app.UpdatedAt,
 			})

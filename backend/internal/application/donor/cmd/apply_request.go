@@ -56,7 +56,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 
 	// Create domain model using constructor
-	resp, err := donormodel.NewDonorResponse(reqID, donorID, compensationType, taxiCompensation)
+	resp, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
 	if err != nil {
 		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}
@@ -69,7 +69,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		if err != nil {
 			return err
 		}
-		if err := h.bloodRepo.UpdateReservedVolume(txCtx, reqID, req.BloodVolumeReserved, string(req.Status)); err != nil {
+		if err := h.bloodRepo.UpdateReservedVolume(txCtx, req.ID, req); err != nil {
 			return err
 		}
 		return nil

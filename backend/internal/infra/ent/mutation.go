@@ -3891,6 +3891,8 @@ type DonorResponseMutation struct {
 	created_at        *time.Time
 	updated_at        *time.Time
 	deleted_at        *time.Time
+	amount            *int32
+	addamount         *int32
 	compensation_type *donorresponse.CompensationType
 	taxi_compensation *bool
 	status            *donorresponse.Status
@@ -4127,6 +4129,76 @@ func (m *DonorResponseMutation) DeletedAtCleared() bool {
 func (m *DonorResponseMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	delete(m.clearedFields, donorresponse.FieldDeletedAt)
+}
+
+// SetAmount sets the "amount" field.
+func (m *DonorResponseMutation) SetAmount(i int32) {
+	m.amount = &i
+	m.addamount = nil
+}
+
+// Amount returns the value of the "amount" field in the mutation.
+func (m *DonorResponseMutation) Amount() (r int32, exists bool) {
+	v := m.amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAmount returns the old "amount" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldAmount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAmount: %w", err)
+	}
+	return oldValue.Amount, nil
+}
+
+// AddAmount adds i to the "amount" field.
+func (m *DonorResponseMutation) AddAmount(i int32) {
+	if m.addamount != nil {
+		*m.addamount += i
+	} else {
+		m.addamount = &i
+	}
+}
+
+// AddedAmount returns the value that was added to the "amount" field in this mutation.
+func (m *DonorResponseMutation) AddedAmount() (r int32, exists bool) {
+	v := m.addamount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearAmount clears the value of the "amount" field.
+func (m *DonorResponseMutation) ClearAmount() {
+	m.amount = nil
+	m.addamount = nil
+	m.clearedFields[donorresponse.FieldAmount] = struct{}{}
+}
+
+// AmountCleared returns if the "amount" field was cleared in this mutation.
+func (m *DonorResponseMutation) AmountCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldAmount]
+	return ok
+}
+
+// ResetAmount resets all changes to the "amount" field.
+func (m *DonorResponseMutation) ResetAmount() {
+	m.amount = nil
+	m.addamount = nil
+	delete(m.clearedFields, donorresponse.FieldAmount)
 }
 
 // SetCompensationType sets the "compensation_type" field.
@@ -4375,7 +4447,7 @@ func (m *DonorResponseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorResponseMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, donorresponse.FieldCreatedAt)
 	}
@@ -4384,6 +4456,9 @@ func (m *DonorResponseMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, donorresponse.FieldDeletedAt)
+	}
+	if m.amount != nil {
+		fields = append(fields, donorresponse.FieldAmount)
 	}
 	if m.compensation_type != nil {
 		fields = append(fields, donorresponse.FieldCompensationType)
@@ -4408,6 +4483,8 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case donorresponse.FieldDeletedAt:
 		return m.DeletedAt()
+	case donorresponse.FieldAmount:
+		return m.Amount()
 	case donorresponse.FieldCompensationType:
 		return m.CompensationType()
 	case donorresponse.FieldTaxiCompensation:
@@ -4429,6 +4506,8 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case donorresponse.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case donorresponse.FieldAmount:
+		return m.OldAmount(ctx)
 	case donorresponse.FieldCompensationType:
 		return m.OldCompensationType(ctx)
 	case donorresponse.FieldTaxiCompensation:
@@ -4465,6 +4544,13 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeletedAt(v)
 		return nil
+	case donorresponse.FieldAmount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAmount(v)
+		return nil
 	case donorresponse.FieldCompensationType:
 		v, ok := value.(donorresponse.CompensationType)
 		if !ok {
@@ -4493,13 +4579,21 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *DonorResponseMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addamount != nil {
+		fields = append(fields, donorresponse.FieldAmount)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *DonorResponseMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case donorresponse.FieldAmount:
+		return m.AddedAmount()
+	}
 	return nil, false
 }
 
@@ -4508,6 +4602,13 @@ func (m *DonorResponseMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *DonorResponseMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case donorresponse.FieldAmount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAmount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse numeric field %s", name)
 }
@@ -4518,6 +4619,9 @@ func (m *DonorResponseMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(donorresponse.FieldDeletedAt) {
 		fields = append(fields, donorresponse.FieldDeletedAt)
+	}
+	if m.FieldCleared(donorresponse.FieldAmount) {
+		fields = append(fields, donorresponse.FieldAmount)
 	}
 	if m.FieldCleared(donorresponse.FieldCompensationType) {
 		fields = append(fields, donorresponse.FieldCompensationType)
@@ -4542,6 +4646,9 @@ func (m *DonorResponseMutation) ClearField(name string) error {
 	case donorresponse.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
+	case donorresponse.FieldAmount:
+		m.ClearAmount()
+		return nil
 	case donorresponse.FieldCompensationType:
 		m.ClearCompensationType()
 		return nil
@@ -4564,6 +4671,9 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 		return nil
 	case donorresponse.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case donorresponse.FieldAmount:
+		m.ResetAmount()
 		return nil
 	case donorresponse.FieldCompensationType:
 		m.ResetCompensationType()

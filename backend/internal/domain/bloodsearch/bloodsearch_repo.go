@@ -26,7 +26,7 @@ type BloodRequestRepository interface {
 	UpdateStatus(ctx context.Context, id string, status string) error
 
 	// UpdateReservedVolume обновляет зарезервированный объём и статус заявки
-	UpdateReservedVolume(ctx context.Context, id string, reservedVolume int32, status string) error
+	UpdateReservedVolume(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) error
 
 	// Delete удаляет заявку из хранилища (soft delete)
 	Delete(ctx context.Context, id string) error
@@ -34,7 +34,7 @@ type BloodRequestRepository interface {
 	// List возвращает список заявок с фильтрацией и пагинацией
 	List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequest, error)
 
-	AdptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error)
+	AdaptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error)
 
 	// ExistsByPetID проверяет существование активной заявки для питомца
 	ExistsByPetID(ctx context.Context, petID string) (bool, error)

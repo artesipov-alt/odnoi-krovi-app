@@ -1654,6 +1654,18 @@ type DonorResponseWhereInput struct {
 	DeletedAtIsNil  bool        `json:"deletedAtIsNil,omitempty"`
 	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
+	// "amount" field predicates.
+	Amount       *int32  `json:"amount,omitempty"`
+	AmountNEQ    *int32  `json:"amountNEQ,omitempty"`
+	AmountIn     []int32 `json:"amountIn,omitempty"`
+	AmountNotIn  []int32 `json:"amountNotIn,omitempty"`
+	AmountGT     *int32  `json:"amountGT,omitempty"`
+	AmountGTE    *int32  `json:"amountGTE,omitempty"`
+	AmountLT     *int32  `json:"amountLT,omitempty"`
+	AmountLTE    *int32  `json:"amountLTE,omitempty"`
+	AmountIsNil  bool    `json:"amountIsNil,omitempty"`
+	AmountNotNil bool    `json:"amountNotNil,omitempty"`
+
 	// "compensation_type" field predicates.
 	CompensationType       *donorresponse.CompensationType  `json:"compensationType,omitempty"`
 	CompensationTypeNEQ    *donorresponse.CompensationType  `json:"compensationTypeNEQ,omitempty"`
@@ -1861,6 +1873,36 @@ func (i *DonorResponseWhereInput) P() (predicate.DonorResponse, error) {
 	}
 	if i.DeletedAtNotNil {
 		predicates = append(predicates, donorresponse.DeletedAtNotNil())
+	}
+	if i.Amount != nil {
+		predicates = append(predicates, donorresponse.AmountEQ(*i.Amount))
+	}
+	if i.AmountNEQ != nil {
+		predicates = append(predicates, donorresponse.AmountNEQ(*i.AmountNEQ))
+	}
+	if len(i.AmountIn) > 0 {
+		predicates = append(predicates, donorresponse.AmountIn(i.AmountIn...))
+	}
+	if len(i.AmountNotIn) > 0 {
+		predicates = append(predicates, donorresponse.AmountNotIn(i.AmountNotIn...))
+	}
+	if i.AmountGT != nil {
+		predicates = append(predicates, donorresponse.AmountGT(*i.AmountGT))
+	}
+	if i.AmountGTE != nil {
+		predicates = append(predicates, donorresponse.AmountGTE(*i.AmountGTE))
+	}
+	if i.AmountLT != nil {
+		predicates = append(predicates, donorresponse.AmountLT(*i.AmountLT))
+	}
+	if i.AmountLTE != nil {
+		predicates = append(predicates, donorresponse.AmountLTE(*i.AmountLTE))
+	}
+	if i.AmountIsNil {
+		predicates = append(predicates, donorresponse.AmountIsNil())
+	}
+	if i.AmountNotNil {
+		predicates = append(predicates, donorresponse.AmountNotNil())
 	}
 	if i.CompensationType != nil {
 		predicates = append(predicates, donorresponse.CompensationTypeEQ(*i.CompensationType))

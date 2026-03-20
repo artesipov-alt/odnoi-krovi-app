@@ -351,6 +351,7 @@ type CreateDonorResponseInput struct {
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 	DeletedAt        *time.Time
+	Amount           *int32
 	CompensationType *donorresponse.CompensationType
 	TaxiCompensation *bool
 	Status           donorresponse.Status
@@ -368,6 +369,9 @@ func (i *CreateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	}
 	if v := i.DeletedAt; v != nil {
 		m.SetDeletedAt(*v)
+	}
+	if v := i.Amount; v != nil {
+		m.SetAmount(*v)
 	}
 	if v := i.CompensationType; v != nil {
 		m.SetCompensationType(*v)
@@ -391,6 +395,8 @@ type UpdateDonorResponseInput struct {
 	UpdatedAt             *time.Time
 	ClearDeletedAt        bool
 	DeletedAt             *time.Time
+	ClearAmount           bool
+	Amount                *int32
 	ClearCompensationType bool
 	CompensationType      *donorresponse.CompensationType
 	ClearTaxiCompensation bool
@@ -410,6 +416,12 @@ func (i *UpdateDonorResponseInput) Mutate(m *DonorResponseMutation) {
 	}
 	if v := i.DeletedAt; v != nil {
 		m.SetDeletedAt(*v)
+	}
+	if i.ClearAmount {
+		m.ClearAmount()
+	}
+	if v := i.Amount; v != nil {
+		m.SetAmount(*v)
 	}
 	if i.ClearCompensationType {
 		m.ClearCompensationType()

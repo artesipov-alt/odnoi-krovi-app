@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -73,11 +75,11 @@ func (r *EntBloodRequestRepository) bloodReqToDomainModel(entReq *ent.BloodSearc
 	}
 
 	// Map responses to DonorApplications
-	var donorApps []bloodreqmodel.DonorApplication
+	var donorApps []donormodel.DonorResponse
 	if entReq.Edges.Responses != nil {
-		donorApps = make([]bloodreqmodel.DonorApplication, len(entReq.Edges.Responses))
+		donorApps = make([]donormodel.DonorResponse, len(entReq.Edges.Responses))
 		for i, resp := range entReq.Edges.Responses {
-			app := bloodreqmodel.DonorApplication{
+			app := donormodel.DonorResponse{
 				ID:               resp.ID,
 				RequestID:        entReq.ID,
 				DonorID:          resp.Edges.Donor.ID,
@@ -222,10 +224,9 @@ func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string,
 }
 
 // UpdateReservedVolume обновляет зарезервированный объём и статус заявки
-func (r *EntBloodRequestRepository) UpdateReservedVolume(ctx context.Context, id string, reservedVolume int32, status string) error {
+func (r *EntBloodRequestRepository) UpdateReservedVolume(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) error {
 	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
-		SetBloodVolumeReserved(reservedVolume).
-		SetStatus(bloodsearchrequest.Status(status)).
+		SetBloodVolumeReserved(req.BloodVolumeReserved).
 		Exec(ctx)
 }
 
@@ -258,9 +259,21 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 }
 
 // AdptiveList возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) AdptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+	bloodGroupsAny := make([]any, 0, len(donors))
+	for _, donor := range donors {
+		if donor.BloodGroupName != nil {
+			bloodGroupsAny = append(bloodGroupsAny, *donor.BloodGroupName)
+		}
+	}
+
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
-		Where(bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status))).
+		Where(
+			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
+			func(s *sql.Selector) {
+				s.Where(sqljson.ValueIn(bloodsearchrequest.FieldBloodGroupNames, bloodGroupsAny))
+			},
+		).
 		WithPet(func(pq *ent.PetQuery) {
 			pq.WithBloodGroupRef()
 		}).

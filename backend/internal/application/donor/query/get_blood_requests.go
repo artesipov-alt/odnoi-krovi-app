@@ -39,7 +39,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 	potentialDonors := petmodel.FilterDonors(pets)
 
-	allRequests, err := h.bloodRepo.AdptiveList(ctx, potentialDonors, filters)
+	allRequests, err := h.bloodRepo.AdaptiveList(ctx, potentialDonors, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")
 	}

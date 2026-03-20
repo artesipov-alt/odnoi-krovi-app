@@ -56,6 +56,33 @@ func (_u *DonorResponseUpdate) ClearDeletedAt() *DonorResponseUpdate {
 	return _u
 }
 
+// SetAmount sets the "amount" field.
+func (_u *DonorResponseUpdate) SetAmount(v int32) *DonorResponseUpdate {
+	_u.mutation.ResetAmount()
+	_u.mutation.SetAmount(v)
+	return _u
+}
+
+// SetNillableAmount sets the "amount" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableAmount(v *int32) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetAmount(*v)
+	}
+	return _u
+}
+
+// AddAmount adds value to the "amount" field.
+func (_u *DonorResponseUpdate) AddAmount(v int32) *DonorResponseUpdate {
+	_u.mutation.AddAmount(v)
+	return _u
+}
+
+// ClearAmount clears the value of the "amount" field.
+func (_u *DonorResponseUpdate) ClearAmount() *DonorResponseUpdate {
+	_u.mutation.ClearAmount()
+	return _u
+}
+
 // SetCompensationType sets the "compensation_type" field.
 func (_u *DonorResponseUpdate) SetCompensationType(v donorresponse.CompensationType) *DonorResponseUpdate {
 	_u.mutation.SetCompensationType(v)
@@ -227,6 +254,15 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(donorresponse.FieldDeletedAt, field.TypeTime)
 	}
+	if value, ok := _u.mutation.Amount(); ok {
+		_spec.SetField(donorresponse.FieldAmount, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedAmount(); ok {
+		_spec.AddField(donorresponse.FieldAmount, field.TypeInt32, value)
+	}
+	if _u.mutation.AmountCleared() {
+		_spec.ClearField(donorresponse.FieldAmount, field.TypeInt32)
+	}
 	if value, ok := _u.mutation.CompensationType(); ok {
 		_spec.SetField(donorresponse.FieldCompensationType, field.TypeEnum, value)
 	}
@@ -343,6 +379,33 @@ func (_u *DonorResponseUpdateOne) SetNillableDeletedAt(v *time.Time) *DonorRespo
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (_u *DonorResponseUpdateOne) ClearDeletedAt() *DonorResponseUpdateOne {
 	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetAmount sets the "amount" field.
+func (_u *DonorResponseUpdateOne) SetAmount(v int32) *DonorResponseUpdateOne {
+	_u.mutation.ResetAmount()
+	_u.mutation.SetAmount(v)
+	return _u
+}
+
+// SetNillableAmount sets the "amount" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableAmount(v *int32) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetAmount(*v)
+	}
+	return _u
+}
+
+// AddAmount adds value to the "amount" field.
+func (_u *DonorResponseUpdateOne) AddAmount(v int32) *DonorResponseUpdateOne {
+	_u.mutation.AddAmount(v)
+	return _u
+}
+
+// ClearAmount clears the value of the "amount" field.
+func (_u *DonorResponseUpdateOne) ClearAmount() *DonorResponseUpdateOne {
+	_u.mutation.ClearAmount()
 	return _u
 }
 
@@ -546,6 +609,15 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(donorresponse.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Amount(); ok {
+		_spec.SetField(donorresponse.FieldAmount, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedAmount(); ok {
+		_spec.AddField(donorresponse.FieldAmount, field.TypeInt32, value)
+	}
+	if _u.mutation.AmountCleared() {
+		_spec.ClearField(donorresponse.FieldAmount, field.TypeInt32)
 	}
 	if value, ok := _u.mutation.CompensationType(); ok {
 		_spec.SetField(donorresponse.FieldCompensationType, field.TypeEnum, value)

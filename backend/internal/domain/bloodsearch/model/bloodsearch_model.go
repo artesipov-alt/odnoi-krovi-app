@@ -3,6 +3,8 @@ package model
 import (
 	"errors"
 	"time"
+
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
 // ErrInsufficientVolume is returned when trying to reserve more blood than needed
@@ -36,25 +38,7 @@ type BloodRequest struct {
 	CreatedAt                *time.Time
 	UpdatedAt                *time.Time
 	DeletedAt                *time.Time
-	DonorApplications        []DonorApplication
-}
-
-// DonorApplication представляет отклик донора
-type DonorApplication struct {
-	ID               string
-	RequestID        string
-	DonorID          string
-	DonorName        string
-	DonorPhotos      []string
-	DonorBloodGroup  string
-	Amount           int32
-	WarnFactors      []string
-	CompensationType string
-	TaxiCompensation bool
-	Status           string
-	CreatedAt        *time.Time
-	UpdatedAt        *time.Time
-	DeletedAt        *time.Time
+	DonorApplications        []donormodel.DonorResponse
 }
 
 // NewBloodRequest creates a new blood request with default values

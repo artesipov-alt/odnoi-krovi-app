@@ -80,6 +80,11 @@ func DeletedAt(v time.Time) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
+func Amount(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldAmount, v))
+}
+
 // TaxiCompensation applies equality check predicate on the "taxi_compensation" field. It's identical to TaxiCompensationEQ.
 func TaxiCompensation(v bool) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldTaxiCompensation, v))
@@ -213,6 +218,56 @@ func DeletedAtIsNil() predicate.DonorResponse {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// AmountEQ applies the EQ predicate on the "amount" field.
+func AmountEQ(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldAmount, v))
+}
+
+// AmountNEQ applies the NEQ predicate on the "amount" field.
+func AmountNEQ(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldAmount, v))
+}
+
+// AmountIn applies the In predicate on the "amount" field.
+func AmountIn(vs ...int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIn(FieldAmount, vs...))
+}
+
+// AmountNotIn applies the NotIn predicate on the "amount" field.
+func AmountNotIn(vs ...int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotIn(FieldAmount, vs...))
+}
+
+// AmountGT applies the GT predicate on the "amount" field.
+func AmountGT(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGT(FieldAmount, v))
+}
+
+// AmountGTE applies the GTE predicate on the "amount" field.
+func AmountGTE(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGTE(FieldAmount, v))
+}
+
+// AmountLT applies the LT predicate on the "amount" field.
+func AmountLT(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLT(FieldAmount, v))
+}
+
+// AmountLTE applies the LTE predicate on the "amount" field.
+func AmountLTE(v int32) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLTE(FieldAmount, v))
+}
+
+// AmountIsNil applies the IsNil predicate on the "amount" field.
+func AmountIsNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIsNull(FieldAmount))
+}
+
+// AmountNotNil applies the NotNil predicate on the "amount" field.
+func AmountNotNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotNull(FieldAmount))
 }
 
 // CompensationTypeEQ applies the EQ predicate on the "compensation_type" field.

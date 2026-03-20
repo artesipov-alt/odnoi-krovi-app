@@ -25,6 +25,8 @@ type DonorResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
+	// Amount holds the value of the "amount" field.
+	Amount int32 `json:"amount,omitempty"`
 	// CompensationType holds the value of the "compensation_type" field.
 	CompensationType donorresponse.CompensationType `json:"compensation_type,omitempty"`
 	// TaxiCompensation holds the value of the "taxi_compensation" field.
@@ -81,6 +83,8 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case donorresponse.FieldTaxiCompensation:
 			values[i] = new(sql.NullBool)
+		case donorresponse.FieldAmount:
+			values[i] = new(sql.NullInt64)
 		case donorresponse.FieldID, donorresponse.FieldCompensationType, donorresponse.FieldStatus:
 			values[i] = new(sql.NullString)
 		case donorresponse.FieldCreatedAt, donorresponse.FieldUpdatedAt, donorresponse.FieldDeletedAt:
@@ -128,6 +132,12 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
+			}
+		case donorresponse.FieldAmount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field amount", values[i])
+			} else if value.Valid {
+				_m.Amount = int32(value.Int64)
 			}
 		case donorresponse.FieldCompensationType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -217,6 +227,9 @@ func (_m *DonorResponse) String() string {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("amount=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Amount))
 	builder.WriteString(", ")
 	builder.WriteString("compensation_type=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CompensationType))

@@ -41,6 +41,7 @@ func (r *EntDonorResponseRepository) toDomainModel(entResp *ent.DonorResponse) *
 		ID:               entResp.ID,
 		RequestID:        entResp.Edges.Request.ID,
 		DonorID:          entResp.Edges.Donor.ID,
+		Amount:           entResp.Amount,
 		CompensationType: string(entResp.CompensationType),
 		TaxiCompensation: entResp.TaxiCompensation,
 		Status:           donormodel.DonorResponseStatus(entResp.Status),
@@ -54,6 +55,7 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 		Create().
 		SetRequestID(resp.RequestID).
 		SetDonorID(resp.DonorID).
+		SetAmount(resp.Amount).
 		SetCompensationType(donorresponse.CompensationType(resp.CompensationType)).
 		SetTaxiCompensation(resp.TaxiCompensation).
 		SetStatus(donorresponse.Status(resp.Status)).

@@ -67,6 +67,20 @@ func (_c *DonorResponseCreate) SetNillableDeletedAt(v *time.Time) *DonorResponse
 	return _c
 }
 
+// SetAmount sets the "amount" field.
+func (_c *DonorResponseCreate) SetAmount(v int32) *DonorResponseCreate {
+	_c.mutation.SetAmount(v)
+	return _c
+}
+
+// SetNillableAmount sets the "amount" field if the given value is not nil.
+func (_c *DonorResponseCreate) SetNillableAmount(v *int32) *DonorResponseCreate {
+	if v != nil {
+		_c.SetAmount(*v)
+	}
+	return _c
+}
+
 // SetCompensationType sets the "compensation_type" field.
 func (_c *DonorResponseCreate) SetCompensationType(v donorresponse.CompensationType) *DonorResponseCreate {
 	_c.mutation.SetCompensationType(v)
@@ -261,6 +275,10 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		_spec.SetField(donorresponse.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
+	if value, ok := _c.mutation.Amount(); ok {
+		_spec.SetField(donorresponse.FieldAmount, field.TypeInt32, value)
+		_node.Amount = value
+	}
 	if value, ok := _c.mutation.CompensationType(); ok {
 		_spec.SetField(donorresponse.FieldCompensationType, field.TypeEnum, value)
 		_node.CompensationType = value
@@ -386,6 +404,30 @@ func (u *DonorResponseUpsert) UpdateDeletedAt() *DonorResponseUpsert {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (u *DonorResponseUpsert) ClearDeletedAt() *DonorResponseUpsert {
 	u.SetNull(donorresponse.FieldDeletedAt)
+	return u
+}
+
+// SetAmount sets the "amount" field.
+func (u *DonorResponseUpsert) SetAmount(v int32) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldAmount, v)
+	return u
+}
+
+// UpdateAmount sets the "amount" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateAmount() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldAmount)
+	return u
+}
+
+// AddAmount adds v to the "amount" field.
+func (u *DonorResponseUpsert) AddAmount(v int32) *DonorResponseUpsert {
+	u.Add(donorresponse.FieldAmount, v)
+	return u
+}
+
+// ClearAmount clears the value of the "amount" field.
+func (u *DonorResponseUpsert) ClearAmount() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldAmount)
 	return u
 }
 
@@ -520,6 +562,34 @@ func (u *DonorResponseUpsertOne) UpdateDeletedAt() *DonorResponseUpsertOne {
 func (u *DonorResponseUpsertOne) ClearDeletedAt() *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetAmount sets the "amount" field.
+func (u *DonorResponseUpsertOne) SetAmount(v int32) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetAmount(v)
+	})
+}
+
+// AddAmount adds v to the "amount" field.
+func (u *DonorResponseUpsertOne) AddAmount(v int32) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.AddAmount(v)
+	})
+}
+
+// UpdateAmount sets the "amount" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateAmount() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateAmount()
+	})
+}
+
+// ClearAmount clears the value of the "amount" field.
+func (u *DonorResponseUpsertOne) ClearAmount() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearAmount()
 	})
 }
 
@@ -829,6 +899,34 @@ func (u *DonorResponseUpsertBulk) UpdateDeletedAt() *DonorResponseUpsertBulk {
 func (u *DonorResponseUpsertBulk) ClearDeletedAt() *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetAmount sets the "amount" field.
+func (u *DonorResponseUpsertBulk) SetAmount(v int32) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetAmount(v)
+	})
+}
+
+// AddAmount adds v to the "amount" field.
+func (u *DonorResponseUpsertBulk) AddAmount(v int32) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.AddAmount(v)
+	})
+}
+
+// UpdateAmount sets the "amount" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateAmount() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateAmount()
+	})
+}
+
+// ClearAmount clears the value of the "amount" field.
+func (u *DonorResponseUpsertBulk) ClearAmount() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearAmount()
 	})
 }
 

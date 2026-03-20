@@ -24,6 +24,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldAmount holds the string denoting the amount field in the database.
+	FieldAmount = "amount"
 	// FieldCompensationType holds the string denoting the compensation_type field in the database.
 	FieldCompensationType = "compensation_type"
 	// FieldTaxiCompensation holds the string denoting the taxi_compensation field in the database.
@@ -58,6 +60,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldAmount,
 	FieldCompensationType,
 	FieldTaxiCompensation,
 	FieldStatus,
@@ -172,6 +175,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByAmount orders the results by the amount field.
+func ByAmount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAmount, opts...).ToFunc()
 }
 
 // ByCompensationType orders the results by the compensation_type field.

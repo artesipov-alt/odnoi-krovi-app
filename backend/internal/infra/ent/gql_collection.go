@@ -606,6 +606,11 @@ func (_q *DonorResponseQuery) collectField(ctx context.Context, oneNode bool, op
 				selectedFields = append(selectedFields, donorresponse.FieldDeletedAt)
 				fieldSeen[donorresponse.FieldDeletedAt] = struct{}{}
 			}
+		case "amount":
+			if _, ok := fieldSeen[donorresponse.FieldAmount]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldAmount)
+				fieldSeen[donorresponse.FieldAmount] = struct{}{}
+			}
 		case "compensationType":
 			if _, ok := fieldSeen[donorresponse.FieldCompensationType]; !ok {
 				selectedFields = append(selectedFields, donorresponse.FieldCompensationType)
