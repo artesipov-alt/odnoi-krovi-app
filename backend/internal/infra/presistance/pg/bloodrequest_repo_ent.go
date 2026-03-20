@@ -79,7 +79,7 @@ func (r *EntBloodRequestRepository) bloodReqToDomainModel(entReq *ent.BloodSearc
 				DonorName:        resp.Edges.Donor.Name,
 				DonorPhotos:      resp.Edges.Donor.PhotoUrls,
 				DonorBloodGroup:  resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup,
-				Amount:           0,
+				Amount:           resp.Amount,
 				WarnFactors:      []string{},
 				CompensationType: string(resp.CompensationType),
 				TaxiCompensation: resp.TaxiCompensation,

@@ -187,7 +187,6 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.GetBloodRequestByPetIDInput) (*dto.GetBloodRequestByPetIDOutput, error) {
-	slog.DebugContext(ctx, "getting blood request by PET ID", "pet_id", input.ID)
 	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
