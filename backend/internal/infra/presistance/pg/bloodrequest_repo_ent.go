@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -270,9 +269,7 @@ func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, donors []*
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
-			func(s *sql.Selector) {
-				s.Where(sqljson.ValueIn(bloodsearchrequest.FieldBloodGroupNames, bloodGroupsAny))
-			},
+			sql.FieldIn(bloodsearchrequest.FieldBloodGroupNames, bloodGroupsAny...),
 		).
 		WithPet(func(pq *ent.PetQuery) {
 			pq.WithBloodGroupRef()
