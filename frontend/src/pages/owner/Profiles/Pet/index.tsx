@@ -38,6 +38,8 @@ import { Role } from 'api/user';
 import Curtain from 'components/Curtain';
 import ImgEditor from 'components/ImgEditor';
 
+import DonationQuestions from '../../Statuses/DonationQuestions';
+import NotReady from '../../Statuses/NotReady';
 import styles from './Pet.module.less';
 import AnalysesStep from './Steps/Analyses';
 import HealthStep from './Steps/Health';
@@ -66,6 +68,11 @@ enum CurtainSteps {
 type CurtainType = {
     isOpen: boolean;
     step?: CurtainSteps;
+};
+
+type DonorStatus = {
+    isOpen: boolean;
+    status?: 'donationQuestions' | 'notReady';
 };
 
 const tiles = [
@@ -107,6 +114,7 @@ const PetProfile: FC<Props> = ({
     const [isOpenTooltip, setIsOpenTooltip] = useState(false);
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const [curtain, setCurtain] = useState<CurtainType>({ isOpen: false });
+    const [donorStatus, setDonorStatus] = useState<DonorStatus>({ isOpen: false });
     const [needUpdatePets, setNeedUpdatePets] = useState<boolean>(false);
     const [stepOnEditing, setStepOnEditing] = useState<TileName | null>(null);
     const [isPhotoWasDeleted, setIsPhotoWasDeleted] = useState<boolean>(false);
@@ -249,6 +257,14 @@ const PetProfile: FC<Props> = ({
         showToast('Не удалось обновить параметры, попробуйте еще раз');
     };
 
+    const onLabelClickHandler = (label: 'notReady' | 'donationQuestions') => () => {
+        setDonorStatus({ isOpen: true, status: label });
+    };
+
+    const onCloseDonorStatusHandler = () => {
+        setDonorStatus({ isOpen: false });
+    };
+
     const renderNotEditLabel = (labelType?: Role) => (
         <div className={styles.noEditLabel}>
             <div className={styles.noEditLabelTitle}>
@@ -334,7 +350,10 @@ const PetProfile: FC<Props> = ({
 
             case !!donorRestrictions?.stopFactors?.length: {
                 return (
-                    <div className={cn(styles.label, { [styles.notReady]: true })}>
+                    <div
+                        onClick={onLabelClickHandler('notReady')}
+                        className={cn(styles.label, { [styles.notReady]: true })}
+                    >
                         <div className={styles.searchIcon}>
                             <RoundCancel />
                         </div>
@@ -345,7 +364,10 @@ const PetProfile: FC<Props> = ({
 
             case !!donorRestrictions?.warnFactors?.length: {
                 return (
-                    <div className={cn(styles.label, { [styles.donationQuestions]: true })}>
+                    <div
+                        onClick={onLabelClickHandler('donationQuestions')}
+                        className={cn(styles.label, { [styles.donationQuestions]: true })}
+                    >
                         <div className={styles.searchIcon}>
                             <RoundQuestion />
                         </div>
@@ -400,6 +422,21 @@ const PetProfile: FC<Props> = ({
             showToast('Не удалось загрузить словарь репродуктивных состояний, попробуйте перезагрузить приложение');
         }
     }, [isErrorReproductiveStatusesDict, showToast]);
+
+    if (donorStatus.isOpen) {
+        if (donorStatus.status === 'notReady') {
+            return <NotReady onOpenPetProfile={onCloseDonorStatusHandler} factors={donorRestrictions?.stopFactors} />;
+        }
+
+        if (donorStatus.status === 'donationQuestions') {
+            return (
+                <DonationQuestions
+                    factors={donorRestrictions?.warnFactors}
+                    onOpenPetProfile={onCloseDonorStatusHandler}
+                />
+            );
+        }
+    }
 
     if (stepOnEditing === TileName.PARAMS) {
         return (

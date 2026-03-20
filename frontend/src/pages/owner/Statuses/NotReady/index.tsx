@@ -9,7 +9,7 @@ import Layout from 'components/Layout';
 import styles from './NotReady.module.less';
 
 type Props = {
-    onClose: () => void;
+    onClose?: () => void;
     factors?: StopFactors[];
     onOpenPetProfile: () => void;
 };
@@ -46,9 +46,11 @@ const NotReady: FC<Props> = ({ onClose, onOpenPetProfile, factors = [] }) => {
                 <Button fullWidth onClick={onOpenPetProfile} className={styles.profileButton}>
                     В профиль питомца
                 </Button>
-                <p className={styles.back} onClick={onClose}>
-                    Вернуться
-                </p>
+                {!!onClose && (
+                    <p className={styles.back} onClick={onClose}>
+                        Вернуться
+                    </p>
+                )}
             </div>
         </Layout>
     );

@@ -31,7 +31,7 @@ const RecipientsList: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
 
     const [tab, setTab] = useState(0);
-    const [isBlur, setIsBlur] = useState(false);
+    const [isBlur, setIsBlur] = useState(true);
     const [checkedBloadSearchId, setCheckedBloadSearchId] = useState<string | null>(null);
 
     const { data: user, isLoading: isUserLoading, refetch: refetchUser } = useGetUserById(userId);
@@ -75,7 +75,12 @@ const RecipientsList: FC<Props> = ({ userId }) => {
 
     if (checkedBloadSearchId) {
         return (
-            <RecipientsListDetail isBlurByDefault={isBlur} id={checkedBloadSearchId} onClose={onDetailCloseHandler} />
+            <RecipientsListDetail
+                userId={userId}
+                isBlurByDefault={isBlur}
+                id={checkedBloadSearchId}
+                onClose={onDetailCloseHandler}
+            />
         );
     }
 

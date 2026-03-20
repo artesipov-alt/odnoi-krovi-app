@@ -13,7 +13,7 @@ type Props = {
 const NoResults: FC<Props> = ({ tab, suitableDonors = 0 }) => {
     const renderTitle = () => {
         if (tab === 1) {
-            return 'Пока нет подходящих вариантов - но мы активно ведем поиск!';
+            return 'Раздел в разработке, пока можете посмотреть доноров';
         }
 
         return suitableDonors < 1
@@ -25,8 +25,8 @@ const NoResults: FC<Props> = ({ tab, suitableDonors = 0 }) => {
         if (tab === 1 || suitableDonors) {
             return (
                 <>
-                    Как только найдем -<br />
-                    направим уведомление
+                    {/*Как только найдем -<br />*/}
+                    {/*направим уведомление*/}
                 </>
             );
         }

@@ -59,6 +59,7 @@ const SearchCard: FC<Props> = ({
     onBoardingConfirm,
     bloodComponentIds,
     bloodVolumeNeeded,
+    bloodVolumeReserved,
     smallPetsNotifyAllowed,
     createdAt = '',
 }) => {
@@ -156,7 +157,7 @@ const SearchCard: FC<Props> = ({
                                             strokeWidth={15}
                                             total={bloodVolumeNeeded}
                                             color='var(--red10, #FF2727)'
-                                            current={bloodVolumeNeeded / 2}
+                                            current={bloodVolumeReserved || 0}
                                         />
                                         <div className={styles.neededVolume}>
                                             {bloodVolumeNeeded}

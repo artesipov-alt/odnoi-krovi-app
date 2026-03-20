@@ -1,6 +1,7 @@
 import { AxiosPromise } from 'axios';
 
 import { instance } from './instance';
+import { CompensationType } from './user';
 
 enum PoolRequest {
     DRAFT = 'draft',
@@ -40,10 +41,11 @@ export type RespondingDonor = {
     donorName: string;
     createdAt: string;
     updatedAt: string;
-    conditions: string[];
     warnFactors: string[];
     donorPhotos: string[];
     donorBloodGroup: string;
+    taxiCompensation: boolean;
+    compensationType: CompensationType;
 };
 
 export type GetPoolRequestResponse = {

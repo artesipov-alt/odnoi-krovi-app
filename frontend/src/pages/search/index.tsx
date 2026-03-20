@@ -16,6 +16,7 @@ import { CircularProgress } from 'components/CircularProgress';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
+import DonationQuestions from '../owner/Statuses/DonationQuestions';
 import SearchCard from './Card';
 import DonorsShowcase from './DonorsShowcase';
 import NoResults from './NoResults';
@@ -43,7 +44,9 @@ const Search: FC<Props> = ({ userId }) => {
     const { data: pets, refetch: petsRefetch, isError: petsIsError, isLoading: petsIsLoading } = usePetsQuery(userId); // ?
 
     const [tab, setTab] = useState(0);
+    const [showStartView, setShowStartView] = useState(true);
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+    const [isWarnFactorsOpen, setIsWarnFactorsOpen] = useState(false);
     const [isSearchCardOpen, setIsSearchCardOpen] = useState<boolean>(false);
 
     const {
@@ -82,6 +85,14 @@ const Search: FC<Props> = ({ userId }) => {
         poolRequestRefetch();
     };
 
+    const onOpenWarnFactorsToggle = () => {
+        setIsWarnFactorsOpen((prevState) => !prevState);
+    };
+
+    const setIsStartViewShownHandler = () => {
+        setShowStartView(false);
+    };
+
     const renderTabCounter = (count?: number) => {
         if (!count) {
             return null;
@@ -105,6 +116,10 @@ const Search: FC<Props> = ({ userId }) => {
             showToast('Не удалось загрузить данные по запросу крови');
         }
     }, [poolRequestIsError, showToast]);
+
+    if (isWarnFactorsOpen) {
+        return <DonationQuestions onClose={onOpenWarnFactorsToggle} />;
+    }
 
     // карточка поиска
     if (isSearchCardOpen && selectedPet && !poolRequestIsLoading && poolRequest) {
@@ -158,12 +173,14 @@ const Search: FC<Props> = ({ userId }) => {
                                 strokeWidth={2}
                                 color='var(--red10, #FF2727)'
                                 total={poolRequest?.bloodVolumeNeeded || 0}
-                                current={(poolRequest?.bloodVolumeNeeded || 30) / 2}
+                                current={poolRequest?.bloodVolumeReserved || 0}
                             />
                         </div>
                         <div className={styles.info}>
                             <div className={styles.name}>{selectedPet?.name}</div>
-                            <div className={styles.searchResult}>Найдено: 0 из {poolRequest?.bloodVolumeNeeded} мл</div>
+                            <div className={styles.searchResult}>
+                                Найдено: {poolRequest?.bloodVolumeReserved || 0} из {poolRequest?.bloodVolumeNeeded} мл
+                            </div>
                         </div>
                         <div className={styles.searchDetails} onClick={onCardOpenToggle}>
                             Детали поиска
@@ -189,7 +206,13 @@ const Search: FC<Props> = ({ userId }) => {
                 )}
                 {tab === 1 && !isLoading && !isPacketsBloodFound && <NoResults tab={tab} />}
                 {tab === 0 && !isLoading && isBloodFound && (
-                    <DonorsShowcase petType={selectedPet?.type} list={poolRequest?.responses} />
+                    <DonorsShowcase
+                        petType={selectedPet?.type}
+                        showStartView={showStartView}
+                        list={poolRequest?.responses}
+                        onOpenWarnFactors={onOpenWarnFactorsToggle}
+                        setIsStartViewShown={setIsStartViewShownHandler}
+                    />
                 )}
                 {isLoading && (
                     <div className={styles.loading}>

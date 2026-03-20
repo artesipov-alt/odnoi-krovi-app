@@ -63,10 +63,14 @@
     text-overflow: ellipsis;
 }
 
-.bloodGroup {
+.info {
+    display: flex;
     position: absolute;
     top: 7px;
     left: 5px;
+}
+
+.bloodGroup {
     height: 32px;
     min-width: 32px;
     padding: 0 8px;
@@ -79,6 +83,37 @@
     border-radius: 25px;
     background: @red2;
     box-sizing: border-box;
+}
+
+.bloodVolume {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 40px;
+    min-width: 40px;
+    padding: 10px 5px 0;
+    color: @red1;
+    font-family: Marmelad, sans-serif;
+    border-radius: 0 12px 0 13px;
+    background: @orange3;
+    box-sizing: border-box;
+}
+
+.bloodVolumeNumber {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 5px;
+}
+
+.bloodVolumeDescr {
+    margin: 0;
+    font-size: 9px;
+    font-weight: 400;
 }
 
 .gradient {
@@ -166,4 +201,77 @@
     margin: -50px -12px -30px;
     object-fit: cover;
     display: block;
+}
+
+.icon {
+    width: 32px;
+    height: 32px;
+    margin-left: -5px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+
+.label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 5px;
+    height: 32px;
+    border-radius: 8px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 15px;
+
+    @media (min-width: 500px) {
+        height: 42px;
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+
+    @media (min-width: 768px) {
+        height: 50px;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+
+    &.donationQuestions {
+        gap: 8px;
+        background: @orange1;
+        color: @border4;
+
+        & .searchIcon {
+            width: 18px;
+            height: 18px;
+        }
+    }
+}
+
+.searchIcon {
+    width: 13px;
+    height: 13px;
+    fill: @white-bg;
+
+    @media (min-width: 500px) {
+        width: 16px;
+        height: 16px;
+    }
+
+    @media (min-width: 768px) {
+        width: 18px;
+        height: 18px;
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
 }
