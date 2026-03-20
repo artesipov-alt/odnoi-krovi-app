@@ -12,6 +12,7 @@ import (
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/lib/pq"
 )
 
 // EntBloodRequestRepository implements BloodRequestRepository using ENT
@@ -259,17 +260,28 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 
 // AdptiveList возвращает список заявок с фильтрацией и пагинацией
 func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, donors []*petmodel.Pet, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
-	bloodGroupsAny := make([]any, 0, len(donors))
+	bloodGroupsMap := make(map[string]struct{})
 	for _, donor := range donors {
 		if donor.BloodGroupName != nil {
-			bloodGroupsAny = append(bloodGroupsAny, *donor.BloodGroupName)
+			bloodGroupsMap[*donor.BloodGroupName] = struct{}{}
 		}
+	}
+
+	if len(bloodGroupsMap) == 0 {
+		return []*donormodel.Recipient{}, nil
+	}
+
+	bloodGroups := make([]string, 0, len(bloodGroupsMap))
+	for bg := range bloodGroupsMap {
+		bloodGroups = append(bloodGroups, bg)
 	}
 
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
-			sql.FieldIn(bloodsearchrequest.FieldBloodGroupNames, bloodGroupsAny...),
+			func(s *sql.Selector) {
+				s.Where(sql.ExprP(fmt.Sprintf("%s ?| $1", bloodsearchrequest.FieldBloodGroupNames), pq.Array(bloodGroups)))
+			},
 		).
 		WithPet(func(pq *ent.PetQuery) {
 			pq.WithBloodGroupRef()
