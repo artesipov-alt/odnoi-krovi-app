@@ -1,23 +1,34 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
 import donorShowcaseStart from 'imgs/donorShowcaseStart.png';
+import BoneBig from 'imgs/svg/boneBig';
+import NotPaid from 'imgs/svg/notPaid';
+import Paid from 'imgs/svg/paid';
+import RoundQuestion from 'imgs/svg/roundQuestion';
+import TaxiBig from 'imgs/svg/taxiBig';
 import { FC, useState } from 'react';
 
 import { RespondingDonor } from 'api/bloodRequest';
 import { PetType } from 'api/types';
+import { CompensationType } from 'api/user';
 
 import styles from './DonorsShowcase.module.less';
 
 type Props = {
     petType?: PetType;
+    showStartView: boolean;
     list?: RespondingDonor[];
+    onOpenWarnFactors: () => void;
+    setIsStartViewShown: () => void;
 };
 
-const DonorsShowcase: FC<Props> = ({ list, petType }) => {
-    const [showStartView, setShowStartView] = useState(true);
-
+const DonorsShowcase: FC<Props> = ({ list, petType, onOpenWarnFactors, showStartView, setIsStartViewShown }) => {
     const onConfirmButtonClickHandler = () => {
-        setShowStartView(false);
+        setIsStartViewShown();
+    };
+
+    const onShowWarnFactorsToggle = () => {
+        onOpenWarnFactors();
     };
 
     if (!petType) {
@@ -50,9 +61,36 @@ const DonorsShowcase: FC<Props> = ({ list, petType }) => {
                         {!!pet?.donorPhotos?.[0] && (
                             <img className={styles.img} src={pet?.donorPhotos?.[0]} alt={pet?.donorName} />
                         )}
-                        <div className={styles.bloodGroup}>{pet?.donorBloodGroup || '?'}</div>
+                        <div className={styles.info}>
+                            <div className={styles.bloodGroup}>{pet?.donorBloodGroup || '?'}</div>
+                            <div className={styles.icon}>
+                                {pet.compensationType === CompensationType.FREE && <NotPaid />}
+                                {pet.compensationType === CompensationType.PAID && <Paid />}
+                                {pet.compensationType === CompensationType.FOOD && <BoneBig />}
+                            </div>
+                            {pet.taxiCompensation && (
+                                <div className={styles.icon}>
+                                    <TaxiBig />
+                                </div>
+                            )}
+                        </div>
+                        <div className={styles.bloodVolume}>
+                            <p className={styles.bloodVolumeNumber}>{pet.amount}</p>
+                            <p className={styles.bloodVolumeDescr}>мл</p>
+                        </div>
                         <div className={styles.photoFooter}>
                             <p className={styles.name}>{pet?.donorName.toUpperCase()}</p>
+                            {!!pet.warnFactors?.length && (
+                                <div
+                                    onClick={onShowWarnFactorsToggle}
+                                    className={cn(styles.label, { [styles.donationQuestions]: true })}
+                                >
+                                    <div className={styles.searchIcon}>
+                                        <RoundQuestion />
+                                    </div>
+                                    <div>Вопросы к донорству</div>
+                                </div>
+                            )}
                         </div>
                         <div className={styles.gradient} />
                     </div>

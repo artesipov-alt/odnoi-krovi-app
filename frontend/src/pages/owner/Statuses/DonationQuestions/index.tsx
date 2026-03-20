@@ -2,7 +2,7 @@ import { Button } from '@mui/material';
 import donationQuestions from 'imgs/donationQuestions.png';
 import Info from 'imgs/svg/info';
 import StatusQuestion from 'imgs/svg/statusQuestion';
-import { FC, useEffect, useState } from 'react';
+import { FC, MouseEvent, useEffect, useState } from 'react';
 
 import { WarnFactors } from 'api/pets';
 import Layout from 'components/Layout';
@@ -10,15 +10,15 @@ import Layout from 'components/Layout';
 import styles from './DonationQuestions.module.less';
 
 type Props = {
-    onClose: () => void;
+    onClose?: () => void;
     factors?: WarnFactors[];
-    onOpenPetProfile: () => void;
+    onOpenPetProfile?: () => void;
 };
 
 const DonationQuestions: FC<Props> = ({ onClose, onOpenPetProfile, factors = [] }) => {
     const [openTooltipId, setOpenTooltipId] = useState<number | null>(null);
 
-    const onTooltipIconClick = (i: number) =>  (e: React.MouseEvent) => {
+    const onTooltipIconClick = (i: number) => (e: MouseEvent) => {
         e.stopPropagation();
 
         setOpenTooltipId(i);
@@ -56,12 +56,16 @@ const DonationQuestions: FC<Props> = ({ onClose, onOpenPetProfile, factors = [] 
                         </div>
                     ))}
                 </div>
-                <Button fullWidth onClick={onOpenPetProfile} className={styles.profileButton}>
-                    В профиль питомца
-                </Button>
-                <p className={styles.back} onClick={onClose}>
-                    Вернуться
-                </p>
+                {!!onOpenPetProfile && (
+                    <Button fullWidth onClick={onOpenPetProfile} className={styles.profileButton}>
+                        В профиль питомца
+                    </Button>
+                )}
+                {!!onClose && (
+                    <p className={styles.back} onClick={onClose}>
+                        Вернуться
+                    </p>
+                )}
             </div>
         </Layout>
     );

@@ -21,6 +21,7 @@ import { toast } from 'react-toastify';
 import { bloodSearchApply } from 'api/apiServices/bloodSearchApply';
 import { getRecipientDetail } from 'api/apiServices/getRecipientDetail';
 import { GetRecipientDetailsResponse } from 'api/donor';
+import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
@@ -33,11 +34,12 @@ import styles from './RecipientsListDetail.module.less';
 
 type Props = {
     id: string;
+    userId: string;
     onClose: () => void;
     isBlurByDefault: boolean;
 };
 
-const RecipientsListDetail: FC<Props> = ({ id, isBlurByDefault, onClose }) => {
+const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose }) => {
     const navigate = useNavigate();
 
     const [isBlur, setIsBlur] = useState(isBlurByDefault);
@@ -129,11 +131,15 @@ const RecipientsListDetail: FC<Props> = ({ id, isBlurByDefault, onClose }) => {
         setIsConfirmCurtainOpen(true);
     };
 
-    const onConfirmCurtainClickHandler = () => {
+    const onConfirmCurtainClickHandler = async () => {
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+
         navigate('/owner#donor');
     };
 
-    const onCancelCurtainClickHandler = () => {
+    const onCancelCurtainClickHandler = async () => {
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+
         navigate('/owner#donorDonations');
     };
 
