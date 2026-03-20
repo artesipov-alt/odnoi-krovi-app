@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.5.11] - 2026-03-20
+
+### Исправлено
+- **Удален неиспользуемый импорт sqljson и упрощен запрос фильтрации групп крови:**
+  - Удален неиспользуемый импорт `sqljson` из `ent_blood_request_repository.go`.
+  - Упрощена логика запроса фильтрации групп крови в `ent_blood_request_repository.go`.
+
+### Технические детали
+- В `internal/repositories/bloodsearch/ent_blood_request_repository.go` (или соответствующем файле) удален импорт `sqljson`.
+- В `internal/repositories/bloodsearch/ent_blood_request_repository.go` (или соответствующем файле) упрощена логика запроса фильтрации групп крови.
+
 
 ## [3.5.10] - 2026-03-20
 
