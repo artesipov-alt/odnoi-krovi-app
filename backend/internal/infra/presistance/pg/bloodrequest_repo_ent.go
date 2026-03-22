@@ -8,9 +8,9 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
 // EntBloodRequestRepository implements BloodRequestRepository using ENT
@@ -30,83 +30,6 @@ func (r *EntBloodRequestRepository) client(ctx context.Context) *ent.Client {
 func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository {
 	return &EntBloodRequestRepository{
 		db: client,
-	}
-}
-
-// mapToRecipient maps ent.BloodSearchRequest to donormodel.Recipient
-func (r *EntBloodRequestRepository) mapToRecipient(req *ent.BloodSearchRequest) *donormodel.Recipient {
-	if req == nil {
-		return nil
-	}
-
-	recipient := &donormodel.Recipient{
-		ID:                       req.ID,
-		PetID:                    req.PetID,
-		BloodVolumeRemaining:     req.BloodVolumeNeeded - req.BloodVolumeReserved,
-		PrioritySearch:           req.PrioritySearch,
-		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
-		SearchingBloodNames:      req.BloodGroupNames,
-		Status:                   string(req.Status),
-	}
-
-	if req.Edges.Pet != nil {
-		recipient.PetName = req.Edges.Pet.Name
-		recipient.PetType = petmodel.PetType(req.Edges.Pet.Type)
-		recipient.PhotoURLs = req.Edges.Pet.PhotoUrls
-		if req.Edges.Pet.Edges.BloodGroupRef != nil {
-			recipient.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
-		}
-	}
-
-	return recipient
-}
-
-// bloodReqToDomainModel converts ENT BloodSearchRequest to domain BloodRequest
-func (r *EntBloodRequestRepository) bloodReqToDomainModel(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodRequest {
-	if entReq == nil {
-		return nil
-	}
-
-	// Map responses to DonorApplications
-	var donorApps []donormodel.DonorResponse
-	if entReq.Edges.Responses != nil {
-		donorApps = make([]donormodel.DonorResponse, len(entReq.Edges.Responses))
-		for i, resp := range entReq.Edges.Responses {
-			app := donormodel.DonorResponse{
-				ID:               resp.ID,
-				RequestID:        entReq.ID,
-				DonorID:          resp.Edges.Donor.ID,
-				DonorName:        resp.Edges.Donor.Name,
-				DonorPhotos:      resp.Edges.Donor.PhotoUrls,
-				DonorBloodGroup:  resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup,
-				Amount:           resp.Amount,
-				WarnFactors:      []string{},
-				CompensationType: string(resp.CompensationType),
-				TaxiCompensation: resp.TaxiCompensation,
-			}
-			donorApps[i] = app
-		}
-	}
-
-	return &bloodreqmodel.BloodRequest{
-		ID:                       entReq.ID,
-		PetID:                    entReq.PetID,
-		BloodVolumeNeeded:        entReq.BloodVolumeNeeded,
-		BloodVolumeReserved:      entReq.BloodVolumeReserved,
-		Regions:                  entReq.Regions,
-		SmallPetsNotifyAllowed:   entReq.SmallPetsNotifyAllowed,
-		Status:                   bloodreqmodel.BloodRequestStatus(entReq.Status),
-		Description:              entReq.Description,
-		PhotoURLs:                entReq.PhotoUrls,
-		BloodGroupNames:          entReq.BloodGroupNames,
-		BloodComponentIDs:        entReq.BloodComponentIds,
-		OnBoarding:               entReq.OnBoarding,
-		DonorApplications:        donorApps,
-		PrioritySearch:           entReq.PrioritySearch,
-		IncludeUnknownBloodGroup: entReq.IncludeUnknownBloodGroup,
-		CreatedAt:                &entReq.CreatedAt,
-		UpdatedAt:                &entReq.UpdatedAt,
-		DeletedAt:                entReq.DeletedAt,
 	}
 }
 
@@ -131,7 +54,7 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmod
 	if err != nil {
 		return nil, err
 	}
-	return r.bloodReqToDomainModel(newBloodReq), nil
+	return domainmapper.BloodReqToDomain(newBloodReq), nil
 }
 
 // GetByID возвращает заявку по её идентификатору
@@ -151,7 +74,7 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bl
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query")
 	}
-	return r.bloodReqToDomainModel(req), nil
+	return domainmapper.BloodReqToDomain(req), nil
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
@@ -161,6 +84,9 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
 				pq.WithBloodGroupRef()
+				pq.WithHealth()
+				pq.WithTreatments()
+				pq.WithAnalyses()
 			})
 		}).
 		Only(ctx)
@@ -170,7 +96,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query by pet ID")
 	}
-	return r.bloodReqToDomainModel(req), nil
+	return domainmapper.BloodReqToDomain(req), nil
 }
 
 // Update обновляет информацию о заявке
@@ -206,7 +132,7 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}
 
-	return r.bloodReqToDomainModel(updatedBloodReq), nil
+	return domainmapper.BloodReqToDomain(updatedBloodReq), nil
 }
 
 // UpdateStatus обновляет статус заявки
@@ -245,7 +171,7 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 
 	result := make([]*bloodreqmodel.BloodRequest, len(requests))
 	for i, req := range requests {
-		result[i] = r.bloodReqToDomainModel(req)
+		result[i] = domainmapper.BloodReqToDomain(req)
 	}
 
 	return result, nil
@@ -270,7 +196,7 @@ func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters do
 
 	result := make([]*donormodel.Recipient, len(requests))
 	for i, req := range requests {
-		result[i] = r.mapToRecipient(req)
+		result[i] = domainmapper.RecipientToDomain(req)
 	}
 
 	return result, nil

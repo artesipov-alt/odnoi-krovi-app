@@ -17,6 +17,7 @@ import (
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/utmhistory"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 	// расширение для апсерта
 )
 
@@ -608,7 +609,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 	var pets []*petmodel.Pet
 	if len(e.Edges.Pets) > 0 {
 		for _, p := range e.Edges.Pets {
-			pets = append(pets, petToDomain(p))
+			pets = append(pets, domainmapper.PetToDomain(p))
 		}
 	}
 	user.Pets = pets
