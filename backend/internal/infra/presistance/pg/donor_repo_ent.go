@@ -127,7 +127,7 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 
 func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error) {
 	entResp, err := r.client(ctx).DonorResponse.Query().
-		Where(donorresponse.HasRequestWith(bloodsearchrequest.HasPetWith(pet.ID(petID)))).
+		Where(donorresponse.HasDonorWith(pet.ID(petID))).
 		WithRequest().
 		WithDonor().
 		Only(ctx)
