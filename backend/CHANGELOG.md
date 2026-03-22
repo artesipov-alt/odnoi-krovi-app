@@ -5,6 +5,51 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.6.0] - 2026-03-22
+
+### Добавлено
+- **Обработчик `GetDonorByID` и связанные изменения:**
+  - Реализован обработчик `GetDonorByID` в `bloodsearch/query`.
+  - Добавлен метод `GetByPetID` в интерфейс репозитория доноров.
+  - Добавлено поле `OwnerName` в модель `Pet` и включен владелец в запросы питомцев.
+  - Мапперы перемещены в пакет `dtomapper` и обновлены импорты.
+  - Обновлены DTO для включения `OwnerName` и `availableBloodAmount`.
+  - Сгенерирована новая модель `DonorDetail` в TS клиенте.
+
+### Технические детали
+- В `internal/handlers/bloodsearch/query/get_donor_by_id_handler.go` (или соответствующем файле) реализован `GetDonorByID`.
+- В `internal/repositories/donor/donor_repository.go` (или соответствующем файле) добавлен метод `GetByPetID`.
+- В `internal/domain/pet/model.go` (или соответствующем файле) добавлено поле `OwnerName`.
+- В `internal/dtomapper/` (или соответствующем пакете) перемещены и обновлены мапперы.
+- В `dto/` (или соответствующих файлах) обновлены DTO для включения `OwnerName` и `availableBloodAmount`.
+- В TS клиенте сгенерирована новая модель `DonorDetail`.
+
+## [3.5.19] - 2026-03-22
+
+### Изменено
+- **Рефакторинг `DonorApplication` для использования структуры `DonorRestrictions`:**
+  - Структура `DonorApplication` обновлена для использования `DonorRestrictions` вместо простых строковых кодов.
+
+### Технические детали
+- В `internal/domain/donor/model.go` (или соответствующем файле) обновлена структура `DonorApplication` для использования `DonorRestrictions`.
+
+## [3.5.19] - 2026-03-22
+
+### Изменено
+- **Замена `BloodRequestStatus` на строковый тип и добавление конечной точки донора:**
+  - Тип `BloodRequestStatus` удален и вместо него используется строковый тип напрямую.
+  - Добавлена новая конечная точка для получения запроса крови по ID донора.
+  - Добавлена структура DTO `DonorDetail`.
+  - Включено `availableBloodAmount` в `PetDetail`.
+
+### Технические детали
+- В `internal/domain/bloodsearch/model.go` (или соответствующем файле) удален тип `BloodRequestStatus`.
+- В `internal/handlers/bloodsearch/query/get_blood_request_by_donor_id_handler.go` (или соответствующем файле) добавлена новая конечная точка.
+- В `dto/donor.go` (или соответствующем файле) добавлена структура `DonorDetail`.
+- В `dto/pet.go` (или соответствующем файле) включено `availableBloodAmount` в `PetDetail`.
+
+
+
 ## [3.5.18] - 2026-03-24
 
 ### Исправлено
