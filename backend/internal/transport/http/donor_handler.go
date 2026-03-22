@@ -103,7 +103,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			PhotoURLs:            h.storage.BuildPhotoURLs(r.PhotoURLs, now),
 			BloodGroupName:       r.BloodGroupName,
 			PrioritySearch:       r.PrioritySearch,
-			Status:               dto.BloodRequestStatus(r.Status),
+			Status:               r.Status,
 			MatchingDonors:       matching,
 		}
 	}
@@ -155,7 +155,7 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ d
 		PhotoURLs:           h.storage.BuildPhotoURLs(recipient.PhotoURLs, now),
 		BloodGroupName:      recipient.BloodGroupName,
 		PrioritySearch:      recipient.PrioritySearch,
-		Status:              dto.BloodRequestStatus(recipient.Status),
+		Status:              recipient.Status,
 		MatchingDonors:      matchingDonors,
 		DefaultDonorPrefs:   defaultPrefs,
 		AdvancedInfo: &dto.AdvancedInfo{

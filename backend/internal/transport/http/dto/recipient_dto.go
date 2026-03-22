@@ -2,9 +2,9 @@ package dto
 
 // DonorPreloadQuery представляет параметры для предзагрузки связанных данных
 type DonorPreloadQuery struct {
-	Status BloodRequestStatus `query:"status,omitempty" doc:"Статус заявки" enum:"active,closed,draft"`
-	Limit  int                `query:"limit,omitempty" doc:"Максимальное количество результатов" minimum:"1" maximum:"100"`
-	Offset int                `query:"offset,omitempty" doc:"Смещение для пагинации" minimum:"0"`
+	Status string `query:"status,omitempty" doc:"Статус заявки" enum:"active,closed,draft"`
+	Limit  int    `query:"limit,omitempty" doc:"Максимальное количество результатов" minimum:"1" maximum:"100"`
+	Offset int    `query:"offset,omitempty" doc:"Смещение для пагинации" minimum:"0"`
 }
 
 // GetRecipientInput представляет запрос на получение реципиента по ID
@@ -39,7 +39,7 @@ type RecipientDetail struct {
 	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	BloodGroupName       string             `json:"bloodGroupName" doc:"Группа крови реципиента"`
 	PrioritySearch       bool               `json:"prioritySearch,omitempty" doc:"Приоритетный поиск"`
-	Status               BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Status               string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
 	AdvancedInfo         *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
 	MatchingDonors       []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
 	DefaultDonorPrefs    *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`

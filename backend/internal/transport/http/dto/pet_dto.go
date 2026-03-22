@@ -177,29 +177,29 @@ type GetPetByIDOutput struct {
 	Body PetDetail
 }
 
-// PetDetail представляет полные данные питомца для ответа
 type PetDetail struct {
-	ID                 string             `json:"id" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
-	Name               string             `json:"name" doc:"Имя питомца" example:"Шарик"`
-	Type               string             `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
-	WeightKg           float64            `json:"weightKg" doc:"Вес в килограммах" example:"15.5"`
-	Gender             string             `json:"gender" doc:"Пол питомца" enum:"male,female" example:"male"`
-	BirthDate          *time.Time         `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
-	ChipNumber         string             `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
-	PhotoURLs          []string           `json:"photoUrls,omitempty" doc:"URLs фотографий" example:"https://example.com/photo.jpg"`
-	LivingCondition    string             `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
-	ReproductiveStatus string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
-	BreedID            string             `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
-	BloodGroup         string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
-	PetStatus          string             `json:"petStatus" doc:"Статус питомца" enum:"none,donor,recipient,blood_found,recovering,planned_donation" example:"donor"`
-	DonorRestrictions  *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и предупреждения"`
-	Health             *PetHealth         `json:"health,omitempty" doc:"Информация о здоровье"`
-	Treatments         *PetTreatment      `json:"treatments,omitempty" doc:"Информация о лечении"`
-	Analyses           *PetAnalysisGroup  `json:"analyses,omitempty" doc:"Группированные анализы"`
-	Bonuses            []string           `json:"bonuses,omitempty" doc:"Дополнительная информация"`
-	CreatedAt          *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	UpdatedAt          *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
-	DeletedAt          *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	ID                   string             `json:"id" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
+	Name                 string             `json:"name" doc:"Имя питомца" example:"Шарик"`
+	Type                 string             `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
+	WeightKg             float64            `json:"weightKg" doc:"Вес в килограммах" example:"15.5"`
+	Gender               string             `json:"gender" doc:"Пол питомца" enum:"male,female" example:"male"`
+	BirthDate            *time.Time         `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
+	ChipNumber           string             `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
+	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"URLs фотографий" example:"https://example.com/photo.jpg"`
+	LivingCondition      string             `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
+	ReproductiveStatus   string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
+	BreedID              string             `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
+	BloodGroup           string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	PetStatus            string             `json:"petStatus" doc:"Статус питомца" enum:"none,donor,recipient,blood_found,recovering,planned_donation" example:"donor"`
+	AvailableBloodAmount int32              `json:"availableBloodAmount,omitempty" doc:"Доступный объем крови для донации в мл" example:"450"`
+	DonorRestrictions    *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и предупреждения"`
+	Health               *PetHealth         `json:"health,omitempty" doc:"Информация о здоровье"`
+	Treatments           *PetTreatment      `json:"treatments,omitempty" doc:"Информация о лечении"`
+	Analyses             *PetAnalysisGroup  `json:"analyses,omitempty" doc:"Группированные анализы"`
+	Bonuses              []string           `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	CreatedAt            *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt            *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt            *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // ============================================

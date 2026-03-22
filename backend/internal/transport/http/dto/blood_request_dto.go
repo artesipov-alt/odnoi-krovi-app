@@ -3,19 +3,6 @@ package dto
 import "time"
 
 // ============================================
-// Blood Request Status
-// ============================================
-
-// BloodRequestStatus представляет статус заявки на поиск крови
-type BloodRequestStatus string
-
-const (
-	BloodRequestStatusActive BloodRequestStatus = "active"
-	BloodRequestStatusClosed BloodRequestStatus = "closed"
-	BloodRequestStatusDraft  BloodRequestStatus = "draft"
-)
-
-// ============================================
 // Path Parameters
 // ============================================
 
@@ -58,10 +45,10 @@ type CreateBloodRequestOutput struct {
 
 // CreateBloodRequestResult представляет результат создания заявки
 type CreateBloodRequestResult struct {
-	ID        string             `json:"id" doc:"ID созданной заявки" example:"BLS-ABCDEABCDE"`
-	PetID     string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
-	Status    BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
-	CreatedAt *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+	ID        string     `json:"id" doc:"ID созданной заявки" example:"BLS-ABCDEABCDE"`
+	PetID     string     `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
+	Status    string     `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	CreatedAt *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
 }
 
 // ============================================
@@ -112,6 +99,11 @@ type GetBloodRequestByIDInput struct {
 // GetBloodRequestByIDOutput представляет ответ с данными заявки
 type GetBloodRequestByIDOutput struct {
 	Body BloodRequestDetail
+}
+
+// GetDonorByIDOutput представляет ответ с данными заявки
+type GetDonorByIDOutput struct {
+	Body DonorDetail
 }
 
 // ============================================
@@ -166,10 +158,18 @@ type BloodRequestDetail struct {
 	OnBoarding               []string           `json:"onBoarding" doc:"Список пройденных онбордингов"`
 	PrioritySearch           bool               `json:"prioritySearch" doc:"Приоритетный поиск"`
 	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
-	Status                   BloodRequestStatus `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
 	Responses                []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
 	SuitableDonors           int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
 	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt                *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+}
+
+// DonorDetail представляет полные данные донора
+type DonorDetail struct {
+	PetDetail
+	OwnerName        string `json:"ownerName" doc:"Имя владельца питомца"`
+	CompensationType string `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
+	TaxiCompensation bool   `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
 }

@@ -83,6 +83,16 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByPetID)
 
+	// Получить заявку по ID донора
+	huma.Register(api, huma.Operation{
+		OperationID: "get-blood-request-by-donor-id",
+		Method:      http.MethodGet,
+		Path:        "/v1/blood-request/donor/{id}",
+		Summary:     "Получить заявку по ID донора",
+		Description: "Возвращает информацию о конкретной заявке на донора",
+		Tags:        []string{"blood-request-v1"},
+	}, h.GetDonorByID)
+
 	// Обновить заявку
 	huma.Register(api, huma.Operation{
 		OperationID: "update-blood-request",
@@ -117,7 +127,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	return &dto.CreateBloodRequestOutput{Body: dto.CreateBloodRequestResult{
 		ID:        result.ID,
 		PetID:     result.PetID,
-		Status:    dto.BloodRequestStatus(result.Status),
+		Status:    string(result.Status),
 		CreatedAt: result.CreatedAt,
 	}}, nil
 }
@@ -193,6 +203,11 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 	}
 
 	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
+}
+
+func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetIDPath) (*dto.GetBloodRequestByIDOutput, error) {
+	// TODO: Implement logic to get donor by ID
+	return nil, huma.Error404NotFound("Not implemented yet")
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.DeleteBloodRequestInput) (*dto.DeleteBloodRequestOutput, error) {

@@ -77,7 +77,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		BloodGroupNames:          req.BloodGroupNames,
 		BloodComponentIDs:        req.BloodComponentIDs,
 		OnBoarding:               req.OnBoarding,
-		Status:                   dto.BloodRequestStatus(req.Status),
+		Status:                   string(req.Status),
 		SuitableDonors:           suitableDonorsCount,
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
