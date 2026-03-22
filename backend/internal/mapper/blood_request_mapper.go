@@ -4,6 +4,7 @@ package mapper
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 )
 
@@ -34,6 +35,18 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 	if len(req.DonorApplications) != 0 {
 		donorApplications = make([]dto.DonorApplication, 0, len(req.DonorApplications))
 		for _, app := range req.DonorApplications {
+			// Convert WarnFactors from []string to []RestrictionFactor with descriptions
+			var warnFactors []dto.RestrictionFactor
+			for _, code := range app.WarnFactors {
+				desc := petmodel.GetFactorDescription(petmodel.FactorCode(code))
+				factor := dto.RestrictionFactor{
+					Code:           code,
+					Description:    desc.Description,
+					SubDescription: desc.SubDescription,
+				}
+				warnFactors = append(warnFactors, factor)
+			}
+
 			donorApplications = append(donorApplications, dto.DonorApplication{
 				ID:               app.ID,
 				RequestID:        app.RequestID,
@@ -42,7 +55,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 				DonorPhotos:      m.storage.BuildPhotoURLs(app.DonorPhotos, *req.UpdatedAt),
 				DonorBloodGroup:  app.DonorBloodGroup,
 				Amount:           app.Amount,
-				WarnFactors:      app.WarnFactors,
+				WarnFactors:      warnFactors,
 				CompensationType: app.CompensationType,
 				TaxiCompensation: app.TaxiCompensation,
 				Status:           string(app.Status),
