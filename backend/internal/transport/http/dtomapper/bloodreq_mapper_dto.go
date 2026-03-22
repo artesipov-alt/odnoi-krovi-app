@@ -48,19 +48,19 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 			}
 
 			donorApplications = append(donorApplications, dto.DonorApplication{
-				ID:               app.ID,
-				RequestID:        app.RequestID,
-				DonorID:          app.DonorID,
-				DonorName:        app.DonorName,
-				DonorPhotos:      m.storage.BuildPhotoURLs(app.DonorPhotos, *req.UpdatedAt),
-				DonorBloodGroup:  app.DonorBloodGroup,
-				Amount:           app.Amount,
-				WarnFactors:      warnFactors,
-				CompensationType: app.CompensationType,
-				TaxiCompensation: app.TaxiCompensation,
-				Status:           string(app.Status),
-				CreatedAt:        app.CreatedAt,
-				UpdatedAt:        app.UpdatedAt,
+				ID:                app.ID,
+				RequestID:         app.RequestID,
+				DonorID:           app.DonorID,
+				DonorName:         app.DonorName,
+				DonorPhotos:       m.storage.BuildPhotoURLs(app.DonorPhotos, *req.UpdatedAt),
+				DonorBloodGroup:   app.DonorBloodGroup,
+				Amount:            app.Amount,
+				DonorRestrictions: &dto.DonorRestrictions{WarnFactors: warnFactors},
+				CompensationType:  app.CompensationType,
+				TaxiCompensation:  app.TaxiCompensation,
+				Status:            string(app.Status),
+				CreatedAt:         app.CreatedAt,
+				UpdatedAt:         app.UpdatedAt,
 			})
 		}
 	}

@@ -13,19 +13,19 @@ type DonorApplicationIDPath struct {
 
 // DonorApplication представляет отклик донора
 type DonorApplication struct {
-	ID               string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
-	RequestID        string              `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
-	DonorID          string              `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
-	DonorName        string              `json:"donorName" doc:"Имя донора" example:"Барсик"`
-	DonorPhotos      []string            `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
-	DonorBloodGroup  string              `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
-	Amount           int32               `json:"amount" doc:"Объем крови в мл" example:"450"`
-	WarnFactors      []RestrictionFactor `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
-	CompensationType string              `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
-	TaxiCompensation bool                `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
-	Status           string              `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
-	CreatedAt        *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
-	UpdatedAt        *time.Time          `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
+	ID                string             `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
+	RequestID         string             `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	DonorID           string             `json:"donorId" doc:"ID донора" example:"PET-ABCDEABCDE"`
+	DonorName         string             `json:"donorName" doc:"Имя донора" example:"Барсик"`
+	DonorPhotos       []string           `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
+	DonorBloodGroup   string             `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
+	Amount            int32              `json:"amount" doc:"Объем крови в мл" example:"450"`
+	DonorRestrictions *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и предупреждения"`
+	CompensationType  string             `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
+	TaxiCompensation  bool               `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
+	Status            string             `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
+	CreatedAt         *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
+	UpdatedAt         *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
 }
 
 // ============================================
