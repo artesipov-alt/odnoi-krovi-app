@@ -59,7 +59,7 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 				DonorBloodGroup:  resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup,
 				Amount:           resp.Amount,
 				CompensationType: string(resp.CompensationType),
-				WarnFactors:      fullDonor.StopFactors,
+				WarnFactors:      fullDonor.WarnFactors,
 				TaxiCompensation: resp.TaxiCompensation,
 				Status:           donormodel.DonorResponseStatus(resp.Status),
 			}
