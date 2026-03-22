@@ -21,8 +21,8 @@ type DonorApplication struct {
 	DonorBloodGroup  string     `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
 	Amount           int32      `json:"amount" doc:"Объем крови в мл" example:"450"`
 	WarnFactors      []string   `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
-	CompensationType string     `json:"compensationType,omitempty" doc:"Условия донации" enum:"free,paid,food"`
-	TaxiCompensation bool       `json:"taxiCompensation,omitempty" doc:"Компенсация такси" example:"true"`
+	CompensationType string     `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
+	TaxiCompensation bool       `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
 	Status           string     `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
 	CreatedAt        *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
 	UpdatedAt        *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
