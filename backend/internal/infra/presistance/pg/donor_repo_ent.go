@@ -74,7 +74,11 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 }
 
 func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, id string) (*donormodel.DonorResponse, error) {
-	entResp, err := r.client(ctx).DonorResponse.Get(ctx, id)
+	entResp, err := r.client(ctx).DonorResponse.Query().
+		Where(donorresponse.ID(id)).
+		WithRequest().
+		WithDonor().
+		Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +123,20 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 	}
 
 	return recipient, nil
+}
+
+func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error) {
+	entResp, err := r.client(ctx).DonorResponse.Query().
+		Where(donorresponse.HasRequestWith(bloodsearchrequest.HasPetWith(pet.ID(petID)))).
+		WithRequest().
+		WithDonor().
+		Only(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.toDomainModel(entResp), nil
 }
 
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id, status string) error {

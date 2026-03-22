@@ -45,146 +45,158 @@ import {
 /**
  * 
  * @export
- * @interface PetDetail
+ * @interface DonorDetail
  */
-export interface PetDetail {
+export interface DonorDetail {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     readonly $schema?: string;
     /**
      * Группированные анализы
      * @type {PetAnalysisGroup}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     analyses?: PetAnalysisGroup;
     /**
      * Доступный объем крови для донации в мл
      * @type {number}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     availableBloodAmount?: number;
     /**
      * Дата рождения
      * @type {Date}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     birthDate?: Date;
     /**
      * Группа крови
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
-    bloodGroup?: PetDetailBloodGroupEnum;
+    bloodGroup?: DonorDetailBloodGroupEnum;
     /**
      * Дополнительная информация
      * @type {Array<string>}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     bonuses?: Array<string>;
     /**
      * ID породы
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     breedId?: string;
     /**
      * Номер чипа
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     chipNumber?: string;
     /**
+     * Условия донации
+     * @type {string}
+     * @memberof DonorDetail
+     */
+    compensationType: DonorDetailCompensationTypeEnum;
+    /**
      * Дата создания
      * @type {Date}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     readonly createdAt?: Date;
     /**
      * Дата удаления
      * @type {Date}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     readonly deletedAt?: Date;
     /**
      * Стоп-факторы и предупреждения
      * @type {DonorRestrictions}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     donorRestrictions?: DonorRestrictions;
     /**
      * Пол питомца
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
-    gender: PetDetailGenderEnum;
+    gender: DonorDetailGenderEnum;
     /**
      * Информация о здоровье
      * @type {PetHealth}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     health?: PetHealth;
     /**
      * Уникальный идентификатор питомца
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     readonly id: string;
     /**
      * Условия проживания
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
-    livingCondition?: PetDetailLivingConditionEnum;
+    livingCondition?: DonorDetailLivingConditionEnum;
     /**
      * Имя питомца
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     name: string;
     /**
      * Статус питомца
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
-    petStatus: PetDetailPetStatusEnum;
+    petStatus: DonorDetailPetStatusEnum;
     /**
      * URLs фотографий
      * @type {Array<string>}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     photoUrls?: Array<string>;
     /**
      * Репродуктивный статус
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
-    reproductiveStatus?: PetDetailReproductiveStatusEnum;
+    reproductiveStatus?: DonorDetailReproductiveStatusEnum;
+    /**
+     * Компенсация такси
+     * @type {boolean}
+     * @memberof DonorDetail
+     */
+    taxiCompensation: boolean;
     /**
      * Информация о лечении
      * @type {PetTreatment}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     treatments?: PetTreatment;
     /**
      * Тип животного
      * @type {string}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
-    type: PetDetailTypeEnum;
+    type: DonorDetailTypeEnum;
     /**
      * Дата обновления
      * @type {Date}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     readonly updatedAt?: Date;
     /**
      * Вес в килограммах
      * @type {number}
-     * @memberof PetDetail
+     * @memberof DonorDetail
      */
     weightKg: number;
 }
@@ -193,38 +205,48 @@ export interface PetDetail {
 /**
  * @export
  */
-export const PetDetailBloodGroupEnum = {
+export const DonorDetailBloodGroupEnum = {
     Dea1: 'DEA 1+',
     Dea12: 'DEA 1-',
     A: 'A',
     B: 'B',
     Ab: 'AB'
 } as const;
-export type PetDetailBloodGroupEnum = typeof PetDetailBloodGroupEnum[keyof typeof PetDetailBloodGroupEnum];
+export type DonorDetailBloodGroupEnum = typeof DonorDetailBloodGroupEnum[keyof typeof DonorDetailBloodGroupEnum];
 
 /**
  * @export
  */
-export const PetDetailGenderEnum = {
+export const DonorDetailCompensationTypeEnum = {
+    Free: 'free',
+    Paid: 'paid',
+    Food: 'food'
+} as const;
+export type DonorDetailCompensationTypeEnum = typeof DonorDetailCompensationTypeEnum[keyof typeof DonorDetailCompensationTypeEnum];
+
+/**
+ * @export
+ */
+export const DonorDetailGenderEnum = {
     Male: 'male',
     Female: 'female'
 } as const;
-export type PetDetailGenderEnum = typeof PetDetailGenderEnum[keyof typeof PetDetailGenderEnum];
+export type DonorDetailGenderEnum = typeof DonorDetailGenderEnum[keyof typeof DonorDetailGenderEnum];
 
 /**
  * @export
  */
-export const PetDetailLivingConditionEnum = {
+export const DonorDetailLivingConditionEnum = {
     Indoor: 'indoor',
     LeashWalking: 'leash_walking',
     SelfOutdoor: 'self_outdoor'
 } as const;
-export type PetDetailLivingConditionEnum = typeof PetDetailLivingConditionEnum[keyof typeof PetDetailLivingConditionEnum];
+export type DonorDetailLivingConditionEnum = typeof DonorDetailLivingConditionEnum[keyof typeof DonorDetailLivingConditionEnum];
 
 /**
  * @export
  */
-export const PetDetailPetStatusEnum = {
+export const DonorDetailPetStatusEnum = {
     None: 'none',
     Donor: 'donor',
     Recipient: 'recipient',
@@ -232,46 +254,48 @@ export const PetDetailPetStatusEnum = {
     Recovering: 'recovering',
     PlannedDonation: 'planned_donation'
 } as const;
-export type PetDetailPetStatusEnum = typeof PetDetailPetStatusEnum[keyof typeof PetDetailPetStatusEnum];
+export type DonorDetailPetStatusEnum = typeof DonorDetailPetStatusEnum[keyof typeof DonorDetailPetStatusEnum];
 
 /**
  * @export
  */
-export const PetDetailReproductiveStatusEnum = {
+export const DonorDetailReproductiveStatusEnum = {
     Pregnancy: 'pregnancy',
     Lactation: 'lactation',
     Estrus: 'estrus'
 } as const;
-export type PetDetailReproductiveStatusEnum = typeof PetDetailReproductiveStatusEnum[keyof typeof PetDetailReproductiveStatusEnum];
+export type DonorDetailReproductiveStatusEnum = typeof DonorDetailReproductiveStatusEnum[keyof typeof DonorDetailReproductiveStatusEnum];
 
 /**
  * @export
  */
-export const PetDetailTypeEnum = {
+export const DonorDetailTypeEnum = {
     Dog: 'dog',
     Cat: 'cat'
 } as const;
-export type PetDetailTypeEnum = typeof PetDetailTypeEnum[keyof typeof PetDetailTypeEnum];
+export type DonorDetailTypeEnum = typeof DonorDetailTypeEnum[keyof typeof DonorDetailTypeEnum];
 
 
 /**
- * Check if a given object implements the PetDetail interface.
+ * Check if a given object implements the DonorDetail interface.
  */
-export function instanceOfPetDetail(value: object): value is PetDetail {
+export function instanceOfDonorDetail(value: object): value is DonorDetail {
+    if (!('compensationType' in value) || value['compensationType'] === undefined) return false;
     if (!('gender' in value) || value['gender'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('petStatus' in value) || value['petStatus'] === undefined) return false;
+    if (!('taxiCompensation' in value) || value['taxiCompensation'] === undefined) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('weightKg' in value) || value['weightKg'] === undefined) return false;
     return true;
 }
 
-export function PetDetailFromJSON(json: any): PetDetail {
-    return PetDetailFromJSONTyped(json, false);
+export function DonorDetailFromJSON(json: any): DonorDetail {
+    return DonorDetailFromJSONTyped(json, false);
 }
 
-export function PetDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean): PetDetail {
+export function DonorDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean): DonorDetail {
     if (json == null) {
         return json;
     }
@@ -286,6 +310,7 @@ export function PetDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'bonuses': json['bonuses'] == null ? undefined : json['bonuses'],
         'breedId': json['breedId'] == null ? undefined : json['breedId'],
         'chipNumber': json['chipNumber'] == null ? undefined : json['chipNumber'],
+        'compensationType': json['compensationType'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'donorRestrictions': json['donorRestrictions'] == null ? undefined : DonorRestrictionsFromJSON(json['donorRestrictions']),
@@ -297,6 +322,7 @@ export function PetDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'petStatus': json['petStatus'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'reproductiveStatus': json['reproductiveStatus'] == null ? undefined : json['reproductiveStatus'],
+        'taxiCompensation': json['taxiCompensation'],
         'treatments': json['treatments'] == null ? undefined : PetTreatmentFromJSON(json['treatments']),
         'type': json['type'],
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
@@ -304,11 +330,11 @@ export function PetDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     };
 }
 
-export function PetDetailToJSON(json: any): PetDetail {
-    return PetDetailToJSONTyped(json, false);
+export function DonorDetailToJSON(json: any): DonorDetail {
+    return DonorDetailToJSONTyped(json, false);
 }
 
-export function PetDetailToJSONTyped(value?: Omit<PetDetail, '$schema'|'createdAt'|'deletedAt'|'id'|'updatedAt'> | null, ignoreDiscriminator: boolean = false): any {
+export function DonorDetailToJSONTyped(value?: Omit<DonorDetail, '$schema'|'createdAt'|'deletedAt'|'id'|'updatedAt'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -323,6 +349,7 @@ export function PetDetailToJSONTyped(value?: Omit<PetDetail, '$schema'|'createdA
         'bonuses': value['bonuses'],
         'breedId': value['breedId'],
         'chipNumber': value['chipNumber'],
+        'compensationType': value['compensationType'],
         'donorRestrictions': DonorRestrictionsToJSON(value['donorRestrictions']),
         'gender': value['gender'],
         'health': PetHealthToJSON(value['health']),
@@ -331,6 +358,7 @@ export function PetDetailToJSONTyped(value?: Omit<PetDetail, '$schema'|'createdA
         'petStatus': value['petStatus'],
         'photoUrls': value['photoUrls'],
         'reproductiveStatus': value['reproductiveStatus'],
+        'taxiCompensation': value['taxiCompensation'],
         'treatments': PetTreatmentToJSON(value['treatments']),
         'type': value['type'],
         'weightKg': value['weightKg'],

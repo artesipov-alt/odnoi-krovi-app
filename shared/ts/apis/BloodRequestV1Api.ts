@@ -22,6 +22,7 @@ import type {
   CreateBloodRequestBody,
   CreateBloodRequestResult,
   DeleteBloodRequestResult,
+  DonorDetail,
   UpdateBloodRequestBody,
   UpdateBloodRequestResult,
   UploadURLsResult,
@@ -41,6 +42,8 @@ import {
     CreateBloodRequestResultToJSON,
     DeleteBloodRequestResultFromJSON,
     DeleteBloodRequestResultToJSON,
+    DonorDetailFromJSON,
+    DonorDetailToJSON,
     UpdateBloodRequestBodyFromJSON,
     UpdateBloodRequestBodyToJSON,
     UpdateBloodRequestResultFromJSON,
@@ -66,6 +69,10 @@ export interface GetBloodRequestByIdRequest {
 }
 
 export interface GetBloodRequestByPetIdRequest {
+    id: string;
+}
+
+export interface GetDonorByIdRequest {
     id: string;
 }
 
@@ -283,6 +290,45 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      */
     async getBloodRequestByPetId(requestParameters: GetBloodRequestByPetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BloodRequestDetail> {
         const response = await this.getBloodRequestByPetIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Возвращает информацию об откликнувшемся на заявку доноре
+     * Получить информацию о доноре по ID
+     */
+    async getDonorByIdRaw(requestParameters: GetDonorByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DonorDetail>> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling getDonorById().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/blood-request/donor/{id}`;
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DonorDetailFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает информацию об откликнувшемся на заявку доноре
+     * Получить информацию о доноре по ID
+     */
+    async getDonorById(requestParameters: GetDonorByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DonorDetail> {
+        const response = await this.getDonorByIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

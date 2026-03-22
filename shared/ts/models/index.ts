@@ -20,6 +20,7 @@ export * from './DeleteUserResult';
 export * from './DeletedUsersList';
 export * from './DonorApplication';
 export * from './DonorApplicationResult';
+export * from './DonorDetail';
 export * from './DonorPreference';
 export * from './DonorPreferenceParams';
 export * from './DonorRestrictions';

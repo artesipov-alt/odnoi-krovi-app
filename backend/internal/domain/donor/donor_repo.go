@@ -19,4 +19,5 @@ type Repository interface {
 	ExistsByRequestID(ctx context.Context, reqID string) (bool, error)
 	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
 	Count(ctx context.Context) (int, error)
+	GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error)
 }

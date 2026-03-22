@@ -52,6 +52,7 @@ type PetPreloadOptions struct {
 	WithTreatments       bool
 	WithAnalyses         bool
 	WithBonuses          bool
+	WithOwner            bool
 	WithBloodReq         bool
 	WithDonorApplication bool
 	WithAll              bool

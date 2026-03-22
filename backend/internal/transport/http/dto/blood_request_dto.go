@@ -169,7 +169,6 @@ type BloodRequestDetail struct {
 // DonorDetail представляет полные данные донора
 type DonorDetail struct {
 	PetDetail
-	OwnerName        string `json:"ownerName" doc:"Имя владельца питомца"`
 	CompensationType string `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
 	TaxiCompensation bool   `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
 }

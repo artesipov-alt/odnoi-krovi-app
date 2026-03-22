@@ -32,21 +32,23 @@ func (m *PetMapper) buildPhotoURLs(paths []string, updatedAt *time.Time) []strin
 // ToResponse converts a domain Pet model to a PetDetail DTO.
 func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 	petDTO := dto.PetDetail{
-		ID:                 petmodel.ID,
-		Name:               petmodel.Name,
-		ChipNumber:         petmodel.ChipNumber,
-		PhotoURLs:          m.buildPhotoURLs(petmodel.PhotoURLs, petmodel.UpdatedAt),
-		WeightKg:           petmodel.WeightKg,
-		BirthDate:          petmodel.BirthDate,
-		PetStatus:          string(petmodel.PetStatus),
-		LivingCondition:    string(petmodel.LivingCondition),
-		Gender:             string(petmodel.Gender),
-		Type:               string(petmodel.Type),
-		ReproductiveStatus: string(petmodel.ReproductiveStatus),
-		Bonuses:            petmodel.Bonuses,
-		CreatedAt:          petmodel.CreatedAt,
-		UpdatedAt:          petmodel.UpdatedAt,
-		DeletedAt:          petmodel.DeletedAt,
+		ID:                   petmodel.ID,
+		Name:                 petmodel.Name,
+		ChipNumber:           petmodel.ChipNumber,
+		OwnerName:            petmodel.OwnerName,
+		AvailableBloodAmount: petmodel.CalculateDonationAmount(),
+		PhotoURLs:            m.buildPhotoURLs(petmodel.PhotoURLs, petmodel.UpdatedAt),
+		WeightKg:             petmodel.WeightKg,
+		BirthDate:            petmodel.BirthDate,
+		PetStatus:            string(petmodel.PetStatus),
+		LivingCondition:      string(petmodel.LivingCondition),
+		Gender:               string(petmodel.Gender),
+		Type:                 string(petmodel.Type),
+		ReproductiveStatus:   string(petmodel.ReproductiveStatus),
+		Bonuses:              petmodel.Bonuses,
+		CreatedAt:            petmodel.CreatedAt,
+		UpdatedAt:            petmodel.UpdatedAt,
+		DeletedAt:            petmodel.DeletedAt,
 	}
 
 	// Map StopFactors and WarnFactors into DonorRestrictions

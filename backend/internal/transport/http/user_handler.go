@@ -9,8 +9,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
+	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
 	"github.com/danielgtaylor/huma/v2"
 )
 

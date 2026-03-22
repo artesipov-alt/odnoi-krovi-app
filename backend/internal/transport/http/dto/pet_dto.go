@@ -180,6 +180,7 @@ type GetPetByIDOutput struct {
 type PetDetail struct {
 	ID                   string             `json:"id" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
 	Name                 string             `json:"name" doc:"Имя питомца" example:"Шарик"`
+	OwnerName            string             `json:"ownerName,omitempty" doc:"Имя владельца питомца" example:"Иван" readOnly:"true"`
 	Type                 string             `json:"type" doc:"Тип животного" enum:"dog,cat" example:"dog"`
 	WeightKg             float64            `json:"weightKg" doc:"Вес в килограммах" example:"15.5"`
 	Gender               string             `json:"gender" doc:"Пол питомца" enum:"male,female" example:"male"`

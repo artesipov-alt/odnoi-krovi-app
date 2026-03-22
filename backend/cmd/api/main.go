@@ -161,7 +161,7 @@ func main() {
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
-
+		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo)
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
@@ -205,6 +205,7 @@ func main() {
 			bloodDeleteHandler,
 			bloodGetByIDHandler,
 			bloodGetByPetIDHandler,
+			bloodGetDonorByIDHandler,
 			fileStorage,
 		)
 		donorHandler := transport.NewDonorHandler(
@@ -250,7 +251,7 @@ func main() {
 		server.Use(
 			sloghttp.Recovery,
 			config.DefaultCorsHandler(env, miniappDomain),
-			middleware.AuthMiddleware(tokenGenerator, "/api/v1/auth", "/api/docs", "/api/openapi.json"),
+			middleware.AuthMiddleware(tokenGenerator, env, "/api/v1/auth", "/api/docs", "/api/openapi.json"),
 			sloghttp.New(slog.Default()),
 		)
 

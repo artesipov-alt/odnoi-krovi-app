@@ -74,6 +74,7 @@ type Pet struct {
 	LivingCondition         LivingCondition
 	ReproductiveStatus      ReproductiveStatus
 	OwnerID                 string
+	OwnerName               string
 	BreedRefID              *string
 	BloodGroupName          *string
 	SearchingBlood          bool

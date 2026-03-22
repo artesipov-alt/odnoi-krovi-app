@@ -27,6 +27,7 @@ models/DeleteUserResult.ts
 models/DeletedUsersList.ts
 models/DonorApplication.ts
 models/DonorApplicationResult.ts
+models/DonorDetail.ts
 models/DonorPreference.ts
 models/DonorPreferenceParams.ts
 models/DonorRestrictions.ts

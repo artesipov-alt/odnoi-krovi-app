@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"os"
 	"slices"
 	"strings"
 
@@ -23,13 +22,11 @@ const (
 	UserRoleKey AuthContextKey = "user_role"
 )
 
-var env = os.Getenv("ENV")
-
 // AuthMiddleware создает middleware для аутентификации JWT токенов.
 // JWTGenerator используется для валидации токена и извлечения данных пользователя.
 // excludedPaths — список путей, которые не требуют аутентификации (например, "/auth/signin").
 // Если токен отсутствует или невалиден, возвращается 401 ошибка.
-func AuthMiddleware(jwtGenerator *auth.JWTGenerator, excludedPaths ...string) func(http.Handler) http.Handler {
+func AuthMiddleware(jwtGenerator *auth.JWTGenerator, env string, excludedPaths ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if env == "dev" || env == "development" {

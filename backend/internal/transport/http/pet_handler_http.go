@@ -10,8 +10,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
+	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
 	"github.com/danielgtaylor/huma/v2"
 )
 

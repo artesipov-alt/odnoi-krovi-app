@@ -191,6 +191,16 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 		})
 	}
 
+	if opts.WithDonorApplication {
+		pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
+			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusActive))
+		})
+	}
+
+	if opts.WithOwner {
+		pquery = pquery.WithOwner()
+	}
+
 	entPet, err := pquery.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {

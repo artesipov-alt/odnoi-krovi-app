@@ -86,6 +86,10 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		pet.PlaningDonation = true
 	}
 
+	if e.Edges.Owner != nil {
+		pet.OwnerName = e.Edges.Owner.FullName
+	}
+
 	return pet
 }
 

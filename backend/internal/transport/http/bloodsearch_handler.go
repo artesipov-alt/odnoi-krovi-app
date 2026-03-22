@@ -9,8 +9,9 @@ import (
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/mapper"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
+	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -23,11 +24,12 @@ type BloodRequestHandler struct {
 	deleteHandler       *bloodcmd.DeleteRequestHandler
 	getByIDHandler      *bloodquery.GetByIDHandler
 	getByPetIDHandler   *bloodquery.GetByPetIDHandler
+	getDonorByIDHandler *bloodquery.GetDonorByIDHandler
 	bloodRequestMapper  *mapper.BloodRequestMapper
+	petMapper           *mapper.PetMapper
 	storage             filestorage.Repository
 }
 
-// NewBloodRequestHandler создает новый обработчик для заявок на поиск крови
 func NewBloodRequestHandler(
 	createHandler *bloodcmd.CreateRequestHandler,
 	updateHandler *bloodcmd.UpdateRequestHandler,
@@ -35,7 +37,7 @@ func NewBloodRequestHandler(
 	deleteHandler *bloodcmd.DeleteRequestHandler,
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
-
+	getDonorByIDHandler *bloodquery.GetDonorByIDHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
@@ -45,7 +47,9 @@ func NewBloodRequestHandler(
 		deleteHandler:       deleteHandler,
 		getByIDHandler:      getByIDHandler,
 		getByPetIDHandler:   getByPetIDHandler,
+		getDonorByIDHandler: getDonorByIDHandler,
 		bloodRequestMapper:  mapper.NewBloodRequestMapper(storage),
+		petMapper:           mapper.NewPetMapper(storage),
 		storage:             storage,
 	}
 }
@@ -85,11 +89,11 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 
 	// Получить заявку по ID донора
 	huma.Register(api, huma.Operation{
-		OperationID: "get-blood-request-by-donor-id",
+		OperationID: "get-donor-by-id",
 		Method:      http.MethodGet,
 		Path:        "/v1/blood-request/donor/{id}",
-		Summary:     "Получить заявку по ID донора",
-		Description: "Возвращает информацию о конкретной заявке на донора",
+		Summary:     "Получить информацию о доноре по ID",
+		Description: "Возвращает информацию об откликнувшемся на заявку доноре",
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetDonorByID)
 
@@ -205,9 +209,25 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }
 
-func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetIDPath) (*dto.GetBloodRequestByIDOutput, error) {
-	// TODO: Implement logic to get donor by ID
-	return nil, huma.Error404NotFound("Not implemented yet")
+func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetIDPath) (*dto.GetDonorByIDOutput, error) {
+	donorPet, application, err := h.getDonorByIDHandler.Handle(ctx, input.ID, pet.PetPreloadOptions{
+		WithHealth:     true,
+		WithTreatments: true,
+		WithAnalyses:   true,
+		WithBonuses:    true,
+		WithOwner:      true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	output := h.petMapper.ToResponse(*donorPet)
+
+	return &dto.GetDonorByIDOutput{Body: dto.DonorDetail{
+		PetDetail:        output,
+		CompensationType: application.CompensationType,
+		TaxiCompensation: application.TaxiCompensation,
+	}}, nil
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.DeleteBloodRequestInput) (*dto.DeleteBloodRequestOutput, error) {
