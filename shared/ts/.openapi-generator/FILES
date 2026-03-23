@@ -10,6 +10,7 @@ index.ts
 models/AdvancedInfo.ts
 models/AppError.ts
 models/ApplyForBloodRequestBody.ts
+models/ApplyResponseResult.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
 models/BloodRequestDetail.ts

@@ -3,6 +3,7 @@
 export * from './AdvancedInfo';
 export * from './AppError';
 export * from './ApplyForBloodRequestBody';
+export * from './ApplyResponseResult';
 export * from './BloodComponentsList';
 export * from './BloodGroupsList';
 export * from './BloodRequestDetail';

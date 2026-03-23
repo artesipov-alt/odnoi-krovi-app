@@ -13,48 +13,40 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-
 /**
  * 
  * @export
- * @interface HealthStatusesList
+ * @interface ApplyResponseResult
  */
-export interface HealthStatusesList {
+export interface ApplyResponseResult {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof HealthStatusesList
+     * @memberof ApplyResponseResult
      */
     readonly $schema?: string;
     /**
-     * Список статусов здоровья
-     * @type {Array<ReferenceItem>}
-     * @memberof HealthStatusesList
+     * Сообщение о результате операции
+     * @type {string}
+     * @memberof ApplyResponseResult
      */
-    data: Array<ReferenceItem>;
+    message: string;
 }
 
 /**
- * Check if a given object implements the HealthStatusesList interface.
+ * Check if a given object implements the ApplyResponseResult interface.
  */
-export function instanceOfHealthStatusesList(value: object): value is HealthStatusesList {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfApplyResponseResult(value: object): value is ApplyResponseResult {
+    if (!('message' in value) || value['message'] === undefined) return false;
     return true;
 }
 
-export function HealthStatusesListFromJSON(json: any): HealthStatusesList {
-    return HealthStatusesListFromJSONTyped(json, false);
+export function ApplyResponseResultFromJSON(json: any): ApplyResponseResult {
+    return ApplyResponseResultFromJSONTyped(json, false);
 }
 
-export function HealthStatusesListFromJSONTyped(json: any, ignoreDiscriminator: boolean): HealthStatusesList {
+export function ApplyResponseResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApplyResponseResult {
     if (json == null) {
         return json;
     }
@@ -62,15 +54,15 @@ export function HealthStatusesListFromJSONTyped(json: any, ignoreDiscriminator: 
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'message': json['message'],
     };
 }
 
-export function HealthStatusesListToJSON(json: any): HealthStatusesList {
-    return HealthStatusesListToJSONTyped(json, false);
+export function ApplyResponseResultToJSON(json: any): ApplyResponseResult {
+    return ApplyResponseResultToJSONTyped(json, false);
 }
 
-export function HealthStatusesListToJSONTyped(value?: Omit<HealthStatusesList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ApplyResponseResultToJSONTyped(value?: Omit<ApplyResponseResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,7 +70,7 @@ export function HealthStatusesListToJSONTyped(value?: Omit<HealthStatusesList, '
     return {
         
             ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'message': value['message'],
     };
 }
 
