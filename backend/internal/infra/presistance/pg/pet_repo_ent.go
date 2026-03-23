@@ -195,7 +195,7 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 
 	if opts.WithDonorApplication {
 		pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
-			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusActive))
+			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusPending))
 		})
 	}
 
@@ -241,7 +241,7 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 
 	if opts.WithDonorApplication {
 		pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
-			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusActive))
+			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusPending))
 		})
 	}
 

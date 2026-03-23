@@ -23,7 +23,7 @@ type DonorApplication struct {
 	WarnFactors      []RestrictionFactor `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
 	CompensationType string              `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
 	TaxiCompensation bool                `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
-	Status           string              `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
+	Status           string              `json:"status" doc:"Статус отклика" enum:"pending,accepted,rejected,cancelled,completed,failed"`
 	CreatedAt        *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
 	UpdatedAt        *time.Time          `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
 }
