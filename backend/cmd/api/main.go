@@ -164,7 +164,7 @@ func main() {
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo)
 
 		// Инициализация bloodsearch handlers
-		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, publisher)
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, publisher)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(txManager, bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)

@@ -20,6 +20,9 @@ type PetReadRepository interface {
 	// ExistsByID алиас для Exists (для обратной совместимости)
 	// Deprecated: используйте Exists
 	ExistsByID(ctx context.Context, id string) (bool, error)
+
+	//Для уведомлений
+	GetPetsByBloodGroupAndRegion(ctx context.Context, bloodGroups, regions []string) ([]*model.Pet, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев

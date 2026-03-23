@@ -6,7 +6,6 @@ import (
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
-// Repository определяет интерфейс для работы с откликами доноров
 type Repository interface {
 	CreateDonorResponse(ctx context.Context, resp *donormodel.DonorResponse) (*donormodel.DonorResponse, error)
 	GetDonorResponseByID(ctx context.Context, id string) (*donormodel.DonorResponse, error)

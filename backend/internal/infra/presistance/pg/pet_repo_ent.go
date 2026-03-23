@@ -14,11 +14,13 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	entdonorapply "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
+	entlocation "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
+	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
@@ -604,6 +606,23 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 	}
 
 	return nil
+}
+
+func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, bloodGroups, regions []string) ([]*model.Pet, error) {
+	query := r.client.Pet.Query().
+		Where(
+			entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
+		)
+	if len(regions) > 0 {
+		query = query.Where(
+			entpet.HasOwnerWith(entuser.HasLocationWith(entlocation.IDIn(regions...))),
+		)
+	}
+	pets, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("не удалось получить питомцев: %w", err)
+	}
+	return domainmapper.PetToDomainSlice(pets), nil
 }
 
 func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups []string) (int, error) {

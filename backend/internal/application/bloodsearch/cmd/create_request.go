@@ -3,29 +3,35 @@ package cmd
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/ports"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 type CreateRequestHandler struct {
 	bloodRepo bloodsearch.BloodRequestRepository
 	petRepo   pet.Repository
+	donorRepo donor.Repository
 	publisher ports.EventPublisher
 }
 
 func NewCreateRequestHandler(
 	bloodRepo bloodsearch.BloodRequestRepository,
 	petRepo pet.Repository,
+	donorRepo donor.Repository,
 	publisher ports.EventPublisher,
 ) *CreateRequestHandler {
 	return &CreateRequestHandler{
 		bloodRepo: bloodRepo,
 		petRepo:   petRepo,
+		donorRepo: donorRepo,
 		publisher: publisher,
 	}
 }
@@ -52,6 +58,24 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	newReq, err := h.bloodRepo.Create(ctx, req)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to create blood request")
+	}
+
+	pets, err := h.petRepo.GetPetsByBloodGroupAndRegion(ctx, req.BloodGroupNames, req.Regions)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get pets")
+	}
+
+	timeNow := time.Now()
+	for _, pet := range pets {
+		pet.RecalculateFactors(timeNow)
+		pet.CalculateDonorStatus()
+	}
+
+	var avilableDonors []petmodel.Pet
+	for _, pet := range pets {
+		if pet.PetStatus == petmodel.PetStatusDonor {
+			avilableDonors = append(avilableDonors, *pet)
+		}
 	}
 
 	if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
