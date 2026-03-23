@@ -237,9 +237,12 @@ func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetID
 	output := h.petMapper.ToResponse(*donorPet)
 
 	return &dto.GetDonorByIDOutput{Body: dto.DonorDetail{
-		PetDetail:        output,
-		CompensationType: application.CompensationType,
-		TaxiCompensation: application.TaxiCompensation,
+		ResponseID: application.ID,
+		PetDetail:  output,
+		Compensation: dto.Compensation{
+			CompensationType: application.CompensationType,
+			Taxi:             application.TaxiCompensation,
+		},
 	}}, nil
 }
 
