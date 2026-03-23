@@ -4,11 +4,10 @@ package events
 import "time"
 
 type BloodRequestCreated struct {
-	RequestID string
-	PetType   string
-	BloodType string
-	CityID    int64
-	CreatedAt time.Time
+	RequestID  string
+	BloodTypes []string
+	Regions    []string
+	CreatedAt  time.Time
 }
 
 func (e BloodRequestCreated) EventName() string     { return "BloodRequestCreated" }

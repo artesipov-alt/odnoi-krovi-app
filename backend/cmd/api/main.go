@@ -33,6 +33,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 
+	events "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/events/redis"
 	transport "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/auth"
@@ -93,6 +94,11 @@ func main() {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
 		}
+		redisClient, err := config.NewRedisClientFromEnv()
+		if err != nil {
+			slog.Error("Ошибка подключения к Redis", "error", err)
+			os.Exit(1)
+		}
 
 		// Запуск миграций
 		if err := config.RunMigrations(db); err != nil {
@@ -118,6 +124,9 @@ func main() {
 		partnerRepo := pg.NewEntPartnerRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
+
+		// Инициализация publisher для событий
+		publisher := events.NewEventPublisher(redisClient)
 
 		// Инициализация reference query handlers
 		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
@@ -155,7 +164,7 @@ func main() {
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo)
 
 		// Инициализация bloodsearch handlers
-		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo)
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, publisher)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(txManager, bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
