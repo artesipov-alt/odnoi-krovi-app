@@ -1,11 +1,9 @@
 services:
   backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: ghcr.io/rmay1er/odnoi-krovi-app/backend:latest
     environment:
       ENV: production
-      DB_HOST: 10.0.0.129 # External PostgreSQL server
+      DB_HOST: 10.0.0.129
       DB_PORT: 5432
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -13,7 +11,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       DB_SSLMODE: disable
       SERVER_PORT: 3000
-      REDIS_HOST: 10.0.0.73 # External Redis server
+      REDIS_HOST: 10.0.0.73
       REDIS_PORT: 6379
       S3_ENDPOINT: hb.ru-msk.vkcloud-storage.ru
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
@@ -35,9 +33,7 @@ services:
       retries: 3
 
   tg-bot:
-    build:
-      context: .
-      dockerfile: tg-bot/Dockerfile
+    image: ghcr.io/rmay1er/odnoi-krovi-app/tg-bot:latest
     environment:
       TG_BOT_TOKEN: ${TG_BOT_TOKEN}
       INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
@@ -48,9 +44,7 @@ services:
     restart: unless-stopped
 
   max-bot:
-    build:
-      context: .
-      dockerfile: max-bot/Dockerfile
+    image: ghcr.io/rmay1er/odnoi-krovi-app/max-bot:latest
     environment:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
@@ -61,9 +55,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
+    image: ghcr.io/rmay1er/odnoi-krovi-app/frontend:latest
     ports:
       - "80:80"
       - "443:443"

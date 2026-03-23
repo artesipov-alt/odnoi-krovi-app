@@ -5,8 +5,11 @@ on:
     branches:
       - dev
 
+env:
+  IMAGE_PREFIX: ghcr.io/rmay1er/odnoi-krovi-app
+
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,105 +31,76 @@ jobs:
               - max-bot/**
             frontend:
               - frontend/**
-            microservices:
-              - microservices/**
 
-      - name: Deploy with selective rebuild
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        if: steps.changed-files.outputs.backend_any_changed == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push tg-bot
+        if: steps.changed-files.outputs.tg-bot_any_changed == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: tg-bot/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/tg-bot:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push max-bot
+        if: steps.changed-files.outputs.max-bot_any_changed == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: max-bot/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/max-bot:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend
+        if: steps.changed-files.outputs.frontend_any_changed == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}/frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GITHUB_ACTOR,CR_PAT
           script: |
             cd ./odnoi-krovi-app
             git pull origin dev
 
-            # Switch to ZSH to use existing environment
-            exec zsh -c '
-            # Source ZSH profile to load PATH and aliases
-            source ~/.zshrc || true
-            source ~/.profile || true
+            echo "$CR_PAT" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-            # Check if bun is available and find its location
-            if ! command -v bun &> /dev/null; then
-              echo "Bun not found in PATH, trying common locations..."
-              # Try common bun installation locations
-              if [ -f "$HOME/.bun/bin/bun" ]; then
-                export PATH="$HOME/.bun/bin:$PATH"
-                echo "Found bun in ~/.bun/bin, added to PATH"
-              elif [ -f "/usr/local/bin/bun" ]; then
-                export PATH="/usr/local/bin:$PATH"
-                echo "Found bun in /usr/local/bin, added to PATH"
-              elif [ -f "/opt/homebrew/bin/bun" ]; then
-                export PATH="/opt/homebrew/bin:$PATH"
-                echo "Found bun in /opt/homebrew/bin, added to PATH"
-              else
-                echo "ERROR: Bun not found. Please install bun on the server."
-                exit 1
-              fi
-            fi
+            docker compose pull
+            docker compose up -d
 
-            # Detect which services changed
-            BACKEND_CHANGED="${{ steps.changed-files.outputs.backend_any_changed }}"
-            TG_BOT_CHANGED="${{ steps.changed-files.outputs.tg-bot_any_changed }}"
-            MAX_BOT_CHANGED="${{ steps.changed-files.outputs.max-bot_any_changed }}"
-            FRONTEND_CHANGED="${{ steps.changed-files.outputs.frontend_any_changed }}"
-            MICROSERVICES_CHANGED="${{ steps.changed-files.outputs.microservices_any_changed }}"
-
-            echo "Backend changed: $BACKEND_CHANGED"
-            echo "Bot changed: $BOT_CHANGED"
-            echo "Frontend changed: $FRONTEND_CHANGED"
-            echo "Microservices changed: $MICROSERVICES_CHANGED"
-
-            # Build frontend on server if needed
-            if [[ "$FRONTEND_CHANGED" == "true" ]]; then
-              echo "Building frontend using Taskfile 📱"
-              task install-frontend
-              task build-frontend
-            fi
-
-            # Build and restart microservices first (backend depends on it)
-            if [[ "$MICROSERVICES_CHANGED" == "true" ]]; then
-              echo "Rebuilding blood-microservice with cache 📱"
-              docker compose build blood-microservice
-              docker compose up -d blood-microservice
-            fi
-
-            # Build and restart only changed services with Docker layer caching
-            if [[ "$BACKEND_CHANGED" == "true" ]]; then
-              echo "Rebuilding backend with cache 🏗️"
-              docker compose build backend
-              docker compose up -d backend
-            fi
-
-            if [[ "$TG_BOT_CHANGED" == "true" ]]; then
-              echo "Rebuilding tg-bot with cache 🤖"
-              docker compose build tg-bot
-              docker compose up -d tg-bot
-            fi
-
-            if [[ "$MAX_BOT_CHANGED" == "true" ]]; then
-              echo "Rebuilding max-bot with cache 🤖"
-              docker compose build max-bot
-              docker compose up -d max-bot
-            fi
-
-            if [[ "$FRONTEND_CHANGED" == "true" ]]; then
-              echo "Rebuilding frontend with cache"
-              docker compose build frontend
-              docker compose up -d frontend
-            fi
-
-            # If no specific changes detected, rebuild all with cache
-            if [[ "$BACKEND_CHANGED" != "true" && "$BOT_CHANGED" != "true" && "$FRONTEND_CHANGED" != "true" && "$MICROSERVICES_CHANGED" != "true" ]]; then
-              echo "No specific service changes detected, rebuilding all with cache"
-              docker compose build
-              docker compose up -d
-            fi
-
-            # Clean up only stopped containers and unused networks (preserves build cache)
-            echo "Cleaning up stopped containers and unused networks"
             docker container prune -f --filter "until=24h"
             docker network prune -f
-            docker volume prune -f
-            '
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          CR_PAT: ${{ secrets.CR_PAT }}
