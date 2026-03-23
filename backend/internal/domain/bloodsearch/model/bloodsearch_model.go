@@ -26,19 +26,19 @@ type BloodRequest struct {
 	BloodVolumeNeeded        int32
 	BloodVolumeReserved      int32
 	Regions                  []string
+	Description              string
 	SmallPetsNotifyAllowed   bool
 	Status                   BloodRequestStatus
-	Description              string
 	PhotoURLs                []string
 	BloodGroupNames          []string
 	BloodComponentIDs        []string
 	OnBoarding               []string
+	DonorApplications        []donormodel.DonorResponse
 	PrioritySearch           bool
 	IncludeUnknownBloodGroup bool
 	CreatedAt                *time.Time
 	UpdatedAt                *time.Time
 	DeletedAt                *time.Time
-	DonorApplications        []donormodel.DonorResponse
 }
 
 // NewBloodRequest creates a new blood request with default values

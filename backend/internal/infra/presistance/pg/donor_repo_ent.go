@@ -139,7 +139,7 @@ func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID strin
 	return r.toDomainModel(entResp), nil
 }
 
-func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id, status string) error {
+func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id string, status donormodel.DonorResponseStatus) error {
 	return r.client(ctx).DonorResponse.
 		UpdateOneID(id).
 		SetStatus(donorresponse.Status(status)).

@@ -9,10 +9,12 @@ import (
 type DonorResponseStatus string
 
 const (
-	DonorResponseStatusActive    DonorResponseStatus = "active"
+	DonorResponseStatusPending   DonorResponseStatus = "pending"
 	DonorResponseStatusAccepted  DonorResponseStatus = "accepted"
 	DonorResponseStatusRejected  DonorResponseStatus = "rejected"
 	DonorResponseStatusCancelled DonorResponseStatus = "cancelled"
+	DonorResponseStatusCompleted DonorResponseStatus = "completed"
+	DonorResponseStatusFailed    DonorResponseStatus = "failed"
 )
 
 // DonorResponse представляет отклик донора на заявку поиска крови
@@ -47,6 +49,6 @@ func NewDonorResponse(requestID, donorID, compensationType string, amount int32,
 		Amount:           amount,
 		CompensationType: compensationType,
 		TaxiCompensation: taxiCompensation,
-		Status:           DonorResponseStatusActive,
+		Status:           DonorResponseStatusPending,
 	}, nil
 }

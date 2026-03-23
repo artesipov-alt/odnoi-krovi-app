@@ -121,6 +121,30 @@ type GetBloodRequestByPetIDOutput struct {
 }
 
 // ============================================
+// Apply Response
+// ============================================
+
+// DonorResponseIDPath представляет параметр пути с ID отклика донора
+type DonorResponseIDPath struct {
+	ID string `path:"id" doc:"ID отклика донора" minLength:"1" example:"RES-ABCDEABCDE"`
+}
+
+// ApplyResponseInput представляет запрос на применение отклика донора
+type ApplyResponseInput struct {
+	DonorResponseIDPath
+}
+
+// ApplyResponseOutput представляет ответ на применение отклика донора
+type ApplyResponseOutput struct {
+	Body ApplyResponseResult
+}
+
+// ApplyResponseResult представляет результат применения отклика донора
+type ApplyResponseResult struct {
+	Message string `json:"message" doc:"Сообщение о результате операции"`
+}
+
+// ============================================
 // Delete Blood Request
 // ============================================
 

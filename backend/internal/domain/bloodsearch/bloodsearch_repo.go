@@ -15,6 +15,9 @@ type BloodRequestRepository interface {
 	// GetByID возвращает заявку по её идентификатору
 	GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error)
 
+	// GetByApplicationID возвращает заявку по id отклика на эту заявку
+	GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error)
+
 	// GetByPetID возвращает заявку по идентификатору питомца
 	GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequest, error)
 

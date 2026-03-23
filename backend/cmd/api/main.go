@@ -162,6 +162,7 @@ func main() {
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
 		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo)
+		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo)
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
@@ -206,6 +207,7 @@ func main() {
 			bloodGetByIDHandler,
 			bloodGetByPetIDHandler,
 			bloodGetDonorByIDHandler,
+			applyResponseHandler,
 			fileStorage,
 		)
 		donorHandler := transport.NewDonorHandler(

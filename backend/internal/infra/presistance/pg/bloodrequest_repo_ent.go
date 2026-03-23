@@ -10,6 +10,7 @@ import (
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
@@ -95,6 +96,20 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 			return nil, apperrors.ErrBloodRequestNotFound
 		}
 		return nil, apperrors.Internal(err, "failed to execute blood request query by pet ID")
+	}
+	return domainmapper.BloodReqToDomain(req), nil
+}
+
+// GetByApplicationID возвращает заявку по id отклика на эту заявку
+func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error) {
+	req, err := r.client(ctx).BloodSearchRequest.Query().
+		Where(bloodsearchrequest.HasResponsesWith(donorresponse.IDEQ(id))).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get blood request by application ID: %w", err)
 	}
 	return domainmapper.BloodReqToDomain(req), nil
 }

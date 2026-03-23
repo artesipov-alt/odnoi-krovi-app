@@ -18,16 +18,17 @@ import (
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	createHandler       *bloodcmd.CreateRequestHandler
-	updateHandler       *bloodcmd.UpdateRequestHandler
-	updateStatusHandler *bloodcmd.UpdateStatusHandler
-	deleteHandler       *bloodcmd.DeleteRequestHandler
-	getByIDHandler      *bloodquery.GetByIDHandler
-	getByPetIDHandler   *bloodquery.GetByPetIDHandler
-	getDonorByIDHandler *bloodquery.GetDonorByIDHandler
-	bloodRequestMapper  *mapper.BloodRequestMapper
-	petMapper           *mapper.PetMapper
-	storage             filestorage.Repository
+	createHandler        *bloodcmd.CreateRequestHandler
+	updateHandler        *bloodcmd.UpdateRequestHandler
+	updateStatusHandler  *bloodcmd.UpdateStatusHandler
+	deleteHandler        *bloodcmd.DeleteRequestHandler
+	getByIDHandler       *bloodquery.GetByIDHandler
+	getByPetIDHandler    *bloodquery.GetByPetIDHandler
+	getDonorByIDHandler  *bloodquery.GetDonorByIDHandler
+	applyResponseHandler *bloodcmd.ApplyResponseHandler
+	bloodRequestMapper   *mapper.BloodRequestMapper
+	petMapper            *mapper.PetMapper
+	storage              filestorage.Repository
 }
 
 func NewBloodRequestHandler(
@@ -38,19 +39,21 @@ func NewBloodRequestHandler(
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
 	getDonorByIDHandler *bloodquery.GetDonorByIDHandler,
+	applyResponseHandler *bloodcmd.ApplyResponseHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
-		createHandler:       createHandler,
-		updateHandler:       updateHandler,
-		updateStatusHandler: updateStatusHandler,
-		deleteHandler:       deleteHandler,
-		getByIDHandler:      getByIDHandler,
-		getByPetIDHandler:   getByPetIDHandler,
-		getDonorByIDHandler: getDonorByIDHandler,
-		bloodRequestMapper:  mapper.NewBloodRequestMapper(storage),
-		petMapper:           mapper.NewPetMapper(storage),
-		storage:             storage,
+		createHandler:        createHandler,
+		updateHandler:        updateHandler,
+		updateStatusHandler:  updateStatusHandler,
+		deleteHandler:        deleteHandler,
+		getByIDHandler:       getByIDHandler,
+		getByPetIDHandler:    getByPetIDHandler,
+		getDonorByIDHandler:  getDonorByIDHandler,
+		applyResponseHandler: applyResponseHandler,
+		bloodRequestMapper:   mapper.NewBloodRequestMapper(storage),
+		petMapper:            mapper.NewPetMapper(storage),
+		storage:              storage,
 	}
 }
 
@@ -116,6 +119,16 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Description: "Удаляет заявку на поиск крови (soft delete)",
 		Tags:        []string{"blood-request-v1"},
 	}, h.DeleteBloodRequest)
+
+	// Применить отклик донора
+	huma.Register(api, huma.Operation{
+		OperationID: "apply-donor-response",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/apply-response/{id}",
+		Summary:     "Применить отклик донора",
+		Description: "Применяет отклик донора на заявку на поиск крови",
+		Tags:        []string{"blood-request-v1"},
+	}, h.ApplyResponse)
 }
 
 // Handlers
@@ -238,5 +251,15 @@ func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto
 
 	return &dto.DeleteBloodRequestOutput{Body: dto.DeleteBloodRequestResult{
 		Message: "Заявка удалена",
+	}}, nil
+}
+
+func (h *BloodRequestHandler) ApplyResponse(ctx context.Context, input *dto.ApplyResponseInput) (*dto.ApplyResponseOutput, error) {
+	if err := h.applyResponseHandler.Handle(ctx, input.ID); err != nil {
+		return nil, err
+	}
+
+	return &dto.ApplyResponseOutput{Body: dto.ApplyResponseResult{
+		Message: "Отклик донора применен",
 	}}, nil
 }
