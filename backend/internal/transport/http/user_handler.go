@@ -114,8 +114,6 @@ func (h *UserHandler) Register(api huma.API) {
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) (*dto.GetUserByIDOutput, error) {
-	slog.DebugContext(ctx, "getting user", "user_id", input.ID)
-
 	usr, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets, input.WithDonorPreference)
 	if err != nil {
 		return nil, err
