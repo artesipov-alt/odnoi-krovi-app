@@ -1,6 +1,7 @@
 package model
 
 import (
+	"net/url"
 	"time"
 )
 
@@ -10,6 +11,11 @@ const (
 	ProviderTelegram ProviderName = "telegram_bot"
 	ProviderMax      ProviderName = "max_bot"
 	ProviderService  ProviderName = "service"
+)
+
+const (
+	TelegramBotURL = "https://t.me/Odnakrovbot?start="
+	MaxBotURL      = "https://max.ru/id3200014662_2_bot?start="
 )
 
 // Identity представляет доменную модель пользователя
@@ -79,6 +85,22 @@ func (i *Identity) SetJWTData(accessToken string, expiresAt time.Time) {
 
 func (i *Identity) SetProviderID(providerID string) {
 	i.ProviderUserID = providerID
+}
+
+func (i *Identity) GenerateRefURL() string {
+	utm := url.Values{}
+	utm.Set("utm_source", "referral")
+	utm.Set("utm_medium", string(i.ProviderName))
+	utm.Set("utm_campaign", i.ProviderUserID)
+	startParam := utm.Encode()
+	switch i.ProviderName {
+	case ProviderTelegram:
+		return TelegramBotURL + startParam
+	case ProviderMax:
+		return MaxBotURL + startParam
+	default:
+		return ""
+	}
 }
 
 // ====================================================================================================

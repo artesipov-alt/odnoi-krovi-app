@@ -59,6 +59,13 @@ func EntToModel(e *ent.User) *usermodel.User {
 			DeletedAt:             dp.DeletedAt,
 		}
 	}
+	if len(e.Edges.Identities) != 0 {
+		var identities []*authmodel.Identity
+		for _, i := range e.Edges.Identities {
+			identities = append(identities, EntIdentityToModel(i))
+		}
+		user.Identities = identities
+	}
 
 	return user
 }
