@@ -37,6 +37,7 @@ models/FactorDescription.ts
 models/GendersList.ts
 models/GetPetsByUserResult.ts
 models/HealthStatusesList.ts
+models/Identity.ts
 models/LivingConditionsList.ts
 models/LocationsList.ts
 models/MatchingDonor.ts

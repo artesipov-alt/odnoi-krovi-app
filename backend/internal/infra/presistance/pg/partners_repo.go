@@ -8,6 +8,7 @@ import (
 	partnermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/partner/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/partner"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
 type EntPartnerRepository struct {
@@ -87,7 +88,7 @@ func (r *EntPartnerRepository) GetPartnerIdentities(ctx context.Context, partner
 	}
 	var result []*authmodel.Identity
 	for _, i := range identities {
-		result = append(result, EntIdentityToModel(i))
+		result = append(result, domainmapper.EntIdentityToModel(i))
 	}
 	return result, nil
 }

@@ -4,7 +4,8 @@ import (
 	"errors"
 	"time"
 
-	pet "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // UserRole represents user role types
@@ -31,8 +32,9 @@ type User struct {
 	LocationID       *string
 	Role             UserRole
 	OriginSource     string
-	Pets             []*pet.Pet
+	Pets             []*petmodel.Pet
 	DonorPreference  *DonorPreference
+	Identities       []*authmodel.Identity
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
 	DeletedAt        *time.Time
@@ -134,7 +136,7 @@ func NewUser(userparams NewUserParams) (*User, error) {
 		OriginSource: originSource,
 		PhotoURLs:    []string{},
 		OnBoarding:   []string{},
-		Pets:         []*pet.Pet{},
+		Pets:         []*petmodel.Pet{},
 	}
 
 	return user, nil

@@ -73,4 +73,5 @@ type Repository interface {
 type UserPreloadOptions struct {
 	WithPets            bool
 	WithDonorPreference bool
+	WithIdentities      bool
 }

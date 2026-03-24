@@ -17,10 +17,11 @@ func NewGetByIDHandler(userepo user.Repository) *GetByIDHandler {
 	}
 }
 
-func (h *GetByIDHandler) Handle(ctx context.Context, id string, withPets bool, withDonorPrefs bool) (*usermodel.User, error) {
+func (h *GetByIDHandler) Handle(ctx context.Context, id string, withPets bool, withDonorPrefs bool, withIdentities bool) (*usermodel.User, error) {
 	opts := user.UserPreloadOptions{
 		WithPets:            withPets,
 		WithDonorPreference: withDonorPrefs,
+		WithIdentities:      withIdentities,
 	}
 
 	u, err := h.userRepo.GetByID(ctx, id, opts)

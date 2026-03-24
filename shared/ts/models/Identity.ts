@@ -16,54 +16,61 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ReferenceItem
+ * @interface Identity
  */
-export interface ReferenceItem {
+export interface Identity {
     [key: string]: any | any;
     /**
-     * Отображаемое название
+     * ID пользователя у провайдера
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof Identity
      */
-    label: string;
+    providerId: string;
     /**
-     * Значение элемента
+     * Название провайдера идентификации (например, telegram, max)
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof Identity
      */
-    value: string;
+    providerName: string;
+    /**
+     * URL для ссылки на профиль пользователя у провайдера с меткой
+     * @type {string}
+     * @memberof Identity
+     */
+    refUrl?: string;
 }
 
 /**
- * Check if a given object implements the ReferenceItem interface.
+ * Check if a given object implements the Identity interface.
  */
-export function instanceOfReferenceItem(value: object): value is ReferenceItem {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfIdentity(value: object): value is Identity {
+    if (!('providerId' in value) || value['providerId'] === undefined) return false;
+    if (!('providerName' in value) || value['providerName'] === undefined) return false;
     return true;
 }
 
-export function ReferenceItemFromJSON(json: any): ReferenceItem {
-    return ReferenceItemFromJSONTyped(json, false);
+export function IdentityFromJSON(json: any): Identity {
+    return IdentityFromJSONTyped(json, false);
 }
 
-export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItem {
+export function IdentityFromJSONTyped(json: any, ignoreDiscriminator: boolean): Identity {
     if (json == null) {
         return json;
     }
     return {
         
             ...json,
-        'label': json['label'],
-        'value': json['value'],
+        'providerId': json['providerId'],
+        'providerName': json['providerName'],
+        'refUrl': json['refUrl'] == null ? undefined : json['refUrl'],
     };
 }
 
-export function ReferenceItemToJSON(json: any): ReferenceItem {
-    return ReferenceItemToJSONTyped(json, false);
+export function IdentityToJSON(json: any): Identity {
+    return IdentityToJSONTyped(json, false);
 }
 
-export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDiscriminator: boolean = false): any {
+export function IdentityToJSONTyped(value?: Identity | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -71,8 +78,9 @@ export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDis
     return {
         
             ...value,
-        'label': value['label'],
-        'value': value['value'],
+        'providerId': value['providerId'],
+        'providerName': value['providerName'],
+        'refUrl': value['refUrl'],
     };
 }
 
