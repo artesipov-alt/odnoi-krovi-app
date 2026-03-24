@@ -79,6 +79,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 			event.DonorData.ProviderTelegram = identity.ProviderUserID
 		}
 	}
+	event.DonorData.Name = donorUser.FullName
 	event.DonorData.Phone = donorUser.Phone
 	for _, identity := range recipientUser.Identities {
 		if identity.ProviderName == authmodel.ProviderMax {
@@ -89,6 +90,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		}
 
 	}
+	event.RecipientData.Name = recipientUser.FullName
 	event.RecipientData.Phone = recipientUser.Phone
 
 	if err := h.publisher.PublishDonorApply(ctx, event); err != nil {
