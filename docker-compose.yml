@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ghcr.io/rmay1er/odnoi-krovi-app/backend:latest
+    image: ghcr.io/artesipov-alt/odnoi-krovi-app/backend:latest
     environment:
       ENV: production
       DB_HOST: 10.0.0.129
@@ -33,7 +33,7 @@ services:
       retries: 3
 
   tg-bot:
-    image: ghcr.io/rmay1er/odnoi-krovi-app/tg-bot:latest
+    image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:latest
     environment:
       TG_BOT_TOKEN: ${TG_BOT_TOKEN}
       INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
 
   max-bot:
-    image: ghcr.io/rmay1er/odnoi-krovi-app/max-bot:latest
+    image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:latest
     environment:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
@@ -55,7 +55,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: ghcr.io/rmay1er/odnoi-krovi-app/frontend:latest
+    image: ghcr.io/artesipov-alt/odnoi-krovi-app/frontend:latest
     ports:
       - "80:80"
       - "443:443"

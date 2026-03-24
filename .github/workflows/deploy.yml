@@ -6,7 +6,7 @@ on:
       - dev
 
 env:
-  IMAGE_PREFIX: ghcr.io/rmay1er/odnoi-krovi-app
+  IMAGE_PREFIX: ghcr.io/artesipov-alt/odnoi-krovi-app
 
 jobs:
   build-and-deploy:
@@ -37,7 +37,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.CR_PAT }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
