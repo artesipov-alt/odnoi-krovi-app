@@ -114,7 +114,7 @@ func (h *UserHandler) Register(api huma.API) {
 // Handlers
 
 func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) (*dto.GetUserByIDOutput, error) {
-	usr, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets, input.WithDonorPreference)
+	usr, err := h.getByIDHandler.Handle(ctx, input.ID, input.WithPets, input.WithDonorPreference, input.WithIdentities)
 	if err != nil {
 		return nil, err
 	}

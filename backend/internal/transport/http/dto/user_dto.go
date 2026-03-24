@@ -26,6 +26,7 @@ type TelegramIDPath struct {
 type UserPreloadQuery struct {
 	WithPets            bool `query:"with_pets" doc:"Включить данные о питомцах"`
 	WithDonorPreference bool `query:"with_donor_preference" doc:"Включить данные о предпочтениях донора"`
+	WithIdentities      bool `query:"with_identities" doc:"Включить данные об идентификаторах пользователя"`
 }
 
 // ============================================
