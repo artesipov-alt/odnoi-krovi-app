@@ -75,6 +75,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Setup Bun
+        # if: steps.changed-files.outputs.frontend_any_changed == 'true'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Build frontend
+        # if: steps.changed-files.outputs.frontend_any_changed == 'true'
+        working-directory: ./frontend
+        run: |
+          bun install
+          bun run build
+
       - name: Build and push frontend
         # if: steps.changed-files.outputs.frontend_any_changed == 'true'
         uses: docker/build-push-action@v5
