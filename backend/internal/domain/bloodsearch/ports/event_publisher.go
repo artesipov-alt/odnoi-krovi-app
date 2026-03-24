@@ -8,4 +8,5 @@ import (
 
 type EventPublisher interface {
 	PublishBloodRequestCreated(ctx context.Context, event events.BloodRequestCreated) error
+	PublishDonorApply(ctx context.Context, event events.ApplyDonor) error
 }

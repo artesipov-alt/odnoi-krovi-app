@@ -10,6 +10,7 @@ import (
 )
 
 const channelBloodRequestCreated = "blood_request.created"
+const channelDonorResponseApply = "donor_response.apply"
 
 type EventPublisher struct {
 	client *redis.Client
@@ -29,4 +30,16 @@ func (p *EventPublisher) PublishBloodRequestCreated(
 	}
 
 	return p.client.Publish(ctx, channelBloodRequestCreated, payload).Err()
+}
+
+func (p *EventPublisher) PublishDonorApply(
+	ctx context.Context,
+	event events.ApplyDonor,
+) error {
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("marshal event: %w", err)
+	}
+
+	return p.client.Publish(ctx, channelDonorResponseApply, payload).Err()
 }
