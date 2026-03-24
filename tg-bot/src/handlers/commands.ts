@@ -19,10 +19,43 @@ const getBackKeyboard = () => {
 
 // ============ User Service ============
 
+const parsePayload = (
+  payload: string | undefined,
+): {
+  utm_campaign?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_content?: string;
+  utm_term?: string;
+} => {
+  if (!payload) return { utm_campaign: "organic" };
+
+  if (payload.includes("=")) {
+    // New referral link format: parse as query string
+    const params = new URLSearchParams(payload);
+    return {
+      utm_campaign: params.get("utm_campaign") || undefined,
+      utm_source: params.get("utm_source") || undefined,
+      utm_medium: params.get("utm_medium") || undefined,
+      utm_content: params.get("utm_content") || undefined,
+      utm_term: params.get("utm_term") || undefined,
+    };
+  } else {
+    // Old company link format: payload is utm_campaign
+    return { utm_campaign: payload };
+  }
+};
+
 const authUser = async (
   telegramId: number,
   fullName: string,
-  utmCampaign?: string,
+  utmData: {
+    utm_campaign?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_content?: string;
+    utm_term?: string;
+  },
 ): Promise<void> => {
   await usersApi.authUserViaService({
     xInternalKey: Bun.env.INTERNAL_TG_BOT_SECRET,
@@ -31,12 +64,15 @@ const authUser = async (
       providerId: String(telegramId),
       fullName,
       metaData: {
-        utm_campaign: utmCampaign || "organic",
-        utm_source: "telegram_bot",
+        utm_campaign: utmData.utm_campaign || "organic",
+        utm_source: utmData.utm_source || "telegram_bot",
+        utm_medium: utmData.utm_medium || undefined,
+        utm_content: utmData.utm_content || undefined,
+        utm_term: utmData.utm_term || undefined,
       },
     },
   });
-  pinologger.info({ telegramId, fullName, utmCampaign }, "User authenticated");
+  pinologger.info({ telegramId, fullName, utmData }, "User authenticated");
 };
 
 // ============ Helpers ============
@@ -101,8 +137,10 @@ export const startHandler = async (ctx: Context) => {
 
   const fullName = getFullName(ctx.from!);
 
+  const utmData = parsePayload(payload);
+
   try {
-    await authUser(telegramId, fullName, payload);
+    await authUser(telegramId, fullName, utmData);
   } catch (error: any) {
     pinologger.error(
       { telegramId, error: error.message },
