@@ -91,7 +91,7 @@ func (i *Identity) GenerateRefURL() string {
 	utm := url.Values{}
 	utm.Set("utm_source", "ref")
 	utm.Set("utm_medium", string(i.ProviderName))
-	utm.Set("utm_campaign", "ref_"+i.ProviderUserID)
+	utm.Set("utm_campaign", "ref_"+i.UserID)
 	startParam := utm.Encode()
 	switch i.ProviderName {
 	case ProviderTelegram:
