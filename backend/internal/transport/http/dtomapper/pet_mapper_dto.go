@@ -36,6 +36,7 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 		Name:                 petmodel.Name,
 		ChipNumber:           petmodel.ChipNumber,
 		OwnerName:            petmodel.OwnerName,
+		OwnerID:              petmodel.OwnerID,
 		AvailableBloodAmount: petmodel.CalculateDonationAmount(),
 		PhotoURLs:            m.buildPhotoURLs(petmodel.PhotoURLs, petmodel.UpdatedAt),
 		WeightKg:             petmodel.WeightKg,
