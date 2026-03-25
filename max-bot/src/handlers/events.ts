@@ -23,7 +23,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
   const { DonorData, RecipientData } = event;
 
   try {
-    await bot.api.sendMessageToChat(
+    await bot.api.sendMessageToUser(
       Number(RecipientData.ProviderMaxID),
       "Контакт донора:",
       {
@@ -31,6 +31,8 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
           {
             type: "contact",
             payload: {
+              name: DonorData.Name,
+              contact_id: Number(DonorData.ProviderMaxID),
               vcf_info: `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${DonorData.Name}\r\nTEL:${DonorData.Phone}\r\nEND:VCARD`,
               //@ts-ignore
               max_info: {
