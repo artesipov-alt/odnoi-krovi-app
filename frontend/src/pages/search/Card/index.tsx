@@ -32,7 +32,10 @@ type Props = GetPoolRequestResponse & {
     isLoading: boolean;
     bloodGroup: string;
     onClose: () => void;
+    goToOwner: () => void;
+    defaultOpenTab?: number;
     onBoarding?: Onboardings[];
+    expireLimitWasShown: boolean;
     onBoardingConfirm: () => void;
 };
 
@@ -50,20 +53,23 @@ const SearchCard: FC<Props> = ({
     avatar,
     onClose,
     regions,
+    goToOwner,
     isLoading,
     photoUrls,
     bloodGroup,
     onBoarding,
     description,
+    defaultOpenTab = 0,
     bloodGroupNames,
     onBoardingConfirm,
     bloodComponentIds,
     bloodVolumeNeeded,
     bloodVolumeReserved,
+    expireLimitWasShown,
     smallPetsNotifyAllowed,
     createdAt = '',
 }) => {
-    const [tab, setTab] = useState<number>(0);
+    const [tab, setTab] = useState<number>(defaultOpenTab);
 
     const { data: locationsDict = [] } = useLocationsQuery();
     const { data: bloodComponentsDict = [] } = useBloodComponentsQuery();
@@ -80,7 +86,7 @@ const SearchCard: FC<Props> = ({
         <Layout>
             <div className={styles.wrapper}>
                 <div className={styles.header}>
-                    <div className={styles.back} onClick={onClose}>
+                    <div className={styles.back} onClick={expireLimitWasShown ? goToOwner : onClose}>
                         <BackAngularArrow />
                     </div>
                     <h2 className={styles.name}>Поиск от {getDateFormat(new Date(createdAt))}</h2>

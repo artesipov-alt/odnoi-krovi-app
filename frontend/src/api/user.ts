@@ -46,6 +46,12 @@ export type DonorPreference = {
     notificationFrequency: NotificationFrequency;
 };
 
+export type Identities = {
+    refUrl: string;
+    providerId: number;
+    providerName: string;
+};
+
 export type GetUserResponse = {
     id: string;
     role?: Role;
@@ -87,10 +93,15 @@ export type UpdateUserResponse = {
     error?: string;
 };
 
+export type GetUserIdentitiesResponse = GetUserResponse & {
+    identities: Identities[];
+};
+
 export interface IUserApi {
     getUser(id: string): AxiosPromise<GetUserResponse>;
     getUserByTelegramId(id: number): AxiosPromise<GetUserResponse>;
     updateUser(params: UpdateUserRequest): AxiosPromise<UpdateUserResponse>;
+    getUserIdentities(id: string): AxiosPromise<GetUserIdentitiesResponse>;
 }
 
 export const USER_URL = '/v1/user';
@@ -104,5 +115,8 @@ export const userApi = (): IUserApi => ({
     },
     updateUser({ id, ...params }) {
         return instance.put(`${USER_URL}/${id}`, params);
+    },
+    getUserIdentities(id) {
+        return instance.get(`${USER_URL}/${id}?with_identities=true`);
     },
 });

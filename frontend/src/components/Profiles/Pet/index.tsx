@@ -25,6 +25,8 @@ import Processing from 'imgs/svg/processing';
 import RecipientButton from 'imgs/svg/recipientButton';
 import RoundCancel from 'imgs/svg/roundCancel';
 import RoundQuestion from 'imgs/svg/roundQuestion';
+import DonationQuestions from 'pages/owner/Statuses/DonationQuestions';
+import NotReady from 'pages/owner/Statuses/NotReady';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -37,14 +39,13 @@ import { PetType } from 'api/types';
 import { Role } from 'api/user';
 import Curtain from 'components/Curtain';
 import ImgEditor from 'components/ImgEditor';
+import Layout from 'components/Layout';
 
-import DonationQuestions from '../../Statuses/DonationQuestions';
-import NotReady from '../../Statuses/NotReady';
+import AnalysesStep from '../Steps/Analyses';
+import HealthStep from '../Steps/Health';
+import ParamsStep from '../Steps/Params';
+import TreatmentsStep from '../Steps/Treatments';
 import styles from './Pet.module.less';
-import AnalysesStep from './Steps/Analyses';
-import HealthStep from './Steps/Health';
-import ParamsStep from './Steps/Params';
-import TreatmentsStep from './Steps/Treatments';
 
 type Props = Pet & {
     onClose?: () => void;
@@ -514,129 +515,133 @@ const PetProfile: FC<Props> = ({
     }
 
     return (
-        <div className={styles.wrapper}>
-            <div className={styles.header}>
-                <div className={styles.back} onClick={isEditMode ? toggleEditMode : onCloseClickHandler}>
-                    <BackAngularArrow />
-                </div>
-                <h2 className={styles.title}>{isEditMode ? 'Редактирование питомца' : name.toUpperCase()}</h2>
-                <div className={cn(styles.buttons, { [styles.isEditMode]: isEditMode })}>
-                    {(petStatus === Role.NONE || petStatus === Role.DONOR) && (
-                        <div className={styles.button}>
-                            <div onClick={toggleEditMode} className={cn(styles.icon, { [styles.edit]: true })}>
-                                <Edit />
+        <Layout>
+            <div className={styles.wrapper}>
+                <div className={styles.header}>
+                    <div className={styles.back} onClick={isEditMode ? toggleEditMode : onCloseClickHandler}>
+                        <BackAngularArrow />
+                    </div>
+                    <h2 className={styles.title}>{isEditMode ? 'Редактирование питомца' : name.toUpperCase()}</h2>
+                    <div className={cn(styles.buttons, { [styles.isEditMode]: isEditMode })}>
+                        {(petStatus === Role.NONE || petStatus === Role.DONOR) && (
+                            <div className={styles.button}>
+                                <div onClick={toggleEditMode} className={cn(styles.icon, { [styles.edit]: true })}>
+                                    <Edit />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    <div onClick={onDeleteClickHandler} className={styles.button}>
-                        <div className={cn(styles.icon, { [styles.basket]: true })}>
-                            <Basket />
+                        )}
+                        <div onClick={onDeleteClickHandler} className={styles.button}>
+                            <div className={cn(styles.icon, { [styles.basket]: true })}>
+                                <Basket />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className={styles.info}>
-                <div className={styles.photoWrapper}>
-                    <ImgEditor
-                        showStub
-                        petType={type}
-                        isEditIcon={isEditMode}
-                        bloodGroup={bloodGroup}
-                        className={styles.photo}
-                        name={isEditMode ? name : undefined}
-                        src={isPhotoWasDeleted ? photo : null}
-                        onLoad={isEditMode ? onLoadPhotoHandler : undefined}
-                        serverSrc={isPhotoWasDeleted ? undefined : photoUrls?.[0]}
-                    />
-                </div>
-                <div className={styles.labels}>
-                    {renderLabel()}
-                    {petStatus === Role.DONOR && (
-                        <div className={styles.donation}>
-                            <div className={styles.labelIcon}>
-                                <Blood />
-                            </div>
-                            <div className={styles.params}>
-                                <p className={styles.labelInfoTitle}>Примерный объем донации</p>
-                                <div className={styles.labelInfoValue}>
-                                    <p className={styles.labelDescr}>
-                                        {Number((weightKg * (type === PetType.DOG ? 17.6 : 13.2)).toFixed(2))} мл
-                                    </p>
-                                    <div onClick={toggleTooltip} className={styles.infoIcon}>
-                                        <Info />
-                                    </div>
+                <div className={styles.info}>
+                    <div className={styles.photoWrapper}>
+                        <ImgEditor
+                            showStub
+                            petType={type}
+                            isEditIcon={isEditMode}
+                            bloodGroup={bloodGroup}
+                            className={styles.photo}
+                            name={isEditMode ? name : undefined}
+                            src={isPhotoWasDeleted ? photo : null}
+                            onLoad={isEditMode ? onLoadPhotoHandler : undefined}
+                            serverSrc={isPhotoWasDeleted ? undefined : photoUrls?.[0]}
+                        />
+                    </div>
+                    <div className={styles.labels}>
+                        {renderLabel()}
+                        {petStatus === Role.DONOR && (
+                            <div className={styles.donation}>
+                                <div className={styles.labelIcon}>
+                                    <Blood />
                                 </div>
-                                {isOpenTooltip && (
-                                    <div className={styles.tooltip}>
-                                        До 20% объема циркулирующей крови - не более 17,6 мл/кг
+                                <div className={styles.params}>
+                                    <p className={styles.labelInfoTitle}>Примерный объем донации</p>
+                                    <div className={styles.labelInfoValue}>
+                                        <p className={styles.labelDescr}>
+                                            {Number((weightKg * (type === PetType.DOG ? 17.6 : 13.2)).toFixed(2))} мл
+                                        </p>
+                                        <div onClick={toggleTooltip} className={styles.infoIcon}>
+                                            <Info />
+                                        </div>
                                     </div>
-                                )}
+                                    {isOpenTooltip && (
+                                        <div className={styles.tooltip}>
+                                            До 20% объема циркулирующей крови - не более 17,6 мл/кг
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
-            </div>
-            <div className={styles.tiles}>
-                {tiles.map(({ name: tileName, title, icon }) => (
-                    <div
-                        key={tileName}
-                        onClick={onTileClickHandler(tileName)}
-                        className={cn(styles.tile, {
-                            [styles.disabled]: getIsTileDisable(tileName) && !isEditMode,
-                            [styles.noActive]: tileName === TileName.DONATIONS || tileName === TileName.SEARCH,
-                        })}
-                    >
+                <div className={styles.tiles}>
+                    {tiles.map(({ name: tileName, title, icon }) => (
                         <div
-                            className={cn(styles.tileIcon, {
-                                [styles.needFill]: tileName === TileName.DONATIONS || tileName === TileName.SEARCH,
+                            key={tileName}
+                            onClick={onTileClickHandler(tileName)}
+                            className={cn(styles.tile, {
+                                [styles.disabled]: getIsTileDisable(tileName) && !isEditMode,
+                                [styles.noActive]: tileName === TileName.DONATIONS || tileName === TileName.SEARCH,
                             })}
                         >
-                            {icon}
+                            <div
+                                className={cn(styles.tileIcon, {
+                                    [styles.needFill]: tileName === TileName.DONATIONS || tileName === TileName.SEARCH,
+                                })}
+                            >
+                                {icon}
+                            </div>
+                            <p className={styles.tileTitle}>{title}</p>
+                            {isEditMode ? (
+                                <div className={styles.tileEdit}>
+                                    <Edit />
+                                </div>
+                            ) : (
+                                <div className={styles.arrowTileIcon}>
+                                    <AccordionArrow />
+                                </div>
+                            )}
+                            {tileName === TileName.ANALYSES && (
+                                <div className={styles.analizesCount}>
+                                    {Object.keys(analyses).length} из{' '}
+                                    {type === PetType.DOG ? dogAnalizesCount : catAnalizesCount}
+                                </div>
+                            )}
                         </div>
-                        <p className={styles.tileTitle}>{title}</p>
-                        {isEditMode ? (
-                            <div className={styles.tileEdit}>
-                                <Edit />
-                            </div>
-                        ) : (
-                            <div className={styles.arrowTileIcon}>
-                                <AccordionArrow />
-                            </div>
-                        )}
-                        {tileName === TileName.ANALYSES && (
-                            <div className={styles.analizesCount}>
-                                {Object.keys(analyses).length} из{' '}
-                                {type === PetType.DOG ? dogAnalizesCount : catAnalizesCount}
-                            </div>
-                        )}
-                    </div>
-                ))}
+                    ))}
+                </div>
+                {curtain.isOpen && (
+                    <Curtain
+                        title={
+                            curtain.step === CurtainSteps.CONFIRMATIONS ? (
+                                <>
+                                    Вы точно хотите удалить
+                                    <br />
+                                    профиль питомца?
+                                </>
+                            ) : (
+                                <>
+                                    Профиль питомца
+                                    <br />
+                                    удален
+                                </>
+                            )
+                        }
+                        onCancel={onCancelClickHandler}
+                        onConfirm={onConfirmClickHandler}
+                        confirmButtonTitle={curtain.step === CurtainSteps.CONFIRMATIONS ? 'Удалить' : 'Добавить нового'}
+                        cancelButtonTitle={curtain.step === CurtainSteps.CONFIRMATIONS ? 'Не удалять' : 'К питомцам'}
+                        subTitle={
+                            curtain.step === CurtainSteps.CONFIRMATIONS ? 'Данные о нем будут потеряны' : undefined
+                        }
+                    />
+                )}
             </div>
-            {curtain.isOpen && (
-                <Curtain
-                    title={
-                        curtain.step === CurtainSteps.CONFIRMATIONS ? (
-                            <>
-                                Вы точно хотите удалить
-                                <br />
-                                профиль питомца?
-                            </>
-                        ) : (
-                            <>
-                                Профиль питомца
-                                <br />
-                                удален
-                            </>
-                        )
-                    }
-                    onCancel={onCancelClickHandler}
-                    onConfirm={onConfirmClickHandler}
-                    confirmButtonTitle={curtain.step === CurtainSteps.CONFIRMATIONS ? 'Удалить' : 'Добавить нового'}
-                    cancelButtonTitle={curtain.step === CurtainSteps.CONFIRMATIONS ? 'Не удалять' : 'К питомцам'}
-                    subTitle={curtain.step === CurtainSteps.CONFIRMATIONS ? 'Данные о нем будут потеряны' : undefined}
-                />
-            )}
-        </div>
+        </Layout>
     );
 };
 

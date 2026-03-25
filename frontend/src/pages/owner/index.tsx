@@ -20,15 +20,15 @@ import { queryClient } from 'api/queryClient';
 import { Onboarding, Role } from 'api/user';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
+import PetProfile from 'components/Profiles/Pet';
 
+import Pause from '../../imgs/svg/pause';
 import DonorPreference, { View as DonorPreferenceView } from './DonorPreference';
 import RecipientOnboarding from './Onboardings/Recipient';
 import styles from './Owner.module.less';
-import PetProfile from './Profiles/Pet';
 import DidNotRecover from './Statuses/DidNotRecover';
 import DonationQuestions from './Statuses/DonationQuestions';
 import NotReady from './Statuses/NotReady';
-import Pause from '../../imgs/svg/pause';
 
 type Props = {
     userId: string;
@@ -456,9 +456,7 @@ const Owner: FC<Props> = ({ userId }) => {
 
     if (isPetProfileOpen && selectedPet) {
         return (
-            <Layout>
-                <PetProfile updatePets={refetch} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
-            </Layout>
+            <PetProfile updatePets={refetch} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
         );
     }
 

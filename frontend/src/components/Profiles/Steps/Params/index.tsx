@@ -37,10 +37,10 @@ type Props = {
     isEditMode: boolean;
     petTypes: PetTypeDict[];
     livingCondition?: string;
-    onErrorUpdate: () => void;
+    onErrorUpdate?: () => void;
     reproductiveStatus?: string;
     petGenders: PetGenderDict[];
-    onSuccessUpdate: () => void;
+    onSuccessUpdate?: () => void;
     livingConditionsDict: Dict[];
     breedsDict: BloodAndBreedGroupsDict;
     reproductiveStatusesDict: Dict[];
@@ -315,9 +315,9 @@ const ParamsStep: FC<Props> = ({
         const { success } = await updatePet(newData as Pet);
 
         if (success) {
-            onSuccessUpdate();
+            onSuccessUpdate?.();
         } else {
-            onErrorUpdate();
+            onErrorUpdate?.();
         }
 
         onClose();
