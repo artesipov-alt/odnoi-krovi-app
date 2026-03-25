@@ -1,6 +1,7 @@
 import { AxiosPromise } from 'axios';
 
 import { instance } from './instance';
+import { Pet, WarnFactors } from './pets';
 import { CompensationType } from './user';
 
 enum PoolRequest {
@@ -41,10 +42,10 @@ export type RespondingDonor = {
     donorName: string;
     createdAt: string;
     updatedAt: string;
-    warnFactors: string[];
     donorPhotos: string[];
     donorBloodGroup: string;
     taxiCompensation: boolean;
+    warnFactors: WarnFactors[];
     compensationType: CompensationType;
 };
 
@@ -76,10 +77,24 @@ export type UpdatePoolRequestResponse = {
     updatedAt: string;
 };
 
+export type GetDonorInfoResponse = Pet & {
+    taxi: boolean;
+    ownerId: string;
+    ownerName: string;
+    availableBloodAmount: number;
+    compensationType: CompensationType;
+};
+
+export type ApplyDonorRespondResponse = {
+    message: string;
+};
+
 export interface IBloodRequestApi {
     addToPool(params: AddToPoolRequest): AxiosPromise<AddToPoolResponse>;
     getPoolRequest(id: string): AxiosPromise<GetPoolRequestResponse>;
     updatePoolRequest(params: UpdatePoolRequestRequest): AxiosPromise<UpdatePoolRequestResponse>;
+    getDonorInfo(id: string): AxiosPromise<GetDonorInfoResponse>;
+    applyDonorRespond(id: string): AxiosPromise<ApplyDonorRespondResponse>;
 }
 
 export const BLOOD_REQUEST_URL = '/v1/blood-request';
@@ -93,5 +108,11 @@ export const bloodRequestApi = (): IBloodRequestApi => ({
     },
     updatePoolRequest({ id, ...params }) {
         return instance.patch(`${BLOOD_REQUEST_URL}/${id}`, params);
+    },
+    getDonorInfo(id) {
+        return instance.get(`${BLOOD_REQUEST_URL}/donor/${id}`);
+    },
+    applyDonorRespond(id) {
+        return instance.post(`${BLOOD_REQUEST_URL}/apply-response/${id}`);
     },
 });

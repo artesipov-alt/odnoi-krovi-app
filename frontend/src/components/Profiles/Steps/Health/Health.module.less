@@ -1,0 +1,100 @@
+@import 'styles/colors';
+
+.wrapper {
+    padding: 13px 12px;
+}
+
+.alert {
+    margin-bottom: 8px;
+}
+
+.buttonsRow {
+    display: flex;
+    gap: 6px;
+
+    &.healthGroup {
+        margin-bottom: 20px;
+    }
+}
+
+.buttonsRowItem {
+    flex-grow: 1;
+    height: 50px;
+    border-radius: 50px !important;
+    background: @white !important;
+    color: @textColor4 !important;
+    text-transform: none !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 15px !important;
+
+    &.checked {
+        background: @common-red !important;
+        color: @textColor3 !important;
+    }
+
+    &.yewNo {
+        width: 72px;
+    }
+}
+
+.formItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+
+    &.smallMargin {
+        margin-bottom: 8px;
+    }
+}
+
+.textarea {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.counter {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    line-height: 15px;
+
+    &.bigText {
+        color: @red6;
+    }
+}
+
+.input {
+    color: @inputRed !important;
+    max-height: 400px !important;
+    min-height: 55px !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 15px !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+
+.confirm {
+    height: 60px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 18px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+    pointer-events: none;
+    opacity: .4;
+
+    &.enabled {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

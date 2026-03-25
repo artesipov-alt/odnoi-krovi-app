@@ -21,8 +21,8 @@ type Props = {
     transfused?: boolean;
     medications?: string;
     healthStatus?: string;
-    onErrorUpdate: () => void;
-    onSuccessUpdate: () => void;
+    onErrorUpdate?: () => void;
+    onSuccessUpdate?: () => void;
     surgicalInterventions?: string;
     healthStatusesDict: Dict[];
 };
@@ -121,9 +121,9 @@ const HealthStep: FC<Props> = ({
         const { success } = await updatePet(newData as Pet);
 
         if (success) {
-            onSuccessUpdate();
+            onSuccessUpdate?.();
         } else {
-            onErrorUpdate();
+            onErrorUpdate?.();
         }
 
         onClose();

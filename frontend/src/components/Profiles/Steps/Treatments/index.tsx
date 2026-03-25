@@ -18,8 +18,8 @@ type Props = {
     isEditMode: boolean;
     onClose: () => void;
     dewormingDate?: Date;
-    onErrorUpdate: () => void;
-    onSuccessUpdate: () => void;
+    onErrorUpdate?: () => void;
+    onSuccessUpdate?: () => void;
     rabiesVaccinationDate?: Date;
     infectionVaccinationDate?: Date;
     ectoparasiteTreatmentDate?: Date;
@@ -100,9 +100,9 @@ const TreatmentsStep: FC<Props> = ({
         const { success } = await updatePet(newData as Pet);
 
         if (success) {
-            onSuccessUpdate();
+            onSuccessUpdate?.();
         } else {
-            onErrorUpdate();
+            onErrorUpdate?.();
         }
 
         onClose();
