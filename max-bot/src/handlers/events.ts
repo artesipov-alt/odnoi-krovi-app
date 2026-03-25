@@ -31,9 +31,14 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
           {
             type: "contact",
             payload: {
-              name: DonorData.Name,
-              contact_id: Number(DonorData.ProviderMaxID),
-              vcf_info: `BEGIN:VCARD\nVERSION:3.0\nFN:${DonorData.Name}\nTEL:${DonorData.Phone}\nEND:VCARD`,
+              // @ts-ignore
+              max_info: {
+                user_id: Number(DonorData.ProviderMaxID),
+                first_name: DonorData.Name,
+                is_bot: false,
+                last_activity_time: Date.now(),
+                name: DonorData.Name,
+              },
             },
           },
         ],
