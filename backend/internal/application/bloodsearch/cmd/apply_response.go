@@ -38,32 +38,38 @@ func NewApplyResponseHandler(
 }
 
 func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID string) error {
-	req, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+	bloodreq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
 	if err != nil {
 		return err
 	}
-	if req.BloodVolumeReserved >= req.BloodVolumeNeeded {
-		req.Close()
+	if bloodreq.BloodVolumeReserved >= bloodreq.BloodVolumeNeeded {
+		bloodreq.Close()
 	}
 	if err := h.donorRepo.UpdateDonorResponseStatus(ctx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
 		return err
 	}
 
-	donorPet, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodreq.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}
-	donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+	recipientUser, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{
 		WithIdentities: true,
 	})
 	if err != nil {
 		return err
 	}
-	recipientPet, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
+
+	donorresp, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
 	if err != nil {
 		return err
 	}
-	recipientUser, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{
+
+	donorPet, err := h.petRepo.GetByID(ctx, donorresp.DonorID, pet.PetPreloadOptions{})
+	if err != nil {
+		return err
+	}
+	donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
 		WithIdentities: true,
 	})
 	if err != nil {
