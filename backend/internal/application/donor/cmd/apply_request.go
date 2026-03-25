@@ -32,6 +32,7 @@ func NewApplyForRequestHandler(
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
 	userRepo user.Repository,
+	publisher ports.EventPublisher,
 	txManager *presistance.TxManager,
 ) *ApplyForRequestHandler {
 	return &ApplyForRequestHandler{
@@ -39,6 +40,7 @@ func NewApplyForRequestHandler(
 		petRepo:   petRepo,
 		donorRepo: donorRepo,
 		userRepo:  userRepo,
+		publisher: publisher,
 		txManager: txManager,
 	}
 }
@@ -77,7 +79,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 	var recipientProviderMaxID string
 	for _, identity := range recipientUser.Identities {
-		if identity != nil && identity.ProviderName == authmodel.ProviderMax {
+		if identity.ProviderName == authmodel.ProviderMax {
 			recipientProviderMaxID = identity.ProviderUserID
 			break
 		}
@@ -107,14 +109,9 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, err
 	}
 
-	bloodGroup := ""
-	if donorPet.BloodGroupName != nil {
-		bloodGroup = *donorPet.BloodGroupName
-	}
-
 	if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
 		DonorName:              donorPet.Name,
-		DonorBloodGroup:        bloodGroup,
+		DonorBloodGroup:        *donorPet.BloodGroupName,
 		RecipientProviderMaxID: recipientProviderMaxID,
 		CreatedAt:              time.Now(),
 	}); err != nil {
