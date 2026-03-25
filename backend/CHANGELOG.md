@@ -5,6 +5,19 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.6.13] - 2026-03-25
+
+### Добавлено
+- **Публикация события `RecipientApply` в `ApplyForRequestHandler`:**
+  - Добавлено новое событие `RecipientApply` для отслеживания заявок получателей.
+  - Интегрирована публикация этого события в `ApplyForRequestHandler` через интерфейс `EventPublisher`.
+  - Событие `RecipientApply` теперь включает детали донора.
+
+### Технические детали
+- В `internal/domain/events.go` (или соответствующем файле) добавлено новое событие `RecipientApply`.
+- В `internal/handlers/recipient/cmd/apply_for_request_handler.go` (или соответствующем файле) реализована публикация события `RecipientApply` с деталями донора.
+- Обновлен интерфейс `EventPublisher` для поддержки публикации события `RecipientApply`.
+
 ## [3.6.8] - 2026-03-24
 
 ### Изменено
