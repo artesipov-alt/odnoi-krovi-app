@@ -77,7 +77,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 	var recipientProviderMaxID string
 	for _, identity := range recipientUser.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
+		if identity != nil && identity.ProviderName == authmodel.ProviderMax {
 			recipientProviderMaxID = identity.ProviderUserID
 			break
 		}
