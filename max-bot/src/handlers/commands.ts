@@ -170,7 +170,13 @@ export const startHandler = async (ctx: Context) => {
     { maxId, fullName, payload, updateType: ctx.updateType },
     "Start handler data",
   );
-  pinologger.info({ ctx }, "Full ctx");
+  pinologger.info(ctx.update, "Full ctx");
+  if (ctx.message?.body?.attachments) {
+    pinologger.info(
+      { attachments: JSON.stringify(ctx.message.body.attachments, null, 2) },
+      "Detailed attachments",
+    );
+  }
 
   const utmData = parsePayload(payload);
 
