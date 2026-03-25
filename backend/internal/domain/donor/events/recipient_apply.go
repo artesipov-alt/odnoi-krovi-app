@@ -3,9 +3,10 @@ package events
 import "time"
 
 type RecipientApply struct {
-	DonorName       string
-	DonorBloodGroup string
-	CreatedAt       time.Time
+	DonorName              string
+	DonorBloodGroup        string
+	RecipientProviderMaxID string
+	CreatedAt              time.Time
 }
 
 func (e RecipientApply) EventName() string     { return "RecipientApply" }
