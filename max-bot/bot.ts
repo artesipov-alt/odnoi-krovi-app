@@ -5,7 +5,8 @@ import {
   errCommandTest,
   apiTestHandler,
 } from "./src/handlers/commands";
-import { bot, pinologger } from "./src/instances";
+import { handleDonorApply } from "./src/handlers/events";
+import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
 
@@ -39,6 +40,26 @@ async function main() {
   pinologger.info(`Бот ${name || username} ${user_id} запущен`);
 
   bot.start();
+
+  // Redis subscription for events
+  redis.subscribe("donor_response.apply", (err, count) => {
+    if (err) {
+      pinologger.error({ error: err }, "Failed to subscribe to Redis channel");
+    } else {
+      pinologger.info(`Subscribed to ${count} channel(s)`);
+    }
+  });
+
+  redis.on("message", (channel, message) => {
+    if (channel === "donor_response.apply") {
+      try {
+        const event = JSON.parse(message);
+        handleDonorApply(event);
+      } catch (err) {
+        pinologger.error({ error: err }, "Failed to parse event");
+      }
+    }
+  });
 
   //Обработка ошибок
   bot.catch(errorHandler);
