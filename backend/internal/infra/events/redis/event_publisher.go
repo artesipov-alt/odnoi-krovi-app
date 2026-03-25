@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
+	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
+	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	"github.com/redis/go-redis/v9"
 )
 
 const channelBloodRequestCreated = "blood_request.created"
 const channelDonorResponseApply = "donor_response.apply"
+const channelRecipientResponseApply = "recipient_response.apply"
 
 type EventPublisher struct {
 	client *redis.Client
@@ -22,7 +24,7 @@ func NewEventPublisher(client *redis.Client) *EventPublisher {
 
 func (p *EventPublisher) PublishBloodRequestCreated(
 	ctx context.Context,
-	event events.BloodRequestCreated,
+	event bloodsearchevent.BloodRequestCreated,
 ) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
@@ -34,7 +36,7 @@ func (p *EventPublisher) PublishBloodRequestCreated(
 
 func (p *EventPublisher) PublishDonorApply(
 	ctx context.Context,
-	event events.ApplyDonor,
+	event bloodsearchevent.ApplyDonor,
 ) error {
 	payload, err := json.Marshal(event)
 	if err != nil {
@@ -42,4 +44,16 @@ func (p *EventPublisher) PublishDonorApply(
 	}
 
 	return p.client.Publish(ctx, channelDonorResponseApply, payload).Err()
+}
+
+func (p *EventPublisher) PublishRecipientApply(
+	ctx context.Context,
+	event donorevent.RecipientApply,
+) error {
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("marshal event: %w", err)
+	}
+
+	return p.client.Publish(ctx, channelRecipientResponseApply, payload).Err()
 }

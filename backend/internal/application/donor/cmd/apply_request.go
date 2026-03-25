@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
+	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -17,6 +20,7 @@ type ApplyForRequestHandler struct {
 	bloodRepo bloodsearch.BloodRequestRepository
 	petRepo   pet.Repository
 	donorRepo donor.Repository
+	publisher ports.EventPublisher
 	txManager *presistance.TxManager
 }
 
@@ -76,6 +80,14 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	})
 
 	if err != nil {
+		return nil, err
+	}
+
+	if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
+		DonorName:       donorPet.Name,
+		DonorBloodGroup: *donorPet.BloodGroupName,
+		CreatedAt:       time.Now(),
+	}); err != nil {
 		return nil, err
 	}
 
