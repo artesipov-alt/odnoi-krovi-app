@@ -170,7 +170,6 @@ export const startHandler = async (ctx: Context) => {
     { maxId, fullName, payload, updateType: ctx.updateType },
     "Start handler data",
   );
-  pinologger.info(ctx.update, "Full ctx");
   if (ctx.message?.body?.attachments) {
     pinologger.info(
       { attachments: JSON.stringify(ctx.message.body.attachments, null, 2) },
@@ -214,7 +213,6 @@ export const helpHandler = async (ctx: Context) => {
 
 export const profileHandler = async (ctx: Context) => {
   const keyboard = Keyboard.inlineKeyboard([
-    [Keyboard.button.link("✏️ Редактировать профиль", Bun.env.MINIAPP_DOMAIN!)],
     [Keyboard.button.callback("⬅️ Назад", "back")],
   ]);
 
