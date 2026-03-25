@@ -2,7 +2,7 @@
   "name": "odnoi-krovi-max-bot",
   "module": "bot.ts",
   "type": "module",
-  "version": "0.3.6",
+  "version": "0.3.8",
   "scripts": {
     "dev": "bun --env-file=../.env bot.ts",
     "build": "bun run build.ts",

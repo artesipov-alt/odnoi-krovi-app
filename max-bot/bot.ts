@@ -23,6 +23,8 @@ async function main() {
 
   bot.on(`bot_started`, startHandler);
 
+  bot.on(`message_created`, startHandler);
+
   //Команды бота
   bot.command("start", startHandler);
   bot.command("help", helpHandler);
