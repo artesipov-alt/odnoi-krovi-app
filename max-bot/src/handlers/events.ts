@@ -86,6 +86,14 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 export const handleRecipientApply = async (event: RecipientApplyEvent) => {
   const { DonorName, DonorBloodGroup, RecipientProviderMaxID } = event;
 
+  if (!RecipientProviderMaxID || RecipientProviderMaxID.trim() === "") {
+    pinologger.warn(
+      { donorName: DonorName },
+      "RecipientProviderMaxID is empty, skipping notification",
+    );
+    return;
+  }
+
   try {
     const message = RECIPIENT_NOTIFICATION.replace(
       "{donorName}",
