@@ -32,7 +32,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
             type: "contact",
             payload: {
               name: DonorData.Name,
-              vcf_info: `BEGIN:VCARD\nVERSION:3.0\nFN:${DonorData.Name}\nTEL:${DonorData.Phone}\nEND:VCARD`,
+              contact_id: Number(DonorData.ProviderMaxID),
             },
           },
         ],
