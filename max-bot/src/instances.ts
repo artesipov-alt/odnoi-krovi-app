@@ -3,6 +3,7 @@ import { Configuration, AuthV1Api } from "../../shared/ts/index";
 
 import type { Context } from "@maxhub/max-bot-api";
 import pino from "pino";
+import Redis from "ioredis";
 
 export const bot = new Bot<Context>(Bun.env.MAX_BOT_TOKEN!);
 export const pinologger = pino({
@@ -14,6 +15,10 @@ export const pinologger = pino({
     },
   },
 });
+
+export const redis = new Redis(
+  `redis://${Bun.env.REDIS_HOST}:${Bun.env.REDIS_PORT} || "redis://localhost:6379"`,
+);
 
 // API Configuration
 const apiConfig = new Configuration({
