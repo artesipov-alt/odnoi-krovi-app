@@ -41,7 +41,10 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
       },
     );
     pinologger.info(
-      { recipientId: RecipientData.ProviderMaxID },
+      {
+        recipientId: RecipientData.ProviderMaxID,
+        donorId: DonorData.ProviderMaxID,
+      },
       "Sent donor apply notification",
     );
   } catch (err) {
