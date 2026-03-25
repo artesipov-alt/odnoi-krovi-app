@@ -5,7 +5,7 @@ import {
   errCommandTest,
   apiTestHandler,
 } from "./src/handlers/commands";
-import { handleDonorApply } from "./src/handlers/events";
+import { handleDonorApply, handleRecipientApply } from "./src/handlers/events";
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
@@ -50,14 +50,35 @@ async function main() {
     }
   });
 
+  redis.subscribe("recipient_response.apply", (err, count) => {
+    if (err) {
+      pinologger.error({ error: err }, "Failed to subscribe to Redis channel");
+    } else {
+      pinologger.info(`Subscribed to ${count} channel(s)`);
+    }
+  });
+
   redis.on("message", (channel, message) => {
-    if (channel === "donor_response.apply") {
-      try {
-        const event = JSON.parse(message);
-        handleDonorApply(event);
-      } catch (err) {
-        pinologger.error({ error: err }, "Failed to parse event");
-      }
+    switch (channel) {
+      case "donor_response.apply":
+        try {
+          const event = JSON.parse(message);
+          handleDonorApply(event);
+        } catch (err) {
+          pinologger.error({ error: err }, "Failed to parse event");
+        }
+        break;
+      case "recipient_response.apply":
+        try {
+          const event = JSON.parse(message);
+          handleRecipientApply(event);
+        } catch (err) {
+          pinologger.error({ error: err }, "Failed to parse event");
+        }
+        break;
+      default:
+        pinologger.warn({ channel }, "Unknown Redis channel");
+        break;
     }
   });
 

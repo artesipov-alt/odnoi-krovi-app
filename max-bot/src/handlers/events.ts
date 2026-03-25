@@ -19,9 +19,17 @@ interface ApplyDonorEvent {
   RecipientData: RecipientData;
 }
 
+interface RecipientApplyEvent {
+  DonorName: string;
+  DonorBloodGroup: string;
+  RecipientProviderMaxID: string;
+  CreatedAt: string;
+}
+
 const RECIPIENT_MESSAGE = `\nПожалуйста, перейдите в чат с донором по указанным ниже контактам. Будьте вежливы и доброжелательны в общении. Помните, что ваша доброта и уважение помогут сделать процесс максимально комфортным для обеих сторон.\n`;
 const DONOR_MESSAGE =
   "Реципиент принял Ваше предложение. В ближайшее время с вами свяжутся.";
+const RECIPIENT_NOTIFICATION = `Новый донор ${"{donorName}"} с группой крови ${"{bloodGroup}"} откликнулся на вашу просьбу о крови.`;
 
 export const handleDonorApply = async (event: ApplyDonorEvent) => {
   const { DonorData, RecipientData } = event;
@@ -72,5 +80,31 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
     );
   } catch (err) {
     pinologger.error({ error: err }, "Failed to send message");
+  }
+};
+
+export const handleRecipientApply = async (event: RecipientApplyEvent) => {
+  const { DonorName, DonorBloodGroup, RecipientProviderMaxID } = event;
+
+  try {
+    const message = RECIPIENT_NOTIFICATION.replace(
+      "{donorName}",
+      DonorName,
+    ).replace("{bloodGroup}", DonorBloodGroup);
+
+    await bot.api.sendMessageToUser(Number(RecipientProviderMaxID), message);
+
+    pinologger.info(
+      {
+        recipientId: RecipientProviderMaxID,
+        donorName: DonorName,
+      },
+      "Sent recipient apply notification",
+    );
+  } catch (err) {
+    pinologger.error(
+      { error: err },
+      "Failed to send recipient apply notification",
+    );
   }
 };
