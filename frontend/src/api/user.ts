@@ -51,6 +51,7 @@ export type GetUserResponse = {
     role?: Role;
     phone?: string;
     email?: string;
+    photoUrls?: string[];
     message?: string;
     fullName: string;
     allowGeo?: boolean;

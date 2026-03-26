@@ -14,14 +14,17 @@ import Phone from 'imgs/svg/phone';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Tg from 'imgs/svg/tg';
 import Vk from 'imgs/svg/vk';
-import { FC, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
+import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
+import { addPhoto } from 'api/apiServices/addPhoto';
 import { updateUser } from 'api/apiServices/updateUser';
 import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
+// import PromoSlider from 'components/PromoSlider'; для демонстрации
 
 import styles from './Profile.module.less';
 
@@ -31,7 +34,7 @@ type Props = {
 
 const socialRows = [
     { title: 'Telegram', value: '@superdaschale', type: 'telegram' as const },
-    { title: 'MAX', value: 'id384843', type: 'max' as const, trailing: 'x' },
+    { title: 'MAX', value: 'id384843', type: 'max' as const },
     { title: 'ВКонтакте', value: 'Привязать', type: 'vk' as const, isAction: true },
 ];
 
@@ -51,6 +54,8 @@ const Profile: FC<Props> = ({ userId }) => {
     const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
     const [isEditCurtainOpen, setIsEditCurtainOpen] = useState(false);
     const [isEditLoading, setIsEditLoading] = useState(false);
+    const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+    const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
     const [editFullName, setEditFullName] = useState('');
     const [editPhone, setEditPhone] = useState('');
@@ -62,8 +67,9 @@ const Profile: FC<Props> = ({ userId }) => {
     useBodyScrollLock(isInvitePopupOpen || isEditCurtainOpen);
 
     const userInitial = userData?.fullName?.charAt(0).toUpperCase() || '?';
+    const avatarUrl = userData?.photoUrls?.[0];
 
-    const isPhoneValid = !!editPhone.trim() && /^\+?\d{10,15}$/.test(normalizePhone(editPhone));
+    const isPhoneValid = !!editPhone.trim() && /^\+?\d{11,15}$/.test(normalizePhone(editPhone));
     const isEmailValid = !!editEmail.trim() && !!editEmail.trim().match(emailRegexp);
 
     useEffect(() => {
@@ -121,14 +127,52 @@ const Profile: FC<Props> = ({ userId }) => {
         !isPhoneValid ||
         !isEmailValid;
 
+    const onEditAvatarClickHandler = () => {
+        if (isAvatarUploading) {
+            return;
+        }
+
+        avatarInputRef.current?.click();
+    };
+
+    const onAvatarSelectHandler = async (e: ChangeEvent<HTMLInputElement>) => {
+        const newPhoto = e.target.files?.[0];
+
+        if (!newPhoto || isAvatarUploading) {
+            return;
+        }
+
+        setIsAvatarUploading(true);
+
+        const { success } = await addPhoto({ id: userId, photo: newPhoto, isUserAvatar: true });
+
+        if (!success) {
+            toast.warn('Не удалось обновить фотографию, попробуйте еще раз');
+            setIsAvatarUploading(false);
+            e.target.value = '';
+
+            return;
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
+        setIsAvatarUploading(false);
+        e.target.value = '';
+    };
+
     return (
-        <Layout className={styles.layout}>
+        <Layout>
             <div className={styles.page}>
                 <div className={styles.header}>
                     <button type='button' className={styles.backButton} onClick={() => navigate('/owner')}>
                         <BackAngularArrow />
                     </button>
-                    <div className={styles.avatar}>{userInitial}</div>
+                    <div className={styles.avatar}>
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt='Фото профиля' className={styles.avatarImage} />
+                        ) : (
+                            userInitial
+                        )}
+                    </div>
                     <h1 className={styles.fullName}>{userData.fullName}</h1>
                 </div>
 
@@ -171,6 +215,8 @@ const Profile: FC<Props> = ({ userId }) => {
                         <img src={profilePhoto} alt='Питомцы' className={styles.bonusImage} />
                     </div>
 
+                    {/* <PromoSlider />  для демонстрации */}
+
                     <div className={styles.infoButtons}>
                         <button type='button' className={styles.infoButton}>
                             <span className={styles.infoIcon}>
@@ -187,7 +233,7 @@ const Profile: FC<Props> = ({ userId }) => {
                     </div>
 
                     <div className={styles.socials}>
-                        {socialRows.map(({ title, value, type, trailing, isAction }) => (
+                        {socialRows.map(({ title, value, type, isAction }) => (
                             <div key={title} className={styles.socialRow}>
                                 <div className={styles.socialLeft}>
                                     <div className={cn(styles.socialIcon, styles[`socialIcon_${type}`])}>
@@ -205,7 +251,6 @@ const Profile: FC<Props> = ({ userId }) => {
                                     ) : (
                                         <>
                                             <span className={styles.socialValue}>{value}</span>
-                                            {trailing && <span className={styles.trailing}>{trailing}</span>}
                                         </>
                                     )}
                                 </div>
@@ -268,10 +313,21 @@ const Profile: FC<Props> = ({ userId }) => {
                 >
                     <div className={styles.editCurtainWrapper}>
                         <div className={styles.editCurtainHeader}>
-                            <div className={styles.editAvatarCircle}>{userInitial}</div>
-                            <div className={styles.editHeaderIcon}>
-                                <Edit />
+                            <div className={styles.editAvatarCircle}>
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt='Фото профиля' className={styles.editAvatarImage} />
+                                ) : (
+                                    userInitial
+                                )}
                             </div>
+                            <button
+                                type='button'
+                                className={styles.editHeaderIcon}
+                                onClick={onEditAvatarClickHandler}
+                                aria-label='Изменить фото профиля'
+                            >
+                                <Edit />
+                            </button>
                         </div>
 
                         <form
@@ -309,14 +365,21 @@ const Profile: FC<Props> = ({ userId }) => {
                             <label className={styles.editLabel} htmlFor='editPhone'>
                                 Телефон
                             </label>
-                            <input
-                                id='editPhone'
-                                className={cn(styles.editInput, {
-                                    [styles.editInputError]: editPhone.trim() && !isPhoneValid,
-                                })}
+                            <InputMask
+                                mask='+79999999999'
                                 value={editPhone}
-                                onChange={(e) => setEditPhone(e.target.value)}
-                            />
+                                onChange={(e) => setEditPhone(normalizePhone(e.target.value))}
+                            >
+                                {(inputProps) => (
+                                    <input
+                                        {...inputProps}
+                                        id='editPhone'
+                                        className={cn(styles.editInput, {
+                                            [styles.editInputError]: editPhone.trim() && !isPhoneValid,
+                                        })}
+                                    />
+                                )}
+                            </InputMask>
 
                             <label className={styles.editLabel} htmlFor='editEmail'>
                                 E-mail
@@ -344,7 +407,6 @@ const Profile: FC<Props> = ({ userId }) => {
                                     </button>
                                 )}
                             </div>
-
                             <button type='submit' className={styles.editSaveButton} disabled={isEditSaveDisabled}>
                                 Сохранить изменения
                             </button>
@@ -352,6 +414,13 @@ const Profile: FC<Props> = ({ userId }) => {
                     </div>
                 </Curtain>
             )}
+            <input
+                ref={avatarInputRef}
+                type='file'
+                accept='image/*'
+                style={{ display: 'none' }}
+                onChange={onAvatarSelectHandler}
+            />
         </Layout>
     );
 };

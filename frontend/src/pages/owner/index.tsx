@@ -21,6 +21,7 @@ import { Onboarding, Role } from 'api/user';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
+import Pause from '../../imgs/svg/pause';
 import DonorPreference, { View as DonorPreferenceView } from './DonorPreference';
 import RecipientOnboarding from './Onboardings/Recipient';
 import styles from './Owner.module.less';
@@ -28,7 +29,6 @@ import PetProfile from './Profiles/Pet';
 import DidNotRecover from './Statuses/DidNotRecover';
 import DonationQuestions from './Statuses/DonationQuestions';
 import NotReady from './Statuses/NotReady';
-import Pause from '../../imgs/svg/pause';
 
 type Props = {
     userId: string;
@@ -466,7 +466,19 @@ const Owner: FC<Props> = ({ userId }) => {
         <Layout>
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.pets.length })}>
                 <div className={styles.header}>
-                    <div className={styles.avatar}>{userData?.fullName.charAt(0).toUpperCase()}</div>
+                    <div
+                        className={styles.avatar}
+                        onClick={() => navigate('/')}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                navigate('/');
+                            }
+                        }}
+                        role='button'
+                        tabIndex={0}
+                    >
+                        {userData?.fullName.charAt(0).toUpperCase()}
+                    </div>
                 </div>
                 {(isLoading || isUserDataLoading) && (
                     <div className={styles.loading}>
