@@ -184,6 +184,7 @@ type BloodRequestDetail struct {
 	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
 	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
 	Responses                []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
+	AceptedDonors            []DonorApplication `json:"aceptedDonors,omitempty" doc:"Принятые отклики доноров"`
 	SuitableDonors           int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
 	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
