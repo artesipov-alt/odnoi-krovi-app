@@ -92,7 +92,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
 		Responses:                donorApplications,
-		AceptedDonors:            acceptedDonorApplications,
+		AcceptedDonors:           acceptedDonorApplications,
 		CreatedAt:                req.CreatedAt,
 		UpdatedAt:                req.UpdatedAt,
 		DeletedAt:                req.DeletedAt,

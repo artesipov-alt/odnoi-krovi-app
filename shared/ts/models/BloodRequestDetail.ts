@@ -39,7 +39,7 @@ export interface BloodRequestDetail {
      * @type {Array<DonorApplication>}
      * @memberof BloodRequestDetail
      */
-    aceptedDonors?: Array<DonorApplication>;
+    acceptedDonors?: Array<DonorApplication>;
     /**
      * Список ID компонентов крови
      * @type {Array<string>}
@@ -200,7 +200,7 @@ export function BloodRequestDetailFromJSONTyped(json: any, ignoreDiscriminator: 
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'aceptedDonors': json['aceptedDonors'] == null ? undefined : ((json['aceptedDonors'] as Array<any>).map(DonorApplicationFromJSON)),
+        'acceptedDonors': json['acceptedDonors'] == null ? undefined : ((json['acceptedDonors'] as Array<any>).map(DonorApplicationFromJSON)),
         'bloodComponentIds': json['bloodComponentIds'],
         'bloodGroupNames': json['bloodGroupNames'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
@@ -235,7 +235,7 @@ export function BloodRequestDetailToJSONTyped(value?: Omit<BloodRequestDetail, '
     return {
         
             ...value,
-        'aceptedDonors': value['aceptedDonors'] == null ? undefined : ((value['aceptedDonors'] as Array<any>).map(DonorApplicationToJSON)),
+        'acceptedDonors': value['acceptedDonors'] == null ? undefined : ((value['acceptedDonors'] as Array<any>).map(DonorApplicationToJSON)),
         'bloodComponentIds': value['bloodComponentIds'],
         'bloodGroupNames': value['bloodGroupNames'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],
