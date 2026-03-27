@@ -78,6 +78,16 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 			DeletedAt:             u.DonorPreference.DeletedAt,
 		}
 	}
+	if u.Identities != nil {
+		userDTO.Identities = make([]dto.Identity, len(u.Identities))
+		for i, id := range u.Identities {
+			userDTO.Identities[i] = dto.Identity{
+				ProviderName: string(id.ProviderName),
+				ProviderID:   id.ProviderUserID,
+				RefURL:       id.GenerateRefURL(),
+			}
+		}
+	}
 
 	return userDTO
 }

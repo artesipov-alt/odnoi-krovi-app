@@ -26,6 +26,7 @@ type TelegramIDPath struct {
 type UserPreloadQuery struct {
 	WithPets            bool `query:"with_pets" doc:"Включить данные о питомцах"`
 	WithDonorPreference bool `query:"with_donor_preference" doc:"Включить данные о предпочтениях донора"`
+	WithIdentities      bool `query:"with_identities" doc:"Включить данные об идентификаторах пользователя"`
 }
 
 // ============================================
@@ -213,6 +214,7 @@ type UserDetail struct {
 	Role             string           `json:"role" doc:"Роль пользователя"`
 	Pets             []PetDetail      `json:"pets,omitempty" doc:"Список питомцев"`
 	DonorPreference  *DonorPreference `json:"donorPreference,omitempty" doc:"Параметры донора"`
+	Identities       []Identity       `json:"identities" doc:"Список идентификаторов пользователя в различных системах"`
 	CreatedAt        *time.Time       `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time       `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt        *time.Time       `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
@@ -249,4 +251,10 @@ type DonorPreferenceParams struct {
 	CompensationType      *string  `json:"compensationType,omitempty" doc:"Тип компенсации" enum:"free,paid,food"`
 	TaxiCompensation      *bool    `json:"taxiCompensation,omitempty" doc:"Компенсация такси"`
 	NotificationFrequency *string  `json:"notificationFrequency,omitempty" doc:"Частота уведомлений" enum:"immediately,daily,weekly,never"`
+}
+
+type Identity struct {
+	ProviderName string `json:"providerName" doc:"Название провайдера идентификации (например, telegram, max)"`
+	ProviderID   string `json:"providerId" doc:"ID пользователя у провайдера" example:"123456789"`
+	RefURL       string `json:"refUrl,omitempty" doc:"URL для ссылки на профиль пользователя у провайдера с меткой" example:"https://t.me/username"`
 }

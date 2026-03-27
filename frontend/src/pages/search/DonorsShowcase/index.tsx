@@ -6,7 +6,7 @@ import NotPaid from 'imgs/svg/notPaid';
 import Paid from 'imgs/svg/paid';
 import RoundQuestion from 'imgs/svg/roundQuestion';
 import TaxiBig from 'imgs/svg/taxiBig';
-import { FC, useState } from 'react';
+import { FC, MouseEvent } from 'react';
 
 import { RespondingDonor } from 'api/bloodRequest';
 import { PetType } from 'api/types';
@@ -18,17 +18,31 @@ type Props = {
     petType?: PetType;
     showStartView: boolean;
     list?: RespondingDonor[];
-    onOpenWarnFactors: () => void;
     setIsStartViewShown: () => void;
+    onDonorClick: (donorId: string) => void;
+    onOpenWarnFactors: (donorId: string) => void;
 };
 
-const DonorsShowcase: FC<Props> = ({ list, petType, onOpenWarnFactors, showStartView, setIsStartViewShown }) => {
+const DonorsShowcase: FC<Props> = ({
+    list,
+    petType,
+    onDonorClick,
+    showStartView,
+    onOpenWarnFactors,
+    setIsStartViewShown,
+}) => {
     const onConfirmButtonClickHandler = () => {
         setIsStartViewShown();
     };
 
-    const onShowWarnFactorsToggle = () => {
-        onOpenWarnFactors();
+    const onShowWarnFactorsToggle = (donorId: string) => (e: MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+
+        onOpenWarnFactors(donorId);
+    };
+
+    const onDonorClickHandler = (donorId: string) => () => {
+        onDonorClick(donorId);
     };
 
     if (!petType) {
@@ -56,7 +70,11 @@ const DonorsShowcase: FC<Props> = ({ list, petType, onOpenWarnFactors, showStart
     return (
         <div className={styles.showcase}>
             {list?.map((pet) => (
-                <div key={`${pet?.id}`} className={cn(styles.pet, { [styles[petType]]: true })}>
+                <div
+                    key={`${pet?.id}`}
+                    onClick={onDonorClickHandler(pet.donorId)}
+                    className={cn(styles.pet, { [styles[petType]]: true })}
+                >
                     <div className={styles.photo} onClick={() => {}}>
                         {!!pet?.donorPhotos?.[0] && (
                             <img className={styles.img} src={pet?.donorPhotos?.[0]} alt={pet?.donorName} />
@@ -82,7 +100,7 @@ const DonorsShowcase: FC<Props> = ({ list, petType, onOpenWarnFactors, showStart
                             <p className={styles.name}>{pet?.donorName.toUpperCase()}</p>
                             {!!pet.warnFactors?.length && (
                                 <div
-                                    onClick={onShowWarnFactorsToggle}
+                                    onClick={onShowWarnFactorsToggle(pet.donorId)}
                                     className={cn(styles.label, { [styles.donationQuestions]: true })}
                                 >
                                     <div className={styles.searchIcon}>

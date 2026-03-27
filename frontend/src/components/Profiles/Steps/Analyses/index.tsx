@@ -20,8 +20,8 @@ type Props = {
     isEditMode: boolean;
     onClose: () => void;
     analyses: AnalysesType;
-    onErrorUpdate: () => void;
-    onSuccessUpdate: () => void;
+    onErrorUpdate?: () => void;
+    onSuccessUpdate?: () => void;
 };
 
 const getAnalizValue = (itemName: AnalysesTypes, analiz?: AnalysesItem[]) => {
@@ -278,9 +278,9 @@ const AnalysesStep: FC<Props> = ({ petId, onClose, isEditMode, analyses, petType
         const { success } = await updatePet(newData as Pet);
 
         if (success) {
-            onSuccessUpdate();
+            onSuccessUpdate?.();
         } else {
-            onErrorUpdate();
+            onErrorUpdate?.();
         }
 
         onClose();

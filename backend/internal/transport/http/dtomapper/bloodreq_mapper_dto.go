@@ -3,6 +3,7 @@ package mapper
 
 import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -20,7 +21,6 @@ func NewBloodRequestMapper(storage filestorage.Repository) *BloodRequestMapper {
 	}
 }
 
-// ToResponse converts a domain BloodRequest model to a DTO.
 func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors *int) dto.BloodRequestDetail {
 	if req == nil {
 		return dto.BloodRequestDetail{}
@@ -32,8 +32,10 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 	}
 
 	var donorApplications []dto.DonorApplication
+	var acceptedDonorApplications []dto.DonorApplication
 	if len(req.DonorApplications) != 0 {
 		donorApplications = make([]dto.DonorApplication, 0, len(req.DonorApplications))
+		acceptedDonorApplications = make([]dto.DonorApplication, 0, len(req.DonorApplications))
 		for _, app := range req.DonorApplications {
 			// Convert WarnFactors from []string to []RestrictionFactor with descriptions
 			var warnFactors []dto.RestrictionFactor
@@ -47,7 +49,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 				warnFactors = append(warnFactors, factor)
 			}
 
-			donorApplications = append(donorApplications, dto.DonorApplication{
+			dtoApp := dto.DonorApplication{
 				ID:               app.ID,
 				RequestID:        app.RequestID,
 				DonorID:          app.DonorID,
@@ -61,7 +63,15 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 				Status:           string(app.Status),
 				CreatedAt:        app.CreatedAt,
 				UpdatedAt:        app.UpdatedAt,
-			})
+			}
+
+			switch app.Status {
+			case donormodel.DonorResponseStatusAccepted:
+				acceptedDonorApplications = append(acceptedDonorApplications, dtoApp)
+			case donormodel.DonorResponseStatusPending:
+				donorApplications = append(donorApplications, dtoApp)
+			}
+
 		}
 	}
 
@@ -82,6 +92,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
 		Responses:                donorApplications,
+		AcceptedDonors:           acceptedDonorApplications,
 		CreatedAt:                req.CreatedAt,
 		UpdatedAt:                req.UpdatedAt,
 		DeletedAt:                req.DeletedAt,

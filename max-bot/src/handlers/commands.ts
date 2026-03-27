@@ -28,10 +28,43 @@ const getBackKeyboard = () => {
 
 // ============ User Service ============
 
+const parsePayload = (
+  payload: string | undefined,
+): {
+  utm_campaign?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_content?: string;
+  utm_term?: string;
+} => {
+  if (!payload) return { utm_campaign: "organic" };
+
+  if (payload.includes("=")) {
+    // New referral link format: parse as query string
+    const params = new URLSearchParams(payload);
+    return {
+      utm_campaign: params.get("utm_campaign") || undefined,
+      utm_source: params.get("utm_source") || undefined,
+      utm_medium: params.get("utm_medium") || undefined,
+      utm_content: params.get("utm_content") || undefined,
+      utm_term: params.get("utm_term") || undefined,
+    };
+  } else {
+    // Old company link format: payload is utm_campaign
+    return { utm_campaign: payload };
+  }
+};
+
 const authUser = async (
   maxId: number,
   fullName: string,
-  utmCampaign?: string,
+  utmData: {
+    utm_campaign?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_content?: string;
+    utm_term?: string;
+  },
 ): Promise<void> => {
   await usersApi.authUserViaService({
     xInternalKey: Bun.env.INTERNAL_MAX_BOT_SECRET,
@@ -40,8 +73,11 @@ const authUser = async (
       providerId: String(maxId),
       fullName,
       metaData: {
-        utm_campaign: utmCampaign || "organic",
-        utm_source: "max_bot",
+        utm_campaign: utmData.utm_campaign || "organic",
+        utm_source: utmData.utm_source || "max_bot",
+        utm_medium: utmData.utm_medium || undefined,
+        utm_content: utmData.utm_content || undefined,
+        utm_term: utmData.utm_term || undefined,
       },
     },
   });
@@ -134,10 +170,17 @@ export const startHandler = async (ctx: Context) => {
     { maxId, fullName, payload, updateType: ctx.updateType },
     "Start handler data",
   );
-  pinologger.info({ ctx }, "Full ctx");
+  if (ctx.message?.body?.attachments) {
+    pinologger.info(
+      { attachments: JSON.stringify(ctx.message.body.attachments, null, 2) },
+      "Detailed attachments",
+    );
+  }
+
+  const utmData = parsePayload(payload);
 
   try {
-    await authUser(maxId, fullName, payload);
+    await authUser(maxId, fullName, utmData);
   } catch (error: any) {
     pinologger.error(
       { maxId, error: error.message },
@@ -170,7 +213,6 @@ export const helpHandler = async (ctx: Context) => {
 
 export const profileHandler = async (ctx: Context) => {
   const keyboard = Keyboard.inlineKeyboard([
-    [Keyboard.button.link("✏️ Редактировать профиль", Bun.env.MINIAPP_DOMAIN!)],
     [Keyboard.button.callback("⬅️ Назад", "back")],
   ]);
 

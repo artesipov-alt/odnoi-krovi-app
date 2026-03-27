@@ -15,13 +15,20 @@ import { PetType } from 'api/types';
 import { CircularProgress } from 'components/CircularProgress';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
+import DonorForRecipient from 'components/Profiles/DonorForRecipient';
 
 import DonationQuestions from '../owner/Statuses/DonationQuestions';
 import SearchCard from './Card';
 import DonorsShowcase from './DonorsShowcase';
+import LimitReached from './LimitReached';
 import NoResults from './NoResults';
 import SearchOnboarding, { View } from './Onboarding';
 import styles from './Search.module.less';
+
+type DonorDetails = {
+    id?: string;
+    isOpen: boolean;
+};
 
 type Props = {
     userId: string;
@@ -44,10 +51,13 @@ const Search: FC<Props> = ({ userId }) => {
     const { data: pets, refetch: petsRefetch, isError: petsIsError, isLoading: petsIsLoading } = usePetsQuery(userId); // ?
 
     const [tab, setTab] = useState(0);
+    const [cardDefaultTab, setCardDefaultTab] = useState(0);
     const [showStartView, setShowStartView] = useState(true);
     const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
-    const [isWarnFactorsOpen, setIsWarnFactorsOpen] = useState(false);
+    const [donorDetails, setDonorDetails] = useState<DonorDetails>({ isOpen: false });
     const [isSearchCardOpen, setIsSearchCardOpen] = useState<boolean>(false);
+    const [expireLimitWasShown, setExpireLimitWasShown] = useState<boolean>(false);
+    const [donorWarnFactors, setDonorWarnFactors] = useState<DonorDetails>({ isOpen: false });
 
     const {
         data: poolRequest,
@@ -85,8 +95,31 @@ const Search: FC<Props> = ({ userId }) => {
         poolRequestRefetch();
     };
 
-    const onOpenWarnFactorsToggle = () => {
-        setIsWarnFactorsOpen((prevState) => !prevState);
+    const onOpenCardFromDonorRespond = () => {
+        setCardDefaultTab(1);
+        setDonorDetails({ isOpen: false });
+
+        onCardOpenToggle();
+    };
+
+    const onOpenCardFromLimitReached = () => {
+        setExpireLimitWasShown(true);
+
+        onOpenCardFromDonorRespond();
+    };
+
+    const onOpenWarnFactorsToggle = (donorId?: string) => {
+        setDonorWarnFactors((prevState) => ({
+            id: donorId,
+            isOpen: !prevState.isOpen,
+        }));
+    };
+
+    const onDonorToggle = (donorId?: string) => {
+        setDonorDetails((prevState) => ({
+            id: donorId,
+            isOpen: !prevState.isOpen,
+        }));
     };
 
     const setIsStartViewShownHandler = () => {
@@ -117,8 +150,24 @@ const Search: FC<Props> = ({ userId }) => {
         }
     }, [poolRequestIsError, showToast]);
 
-    if (isWarnFactorsOpen) {
-        return <DonationQuestions onClose={onOpenWarnFactorsToggle} />;
+    if (donorDetails.isOpen && donorDetails.id) {
+        return (
+            <DonorForRecipient
+                onClose={onDonorToggle}
+                donorId={donorDetails.id}
+                onBackToSearch={onOpenCardFromDonorRespond}
+                responseId={poolRequest?.responses?.find(({ donorId }) => donorId === donorDetails.id)?.id!}
+            />
+        );
+    }
+
+    if (donorWarnFactors.isOpen && !!poolRequest) {
+        return (
+            <DonationQuestions
+                onClose={onOpenWarnFactorsToggle}
+                factors={poolRequest.responses?.find(({ donorId }) => donorId === donorWarnFactors?.id)?.warnFactors}
+            />
+        );
     }
 
     // карточка поиска
@@ -126,21 +175,39 @@ const Search: FC<Props> = ({ userId }) => {
         return (
             <SearchCard
                 {...poolRequest}
+                goToOwner={goToOwner}
                 petId={selectedPet.id}
                 name={selectedPet.name}
                 type={selectedPet.type}
                 onClose={onCardOpenToggle}
+                defaultOpenTab={cardDefaultTab}
                 isLoading={poolRequestIsLoading}
                 avatar={selectedPet.photoUrls?.[0]}
                 bloodGroup={selectedPet.bloodGroup}
                 onBoarding={poolRequest?.onBoarding}
                 onBoardingConfirm={poolRequestRefetch}
+                expireLimitWasShown={expireLimitWasShown}
+            />
+        );
+    }
+
+    if (
+        !expireLimitWasShown &&
+        !!poolRequest &&
+        (poolRequest.bloodVolumeReserved || 0) >= (poolRequest.bloodVolumeNeeded || 0)
+    ) {
+        return (
+            <LimitReached
+                type={selectedPet?.type!}
+                avatar={selectedPet?.photoUrls?.[0]}
+                onBackToSearch={onOpenCardFromLimitReached}
+                bloodVolumeNeeded={poolRequest?.bloodVolumeNeeded!}
             />
         );
     }
 
     // Онбординг
-    if (!poolRequestIsLoading && !(poolRequest?.onBoarding || []).includes(Onboardings.SEARCH)) {
+    if (!!poolRequest && !(poolRequest.onBoarding || []).includes(Onboardings.SEARCH)) {
         return (
             <SearchOnboarding
                 view={View.SEARCH}
@@ -208,6 +275,7 @@ const Search: FC<Props> = ({ userId }) => {
                 {tab === 0 && !isLoading && isBloodFound && (
                     <DonorsShowcase
                         petType={selectedPet?.type}
+                        onDonorClick={onDonorToggle}
                         showStartView={showStartView}
                         list={poolRequest?.responses}
                         onOpenWarnFactors={onOpenWarnFactorsToggle}
