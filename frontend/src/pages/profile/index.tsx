@@ -13,7 +13,6 @@ import Max from 'imgs/svg/max';
 import Phone from 'imgs/svg/phone';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Tg from 'imgs/svg/tg';
-import Vk from 'imgs/svg/vk';
 import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router';
@@ -24,18 +23,24 @@ import { updateUser } from 'api/apiServices/updateUser';
 import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
-// import PromoSlider from 'components/PromoSlider'; для демонстрации
 
+// import PromoSlider from 'components/PromoSlider'; для демонстрации
 import styles from './Profile.module.less';
 
 type Props = {
     userId: string;
 };
 
-const socialRows = [
+type SocialRow = {
+    title: string;
+    value: string;
+    type: 'telegram' | 'max';
+    isAction?: boolean;
+};
+
+const socialRows: SocialRow[] = [
     { title: 'Telegram', value: '@superdaschale', type: 'telegram' as const },
     { title: 'MAX', value: 'id384843', type: 'max' as const },
-    { title: 'ВКонтакте', value: 'Привязать', type: 'vk' as const, isAction: true },
 ];
 
 const emailRegexp = /^\w+([+.-]?\w+)*@\w+([.-]?\w+)*(\.\w+)+$/i;
@@ -239,7 +244,6 @@ const Profile: FC<Props> = ({ userId }) => {
                                     <div className={cn(styles.socialIcon, styles[`socialIcon_${type}`])}>
                                         {type === 'telegram' && <Tg />}
                                         {type === 'max' && <Max />}
-                                        {type === 'vk' && <Vk />}
                                     </div>
                                     <span className={styles.socialTitle}>{title}</span>
                                 </div>
