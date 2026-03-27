@@ -72,25 +72,13 @@ const getProviderType = (providerName?: string): SocialRow['type'] | null => {
 };
 
 const getTelegramValue = (identity: UserIdentity) => {
-    const refUrl = identity.refUrl?.trim();
+    const providerId = identity.providerId?.toString().trim();
 
-    if (refUrl) {
-        if (refUrl.startsWith('@')) {
-            return refUrl;
-        }
-
-        if (!refUrl.includes('/') && !refUrl.startsWith('http')) {
-            return `@${refUrl}`;
-        }
-
-        const tgMatch = refUrl.match(/(?:t\.me|telegram\.me)\/([^/?#]+)/i);
-
-        if (tgMatch?.[1]) {
-            return `@${tgMatch[1]}`;
-        }
+    if (providerId && /[a-z_]/i.test(providerId)) {
+        return providerId.startsWith('@') ? providerId : `@${providerId}`;
     }
 
-    return 'Ник не указан';
+    return null;
 };
 
 const getMaxValue = (identity: UserIdentity) => {
@@ -98,7 +86,7 @@ const getMaxValue = (identity: UserIdentity) => {
         return `id${identity.providerId}`;
     }
 
-    return identity.refUrl || 'Привязан';
+    return null;
 };
 
 const withReferralUtm = (url: string, type: SocialRow['type'], userId: string) => {
@@ -244,12 +232,15 @@ const Profile: FC<Props> = ({ userId }) => {
         {},
     );
 
+    const telegramValue = identitiesByType.telegram ? getTelegramValue(identitiesByType.telegram) : null;
+    const maxValue = identitiesByType.max ? getMaxValue(identitiesByType.max) : null;
+
     const socialRows: SocialRow[] = [
-        identitiesByType.telegram
-            ? { title: 'Telegram', value: getTelegramValue(identitiesByType.telegram), type: 'telegram' }
+        telegramValue
+            ? { title: 'Telegram', value: telegramValue, type: 'telegram' }
             : { title: 'Telegram', value: 'Привязать', type: 'telegram', isAction: true },
-        identitiesByType.max
-            ? { title: 'MAX', value: getMaxValue(identitiesByType.max), type: 'max' }
+        maxValue
+            ? { title: 'MAX', value: maxValue, type: 'max' }
             : { title: 'MAX', value: 'Привязать', type: 'max', isAction: true },
     ];
 
