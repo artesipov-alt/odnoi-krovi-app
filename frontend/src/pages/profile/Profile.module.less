@@ -113,7 +113,7 @@
     height: 40px;
     border: 0;
     border-radius: 50%;
-    background: #ececee;
+    background: #F9F9F9E8;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -255,7 +255,7 @@
 }
 
 .infoButton_disabled {
-    opacity: .55;
+    opacity: 0.55;
     cursor: default;
     pointer-events: none;
 }
@@ -389,6 +389,17 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease;
+
+    &:active {
+        transform: scale(0.96);
+        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
+        border-color: darken(@grayBg19, 10%);
+    }
 }
 
 .popupOverlay {
@@ -479,7 +490,7 @@
         display: block;
         height: 59px;
         width: 59px;
-        background-color: #FFA9A9;
+        background-color: #ffa9a9;
         top: -30px;
         right: -60px;
         border-radius: 36px;
@@ -681,7 +692,7 @@
     height: 28px;
     border: 0;
     border-radius: 50%;
-    background: @grayBg24;
+    background: @grayBg26;
     display: inline-flex;
     align-items: center;
     justify-content: center;

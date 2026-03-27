@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { addPhoto } from 'api/apiServices/addPhoto';
+import { getUserIdentities } from 'api/apiServices/getUserIdentities';
 import { updateUser } from 'api/apiServices/updateUser';
 import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
@@ -32,6 +33,8 @@ type Props = {
     userId: string;
 };
 
+type InvitePopupVariant = 'default' | 'bonusReceived';
+
 type SocialRow = {
     title: string;
     value: string;
@@ -39,10 +42,112 @@ type SocialRow = {
     isAction?: boolean;
 };
 
-const socialRows: SocialRow[] = [
-    { title: 'Telegram', value: '@superdaschale', type: 'telegram' as const },
-    { title: 'MAX', value: 'id384843', type: 'max' as const },
-];
+type UserIdentity = {
+    providerName?: string;
+    providerId?: string | number;
+    refUrl?: string;
+};
+
+const MAX_BIND_BOT_URL = 'https://max.ru/c/-72684925241873/AZ0vv6wDGc8';
+const TELEGRAM_BIND_BOT_URL = 'https://t.me/Odnakrovbot';
+const REFERRAL_UTM_CAMPAIGN = 'help_together';
+const REFERRAL_UTM_MEDIUM = 'referral';
+
+const getProviderType = (providerName?: string): SocialRow['type'] | null => {
+    const normalizedName = providerName?.trim().toLowerCase();
+
+    if (!normalizedName) {
+        return null;
+    }
+
+    if (normalizedName.includes('telegram') || normalizedName === 'tg') {
+        return 'telegram';
+    }
+
+    if (normalizedName.includes('max')) {
+        return 'max';
+    }
+
+    return null;
+};
+
+const getTelegramValue = (identity: UserIdentity) => {
+    const refUrl = identity.refUrl?.trim();
+
+    if (refUrl) {
+        if (refUrl.startsWith('@')) {
+            return refUrl;
+        }
+
+        if (!refUrl.includes('/') && !refUrl.startsWith('http')) {
+            return `@${refUrl}`;
+        }
+
+        const tgMatch = refUrl.match(/(?:t\.me|telegram\.me)\/([^/?#]+)/i);
+
+        if (tgMatch?.[1]) {
+            return `@${tgMatch[1]}`;
+        }
+    }
+
+    return 'Ник не указан';
+};
+
+const getMaxValue = (identity: UserIdentity) => {
+    if (identity.providerId !== undefined && identity.providerId !== null) {
+        return `id${identity.providerId}`;
+    }
+
+    return identity.refUrl || 'Привязан';
+};
+
+const withReferralUtm = (url: string, type: SocialRow['type'], userId: string) => {
+    try {
+        const normalizedUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+        const parsedUrl = new URL(normalizedUrl);
+
+        parsedUrl.searchParams.set('utm_source', type);
+        parsedUrl.searchParams.set('utm_medium', REFERRAL_UTM_MEDIUM);
+        parsedUrl.searchParams.set('utm_campaign', REFERRAL_UTM_CAMPAIGN);
+        parsedUrl.searchParams.set('utm_content', userId);
+
+        return parsedUrl.toString();
+    } catch {
+        return url;
+    }
+};
+
+const getTelegramReferralUrl = (identity: UserIdentity) => {
+    const rawValue = identity.refUrl?.trim();
+
+    if (!rawValue) {
+        return null;
+    }
+
+    if (rawValue.startsWith('@')) {
+        return `https://t.me/${rawValue.slice(1)}`;
+    }
+
+    if (/^(https?:\/\/)?(t\.me|telegram\.me)\//i.test(rawValue)) {
+        return rawValue;
+    }
+
+    if (!rawValue.includes('/') && !rawValue.startsWith('http')) {
+        return `https://t.me/${rawValue}`;
+    }
+
+    return null;
+};
+
+const getMaxReferralUrl = (identity: UserIdentity) => {
+    const rawValue = identity.refUrl?.trim();
+
+    if (!rawValue) {
+        return MAX_BIND_BOT_URL;
+    }
+
+    return rawValue;
+};
 
 const emailRegexp = /^\w+([+.-]?\w+)*@\w+([.-]?\w+)*(\.\w+)+$/i;
 
@@ -58,9 +163,11 @@ const Profile: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
     const { data: userData, isLoading } = useGetUserById(userId);
     const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
+    const [invitePopupVariant, setInvitePopupVariant] = useState<InvitePopupVariant>('default');
     const [isEditCurtainOpen, setIsEditCurtainOpen] = useState(false);
     const [isEditLoading, setIsEditLoading] = useState(false);
     const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+    const [inviteIdentities, setInviteIdentities] = useState<UserIdentity[]>([]);
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
     const [editFullName, setEditFullName] = useState('');
@@ -88,9 +195,63 @@ const Profile: FC<Props> = ({ userId }) => {
         setEditEmail(userData.email || '');
     }, [isEditCurtainOpen, userData]);
 
+    useEffect(() => {
+        if (!isInvitePopupOpen) {
+            return;
+        }
+
+        let isCancelled = false;
+
+        const fetchInviteIdentities = async () => {
+            const response = await getUserIdentities(userId);
+
+            if (isCancelled) {
+                return;
+            }
+
+            if (response?.data?.identities?.length) {
+                setInviteIdentities(response.data.identities);
+
+                return;
+            }
+
+            setInviteIdentities(userData?.identities || []);
+        };
+
+        fetchInviteIdentities();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [isInvitePopupOpen, userId, userData?.identities]);
+
     if (isLoading || !userData) {
         return null;
     }
+
+    const identitiesByType = (userData.identities || []).reduce<Partial<Record<SocialRow['type'], UserIdentity>>>(
+        (acc, identity) => {
+            const providerType = getProviderType(identity.providerName);
+
+            if (!providerType || acc[providerType]) {
+                return acc;
+            }
+
+            acc[providerType] = identity;
+
+            return acc;
+        },
+        {},
+    );
+
+    const socialRows: SocialRow[] = [
+        identitiesByType.telegram
+            ? { title: 'Telegram', value: getTelegramValue(identitiesByType.telegram), type: 'telegram' }
+            : { title: 'Telegram', value: 'Привязать', type: 'telegram', isAction: true },
+        identitiesByType.max
+            ? { title: 'MAX', value: getMaxValue(identitiesByType.max), type: 'max' }
+            : { title: 'MAX', value: 'Привязать', type: 'max', isAction: true },
+    ];
 
     const onSaveProfileClickHandler = async () => {
         if (
@@ -165,6 +326,48 @@ const Profile: FC<Props> = ({ userId }) => {
         e.target.value = '';
     };
 
+    const onBindClickHandler = (type: SocialRow['type']) => {
+        if (type === 'max') {
+            window.open(MAX_BIND_BOT_URL, '_blank', 'noopener,noreferrer');
+
+            return;
+        }
+
+        window.open(TELEGRAM_BIND_BOT_URL, '_blank', 'noopener,noreferrer');
+    };
+
+    const openInvitePopup = (variant: InvitePopupVariant) => {
+        setInvitePopupVariant(variant);
+        setIsInvitePopupOpen(true);
+    };
+
+    const onInviteSocialClickHandler = (type: SocialRow['type']) => {
+        const sourceIdentities = inviteIdentities.length ? inviteIdentities : userData.identities || [];
+        const identity = sourceIdentities.find((item) => getProviderType(item.providerName) === type);
+
+        if (!identity && type === 'telegram') {
+            toast.warn('Telegram не привязан');
+
+            return;
+        }
+
+        let baseUrl: string | null = null;
+
+        if (type === 'telegram') {
+            baseUrl = getTelegramReferralUrl(identity || {});
+        } else {
+            baseUrl = getMaxReferralUrl(identity || {});
+        }
+
+        if (!baseUrl) {
+            toast.warn('Не удалось сформировать реферальную ссылку');
+
+            return;
+        }
+
+        window.open(withReferralUtm(baseUrl, type, userId), '_blank', 'noopener,noreferrer');
+    };
+
     return (
         <Layout>
             <div className={styles.page}>
@@ -214,7 +417,7 @@ const Profile: FC<Props> = ({ userId }) => {
                         <Button
                             variant='contained'
                             className={styles.detailsButton}
-                            onClick={() => setIsInvitePopupOpen(true)}
+                            onClick={() => openInvitePopup('default')}
                         >
                             Подробнее
                         </Button>
@@ -230,7 +433,7 @@ const Profile: FC<Props> = ({ userId }) => {
                         <Button
                             variant='contained'
                             className={styles.bonusCardNewButton}
-                            onClick={() => setIsInvitePopupOpen(true)}
+                            onClick={() => openInvitePopup('bonusReceived')}
                         >
                             Пригласить друга
                         </Button>
@@ -266,13 +469,15 @@ const Profile: FC<Props> = ({ userId }) => {
                                 </div>
                                 <div className={styles.socialRight}>
                                     {isAction ? (
-                                        <button type='button' className={styles.bindButton}>
+                                        <button
+                                            type='button'
+                                            className={styles.bindButton}
+                                            onClick={() => onBindClickHandler(type)}
+                                        >
                                             {value}
                                         </button>
                                     ) : (
-                                        <>
-                                            <span className={styles.socialValue}>{value}</span>
-                                        </>
+                                        <span className={styles.socialValue}>{value}</span>
                                     )}
                                 </div>
                             </div>
@@ -297,18 +502,29 @@ const Profile: FC<Props> = ({ userId }) => {
                         <div className={styles.popupCard}>
                             <h3 className={styles.popupTitle}>Помогайте вместе!</h3>
                             <p className={styles.popupText}>
-                                Пригласите друга в приложение - когда он проведет донацию, вы оба получите приоритетный
-                                поиск
+                                {invitePopupVariant === 'bonusReceived'
+                                    ? 'Бонус уже получен, но можете пригласить больше\u00A0друзей\u00A0и\u00A0вместе спасать жизни'
+                                    : 'Пригласите друга в приложение - когда он проведет донацию, вы оба получите приоритетный поиск'}
                             </p>
                             <div className={styles.popupDivider} />
                             <button type='button' className={styles.popupShareButton}>
                                 Поделиться
                             </button>
                             <div className={styles.popupSocials}>
-                                <button type='button' className={styles.popupSocialButton} aria-label='Telegram'>
+                                <button
+                                    type='button'
+                                    className={styles.popupSocialButton}
+                                    aria-label='Telegram'
+                                    onClick={() => onInviteSocialClickHandler('telegram')}
+                                >
                                     <Tg />
                                 </button>
-                                <button type='button' className={styles.popupSocialButton} aria-label='MAX'>
+                                <button
+                                    type='button'
+                                    className={styles.popupSocialButton}
+                                    aria-label='MAX'
+                                    onClick={() => onInviteSocialClickHandler('max')}
+                                >
                                     <Max />
                                 </button>
                             </div>

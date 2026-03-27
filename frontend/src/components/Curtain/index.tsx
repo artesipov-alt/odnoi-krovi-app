@@ -60,7 +60,7 @@ const Curtain: FC<Props> = ({
 
     return (
         <div className={styles.wrapper} onClick={onWrapperClickHandler}>
-            <div className={styles.content}>
+            <div className={styles.content} style={contentStyle}>
                 {!!title && <h1 className={styles.title}>{title}</h1>}
                 {subTitle && <div className={styles.subTitle}>{subTitle}</div>}
                 {children}
