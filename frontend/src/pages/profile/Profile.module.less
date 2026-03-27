@@ -15,12 +15,12 @@
     background: url(/src/imgs/regHeader.png) no-repeat bottom;
     background-size: cover;
     text-align: center;
-    padding: 20px 20px 20px 20px;
+    padding: 20px 20px 0px 20px;
 }
 
 .backButton {
     position: absolute;
-    top: 22px;
+    top: 37px;
     left: 18px;
     width: 28px;
     height: 28px;
@@ -37,7 +37,7 @@
 .avatar {
     width: 110px;
     height: 110px;
-    margin: 22px auto 10px;
+    margin: 0px auto 10px;
     border-radius: 50%;
     background: @red16;
     color: @white;
@@ -147,7 +147,7 @@
 .bonusText {
     color: @textColor2;
     font-size: 19px;
-    line-height: 1.05;
+    line-height: 20px;
 }
 
 .detailsButton {
@@ -180,6 +180,57 @@
     pointer-events: none;
 }
 
+.bonusCardNew {
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: @grayBg7;
+    background-size: cover;
+    min-height: 138px;
+    padding: 19px 21px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.bonusCardNewTitle {
+    color: @textColor2;
+    font-size: 19px;
+    line-height: 1.05;
+}
+
+.bonusCardNewButton {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    min-width: 148px;
+    width: 148px;
+    height: 58px;
+    border-radius: 10px !important;
+    border: 0;
+    background: linear-gradient(320deg, @common-red1 0%, @common-red 100%);
+    color: @white1;
+    font-family: Marmelad, sans-serif !important;
+    text-transform: none !important;
+    cursor: pointer;
+    z-index: 3;
+
+    &:disabled {
+        color: @textColor2 !important;
+    }
+}
+
+.bonusCardNewImage {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 226px;
+    max-width: 62%;
+    pointer-events: none;
+}
+
 .infoButtons {
     margin-top: 10px;
     display: grid;
@@ -201,6 +252,12 @@
     justify-content: center;
     gap: 10px;
     cursor: pointer;
+}
+
+.infoButton_disabled {
+    opacity: .55;
+    cursor: default;
+    pointer-events: none;
 }
 
 .infoIcon {
@@ -411,7 +468,7 @@
         display: block;
         height: 59px;
         width: 59px;
-        background-color: #ffdede;
+        background: linear-gradient(180deg, #ffd9df 0%, #ffd6dd 100%);
         top: -30px;
         left: -60px;
         border-radius: 36px;
@@ -605,6 +662,7 @@
     font-family: Marmelad, sans-serif;
     font-size: 46px;
     line-height: 1;
+    position: relative;
 }
 
 .editAvatarImage {
@@ -617,7 +675,7 @@
 
 .editHeaderIcon {
     position: absolute;
-    right: 39%;
+    right: 0%;
     top: 63px;
     width: 28px;
     height: 28px;

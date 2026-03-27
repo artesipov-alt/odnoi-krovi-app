@@ -34,6 +34,12 @@ const promoSlides = [
 const PromoSlider: FC = () => {
     const navigate = useNavigate();
     const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+    const handlePrevSlide = () => {
+        setActiveSlideIndex((prev) => (prev - 1 + promoSlides.length) % promoSlides.length);
+    };
+    const handleNextSlide = () => {
+        setActiveSlideIndex((prev) => (prev + 1) % promoSlides.length);
+    };
 
     useEffect(() => {
         const slideTimer = window.setTimeout(() => {
@@ -49,6 +55,18 @@ const PromoSlider: FC = () => {
 
     return (
         <div className={styles.promoSliderCard}>
+            <button
+                type='button'
+                className={cn(styles.promoNavArea, styles.promoNavArea_left)}
+                onClick={handlePrevSlide}
+                aria-label='Предыдущий слайд'
+            />
+            <button
+                type='button'
+                className={cn(styles.promoNavArea, styles.promoNavArea_right)}
+                onClick={handleNextSlide}
+                aria-label='Следующий слайд'
+            />
             <div className={styles.promoProgress}>
                 {promoSlides.map((slide, index) => (
                     <span key={slide.title} className={styles.promoProgressTrack}>

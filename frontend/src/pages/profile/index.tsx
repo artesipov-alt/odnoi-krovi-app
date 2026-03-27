@@ -3,6 +3,7 @@ import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { useGetUserById } from 'hooks/useGetUserById';
 import bonusBg from 'imgs/bonusBg.png';
+import profileBonus from 'imgs/profileBonus.png';
 import profilePhoto from 'imgs/profilePhoto.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import ChatBubble from 'imgs/svg/chatBubble';
@@ -24,7 +25,7 @@ import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 
-// import PromoSlider from 'components/PromoSlider'; для демонстрации
+// import PromoSlider from 'components/PromoSlider';
 import styles from './Profile.module.less';
 
 type Props = {
@@ -220,10 +221,26 @@ const Profile: FC<Props> = ({ userId }) => {
                         <img src={profilePhoto} alt='Питомцы' className={styles.bonusImage} />
                     </div>
 
-                    {/* <PromoSlider />  для демонстрации */}
+                    <div className={styles.bonusCardNew}>
+                        <div className={styles.bonusCardNewTitle}>
+                            Спасайте жизни
+                            <br />
+                            вместе
+                        </div>
+                        <Button
+                            variant='contained'
+                            className={styles.bonusCardNewButton}
+                            onClick={() => setIsInvitePopupOpen(true)}
+                        >
+                            Пригласить друга
+                        </Button>
+                        <img src={profileBonus} alt='Питомцы-доноры' className={styles.bonusCardNewImage} />
+                    </div>
+
+                    {/* <PromoSlider /> */}
 
                     <div className={styles.infoButtons}>
-                        <button type='button' className={styles.infoButton}>
+                        <button type='button' className={cn(styles.infoButton, styles.infoButton_disabled)} disabled>
                             <span className={styles.infoIcon}>
                                 <ChatBubble />
                             </span>
@@ -323,15 +340,15 @@ const Profile: FC<Props> = ({ userId }) => {
                                 ) : (
                                     userInitial
                                 )}
+                                <button
+                                    type='button'
+                                    className={styles.editHeaderIcon}
+                                    onClick={onEditAvatarClickHandler}
+                                    aria-label='Изменить фото профиля'
+                                >
+                                    <Edit />
+                                </button>
                             </div>
-                            <button
-                                type='button'
-                                className={styles.editHeaderIcon}
-                                onClick={onEditAvatarClickHandler}
-                                aria-label='Изменить фото профиля'
-                            >
-                                <Edit />
-                            </button>
                         </div>
 
                         <form
