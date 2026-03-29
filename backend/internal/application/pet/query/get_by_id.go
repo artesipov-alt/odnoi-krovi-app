@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -27,8 +26,8 @@ func (h *GetByIDHandler) Handle(ctx context.Context, petID string, opts pet.PetP
 		return nil, err
 	}
 
-	p.RecalculateFactors(time.Now())
-	p.CalculateDonorStatus()
+	// p.RecalculateFactors(time.Now())
+	// p.CalculateDonorStatus()
 
 	return p, nil
 }

@@ -36,6 +36,13 @@ type DonorResponse struct {
 	DeletedAt        *time.Time
 }
 
+// DonorPreloadFilter представляет параметры для предзагрузки связанных данных
+type DonorPreloadFilter struct {
+	Status string
+	Limit  int
+	Offset int
+}
+
 // NewDonorResponse creates a new donor response with validation
 func NewDonorResponse(requestID, donorID, compensationType string, amount int32, taxiCompensation bool) (*DonorResponse, error) {
 	if requestID == "" {

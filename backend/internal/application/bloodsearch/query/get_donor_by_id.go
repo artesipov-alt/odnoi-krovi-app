@@ -2,8 +2,11 @@ package query
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -13,6 +16,7 @@ import (
 type GetDonorByIDHandler struct {
 	petReadRepo pet.PetReadRepository
 	donorRepo   donor.Repository
+	bloodRepo   bloodsearch.BloodRequestRepository
 }
 
 func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository) *GetDonorByIDHandler {
@@ -29,11 +33,16 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 	}
 
 	application, err := h.donorRepo.GetByPetID(ctx, petID)
-	if err != nil {
+	if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
 		return nil, nil, err
 	}
-	now := time.Now()
-	pet.RecalculateFactors(now)
+
+	bloodReq, err := h.bloodRepo.GetByPetID(ctx, petID)
+	if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+		return nil, nil, err
+	}
+
+	pet.RecalculateFactors(time.Now(), application, bloodReq)
 	pet.CalculateDonorStatus()
 
 	return pet, application, nil

@@ -2,8 +2,10 @@ package query
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 
 	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -47,8 +49,12 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	if err != nil {
 		return nil, err
 	}
+	donorBloodReq, err := h.bloodRepo.GetByPetID(ctx, donorPet.ID)
+	if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+		return nil, err
+	}
 
-	donorPet.RecalculateFactors(time.Now())
+	donorPet.RecalculateFactors(time.Now(), application, donorBloodReq)
 	donorPet.CalculateDonorStatus()
 
 	bloodRequest, err := h.bloodRepo.GetByID(ctx, application.RequestID)
@@ -63,7 +69,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	if err != nil {
 		return nil, err
 	}
-	recipientPet.RecalculateFactors(time.Now())
+	recipientPet.RecalculateFactors(time.Now(), nil, bloodRequest)
 	recipientPet.CalculateDonorStatus()
 
 	return &GetDonationResult{

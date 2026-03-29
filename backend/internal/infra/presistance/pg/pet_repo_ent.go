@@ -189,7 +189,7 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 	}
 	if opts.WithBloodReq {
 		pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
-			bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
+			bsrq.Where(entbloodreq.StatusIn(entbloodreq.DefaultStatus, entbloodreq.StatusReservedFull)).WithResponses()
 		})
 	}
 
@@ -233,17 +233,15 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 		}
 	}
 
-	if opts.WithBloodReq {
-		pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
-			bsrq.Where(entbloodreq.StatusEQ(entbloodreq.DefaultStatus)).WithResponses()
-		})
-	}
+	// if opts.WithBloodReq {
+	// 	pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
+	// 		bsrq.Where(entbloodreq.StatusNEQ(entbloodreq.StatusClosed)).WithResponses()
+	// 	})
+	// }
 
-	if opts.WithDonorApplication {
-		pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
-			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusPending))
-		})
-	}
+	// if opts.WithDonorApplication {
+	// 	pquery = pquery.WithDonations()
+	// }
 
 	pets, err := pquery.All(ctx)
 	if err != nil {

@@ -1,10 +1,8 @@
 package domainmapper
 
 import (
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 )
 
 // PetToDomain converts ent.Pet to domain model.Pet
@@ -26,6 +24,7 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		LivingCondition:    model.LivingCondition(e.LivingCondition),
 		ReproductiveStatus: model.ReproductiveStatus(e.ReproductiveStatus),
 		OwnerID:            e.UserID,
+		OwnerName:          e.Edges.Owner.FullName,
 		BreedRefID:         e.BreedID,
 		Bonuses:            e.Bonuses,
 		CreatedAt:          &e.CreatedAt,
@@ -77,27 +76,23 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		}
 	}
 
-	if e.Edges.BloodSearchRequest != nil {
-		pet.SearchingBlood = true
-		if len(e.Edges.BloodSearchRequest.Edges.Responses) > 0 {
-			isNew := false
-			for _, r := range e.Edges.BloodSearchRequest.Edges.Responses {
-				if r.Status == donorresponse.Status(donormodel.DonorResponseStatusPending) {
-					isNew = true
-					break
-				}
-			}
-			pet.HaveBloodReqApplication = isNew
-		}
-	}
+	// if e.Edges.BloodSearchRequest != nil {
+	// 	pet.SearchingBlood = true
+	// 	if len(e.Edges.BloodSearchRequest.Edges.Responses) > 0 {
+	// 		isNew := false
+	// 		for _, r := range e.Edges.BloodSearchRequest.Edges.Responses {
+	// 			if r.Status == donorresponse.Status(donormodel.DonorResponseStatusPending) {
+	// 				isNew = true
+	// 				break
+	// 			}
+	// 		}
+	// 		pet.HaveBloodReqApplication = isNew
+	// 	}
+	// }
 
-	if len(e.Edges.Donations) > 0 {
-		pet.PlaningDonation = true
-	}
-
-	if e.Edges.Owner != nil {
-		pet.OwnerName = e.Edges.Owner.FullName
-	}
+	// if len(e.Edges.Donations) > 0 {
+	// 	pet.PlaningDonation = true
+	// }
 
 	return pet
 }

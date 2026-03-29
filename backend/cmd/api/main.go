@@ -152,7 +152,7 @@ func main() {
 
 		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, txManager)
-		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, userRepo)
+		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
 
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
@@ -161,7 +161,7 @@ func main() {
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
 		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
-		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bloodRequestRepo)
+		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo)
 
 		// Инициализация bloodsearch handlers
 		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, publisher)

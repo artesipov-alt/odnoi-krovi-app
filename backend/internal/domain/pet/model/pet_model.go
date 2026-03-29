@@ -3,6 +3,9 @@ package model
 import (
 	"errors"
 	"time"
+
+	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
 // PetStatus представляет статус питомца
@@ -332,7 +335,7 @@ func GetAllFactors() map[FactorCode]FactorDescription {
 }
 
 // GetStopFactors возвращает список стоп-факторов для питомца на основе текущего времени
-func (p *Pet) GetStopFactors(now time.Time) []FactorCode {
+func (p *Pet) GetStopFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkPhoto(); code != "" {
 		factors = append(factors, code)
@@ -373,14 +376,14 @@ func (p *Pet) GetStopFactors(now time.Time) []FactorCode {
 	if code := p.checkDonationHistory(now); code != "" {
 		factors = append(factors, code)
 	}
-	if p.SearchingBlood || p.HaveBloodReqApplication {
+	if bloodReq != nil && bloodReq.Status == bloodreqmodel.BloodRequestStatusActive {
 		factors = append(factors, StopFactorCurrentlyRecipient)
 	}
 	return factors
 }
 
 // GetWarnFactors возвращает список варн-факторов для питомца на основе текущего времени
-func (p *Pet) GetWarnFactors(now time.Time) []FactorCode {
+func (p *Pet) GetWarnFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkWarnAge(now); code != "" {
 		factors = append(factors, code)
@@ -615,14 +618,14 @@ func (p *Pet) CalculateDonorStatus() {
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
 // Этот метод инкапсулирует логику обновления факторов внутри агрегата
 // RecalculateFactors пересчитывает стоп-факторы и факторы-предупреждения
-func (p *Pet) RecalculateFactors(now time.Time) {
-	stopFactors := p.GetStopFactors(now)
+func (p *Pet) RecalculateFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) {
+	stopFactors := p.GetStopFactors(now, donorApplication, bloodReq)
 	p.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {
 		p.StopFactors[i] = string(f)
 	}
 
-	warnFactors := p.GetWarnFactors(now)
+	warnFactors := p.GetWarnFactors(now, donorApplication, bloodReq)
 	p.WarnFactors = make([]string, len(warnFactors))
 	for i, f := range warnFactors {
 		p.WarnFactors[i] = string(f)

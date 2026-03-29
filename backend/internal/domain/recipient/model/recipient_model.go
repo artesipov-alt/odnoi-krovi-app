@@ -40,13 +40,6 @@ type DefaultDonorPrefs struct {
 	TaxiCompensation bool
 }
 
-// DonorPreloadFilter представляет параметры для предзагрузки связанных данных
-type DonorPreloadFilter struct {
-	Status string
-	Limit  int
-	Offset int
-}
-
 // MatchingDonorReadModel представляет модель чтения для подходящего донора
 type MatchingDonorReadModel struct {
 	PetID           string

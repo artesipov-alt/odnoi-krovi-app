@@ -2,18 +2,23 @@ package query
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 )
 
 type ListRequestsHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
-	petRepo   pet.Repository
+	bloodRepo     bloodsearch.BloodRequestRepository
+	petRepo       pet.Repository
+	donorRespRepo donor.Repository
+	bloodReqRepo  bloodsearch.BloodRequestRepository
 }
 
 func NewListRequestsHandler(bloodRepo bloodsearch.BloodRequestRepository, petRepo pet.Repository) *ListRequestsHandler {
@@ -23,18 +28,25 @@ func NewListRequestsHandler(bloodRepo bloodsearch.BloodRequestRepository, petRep
 	}
 }
 
-func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*recipientmodel.Recipient, error) {
 	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
-		WithAll:      true,
-		WithBloodReq: true,
+		WithAll: true,
 	})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
-	now := time.Now()
-	for i, _ := range pets {
-		pets[i].RecalculateFactors(now)
-		pets[i].CalculateDonorStatus()
+
+	for _, pet := range pets {
+		application, err := h.donorRespRepo.GetByPetID(ctx, pet.ID)
+		if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+			return nil, apperrors.Internal(err, "failed to get donor application")
+		}
+		bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, pet.ID)
+		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+			return nil, apperrors.Internal(err, "failed to get blood request")
+		}
+		pet.RecalculateFactors(time.Now(), application, bloodReq)
+		pet.CalculateDonorStatus()
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)
@@ -51,7 +63,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		}
 	}
 
-	var requestsWithDonors []*donormodel.Recipient
+	var requestsWithDonors []*recipientmodel.Recipient
 	for _, request := range allRequests {
 		if len(request.MatchingDonors) != 0 {
 			requestsWithDonors = append(requestsWithDonors, request)

@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -68,7 +70,7 @@ func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, i
 	return domainmapper.ApplicationToDomain(entResp), nil
 }
 
-func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string) (*donormodel.Recipient, error) {
+func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string) (*recipientmodel.Recipient, error) {
 	blreq, err := r.db.BloodSearchRequest.Query().
 		Where(bloodsearchrequest.IDEQ(id)).
 		WithPet(func(pq *ent.PetQuery) {
@@ -84,7 +86,7 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 		return nil, err
 	}
 
-	recipient := &donormodel.Recipient{
+	recipient := &recipientmodel.Recipient{
 		ID:                       blreq.ID,
 		PetID:                    blreq.PetID,
 		PetName:                  blreq.Edges.Pet.Name,
@@ -99,7 +101,7 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 		IncludeUnknownBloodGroup: blreq.IncludeUnknownBloodGroup,
 		OwnerName:                blreq.Edges.Pet.Edges.Owner.FullName,
 		Status:                   string(blreq.Status),
-		AdvancedInfo: &donormodel.AdvancedInfo{
+		AdvancedInfo: &recipientmodel.AdvancedInfo{
 			Description: blreq.Description,
 			PhotoURLs:   blreq.PhotoUrls,
 		},
@@ -116,6 +118,9 @@ func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID strin
 		Only(ctx)
 
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.ErrDonorResponseNotFound
+		}
 		return nil, err
 	}
 

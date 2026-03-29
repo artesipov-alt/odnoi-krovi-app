@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -84,6 +85,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 		Where(bloodsearchrequest.PetID(petID)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
+				//Возвращаем полного донора, чтобы пересчитать warn-факторы.
 				pq.WithBloodGroupRef()
 				pq.WithHealth()
 				pq.WithTreatments()
@@ -194,7 +196,7 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 }
 
 // AdptiveList возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*donormodel.Recipient, error) {
+func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*recipientmodel.Recipient, error) {
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
@@ -210,7 +212,7 @@ func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters do
 		return nil, err
 	}
 
-	result := make([]*donormodel.Recipient, len(requests))
+	result := make([]*recipientmodel.Recipient, len(requests))
 	for i, req := range requests {
 		result[i] = domainmapper.RecipientToDomain(req)
 	}

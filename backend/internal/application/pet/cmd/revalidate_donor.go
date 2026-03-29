@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -29,7 +28,7 @@ func (h *RevalidateDonorHandler) Handle(ctx context.Context, petID string) (*mod
 	}
 
 	// Recalculate factors using aggregate method (encapsulates domain logic)
-	p.RecalculateFactors(time.Now())
+	// p.RecalculateFactors(time.Now())
 
 	// Создаём структуру только с полями для обновления
 	updatePet := &model.Pet{}

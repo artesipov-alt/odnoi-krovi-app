@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
@@ -67,7 +68,15 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 
 	timeNow := time.Now()
 	for _, pet := range pets {
-		pet.RecalculateFactors(timeNow)
+		donorApplication, err := h.donorRepo.GetByPetID(ctx, pet.ID)
+		if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+			return nil, apperrors.Internal(err, "failed to get donor applications")
+		}
+		donorBloodReq, err := h.bloodRepo.GetByPetID(ctx, pet.ID)
+		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+			return nil, apperrors.Internal(err, "failed to get donor blood request")
+		}
+		pet.RecalculateFactors(timeNow, donorApplication, donorBloodReq)
 		pet.CalculateDonorStatus()
 	}
 

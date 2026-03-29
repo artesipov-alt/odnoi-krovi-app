@@ -53,6 +53,7 @@ var (
 // DonorResponse domain errors
 var (
 	ErrDonorResponseAlreadyExists = AlreadyExists("отклик донора уже существует")
+	ErrDonorResponseNotFound      = NotFound("отклик донора не найден")
 )
 
 // ==========Helper functions для создания ошибок с контекстом=============

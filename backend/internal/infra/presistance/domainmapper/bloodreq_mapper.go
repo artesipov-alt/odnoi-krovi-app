@@ -6,16 +6,17 @@ import (
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
 
 // mapToRecipient maps ent.BloodSearchRequest to donormodel.Recipient
-func RecipientToDomain(req *ent.BloodSearchRequest) *donormodel.Recipient {
+func RecipientToDomain(req *ent.BloodSearchRequest) *recipientmodel.Recipient {
 	if req == nil {
 		return nil
 	}
 
-	recipient := &donormodel.Recipient{
+	recipient := &recipientmodel.Recipient{
 		ID:                       req.ID,
 		PetID:                    req.PetID,
 		BloodVolumeRemaining:     req.BloodVolumeNeeded - req.BloodVolumeReserved,
@@ -59,7 +60,7 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 			}
 			if resp.Edges.Donor != nil {
 				fullDonor := PetToDomain(resp.Edges.Donor)
-				fullDonor.RecalculateFactors(now)
+				fullDonor.RecalculateFactors(now, &app, nil)
 				app.DonorID = resp.Edges.Donor.ID
 				app.DonorName = resp.Edges.Donor.Name
 				app.DonorPhotos = resp.Edges.Donor.PhotoUrls
