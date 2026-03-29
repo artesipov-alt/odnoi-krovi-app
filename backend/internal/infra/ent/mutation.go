@@ -3896,6 +3896,7 @@ type DonorResponseMutation struct {
 	compensation_type *donorresponse.CompensationType
 	taxi_compensation *bool
 	status            *donorresponse.Status
+	is_confirmed      *bool
 	clearedFields     map[string]struct{}
 	request           *string
 	clearedrequest    bool
@@ -4335,6 +4336,55 @@ func (m *DonorResponseMutation) ResetStatus() {
 	m.status = nil
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (m *DonorResponseMutation) SetIsConfirmed(b bool) {
+	m.is_confirmed = &b
+}
+
+// IsConfirmed returns the value of the "is_confirmed" field in the mutation.
+func (m *DonorResponseMutation) IsConfirmed() (r bool, exists bool) {
+	v := m.is_confirmed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsConfirmed returns the old "is_confirmed" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldIsConfirmed(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsConfirmed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsConfirmed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsConfirmed: %w", err)
+	}
+	return oldValue.IsConfirmed, nil
+}
+
+// ClearIsConfirmed clears the value of the "is_confirmed" field.
+func (m *DonorResponseMutation) ClearIsConfirmed() {
+	m.is_confirmed = nil
+	m.clearedFields[donorresponse.FieldIsConfirmed] = struct{}{}
+}
+
+// IsConfirmedCleared returns if the "is_confirmed" field was cleared in this mutation.
+func (m *DonorResponseMutation) IsConfirmedCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldIsConfirmed]
+	return ok
+}
+
+// ResetIsConfirmed resets all changes to the "is_confirmed" field.
+func (m *DonorResponseMutation) ResetIsConfirmed() {
+	m.is_confirmed = nil
+	delete(m.clearedFields, donorresponse.FieldIsConfirmed)
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by id.
 func (m *DonorResponseMutation) SetRequestID(id string) {
 	m.request = &id
@@ -4447,7 +4497,7 @@ func (m *DonorResponseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorResponseMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, donorresponse.FieldCreatedAt)
 	}
@@ -4468,6 +4518,9 @@ func (m *DonorResponseMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, donorresponse.FieldStatus)
+	}
+	if m.is_confirmed != nil {
+		fields = append(fields, donorresponse.FieldIsConfirmed)
 	}
 	return fields
 }
@@ -4491,6 +4544,8 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.TaxiCompensation()
 	case donorresponse.FieldStatus:
 		return m.Status()
+	case donorresponse.FieldIsConfirmed:
+		return m.IsConfirmed()
 	}
 	return nil, false
 }
@@ -4514,6 +4569,8 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldTaxiCompensation(ctx)
 	case donorresponse.FieldStatus:
 		return m.OldStatus(ctx)
+	case donorresponse.FieldIsConfirmed:
+		return m.OldIsConfirmed(ctx)
 	}
 	return nil, fmt.Errorf("unknown DonorResponse field %s", name)
 }
@@ -4572,6 +4629,13 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
+	case donorresponse.FieldIsConfirmed:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsConfirmed(v)
+		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse field %s", name)
 }
@@ -4629,6 +4693,9 @@ func (m *DonorResponseMutation) ClearedFields() []string {
 	if m.FieldCleared(donorresponse.FieldTaxiCompensation) {
 		fields = append(fields, donorresponse.FieldTaxiCompensation)
 	}
+	if m.FieldCleared(donorresponse.FieldIsConfirmed) {
+		fields = append(fields, donorresponse.FieldIsConfirmed)
+	}
 	return fields
 }
 
@@ -4654,6 +4721,9 @@ func (m *DonorResponseMutation) ClearField(name string) error {
 		return nil
 	case donorresponse.FieldTaxiCompensation:
 		m.ClearTaxiCompensation()
+		return nil
+	case donorresponse.FieldIsConfirmed:
+		m.ClearIsConfirmed()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse nullable field %s", name)
@@ -4683,6 +4753,9 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 		return nil
 	case donorresponse.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case donorresponse.FieldIsConfirmed:
+		m.ResetIsConfirmed()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse field %s", name)

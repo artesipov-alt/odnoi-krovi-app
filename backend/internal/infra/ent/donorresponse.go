@@ -33,6 +33,8 @@ type DonorResponse struct {
 	TaxiCompensation bool `json:"taxi_compensation,omitempty"`
 	// Status holds the value of the "status" field.
 	Status donorresponse.Status `json:"status,omitempty"`
+	// IsConfirmed holds the value of the "is_confirmed" field.
+	IsConfirmed bool `json:"is_confirmed,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorResponseQuery when eager-loading is set.
 	Edges                          DonorResponseEdges `json:"edges"`
@@ -81,7 +83,7 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case donorresponse.FieldTaxiCompensation:
+		case donorresponse.FieldTaxiCompensation, donorresponse.FieldIsConfirmed:
 			values[i] = new(sql.NullBool)
 		case donorresponse.FieldAmount:
 			values[i] = new(sql.NullInt64)
@@ -156,6 +158,12 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = donorresponse.Status(value.String)
+			}
+		case donorresponse.FieldIsConfirmed:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_confirmed", values[i])
+			} else if value.Valid {
+				_m.IsConfirmed = value.Bool
 			}
 		case donorresponse.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -239,6 +247,9 @@ func (_m *DonorResponse) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("is_confirmed=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsConfirmed))
 	builder.WriteByte(')')
 	return builder.String()
 }

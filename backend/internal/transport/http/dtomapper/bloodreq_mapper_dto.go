@@ -33,9 +33,11 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 
 	var donorApplications []dto.DonorApplication
 	var acceptedDonorApplications []dto.DonorApplication
+	var completedDonations []dto.DonorApplication
 	if len(req.DonorApplications) != 0 {
 		donorApplications = make([]dto.DonorApplication, 0, len(req.DonorApplications))
 		acceptedDonorApplications = make([]dto.DonorApplication, 0, len(req.DonorApplications))
+		completedDonations = make([]dto.DonorApplication, 0, len(req.DonorApplications))
 		for _, app := range req.DonorApplications {
 			// Convert WarnFactors from []string to []RestrictionFactor with descriptions
 			var warnFactors []dto.RestrictionFactor
@@ -61,15 +63,17 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 				CompensationType: app.CompensationType,
 				TaxiCompensation: app.TaxiCompensation,
 				Status:           string(app.Status),
+				IsConfirmed:      app.IsConfirmed,
 				CreatedAt:        app.CreatedAt,
 				UpdatedAt:        app.UpdatedAt,
 			}
 
-			switch app.Status {
-			case donormodel.DonorResponseStatusAccepted:
+			if app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
 				acceptedDonorApplications = append(acceptedDonorApplications, dtoApp)
-			case donormodel.DonorResponseStatusPending:
+			} else if app.Status == donormodel.DonorResponseStatusPending {
 				donorApplications = append(donorApplications, dtoApp)
+			} else if app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed {
+				completedDonations = append(completedDonations, dtoApp)
 			}
 
 		}
@@ -88,11 +92,12 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		BloodComponentIDs:        req.BloodComponentIDs,
 		OnBoarding:               req.OnBoarding,
 		Status:                   string(req.Status),
-		SuitableDonors:           suitableDonorsCount,
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
 		Responses:                donorApplications,
 		AcceptedDonors:           acceptedDonorApplications,
+		CompletedDonations:       completedDonations,
+		SuitableDonors:           suitableDonorsCount,
 		CreatedAt:                req.CreatedAt,
 		UpdatedAt:                req.UpdatedAt,
 		DeletedAt:                req.DeletedAt,

@@ -1,7 +1,6 @@
 package schema
 
 import (
-	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -62,9 +61,5 @@ func (DonorPreference) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "donor_preferences",
 		},
-		entgql.Mutations(
-			entgql.MutationCreate(),
-			entgql.MutationUpdate(),
-		),
 	}
 }

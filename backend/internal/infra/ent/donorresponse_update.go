@@ -137,6 +137,26 @@ func (_u *DonorResponseUpdate) SetNillableStatus(v *donorresponse.Status) *Donor
 	return _u
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (_u *DonorResponseUpdate) SetIsConfirmed(v bool) *DonorResponseUpdate {
+	_u.mutation.SetIsConfirmed(v)
+	return _u
+}
+
+// SetNillableIsConfirmed sets the "is_confirmed" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableIsConfirmed(v *bool) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetIsConfirmed(*v)
+	}
+	return _u
+}
+
+// ClearIsConfirmed clears the value of the "is_confirmed" field.
+func (_u *DonorResponseUpdate) ClearIsConfirmed() *DonorResponseUpdate {
+	_u.mutation.ClearIsConfirmed()
+	return _u
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
 func (_u *DonorResponseUpdate) SetRequestID(id string) *DonorResponseUpdate {
 	_u.mutation.SetRequestID(id)
@@ -277,6 +297,12 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.IsConfirmed(); ok {
+		_spec.SetField(donorresponse.FieldIsConfirmed, field.TypeBool, value)
+	}
+	if _u.mutation.IsConfirmedCleared() {
+		_spec.ClearField(donorresponse.FieldIsConfirmed, field.TypeBool)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -463,6 +489,26 @@ func (_u *DonorResponseUpdateOne) SetNillableStatus(v *donorresponse.Status) *Do
 	return _u
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (_u *DonorResponseUpdateOne) SetIsConfirmed(v bool) *DonorResponseUpdateOne {
+	_u.mutation.SetIsConfirmed(v)
+	return _u
+}
+
+// SetNillableIsConfirmed sets the "is_confirmed" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableIsConfirmed(v *bool) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetIsConfirmed(*v)
+	}
+	return _u
+}
+
+// ClearIsConfirmed clears the value of the "is_confirmed" field.
+func (_u *DonorResponseUpdateOne) ClearIsConfirmed() *DonorResponseUpdateOne {
+	_u.mutation.ClearIsConfirmed()
+	return _u
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
 func (_u *DonorResponseUpdateOne) SetRequestID(id string) *DonorResponseUpdateOne {
 	_u.mutation.SetRequestID(id)
@@ -633,6 +679,12 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.IsConfirmed(); ok {
+		_spec.SetField(donorresponse.FieldIsConfirmed, field.TypeBool, value)
+	}
+	if _u.mutation.IsConfirmedCleared() {
+		_spec.ClearField(donorresponse.FieldIsConfirmed, field.TypeBool)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -626,6 +626,11 @@ func (_q *DonorResponseQuery) collectField(ctx context.Context, oneNode bool, op
 				selectedFields = append(selectedFields, donorresponse.FieldStatus)
 				fieldSeen[donorresponse.FieldStatus] = struct{}{}
 			}
+		case "isConfirmed":
+			if _, ok := fieldSeen[donorresponse.FieldIsConfirmed]; !ok {
+				selectedFields = append(selectedFields, donorresponse.FieldIsConfirmed)
+				fieldSeen[donorresponse.FieldIsConfirmed] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

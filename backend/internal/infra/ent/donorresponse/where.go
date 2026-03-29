@@ -90,6 +90,11 @@ func TaxiCompensation(v bool) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldTaxiCompensation, v))
 }
 
+// IsConfirmed applies equality check predicate on the "is_confirmed" field. It's identical to IsConfirmedEQ.
+func IsConfirmed(v bool) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldIsConfirmed, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldCreatedAt, v))
@@ -338,6 +343,26 @@ func StatusIn(vs ...Status) predicate.DonorResponse {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// IsConfirmedEQ applies the EQ predicate on the "is_confirmed" field.
+func IsConfirmedEQ(v bool) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldIsConfirmed, v))
+}
+
+// IsConfirmedNEQ applies the NEQ predicate on the "is_confirmed" field.
+func IsConfirmedNEQ(v bool) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldIsConfirmed, v))
+}
+
+// IsConfirmedIsNil applies the IsNil predicate on the "is_confirmed" field.
+func IsConfirmedIsNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIsNull(FieldIsConfirmed))
+}
+
+// IsConfirmedNotNil applies the NotNil predicate on the "is_confirmed" field.
+func IsConfirmedNotNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotNull(FieldIsConfirmed))
 }
 
 // HasRequest applies the HasEdge predicate on the "request" edge.

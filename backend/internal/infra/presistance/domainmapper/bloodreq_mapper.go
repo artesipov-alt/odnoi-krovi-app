@@ -62,6 +62,7 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 				WarnFactors:      fullDonor.WarnFactors,
 				TaxiCompensation: resp.TaxiCompensation,
 				Status:           donormodel.DonorResponseStatus(resp.Status),
+				IsConfirmed:      resp.IsConfirmed,
 			}
 			donorApps[i] = app
 		}

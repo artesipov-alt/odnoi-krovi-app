@@ -115,6 +115,20 @@ func (_c *DonorResponseCreate) SetStatus(v donorresponse.Status) *DonorResponseC
 	return _c
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (_c *DonorResponseCreate) SetIsConfirmed(v bool) *DonorResponseCreate {
+	_c.mutation.SetIsConfirmed(v)
+	return _c
+}
+
+// SetNillableIsConfirmed sets the "is_confirmed" field if the given value is not nil.
+func (_c *DonorResponseCreate) SetNillableIsConfirmed(v *bool) *DonorResponseCreate {
+	if v != nil {
+		_c.SetIsConfirmed(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DonorResponseCreate) SetID(v string) *DonorResponseCreate {
 	_c.mutation.SetID(v)
@@ -290,6 +304,10 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(donorresponse.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := _c.mutation.IsConfirmed(); ok {
+		_spec.SetField(donorresponse.FieldIsConfirmed, field.TypeBool, value)
+		_node.IsConfirmed = value
 	}
 	if nodes := _c.mutation.RequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -479,6 +497,24 @@ func (u *DonorResponseUpsert) UpdateStatus() *DonorResponseUpsert {
 	return u
 }
 
+// SetIsConfirmed sets the "is_confirmed" field.
+func (u *DonorResponseUpsert) SetIsConfirmed(v bool) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldIsConfirmed, v)
+	return u
+}
+
+// UpdateIsConfirmed sets the "is_confirmed" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateIsConfirmed() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldIsConfirmed)
+	return u
+}
+
+// ClearIsConfirmed clears the value of the "is_confirmed" field.
+func (u *DonorResponseUpsert) ClearIsConfirmed() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldIsConfirmed)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -646,6 +682,27 @@ func (u *DonorResponseUpsertOne) SetStatus(v donorresponse.Status) *DonorRespons
 func (u *DonorResponseUpsertOne) UpdateStatus() *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetIsConfirmed sets the "is_confirmed" field.
+func (u *DonorResponseUpsertOne) SetIsConfirmed(v bool) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetIsConfirmed(v)
+	})
+}
+
+// UpdateIsConfirmed sets the "is_confirmed" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateIsConfirmed() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateIsConfirmed()
+	})
+}
+
+// ClearIsConfirmed clears the value of the "is_confirmed" field.
+func (u *DonorResponseUpsertOne) ClearIsConfirmed() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearIsConfirmed()
 	})
 }
 
@@ -983,6 +1040,27 @@ func (u *DonorResponseUpsertBulk) SetStatus(v donorresponse.Status) *DonorRespon
 func (u *DonorResponseUpsertBulk) UpdateStatus() *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetIsConfirmed sets the "is_confirmed" field.
+func (u *DonorResponseUpsertBulk) SetIsConfirmed(v bool) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetIsConfirmed(v)
+	})
+}
+
+// UpdateIsConfirmed sets the "is_confirmed" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateIsConfirmed() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateIsConfirmed()
+	})
+}
+
+// ClearIsConfirmed clears the value of the "is_confirmed" field.
+func (u *DonorResponseUpsertBulk) ClearIsConfirmed() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearIsConfirmed()
 	})
 }
 

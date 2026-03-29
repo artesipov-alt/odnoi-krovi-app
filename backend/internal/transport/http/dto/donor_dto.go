@@ -11,7 +11,6 @@ type DonorApplicationIDPath struct {
 	ID string `path:"id" doc:"ID отклика донора" minLength:"1" example:"RES-ABCDEABCDE"`
 }
 
-// DonorApplication представляет отклик донора
 type DonorApplication struct {
 	ID               string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
 	RequestID        string              `json:"requestId" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
@@ -24,6 +23,7 @@ type DonorApplication struct {
 	CompensationType string              `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
 	TaxiCompensation bool                `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`
 	Status           string              `json:"status" doc:"Статус отклика" enum:"pending,accepted,rejected,cancelled,completed,failed"`
+	IsConfirmed      bool                `json:"isConfirmed" doc:"Подтверждение отклика от реципиента" example:"false"`
 	CreatedAt        *time.Time          `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
 	UpdatedAt        *time.Time          `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z"`
 }

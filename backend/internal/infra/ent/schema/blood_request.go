@@ -72,10 +72,6 @@ func (BloodSearchRequest) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "blood_requests",
 		},
-		entgql.Mutations(
-			entgql.MutationCreate(),
-			entgql.MutationUpdate(),
-		),
 	}
 
 }

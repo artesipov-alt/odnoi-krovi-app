@@ -11,9 +11,9 @@ type DonorResponseStatus string
 const (
 	DonorResponseStatusPending   DonorResponseStatus = "pending"
 	DonorResponseStatusAccepted  DonorResponseStatus = "accepted"
+	DonorResponseStatusCompleted DonorResponseStatus = "completed"
 	DonorResponseStatusRejected  DonorResponseStatus = "rejected"
 	DonorResponseStatusCancelled DonorResponseStatus = "cancelled"
-	DonorResponseStatusCompleted DonorResponseStatus = "completed"
 	DonorResponseStatusFailed    DonorResponseStatus = "failed"
 )
 
@@ -29,6 +29,7 @@ type DonorResponse struct {
 	WarnFactors      []string
 	CompensationType string
 	TaxiCompensation bool
+	IsConfirmed      bool
 	Status           DonorResponseStatus
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time

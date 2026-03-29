@@ -1686,6 +1686,12 @@ type DonorResponseWhereInput struct {
 	StatusIn    []donorresponse.Status `json:"statusIn,omitempty"`
 	StatusNotIn []donorresponse.Status `json:"statusNotIn,omitempty"`
 
+	// "is_confirmed" field predicates.
+	IsConfirmed       *bool `json:"isConfirmed,omitempty"`
+	IsConfirmedNEQ    *bool `json:"isConfirmedNEQ,omitempty"`
+	IsConfirmedIsNil  bool  `json:"isConfirmedIsNil,omitempty"`
+	IsConfirmedNotNil bool  `json:"isConfirmedNotNil,omitempty"`
+
 	// "request" edge predicates.
 	HasRequest     *bool                           `json:"hasRequest,omitempty"`
 	HasRequestWith []*BloodSearchRequestWhereInput `json:"hasRequestWith,omitempty"`
@@ -1945,6 +1951,18 @@ func (i *DonorResponseWhereInput) P() (predicate.DonorResponse, error) {
 	}
 	if len(i.StatusNotIn) > 0 {
 		predicates = append(predicates, donorresponse.StatusNotIn(i.StatusNotIn...))
+	}
+	if i.IsConfirmed != nil {
+		predicates = append(predicates, donorresponse.IsConfirmedEQ(*i.IsConfirmed))
+	}
+	if i.IsConfirmedNEQ != nil {
+		predicates = append(predicates, donorresponse.IsConfirmedNEQ(*i.IsConfirmedNEQ))
+	}
+	if i.IsConfirmedIsNil {
+		predicates = append(predicates, donorresponse.IsConfirmedIsNil())
+	}
+	if i.IsConfirmedNotNil {
+		predicates = append(predicates, donorresponse.IsConfirmedNotNil())
 	}
 
 	if i.HasRequest != nil {

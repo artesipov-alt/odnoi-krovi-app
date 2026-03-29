@@ -217,9 +217,5 @@ func (PetAnalysis) Annotations() []schema.Annotation {
 		entsql.Annotation{
 			Table: "pet_analyses",
 		},
-		entgql.Mutations(
-			entgql.MutationCreate(),
-			entgql.MutationUpdate(),
-		),
 	}
 }
