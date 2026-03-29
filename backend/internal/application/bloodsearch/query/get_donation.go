@@ -55,7 +55,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	}
 
 	donorPet.RecalculateFactors(time.Now(), application, donorBloodReq)
-	donorPet.CalculateDonorStatus()
+	donorPet.CalculateStatus(application, donorBloodReq)
 
 	bloodRequest, err := h.bloodRepo.GetByID(ctx, application.RequestID)
 	if err != nil {
@@ -70,7 +70,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 		return nil, err
 	}
 	recipientPet.RecalculateFactors(time.Now(), nil, bloodRequest)
-	recipientPet.CalculateDonorStatus()
+	recipientPet.CalculateStatus(nil, bloodRequest)
 
 	return &GetDonationResult{
 		Application:  application,

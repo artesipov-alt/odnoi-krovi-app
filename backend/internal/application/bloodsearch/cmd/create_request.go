@@ -77,7 +77,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 			return nil, apperrors.Internal(err, "failed to get donor blood request")
 		}
 		pet.RecalculateFactors(timeNow, donorApplication, donorBloodReq)
-		pet.CalculateDonorStatus()
+		pet.CalculateStatus(donorApplication, donorBloodReq)
 	}
 
 	var avilableDonors []petmodel.Pet

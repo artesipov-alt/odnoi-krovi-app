@@ -46,7 +46,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 			return nil, apperrors.Internal(err, "failed to get blood request")
 		}
 		pet.RecalculateFactors(time.Now(), application, bloodReq)
-		pet.CalculateDonorStatus()
+		pet.CalculateStatus(application, bloodReq)
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)

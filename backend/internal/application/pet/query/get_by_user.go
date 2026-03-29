@@ -60,7 +60,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 			return nil, apperrors.Internal(err, "failed to get blood request")
 		}
 		pet.RecalculateFactors(time.Now(), application, bloodReq)
-		pet.CalculateDonorStatus()
+		pet.CalculateStatus(application, bloodReq)
 	}
 
 	return pets, nil

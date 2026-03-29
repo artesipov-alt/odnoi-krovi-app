@@ -600,17 +600,17 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 }
 
 // CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
-func (p *Pet) CalculateDonorStatus() {
-	if p.SearchingBlood && !p.HaveBloodReqApplication {
+func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) {
+	if bloodReq != nil && application == nil {
 		p.PetStatus = PetStatusRecipient
 	}
-	if p.HaveBloodReqApplication {
+	if application != nil && (application.Status == donormodel.DonorResponseStatusPending || application.Status == donormodel.DonorResponseStatusAccepted) {
 		p.PetStatus = PetStatusBloodFound
 	}
 	if len(p.StopFactors) == 0 {
 		p.PetStatus = PetStatusDonor
 	}
-	if p.PlaningDonation {
+	if application != nil && application.Status == donormodel.DonorResponseStatusAccepted {
 		p.PetStatus = PetStatusPlannedDonation
 	}
 }

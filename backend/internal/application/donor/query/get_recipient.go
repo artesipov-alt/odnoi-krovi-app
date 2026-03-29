@@ -53,7 +53,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 			return nil, apperrors.Internal(err, "failed to get blood request")
 		}
 		pet.RecalculateFactors(time.Now(), application, bloodReq)
-		pet.CalculateDonorStatus()
+		pet.CalculateStatus(application, bloodReq)
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)

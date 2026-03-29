@@ -43,7 +43,7 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 	}
 
 	pet.RecalculateFactors(time.Now(), application, bloodReq)
-	pet.CalculateDonorStatus()
+	pet.CalculateStatus(application, bloodReq)
 
 	return pet, application, nil
 }
