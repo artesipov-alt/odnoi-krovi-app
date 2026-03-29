@@ -150,7 +150,7 @@ func main() {
 		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo)
+		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo, donorResponseRepo, bloodRequestRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, txManager)
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
 
@@ -169,7 +169,7 @@ func main() {
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
-		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo)
+		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo, bloodRequestRepo)
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, bloodRequestRepo)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher)

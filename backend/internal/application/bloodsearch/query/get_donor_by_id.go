@@ -19,10 +19,11 @@ type GetDonorByIDHandler struct {
 	bloodRepo   bloodsearch.BloodRequestRepository
 }
 
-func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository) *GetDonorByIDHandler {
+func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.BloodRequestRepository) *GetDonorByIDHandler {
 	return &GetDonorByIDHandler{
 		petReadRepo: petReadRepo,
 		donorRepo:   donorRepo,
+		bloodRepo:   bloodRepo,
 	}
 }
 
@@ -36,9 +37,12 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 	if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
 		return nil, nil, err
 	}
+	// if application == nil {
+	// 	return nil, nil, apperrors.ErrDonorResponseNotFound
+	// }
 
 	bloodReq, err := h.bloodRepo.GetByPetID(ctx, petID)
-	if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+	if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 		return nil, nil, err
 	}
 

@@ -12,6 +12,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
+	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
@@ -66,6 +67,9 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bl
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
 				pq.WithBloodGroupRef()
+				pq.WithOwner(func(uq *ent.UserQuery) {
+					uq.Select(entuser.FieldFullName)
+				})
 			})
 		})
 
@@ -90,6 +94,9 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 				pq.WithHealth()
 				pq.WithTreatments()
 				pq.WithAnalyses()
+				pq.WithOwner(func(uq *ent.UserQuery) {
+					uq.Select(entuser.FieldFullName)
+				})
 			})
 		}).
 		Only(ctx)

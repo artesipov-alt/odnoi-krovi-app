@@ -50,7 +50,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 		return nil, err
 	}
 	donorBloodReq, err := h.bloodRepo.GetByPetID(ctx, donorPet.ID)
-	if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+	if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 		return nil, err
 	}
 

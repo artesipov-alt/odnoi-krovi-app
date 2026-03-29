@@ -55,14 +55,9 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 
 	// Проверяем существование донора
-	donorPet, err := h.petRepo.GetByID(ctx, donorID, pet.PetPreloadOptions{
-		WithDonorApplication: true,
-	})
+	donorPet, err := h.petRepo.GetByID(ctx, donorID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check donor existence")
-	}
-	if donorPet.PlaningDonation {
-		return nil, apperrors.ErrDonorResponseAlreadyExists
 	}
 
 	// Получаем данные реципиента

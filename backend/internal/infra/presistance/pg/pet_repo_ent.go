@@ -13,7 +13,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
-	entdonorapply "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	entlocation "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
@@ -171,7 +170,12 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 
 // GetByID получает питомца по ID с опциями загрузки связанных данных
 func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
-	pquery := r.client.Pet.Query().Where(entpet.ID(id)).WithBreedRef().WithBloodGroupRef()
+	pquery := r.client.Pet.Query().Where(entpet.ID(id)).
+		WithBreedRef().
+		WithBloodGroupRef().
+		WithOwner(func(uq *ent.UserQuery) {
+			uq.Select(entuser.FieldFullName)
+		})
 
 	// Apply preload options
 	if opts.WithAll {
@@ -187,21 +191,21 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 			pquery = pquery.WithAnalyses()
 		}
 	}
-	if opts.WithBloodReq {
-		pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
-			bsrq.Where(entbloodreq.StatusIn(entbloodreq.DefaultStatus, entbloodreq.StatusReservedFull)).WithResponses()
-		})
-	}
+	// if opts.WithBloodReq {
+	// 	pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
+	// 		bsrq.Where(entbloodreq.StatusIn(entbloodreq.DefaultStatus, entbloodreq.StatusReservedFull)).WithResponses()
+	// 	})
+	// }
 
-	if opts.WithDonorApplication {
-		pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
-			drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusPending))
-		})
-	}
+	// if opts.WithDonorApplication {
+	// 	pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
+	// 		drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusPending))
+	// 	})
+	// }
 
-	if opts.WithOwner {
-		pquery = pquery.WithOwner()
-	}
+	// if opts.WithOwner {
+	// 	pquery = pquery.WithOwner()
+	// }
 
 	entPet, err := pquery.Only(ctx)
 	if err != nil {
@@ -216,7 +220,12 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 
 // GetByUserID получает всех питомцев пользователя
 func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
-	pquery := r.client.Pet.Query().Where(entpet.UserID(userID)).WithBreedRef().WithBloodGroupRef()
+	pquery := r.client.Pet.Query().Where(entpet.UserID(userID)).
+		WithBreedRef().
+		WithBloodGroupRef().
+		WithOwner(func(uq *ent.UserQuery) {
+			uq.Select(entuser.FieldFullName)
+		})
 
 	// Apply preload options
 	if opts.WithAll {
@@ -608,6 +617,14 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 
 func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, bloodGroups, regions []string) ([]*model.Pet, error) {
 	query := r.client.Pet.Query().
+		WithOwner(func(uq *ent.UserQuery) {
+			uq.Select(entuser.FieldFullName)
+		}).
+		WithBloodGroupRef().
+		WithBreedRef().
+		WithHealth().
+		WithTreatments().
+		WithAnalyses().
 		Where(
 			entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
 		)

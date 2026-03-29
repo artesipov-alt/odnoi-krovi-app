@@ -251,11 +251,7 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 
 func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetPathParam) (*dto.GetDonorByIDOutput, error) {
 	donorPet, application, err := h.getDonorByIDHandler.Handle(ctx, input.ID, pet.PetPreloadOptions{
-		WithHealth:     true,
-		WithTreatments: true,
-		WithAnalyses:   true,
-		WithBonuses:    true,
-		WithOwner:      true,
+		WithAll: true,
 	})
 	if err != nil {
 		return nil, err

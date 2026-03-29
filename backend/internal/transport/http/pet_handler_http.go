@@ -159,12 +159,7 @@ func (h *PetHandler) UpdatePet(ctx context.Context, input *dto.UpdatePetInput) (
 // GetPet возвращает питомца по ID
 func (h *PetHandler) GetPet(ctx context.Context, input *dto.GetPetByIDInput) (*dto.GetPetByIDOutput, error) {
 	opts := pet.PetPreloadOptions{
-		WithHealth:     input.WithHealth,
-		WithTreatments: input.WithTreatments,
-		WithAnalyses:   input.WithAnalysis,
-		WithBonuses:    input.WithBonuses,
-		WithBloodReq:   true,
-		WithAll:        input.WithAll,
+		WithAll: input.WithAll,
 	}
 
 	petResult, err := h.getByIDHandler.Handle(ctx, input.ID, opts)
