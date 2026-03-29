@@ -10,11 +10,11 @@ index.ts
 models/AdvancedInfo.ts
 models/AppError.ts
 models/ApplyForBloodRequestBody.ts
-models/ApplyResponseResult.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
 models/BreedsList.ts
+models/ConfirmData.ts
 models/ConfirmUploadBody.ts
 models/ConfirmUploadResult.ts
 models/CoreApplicationData.ts
@@ -23,7 +23,6 @@ models/CreateBloodRequestResult.ts
 models/CreatePetBody.ts
 models/CreatePetResult.ts
 models/DefaultDonorPrefs.ts
-models/DeleteBloodRequestResult.ts
 models/DeletePetResult.ts
 models/DeleteUserResult.ts
 models/DeletedUsersList.ts
@@ -61,6 +60,7 @@ models/ReproductiveStatusesList.ts
 models/ResetUserResult.ts
 models/RestoreUserResult.ts
 models/RestrictionFactor.ts
+models/ResultMessage.ts
 models/ServiceSignInBody.ts
 models/ServiceSignInResult.ts
 models/UpdateBloodRequestBody.ts

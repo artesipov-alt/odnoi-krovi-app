@@ -13,48 +13,40 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-
 /**
  * 
  * @export
- * @interface LocationsList
+ * @interface ConfirmData
  */
-export interface LocationsList {
+export interface ConfirmData {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof LocationsList
+     * @memberof ConfirmData
      */
     readonly $schema?: string;
     /**
-     * Список локаций
-     * @type {Array<ReferenceItem>}
-     * @memberof LocationsList
+     * Фактический объем донации в мл
+     * @type {number}
+     * @memberof ConfirmData
      */
-    data: Array<ReferenceItem>;
+    amount: number;
 }
 
 /**
- * Check if a given object implements the LocationsList interface.
+ * Check if a given object implements the ConfirmData interface.
  */
-export function instanceOfLocationsList(value: object): value is LocationsList {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfConfirmData(value: object): value is ConfirmData {
+    if (!('amount' in value) || value['amount'] === undefined) return false;
     return true;
 }
 
-export function LocationsListFromJSON(json: any): LocationsList {
-    return LocationsListFromJSONTyped(json, false);
+export function ConfirmDataFromJSON(json: any): ConfirmData {
+    return ConfirmDataFromJSONTyped(json, false);
 }
 
-export function LocationsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationsList {
+export function ConfirmDataFromJSONTyped(json: any, ignoreDiscriminator: boolean): ConfirmData {
     if (json == null) {
         return json;
     }
@@ -62,15 +54,15 @@ export function LocationsListFromJSONTyped(json: any, ignoreDiscriminator: boole
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'amount': json['amount'],
     };
 }
 
-export function LocationsListToJSON(json: any): LocationsList {
-    return LocationsListToJSONTyped(json, false);
+export function ConfirmDataToJSON(json: any): ConfirmData {
+    return ConfirmDataToJSONTyped(json, false);
 }
 
-export function LocationsListToJSONTyped(value?: Omit<LocationsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function ConfirmDataToJSONTyped(value?: Omit<ConfirmData, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,7 +70,7 @@ export function LocationsListToJSONTyped(value?: Omit<LocationsList, '$schema'> 
     return {
         
             ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'amount': value['amount'],
     };
 }
 
