@@ -18,17 +18,19 @@ import (
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	createHandler        *bloodcmd.CreateRequestHandler
-	updateHandler        *bloodcmd.UpdateRequestHandler
-	deleteHandler        *bloodcmd.DeleteRequestHandler
-	getByIDHandler       *bloodquery.GetByIDHandler
-	getByPetIDHandler    *bloodquery.GetByPetIDHandler
-	getDonorByIDHandler  *bloodquery.GetDonorByIDHandler
-	getDonationHandler   *bloodquery.GetDonationHandler
-	applyResponseHandler *bloodcmd.ApplyResponseHandler
-	bloodRequestMapper   *mapper.BloodRequestMapper
-	petMapper            *mapper.PetMapper
-	storage              filestorage.Repository
+	createHandler          *bloodcmd.CreateRequestHandler
+	updateHandler          *bloodcmd.UpdateRequestHandler
+	deleteHandler          *bloodcmd.DeleteRequestHandler
+	getByIDHandler         *bloodquery.GetByIDHandler
+	getByPetIDHandler      *bloodquery.GetByPetIDHandler
+	getDonorByIDHandler    *bloodquery.GetDonorByIDHandler
+	getDonationHandler     *bloodquery.GetDonationHandler
+	applyResponseHandler   *bloodcmd.ApplyResponseHandler
+	confirmDonationHandler *bloodcmd.ConfirmDonationHandler
+	rejectDonationHandler  *bloodcmd.RejectDonationHandler
+	bloodRequestMapper     *mapper.BloodRequestMapper
+	petMapper              *mapper.PetMapper
+	storage                filestorage.Repository
 }
 
 func NewBloodRequestHandler(
@@ -40,20 +42,24 @@ func NewBloodRequestHandler(
 	getDonorByIDHandler *bloodquery.GetDonorByIDHandler,
 	getDonationHandler *bloodquery.GetDonationHandler,
 	applyResponseHandler *bloodcmd.ApplyResponseHandler,
+	confirmDonationHandler *bloodcmd.ConfirmDonationHandler,
+	rejectDonationHandler *bloodcmd.RejectDonationHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
-		createHandler:        createHandler,
-		updateHandler:        updateHandler,
-		deleteHandler:        deleteHandler,
-		getByIDHandler:       getByIDHandler,
-		getByPetIDHandler:    getByPetIDHandler,
-		getDonorByIDHandler:  getDonorByIDHandler,
-		getDonationHandler:   getDonationHandler,
-		applyResponseHandler: applyResponseHandler,
-		bloodRequestMapper:   mapper.NewBloodRequestMapper(storage),
-		petMapper:            mapper.NewPetMapper(storage),
-		storage:              storage,
+		createHandler:          createHandler,
+		updateHandler:          updateHandler,
+		deleteHandler:          deleteHandler,
+		getByIDHandler:         getByIDHandler,
+		getByPetIDHandler:      getByPetIDHandler,
+		getDonorByIDHandler:    getDonorByIDHandler,
+		getDonationHandler:     getDonationHandler,
+		applyResponseHandler:   applyResponseHandler,
+		confirmDonationHandler: confirmDonationHandler,
+		rejectDonationHandler:  rejectDonationHandler,
+		bloodRequestMapper:     mapper.NewBloodRequestMapper(storage),
+		petMapper:              mapper.NewPetMapper(storage),
+		storage:                storage,
 	}
 }
 
@@ -234,7 +240,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.PetIDPath) (*dto.GetBloodRequestByPetIDOutput, error) {
+func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.PetPathParam) (*dto.GetBloodRequestByPetIDOutput, error) {
 	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
@@ -243,7 +249,7 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }
 
-func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetIDPath) (*dto.GetDonorByIDOutput, error) {
+func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetPathParam) (*dto.GetDonorByIDOutput, error) {
 	donorPet, application, err := h.getDonorByIDHandler.Handle(ctx, input.ID, pet.PetPreloadOptions{
 		WithHealth:     true,
 		WithTreatments: true,
@@ -267,23 +273,23 @@ func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetID
 	}}, nil
 }
 
-func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.BloodRequestIDPath) (*dto.DeleteBloodRequestOutput, error) {
+func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.BloodRequestIDPath) (*dto.DefaultMessageOutput, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.DeleteBloodRequestOutput{Body: dto.DeleteBloodRequestResult{
+	return &dto.DefaultMessageOutput{Body: dto.ResultMessage{
 		Message: "Заявка удалена",
 	}}, nil
 }
 
-func (h *BloodRequestHandler) ApplyResponse(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.ApplyResponseOutput, error) {
+func (h *BloodRequestHandler) ApplyResponse(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.DefaultMessageOutput, error) {
 	if err := h.applyResponseHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
 
-	return &dto.ApplyResponseOutput{Body: dto.ApplyResponseResult{
+	return &dto.DefaultMessageOutput{Body: dto.ResultMessage{
 		Message: "Отклик донора применен",
 	}}, nil
 }
@@ -323,12 +329,16 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *dto.DonorA
 	return &dto.GetDonationOutput{Body: donationCard}, nil
 }
 
-func (h *BloodRequestHandler) ConfirmDonation(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.ConfirmDonationOutput, error) {
-	// TODO: Implement confirmation logic
-	return &dto.ConfirmDonationOutput{Body: dto.ConfirmDonationResult{Message: "Donation confirmed (TODO)"}}, nil
+func (h *BloodRequestHandler) ConfirmDonation(ctx context.Context, input *dto.ConfirmDonorApplicationInput) (*dto.DefaultMessageOutput, error) {
+	if err := h.confirmDonationHandler.Handle(ctx, input.ID, input.Body.Amount); err != nil {
+		return nil, err
+	}
+	return &dto.DefaultMessageOutput{Body: dto.ResultMessage{Message: "Донация успешно подтверждена"}}, nil
 }
 
-func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.RejectDonationOutput, error) {
-	// TODO: Implement rejection logic
-	return &dto.RejectDonationOutput{Body: dto.RejectDonationResult{Message: "Donation rejected (TODO)"}}, nil
+func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.DefaultMessageOutput, error) {
+	if err := h.rejectDonationHandler.Handle(ctx, input.ID); err != nil {
+		return nil, err
+	}
+	return &dto.DefaultMessageOutput{Body: dto.ResultMessage{Message: "Донация отменена"}}, nil
 }

@@ -11,11 +11,6 @@ type BloodRequestIDPath struct {
 	ID string `path:"id" doc:"ID заявки на поиск крови" minLength:"1" example:"BLS-ABCDEABCDE"`
 }
 
-// PetIDPath представляет параметр пути с ID питомца
-type PetIDPath struct {
-	ID string `path:"id" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
-}
-
 // ============================================
 // Create Blood Request
 // ============================================
@@ -165,6 +160,15 @@ type BloodRequestDetail struct {
 	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt                *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+}
+
+type ConfirmDonorApplicationInput struct {
+	DonorApplicationIDPath
+	Body ConfirmData
+}
+
+type ConfirmData struct {
+	Amount int32 `json:"amount" doc:"Фактический объем донации в мл" minimum:"1"`
 }
 
 // DonorDetail представляет полные данные донора
