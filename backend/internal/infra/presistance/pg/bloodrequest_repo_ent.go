@@ -104,6 +104,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.HasResponsesWith(donorresponse.IDEQ(id))).
+		WithResponses().
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -151,16 +152,16 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 }
 
 // UpdateStatus обновляет статус заявки
-func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string, status string) error {
+func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string, status bloodreqmodel.BloodRequestStatus) error {
 	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetStatus(bloodsearchrequest.Status(status)).
 		Exec(ctx)
 }
 
 // UpdateReservedVolume обновляет зарезервированный объём и статус заявки
-func (r *EntBloodRequestRepository) UpdateReservedVolume(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) error {
+func (r *EntBloodRequestRepository) UpdateReservedVolume(ctx context.Context, id string, amount int32) error {
 	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
-		SetBloodVolumeReserved(req.BloodVolumeReserved).
+		SetBloodVolumeReserved(amount).
 		Exec(ctx)
 }
 

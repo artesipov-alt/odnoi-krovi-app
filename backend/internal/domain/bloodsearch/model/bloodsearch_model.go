@@ -14,9 +14,10 @@ var ErrInsufficientVolume = errors.New("insufficient blood volume available")
 type BloodRequestStatus string
 
 const (
-	BloodRequestStatusActive BloodRequestStatus = "active"
-	BloodRequestStatusClosed BloodRequestStatus = "closed"
-	BloodRequestStatusDraft  BloodRequestStatus = "draft"
+	BloodRequestStatusActive       BloodRequestStatus = "active"
+	BloodRequestStatusClosed       BloodRequestStatus = "closed"
+	BloodRequestStatusDraft        BloodRequestStatus = "draft"
+	BloodRequestStatusReservedFull BloodRequestStatus = "reserved_full"
 )
 
 // BloodRequest represents a request to search for blood donors
@@ -69,12 +70,34 @@ func (b *BloodRequest) Close() {
 	b.Status = BloodRequestStatusClosed
 }
 
+// Activate marks the request as active
+func (b *BloodRequest) activate() {
+	b.Status = BloodRequestStatusActive
+}
+
+func (b *BloodRequest) markReservedFull() {
+	b.Status = BloodRequestStatusReservedFull
+}
+
 // ReserveVolume reserves blood volume
 func (b *BloodRequest) ReserveVolume(amount int32) error {
+	if b.BloodVolumeReserved+amount >= b.BloodVolumeNeeded {
+		b.BloodVolumeReserved = b.BloodVolumeNeeded
+		b.markReservedFull()
+	}
 	b.BloodVolumeReserved += amount
-	// Auto-close if fully reserved
-	if b.BloodVolumeReserved >= b.BloodVolumeNeeded {
-		b.Status = BloodRequestStatusClosed
+	return nil
+}
+
+// UnReserveVolume unreserves blood volume
+func (b *BloodRequest) UnReserveVolume(amount int32) error {
+	if b.BloodVolumeReserved-amount < 0 {
+		b.BloodVolumeReserved = 0
+	} else {
+		b.BloodVolumeReserved -= amount
+	}
+	if b.BloodVolumeReserved < b.BloodVolumeNeeded {
+		b.activate()
 	}
 	return nil
 }

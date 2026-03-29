@@ -20,7 +20,6 @@ import (
 type BloodRequestHandler struct {
 	createHandler        *bloodcmd.CreateRequestHandler
 	updateHandler        *bloodcmd.UpdateRequestHandler
-	updateStatusHandler  *bloodcmd.UpdateStatusHandler
 	deleteHandler        *bloodcmd.DeleteRequestHandler
 	getByIDHandler       *bloodquery.GetByIDHandler
 	getByPetIDHandler    *bloodquery.GetByPetIDHandler
@@ -35,7 +34,6 @@ type BloodRequestHandler struct {
 func NewBloodRequestHandler(
 	createHandler *bloodcmd.CreateRequestHandler,
 	updateHandler *bloodcmd.UpdateRequestHandler,
-	updateStatusHandler *bloodcmd.UpdateStatusHandler,
 	deleteHandler *bloodcmd.DeleteRequestHandler,
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
@@ -47,7 +45,6 @@ func NewBloodRequestHandler(
 	return &BloodRequestHandler{
 		createHandler:        createHandler,
 		updateHandler:        updateHandler,
-		updateStatusHandler:  updateStatusHandler,
 		deleteHandler:        deleteHandler,
 		getByIDHandler:       getByIDHandler,
 		getByPetIDHandler:    getByPetIDHandler,
@@ -134,6 +131,25 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Description: "Применяет отклик донора на заявку на поиск крови",
 		Tags:        []string{"blood-request-v1"},
 	}, h.ApplyResponse)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "confirm-donation-by-id",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/donation/{id}/confirm",
+		Summary:     "Подтвердить донацию по ID",
+		Description: "Подтверждает факт проведения донации по ID отклика донора",
+		Tags:        []string{"blood-request-v1"},
+	}, h.ConfirmDonation)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "reject-donation-by-id",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/donation/{id}/reject",
+		Summary:     "Отклонить донацию по ID",
+		Description: "Отклоняет факт проведения донации по ID отклика донора",
+		Tags:        []string{"blood-request-v1"},
+	}, h.RejectDonation)
+
 }
 
 // Handlers
@@ -305,4 +321,14 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *dto.DonorA
 	}
 
 	return &dto.GetDonationOutput{Body: donationCard}, nil
+}
+
+func (h *BloodRequestHandler) ConfirmDonation(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.ConfirmDonationOutput, error) {
+	// TODO: Implement confirmation logic
+	return &dto.ConfirmDonationOutput{Body: dto.ConfirmDonationResult{Message: "Donation confirmed (TODO)"}}, nil
+}
+
+func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.RejectDonationOutput, error) {
+	// TODO: Implement rejection logic
+	return &dto.RejectDonationOutput{Body: dto.RejectDonationResult{Message: "Donation rejected (TODO)"}}, nil
 }

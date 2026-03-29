@@ -2,6 +2,7 @@ package pg
 
 import (
 	"context"
+	"fmt"
 
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -188,4 +189,18 @@ func (r *EntDonorResponseRepository) ExistsByDonorID(ctx context.Context, donorI
 
 func (r *EntDonorResponseRepository) Count(ctx context.Context) (int, error) {
 	return r.client(ctx).DonorResponse.Query().Count(ctx)
+}
+
+// Confirm confirms a blood request
+func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseID string, factAmount int32) error {
+	err := r.client(ctx).DonorResponse.UpdateOneID(donorResponseID).
+		SetAmount(factAmount).
+		SetIsConfirmed(true).
+		Exec(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to confirm blood request: %w", err)
+	}
+
+	return nil
 }

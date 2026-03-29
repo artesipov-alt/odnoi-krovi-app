@@ -11,6 +11,7 @@ import (
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
 type ApplyResponseHandler struct {
@@ -19,6 +20,7 @@ type ApplyResponseHandler struct {
 	petRepo   pet.Repository
 	userRepo  user.Repository
 	publisher ports.EventPublisher
+	txManager *presistance.TxManager
 }
 
 func NewApplyResponseHandler(
@@ -27,6 +29,7 @@ func NewApplyResponseHandler(
 	petRepo pet.Repository,
 	userRepo user.Repository,
 	publisher ports.EventPublisher,
+	txManager *presistance.TxManager,
 ) *ApplyResponseHandler {
 	return &ApplyResponseHandler{
 		bloodRepo: bloodRepo,
@@ -34,6 +37,7 @@ func NewApplyResponseHandler(
 		petRepo:   petRepo,
 		userRepo:  userRepo,
 		publisher: publisher,
+		txManager: txManager,
 	}
 }
 
@@ -42,10 +46,27 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 	if err != nil {
 		return err
 	}
-	if bloodreq.BloodVolumeReserved >= bloodreq.BloodVolumeNeeded {
-		bloodreq.Close()
+
+	application, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
+	if err != nil {
+		return err
 	}
-	if err := h.donorRepo.UpdateDonorResponseStatus(ctx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
+
+	bloodreq.ReserveVolume(application.Amount)
+
+	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
+			return err
+		}
+		if err := h.bloodRepo.UpdateReservedVolume(txCtx, bloodreq.ID, bloodreq.BloodVolumeReserved); err != nil {
+			return err
+		}
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodreq.ID, bloodreq.Status); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
 		return err
 	}
 
@@ -60,12 +81,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		return err
 	}
 
-	donorresp, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
-	if err != nil {
-		return err
-	}
-
-	donorPet, err := h.petRepo.GetByID(ctx, donorresp.DonorID, pet.PetPreloadOptions{})
+	donorPet, err := h.petRepo.GetByID(ctx, application.DonorID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}

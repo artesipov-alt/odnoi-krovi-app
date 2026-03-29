@@ -136,9 +136,10 @@ const DefaultStatus = StatusActive
 
 // Status values.
 const (
-	StatusActive Status = "active"
-	StatusClosed Status = "closed"
-	StatusDraft  Status = "draft"
+	StatusActive       Status = "active"
+	StatusClosed       Status = "closed"
+	StatusDraft        Status = "draft"
+	StatusReservedFull Status = "reserved_full"
 )
 
 func (s Status) String() string {
@@ -148,7 +149,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusActive, StatusClosed, StatusDraft:
+	case StatusActive, StatusClosed, StatusDraft, StatusReservedFull:
 		return nil
 	default:
 		return fmt.Errorf("bloodsearchrequest: invalid enum value for status field: %q", s)

@@ -26,7 +26,7 @@ func (BloodSearchRequest) Fields() []ent.Field {
 		field.Bool("small_pets_notify_allowed").
 			Default(true),
 		field.Enum("status").
-			Values("active", "closed", "draft").
+			Values("active", "closed", "draft", "reserved_full").
 			Default("active"),
 		field.String("description").
 			Optional(),

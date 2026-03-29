@@ -166,13 +166,12 @@ func main() {
 		// Инициализация bloodsearch handlers
 		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, publisher)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
-		bloodUpdateStatusHandler := bloodcmd.NewUpdateStatusHandler(txManager, bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
 		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo)
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, bloodRequestRepo)
-		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher)
+		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
@@ -212,7 +211,6 @@ func main() {
 		bloodRequestHandler := transport.NewBloodRequestHandler(
 			bloodCreateHandler,
 			bloodUpdateHandler,
-			bloodUpdateStatusHandler,
 			bloodDeleteHandler,
 			bloodGetByIDHandler,
 			bloodGetByPetIDHandler,

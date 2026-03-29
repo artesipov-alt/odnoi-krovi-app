@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
@@ -91,20 +90,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}
 
-	req.ReserveVolume(donorPet.CalculateDonationAmount())
-
-	var donorResponse *donormodel.DonorResponse
-	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		donorResponse, err = h.donorRepo.CreateDonorResponse(txCtx, resp)
-		if err != nil {
-			return err
-		}
-		if err := h.bloodRepo.UpdateReservedVolume(txCtx, req.ID, req); err != nil {
-			return err
-		}
-		return nil
-	})
-
+	donorResponse, err := h.donorRepo.CreateDonorResponse(ctx, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +99,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		DonorName:              donorPet.Name,
 		DonorBloodGroup:        *donorPet.BloodGroupName,
 		RecipientProviderMaxID: recipientProviderMaxID,
-		CreatedAt:              time.Now(),
+		CreatedAt:              *donorResponse.CreatedAt,
 	}); err != nil {
 		return nil, err
 	}

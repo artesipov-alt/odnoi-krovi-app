@@ -48,21 +48,23 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 	if entReq.Edges.Responses != nil {
 		donorApps = make([]donormodel.DonorResponse, len(entReq.Edges.Responses))
 		for i, resp := range entReq.Edges.Responses {
-			fullDonor := PetToDomain(resp.Edges.Donor)
-			fullDonor.RecalculateFactors(now)
 			app := donormodel.DonorResponse{
 				ID:               resp.ID,
 				RequestID:        entReq.ID,
-				DonorID:          resp.Edges.Donor.ID,
-				DonorName:        resp.Edges.Donor.Name,
-				DonorPhotos:      resp.Edges.Donor.PhotoUrls,
-				DonorBloodGroup:  resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup,
 				Amount:           resp.Amount,
 				CompensationType: string(resp.CompensationType),
-				WarnFactors:      fullDonor.WarnFactors,
 				TaxiCompensation: resp.TaxiCompensation,
 				Status:           donormodel.DonorResponseStatus(resp.Status),
 				IsConfirmed:      resp.IsConfirmed,
+			}
+			if resp.Edges.Donor != nil {
+				fullDonor := PetToDomain(resp.Edges.Donor)
+				fullDonor.RecalculateFactors(now)
+				app.DonorID = resp.Edges.Donor.ID
+				app.DonorName = resp.Edges.Donor.Name
+				app.DonorPhotos = resp.Edges.Donor.PhotoUrls
+				app.DonorBloodGroup = resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup
+				app.WarnFactors = fullDonor.WarnFactors
 			}
 			donorApps[i] = app
 		}

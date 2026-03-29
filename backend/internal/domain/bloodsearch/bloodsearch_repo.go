@@ -25,10 +25,10 @@ type BloodRequestRepository interface {
 	Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error)
 
 	// UpdateStatus обновляет статус заявки
-	UpdateStatus(ctx context.Context, id string, status string) error
+	UpdateStatus(ctx context.Context, id string, status bloodreqmodel.BloodRequestStatus) error
 
 	// UpdateReservedVolume обновляет зарезервированный объём и статус заявки
-	UpdateReservedVolume(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) error
+	UpdateReservedVolume(ctx context.Context, id string, amount int32) error
 
 	// Delete удаляет заявку из хранилища (soft delete)
 	Delete(ctx context.Context, id string) error

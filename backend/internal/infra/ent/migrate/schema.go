@@ -43,7 +43,7 @@ var (
 		{Name: "blood_volume_reserved", Type: field.TypeInt32, Default: 0},
 		{Name: "regions", Type: field.TypeJSON},
 		{Name: "small_pets_notify_allowed", Type: field.TypeBool, Default: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "closed", "draft"}, Default: "active"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "closed", "draft", "reserved_full"}, Default: "active"},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "blood_group_names", Type: field.TypeJSON, Nullable: true},
