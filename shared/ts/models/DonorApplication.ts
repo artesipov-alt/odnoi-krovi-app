@@ -77,6 +77,12 @@ export interface DonorApplication {
      */
     id: string;
     /**
+     * Подтверждение отклика от реципиента
+     * @type {boolean}
+     * @memberof DonorApplication
+     */
+    isConfirmed: boolean;
+    /**
      * ID заявки
      * @type {string}
      * @memberof DonorApplication
@@ -143,6 +149,7 @@ export function instanceOfDonorApplication(value: object): value is DonorApplica
     if (!('donorId' in value) || value['donorId'] === undefined) return false;
     if (!('donorName' in value) || value['donorName'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('isConfirmed' in value) || value['isConfirmed'] === undefined) return false;
     if (!('requestId' in value) || value['requestId'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('taxiCompensation' in value) || value['taxiCompensation'] === undefined) return false;
@@ -168,6 +175,7 @@ export function DonorApplicationFromJSONTyped(json: any, ignoreDiscriminator: bo
         'donorName': json['donorName'],
         'donorPhotos': json['donorPhotos'] == null ? undefined : json['donorPhotos'],
         'id': json['id'],
+        'isConfirmed': json['isConfirmed'],
         'requestId': json['requestId'],
         'status': json['status'],
         'taxiCompensation': json['taxiCompensation'],
@@ -196,6 +204,7 @@ export function DonorApplicationToJSONTyped(value?: DonorApplication | null, ign
         'donorName': value['donorName'],
         'donorPhotos': value['donorPhotos'],
         'id': value['id'],
+        'isConfirmed': value['isConfirmed'],
         'requestId': value['requestId'],
         'status': value['status'],
         'taxiCompensation': value['taxiCompensation'],

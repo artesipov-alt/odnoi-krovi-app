@@ -65,6 +65,12 @@ export interface BloodRequestDetail {
      */
     bloodVolumeReserved: number;
     /**
+     * Завершенные донации
+     * @type {Array<DonorApplication>}
+     * @memberof BloodRequestDetail
+     */
+    completedDonations?: Array<DonorApplication>;
+    /**
      * Дата создания
      * @type {Date}
      * @memberof BloodRequestDetail
@@ -205,6 +211,7 @@ export function BloodRequestDetailFromJSONTyped(json: any, ignoreDiscriminator: 
         'bloodGroupNames': json['bloodGroupNames'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
         'bloodVolumeReserved': json['bloodVolumeReserved'],
+        'completedDonations': json['completedDonations'] == null ? undefined : ((json['completedDonations'] as Array<any>).map(DonorApplicationFromJSON)),
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'description': json['description'] == null ? undefined : json['description'],
@@ -240,6 +247,7 @@ export function BloodRequestDetailToJSONTyped(value?: Omit<BloodRequestDetail, '
         'bloodGroupNames': value['bloodGroupNames'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],
         'bloodVolumeReserved': value['bloodVolumeReserved'],
+        'completedDonations': value['completedDonations'] == null ? undefined : ((value['completedDonations'] as Array<any>).map(DonorApplicationToJSON)),
         'description': value['description'],
         'id': value['id'],
         'includeUnknownBloodGroup': value['includeUnknownBloodGroup'],
