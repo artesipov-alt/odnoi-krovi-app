@@ -9,6 +9,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
 // EntDonorResponseRepository implements DonorResponseRepository using ENT
@@ -28,25 +29,6 @@ func (r *EntDonorResponseRepository) client(ctx context.Context) *ent.Client {
 func NewEntDonorResponseRepository(client *ent.Client) *EntDonorResponseRepository {
 	return &EntDonorResponseRepository{
 		db: client,
-	}
-}
-
-// toDomainModel converts ENT DonorResponse to domain DonorResponse
-func (r *EntDonorResponseRepository) toDomainModel(entResp *ent.DonorResponse) *donormodel.DonorResponse {
-	if entResp == nil {
-		return nil
-	}
-
-	return &donormodel.DonorResponse{
-		ID:               entResp.ID,
-		RequestID:        entResp.Edges.Request.ID,
-		DonorID:          entResp.Edges.Donor.ID,
-		Amount:           entResp.Amount,
-		CompensationType: string(entResp.CompensationType),
-		TaxiCompensation: entResp.TaxiCompensation,
-		Status:           donormodel.DonorResponseStatus(entResp.Status),
-		CreatedAt:        &entResp.CreatedAt,
-		UpdatedAt:        &entResp.UpdatedAt,
 	}
 }
 
@@ -70,19 +52,19 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 		return nil, err
 	}
 
-	return r.toDomainModel(entResp), nil
+	return domainmapper.ApplicationToDomain(entResp), nil
 }
 
 func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, id string) (*donormodel.DonorResponse, error) {
 	entResp, err := r.client(ctx).DonorResponse.Query().
 		Where(donorresponse.ID(id)).
-		WithRequest().
-		WithDonor().
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
 		Only(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return r.toDomainModel(entResp), nil
+	return domainmapper.ApplicationToDomain(entResp), nil
 }
 
 func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string) (*donormodel.Recipient, error) {
@@ -128,15 +110,15 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error) {
 	entResp, err := r.client(ctx).DonorResponse.Query().
 		Where(donorresponse.HasDonorWith(pet.ID(petID))).
-		WithRequest().
-		WithDonor().
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
 		Only(ctx)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return r.toDomainModel(entResp), nil
+	return domainmapper.ApplicationToDomain(entResp), nil
 }
 
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id string, status donormodel.DonorResponseStatus) error {
@@ -154,6 +136,8 @@ func (r *EntDonorResponseRepository) GetDonorResponsesByRequestID(ctx context.Co
 	entResps, err := r.client(ctx).DonorResponse.
 		Query().
 		Where(donorresponse.HasRequestWith(bloodsearchrequest.ID(reqID))).
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -161,7 +145,7 @@ func (r *EntDonorResponseRepository) GetDonorResponsesByRequestID(ctx context.Co
 
 	result := make([]*donormodel.DonorResponse, len(entResps))
 	for i, entResp := range entResps {
-		result[i] = r.toDomainModel(entResp)
+		result[i] = domainmapper.ApplicationToDomain(entResp)
 	}
 	return result, nil
 }
@@ -170,8 +154,8 @@ func (r *EntDonorResponseRepository) GetDonorResponsesByDonorID(ctx context.Cont
 	entResps, err := r.client(ctx).DonorResponse.
 		Query().
 		Where(donorresponse.HasDonorWith(pet.ID(donorID))).
-		WithRequest().
-		WithDonor().
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -179,7 +163,7 @@ func (r *EntDonorResponseRepository) GetDonorResponsesByDonorID(ctx context.Cont
 
 	result := make([]*donormodel.DonorResponse, len(entResps))
 	for i, entResp := range entResps {
-		result[i] = r.toDomainModel(entResp)
+		result[i] = domainmapper.ApplicationToDomain(entResp)
 	}
 	return result, nil
 }

@@ -91,11 +91,6 @@ type UpdateBloodRequestResult struct {
 // Get Blood Request By ID
 // ============================================
 
-// GetBloodRequestByIDInput представляет запрос на получение заявки по ID
-type GetBloodRequestByIDInput struct {
-	BloodRequestIDPath
-}
-
 // GetBloodRequestByIDOutput представляет ответ с данными заявки
 type GetBloodRequestByIDOutput struct {
 	Body BloodRequestDetail
@@ -110,11 +105,6 @@ type GetDonorByIDOutput struct {
 // Get Blood Request By Pet ID
 // ============================================
 
-// GetBloodRequestByPetIDInput представляет запрос на получение заявки по ID питомца
-type GetBloodRequestByPetIDInput struct {
-	PetIDPath
-}
-
 // GetBloodRequestByPetIDOutput представляет ответ с данными заявки
 type GetBloodRequestByPetIDOutput struct {
 	Body BloodRequestDetail
@@ -123,16 +113,6 @@ type GetBloodRequestByPetIDOutput struct {
 // ============================================
 // Apply Response
 // ============================================
-
-// DonorResponseIDPath представляет параметр пути с ID отклика донора
-type DonorResponseIDPath struct {
-	ID string `path:"id" doc:"ID отклика донора" minLength:"1" example:"RES-ABCDEABCDE"`
-}
-
-// ApplyResponseInput представляет запрос на применение отклика донора
-type ApplyResponseInput struct {
-	DonorResponseIDPath
-}
 
 // ApplyResponseOutput представляет ответ на применение отклика донора
 type ApplyResponseOutput struct {
@@ -147,11 +127,6 @@ type ApplyResponseResult struct {
 // ============================================
 // Delete Blood Request
 // ============================================
-
-// DeleteBloodRequestInput представляет запрос на удаление заявки
-type DeleteBloodRequestInput struct {
-	BloodRequestIDPath
-}
 
 // DeleteBloodRequestOutput представляет ответ на удаление заявки
 type DeleteBloodRequestOutput struct {

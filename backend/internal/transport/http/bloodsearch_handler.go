@@ -25,6 +25,7 @@ type BloodRequestHandler struct {
 	getByIDHandler       *bloodquery.GetByIDHandler
 	getByPetIDHandler    *bloodquery.GetByPetIDHandler
 	getDonorByIDHandler  *bloodquery.GetDonorByIDHandler
+	getDonationHandler   *bloodquery.GetDonationHandler
 	applyResponseHandler *bloodcmd.ApplyResponseHandler
 	bloodRequestMapper   *mapper.BloodRequestMapper
 	petMapper            *mapper.PetMapper
@@ -39,6 +40,7 @@ func NewBloodRequestHandler(
 	getByIDHandler *bloodquery.GetByIDHandler,
 	getByPetIDHandler *bloodquery.GetByPetIDHandler,
 	getDonorByIDHandler *bloodquery.GetDonorByIDHandler,
+	getDonationHandler *bloodquery.GetDonationHandler,
 	applyResponseHandler *bloodcmd.ApplyResponseHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
@@ -50,6 +52,7 @@ func NewBloodRequestHandler(
 		getByIDHandler:       getByIDHandler,
 		getByPetIDHandler:    getByPetIDHandler,
 		getDonorByIDHandler:  getDonorByIDHandler,
+		getDonationHandler:   getDonationHandler,
 		applyResponseHandler: applyResponseHandler,
 		bloodRequestMapper:   mapper.NewBloodRequestMapper(storage),
 		petMapper:            mapper.NewPetMapper(storage),
@@ -59,7 +62,6 @@ func NewBloodRequestHandler(
 
 // Register регистрирует маршруты заявок на поиск крови в Huma API
 func (h *BloodRequestHandler) Register(api huma.API) {
-	// Добавить питомца в пул поиска крови
 	huma.Register(api, huma.Operation{
 		OperationID:   "add-pet-to-blood-request-pool",
 		Method:        http.MethodPost,
@@ -70,7 +72,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		DefaultStatus: http.StatusCreated,
 	}, h.AddPetToBloodRequestPool)
 
-	// Получить заявку по ID
 	huma.Register(api, huma.Operation{
 		OperationID: "get-blood-request-by-id",
 		Method:      http.MethodGet,
@@ -80,7 +81,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByID)
 
-	// Получить заявку по ID питомца
 	huma.Register(api, huma.Operation{
 		OperationID: "get-blood-request-by-pet-id",
 		Method:      http.MethodGet,
@@ -90,7 +90,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetBloodRequestByPetID)
 
-	// Получить заявку по ID донора
 	huma.Register(api, huma.Operation{
 		OperationID: "get-donor-by-id",
 		Method:      http.MethodGet,
@@ -100,7 +99,15 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetDonorByID)
 
-	// Обновить заявку
+	huma.Register(api, huma.Operation{
+		OperationID: "get-donation-by-id",
+		Method:      http.MethodGet,
+		Path:        "/v1/blood-request/donation/{id}",
+		Summary:     "Получить информацию о донации по ID отклика донора",
+		Description: "Возвращает детальную информацию о донации по ID отклика",
+		Tags:        []string{"blood-request-v1"},
+	}, h.GetDonation)
+
 	huma.Register(api, huma.Operation{
 		OperationID: "update-blood-request",
 		Method:      http.MethodPatch,
@@ -110,7 +117,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.UpdateBloodRequest)
 
-	// Удалить заявку
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-blood-request",
 		Method:      http.MethodDelete,
@@ -120,7 +126,6 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.DeleteBloodRequest)
 
-	// Применить отклик донора
 	huma.Register(api, huma.Operation{
 		OperationID: "apply-donor-response",
 		Method:      http.MethodPost,
@@ -204,7 +209,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 	}}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.GetBloodRequestByIDInput) (*dto.GetBloodRequestByIDOutput, error) {
+func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dto.BloodRequestIDPath) (*dto.GetBloodRequestByIDOutput, error) {
 	bloodReq, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
@@ -213,7 +218,7 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *dt
 	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
 }
 
-func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.GetBloodRequestByPetIDInput) (*dto.GetBloodRequestByPetIDOutput, error) {
+func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *dto.PetIDPath) (*dto.GetBloodRequestByPetIDOutput, error) {
 	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
@@ -246,7 +251,7 @@ func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *dto.PetID
 	}}, nil
 }
 
-func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.DeleteBloodRequestInput) (*dto.DeleteBloodRequestOutput, error) {
+func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto.BloodRequestIDPath) (*dto.DeleteBloodRequestOutput, error) {
 	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
@@ -257,7 +262,7 @@ func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *dto
 	}}, nil
 }
 
-func (h *BloodRequestHandler) ApplyResponse(ctx context.Context, input *dto.ApplyResponseInput) (*dto.ApplyResponseOutput, error) {
+func (h *BloodRequestHandler) ApplyResponse(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.ApplyResponseOutput, error) {
 	if err := h.applyResponseHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
@@ -265,4 +270,39 @@ func (h *BloodRequestHandler) ApplyResponse(ctx context.Context, input *dto.Appl
 	return &dto.ApplyResponseOutput{Body: dto.ApplyResponseResult{
 		Message: "Отклик донора применен",
 	}}, nil
+}
+
+func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *dto.DonorApplicationIDPath) (*dto.GetDonationOutput, error) {
+	donation, err := h.getDonationHandler.Handle(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	donor := h.petMapper.ToResponse(*donation.DonorPet)
+
+	donorData := dto.PetWithApplication{
+		PetDetail: donor,
+		Application: dto.CoreApplicationData{
+			ID:               donation.Application.ID,
+			Amount:           donation.Application.Amount,
+			CompensationType: donation.Application.CompensationType,
+			TaxiCompensation: donation.Application.TaxiCompensation,
+			Status:           string(donation.Application.Status),
+		},
+	}
+
+	recipientData := dto.RecipientShort{
+		PetName:             donation.RecipientPet.Name,
+		PetType:             string(donation.RecipientPet.Type),
+		BloodVolumeNeeded:   donation.BloodRequest.BloodVolumeNeeded,
+		BloodVolumeReserved: donation.BloodRequest.BloodVolumeReserved,
+		PhotoURLs:           donation.RecipientPet.PhotoURLs,
+	}
+
+	donationCard := dto.DonationCard{
+		DonorData:     donorData,
+		RecipientData: recipientData,
+	}
+
+	return &dto.GetDonationOutput{Body: donationCard}, nil
 }

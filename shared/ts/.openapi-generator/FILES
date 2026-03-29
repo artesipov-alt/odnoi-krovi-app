@@ -17,6 +17,7 @@ models/BloodRequestDetail.ts
 models/BreedsList.ts
 models/ConfirmUploadBody.ts
 models/ConfirmUploadResult.ts
+models/CoreApplicationData.ts
 models/CreateBloodRequestBody.ts
 models/CreateBloodRequestResult.ts
 models/CreatePetBody.ts
@@ -26,6 +27,7 @@ models/DeleteBloodRequestResult.ts
 models/DeletePetResult.ts
 models/DeleteUserResult.ts
 models/DeletedUsersList.ts
+models/DonationCard.ts
 models/DonorApplication.ts
 models/DonorApplicationResult.ts
 models/DonorDetail.ts
@@ -50,7 +52,9 @@ models/PetHealth.ts
 models/PetRolesList.ts
 models/PetTreatment.ts
 models/PetTypesList.ts
+models/PetWithApplication.ts
 models/RecipientDetail.ts
+models/RecipientShort.ts
 models/RecipientsList.ts
 models/ReferenceItem.ts
 models/ReproductiveStatusesList.ts
