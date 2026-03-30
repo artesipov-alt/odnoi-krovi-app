@@ -3,12 +3,10 @@ import onboardingScreen1 from 'imgs/onboardingScreen1.png';
 import onboardingScreen2 from 'imgs/onboardingScreen2.png';
 import onboardingScreen3 from 'imgs/onboardingScreen3.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import styles from './PromoSlider.module.less';
-
-const SLIDE_DURATION_MS = 5000;
 
 const promoSlides = [
     {
@@ -41,16 +39,6 @@ const PromoSlider: FC = () => {
         setActiveSlideIndex((prev) => (prev + 1) % promoSlides.length);
     };
 
-    useEffect(() => {
-        const slideTimer = window.setTimeout(() => {
-            setActiveSlideIndex((prev) => (prev + 1) % promoSlides.length);
-        }, SLIDE_DURATION_MS);
-
-        return () => {
-            window.clearTimeout(slideTimer);
-        };
-    }, [activeSlideIndex]);
-
     const currentSlide = promoSlides[activeSlideIndex];
 
     return (
@@ -75,9 +63,6 @@ const PromoSlider: FC = () => {
                                 [styles.promoProgressFill_active]: index === activeSlideIndex,
                                 [styles.promoProgressFill_done]: index < activeSlideIndex,
                             })}
-                            style={
-                                index === activeSlideIndex ? { animationDuration: `${SLIDE_DURATION_MS}ms` } : undefined
-                            }
                         />
                     </span>
                 ))}

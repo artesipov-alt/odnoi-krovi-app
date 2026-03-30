@@ -332,31 +332,61 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsInvitePopupOpen(true);
     };
 
-    const onInviteSocialClickHandler = (type: SocialRow['type']) => {
+    const getInviteShareUrl = (type: SocialRow['type']) => {
         const sourceIdentities = inviteIdentities.length ? inviteIdentities : userData.identities || [];
         const identity = sourceIdentities.find((item) => getProviderType(item.providerName) === type);
 
         if (!identity && type === 'telegram') {
             toast.warn('Telegram не привязан');
 
-            return;
+            return null;
         }
 
-        let baseUrl: string | null = null;
-
-        if (type === 'telegram') {
-            baseUrl = getTelegramReferralUrl(identity || {});
-        } else {
-            baseUrl = getMaxReferralUrl(identity || {});
-        }
+        const baseUrl =
+            type === 'telegram' ? getTelegramReferralUrl(identity || {}) : getMaxReferralUrl(identity || {});
 
         if (!baseUrl) {
             toast.warn('Не удалось сформировать реферальную ссылку');
 
+            return null;
+        }
+
+        return withReferralUtm(baseUrl, type, userId);
+    };
+
+    const onShareInviteClickHandler = async (type: SocialRow['type']) => {
+        const shareUrl = getInviteShareUrl(type);
+
+        if (!shareUrl) {
             return;
         }
 
-        window.open(withReferralUtm(baseUrl, type, userId), '_blank', 'noopener,noreferrer');
+        const shareText = `Присоединяйся к Одной Крови: ${shareUrl}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Приглашение в Одной Крови',
+                    text: shareText,
+                    url: shareUrl,
+                });
+
+                return;
+            } catch (error) {
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    return;
+                }
+            }
+        }
+
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(shareText);
+            toast.success('Ссылка скопирована');
+
+            return;
+        }
+
+        window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
     return (
@@ -498,7 +528,13 @@ const Profile: FC<Props> = ({ userId }) => {
                                     : 'Пригласите друга в приложение - когда он проведет донацию, вы оба получите приоритетный поиск'}
                             </p>
                             <div className={styles.popupDivider} />
-                            <button type='button' className={styles.popupShareButton}>
+                            <button
+                                type='button'
+                                className={styles.popupShareButton}
+                                onClick={() => {
+                                    onShareInviteClickHandler('telegram');
+                                }}
+                            >
                                 Поделиться
                             </button>
                             <div className={styles.popupSocials}>
@@ -506,7 +542,9 @@ const Profile: FC<Props> = ({ userId }) => {
                                     type='button'
                                     className={styles.popupSocialButton}
                                     aria-label='Telegram'
-                                    onClick={() => onInviteSocialClickHandler('telegram')}
+                                    onClick={() => {
+                                        onShareInviteClickHandler('telegram');
+                                    }}
                                 >
                                     <Tg />
                                 </button>
@@ -514,7 +552,9 @@ const Profile: FC<Props> = ({ userId }) => {
                                     type='button'
                                     className={styles.popupSocialButton}
                                     aria-label='MAX'
-                                    onClick={() => onInviteSocialClickHandler('max')}
+                                    onClick={() => {
+                                        onShareInviteClickHandler('max');
+                                    }}
                                 >
                                     <Max />
                                 </button>
