@@ -23,6 +23,7 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *recipientmodel.Recipient {
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
 		SearchingBloodNames:      req.BloodGroupNames,
+		SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
 		Status:                   string(req.Status),
 	}
 

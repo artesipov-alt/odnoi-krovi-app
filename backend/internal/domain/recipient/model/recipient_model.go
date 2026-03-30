@@ -23,6 +23,7 @@ type Recipient struct {
 	BloodGroupName           string
 	PrioritySearch           bool
 	IncludeUnknownBloodGroup bool
+	SmallPetsNotifyAllowed   bool
 	Status                   string
 	MatchingDonors           []MatchingDonorReadModel
 	DefaultDonorPrefs        *DefaultDonorPrefs
@@ -50,13 +51,21 @@ type MatchingDonorReadModel struct {
 }
 
 func (r *Recipient) MatchDonor(pet *petmodel.Pet) {
-	matched := false
+	sameBlood := false
+	coversNeededAmount := false
+	halfVolume := (r.BloodVolumeNeeded - r.BloodVolumeReserved) / 2
 	if pet.BloodGroupName != nil {
-		matched = slices.Contains(r.SearchingBloodNames, *pet.BloodGroupName)
+		sameBlood = slices.Contains(r.SearchingBloodNames, *pet.BloodGroupName)
 	} else if r.IncludeUnknownBloodGroup {
-		matched = true
+		sameBlood = true
 	}
-	if matched {
+	if r.BloodVolumeReserved+pet.CalculateDonationAmount() >= r.BloodVolumeNeeded {
+		coversNeededAmount = true
+	} else if r.SmallPetsNotifyAllowed && pet.CalculateDonationAmount() >= halfVolume {
+		coversNeededAmount = true
+	}
+
+	if sameBlood && coversNeededAmount {
 		donorBloodGroup := ""
 		if pet.BloodGroupName != nil {
 			donorBloodGroup = *pet.BloodGroupName
