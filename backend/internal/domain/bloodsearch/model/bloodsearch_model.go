@@ -84,6 +84,7 @@ func (b *BloodRequest) ReserveVolume(amount int32) error {
 	if b.BloodVolumeReserved+amount >= b.BloodVolumeNeeded {
 		b.BloodVolumeReserved = b.BloodVolumeNeeded
 		b.markReservedFull()
+		return nil
 	}
 	b.BloodVolumeReserved += amount
 	return nil
