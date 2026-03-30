@@ -51,17 +51,23 @@ type MatchingDonorReadModel struct {
 }
 
 func (r *Recipient) MatchDonor(pet *petmodel.Pet) {
+
 	sameBlood := false
 	coversNeededAmount := false
+	avilableDonorAmount := pet.CalculateDonationAmount()
 	halfVolume := (r.BloodVolumeNeeded - r.BloodVolumeReserved) / 2
+
+	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или любая если реципиент разрешил
 	if pet.BloodGroupName != nil {
 		sameBlood = slices.Contains(r.SearchingBloodNames, *pet.BloodGroupName)
 	} else if r.IncludeUnknownBloodGroup {
 		sameBlood = true
 	}
-	if r.BloodVolumeReserved+pet.CalculateDonationAmount() >= r.BloodVolumeNeeded {
+
+	// (Количество-крови) Бизнес-логика, донор должен покрывать весь объем или хотя бы половину от остатка если реципиент разрешил
+	if r.BloodVolumeReserved+avilableDonorAmount >= r.BloodVolumeNeeded {
 		coversNeededAmount = true
-	} else if r.SmallPetsNotifyAllowed && pet.CalculateDonationAmount() >= halfVolume {
+	} else if r.SmallPetsNotifyAllowed && avilableDonorAmount >= halfVolume {
 		coversNeededAmount = true
 	}
 
