@@ -65,7 +65,7 @@ export interface RecipientDetail {
      * @type {number}
      * @memberof RecipientDetail
      */
-    bloodVolumeNeeded: number;
+    bloodVolumeNeeded?: number;
     /**
      * Необходимый остаток объема крови в мл
      * @type {number}
@@ -77,7 +77,7 @@ export interface RecipientDetail {
      * @type {number}
      * @memberof RecipientDetail
      */
-    bloodVolumeReserved: number;
+    bloodVolumeReserved?: number;
     /**
      * Настройки донора по умолчанию
      * @type {DefaultDonorPrefs}
@@ -90,6 +90,12 @@ export interface RecipientDetail {
      * @memberof RecipientDetail
      */
     id: string;
+    /**
+     * Включить неизвестную группу крови
+     * @type {boolean}
+     * @memberof RecipientDetail
+     */
+    includeUnknownBloodGroup: boolean;
     /**
      * Список ID подходящих доноров
      * @type {Array<MatchingDonor>}
@@ -145,6 +151,12 @@ export interface RecipientDetail {
      */
     searchingBloodNames?: Array<string>;
     /**
+     * Разрешить уведомления для мелких питомцев
+     * @type {boolean}
+     * @memberof RecipientDetail
+     */
+    smallPetsNotifyAllowed: boolean;
+    /**
      * Статус заявки
      * @type {string}
      * @memberof RecipientDetail
@@ -178,12 +190,12 @@ export type RecipientDetailStatusEnum = typeof RecipientDetailStatusEnum[keyof t
  */
 export function instanceOfRecipientDetail(value: object): value is RecipientDetail {
     if (!('bloodGroupName' in value) || value['bloodGroupName'] === undefined) return false;
-    if (!('bloodVolumeNeeded' in value) || value['bloodVolumeNeeded'] === undefined) return false;
-    if (!('bloodVolumeReserved' in value) || value['bloodVolumeReserved'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('includeUnknownBloodGroup' in value) || value['includeUnknownBloodGroup'] === undefined) return false;
     if (!('petId' in value) || value['petId'] === undefined) return false;
     if (!('petName' in value) || value['petName'] === undefined) return false;
     if (!('petType' in value) || value['petType'] === undefined) return false;
+    if (!('smallPetsNotifyAllowed' in value) || value['smallPetsNotifyAllowed'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     return true;
 }
@@ -202,11 +214,12 @@ export function RecipientDetailFromJSONTyped(json: any, ignoreDiscriminator: boo
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'advancedInfo': json['advancedInfo'] == null ? undefined : AdvancedInfoFromJSON(json['advancedInfo']),
         'bloodGroupName': json['bloodGroupName'],
-        'bloodVolumeNeeded': json['bloodVolumeNeeded'],
+        'bloodVolumeNeeded': json['bloodVolumeNeeded'] == null ? undefined : json['bloodVolumeNeeded'],
         'bloodVolumeRemaining': json['bloodVolumeRemaining'] == null ? undefined : json['bloodVolumeRemaining'],
-        'bloodVolumeReserved': json['bloodVolumeReserved'],
+        'bloodVolumeReserved': json['bloodVolumeReserved'] == null ? undefined : json['bloodVolumeReserved'],
         'defaultPrefs': json['defaultPrefs'] == null ? undefined : DefaultDonorPrefsFromJSON(json['defaultPrefs']),
         'id': json['id'],
+        'includeUnknownBloodGroup': json['includeUnknownBloodGroup'],
         'matchingDonors': json['matchingDonors'] == null ? undefined : ((json['matchingDonors'] as Array<any>).map(MatchingDonorFromJSON)),
         'ownerName': json['ownerName'] == null ? undefined : json['ownerName'],
         'petId': json['petId'],
@@ -216,6 +229,7 @@ export function RecipientDetailFromJSONTyped(json: any, ignoreDiscriminator: boo
         'prioritySearch': json['prioritySearch'] == null ? undefined : json['prioritySearch'],
         'regions': json['regions'] == null ? undefined : json['regions'],
         'searchingBloodNames': json['searchingBloodNames'] == null ? undefined : json['searchingBloodNames'],
+        'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
         'status': json['status'],
     };
 }
@@ -239,6 +253,7 @@ export function RecipientDetailToJSONTyped(value?: Omit<RecipientDetail, '$schem
         'bloodVolumeReserved': value['bloodVolumeReserved'],
         'defaultPrefs': DefaultDonorPrefsToJSON(value['defaultPrefs']),
         'id': value['id'],
+        'includeUnknownBloodGroup': value['includeUnknownBloodGroup'],
         'matchingDonors': value['matchingDonors'] == null ? undefined : ((value['matchingDonors'] as Array<any>).map(MatchingDonorToJSON)),
         'ownerName': value['ownerName'],
         'petId': value['petId'],
@@ -248,6 +263,7 @@ export function RecipientDetailToJSONTyped(value?: Omit<RecipientDetail, '$schem
         'prioritySearch': value['prioritySearch'],
         'regions': value['regions'],
         'searchingBloodNames': value['searchingBloodNames'],
+        'smallPetsNotifyAllowed': value['smallPetsNotifyAllowed'],
         'status': value['status'],
     };
 }

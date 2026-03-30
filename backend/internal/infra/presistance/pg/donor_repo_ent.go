@@ -99,6 +99,7 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 		BloodVolumeReserved:      blreq.BloodVolumeReserved,
 		PrioritySearch:           blreq.PrioritySearch,
 		IncludeUnknownBloodGroup: blreq.IncludeUnknownBloodGroup,
+		SmallPetsNotifyAllowed:   blreq.SmallPetsNotifyAllowed,
 		OwnerName:                blreq.Edges.Pet.Edges.Owner.FullName,
 		Status:                   string(blreq.Status),
 		AdvancedInfo: &recipientmodel.AdvancedInfo{

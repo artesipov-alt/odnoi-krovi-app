@@ -16,7 +16,6 @@ type Recipient struct {
 	OwnerName                string
 	SearchRegions            []string
 	SearchingBloodNames      []string
-	BloodVolumeRemaining     int32
 	BloodVolumeNeeded        int32
 	BloodVolumeReserved      int32
 	PhotoURLs                []string

@@ -26,23 +26,25 @@ type RecipientsList struct {
 
 // RecipientDetail представляет полные данные заявки
 type RecipientDetail struct {
-	ID                   string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
-	PetID                string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
-	PetName              string             `json:"petName" doc:"Имя питомца" example:"Шарик"`
-	PetType              string             `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
-	OwnerName            string             `json:"ownerName,omitempty" doc:"Имя владельца" example:"Иван Иванов"`
-	SearchRegions        []string           `json:"regions,omitempty" doc:"Список регионов" example:"[\"MSK\", \"MO\"]"`
-	BloodVolumeNeeded    int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"200"`
-	BloodVolumeReserved  int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
-	BloodVolumeRemaining int32              `json:"bloodVolumeRemaining,omitempty" doc:"Необходимый остаток объема крови в мл" example:"100"`
-	SearchingBloodNames  []string           `json:"searchingBloodNames,omitempty" doc:"Список искомых групп крови" example:"[\"DEA 1+\", \"A\"]"`
-	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
-	BloodGroupName       string             `json:"bloodGroupName" doc:"Группа крови реципиента"`
-	PrioritySearch       bool               `json:"prioritySearch,omitempty" doc:"Приоритетный поиск"`
-	Status               string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
-	AdvancedInfo         *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
-	MatchingDonors       []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
-	DefaultDonorPrefs    *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
+	ID                       string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
+	PetID                    string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
+	PetName                  string             `json:"petName" doc:"Имя питомца" example:"Шарик"`
+	PetType                  string             `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
+	OwnerName                string             `json:"ownerName,omitempty" doc:"Имя владельца" example:"Иван Иванов"`
+	SearchRegions            []string           `json:"regions,omitempty" doc:"Список регионов" example:"[\"MSK\", \"MO\"]"`
+	BloodVolumeNeeded        int32              `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"200"`
+	BloodVolumeReserved      int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
+	BloodVolumeRemaining     int32              `json:"bloodVolumeRemaining,omitempty" doc:"Необходимый остаток объема крови в мл" example:"100"`
+	SearchingBloodNames      []string           `json:"searchingBloodNames,omitempty" doc:"Список искомых групп крови" example:"[\"DEA 1+\", \"A\"]"`
+	PhotoURLs                []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
+	BloodGroupName           string             `json:"bloodGroupName" doc:"Группа крови реципиента"`
+	PrioritySearch           bool               `json:"prioritySearch,omitempty" doc:"Приоритетный поиск"`
+	SmallPetsNotifyAllowed   bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
+	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
+	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	AdvancedInfo             *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
+	MatchingDonors           []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
+	DefaultDonorPrefs        *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
 }
 
 // DefaultPrefsпредставляет предпочтения реципиента по умолчанию

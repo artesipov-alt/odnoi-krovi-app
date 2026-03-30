@@ -21,7 +21,6 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *recipientmodel.Recipient {
 		PetID:                    req.PetID,
 		BloodVolumeNeeded:        req.BloodVolumeNeeded,
 		BloodVolumeReserved:      req.BloodVolumeReserved,
-		BloodVolumeRemaining:     req.BloodVolumeNeeded - req.BloodVolumeReserved,
 		PrioritySearch:           req.PrioritySearch,
 		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
 		SearchingBloodNames:      req.BloodGroupNames,

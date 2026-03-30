@@ -96,16 +96,18 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			}
 		}
 		items[i] = dto.RecipientDetail{
-			ID:                   r.ID,
-			PetID:                r.PetID,
-			PetName:              r.PetName,
-			PetType:              string(r.PetType),
-			BloodVolumeRemaining: r.BloodVolumeRemaining,
-			PhotoURLs:            h.storage.BuildPhotoURLs(r.PhotoURLs, now),
-			BloodGroupName:       r.BloodGroupName,
-			PrioritySearch:       r.PrioritySearch,
-			Status:               r.Status,
-			MatchingDonors:       matching,
+			ID:                       r.ID,
+			PetID:                    r.PetID,
+			PetName:                  r.PetName,
+			SmallPetsNotifyAllowed:   r.SmallPetsNotifyAllowed,
+			IncludeUnknownBloodGroup: r.IncludeUnknownBloodGroup,
+			PetType:                  string(r.PetType),
+			BloodVolumeRemaining:     r.BloodVolumeNeeded - r.BloodVolumeReserved,
+			PhotoURLs:                h.storage.BuildPhotoURLs(r.PhotoURLs, now),
+			BloodGroupName:           r.BloodGroupName,
+			PrioritySearch:           r.PrioritySearch,
+			Status:                   r.Status,
+			MatchingDonors:           matching,
 		}
 	}
 
