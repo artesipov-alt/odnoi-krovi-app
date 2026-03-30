@@ -191,21 +191,6 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 			pquery = pquery.WithAnalyses()
 		}
 	}
-	// if opts.WithBloodReq {
-	// 	pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
-	// 		bsrq.Where(entbloodreq.StatusIn(entbloodreq.DefaultStatus, entbloodreq.StatusReservedFull)).WithResponses()
-	// 	})
-	// }
-
-	// if opts.WithDonorApplication {
-	// 	pquery = pquery.WithDonations(func(drq *ent.DonorResponseQuery) {
-	// 		drq.Where(entdonorapply.StatusIn(entdonorapply.StatusAccepted, entdonorapply.StatusPending))
-	// 	})
-	// }
-
-	// if opts.WithOwner {
-	// 	pquery = pquery.WithOwner()
-	// }
 
 	entPet, err := pquery.Only(ctx)
 	if err != nil {
@@ -241,16 +226,6 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 			pquery = pquery.WithAnalyses()
 		}
 	}
-
-	// if opts.WithBloodReq {
-	// 	pquery = pquery.WithBloodSearchRequest(func(bsrq *ent.BloodSearchRequestQuery) {
-	// 		bsrq.Where(entbloodreq.StatusNEQ(entbloodreq.StatusClosed)).WithResponses()
-	// 	})
-	// }
-
-	// if opts.WithDonorApplication {
-	// 	pquery = pquery.WithDonations()
-	// }
 
 	pets, err := pquery.All(ctx)
 	if err != nil {
@@ -659,23 +634,3 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 func (r *EntPetRepository) Exists(ctx context.Context, id string) (bool, error) {
 	return r.ExistsByID(ctx, id)
 }
-
-// UpdateStatus обновляет статус питомца по его ID
-// func (r *EntPetRepository) UpdateStatus(ctx context.Context, id string, status string) error {
-// 	if id == "" {
-// 		return errors.New("неверный ID питомца")
-// 	}
-
-// 	err := r.client.Pet.UpdateOneID(id).
-// 		SetPetStatus(pet.PetStatus(status)).
-// 		Exec(ctx)
-
-// 	if err != nil {
-// 		if ent.IsNotFound(err) {
-// 			return fmt.Errorf("питомец с ID %s не найден", id)
-// 		}
-// 		return fmt.Errorf("не удалось обновить статус питомца: %w", err)
-// 	}
-
-// 	return nil
-// }

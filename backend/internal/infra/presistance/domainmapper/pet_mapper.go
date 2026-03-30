@@ -76,24 +76,6 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		}
 	}
 
-	// if e.Edges.BloodSearchRequest != nil {
-	// 	pet.SearchingBlood = true
-	// 	if len(e.Edges.BloodSearchRequest.Edges.Responses) > 0 {
-	// 		isNew := false
-	// 		for _, r := range e.Edges.BloodSearchRequest.Edges.Responses {
-	// 			if r.Status == donorresponse.Status(donormodel.DonorResponseStatusPending) {
-	// 				isNew = true
-	// 				break
-	// 			}
-	// 		}
-	// 		pet.HaveBloodReqApplication = isNew
-	// 	}
-	// }
-
-	// if len(e.Edges.Donations) > 0 {
-	// 	pet.PlaningDonation = true
-	// }
-
 	return pet
 }
 
