@@ -98,32 +98,17 @@ const AboutThanks: FC = () => {
 
                             <div className={aboutStyles.thanksDevText}>
                                 <div>Члены команды – Артем, Руслана, Сандра, Олег</div>
-                                <div>Front-end – Артур @vas0909</div>
-                                <div>Back-end – Руслан @vas0909</div>
-                                <div>Дизайн приложения – Дарья @vas0909</div>
-                                <div>Дизайн информационных материалов - Елена @vas0909</div>
+                                <div>Front-end – Артур</div>
+                                <div>Back-end – Руслан</div>
+                                <div>Дизайн приложения – Дарья</div>
+                                <div>Дизайн информационных материалов - Елена</div>
                             </div>
 
                             <div className={aboutStyles.thanksDevSubtitle}>Тестирование:</div>
                             <div className={aboutStyles.thanksQaList}>
-                                <span>@vas0909</span>
-                                <span>@vls0909</span>
-                                <span>@vas0909</span>
-                                <span>@pet2020</span>
-                                <span>@pet2020</span>
-                                <span>@pet2020</span>
-                                <span>@vas0909</span>
-                                <span>@vas0909</span>
-                                <span>@vas0909</span>
-                                <span>@pet2020</span>
-                                <span>@pet2020</span>
-                                <span>@pet2020</span>
-                                <span>@vas0909</span>
-                                <span>@vas0909</span>
-                                <span>@vas0909</span>
-                                <span>@pet2020</span>
-                                <span>@pet2020</span>
-                                <span>@pet2020</span>
+                                <span>Артур</span>
+                                <span>Руслан</span>
+                                <span>Дарья</span>
                             </div>
                         </div>
                     </div>
