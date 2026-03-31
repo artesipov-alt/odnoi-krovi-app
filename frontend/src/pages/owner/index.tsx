@@ -455,16 +455,16 @@ const Owner: FC<Props> = ({ userId }) => {
     }
 
     if (isPetProfileOpen && selectedPet) {
-        return (
-            <PetProfile updatePets={refetch} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />
-        );
+        return <PetProfile updatePets={refetch} onClose={onPetProfileToggleHandler(null)} {...selectedPet} />;
     }
 
     return (
         <Layout>
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.pets.length })}>
                 <div className={styles.header}>
-                    <div className={styles.avatar}>{userData?.fullName.charAt(0).toUpperCase()}</div>
+                    <div className={styles.avatar} onClick={() => navigate('/profile')} role='button'>
+                        {userData?.fullName.charAt(0).toUpperCase()}
+                    </div>
                 </div>
                 {(isLoading || isUserDataLoading) && (
                     <div className={styles.loading}>

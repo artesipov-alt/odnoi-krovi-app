@@ -1,6 +1,6 @@
 import Button from '@mui/material/Button';
 import cn from 'classnames';
-import { FC, MouseEvent, ReactNode } from 'react';
+import { CSSProperties, FC, MouseEvent, ReactNode } from 'react';
 
 import styles from './Curtain.module.less';
 
@@ -10,6 +10,9 @@ type Props = {
     onClose?: () => void;
     onCancel?: () => void;
     onConfirm?: () => void;
+    backgroundImage?: string;
+    contentBorderRadius?: CSSProperties['borderRadius'];
+    contentOverflow?: CSSProperties['overflow'];
     columnOfButtons?: boolean;
     cancelButtonTitle?: string;
     noRednerButtons?: boolean;
@@ -26,6 +29,9 @@ const Curtain: FC<Props> = ({
     onCancel,
     children,
     onConfirm,
+    backgroundImage,
+    contentBorderRadius,
+    contentOverflow,
     noRednerButtons,
     columnOfButtons,
     cancelButtonTitle,
@@ -39,9 +45,22 @@ const Curtain: FC<Props> = ({
         }
     };
 
+    const contentStyle: CSSProperties | undefined =
+        backgroundImage || contentBorderRadius !== undefined
+            ? ({
+                  ...(backgroundImage
+                      ? ({
+                            ['--curtain-bg-image' as any]: `url(${backgroundImage})`,
+                        } satisfies CSSProperties)
+                      : {}),
+                  ...(contentBorderRadius !== undefined ? { borderRadius: contentBorderRadius } : {}),
+                  ...(contentOverflow !== undefined ? { overflow: contentOverflow } : {}),
+              } satisfies CSSProperties)
+            : undefined;
+
     return (
         <div className={styles.wrapper} onClick={onWrapperClickHandler}>
-            <div className={styles.content}>
+            <div className={styles.content} style={contentStyle}>
                 {!!title && <h1 className={styles.title}>{title}</h1>}
                 {subTitle && <div className={styles.subTitle}>{subTitle}</div>}
                 {children}

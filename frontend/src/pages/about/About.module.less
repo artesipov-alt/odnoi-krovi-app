@@ -1,0 +1,352 @@
+@import 'styles/colors';
+
+.wrapper {
+    min-height: 100vh;
+    width: 100%;
+    background-size: cover;
+    background-position: top;
+    display: flex;
+    flex-direction: column;
+}
+
+.aboutPageWrapper {
+    background: @white-bg;
+}
+
+.panel.aboutPagePanel {
+    margin: 30px auto 35px auto;
+}
+
+.panel.techPagePanel {
+    margin: 25px auto 35px auto;
+}
+
+.header {
+    padding: 18px 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.backButton {
+    width: 24px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    :global(svg) {
+        width: 24px;
+        height: 24px;
+        fill: @red1;
+    }
+}
+
+.title {
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    line-height: 24px;
+    font-weight: 400;
+    color: @common-red;
+}
+
+.panel {
+    width: 100%;
+    margin: 105px auto 35px auto;
+    background: transparent;
+    border-radius: 10px;
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.menuItem {
+    border: 0;
+    background: @white;
+    border-radius: 8px;
+    padding: 12px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menuItem:focus {
+    outline: none;
+}
+
+.menuItemLeft {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menuItemIcon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    :global(svg) {
+        width: 18px;
+        height: 18px;
+        display: block;
+        fill: @border5;
+    }
+}
+
+.menuItemText {
+    font-family: Marmelad, sans-serif;
+
+    font-size: 14px;
+    line-height: 16px;
+    color: @textColor1;
+    text-align: left;
+}
+
+.menuItemChevron {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    :global(svg) {
+        width: 14px;
+        height: 14px;
+        transform: rotate(-90deg);
+        display: block;
+        fill: @border5;
+    }
+}
+
+.content {
+    background: @white;
+    border-radius: 10px;
+    padding: 18px 14px;
+    box-sizing: border-box;
+}
+
+.historyCard {
+    position: relative;
+    padding: 65px 24px 20px 24px;
+}
+
+.historyBigQuotes {
+    position: absolute;
+    left: 25px;
+    top: 3px;
+    font-family: Marmelad, sans-serif;
+    color: @textColor6;
+    :global(svg) {
+        width: 39px;
+        height: 31px;
+    }
+}
+
+.historyAvatar {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid @common-red;
+    display: block;
+    margin: -146px auto 14px;
+}
+
+.historyMeta {
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    color: @textColor4;
+    margin-bottom: 7px;
+    margin-top: 20px;
+}
+
+.historyLead,
+.historyMain {
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    line-height: 18px;
+    color: @textColor1;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+.historyParagraph {
+    margin-bottom: 20px;
+}
+
+.historyDivider {
+    width: 80px;
+    border-top: 1px solid @textColor4;
+    margin: 0px 0 20px 0;
+}
+
+.historyFooter {
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    color: @textColor4;
+}
+
+.techCard {
+    padding: 0px 40px;
+}
+
+.sectionTitle {
+    font-family: Marmelad, sans-serif;
+    font-size: 16px;
+    line-height: 18px;
+    color: @textColor1;
+    margin-bottom: 12px;
+}
+
+.sectionText {
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    color: @textColor1;
+}
+
+.thanksContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.thanksPanel {
+    margin: 21px auto 35px auto;
+}
+
+.thanksIntro {
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    line-height: 16px;
+    color: @textColor4;
+    text-align: center;
+}
+
+.thanksSectionCard {
+    background: @white;
+    border-radius: 10px;
+    padding: 17px 40px;
+}
+
+.thanksSectionHeader {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.thanksSectionIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.thanksSectionTitle {
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    line-height: 18px;
+    color: @red1;
+}
+
+.thanksList {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    color: @textColor6;
+
+    li {
+        position: relative;
+        padding-left: 16px;
+        margin-bottom: 5px;
+    }
+
+    li:last-child {
+        margin-bottom: 0;
+    }
+
+    li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        color: @red1;
+        width: 8px;
+        height: 8px;
+        background: @red1;
+        border-radius: 50%;
+    }
+}
+
+.thanksClinics {
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    color: @textColor6;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 14px;
+    justify-items: center;
+}
+
+.thanksDevText {
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    color: @textColor6;
+}
+
+.thanksDevSubtitle {
+    margin-bottom: 10px;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    color: @textColor6;
+}
+
+.thanksQaList {
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    color: @textColor6;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px 50px;
+    padding: 0 20px;
+}

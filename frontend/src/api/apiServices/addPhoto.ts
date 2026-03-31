@@ -4,15 +4,17 @@ type Args = {
     id: string;
     photo: File;
     isAvatar?: boolean;
+    isUserAvatar?: boolean;
     isBloodRequest?: boolean;
 };
 
-export const addPhoto = async ({ id, photo, isAvatar, isBloodRequest }: Args) => {
+export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodRequest }: Args) => {
     try {
         const { data: photoLink } = await api.getPhotoLink({
             id,
             photos_count: 1,
             for_pet_avatar: isAvatar,
+            for_user_avatar: isUserAvatar,
             for_blood_req: isBloodRequest,
         });
 

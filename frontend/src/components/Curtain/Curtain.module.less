@@ -22,7 +22,10 @@
     left: 50%;
     padding: 55px 18px 30px;
     transform: translateX(-50%);
-    background: url('imgs/curtainBg.png') no-repeat top;
+    overflow: hidden;
+    background-image: var(--curtain-bg-image, url('imgs/curtainBg.png'));
+    background-repeat: no-repeat;
+    background-position: top;
     background-size: cover;
     box-sizing: border-box;
 }

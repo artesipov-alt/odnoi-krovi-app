@@ -1,0 +1,810 @@
+@import 'styles/colors';
+
+.layout {
+    background: @white-bg;
+    min-height: 100vh;
+}
+
+.page {
+    min-height: 100vh;
+    color: @textColor2;
+}
+
+.header {
+    height: 180px;
+    background: url(/src/imgs/regHeader.png) no-repeat bottom;
+    background-size: cover;
+    text-align: center;
+    padding: 20px 20px 0px 20px;
+    position: relative;
+}
+
+.backButton {
+    position: absolute;
+    top: 37px;
+    left: 18px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+
+    :global(svg) {
+        fill: @red1;
+    }
+}
+
+.avatar {
+    width: 110px;
+    height: 110px;
+    margin: 0px auto 10px;
+    border-radius: 50%;
+    background: @red16;
+    color: @white;
+    font-family: MTSCompact, sans-serif;
+    font-size: 52px;
+    line-height: 110px;
+}
+
+.avatarImage {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.fullName {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.08;
+    font-weight: 400;
+    color: @white;
+}
+
+.username {
+    margin: 8px 0 0;
+    color: rgba(223, 196, 205, 0.92);
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.content {
+    border-radius: 36px 36px 0 0;
+    background: @white-bg;
+    margin: 0 auto;
+    padding: 13px 12px 42px 12px;
+}
+
+.contactCard {
+    position: relative;
+    border-radius: 10px;
+    background: @white;
+    padding: 15px 60px 15px 16px;
+}
+
+.contactRow {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-height: 44px;
+}
+
+.contactIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    color: @grayBg29;
+    font-size: 24px;
+}
+
+.contactValue {
+    color: @textColor1;
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+.editButton {
+    position: absolute;
+    right: 16px;
+    top: 14px;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: @grayBg28;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    :global(svg) {
+        width: 0.5em;
+        height: 0.5em;
+    }
+
+    :global(svg path) {
+        fill: @red9;
+    }
+}
+
+.bonusCard {
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: url('imgs/profileBg.png') no-repeat center;
+    background-size: cover;
+    min-height: 138px;
+    padding: 19px 21px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.bonusText {
+    color: @textColor2;
+    font-size: 19px;
+    line-height: 20px;
+}
+
+.detailsButton {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    min-width: 148px;
+    width: 148px;
+    height: 58px;
+    border-radius: 10px !important;
+    border: 0;
+    background: linear-gradient(320deg, @red17 0%, @common-red 100%);
+    color: @white1;
+    font-family: Marmelad, sans-serif !important;
+    text-transform: none !important;
+    cursor: pointer;
+    z-index: 3;
+
+    &:disabled {
+        color: @textColor2 !important;
+    }
+}
+
+.bonusImage {
+    position: absolute;
+    right: -35px;
+    bottom: -39px;
+    width: 226px;
+    max-width: 62%;
+    pointer-events: none;
+}
+
+.bonusCardNew {
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: @grayBg7;
+    background-size: cover;
+    min-height: 138px;
+    padding: 19px 21px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.bonusCardNewTitle {
+    color: @textColor2;
+    font-size: 19px;
+    line-height: 20px;
+}
+
+.bonusCardNewButton {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    min-width: 148px;
+    width: 148px;
+    height: 58px;
+    border-radius: 10px !important;
+    border: 0;
+    background: linear-gradient(320deg, @red17 0%, @common-red 100%);
+    color: @white1;
+    font-family: Marmelad, sans-serif !important;
+    text-transform: none !important;
+    cursor: pointer;
+    z-index: 3;
+
+    &:disabled {
+        color: @textColor2 !important;
+    }
+}
+
+.bonusCardNewImage {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    max-width: 62%;
+    pointer-events: none;
+}
+
+.infoButtons {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.infoButton {
+    min-height: 108px;
+    border: 0;
+    border-radius: 18px;
+    background: @white;
+    color: @textColor2;
+    font-size: 16px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.infoButton_disabled {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+}
+
+.infoIcon {
+    color: @red18;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.infoIcon_app {
+    color: @textColor3;
+
+    :global(svg) {
+        color: @textColor3;
+    }
+
+    :global(svg path) {
+        fill: @textColor3;
+    }
+}
+
+.infoText {
+    display: block;
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: 0;
+}
+
+.socials {
+    margin-top: 20px;
+    padding: 2px 2px 0;
+}
+
+.socialRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 64px;
+}
+
+.socialLeft {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.socialIcon {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    :global(svg) {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+}
+
+.socialTitle {
+    color: @border5;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    letter-spacing: 0;
+    text-align: center;
+}
+
+.socialRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.socialValue {
+    color: @border5;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0;
+    text-align: center;
+}
+
+.trailing {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+
+    &::before {
+        content: '\00D7';
+        color: @border5;
+        font-family:
+            Proxima Nova,
+            sans-serif;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 1;
+    }
+}
+
+.bindButton {
+    width: 90px;
+    height: 34px;
+    border-radius: 30px;
+    border: 1px solid @grayBg19;
+    background: transparent;
+    color: @border5;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease;
+
+    &:active {
+        transform: scale(0.96);
+        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
+        border-color: darken(@grayBg19, 10%);
+    }
+}
+
+.popupOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(39, 33, 40, 0.34);
+}
+
+.popupShell {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+}
+
+.popupIcon {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+
+    :global(svg) {
+        width: 67px;
+        height: 67px;
+        display: block;
+    }
+}
+
+.popupCard {
+    width: 100%;
+    position: relative;
+    max-width: 341px;
+    border-radius: 10px;
+    background: @white;
+    padding: 50px 20px 0px;
+    text-align: center;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.popupTitle {
+    margin: 0;
+    color: @common-red;
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 24px;
+}
+
+.popupText {
+    margin: 20px 0 0;
+    color: @textColor1;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+}
+
+.popupDivider {
+    position: relative;
+    width: calc(100% + 24px);
+    margin: 14px -12px 0;
+    border-top: 2px dashed @border6;
+    &::after {
+        content: '';
+        position: absolute;
+        display: block;
+        height: 59px;
+        width: 59px;
+        background: linear-gradient(180deg, #ffd9df 0%, #ffd6dd 100%);
+        top: -30px;
+        left: -60px;
+        border-radius: 36px;
+    }
+    &::before {
+        content: '';
+        position: absolute;
+        display: block;
+        height: 59px;
+        width: 59px;
+        background-color: @red19;
+        top: -30px;
+        right: -60px;
+        border-radius: 36px;
+    }
+}
+
+.popupShareButton {
+    margin-top: 26px;
+    border: 0;
+    background: transparent;
+    color: @common-red;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    line-height: 16px;
+    cursor: pointer;
+}
+
+.popupSocials {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 34px;
+}
+
+.popupSocialButton {
+    border: 0;
+    border-radius: 14px;
+    padding: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    :global(svg) {
+        width: 44px;
+        height: 44px;
+        display: block;
+
+        fill: @red9;
+    }
+}
+
+.popupBackButton {
+    margin-top: 40px;
+    margin-bottom: 30px;
+    border: 0;
+    background: transparent;
+    color: @red20;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    line-height: 16px;
+    cursor: pointer;
+}
+
+.aboutPanel {
+    width: 100%;
+    max-width: 341px;
+    margin: 0 auto;
+    background: @white;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 12px 0 16px;
+}
+
+.aboutHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+}
+
+.aboutBackButton {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    :global(svg) {
+        width: 18px;
+        height: 18px;
+        fill: @common-red;
+    }
+}
+
+.aboutTitle {
+    font-family: Marmelad, sans-serif;
+    font-size: 18px;
+    line-height: 20px;
+    color: @common-red;
+    font-weight: 400;
+}
+
+.aboutMenu {
+    margin-top: 16px;
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.aboutMenuItem {
+    border: 0;
+    background: @white;
+    border-radius: 8px;
+    padding: 14px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.aboutMenuItemIcon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    :global(svg) {
+        width: 18px;
+        height: 18px;
+        display: block;
+    }
+}
+
+.aboutMenuItemText {
+    flex: 1;
+    text-align: left;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 14px;
+    line-height: 16px;
+    color: @textColor1;
+}
+
+.aboutMenuItemChevron {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    :global(svg) {
+        width: 14px;
+        height: 14px;
+        transform: rotate(-90deg);
+        display: block;
+    }
+}
+
+.editCurtainWrapper {
+    padding-top: 10px;
+}
+
+.editCurtainHeader {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+}
+
+.editAvatarCircle {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: @red16;
+    color: @white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 46px;
+    line-height: 1;
+    position: relative;
+}
+
+.editAvatarImage {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.editHeaderIcon {
+    position: absolute;
+    right: 0%;
+    top: 63px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: @grayBg26;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    :global(svg) {
+        width: 0.5em;
+        height: 0.5em;
+    }
+
+    :global(svg path) {
+        fill: @red9;
+    }
+}
+
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.editLabel {
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: @textColor2;
+    margin-top: 4px;
+}
+
+.editInput {
+    width: 100%;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid @border1;
+    background: @white;
+    padding: 0 16px;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: @textColor1;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.editInputError {
+    border-color: @ErrorRed !important;
+}
+
+.editInput::placeholder {
+    color: @grayBg5;
+}
+
+.editInputWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.editInputWrapper .editInput {
+    padding: 0 44px 0 16px;
+}
+
+.editClearButton {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 27px;
+    height: 27px;
+    border: 0;
+    border-radius: 50%;
+    background: @grayBg30;
+    cursor: pointer;
+    color: @textColor6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 20px;
+
+    &:hover {
+        background: @grayBg24;
+    }
+
+    &:active {
+        transform: translateY(-50%) scale(0.96);
+    }
+}
+
+.editSaveButton {
+    margin-top: 12px;
+    height: 62px;
+    width: 100%;
+    border-radius: 21px;
+    border: 0;
+    background: linear-gradient(320deg, @red17 0%, @common-red 100%);
+    color: @white1;
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    text-transform: none;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.editSaveButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

@@ -1,0 +1,256 @@
+@import 'styles/colors';
+
+.page {
+    min-height: 100vh;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+    color: @textColor2;
+    padding: 18px 0 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    padding: 0 14px;
+}
+
+.backButton {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    :global(svg) {
+        fill: @red1;
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.title {
+    margin: 0;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    color: @textColor2;
+}
+
+.panel {
+    background: transparent;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.counterDot {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    :global(svg) {
+        width: 26px;
+        height: 26px;
+        display: block;
+    }
+}
+
+.counterValue {
+    color: @textColor1;
+    font-size: 14px;
+    line-height: 16px;
+    color: @textColor2;
+}
+
+.tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0 10px;
+}
+
+.tab {
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    padding: 6px 4px 10px;
+    color: @textColor5;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    text-align: center;
+    cursor: pointer;
+}
+
+.tabTop {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.tabLabel {
+    display: block;
+    margin-top: 8px;
+    font-size: 10px;
+    line-height: 14px;
+}
+
+.tab_active {
+    color: @textColor2;
+    border-bottom-color: @textColor2;
+}
+
+.list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 4px;
+}
+
+.card {
+    border-radius: 12px;
+    border: 0;
+    background: @white;
+    padding: 10px 10px 10px 94px;
+    position: relative;
+    height: max-content;
+    margin: 0 10px;
+    box-shadow: -6px 11px 26.9px 0 rgba(72, 72, 72, 0.09);
+    overflow: hidden;
+}
+
+.card_withImage {
+    min-height: 82px;
+}
+
+.card_noImage {
+    padding-left: 10px;
+    min-height: 0;
+}
+
+.card_disabled {
+    opacity: 0.52;
+}
+
+.cardImage {
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+}
+
+.cardTitle {
+    color: @textColor2;
+    
+    font-size: 14px;
+    line-height: 16px;
+    padding-right: 120px;
+}
+
+.cardSubtitle {
+    color: @textColor1;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    margin-top: 8px;
+}
+
+.cardChip {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    min-width: 70px;
+    border-radius: 999px;
+    background: @orange5;
+    color: @white;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 11px;
+    line-height: 14px;
+    text-align: center;
+    padding: 0px 6px;
+}
+
+.cardChip_disabled {
+    background: @grayBg27;
+    color: @white;
+}
+
+.emptyBlock {
+    min-height: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding-top: 68px;
+}
+
+.emptyTitle {
+    color: @textColor2;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    line-height: 24px;
+}
+
+.emptyText {
+    margin-top: 8px;
+    max-width: 240px;
+    color: @textColor5;
+    font-family:
+        Proxima Nova,
+        sans-serif;
+    font-size: 14px;
+    line-height: 15px;
+}
+
+.primaryButton {
+    min-width: 224px;
+    margin-top: 28px;
+    height: 60px;
+    border: 0;
+    padding: 0 23px;
+    border-radius: 10px;
+    background: linear-gradient(320deg, @red17 0%, @common-red 100%);
+    color: @white1;
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 18px;
+    letter-spacing: 0;
+    text-align: center;
+    cursor: pointer;
+}
+
+.emptyImage {
+    max-width: 90%;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.bottomAction {
+    display: flex;
+    justify-content: center;
+    padding: 0px 12px;
+}

@@ -47,8 +47,8 @@ export type DonorPreference = {
 };
 
 export type Identities = {
-    refUrl: string;
-    providerId: number;
+    refUrl?: string;
+    providerId: number | string;
     providerName: string;
 };
 
@@ -57,6 +57,7 @@ export type GetUserResponse = {
     role?: Role;
     phone?: string;
     email?: string;
+    photoUrls?: string[];
     message?: string;
     fullName: string;
     allowGeo?: boolean;
@@ -67,6 +68,7 @@ export type GetUserResponse = {
     onBoarding?: Onboarding[];
     organizationName?: string;
     donorPreference?: DonorPreference;
+    identities?: Identities[];
 };
 
 export type UpdateUserRequest = {
@@ -108,7 +110,7 @@ export const USER_URL = '/v1/user';
 
 export const userApi = (): IUserApi => ({
     getUser(id) {
-        return instance.get(`${USER_URL}/${id}?with_donor_preference=true`);
+        return instance.get(`${USER_URL}/${id}?with_donor_preference=true&with_identities=true`);
     },
     getUserByTelegramId(id) {
         return instance.get(`${USER_URL}/telegram/${id}`);
