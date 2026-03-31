@@ -1,7 +1,7 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import { FC } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
 import { useAuth } from './hooks/useAuth';
@@ -31,6 +31,7 @@ const App: FC = () => {
         <>
             <Routes>
                 <Route path='/owner' element={<Owner userId={user.id} />} />
+                <Route path='/profile' element={<Profile userId={user.id} />} />
                 <Route path='/adding' element={<Adding userId={user.id} />} />
                 <Route path='/search/:id' element={<Search userId={user.id} />} />
                 <Route path='/recipientsList' element={<RecipientsList userId={user.id} />} />
@@ -47,7 +48,7 @@ const App: FC = () => {
                     path='/'
                     element={
                         user.phone ? (
-                            <Profile userId={user.id} />
+                            <Navigate to='/owner' />
                         ) : (
                             <Registration initialize={initialize} userId={user.id} fullName={user.fullName} />
                         )

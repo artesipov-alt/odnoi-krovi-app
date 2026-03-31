@@ -4,7 +4,8 @@ import onboardingScreen2 from 'imgs/onboardingScreen2.png';
 import onboardingScreen3 from 'imgs/onboardingScreen3.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import { FC, useState } from 'react';
-import { useNavigate } from 'react-router';
+
+import Layout from 'components/Layout';
 
 import styles from './PromoSlider.module.less';
 
@@ -13,28 +14,22 @@ const promoSlides = [
         title: 'Найдите кровь\nдля своего питомца',
         description: 'Ищите среди запасов клиник и доноров',
         image: onboardingScreen1,
-        route: '/owner',
     },
     {
         title: 'Спасайте\nжизни',
         description: 'Зарегистрируйте питомца донором и помогите тем, кто нуждается в переливании',
         image: onboardingScreen2,
-        route: '/about/tech',
     },
     {
         title: 'Получайте\nнаграды',
         description: 'Для своего питомца-донора',
         image: onboardingScreen3,
-        route: '/bonuses',
     },
 ];
 
 const PromoSlider: FC = () => {
-    const navigate = useNavigate();
     const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-    const handlePrevSlide = () => {
-        setActiveSlideIndex((prev) => (prev - 1 + promoSlides.length) % promoSlides.length);
-    };
+
     const handleNextSlide = () => {
         setActiveSlideIndex((prev) => (prev + 1) % promoSlides.length);
     };
@@ -42,19 +37,7 @@ const PromoSlider: FC = () => {
     const currentSlide = promoSlides[activeSlideIndex];
 
     return (
-        <div className={styles.promoSliderCard}>
-            <button
-                type='button'
-                className={cn(styles.promoNavArea, styles.promoNavArea_left)}
-                onClick={handlePrevSlide}
-                aria-label='Предыдущий слайд'
-            />
-            <button
-                type='button'
-                className={cn(styles.promoNavArea, styles.promoNavArea_right)}
-                onClick={handleNextSlide}
-                aria-label='Следующий слайд'
-            />
+        <Layout className={styles.promoSliderCard}>
             <div className={styles.promoProgress}>
                 {promoSlides.map((slide, index) => (
                     <span key={slide.title} className={styles.promoProgressTrack}>
@@ -70,8 +53,8 @@ const PromoSlider: FC = () => {
             <button
                 type='button'
                 className={styles.promoNextButton}
-                onClick={() => navigate(currentSlide.route)}
-                aria-label='Открыть раздел'
+                onClick={handleNextSlide}
+                aria-label='Следующий слайд'
             >
                 <BackAngularArrow />
             </button>
@@ -85,7 +68,7 @@ const PromoSlider: FC = () => {
             </div>
             <div className={styles.promoDescription}>{currentSlide.description}</div>
             <img src={currentSlide.image} alt='Промо слайд' className={styles.promoImage} />
-        </div>
+        </Layout>
     );
 };
 
