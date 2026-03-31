@@ -25,7 +25,7 @@ const promoSlides = [
         title: 'Получайте\nнаграды',
         description: 'Для своего питомца-донора',
         image: onboardingScreen3,
-        route: '/about/thanks',
+        route: '/bonuses',
     },
 ];
 

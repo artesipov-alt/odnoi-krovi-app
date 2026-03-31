@@ -11,6 +11,7 @@ import AboutHistory from './pages/about/History';
 import AboutTech from './pages/about/Tech';
 import AboutThanks from './pages/about/Thanks';
 import Adding from './pages/adding';
+import Bonuses from './pages/bonuses';
 import Owner from './pages/owner';
 import Profile from './pages/profile';
 import RecipientsList from './pages/recipientsList';
@@ -37,6 +38,7 @@ const App: FC = () => {
                 <Route path='/about/history' element={<AboutHistory />} />
                 <Route path='/about/thanks' element={<AboutThanks />} />
                 <Route path='/about/tech' element={<AboutTech />} />
+                <Route path='/bonuses' element={<Bonuses />} />
                 <Route
                     path='/registration'
                     element={<Registration initialize={initialize} userId={user.id} fullName={user.fullName} />}
