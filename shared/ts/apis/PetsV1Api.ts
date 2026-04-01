@@ -65,11 +65,11 @@ export interface CreatePetRequest {
 }
 
 export interface DeletePetRequest {
-    id: string;
+    petId: string;
 }
 
 export interface GetPetByIdRequest {
-    id: string;
+    petId: string;
     withHealth?: boolean;
     withTreatments?: boolean;
     withAnalysis?: boolean;
@@ -95,12 +95,12 @@ export interface GetUserPetsRequest {
 }
 
 export interface UpdatePetRequest {
-    id: string;
+    petId: string;
     updatePetBody: Omit<UpdatePetBody, '$schema'>;
 }
 
 export interface ValidateDonorRequest {
-    id: string;
+    petId: string;
 }
 
 /**
@@ -203,10 +203,10 @@ export class PetsV1Api extends runtime.BaseAPI {
      * Удаление питомца по ID
      */
     async deletePetRaw(requestParameters: DeletePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeletePetResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['petId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling deletePet().'
+                'petId',
+                'Required parameter "petId" was null or undefined when calling deletePet().'
             );
         }
 
@@ -215,8 +215,8 @@ export class PetsV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/pet/{pet_id}`;
+        urlPath = urlPath.replace(`{${"pet_id"}}`, encodeURIComponent(String(requestParameters['petId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -242,10 +242,10 @@ export class PetsV1Api extends runtime.BaseAPI {
      * Получение питомца по ID
      */
     async getPetByIdRaw(requestParameters: GetPetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PetDetail>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['petId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getPetById().'
+                'petId',
+                'Required parameter "petId" was null or undefined when calling getPetById().'
             );
         }
 
@@ -274,8 +274,8 @@ export class PetsV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/pet/{pet_id}`;
+        urlPath = urlPath.replace(`{${"pet_id"}}`, encodeURIComponent(String(requestParameters['petId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -415,10 +415,10 @@ export class PetsV1Api extends runtime.BaseAPI {
      * Обновление данных питомца
      */
     async updatePetRaw(requestParameters: UpdatePetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdatePetResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['petId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling updatePet().'
+                'petId',
+                'Required parameter "petId" was null or undefined when calling updatePet().'
             );
         }
 
@@ -436,8 +436,8 @@ export class PetsV1Api extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/v1/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/pet/{pet_id}`;
+        urlPath = urlPath.replace(`{${"pet_id"}}`, encodeURIComponent(String(requestParameters['petId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -464,10 +464,10 @@ export class PetsV1Api extends runtime.BaseAPI {
      * Валидация донора по ID
      */
     async validateDonorRaw(requestParameters: ValidateDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ValidateDonorResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['petId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling validateDonor().'
+                'petId',
+                'Required parameter "petId" was null or undefined when calling validateDonor().'
             );
         }
 
@@ -476,8 +476,8 @@ export class PetsV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/pet/validate-donor/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/pet/validate-donor/{pet_id}`;
+        urlPath = urlPath.replace(`{${"pet_id"}}`, encodeURIComponent(String(requestParameters['petId'])));
 
         const response = await this.request({
             path: urlPath,

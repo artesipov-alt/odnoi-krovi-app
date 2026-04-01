@@ -2,15 +2,16 @@ package cmd
 
 import (
 	"context"
+	"time"
 
-	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	userevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
@@ -92,28 +93,14 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		return err
 	}
 
-	event := events.ApplyDonor{}
-	for _, identity := range donorUser.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
-			event.DonorData.ProviderMaxID = identity.ProviderUserID
-		}
-		if identity.ProviderName == authmodel.ProviderTelegram {
-			event.DonorData.ProviderTelegram = identity.ProviderUserID
-		}
-	}
-	event.DonorData.Name = donorUser.FullName
-	event.DonorData.Phone = donorUser.Phone
-	for _, identity := range recipientUser.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
-			event.RecipientData.ProviderMaxID = identity.ProviderUserID
-		}
-		if identity.ProviderName == authmodel.ProviderTelegram {
-			event.RecipientData.ProviderTelegram = identity.ProviderUserID
-		}
+	eventRecipient := userevent.GenerateContact(recipientUser)
+	eventDonor := userevent.GenerateContact(donorUser)
 
+	event := events.ApplyDonor{
+		DonorData:     eventDonor.UserData,
+		RecipientData: eventRecipient.UserData,
+		CreatedAt:     time.Now(),
 	}
-	event.RecipientData.Name = recipientUser.FullName
-	event.RecipientData.Phone = recipientUser.Phone
 
 	if err := h.publisher.PublishDonorApply(ctx, event); err != nil {
 		return err

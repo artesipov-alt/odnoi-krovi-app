@@ -1,5 +1,9 @@
 package dto
 
+import (
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
+)
+
 // DonorPreloadQuery представляет параметры для предзагрузки связанных данных
 type DonorPreloadQuery struct {
 	Status string `query:"status,omitempty" doc:"Статус заявки" enum:"active,closed,draft"`
@@ -9,7 +13,7 @@ type DonorPreloadQuery struct {
 
 // GetRecipientInput представляет запрос на получение реципиента по ID
 type GetRecipientsListInput struct {
-	UserIDPath
+	commondto.UserIDPath
 	DonorPreloadQuery
 }
 

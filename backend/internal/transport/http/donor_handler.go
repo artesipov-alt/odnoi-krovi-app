@@ -11,6 +11,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -44,7 +45,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-recipients",
 		Method:      http.MethodGet,
-		Path:        "/v1/donor/recipient-list/{id}", // Изменено
+		Path:        "/v1/donor/recipient-list/{user_id}", // Изменено
 		Summary:     "Получить список заявок на поиск крови",
 		Description: "Возвращает список реципиентов по фильтрам",
 		Tags:        []string{"donor-v1"},
@@ -54,7 +55,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-recipient-details",
 		Method:      http.MethodGet,
-		Path:        "/v1/donor/recipient-details/{id}", // Изменено
+		Path:        "/v1/donor/recipient-details/{req_id}", // Изменено
 		Summary:     "Получить детальные данные по заявке на поиск крови",
 		Description: "Возвращает детальную информацию по заявке на поиск крови",
 		Tags:        []string{"donor-v1"},
@@ -64,7 +65,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "apply-for-blood-request",
 		Method:        http.MethodPost,
-		Path:          "/v1/donor/recipient/{id}/apply", // Изменено
+		Path:          "/v1/donor/recipient/{req_id}/apply", // Изменено
 		Summary:       "Откликнуться на заявку на поиск крови",
 		Description:   "Позволяет донору откликнуться на существующую заявку на поиск крови.",
 		Tags:          []string{"donor-v1"},
@@ -114,7 +115,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 	return &dto.ListRecipientsOutput{Body: dto.RecipientsList{Items: items, Total: len(items)}}, nil
 }
 
-func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ dto.BloodRequestIDPath }) (*dto.RecipientDetailsOutput, error) {
+func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ commondto.BloodRequestIDPath }) (*dto.RecipientDetailsOutput, error) {
 	userID := middleware.GetUserID(ctx)
 	if userID == "" {
 		return nil, apperrors.Unauthorized("user ID is missing in context")

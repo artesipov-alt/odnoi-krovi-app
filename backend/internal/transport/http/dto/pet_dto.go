@@ -2,6 +2,8 @@ package dto
 
 import (
 	"time"
+
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 )
 
 // ============================================
@@ -58,16 +60,6 @@ type DonorRestrictions struct {
 	WarnFactors []RestrictionFactor `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
 }
 
-// PetPathParam представляет параметр пути с ID питомца
-type PetPathParam struct {
-	ID string `path:"id" doc:"ID питомца" minLength:"1" example:"PET-aBcDeF1234"`
-}
-
-// PetUserPathParam представляет параметр пути с ID пользователя
-type PetUserPathParam struct {
-	UserID string `path:"user_id" doc:"ID пользователя" minLength:"1" example:"USR-aBcDeF1234"`
-}
-
 // PetPreloadQuery представляет параметры запроса для подгрузки связанных данных
 type PetPreloadQuery struct {
 	WithHealth     bool `query:"with_health" doc:"Включить данные о здоровье"`
@@ -83,7 +75,7 @@ type PetPreloadQuery struct {
 
 // CreatePetInput представляет запрос на создание питомца
 type CreatePetInput struct {
-	PetUserPathParam
+	commondto.UserIDPath
 	Body CreatePetBody
 }
 
@@ -125,7 +117,7 @@ type CreatePetResult struct {
 
 // UpdatePetInput представляет запрос на обновление питомца
 type UpdatePetInput struct {
-	PetPathParam
+	commondto.PetIDPath
 	Body UpdatePetBody
 }
 
@@ -168,7 +160,7 @@ type UpdatePetResult struct {
 
 // GetPetByIDInput представляет запрос на получение питомца по ID
 type GetPetByIDInput struct {
-	PetPathParam
+	commondto.PetIDPath
 	PetPreloadQuery
 }
 
@@ -210,7 +202,7 @@ type PetDetail struct {
 
 // GetPetsByUserInput представляет запрос на получение питомцев пользователя
 type GetPetsByUserInput struct {
-	PetUserPathParam
+	commondto.UserIDPath
 	PetPreloadQuery
 }
 
@@ -233,7 +225,7 @@ type GetPetsByUserResult struct {
 
 // DeletePetInput представляет запрос на удаление питомца
 type DeletePetInput struct {
-	PetPathParam
+	commondto.PetIDPath
 }
 
 // DeletePetOutput представляет ответ на удаление питомца
@@ -252,7 +244,7 @@ type DeletePetResult struct {
 
 // ValidateDonorInput представляет запрос на валидацию донора
 type ValidateDonorInput struct {
-	PetPathParam
+	commondto.PetIDPath
 }
 
 // ValidateDonorOutput представляет ответ на валидацию донора

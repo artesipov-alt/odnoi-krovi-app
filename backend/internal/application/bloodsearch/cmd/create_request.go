@@ -10,10 +10,10 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 )
 
 type CreateRequestHandler struct {

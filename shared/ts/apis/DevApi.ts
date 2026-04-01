@@ -32,11 +32,11 @@ import {
 } from '../models/index';
 
 export interface ResetUserRequest {
-    id: string;
+    userId: string;
 }
 
 export interface RestoreUserRequest {
-    id: string;
+    userId: string;
 }
 
 /**
@@ -80,10 +80,10 @@ export class DevApi extends runtime.BaseAPI {
      * Сброс пользователя к начальным настройкам
      */
     async resetUserRaw(requestParameters: ResetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResetUserResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling resetUser().'
+                'userId',
+                'Required parameter "userId" was null or undefined when calling resetUser().'
             );
         }
 
@@ -92,8 +92,8 @@ export class DevApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/user/reset-user/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/user/reset-user/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -119,10 +119,10 @@ export class DevApi extends runtime.BaseAPI {
      * Восстановление удаленного пользователя
      */
     async restoreUserRaw(requestParameters: RestoreUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RestoreUserResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling restoreUser().'
+                'userId',
+                'Required parameter "userId" was null or undefined when calling restoreUser().'
             );
         }
 
@@ -131,8 +131,8 @@ export class DevApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/user/restore-user/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/user/restore-user/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,

@@ -35,16 +35,16 @@ import {
 } from '../models/index';
 
 export interface ApplyForBloodRequestRequest {
-    id: string;
+    reqId: string;
     applyForBloodRequestBody: Omit<ApplyForBloodRequestBody, '$schema'>;
 }
 
 export interface GetRecipientDetailsRequest {
-    id: string;
+    reqId: string;
 }
 
 export interface GetRecipientsRequest {
-    id: string;
+    userId: string;
     status?: GetRecipientsStatusEnum;
     limit?: number;
     offset?: number;
@@ -60,10 +60,10 @@ export class DonorV1Api extends runtime.BaseAPI {
      * Откликнуться на заявку на поиск крови
      */
     async applyForBloodRequestRaw(requestParameters: ApplyForBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DonorApplicationResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['reqId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling applyForBloodRequest().'
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling applyForBloodRequest().'
             );
         }
 
@@ -81,8 +81,8 @@ export class DonorV1Api extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/v1/donor/recipient/{id}/apply`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/donor/recipient/{req_id}/apply`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -109,10 +109,10 @@ export class DonorV1Api extends runtime.BaseAPI {
      * Получить детальные данные по заявке на поиск крови
      */
     async getRecipientDetailsRaw(requestParameters: GetRecipientDetailsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RecipientDetail>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['reqId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getRecipientDetails().'
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling getRecipientDetails().'
             );
         }
 
@@ -121,8 +121,8 @@ export class DonorV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/donor/recipient-details/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/donor/recipient-details/{req_id}`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -148,10 +148,10 @@ export class DonorV1Api extends runtime.BaseAPI {
      * Получить список заявок на поиск крови
      */
     async getRecipientsRaw(requestParameters: GetRecipientsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RecipientsList>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getRecipients().'
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getRecipients().'
             );
         }
 
@@ -172,8 +172,8 @@ export class DonorV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/donor/recipient-list/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/donor/recipient-list/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,

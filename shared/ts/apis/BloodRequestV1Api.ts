@@ -63,11 +63,11 @@ export interface AddPetToBloodRequestPoolRequest {
 }
 
 export interface ApplyDonorResponseRequest {
-    id: string;
+    resId: string;
 }
 
 export interface ConfirmDonationByIdRequest {
-    id: string;
+    resId: string;
     confirmData: Omit<ConfirmData, '$schema'>;
 }
 
@@ -76,23 +76,23 @@ export interface ConfirmUploadRequest {
 }
 
 export interface DeleteBloodRequestRequest {
-    id: string;
+    reqId: string;
 }
 
 export interface GetBloodRequestByIdRequest {
-    id: string;
+    reqId: string;
 }
 
 export interface GetBloodRequestByPetIdRequest {
-    id: string;
+    petId: string;
 }
 
 export interface GetDonationByIdRequest {
-    id: string;
+    resId: string;
 }
 
 export interface GetDonorByIdRequest {
-    id: string;
+    petId: string;
 }
 
 export interface GetPresignedUrlRequest {
@@ -104,11 +104,11 @@ export interface GetPresignedUrlRequest {
 }
 
 export interface RejectDonationByIdRequest {
-    id: string;
+    resId: string;
 }
 
 export interface UpdateBloodRequestRequest {
-    id: string;
+    reqId: string;
     updateBloodRequestBody: Omit<UpdateBloodRequestBody, '$schema'>;
 }
 
@@ -163,10 +163,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Применить отклик донора
      */
     async applyDonorResponseRaw(requestParameters: ApplyDonorResponseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResultMessage>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['resId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling applyDonorResponse().'
+                'resId',
+                'Required parameter "resId" was null or undefined when calling applyDonorResponse().'
             );
         }
 
@@ -175,8 +175,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/apply-response/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/apply-response/{res_id}`;
+        urlPath = urlPath.replace(`{${"res_id"}}`, encodeURIComponent(String(requestParameters['resId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -202,10 +202,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Подтвердить донацию по ID
      */
     async confirmDonationByIdRaw(requestParameters: ConfirmDonationByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResultMessage>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['resId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling confirmDonationById().'
+                'resId',
+                'Required parameter "resId" was null or undefined when calling confirmDonationById().'
             );
         }
 
@@ -223,8 +223,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/v1/blood-request/donation/{id}/confirm`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/donation/{res_id}/confirm`;
+        urlPath = urlPath.replace(`{${"res_id"}}`, encodeURIComponent(String(requestParameters['resId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -292,10 +292,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Удалить заявку
      */
     async deleteBloodRequestRaw(requestParameters: DeleteBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResultMessage>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['reqId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling deleteBloodRequest().'
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling deleteBloodRequest().'
             );
         }
 
@@ -304,8 +304,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/{req_id}`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -331,10 +331,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Получить заявку по ID
      */
     async getBloodRequestByIdRaw(requestParameters: GetBloodRequestByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodRequestDetail>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['reqId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getBloodRequestById().'
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling getBloodRequestById().'
             );
         }
 
@@ -343,8 +343,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/{req_id}`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -370,10 +370,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Получить заявку по ID питомца
      */
     async getBloodRequestByPetIdRaw(requestParameters: GetBloodRequestByPetIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BloodRequestDetail>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['petId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getBloodRequestByPetId().'
+                'petId',
+                'Required parameter "petId" was null or undefined when calling getBloodRequestByPetId().'
             );
         }
 
@@ -382,8 +382,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/pet/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/pet/{pet_id}`;
+        urlPath = urlPath.replace(`{${"pet_id"}}`, encodeURIComponent(String(requestParameters['petId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -409,10 +409,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Получить информацию о донации по ID отклика донора
      */
     async getDonationByIdRaw(requestParameters: GetDonationByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DonationCard>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['resId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getDonationById().'
+                'resId',
+                'Required parameter "resId" was null or undefined when calling getDonationById().'
             );
         }
 
@@ -421,8 +421,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/donation/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/donation/{res_id}`;
+        urlPath = urlPath.replace(`{${"res_id"}}`, encodeURIComponent(String(requestParameters['resId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -448,10 +448,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Получить информацию о доноре по ID
      */
     async getDonorByIdRaw(requestParameters: GetDonorByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DonorDetail>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['petId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getDonorById().'
+                'petId',
+                'Required parameter "petId" was null or undefined when calling getDonorById().'
             );
         }
 
@@ -460,8 +460,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/donor/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/donor/{pet_id}`;
+        urlPath = urlPath.replace(`{${"pet_id"}}`, encodeURIComponent(String(requestParameters['petId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -542,10 +542,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Отклонить донацию по ID
      */
     async rejectDonationByIdRaw(requestParameters: RejectDonationByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResultMessage>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['resId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling rejectDonationById().'
+                'resId',
+                'Required parameter "resId" was null or undefined when calling rejectDonationById().'
             );
         }
 
@@ -554,8 +554,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/blood-request/donation/{id}/reject`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/donation/{res_id}/reject`;
+        urlPath = urlPath.replace(`{${"res_id"}}`, encodeURIComponent(String(requestParameters['resId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -581,10 +581,10 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      * Обновить заявку на поиск крови
      */
     async updateBloodRequestRaw(requestParameters: UpdateBloodRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateBloodRequestResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['reqId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling updateBloodRequest().'
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling updateBloodRequest().'
             );
         }
 
@@ -602,8 +602,8 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/v1/blood-request/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/blood-request/{req_id}`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
 
         const response = await this.request({
             path: urlPath,

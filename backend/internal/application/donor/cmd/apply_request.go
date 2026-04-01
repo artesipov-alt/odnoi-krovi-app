@@ -7,12 +7,12 @@ import (
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )

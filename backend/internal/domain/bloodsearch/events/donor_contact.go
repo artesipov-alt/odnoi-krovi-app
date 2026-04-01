@@ -1,18 +1,15 @@
 package events
 
-import "time"
+import (
+	"time"
+
+	userevents "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
+)
 
 type ApplyDonor struct {
-	DonorData     EventData
-	RecipientData EventData
+	DonorData     userevents.ContactData
+	RecipientData userevents.ContactData
 	CreatedAt     time.Time
-}
-
-type EventData struct {
-	Name             string
-	ProviderMaxID    string
-	ProviderTelegram string
-	Phone            string
 }
 
 func (e ApplyDonor) EventName() string     { return "ApplyDonor" }

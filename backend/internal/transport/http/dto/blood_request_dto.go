@@ -1,15 +1,14 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
+)
 
 // ============================================
 // Path Parameters
 // ============================================
-
-// BloodRequestIDPath представляет параметр пути с ID заявки
-type BloodRequestIDPath struct {
-	ID string `path:"id" doc:"ID заявки на поиск крови" minLength:"1" example:"BLS-ABCDEABCDE"`
-}
 
 // ============================================
 // Create Blood Request
@@ -52,7 +51,7 @@ type CreateBloodRequestResult struct {
 
 // UpdateBloodRequestInput представляет запрос на обновление заявки
 type UpdateBloodRequestInput struct {
-	BloodRequestIDPath
+	commondto.BloodRequestIDPath
 	Body UpdateBloodRequestBody
 }
 
@@ -163,7 +162,7 @@ type BloodRequestDetail struct {
 }
 
 type ConfirmDonorApplicationInput struct {
-	DonorApplicationIDPath
+	commondto.DonorApplicationIDPath
 	Body ConfirmData
 }
 

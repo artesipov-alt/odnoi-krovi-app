@@ -69,7 +69,7 @@ func (h *PetHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-pet-by-id",
 		Method:      http.MethodGet,
-		Path:        "/v1/pet/{id}",
+		Path:        "/v1/pet/{pet_id}",
 		Summary:     "Получение питомца по ID",
 		Description: "Возвращает информацию о питомце по его идентификатору",
 		Tags:        []string{"pets-v1"},
@@ -89,7 +89,7 @@ func (h *PetHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "update-pet",
 		Method:      http.MethodPut,
-		Path:        "/v1/pet/{id}",
+		Path:        "/v1/pet/{pet_id}",
 		Summary:     "Обновление данных питомца",
 		Description: "Обновляет информацию о питомце",
 		Tags:        []string{"pets-v1"},
@@ -99,7 +99,7 @@ func (h *PetHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-pet",
 		Method:      http.MethodDelete,
-		Path:        "/v1/pet/{id}",
+		Path:        "/v1/pet/{pet_id}",
 		Summary:     "Удаление питомца по ID",
 		Description: "Удаляет питомца из системы",
 		Tags:        []string{"pets-v1"},
@@ -109,7 +109,7 @@ func (h *PetHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "validate-donor",
 		Method:        http.MethodPost,
-		Path:          "/v1/pet/validate-donor/{id}",
+		Path:          "/v1/pet/validate-donor/{pet_id}",
 		Summary:       "Валидация донора по ID",
 		Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
 		Tags:          []string{"pets-v1"},
@@ -124,7 +124,7 @@ func (h *PetHandler) CreatePet(ctx context.Context, input *dto.CreatePetInput) (
 		return nil, apperrors.Validation("некорректные данные питомца", map[string]any{"error": err.Error()})
 	}
 
-	userID := input.UserID
+	userID := input.UserIDPath.ID
 
 	createdPet, err := h.createHandler.Handle(ctx, userID, petDomain)
 	if err != nil {
@@ -182,7 +182,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 		WithAll:        input.WithAll,
 	}
 
-	pets, err := h.getByUserHandler.Handle(ctx, input.UserID, opts)
+	pets, err := h.getByUserHandler.Handle(ctx, input.UserIDPath.ID, opts)
 	if err != nil {
 		return nil, err
 	}

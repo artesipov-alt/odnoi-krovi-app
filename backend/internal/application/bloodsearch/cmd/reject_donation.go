@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 

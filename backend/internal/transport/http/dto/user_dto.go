@@ -2,21 +2,13 @@ package dto
 
 import (
 	"time"
+
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 )
 
 // ============================================
 // Path Parameters
 // ============================================
-
-// UserIDPath представляет параметр пути с ID пользователя
-type UserIDPath struct {
-	ID string `path:"id" doc:"ID пользователя" minLength:"1" example:"USR-ABCDEABCDE"`
-}
-
-// TelegramIDPath представляет параметр пути с Telegram ID
-type TelegramIDPath struct {
-	ID int64 `path:"id" doc:"Telegram ID пользователя" minimum:"1" example:"123456789"`
-}
 
 // ============================================
 // Query Parameters
@@ -27,6 +19,11 @@ type UserPreloadQuery struct {
 	WithPets            bool `query:"with_pets" doc:"Включить данные о питомцах"`
 	WithDonorPreference bool `query:"with_donor_preference" doc:"Включить данные о предпочтениях донора"`
 	WithIdentities      bool `query:"with_identities" doc:"Включить данные об идентификаторах пользователя"`
+}
+
+// ContactPreloadQuery представляет параметры для предзагрузки связанных данных
+type ContactPreloadQuery struct {
+	Provider string `query:"provider" doc:"Месенджер для получения контакта" enum:"telegram_bot,max_bot" minLength:"1"`
 }
 
 // ============================================
@@ -63,7 +60,7 @@ type CreateUserResult struct {
 
 // UpdateUserInput представляет запрос на обновление пользователя
 type UpdateUserInput struct {
-	UserIDPath
+	commondto.UserIDPath
 	Body UpdateUserBody
 }
 
@@ -95,7 +92,7 @@ type UpdateUserResult struct {
 
 // GetUserByIDInput представляет запрос на получение пользователя по ID
 type GetUserByIDInput struct {
-	UserIDPath
+	commondto.UserIDPath
 	UserPreloadQuery
 }
 
@@ -110,7 +107,7 @@ type GetUserByIDOutput struct {
 
 // GetUserByTelegramInput представляет запрос на получение пользователя по Telegram ID
 type GetUserByTelegramInput struct {
-	TelegramIDPath
+	commondto.TelegramIDPath
 	UserPreloadQuery
 }
 
@@ -125,7 +122,7 @@ type GetUserByTelegramOutput struct {
 
 // DeleteUserInput представляет запрос на удаление пользователя
 type DeleteUserInput struct {
-	UserIDPath
+	commondto.UserIDPath
 }
 
 // DeleteUserOutput представляет ответ на удаление пользователя
@@ -144,7 +141,7 @@ type DeleteUserResult struct {
 
 // ResetUserInput представляет запрос на сброс пользователя
 type ResetUserInput struct {
-	UserIDPath
+	commondto.UserIDPath
 }
 
 // ResetUserOutput представляет ответ на сброс пользователя
@@ -163,7 +160,7 @@ type ResetUserResult struct {
 
 // RestoreUserInput представляет запрос на восстановление пользователя
 type RestoreUserInput struct {
-	UserIDPath
+	commondto.UserIDPath
 }
 
 // RestoreUserOutput представляет ответ на восстановление пользователя

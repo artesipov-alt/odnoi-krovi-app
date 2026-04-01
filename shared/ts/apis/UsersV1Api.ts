@@ -19,6 +19,7 @@ import type {
   ConfirmUploadBody,
   ConfirmUploadResult,
   DeleteUserResult,
+  ResultMessage,
   UpdateUserBody,
   UpdateUserResult,
   UploadURLsResult,
@@ -33,6 +34,8 @@ import {
     ConfirmUploadResultToJSON,
     DeleteUserResultFromJSON,
     DeleteUserResultToJSON,
+    ResultMessageFromJSON,
+    ResultMessageToJSON,
     UpdateUserBodyFromJSON,
     UpdateUserBodyToJSON,
     UpdateUserResultFromJSON,
@@ -48,7 +51,7 @@ export interface ConfirmUploadRequest {
 }
 
 export interface DeleteUserRequest {
-    id: string;
+    userId: string;
 }
 
 export interface GetPresignedUrlRequest {
@@ -60,14 +63,19 @@ export interface GetPresignedUrlRequest {
 }
 
 export interface GetUserByIdRequest {
-    id: string;
+    userId: string;
     withPets?: boolean;
     withDonorPreference?: boolean;
     withIdentities?: boolean;
 }
 
+export interface GetUserContactByIdRequest {
+    userId: string;
+    provider?: GetUserContactByIdProviderEnum;
+}
+
 export interface UpdateUserRequest {
-    id: string;
+    userId: string;
     updateUserBody: Omit<UpdateUserBody, '$schema'>;
 }
 
@@ -122,10 +130,10 @@ export class UsersV1Api extends runtime.BaseAPI {
      * Удаление пользователя по ID
      */
     async deleteUserRaw(requestParameters: DeleteUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DeleteUserResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling deleteUser().'
+                'userId',
+                'Required parameter "userId" was null or undefined when calling deleteUser().'
             );
         }
 
@@ -134,8 +142,8 @@ export class UsersV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/user/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/user/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -216,10 +224,10 @@ export class UsersV1Api extends runtime.BaseAPI {
      * Получение пользователя по ID
      */
     async getUserByIdRaw(requestParameters: GetUserByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserDetail>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling getUserById().'
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getUserById().'
             );
         }
 
@@ -240,8 +248,8 @@ export class UsersV1Api extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/v1/user/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/user/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -263,14 +271,57 @@ export class UsersV1Api extends runtime.BaseAPI {
     }
 
     /**
+     * Возвращает контакт пользователе по его идентификатору
+     * Получение контакта пользователя по ID
+     */
+    async getUserContactByIdRaw(requestParameters: GetUserContactByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResultMessage>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getUserContactById().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['provider'] != null) {
+            queryParameters['provider'] = requestParameters['provider'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/user/{user_id}/contact`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResultMessageFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает контакт пользователе по его идентификатору
+     * Получение контакта пользователя по ID
+     */
+    async getUserContactById(requestParameters: GetUserContactByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResultMessage> {
+        const response = await this.getUserContactByIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Обновляет информацию о пользователе
      * Обновление данных пользователя
      */
     async updateUserRaw(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateUserResult>> {
-        if (requestParameters['id'] == null) {
+        if (requestParameters['userId'] == null) {
             throw new runtime.RequiredError(
-                'id',
-                'Required parameter "id" was null or undefined when calling updateUser().'
+                'userId',
+                'Required parameter "userId" was null or undefined when calling updateUser().'
             );
         }
 
@@ -288,8 +339,8 @@ export class UsersV1Api extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/v1/user/{id}`;
-        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
+        let urlPath = `/v1/user/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -312,3 +363,12 @@ export class UsersV1Api extends runtime.BaseAPI {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetUserContactByIdProviderEnum = {
+    TelegramBot: 'telegram_bot',
+    MaxBot: 'max_bot'
+} as const;
+export type GetUserContactByIdProviderEnum = typeof GetUserContactByIdProviderEnum[keyof typeof GetUserContactByIdProviderEnum];

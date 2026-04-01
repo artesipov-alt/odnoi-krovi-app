@@ -1,15 +1,14 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
+)
 
 // ============================================
 // Path Parameters
 // ============================================
-
-// DonorApplicationIDPath представляет параметр пути с ID отклика
-type DonorApplicationIDPath struct {
-	ID string `path:"id" doc:"ID отклика донора" minLength:"1" example:"RES-ABCDEABCDE"`
-}
 
 type DonorApplication struct {
 	ID               string              `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
@@ -66,7 +65,7 @@ type CreateDonorApplicationResult struct {
 
 // UpdateDonorApplicationInput представляет запрос на обновление отклика
 type UpdateDonorApplicationInput struct {
-	DonorApplicationIDPath
+	commondto.DonorApplicationIDPath
 	Body UpdateDonorApplicationBody
 }
 
@@ -93,7 +92,7 @@ type UpdateDonorApplicationResult struct {
 
 // GetDonorApplicationByIDInput представляет запрос на получение отклика по ID
 type GetDonorApplicationByIDInput struct {
-	DonorApplicationIDPath
+	commondto.DonorApplicationIDPath
 }
 
 // GetDonorApplicationByIDOutput представляет ответ с данными отклика
@@ -136,7 +135,7 @@ type DonorApplicationsList struct {
 
 // DeleteDonorApplicationInput представляет запрос на удаление отклика
 type DeleteDonorApplicationInput struct {
-	DonorApplicationIDPath
+	commondto.DonorApplicationIDPath
 }
 
 // DeleteDonorApplicationOutput представляет ответ на удаление отклика
@@ -155,7 +154,7 @@ type DeleteDonorApplicationResult struct {
 
 // ApplyForBloodRequestInput представляет запрос на отклик донора
 type ApplyForBloodRequestInput struct {
-	BloodRequestIDPath
+	commondto.BloodRequestIDPath
 	Body ApplyForBloodRequestBody
 }
 

@@ -7,12 +7,14 @@ import (
 
 	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
+	userevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
 	"github.com/redis/go-redis/v9"
 )
 
 const channelBloodRequestCreated = "blood_request.created"
 const channelDonorResponseApply = "donor_response.apply"
 const channelRecipientResponseApply = "recipient_response.apply"
+const channelUserContact = "user.contact"
 
 type EventPublisher struct {
 	client *redis.Client
@@ -56,4 +58,16 @@ func (p *EventPublisher) PublishRecipientApply(
 	}
 
 	return p.client.Publish(ctx, channelRecipientResponseApply, payload).Err()
+}
+
+func (p *EventPublisher) PublishUserContact(
+	ctx context.Context,
+	event userevent.UserContact,
+) error {
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("marshal event: %w", err)
+	}
+
+	return p.client.Publish(ctx, channelUserContact, payload).Err()
 }

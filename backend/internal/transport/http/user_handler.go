@@ -10,6 +10,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
+	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -21,6 +22,7 @@ type UserHandler struct {
 	resetHandler      *cmd.ResetHandler
 	restoreHandler    *cmd.RestoreHandler
 	getByIDHandler    *query.GetByIDHandler
+	getContactHandler *query.GetContactHandler
 	getDeletedHandler *query.GetDeletedUsersHandler
 	userMapper        *mapper.UserMapper
 	storage           filestorage.Repository
@@ -33,6 +35,7 @@ func NewUserHandler(
 	resetHandler *cmd.ResetHandler,
 	restoreHandler *cmd.RestoreHandler,
 	getByIDHandler *query.GetByIDHandler,
+	getContactHandler *query.GetContactHandler,
 	getDeletedHandler *query.GetDeletedUsersHandler,
 	storage filestorage.Repository,
 ) *UserHandler {
@@ -42,6 +45,7 @@ func NewUserHandler(
 		resetHandler:      resetHandler,
 		restoreHandler:    restoreHandler,
 		getByIDHandler:    getByIDHandler,
+		getContactHandler: getContactHandler,
 		getDeletedHandler: getDeletedHandler,
 		userMapper:        mapper.NewUserMapper(mapper.NewPetMapper(storage), storage),
 		storage:           storage,
@@ -54,17 +58,27 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-user-by-id",
 		Method:      http.MethodGet,
-		Path:        "/v1/user/{id}",
+		Path:        "/v1/user/{user_id}",
 		Summary:     "Получение пользователя по ID",
 		Description: "Возвращает информацию о пользователе по его идентификатору",
 		Tags:        []string{"users-v1"},
 	}, h.GetUser)
 
+	// Получение контакта пользователя в боте по ID
+	huma.Register(api, huma.Operation{
+		OperationID: "get-user-contact-by-id",
+		Method:      http.MethodGet,
+		Path:        "/v1/user/{user_id}/contact",
+		Summary:     "Получение контакта пользователя по ID",
+		Description: "Возвращает контакт пользователе по его идентификатору",
+		Tags:        []string{"users-v1"},
+	}, h.GetUserContact)
+
 	// Обновление данных пользователя
 	huma.Register(api, huma.Operation{
 		OperationID: "update-user",
 		Method:      http.MethodPut,
-		Path:        "/v1/user/{id}",
+		Path:        "/v1/user/{user_id}",
 		Summary:     "Обновление данных пользователя",
 		Description: "Обновляет информацию о пользователе",
 		Tags:        []string{"users-v1"},
@@ -74,7 +88,7 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-user",
 		Method:      http.MethodDelete,
-		Path:        "/v1/user/{id}",
+		Path:        "/v1/user/{user_id}",
 		Summary:     "Удаление пользователя по ID",
 		Description: "Удаляет пользователя из системы (soft delete)",
 		Tags:        []string{"users-v1"},
@@ -84,7 +98,7 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "reset-user",
 		Method:      http.MethodPost,
-		Path:        "/v1/user/reset-user/{id}",
+		Path:        "/v1/user/reset-user/{user_id}",
 		Summary:     "Сброс пользователя к начальным настройкам",
 		Description: "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
 		Tags:        []string{"dev"},
@@ -94,7 +108,7 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "restore-user",
 		Method:      http.MethodPost,
-		Path:        "/v1/user/restore-user/{id}",
+		Path:        "/v1/user/restore-user/{user_id}",
 		Summary:     "Восстановление удаленного пользователя",
 		Description: "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
 		Tags:        []string{"dev"},
@@ -120,6 +134,18 @@ func (h *UserHandler) GetUser(ctx context.Context, input *dto.GetUserByIDInput) 
 	}
 
 	return &dto.GetUserByIDOutput{Body: h.userMapper.ToResponse(usr)}, nil
+}
+
+func (h *UserHandler) GetUserContact(ctx context.Context, input *struct {
+	commondto.UserIDPath
+	dto.ContactPreloadQuery
+}) (*commondto.DefaultMessageOutput, error) {
+	_, err := h.getContactHandler.Handle(ctx, input.ID, input.Provider)
+	if err != nil {
+		return nil, err
+	}
+
+	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Контакт пользователя направлен в бота"}}, nil
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput) (*dto.UpdateUserOutput, error) {
