@@ -197,14 +197,17 @@ func (r *EntDonorResponseRepository) Count(ctx context.Context) (int, error) {
 	return r.client(ctx).DonorResponse.Query().Count(ctx)
 }
 
-// Confirm confirms a blood request
+// Подтверждение донации реципиентом
 func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseID string, factAmount int32) error {
-	err := r.client(ctx).DonorResponse.UpdateOneID(donorResponseID).
-		SetAmount(factAmount).
-		SetIsConfirmed(true).
-		Exec(ctx)
+	update := r.client(ctx).DonorResponse.
+		UpdateOneID(donorResponseID).
+		SetIsConfirmed(true)
 
-	if err != nil {
+	if factAmount != 0 {
+		update.SetAmount(factAmount)
+	}
+
+	if err := update.Exec(ctx); err != nil {
 		return fmt.Errorf("failed to confirm blood request: %w", err)
 	}
 

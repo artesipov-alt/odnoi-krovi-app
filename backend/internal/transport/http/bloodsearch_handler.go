@@ -315,7 +315,7 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 		PetType:             string(donation.RecipientPet.Type),
 		BloodVolumeNeeded:   donation.BloodRequest.BloodVolumeNeeded,
 		BloodVolumeReserved: donation.BloodRequest.BloodVolumeReserved,
-		PhotoURLs:           donation.RecipientPet.PhotoURLs,
+		PhotoURLs:           h.storage.BuildPhotoURLs(donation.RecipientPet.PhotoURLs, *donation.Application.UpdatedAt),
 	}
 
 	donationCard := dto.DonationCard{

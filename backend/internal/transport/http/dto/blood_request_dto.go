@@ -167,7 +167,7 @@ type ConfirmDonorApplicationInput struct {
 }
 
 type ConfirmData struct {
-	Amount int32 `json:"amount" doc:"Фактический объем донации в мл" minimum:"1"`
+	Amount int32 `json:"amount,omitempty" doc:"Фактический объем донации в мл" minimum:"1"`
 }
 
 // DonorDetail представляет полные данные донора

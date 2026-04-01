@@ -32,12 +32,13 @@ func NewConfirmDonationHandler(
 }
 
 func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID string, factAmount int32) error {
-	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
-	if err != nil {
-		return err
-	}
-	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
+			return err
+		}
+
+		bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+		if err != nil {
 			return err
 		}
 
