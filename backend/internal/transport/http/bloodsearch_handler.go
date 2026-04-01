@@ -107,8 +107,8 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		OperationID: "get-donation-by-id",
 		Method:      http.MethodGet,
 		Path:        "/v1/blood-request/donation/{res_id}",
-		Summary:     "Получить информацию о донации по ID отклика донора",
-		Description: "Возвращает детальную информацию о донации по ID отклика",
+		Summary:     "Получить информацию о донации по ID",
+		Description: "Возвращает детальную информацию о донации по ID",
 		Tags:        []string{"blood-request-v1"},
 	}, h.GetDonation)
 
@@ -134,8 +134,8 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		OperationID: "apply-donor-response",
 		Method:      http.MethodPost,
 		Path:        "/v1/blood-request/apply-response/{res_id}",
-		Summary:     "Применить отклик донора",
-		Description: "Применяет отклик донора на заявку на поиск крови",
+		Summary:     "Принять отклик донора",
+		Description: "Принимает отклик донора на заявку на поиск крови",
 		Tags:        []string{"blood-request-v1"},
 	}, h.ApplyResponse)
 
