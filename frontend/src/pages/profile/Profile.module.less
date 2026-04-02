@@ -814,6 +814,31 @@
     box-shadow: none;
 }
 
+.editSaveButtonContent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.editSaveButtonLoader {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-top-color: @white1;
+    animation: saveButtonSpin 0.75s linear infinite;
+}
+
+@keyframes saveButtonSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .editSaveButton:disabled {
     opacity: 0.6;
     cursor: not-allowed;
