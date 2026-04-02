@@ -40,7 +40,6 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "blood_volume_needed", Type: field.TypeInt32},
-		{Name: "blood_volume_reserved", Type: field.TypeInt32, Default: 0},
 		{Name: "regions", Type: field.TypeJSON},
 		{Name: "small_pets_notify_allowed", Type: field.TypeBool, Default: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"active", "closed", "draft", "reserved_full"}, Default: "active"},
@@ -61,7 +60,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "blood_requests_pets_blood_search_request",
-				Columns:    []*schema.Column{BloodRequestsColumns[16]},
+				Columns:    []*schema.Column{BloodRequestsColumns[15]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

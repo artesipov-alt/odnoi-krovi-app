@@ -953,8 +953,6 @@ type BloodSearchRequestMutation struct {
 	deleted_at                  *time.Time
 	blood_volume_needed         *int32
 	addblood_volume_needed      *int32
-	blood_volume_reserved       *int32
-	addblood_volume_reserved    *int32
 	regions                     *[]string
 	appendregions               []string
 	small_pets_notify_allowed   *bool
@@ -1296,62 +1294,6 @@ func (m *BloodSearchRequestMutation) AddedBloodVolumeNeeded() (r int32, exists b
 func (m *BloodSearchRequestMutation) ResetBloodVolumeNeeded() {
 	m.blood_volume_needed = nil
 	m.addblood_volume_needed = nil
-}
-
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (m *BloodSearchRequestMutation) SetBloodVolumeReserved(i int32) {
-	m.blood_volume_reserved = &i
-	m.addblood_volume_reserved = nil
-}
-
-// BloodVolumeReserved returns the value of the "blood_volume_reserved" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodVolumeReserved() (r int32, exists bool) {
-	v := m.blood_volume_reserved
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBloodVolumeReserved returns the old "blood_volume_reserved" field's value of the BloodSearchRequest entity.
-// If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodVolumeReserved(ctx context.Context) (v int32, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodVolumeReserved is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodVolumeReserved requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodVolumeReserved: %w", err)
-	}
-	return oldValue.BloodVolumeReserved, nil
-}
-
-// AddBloodVolumeReserved adds i to the "blood_volume_reserved" field.
-func (m *BloodSearchRequestMutation) AddBloodVolumeReserved(i int32) {
-	if m.addblood_volume_reserved != nil {
-		*m.addblood_volume_reserved += i
-	} else {
-		m.addblood_volume_reserved = &i
-	}
-}
-
-// AddedBloodVolumeReserved returns the value that was added to the "blood_volume_reserved" field in this mutation.
-func (m *BloodSearchRequestMutation) AddedBloodVolumeReserved() (r int32, exists bool) {
-	v := m.addblood_volume_reserved
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetBloodVolumeReserved resets all changes to the "blood_volume_reserved" field.
-func (m *BloodSearchRequestMutation) ResetBloodVolumeReserved() {
-	m.blood_volume_reserved = nil
-	m.addblood_volume_reserved = nil
 }
 
 // SetRegions sets the "regions" field.
@@ -1973,7 +1915,7 @@ func (m *BloodSearchRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BloodSearchRequestMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, bloodsearchrequest.FieldCreatedAt)
 	}
@@ -1988,9 +1930,6 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	}
 	if m.blood_volume_needed != nil {
 		fields = append(fields, bloodsearchrequest.FieldBloodVolumeNeeded)
-	}
-	if m.blood_volume_reserved != nil {
-		fields = append(fields, bloodsearchrequest.FieldBloodVolumeReserved)
 	}
 	if m.regions != nil {
 		fields = append(fields, bloodsearchrequest.FieldRegions)
@@ -2040,8 +1979,6 @@ func (m *BloodSearchRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.PetID()
 	case bloodsearchrequest.FieldBloodVolumeNeeded:
 		return m.BloodVolumeNeeded()
-	case bloodsearchrequest.FieldBloodVolumeReserved:
-		return m.BloodVolumeReserved()
 	case bloodsearchrequest.FieldRegions:
 		return m.Regions()
 	case bloodsearchrequest.FieldSmallPetsNotifyAllowed:
@@ -2081,8 +2018,6 @@ func (m *BloodSearchRequestMutation) OldField(ctx context.Context, name string) 
 		return m.OldPetID(ctx)
 	case bloodsearchrequest.FieldBloodVolumeNeeded:
 		return m.OldBloodVolumeNeeded(ctx)
-	case bloodsearchrequest.FieldBloodVolumeReserved:
-		return m.OldBloodVolumeReserved(ctx)
 	case bloodsearchrequest.FieldRegions:
 		return m.OldRegions(ctx)
 	case bloodsearchrequest.FieldSmallPetsNotifyAllowed:
@@ -2146,13 +2081,6 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBloodVolumeNeeded(v)
-		return nil
-	case bloodsearchrequest.FieldBloodVolumeReserved:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBloodVolumeReserved(v)
 		return nil
 	case bloodsearchrequest.FieldRegions:
 		v, ok := value.([]string)
@@ -2235,9 +2163,6 @@ func (m *BloodSearchRequestMutation) AddedFields() []string {
 	if m.addblood_volume_needed != nil {
 		fields = append(fields, bloodsearchrequest.FieldBloodVolumeNeeded)
 	}
-	if m.addblood_volume_reserved != nil {
-		fields = append(fields, bloodsearchrequest.FieldBloodVolumeReserved)
-	}
 	return fields
 }
 
@@ -2248,8 +2173,6 @@ func (m *BloodSearchRequestMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case bloodsearchrequest.FieldBloodVolumeNeeded:
 		return m.AddedBloodVolumeNeeded()
-	case bloodsearchrequest.FieldBloodVolumeReserved:
-		return m.AddedBloodVolumeReserved()
 	}
 	return nil, false
 }
@@ -2265,13 +2188,6 @@ func (m *BloodSearchRequestMutation) AddField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddBloodVolumeNeeded(v)
-		return nil
-	case bloodsearchrequest.FieldBloodVolumeReserved:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddBloodVolumeReserved(v)
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest numeric field %s", name)
@@ -2353,9 +2269,6 @@ func (m *BloodSearchRequestMutation) ResetField(name string) error {
 		return nil
 	case bloodsearchrequest.FieldBloodVolumeNeeded:
 		m.ResetBloodVolumeNeeded()
-		return nil
-	case bloodsearchrequest.FieldBloodVolumeReserved:
-		m.ResetBloodVolumeReserved()
 		return nil
 	case bloodsearchrequest.FieldRegions:
 		m.ResetRegions()

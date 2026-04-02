@@ -24,15 +24,18 @@ func NewGetByPetIDHandler(
 }
 
 func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*model.BloodRequest, int, error) {
-	req, err := h.bloodRepo.GetByPetID(ctx, petID)
+	bloodReq, err := h.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	suitableDonors, err := h.petRepo.CountSuitableDonors(ctx, req.BloodGroupNames)
+	bloodReq.RecalculateBloodAmount()
+	bloodReq.RecalculateStatus()
+
+	suitableDonors, err := h.petRepo.CountSuitableDonors(ctx, bloodReq.BloodGroupNames)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return req, suitableDonors, nil
+	return bloodReq, suitableDonors, nil
 }

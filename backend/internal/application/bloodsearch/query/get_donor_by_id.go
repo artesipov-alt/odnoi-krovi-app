@@ -46,6 +46,9 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 		return nil, nil, err
 	}
 
+	bloodReq.RecalculateBloodAmount()
+	bloodReq.RecalculateStatus()
+
 	pet.RecalculateFactors(time.Now(), application, bloodReq)
 	pet.CalculateStatus(application, bloodReq)
 

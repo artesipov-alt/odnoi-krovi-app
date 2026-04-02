@@ -90,11 +90,6 @@ func BloodVolumeNeeded(v int32) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodVolumeNeeded, v))
 }
 
-// BloodVolumeReserved applies equality check predicate on the "blood_volume_reserved" field. It's identical to BloodVolumeReservedEQ.
-func BloodVolumeReserved(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodVolumeReserved, v))
-}
-
 // SmallPetsNotifyAllowed applies equality check predicate on the "small_pets_notify_allowed" field. It's identical to SmallPetsNotifyAllowedEQ.
 func SmallPetsNotifyAllowed(v bool) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldSmallPetsNotifyAllowed, v))
@@ -348,46 +343,6 @@ func BloodVolumeNeededLT(v int32) predicate.BloodSearchRequest {
 // BloodVolumeNeededLTE applies the LTE predicate on the "blood_volume_needed" field.
 func BloodVolumeNeededLTE(v int32) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldLTE(FieldBloodVolumeNeeded, v))
-}
-
-// BloodVolumeReservedEQ applies the EQ predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedEQ(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodVolumeReserved, v))
-}
-
-// BloodVolumeReservedNEQ applies the NEQ predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedNEQ(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldNEQ(FieldBloodVolumeReserved, v))
-}
-
-// BloodVolumeReservedIn applies the In predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedIn(vs ...int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldIn(FieldBloodVolumeReserved, vs...))
-}
-
-// BloodVolumeReservedNotIn applies the NotIn predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedNotIn(vs ...int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldNotIn(FieldBloodVolumeReserved, vs...))
-}
-
-// BloodVolumeReservedGT applies the GT predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedGT(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldGT(FieldBloodVolumeReserved, v))
-}
-
-// BloodVolumeReservedGTE applies the GTE predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedGTE(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldGTE(FieldBloodVolumeReserved, v))
-}
-
-// BloodVolumeReservedLT applies the LT predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedLT(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldLT(FieldBloodVolumeReserved, v))
-}
-
-// BloodVolumeReservedLTE applies the LTE predicate on the "blood_volume_reserved" field.
-func BloodVolumeReservedLTE(v int32) predicate.BloodSearchRequest {
-	return predicate.BloodSearchRequest(sql.FieldLTE(FieldBloodVolumeReserved, v))
 }
 
 // SmallPetsNotifyAllowedEQ applies the EQ predicate on the "small_pets_notify_allowed" field.

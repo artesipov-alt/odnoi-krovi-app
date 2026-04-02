@@ -190,7 +190,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 	slog.DebugContext(ctx, "updating blood request", "request_id", input.ID)
 
 	// Получить текущий объект
-	existing, err := h.getByIDHandler.Handle(ctx, input.ID)
+	existing, _, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -242,12 +242,11 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *commondto.BloodRequestIDPath) (*dto.GetBloodRequestByIDOutput, error) {
-	bloodReq, err := h.getByIDHandler.Handle(ctx, input.ID)
+	bloodReq, situatableDonors, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
-	zero := 0
-	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &zero)}, nil
+	return &dto.GetBloodRequestByIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *commondto.PetIDPath) (*dto.GetBloodRequestByPetIDOutput, error) {

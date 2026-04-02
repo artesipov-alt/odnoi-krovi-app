@@ -42,7 +42,6 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmod
 		Create().
 		SetPetID(req.PetID).
 		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(req.BloodVolumeReserved).
 		SetRegions(req.Regions).
 		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
 		SetStatus(bloodsearchrequest.Status(req.Status)).
@@ -136,7 +135,6 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 
 	updater := r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetBloodVolumeNeeded(req.BloodVolumeNeeded).
-		SetBloodVolumeReserved(req.BloodVolumeReserved).
 		SetRegions(req.Regions).
 		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
 		SetStatus(bloodsearchrequest.Status(req.Status)).
@@ -164,13 +162,6 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 func (r *EntBloodRequestRepository) UpdateStatus(ctx context.Context, id string, status bloodreqmodel.BloodRequestStatus) error {
 	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
 		SetStatus(bloodsearchrequest.Status(status)).
-		Exec(ctx)
-}
-
-// UpdateReservedVolume обновляет зарезервированный объём и статус заявки
-func (r *EntBloodRequestRepository) UpdateReservedVolume(ctx context.Context, id string, amount int32) error {
-	return r.client(ctx).BloodSearchRequest.UpdateOneID(id).
-		SetBloodVolumeReserved(amount).
 		Exec(ctx)
 }
 

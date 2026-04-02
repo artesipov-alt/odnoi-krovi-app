@@ -57,14 +57,15 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	donorPet.RecalculateFactors(time.Now(), application, donorBloodReq)
 	donorPet.CalculateStatus(application, donorBloodReq)
 
-	bloodRequest, err := h.bloodRepo.GetByID(ctx, application.RequestID)
+	bloodReq, err := h.bloodRepo.GetByID(ctx, application.RequestID)
 	if err != nil {
 		return nil, err
 	}
 
-	bloodRequest.CalculateDonatedAmount()
+	bloodReq.RecalculateBloodAmount()
+	bloodReq.RecalculateStatus()
 
-	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodRequest.PetID, pet.PetPreloadOptions{
+	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{
 		WithHealth:     true,
 		WithTreatments: true,
 		WithAnalyses:   true,
@@ -72,12 +73,12 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	if err != nil {
 		return nil, err
 	}
-	recipientPet.RecalculateFactors(time.Now(), nil, bloodRequest)
-	recipientPet.CalculateStatus(nil, bloodRequest)
+	recipientPet.RecalculateFactors(time.Now(), nil, bloodReq)
+	recipientPet.CalculateStatus(nil, bloodReq)
 
 	return &GetDonationResult{
 		Application:  application,
-		BloodRequest: bloodRequest,
+		BloodRequest: bloodReq,
 		DonorPet:     donorPet,
 		RecipientPet: recipientPet,
 	}, nil

@@ -28,8 +28,6 @@ const (
 	FieldPetID = "pet_id"
 	// FieldBloodVolumeNeeded holds the string denoting the blood_volume_needed field in the database.
 	FieldBloodVolumeNeeded = "blood_volume_needed"
-	// FieldBloodVolumeReserved holds the string denoting the blood_volume_reserved field in the database.
-	FieldBloodVolumeReserved = "blood_volume_reserved"
 	// FieldRegions holds the string denoting the regions field in the database.
 	FieldRegions = "regions"
 	// FieldSmallPetsNotifyAllowed holds the string denoting the small_pets_notify_allowed field in the database.
@@ -80,7 +78,6 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldPetID,
 	FieldBloodVolumeNeeded,
-	FieldBloodVolumeReserved,
 	FieldRegions,
 	FieldSmallPetsNotifyAllowed,
 	FieldStatus,
@@ -116,8 +113,6 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultBloodVolumeReserved holds the default value on creation for the "blood_volume_reserved" field.
-	DefaultBloodVolumeReserved int32
 	// DefaultSmallPetsNotifyAllowed holds the default value on creation for the "small_pets_notify_allowed" field.
 	DefaultSmallPetsNotifyAllowed bool
 	// DefaultPrioritySearch holds the default value on creation for the "priority_search" field.
@@ -187,11 +182,6 @@ func ByPetID(opts ...sql.OrderTermOption) OrderOption {
 // ByBloodVolumeNeeded orders the results by the blood_volume_needed field.
 func ByBloodVolumeNeeded(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBloodVolumeNeeded, opts...).ToFunc()
-}
-
-// ByBloodVolumeReserved orders the results by the blood_volume_reserved field.
-func ByBloodVolumeReserved(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBloodVolumeReserved, opts...).ToFunc()
 }
 
 // BySmallPetsNotifyAllowed orders the results by the small_pets_notify_allowed field.

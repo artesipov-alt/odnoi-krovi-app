@@ -92,27 +92,6 @@ func (_u *BloodSearchRequestUpdate) AddBloodVolumeNeeded(v int32) *BloodSearchRe
 	return _u
 }
 
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (_u *BloodSearchRequestUpdate) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpdate {
-	_u.mutation.ResetBloodVolumeReserved()
-	_u.mutation.SetBloodVolumeReserved(v)
-	return _u
-}
-
-// SetNillableBloodVolumeReserved sets the "blood_volume_reserved" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdate) SetNillableBloodVolumeReserved(v *int32) *BloodSearchRequestUpdate {
-	if v != nil {
-		_u.SetBloodVolumeReserved(*v)
-	}
-	return _u
-}
-
-// AddBloodVolumeReserved adds value to the "blood_volume_reserved" field.
-func (_u *BloodSearchRequestUpdate) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpdate {
-	_u.mutation.AddBloodVolumeReserved(v)
-	return _u
-}
-
 // SetRegions sets the "regions" field.
 func (_u *BloodSearchRequestUpdate) SetRegions(v []string) *BloodSearchRequestUpdate {
 	_u.mutation.SetRegions(v)
@@ -401,12 +380,6 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	if value, ok := _u.mutation.AddedBloodVolumeNeeded(); ok {
 		_spec.AddField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
 	}
-	if value, ok := _u.mutation.BloodVolumeReserved(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodVolumeReserved, field.TypeInt32, value)
-	}
-	if value, ok := _u.mutation.AddedBloodVolumeReserved(); ok {
-		_spec.AddField(bloodsearchrequest.FieldBloodVolumeReserved, field.TypeInt32, value)
-	}
 	if value, ok := _u.mutation.Regions(); ok {
 		_spec.SetField(bloodsearchrequest.FieldRegions, field.TypeJSON, value)
 	}
@@ -629,27 +602,6 @@ func (_u *BloodSearchRequestUpdateOne) SetNillableBloodVolumeNeeded(v *int32) *B
 // AddBloodVolumeNeeded adds value to the "blood_volume_needed" field.
 func (_u *BloodSearchRequestUpdateOne) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpdateOne {
 	_u.mutation.AddBloodVolumeNeeded(v)
-	return _u
-}
-
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpdateOne {
-	_u.mutation.ResetBloodVolumeReserved()
-	_u.mutation.SetBloodVolumeReserved(v)
-	return _u
-}
-
-// SetNillableBloodVolumeReserved sets the "blood_volume_reserved" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdateOne) SetNillableBloodVolumeReserved(v *int32) *BloodSearchRequestUpdateOne {
-	if v != nil {
-		_u.SetBloodVolumeReserved(*v)
-	}
-	return _u
-}
-
-// AddBloodVolumeReserved adds value to the "blood_volume_reserved" field.
-func (_u *BloodSearchRequestUpdateOne) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpdateOne {
-	_u.mutation.AddBloodVolumeReserved(v)
 	return _u
 }
 
@@ -970,12 +922,6 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if value, ok := _u.mutation.AddedBloodVolumeNeeded(); ok {
 		_spec.AddField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
-	}
-	if value, ok := _u.mutation.BloodVolumeReserved(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodVolumeReserved, field.TypeInt32, value)
-	}
-	if value, ok := _u.mutation.AddedBloodVolumeReserved(); ok {
-		_spec.AddField(bloodsearchrequest.FieldBloodVolumeReserved, field.TypeInt32, value)
 	}
 	if value, ok := _u.mutation.Regions(); ok {
 		_spec.SetField(bloodsearchrequest.FieldRegions, field.TypeJSON, value)

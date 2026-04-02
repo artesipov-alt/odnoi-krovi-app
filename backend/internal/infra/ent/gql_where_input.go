@@ -575,16 +575,6 @@ type BloodSearchRequestWhereInput struct {
 	BloodVolumeNeededLT    *int32  `json:"bloodVolumeNeededLT,omitempty"`
 	BloodVolumeNeededLTE   *int32  `json:"bloodVolumeNeededLTE,omitempty"`
 
-	// "blood_volume_reserved" field predicates.
-	BloodVolumeReserved      *int32  `json:"bloodVolumeReserved,omitempty"`
-	BloodVolumeReservedNEQ   *int32  `json:"bloodVolumeReservedNEQ,omitempty"`
-	BloodVolumeReservedIn    []int32 `json:"bloodVolumeReservedIn,omitempty"`
-	BloodVolumeReservedNotIn []int32 `json:"bloodVolumeReservedNotIn,omitempty"`
-	BloodVolumeReservedGT    *int32  `json:"bloodVolumeReservedGT,omitempty"`
-	BloodVolumeReservedGTE   *int32  `json:"bloodVolumeReservedGTE,omitempty"`
-	BloodVolumeReservedLT    *int32  `json:"bloodVolumeReservedLT,omitempty"`
-	BloodVolumeReservedLTE   *int32  `json:"bloodVolumeReservedLTE,omitempty"`
-
 	// "small_pets_notify_allowed" field predicates.
 	SmallPetsNotifyAllowed    *bool `json:"smallPetsNotifyAllowed,omitempty"`
 	SmallPetsNotifyAllowedNEQ *bool `json:"smallPetsNotifyAllowedNEQ,omitempty"`
@@ -870,30 +860,6 @@ func (i *BloodSearchRequestWhereInput) P() (predicate.BloodSearchRequest, error)
 	}
 	if i.BloodVolumeNeededLTE != nil {
 		predicates = append(predicates, bloodsearchrequest.BloodVolumeNeededLTE(*i.BloodVolumeNeededLTE))
-	}
-	if i.BloodVolumeReserved != nil {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedEQ(*i.BloodVolumeReserved))
-	}
-	if i.BloodVolumeReservedNEQ != nil {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedNEQ(*i.BloodVolumeReservedNEQ))
-	}
-	if len(i.BloodVolumeReservedIn) > 0 {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedIn(i.BloodVolumeReservedIn...))
-	}
-	if len(i.BloodVolumeReservedNotIn) > 0 {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedNotIn(i.BloodVolumeReservedNotIn...))
-	}
-	if i.BloodVolumeReservedGT != nil {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedGT(*i.BloodVolumeReservedGT))
-	}
-	if i.BloodVolumeReservedGTE != nil {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedGTE(*i.BloodVolumeReservedGTE))
-	}
-	if i.BloodVolumeReservedLT != nil {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedLT(*i.BloodVolumeReservedLT))
-	}
-	if i.BloodVolumeReservedLTE != nil {
-		predicates = append(predicates, bloodsearchrequest.BloodVolumeReservedLTE(*i.BloodVolumeReservedLTE))
 	}
 	if i.SmallPetsNotifyAllowed != nil {
 		predicates = append(predicates, bloodsearchrequest.SmallPetsNotifyAllowedEQ(*i.SmallPetsNotifyAllowed))

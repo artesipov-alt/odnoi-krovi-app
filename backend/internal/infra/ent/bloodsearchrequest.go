@@ -29,8 +29,6 @@ type BloodSearchRequest struct {
 	PetID string `json:"pet_id,omitempty"`
 	// BloodVolumeNeeded holds the value of the "blood_volume_needed" field.
 	BloodVolumeNeeded int32 `json:"blood_volume_needed,omitempty"`
-	// BloodVolumeReserved holds the value of the "blood_volume_reserved" field.
-	BloodVolumeReserved int32 `json:"blood_volume_reserved,omitempty"`
 	// Regions holds the value of the "regions" field.
 	Regions []string `json:"regions,omitempty"`
 	// SmallPetsNotifyAllowed holds the value of the "small_pets_notify_allowed" field.
@@ -101,7 +99,7 @@ func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case bloodsearchrequest.FieldSmallPetsNotifyAllowed, bloodsearchrequest.FieldPrioritySearch, bloodsearchrequest.FieldIncludeUnknownBloodGroup:
 			values[i] = new(sql.NullBool)
-		case bloodsearchrequest.FieldBloodVolumeNeeded, bloodsearchrequest.FieldBloodVolumeReserved:
+		case bloodsearchrequest.FieldBloodVolumeNeeded:
 			values[i] = new(sql.NullInt64)
 		case bloodsearchrequest.FieldID, bloodsearchrequest.FieldPetID, bloodsearchrequest.FieldStatus, bloodsearchrequest.FieldDescription:
 			values[i] = new(sql.NullString)
@@ -158,12 +156,6 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field blood_volume_needed", values[i])
 			} else if value.Valid {
 				_m.BloodVolumeNeeded = int32(value.Int64)
-			}
-		case bloodsearchrequest.FieldBloodVolumeReserved:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field blood_volume_reserved", values[i])
-			} else if value.Valid {
-				_m.BloodVolumeReserved = int32(value.Int64)
 			}
 		case bloodsearchrequest.FieldRegions:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -297,9 +289,6 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("blood_volume_needed=")
 	builder.WriteString(fmt.Sprintf("%v", _m.BloodVolumeNeeded))
-	builder.WriteString(", ")
-	builder.WriteString("blood_volume_reserved=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BloodVolumeReserved))
 	builder.WriteString(", ")
 	builder.WriteString("regions=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Regions))

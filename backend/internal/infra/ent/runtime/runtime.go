@@ -84,20 +84,16 @@ func init() {
 	bloodsearchrequest.DefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.Default.(func() time.Time)
 	// bloodsearchrequest.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	bloodsearchrequest.UpdateDefaultUpdatedAt = bloodsearchrequestDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// bloodsearchrequestDescBloodVolumeReserved is the schema descriptor for blood_volume_reserved field.
-	bloodsearchrequestDescBloodVolumeReserved := bloodsearchrequestFields[2].Descriptor()
-	// bloodsearchrequest.DefaultBloodVolumeReserved holds the default value on creation for the blood_volume_reserved field.
-	bloodsearchrequest.DefaultBloodVolumeReserved = bloodsearchrequestDescBloodVolumeReserved.Default.(int32)
 	// bloodsearchrequestDescSmallPetsNotifyAllowed is the schema descriptor for small_pets_notify_allowed field.
-	bloodsearchrequestDescSmallPetsNotifyAllowed := bloodsearchrequestFields[4].Descriptor()
+	bloodsearchrequestDescSmallPetsNotifyAllowed := bloodsearchrequestFields[3].Descriptor()
 	// bloodsearchrequest.DefaultSmallPetsNotifyAllowed holds the default value on creation for the small_pets_notify_allowed field.
 	bloodsearchrequest.DefaultSmallPetsNotifyAllowed = bloodsearchrequestDescSmallPetsNotifyAllowed.Default.(bool)
 	// bloodsearchrequestDescPrioritySearch is the schema descriptor for priority_search field.
-	bloodsearchrequestDescPrioritySearch := bloodsearchrequestFields[11].Descriptor()
+	bloodsearchrequestDescPrioritySearch := bloodsearchrequestFields[10].Descriptor()
 	// bloodsearchrequest.DefaultPrioritySearch holds the default value on creation for the priority_search field.
 	bloodsearchrequest.DefaultPrioritySearch = bloodsearchrequestDescPrioritySearch.Default.(bool)
 	// bloodsearchrequestDescIncludeUnknownBloodGroup is the schema descriptor for include_unknown_blood_group field.
-	bloodsearchrequestDescIncludeUnknownBloodGroup := bloodsearchrequestFields[12].Descriptor()
+	bloodsearchrequestDescIncludeUnknownBloodGroup := bloodsearchrequestFields[11].Descriptor()
 	// bloodsearchrequest.DefaultIncludeUnknownBloodGroup holds the default value on creation for the include_unknown_blood_group field.
 	bloodsearchrequest.DefaultIncludeUnknownBloodGroup = bloodsearchrequestDescIncludeUnknownBloodGroup.Default.(bool)
 	// bloodsearchrequestDescID is the schema descriptor for id field.

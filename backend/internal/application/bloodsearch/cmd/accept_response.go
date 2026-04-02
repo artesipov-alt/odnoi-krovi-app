@@ -53,13 +53,11 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		return err
 	}
 
-	bloodreq.ReserveVolume(application.Amount)
+	bloodreq.RecalculateBloodAmount()
+	bloodreq.RecalculateStatus()
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
-			return err
-		}
-		if err := h.bloodRepo.UpdateReservedVolume(txCtx, bloodreq.ID, bloodreq.BloodVolumeReserved); err != nil {
 			return err
 		}
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodreq.ID, bloodreq.Status); err != nil {

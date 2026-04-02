@@ -76,32 +76,8 @@ func (b *BloodRequest) activate() {
 	b.Status = BloodRequestStatusActive
 }
 
-func (b *BloodRequest) markReservedFull() {
+func (b *BloodRequest) MarkReservedFull() {
 	b.Status = BloodRequestStatusReservedFull
-}
-
-// ReserveVolume reserves blood volume
-func (b *BloodRequest) ReserveVolume(amount int32) error {
-	if b.BloodVolumeReserved+amount >= b.BloodVolumeNeeded {
-		b.BloodVolumeReserved = b.BloodVolumeNeeded
-		b.markReservedFull()
-		return nil
-	}
-	b.BloodVolumeReserved += amount
-	return nil
-}
-
-// UnReserveVolume unreserves blood volume
-func (b *BloodRequest) UnReserveVolume(amount int32) error {
-	if b.BloodVolumeReserved-amount < 0 {
-		b.BloodVolumeReserved = 0
-	} else {
-		b.BloodVolumeReserved -= amount
-	}
-	if b.BloodVolumeReserved < b.BloodVolumeNeeded {
-		b.activate()
-	}
-	return nil
 }
 
 // AddPhoto adds a photo URL to the request
@@ -114,7 +90,7 @@ func (b *BloodRequest) SetBloodGroups(groups []string) {
 	b.BloodGroupNames = groups
 }
 
-func (b *BloodRequest) CalculateDonatedAmount() {
+func (b *BloodRequest) RecalculateBloodAmount() {
 	var donated int32
 	for _, app := range b.DonorApplications {
 		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
@@ -122,6 +98,28 @@ func (b *BloodRequest) CalculateDonatedAmount() {
 		}
 	}
 	b.BloodVolumeDonated = donated
+
+	var reserved int32
+	for _, app := range b.DonorApplications {
+		// Ищем только откликнувшихся доноров
+		if !app.IsConfirmed && app.Status == donormodel.DonorResponseStatusAccepted {
+			reserved += app.Amount + b.BloodVolumeDonated
+			// Обрезаем до максимального
+			if reserved >= b.BloodVolumeNeeded {
+				reserved = b.BloodVolumeNeeded
+			}
+		}
+	}
+	b.BloodVolumeReserved = reserved
+}
+
+func (b *BloodRequest) RecalculateStatus() {
+	if b.BloodVolumeReserved == b.BloodVolumeNeeded {
+		b.MarkReservedFull()
+	}
+	if b.BloodVolumeDonated == b.BloodVolumeNeeded {
+		b.Close()
+	}
 }
 
 // BloodRequestFilter represents filter options for listing requests

@@ -79,20 +79,6 @@ func (_c *BloodSearchRequestCreate) SetBloodVolumeNeeded(v int32) *BloodSearchRe
 	return _c
 }
 
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (_c *BloodSearchRequestCreate) SetBloodVolumeReserved(v int32) *BloodSearchRequestCreate {
-	_c.mutation.SetBloodVolumeReserved(v)
-	return _c
-}
-
-// SetNillableBloodVolumeReserved sets the "blood_volume_reserved" field if the given value is not nil.
-func (_c *BloodSearchRequestCreate) SetNillableBloodVolumeReserved(v *int32) *BloodSearchRequestCreate {
-	if v != nil {
-		_c.SetBloodVolumeReserved(*v)
-	}
-	return _c
-}
-
 // SetRegions sets the "regions" field.
 func (_c *BloodSearchRequestCreate) SetRegions(v []string) *BloodSearchRequestCreate {
 	_c.mutation.SetRegions(v)
@@ -270,10 +256,6 @@ func (_c *BloodSearchRequestCreate) defaults() {
 		v := bloodsearchrequest.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.BloodVolumeReserved(); !ok {
-		v := bloodsearchrequest.DefaultBloodVolumeReserved
-		_c.mutation.SetBloodVolumeReserved(v)
-	}
 	if _, ok := _c.mutation.SmallPetsNotifyAllowed(); !ok {
 		v := bloodsearchrequest.DefaultSmallPetsNotifyAllowed
 		_c.mutation.SetSmallPetsNotifyAllowed(v)
@@ -309,9 +291,6 @@ func (_c *BloodSearchRequestCreate) check() error {
 	}
 	if _, ok := _c.mutation.BloodVolumeNeeded(); !ok {
 		return &ValidationError{Name: "blood_volume_needed", err: errors.New(`ent: missing required field "BloodSearchRequest.blood_volume_needed"`)}
-	}
-	if _, ok := _c.mutation.BloodVolumeReserved(); !ok {
-		return &ValidationError{Name: "blood_volume_reserved", err: errors.New(`ent: missing required field "BloodSearchRequest.blood_volume_reserved"`)}
 	}
 	if _, ok := _c.mutation.Regions(); !ok {
 		return &ValidationError{Name: "regions", err: errors.New(`ent: missing required field "BloodSearchRequest.regions"`)}
@@ -387,10 +366,6 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	if value, ok := _c.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
 		_node.BloodVolumeNeeded = value
-	}
-	if value, ok := _c.mutation.BloodVolumeReserved(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodVolumeReserved, field.TypeInt32, value)
-		_node.BloodVolumeReserved = value
 	}
 	if value, ok := _c.mutation.Regions(); ok {
 		_spec.SetField(bloodsearchrequest.FieldRegions, field.TypeJSON, value)
@@ -574,24 +549,6 @@ func (u *BloodSearchRequestUpsert) UpdateBloodVolumeNeeded() *BloodSearchRequest
 // AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
 func (u *BloodSearchRequestUpsert) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsert {
 	u.Add(bloodsearchrequest.FieldBloodVolumeNeeded, v)
-	return u
-}
-
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (u *BloodSearchRequestUpsert) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpsert {
-	u.Set(bloodsearchrequest.FieldBloodVolumeReserved, v)
-	return u
-}
-
-// UpdateBloodVolumeReserved sets the "blood_volume_reserved" field to the value that was provided on create.
-func (u *BloodSearchRequestUpsert) UpdateBloodVolumeReserved() *BloodSearchRequestUpsert {
-	u.SetExcluded(bloodsearchrequest.FieldBloodVolumeReserved)
-	return u
-}
-
-// AddBloodVolumeReserved adds v to the "blood_volume_reserved" field.
-func (u *BloodSearchRequestUpsert) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpsert {
-	u.Add(bloodsearchrequest.FieldBloodVolumeReserved, v)
 	return u
 }
 
@@ -863,27 +820,6 @@ func (u *BloodSearchRequestUpsertOne) AddBloodVolumeNeeded(v int32) *BloodSearch
 func (u *BloodSearchRequestUpsertOne) UpdateBloodVolumeNeeded() *BloodSearchRequestUpsertOne {
 	return u.Update(func(s *BloodSearchRequestUpsert) {
 		s.UpdateBloodVolumeNeeded()
-	})
-}
-
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (u *BloodSearchRequestUpsertOne) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpsertOne {
-	return u.Update(func(s *BloodSearchRequestUpsert) {
-		s.SetBloodVolumeReserved(v)
-	})
-}
-
-// AddBloodVolumeReserved adds v to the "blood_volume_reserved" field.
-func (u *BloodSearchRequestUpsertOne) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpsertOne {
-	return u.Update(func(s *BloodSearchRequestUpsert) {
-		s.AddBloodVolumeReserved(v)
-	})
-}
-
-// UpdateBloodVolumeReserved sets the "blood_volume_reserved" field to the value that was provided on create.
-func (u *BloodSearchRequestUpsertOne) UpdateBloodVolumeReserved() *BloodSearchRequestUpsertOne {
-	return u.Update(func(s *BloodSearchRequestUpsert) {
-		s.UpdateBloodVolumeReserved()
 	})
 }
 
@@ -1347,27 +1283,6 @@ func (u *BloodSearchRequestUpsertBulk) AddBloodVolumeNeeded(v int32) *BloodSearc
 func (u *BloodSearchRequestUpsertBulk) UpdateBloodVolumeNeeded() *BloodSearchRequestUpsertBulk {
 	return u.Update(func(s *BloodSearchRequestUpsert) {
 		s.UpdateBloodVolumeNeeded()
-	})
-}
-
-// SetBloodVolumeReserved sets the "blood_volume_reserved" field.
-func (u *BloodSearchRequestUpsertBulk) SetBloodVolumeReserved(v int32) *BloodSearchRequestUpsertBulk {
-	return u.Update(func(s *BloodSearchRequestUpsert) {
-		s.SetBloodVolumeReserved(v)
-	})
-}
-
-// AddBloodVolumeReserved adds v to the "blood_volume_reserved" field.
-func (u *BloodSearchRequestUpsertBulk) AddBloodVolumeReserved(v int32) *BloodSearchRequestUpsertBulk {
-	return u.Update(func(s *BloodSearchRequestUpsert) {
-		s.AddBloodVolumeReserved(v)
-	})
-}
-
-// UpdateBloodVolumeReserved sets the "blood_volume_reserved" field to the value that was provided on create.
-func (u *BloodSearchRequestUpsertBulk) UpdateBloodVolumeReserved() *BloodSearchRequestUpsertBulk {
-	return u.Update(func(s *BloodSearchRequestUpsert) {
-		s.UpdateBloodVolumeReserved()
 	})
 }
 

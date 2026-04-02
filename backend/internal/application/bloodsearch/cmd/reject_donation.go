@@ -41,17 +41,16 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
+	bloodReq.RecalculateBloodAmount()
+	bloodReq.RecalculateStatus()
+
 	status := donormodel.DonorResponseStatusAccepted
-	if application.Status == donormodel.DonorResponseStatusAccepted {
+	if application.Status == status {
 		status = donormodel.DonorResponseStatusRejected
-		bloodReq.UnReserveVolume(application.Amount)
 	}
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, status); err != nil {
-			return err
-		}
-		if err := h.bloodRepo.UpdateReservedVolume(txCtx, bloodReq.ID, bloodReq.BloodVolumeReserved); err != nil {
 			return err
 		}
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {

@@ -96,7 +96,6 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 		BloodGroupName:           blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
 		PhotoURLs:                blreq.Edges.Pet.PhotoUrls,
 		BloodVolumeNeeded:        blreq.BloodVolumeNeeded,
-		BloodVolumeReserved:      blreq.BloodVolumeReserved,
 		PrioritySearch:           blreq.PrioritySearch,
 		IncludeUnknownBloodGroup: blreq.IncludeUnknownBloodGroup,
 		SmallPetsNotifyAllowed:   blreq.SmallPetsNotifyAllowed,

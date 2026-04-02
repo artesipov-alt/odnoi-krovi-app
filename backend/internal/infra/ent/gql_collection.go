@@ -254,11 +254,6 @@ func (_q *BloodSearchRequestQuery) collectField(ctx context.Context, oneNode boo
 				selectedFields = append(selectedFields, bloodsearchrequest.FieldBloodVolumeNeeded)
 				fieldSeen[bloodsearchrequest.FieldBloodVolumeNeeded] = struct{}{}
 			}
-		case "bloodVolumeReserved":
-			if _, ok := fieldSeen[bloodsearchrequest.FieldBloodVolumeReserved]; !ok {
-				selectedFields = append(selectedFields, bloodsearchrequest.FieldBloodVolumeReserved)
-				fieldSeen[bloodsearchrequest.FieldBloodVolumeReserved] = struct{}{}
-			}
 		case "regions":
 			if _, ok := fieldSeen[bloodsearchrequest.FieldRegions]; !ok {
 				selectedFields = append(selectedFields, bloodsearchrequest.FieldRegions)
