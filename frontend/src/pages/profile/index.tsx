@@ -3,7 +3,7 @@ import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { useGetUserById } from 'hooks/useGetUserById';
 import bonusBg from 'imgs/bonusBg.png';
-import profileBonus from 'imgs/profileBonus.png';
+// import profileBonus from 'imgs/profileBonus.png';
 import profilePhoto from 'imgs/profilePhoto.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import ChatBubble from 'imgs/svg/chatBubble';
@@ -78,12 +78,16 @@ const getTelegramValue = (identity: UserIdentity) => {
         return providerId.startsWith('@') ? providerId : `@${providerId}`;
     }
 
+    if (providerId || identity.refUrl?.trim()) {
+        return 'Привязан';
+    }
+
     return null;
 };
 
 const getMaxValue = (identity: UserIdentity) => {
     if (identity.providerId !== undefined && identity.providerId !== null) {
-        return `id${identity.providerId}`;
+        return 'Привязан';
     }
 
     return null;
@@ -155,6 +159,8 @@ const Profile: FC<Props> = ({ userId }) => {
     const [isEditCurtainOpen, setIsEditCurtainOpen] = useState(false);
     const [isEditLoading, setIsEditLoading] = useState(false);
     const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+    const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+    const [pendingAvatarPreviewUrl, setPendingAvatarPreviewUrl] = useState<string | null>(null);
     const [inviteIdentities, setInviteIdentities] = useState<UserIdentity[]>([]);
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -181,7 +187,24 @@ const Profile: FC<Props> = ({ userId }) => {
         setEditFullName(userData.fullName || '');
         setEditPhone(userData.phone || '');
         setEditEmail(userData.email || '');
+        setPendingAvatarFile(null);
+        setPendingAvatarPreviewUrl(null);
     }, [isEditCurtainOpen, userData]);
+
+    useEffect(() => {
+        if (!pendingAvatarFile) {
+            setPendingAvatarPreviewUrl(null);
+
+            return;
+        }
+
+        const objectUrl = URL.createObjectURL(pendingAvatarFile);
+        setPendingAvatarPreviewUrl(objectUrl);
+
+        return () => {
+            URL.revokeObjectURL(objectUrl);
+        };
+    }, [pendingAvatarFile]);
 
     useEffect(() => {
         if (!isInvitePopupOpen) {
@@ -216,6 +239,7 @@ const Profile: FC<Props> = ({ userId }) => {
     if (isLoading || !userData) {
         return null;
     }
+
 
     const identitiesByType = (userData.identities || []).reduce<Partial<Record<SocialRow['type'], UserIdentity>>>(
         (acc, identity) => {
@@ -272,7 +296,24 @@ const Profile: FC<Props> = ({ userId }) => {
             return;
         }
 
+        if (pendingAvatarFile) {
+            setIsAvatarUploading(true);
+
+            const { success } = await addPhoto({ id: userId, photo: pendingAvatarFile, isUserAvatar: true });
+
+            setIsAvatarUploading(false);
+
+            if (!success) {
+                toast.warn('Не удалось обновить фотографию, попробуйте еще раз');
+                setIsEditLoading(false);
+
+                return;
+            }
+        }
+
         await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
+        setPendingAvatarFile(null);
+        setPendingAvatarPreviewUrl(null);
         setIsEditCurtainOpen(false);
         setIsEditLoading(false);
     };
@@ -283,7 +324,8 @@ const Profile: FC<Props> = ({ userId }) => {
         !editPhone.trim() ||
         !editEmail.trim() ||
         !isPhoneValid ||
-        !isEmailValid;
+        !isEmailValid ||
+        isAvatarUploading;
 
     const onEditAvatarClickHandler = () => {
         if (isAvatarUploading) {
@@ -293,27 +335,22 @@ const Profile: FC<Props> = ({ userId }) => {
         avatarInputRef.current?.click();
     };
 
-    const onAvatarSelectHandler = async (e: ChangeEvent<HTMLInputElement>) => {
+    const onEditCurtainCloseHandler = () => {
+        if (isAvatarUploading || isEditLoading) {
+            return;
+        }
+
+        setIsEditCurtainOpen(false);
+    };
+
+    const onAvatarSelectHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const newPhoto = e.target.files?.[0];
 
-        if (!newPhoto || isAvatarUploading) {
+        if (!newPhoto || isAvatarUploading || isEditLoading) {
             return;
         }
 
-        setIsAvatarUploading(true);
-
-        const { success } = await addPhoto({ id: userId, photo: newPhoto, isUserAvatar: true });
-
-        if (!success) {
-            toast.warn('Не удалось обновить фотографию, попробуйте еще раз');
-            setIsAvatarUploading(false);
-            e.target.value = '';
-
-            return;
-        }
-
-        await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
-        setIsAvatarUploading(false);
+        setPendingAvatarFile(newPhoto);
         e.target.value = '';
     };
 
@@ -389,6 +426,8 @@ const Profile: FC<Props> = ({ userId }) => {
         window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
+    const editAvatarUrl = pendingAvatarPreviewUrl || avatarUrl;
+
     return (
         <Layout>
             <div className={styles.page}>
@@ -445,7 +484,7 @@ const Profile: FC<Props> = ({ userId }) => {
                         <img src={profilePhoto} alt='Питомцы' className={styles.bonusImage} />
                     </div>
 
-                    <div className={styles.bonusCardNew}>
+                    {/* <div className={styles.bonusCardNew}>
                         <div className={styles.bonusCardNewTitle}>
                             Спасайте жизни
                             <br />
@@ -459,7 +498,7 @@ const Profile: FC<Props> = ({ userId }) => {
                             Пригласить друга
                         </Button>
                         <img src={profileBonus} alt='Питомцы-доноры' className={styles.bonusCardNewImage} />
-                    </div>
+                    </div> */}
 
                     {/* <PromoSlider /> */}
 
@@ -574,7 +613,7 @@ const Profile: FC<Props> = ({ userId }) => {
             {isEditCurtainOpen && (
                 <Curtain
                     title={<span style={{ display: 'none' }} />}
-                    onClose={() => setIsEditCurtainOpen(false)}
+                    onClose={onEditCurtainCloseHandler}
                     shouldCloseByWrapperClick
                     noRednerButtons
                     contentBorderRadius={0}
@@ -582,8 +621,8 @@ const Profile: FC<Props> = ({ userId }) => {
                     <div className={styles.editCurtainWrapper}>
                         <div className={styles.editCurtainHeader}>
                             <div className={styles.editAvatarCircle}>
-                                {avatarUrl ? (
-                                    <img src={avatarUrl} alt='Фото профиля' className={styles.editAvatarImage} />
+                                {editAvatarUrl ? (
+                                    <img src={editAvatarUrl} alt='Фото профиля' className={styles.editAvatarImage} />
                                 ) : (
                                     userInitial
                                 )}

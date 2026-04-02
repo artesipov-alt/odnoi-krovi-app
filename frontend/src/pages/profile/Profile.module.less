@@ -297,6 +297,7 @@
     justify-content: space-between;
     align-items: center;
     min-height: 64px;
+    padding: 0 10px;
 }
 
 .socialLeft {
@@ -339,7 +340,7 @@
 }
 
 .socialValue {
-    color: @border5;
+    color: @textColor2;
     font-family:
         Proxima Nova,
         sans-serif;
@@ -447,6 +448,9 @@
     text-align: center;
     margin: 0 auto;
     overflow: hidden;
+    @media (max-width: 420px) {
+        padding: 50px 0px 0px;
+    }
 }
 
 .popupTitle {
@@ -483,6 +487,9 @@
         top: -30px;
         left: -60px;
         border-radius: 36px;
+        @media (max-width: 420px) {
+            left: -40px;
+        }
     }
     &::before {
         content: '';
@@ -494,6 +501,9 @@
         top: -30px;
         right: -60px;
         border-radius: 36px;
+        @media (max-width: 420px) {
+            right: -40px;
+        }
     }
 }
 

@@ -5,6 +5,7 @@ import { usePetsQuery } from 'hooks/usePetsQuery';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import BloodFound from 'imgs/svg/bloodFound';
 import BloodSearch from 'imgs/svg/bloodSearch';
+import Bonus from 'imgs/svg/bonus';
 import DonorButton from 'imgs/svg/donorButton';
 import Paw from 'imgs/svg/paw';
 import RecipientButton from 'imgs/svg/recipientButton';
@@ -59,6 +60,8 @@ const Owner: FC<Props> = ({ userId }) => {
 
     const { data: pets, isLoading, refetch } = usePetsQuery(userId);
     const { data: userData, isLoading: isUserDataLoading, refetch: refetchUserData } = useGetUserById(userId);
+    const userAvatarUrl = userData?.photoUrls?.[0];
+    const userInitial = userData?.fullName?.charAt(0).toUpperCase() || '?';
 
     const onButtonClickHandler = (newView: View) => () => {
         if (newView === view) {
@@ -463,8 +466,19 @@ const Owner: FC<Props> = ({ userId }) => {
             <div className={cn(styles.wrapper, { [styles.isPets]: !!pets?.pets.length })}>
                 <div className={styles.header}>
                     <div className={styles.avatar} onClick={() => navigate('/profile')} role='button'>
-                        {userData?.fullName.charAt(0).toUpperCase()}
+                        {userAvatarUrl ? (
+                            <img src={userAvatarUrl} alt='Фото профиля' className={styles.avatarImage} />
+                        ) : (
+                            userInitial
+                        )}
                     </div>
+                    <h1 className={styles.fullName}>{userData?.fullName || ''}</h1>
+                    <button type='button' className={styles.bonusCounter} onClick={() => navigate('/bonuses')}>
+                        <span className={styles.bonusCounterIcon}>
+                            <Bonus />
+                        </span>
+                        <span className={styles.bonusCounterValue}>0</span>
+                    </button>
                 </div>
                 {(isLoading || isUserDataLoading) && (
                     <div className={styles.loading}>
