@@ -157,6 +157,15 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.RejectDonation)
 
+	huma.Register(api, huma.Operation{
+		OperationID: "close-blood-request-by-id",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/close/{req_id}",
+		Summary:     "Отклонить донацию по ID",
+		Description: "Отклоняет факт проведения донации по ID отклика донора",
+		Tags:        []string{"blood-request-v1"},
+	}, h.RejectDonation)
+
 }
 
 // Handlers

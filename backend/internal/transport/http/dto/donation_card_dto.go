@@ -27,6 +27,7 @@ type RecipientShort struct {
 	PetType             string   `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	BloodVolumeNeeded   int32    `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"200"`
 	BloodVolumeReserved int32    `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
+	BloodVolumeDonated  int32    `json:"bloodVolumeDonated" doc:"Фактически проведённый объем донации крови в мл" example:"50"`
 	PhotoURLs           []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 }
 
