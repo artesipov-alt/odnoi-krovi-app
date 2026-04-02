@@ -477,7 +477,7 @@ const Owner: FC<Props> = ({ userId }) => {
                         <span className={styles.bonusCounterIcon}>
                             <Bonus />
                         </span>
-                        <span className={styles.bonusCounterValue}>10</span>
+                        <span className={styles.bonusCounterValue}>0</span>
                     </button>
                 </div>
                 {(isLoading || isUserDataLoading) && (

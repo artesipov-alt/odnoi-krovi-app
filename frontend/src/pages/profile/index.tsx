@@ -240,7 +240,6 @@ const Profile: FC<Props> = ({ userId }) => {
         return null;
     }
 
-    // console.log('identities', userData?.identities);
 
     const identitiesByType = (userData.identities || []).reduce<Partial<Record<SocialRow['type'], UserIdentity>>>(
         (acc, identity) => {
