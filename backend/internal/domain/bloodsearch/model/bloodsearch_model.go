@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
@@ -28,19 +29,58 @@ type BloodRequest struct {
 	BloodVolumeReserved      int32
 	BloodVolumeDonated       int32
 	Regions                  []string
-	Description              string
 	SmallPetsNotifyAllowed   bool
 	Status                   BloodRequestStatus
-	PhotoURLs                []string
 	BloodGroupNames          []string
 	BloodComponentIDs        []string
 	OnBoarding               []string
-	DonorApplications        []donormodel.DonorResponse
 	PrioritySearch           bool
 	IncludeUnknownBloodGroup bool
+	AdvancedInfo             AdvancedInfo
 	CreatedAt                *time.Time
 	UpdatedAt                *time.Time
 	DeletedAt                *time.Time
+}
+
+type BloodRequestWithApplications struct {
+	BloodRequest
+	DonorApplications []donormodel.DonorResponse
+}
+
+// Recipient представляет модель чтения реципиент
+type BloodRequestWithMatchingDonors struct {
+	BloodRequest
+	RecipientData     RecipientData
+	MatchingDonors    []MatchingDonorReadModel
+	DefaultDonorPrefs *DefaultDonorPrefs
+}
+
+type RecipientData struct {
+	PetName        string
+	PetType        common.PetType
+	BloodGroupName string
+	OwnerName      string
+	PhotoURLs      []string
+}
+
+type AdvancedInfo struct {
+	Description string
+	PhotoURLs   []string
+}
+
+type DefaultDonorPrefs struct {
+	CompensationType common.CompensationType
+	Bonuses          []string
+	TaxiCompensation bool
+}
+
+// MatchingDonorReadModel представляет модель чтения для подходящего донора
+type MatchingDonorReadModel struct {
+	PetID           string
+	PetName         string
+	Amount          int32
+	DonorBloodGroup string
+	PhotoURLs       []string
 }
 
 // NewBloodRequest creates a new blood request with default values
@@ -52,7 +92,6 @@ func NewBloodRequest(petID string, bloodVolumeNeeded int32, regions []string) *B
 		Regions:                  regions,
 		SmallPetsNotifyAllowed:   true,
 		Status:                   BloodRequestStatusActive,
-		PhotoURLs:                []string{},
 		BloodGroupNames:          []string{},
 		BloodComponentIDs:        []string{},
 		OnBoarding:               []string{},
@@ -82,7 +121,7 @@ func (b *BloodRequest) MarkReservedFull() {
 
 // AddPhoto adds a photo URL to the request
 func (b *BloodRequest) AddPhoto(url string) {
-	b.PhotoURLs = append(b.PhotoURLs, url)
+	b.AdvancedInfo.PhotoURLs = append(b.AdvancedInfo.PhotoURLs, url)
 }
 
 // SetBloodGroups sets compatible blood groups
@@ -90,7 +129,7 @@ func (b *BloodRequest) SetBloodGroups(groups []string) {
 	b.BloodGroupNames = groups
 }
 
-func (b *BloodRequest) RecalculateBloodAmount() {
+func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 	var donated int32
 	for _, app := range b.DonorApplications {
 		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
@@ -129,4 +168,12 @@ type BloodRequestFilter struct {
 	Regions []string
 	Limit   int
 	Offset  int
+}
+
+func (r *BloodRequestWithMatchingDonors) SetDefaultPrefs(compensationType common.CompensationType, taxiCompensation bool) {
+	r.DefaultDonorPrefs = &DefaultDonorPrefs{
+		CompensationType: compensationType,
+		TaxiCompensation: taxiCompensation,
+		Bonuses:          []string{},
+	}
 }

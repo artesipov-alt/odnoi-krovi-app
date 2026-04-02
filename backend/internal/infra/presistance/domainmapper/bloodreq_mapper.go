@@ -4,35 +4,36 @@ import (
 	"time"
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
 
 // mapToRecipient maps ent.BloodSearchRequest to donormodel.Recipient
-func RecipientToDomain(req *ent.BloodSearchRequest) *recipientmodel.Recipient {
+func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestWithMatchingDonors {
 	if req == nil {
 		return nil
 	}
 
-	recipient := &recipientmodel.Recipient{
-		ID:                       req.ID,
-		PetID:                    req.PetID,
-		BloodVolumeNeeded:        req.BloodVolumeNeeded,
-		PrioritySearch:           req.PrioritySearch,
-		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
-		SearchingBloodNames:      req.BloodGroupNames,
-		SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
-		Status:                   string(req.Status),
+	recipient := &bloodreqmodel.BloodRequestWithMatchingDonors{
+		BloodRequest: bloodreqmodel.BloodRequest{
+			ID:                       req.ID,
+			PetID:                    req.PetID,
+			BloodVolumeNeeded:        req.BloodVolumeNeeded,
+			PrioritySearch:           req.PrioritySearch,
+			IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
+			BloodGroupNames:          req.BloodGroupNames,
+			SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
+			Status:                   bloodreqmodel.BloodRequestStatus(req.Status),
+		},
 	}
 
 	if req.Edges.Pet != nil {
-		recipient.PetName = req.Edges.Pet.Name
-		recipient.PetType = petmodel.PetType(req.Edges.Pet.Type)
-		recipient.PhotoURLs = req.Edges.Pet.PhotoUrls
+		recipient.RecipientData.PetName = req.Edges.Pet.Name
+		recipient.RecipientData.PetType = common.PetType(req.Edges.Pet.Type)
+		recipient.RecipientData.PhotoURLs = req.Edges.Pet.PhotoUrls
 		if req.Edges.Pet.Edges.BloodGroupRef != nil {
-			recipient.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
+			recipient.RecipientData.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
 		}
 	}
 
@@ -40,7 +41,7 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *recipientmodel.Recipient {
 }
 
 // BloodReqToDomain converts ENT BloodSearchRequest to domain BloodRequest
-func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodRequest {
+func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestWithApplications {
 	if entReq == nil {
 		return nil
 	}
@@ -72,23 +73,27 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 		}
 	}
 
-	return &bloodreqmodel.BloodRequest{
-		ID:                       entReq.ID,
-		PetID:                    entReq.PetID,
-		BloodVolumeNeeded:        entReq.BloodVolumeNeeded,
-		Regions:                  entReq.Regions,
-		SmallPetsNotifyAllowed:   entReq.SmallPetsNotifyAllowed,
-		Status:                   bloodreqmodel.BloodRequestStatus(entReq.Status),
-		Description:              entReq.Description,
-		PhotoURLs:                entReq.PhotoUrls,
-		BloodGroupNames:          entReq.BloodGroupNames,
-		BloodComponentIDs:        entReq.BloodComponentIds,
-		OnBoarding:               entReq.OnBoarding,
-		DonorApplications:        donorApps,
-		PrioritySearch:           entReq.PrioritySearch,
-		IncludeUnknownBloodGroup: entReq.IncludeUnknownBloodGroup,
-		CreatedAt:                &entReq.CreatedAt,
-		UpdatedAt:                &entReq.UpdatedAt,
-		DeletedAt:                entReq.DeletedAt,
+	return &bloodreqmodel.BloodRequestWithApplications{
+		BloodRequest: bloodreqmodel.BloodRequest{
+			ID:                       entReq.ID,
+			PetID:                    entReq.PetID,
+			BloodVolumeNeeded:        entReq.BloodVolumeNeeded,
+			Regions:                  entReq.Regions,
+			SmallPetsNotifyAllowed:   entReq.SmallPetsNotifyAllowed,
+			Status:                   bloodreqmodel.BloodRequestStatus(entReq.Status),
+			BloodGroupNames:          entReq.BloodGroupNames,
+			BloodComponentIDs:        entReq.BloodComponentIds,
+			OnBoarding:               entReq.OnBoarding,
+			PrioritySearch:           entReq.PrioritySearch,
+			IncludeUnknownBloodGroup: entReq.IncludeUnknownBloodGroup,
+			AdvancedInfo: bloodreqmodel.AdvancedInfo{
+				Description: entReq.Description,
+				PhotoURLs:   entReq.PhotoUrls,
+			},
+			CreatedAt: &entReq.CreatedAt,
+			UpdatedAt: &entReq.UpdatedAt,
+			DeletedAt: entReq.DeletedAt,
+		},
+		DonorApplications: donorApps,
 	}
 }

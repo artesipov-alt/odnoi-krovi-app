@@ -36,7 +36,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 	if err != nil {
 		return err
 	}
-	bloodReq, err := h.bloodRepo.GetByID(ctx, application.RequestID)
+	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, application.RequestID)
 	if err != nil {
 		return err
 	}

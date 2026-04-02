@@ -1,13 +1,14 @@
 package enums
 
 import (
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
 // GetAllEntPetTypes возвращает все доступные типы животных из ENT
-func GetAllEntPetTypes() []model.PetType {
-	return []model.PetType{model.PetTypeDog, model.PetTypeCat}
+func GetAllEntPetTypes() []common.PetType {
+	return []common.PetType{common.PetTypeDog, common.PetTypeCat}
 }
 
 // GetAllEntPetStatuses возвращает все доступные статусы питомцев из ENT
@@ -56,11 +57,11 @@ func GetAllEntUserRoles() []user.Role {
 }
 
 // LocalizeEntPetType локализует тип животного из ENT
-func LocalizeEntPetType(pt model.PetType) string {
+func LocalizeEntPetType(pt common.PetType) string {
 	switch pt {
-	case model.PetTypeDog:
+	case common.PetTypeDog:
 		return "Собака"
-	case model.PetTypeCat:
+	case common.PetTypeCat:
 		return "Кошка"
 	default:
 		return string(pt)

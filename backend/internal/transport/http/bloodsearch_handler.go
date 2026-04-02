@@ -209,7 +209,7 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 		existing.SmallPetsNotifyAllowed = *input.Body.SmallPetsNotifyAllowed
 	}
 	if input.Body.Description != nil {
-		existing.Description = *input.Body.Description
+		existing.AdvancedInfo.Description = *input.Body.Description
 	}
 	if len(input.Body.BloodGroupNames) > 0 {
 		existing.BloodGroupNames = input.Body.BloodGroupNames

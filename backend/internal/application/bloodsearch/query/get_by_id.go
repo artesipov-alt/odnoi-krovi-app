@@ -19,7 +19,7 @@ func NewGetByIDHandler(bloodRepo bloodsearch.BloodRequestRepository) *GetByIDHan
 	}
 }
 
-func (h *GetByIDHandler) Handle(ctx context.Context, id string) (*model.BloodRequest, int, error) {
+func (h *GetByIDHandler) Handle(ctx context.Context, id string) (*model.BloodRequestWithApplications, int, error) {
 	bloodReq, err := h.bloodRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, 0, err

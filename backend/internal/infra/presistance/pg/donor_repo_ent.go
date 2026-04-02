@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -70,7 +70,7 @@ func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, i
 	return domainmapper.ApplicationToDomain(entResp), nil
 }
 
-func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string) (*recipientmodel.Recipient, error) {
+func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
 	blreq, err := r.db.BloodSearchRequest.Query().
 		Where(bloodsearchrequest.IDEQ(id)).
 		WithPet(func(pq *ent.PetQuery) {
@@ -86,24 +86,28 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 		return nil, err
 	}
 
-	recipient := &recipientmodel.Recipient{
-		ID:                       blreq.ID,
-		PetID:                    blreq.PetID,
-		PetName:                  blreq.Edges.Pet.Name,
-		SearchingBloodNames:      blreq.BloodGroupNames,
-		PetType:                  petmodel.PetType(blreq.Edges.Pet.Type),
-		SearchRegions:            blreq.Regions,
-		BloodGroupName:           blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
-		PhotoURLs:                blreq.Edges.Pet.PhotoUrls,
-		BloodVolumeNeeded:        blreq.BloodVolumeNeeded,
-		PrioritySearch:           blreq.PrioritySearch,
-		IncludeUnknownBloodGroup: blreq.IncludeUnknownBloodGroup,
-		SmallPetsNotifyAllowed:   blreq.SmallPetsNotifyAllowed,
-		OwnerName:                blreq.Edges.Pet.Edges.Owner.FullName,
-		Status:                   string(blreq.Status),
-		AdvancedInfo: &recipientmodel.AdvancedInfo{
-			Description: blreq.Description,
-			PhotoURLs:   blreq.PhotoUrls,
+	recipient := &bloodreqmodel.BloodRequestWithMatchingDonors{
+		BloodRequest: bloodreqmodel.BloodRequest{
+			ID:                       blreq.ID,
+			PetID:                    blreq.PetID,
+			BloodGroupNames:          blreq.BloodGroupNames,
+			Regions:                  blreq.Regions,
+			BloodVolumeNeeded:        blreq.BloodVolumeNeeded,
+			PrioritySearch:           blreq.PrioritySearch,
+			IncludeUnknownBloodGroup: blreq.IncludeUnknownBloodGroup,
+			SmallPetsNotifyAllowed:   blreq.SmallPetsNotifyAllowed,
+			Status:                   bloodreqmodel.BloodRequestStatus(blreq.Status),
+			AdvancedInfo: bloodreqmodel.AdvancedInfo{
+				Description: blreq.Description,
+				PhotoURLs:   blreq.PhotoUrls,
+			},
+		},
+		RecipientData: bloodreqmodel.RecipientData{
+			PetName:        blreq.Edges.Pet.Name,
+			PetType:        common.PetType(blreq.Edges.Pet.Type),
+			BloodGroupName: blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
+			OwnerName:      blreq.Edges.Pet.Edges.Owner.FullName,
+			PhotoURLs:      blreq.PhotoUrls,
 		},
 	}
 

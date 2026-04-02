@@ -5,6 +5,7 @@ import (
 	"time"
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
@@ -18,14 +19,6 @@ const (
 	PetStatusBloodFound      PetStatus = "blood_found"
 	PetStatusRecovering      PetStatus = "recovering"
 	PetStatusPlannedDonation PetStatus = "planned_donation"
-)
-
-// PetType представляет тип животного
-type PetType string
-
-const (
-	PetTypeDog PetType = "dog"
-	PetTypeCat PetType = "cat"
 )
 
 // Gender представляет пол питомца
@@ -68,7 +61,7 @@ type Pet struct {
 	ID                      string
 	Name                    string
 	PetStatus               PetStatus
-	Type                    PetType
+	Type                    common.PetType
 	WeightKg                float64
 	Gender                  Gender
 	BirthDate               *time.Time
@@ -122,7 +115,7 @@ type PetAnalysis struct {
 // NewPet creates a new Pet aggregate with validation
 func NewPet(
 	name string,
-	petType PetType,
+	petType common.PetType,
 	weightKg float64,
 	gender Gender,
 	ownerID string,
@@ -147,7 +140,7 @@ func NewPet(
 	if petType == "" {
 		return nil, errors.New("pet type is required")
 	}
-	if petType != PetTypeDog && petType != PetTypeCat {
+	if petType != common.PetTypeDog && petType != common.PetTypeCat {
 		return nil, errors.New("invalid pet type")
 	}
 	if weightKg <= 0 {
@@ -335,7 +328,7 @@ func GetAllFactors() map[FactorCode]FactorDescription {
 }
 
 // GetStopFactors возвращает список стоп-факторов для питомца на основе текущего времени
-func (p *Pet) GetStopFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) []FactorCode {
+func (p *Pet) GetStopFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkPhoto(); code != "" {
 		factors = append(factors, code)
@@ -383,7 +376,7 @@ func (p *Pet) GetStopFactors(now time.Time, donorApplication *donormodel.DonorRe
 }
 
 // GetWarnFactors возвращает список варн-факторов для питомца на основе текущего времени
-func (p *Pet) GetWarnFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) []FactorCode {
+func (p *Pet) GetWarnFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkWarnAge(now); code != "" {
 		factors = append(factors, code)
@@ -600,7 +593,7 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 }
 
 // CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
-func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) {
+func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
 	if bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed {
 		p.PetStatus = PetStatusRecipient
 	}
@@ -624,7 +617,7 @@ func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *b
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
 // Этот метод инкапсулирует логику обновления факторов внутри агрегата
 // RecalculateFactors пересчитывает стоп-факторы и факторы-предупреждения
-func (p *Pet) RecalculateFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequest) {
+func (p *Pet) RecalculateFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
 	stopFactors := p.GetStopFactors(now, donorApplication, bloodReq)
 	p.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {

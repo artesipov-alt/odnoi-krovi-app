@@ -7,10 +7,10 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
 
@@ -19,18 +19,20 @@ type RecipientDetailHandler struct {
 	petRepo      pet.Repository
 	bloodReqRepo bloodsearch.BloodRequestRepository
 	userRepo     user.Repository
+	matchingSvc  bloodsearch.MatchingService
 }
 
-func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository) *RecipientDetailHandler {
+func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService) *RecipientDetailHandler {
 	return &RecipientDetailHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
 		bloodReqRepo: bloodReqRepo,
 		userRepo:     userRepo,
+		matchingSvc:  matchingSvc,
 	}
 }
 
-func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, userID string) (*recipientmodel.Recipient, error) {
+func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, userID string) (*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
 	recipient, err := h.donorRepo.GetRecipient(ctx, blodreqID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get recipient")
@@ -59,7 +61,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	potentialDonors := petmodel.FilterDonors(pets)
 
 	for _, donorPet := range potentialDonors {
-		recipient.MatchDonor(donorPet)
+		h.matchingSvc.MatchDonor(recipient, donorPet)
 	}
 
 	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{

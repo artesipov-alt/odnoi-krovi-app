@@ -18,7 +18,7 @@ func NewUpdateRequestHandler(bloodRepo bloodsearch.BloodRequestRepository) *Upda
 	}
 }
 
-func (h *UpdateRequestHandler) Handle(ctx context.Context, id string, bloodReq *model.BloodRequest) (*model.BloodRequest, error) {
+func (h *UpdateRequestHandler) Handle(ctx context.Context, id string, bloodReq *model.BloodRequestWithApplications) (*model.BloodRequestWithApplications, error) {
 	// Проверяем существование
 	existingReq, err := h.bloodRepo.GetByID(ctx, id)
 	if err != nil {
@@ -30,7 +30,7 @@ func (h *UpdateRequestHandler) Handle(ctx context.Context, id string, bloodReq *
 		bloodReq.Status = existingReq.Status
 	}
 
-	updatedReq, err := h.bloodRepo.Update(ctx, id, bloodReq)
+	updatedReq, err := h.bloodRepo.Update(ctx, id, &bloodReq.BloodRequest)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to update blood request")
 	}

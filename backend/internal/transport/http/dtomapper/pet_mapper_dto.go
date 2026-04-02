@@ -4,6 +4,7 @@ package mapper
 import (
 	"time"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -250,7 +251,7 @@ func (m *PetMapper) FromCreate(petDto dto.CreatePetBody) (*model.Pet, error) {
 
 	return model.NewPet(
 		petDto.Name,
-		model.PetType(petDto.Type),
+		common.PetType(petDto.Type),
 		petDto.WeightKg,
 		model.Gender(petDto.Gender),
 		"", // ownerID will be set by command handler
@@ -276,7 +277,7 @@ func (m *PetMapper) ToUpdateModel(petDto dto.UpdatePetBody) *model.Pet {
 		petUpdate.Name = *petDto.Name
 	}
 	if petDto.Type != nil {
-		petUpdate.Type = model.PetType(*petDto.Type)
+		petUpdate.Type = common.PetType(*petDto.Type)
 	}
 	if petDto.WeightKg != nil {
 		petUpdate.WeightKg = *petDto.WeightKg

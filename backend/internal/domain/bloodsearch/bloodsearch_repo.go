@@ -5,25 +5,24 @@ import (
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
-	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 )
 
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
 type BloodRequestRepository interface {
 	// Create создает новую заявку на поиск крови
-	Create(ctx context.Context, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error)
+	Create(ctx context.Context, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequestWithApplications, error)
 
 	// GetByID возвращает заявку по её идентификатору
-	GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error)
+	GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithApplications, error)
 
 	// GetByApplicationID возвращает заявку по id отклика на эту заявку
-	GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error)
+	GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithApplications, error)
 
 	// GetByPetID возвращает заявку по идентификатору питомца
-	GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequest, error)
+	GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequestWithApplications, error)
 
 	// Update обновляет информацию о заявке
-	Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error)
+	Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequestWithApplications, error)
 
 	// UpdateStatus обновляет статус заявки
 	UpdateStatus(ctx context.Context, id string, status bloodreqmodel.BloodRequestStatus) error
@@ -32,9 +31,9 @@ type BloodRequestRepository interface {
 	Delete(ctx context.Context, id string) error
 
 	// List возвращает список заявок с фильтрацией и пагинацией
-	List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequest, error)
+	List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequestWithApplications, error)
 
-	AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*recipientmodel.Recipient, error)
+	AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequestWithMatchingDonors, error)
 
 	// ExistsByPetID проверяет существование активной заявки для питомца
 	ExistsByPetID(ctx context.Context, petID string) (bool, error)

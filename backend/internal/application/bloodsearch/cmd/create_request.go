@@ -37,7 +37,7 @@ func NewCreateRequestHandler(
 	}
 }
 
-func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodRequest) (*model.BloodRequest, error) {
+func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodRequest) (*model.BloodRequestWithApplications, error) {
 	// Проверяем существование питомца
 	exists, err := h.petRepo.ExistsByID(ctx, req.PetID)
 	if err != nil {

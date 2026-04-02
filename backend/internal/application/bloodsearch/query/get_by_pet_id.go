@@ -23,7 +23,7 @@ func NewGetByPetIDHandler(
 	}
 }
 
-func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*model.BloodRequest, int, error) {
+func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*model.BloodRequestWithApplications, int, error) {
 	bloodReq, err := h.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
 		return nil, 0, err

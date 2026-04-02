@@ -21,7 +21,7 @@ func NewBloodRequestMapper(storage filestorage.Repository) *BloodRequestMapper {
 	}
 }
 
-func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors *int) dto.BloodRequestDetail {
+func (m *BloodRequestMapper) ToResponse(req *model.BloodRequestWithApplications, suitableDonors *int) dto.BloodRequestDetail {
 	if req == nil {
 		return dto.BloodRequestDetail{}
 	}
@@ -86,8 +86,8 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 		BloodVolumeReserved:      req.BloodVolumeReserved,
 		Regions:                  req.Regions,
 		SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
-		Description:              req.Description,
-		PhotoURLs:                m.storage.BuildPhotoURLs(req.PhotoURLs, *req.UpdatedAt),
+		Description:              req.AdvancedInfo.Description,
+		PhotoURLs:                m.storage.BuildPhotoURLs(req.AdvancedInfo.PhotoURLs, *req.UpdatedAt),
 		BloodGroupNames:          req.BloodGroupNames,
 		BloodComponentIDs:        req.BloodComponentIDs,
 		OnBoarding:               req.OnBoarding,
@@ -105,7 +105,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequest, suitableDonors 
 }
 
 // ToResponseSlice converts a slice of domain BloodRequest models to DTOs.
-func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequest) []dto.BloodRequestDetail {
+func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequestWithApplications) []dto.BloodRequestDetail {
 	if reqs == nil {
 		return nil
 	}
@@ -126,7 +126,7 @@ func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.
 
 	// Set additional fields from DTO
 	req.SmallPetsNotifyAllowed = body.SmallPetsNotifyAllowed
-	req.Description = body.Description
+	req.AdvancedInfo.Description = body.Description
 	req.BloodGroupNames = body.BloodGroupNames
 	req.BloodComponentIDs = body.BloodComponentIDs
 	req.PrioritySearch = body.PrioritySearch

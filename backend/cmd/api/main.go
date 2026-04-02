@@ -29,6 +29,7 @@ import (
 	refquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	usercmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	userquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
@@ -151,9 +152,11 @@ func main() {
 		userGetContactHandler := userquery.NewGetContactHandler(userRepo, publisher)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(bloodRequestRepo, petRepo, donorResponseRepo, bloodRequestRepo)
+		matchingSvc := *bloodsearch.NewMatchingService()
+
+		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, txManager)
-		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
+		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc)
 
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
@@ -51,15 +52,6 @@ type NewUserParams struct {
 	MetaData   map[string]any
 }
 
-// CompensationType represents donor's compensation preference
-type CompensationType string
-
-const (
-	CompensationFree CompensationType = "free" // Готов помочь безвозмездно
-	CompensationPaid CompensationType = "paid" // Не готов помочь бесплатно
-	CompensationFood CompensationType = "food" // Готов помочь за корм
-)
-
 // NotificationFrequency represents how often donor wants to be notified
 type NotificationFrequency string
 
@@ -76,7 +68,7 @@ type DonorPreference struct {
 	UserID                string
 	PreferredLocationIDs  []string
 	RecoveryPeriodMonths  int
-	CompensationType      CompensationType
+	CompensationType      common.CompensationType
 	TaxiCompensation      bool
 	NotificationFrequency NotificationFrequency
 	CreatedAt             *time.Time
@@ -88,7 +80,7 @@ type DonorPreference struct {
 type DonorPreferenceParams struct {
 	PreferredLocationIDs  []string
 	RecoveryPeriodMonths  int
-	CompensationType      CompensationType
+	CompensationType      common.CompensationType
 	TaxiCompensation      bool
 	NotificationFrequency NotificationFrequency
 }

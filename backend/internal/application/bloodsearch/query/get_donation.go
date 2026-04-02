@@ -23,7 +23,7 @@ type GetDonationHandler struct {
 
 type GetDonationResult struct {
 	Application  *donormodel.DonorResponse
-	BloodRequest *bloodsearchmodel.BloodRequest
+	BloodRequest *bloodsearchmodel.BloodRequestWithApplications
 	DonorPet     *petmodel.Pet
 	RecipientPet *petmodel.Pet
 }

@@ -1,6 +1,7 @@
 package domainmapper
 
 import (
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
@@ -14,7 +15,7 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 	pet := &model.Pet{
 		ID:                 e.ID,
 		Name:               e.Name,
-		Type:               model.PetType(e.Type),
+		Type:               common.PetType(e.Type),
 		PetStatus:          model.PetStatusNone,
 		WeightKg:           e.WeightKg,
 		Gender:             model.Gender(e.Gender),

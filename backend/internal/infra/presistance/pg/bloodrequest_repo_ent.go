@@ -8,7 +8,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
-	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -37,7 +36,7 @@ func NewEntBloodRequestRepository(client *ent.Client) *EntBloodRequestRepository
 }
 
 // Create создает новую заявку на поиск крови
-func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error) {
+func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	newBloodReq, err := r.client(ctx).BloodSearchRequest.
 		Create().
 		SetPetID(req.PetID).
@@ -45,8 +44,8 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmod
 		SetRegions(req.Regions).
 		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
 		SetStatus(bloodsearchrequest.Status(req.Status)).
-		SetDescription(req.Description).
-		SetPhotoUrls(req.PhotoURLs).
+		SetDescription(req.AdvancedInfo.Description).
+		SetPhotoUrls(req.AdvancedInfo.PhotoURLs).
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIDs).
 		SetOnBoarding(req.OnBoarding).
@@ -60,7 +59,7 @@ func (r *EntBloodRequestRepository) Create(ctx context.Context, req *bloodreqmod
 }
 
 // GetByID возвращает заявку по её идентификатору
-func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error) {
+func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	reqQuery := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.ID(id)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
@@ -83,7 +82,7 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bl
 }
 
 // GetByPetID возвращает заявку по идентификатору питомца
-func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequest, error) {
+func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.PetID(petID)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
@@ -109,7 +108,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 }
 
 // GetByApplicationID возвращает заявку по id отклика на эту заявку
-func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequest, error) {
+func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.HasResponsesWith(donorresponse.IDEQ(id))).
 		WithResponses().
@@ -124,7 +123,7 @@ func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id s
 }
 
 // Update обновляет информацию о заявке
-func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequest, error) {
+func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	if req == nil {
 		return nil, errors.New("blood request cannot be nil")
 	}
@@ -138,8 +137,8 @@ func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *
 		SetRegions(req.Regions).
 		SetSmallPetsNotifyAllowed(req.SmallPetsNotifyAllowed).
 		SetStatus(bloodsearchrequest.Status(req.Status)).
-		SetDescription(req.Description).
-		SetPhotoUrls(req.PhotoURLs).
+		SetDescription(req.AdvancedInfo.Description).
+		SetPhotoUrls(req.AdvancedInfo.PhotoURLs).
 		SetBloodGroupNames(req.BloodGroupNames).
 		SetBloodComponentIds(req.BloodComponentIDs).
 		SetOnBoarding(req.OnBoarding).
@@ -171,7 +170,7 @@ func (r *EntBloodRequestRepository) Delete(ctx context.Context, id string) error
 }
 
 // List возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequest, error) {
+func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequestWithApplications, error) {
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
@@ -185,7 +184,7 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 		return nil, err
 	}
 
-	result := make([]*bloodreqmodel.BloodRequest, len(requests))
+	result := make([]*bloodreqmodel.BloodRequestWithApplications, len(requests))
 	for i, req := range requests {
 		result[i] = domainmapper.BloodReqToDomain(req)
 	}
@@ -194,7 +193,7 @@ func (r *EntBloodRequestRepository) List(ctx context.Context, filters donormodel
 }
 
 // AdptiveList возвращает список заявок с фильтрацией и пагинацией
-func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*recipientmodel.Recipient, error) {
+func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
 	requests, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
@@ -210,7 +209,7 @@ func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters do
 		return nil, err
 	}
 
-	result := make([]*recipientmodel.Recipient, len(requests))
+	result := make([]*bloodreqmodel.BloodRequestWithMatchingDonors, len(requests))
 	for i, req := range requests {
 		result[i] = domainmapper.RecipientToDomain(req)
 	}

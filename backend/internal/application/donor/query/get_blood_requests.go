@@ -7,30 +7,30 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	recipientmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/recipient/model"
 )
 
 type ListRequestsHandler struct {
-	bloodRepo     bloodsearch.BloodRequestRepository
 	petRepo       pet.Repository
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.BloodRequestRepository
+	matchingSvc   bloodsearch.MatchingService
 }
 
-func NewListRequestsHandler(bloodRepo bloodsearch.BloodRequestRepository, petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, matchingSvc bloodsearch.MatchingService) *ListRequestsHandler {
 	return &ListRequestsHandler{
-		bloodRepo:     bloodRepo,
 		petRepo:       petRepo,
 		donorRespRepo: donorRespRepo,
 		bloodReqRepo:  bloodReqRepo,
+		matchingSvc:   matchingSvc,
 	}
 }
 
-func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*recipientmodel.Recipient, error) {
+func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
 	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
 		WithAll: true,
 	})
@@ -53,7 +53,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 	potentialDonors := petmodel.FilterDonors(pets)
 
-	allRequests, err := h.bloodRepo.AdaptiveList(ctx, filters)
+	allRequests, err := h.bloodReqRepo.AdaptiveList(ctx, filters)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to list blood requests")
 	}
@@ -61,11 +61,11 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	// Find matching donors
 	for _, recipient := range allRequests {
 		for _, donor := range potentialDonors {
-			recipient.MatchDonor(donor)
+			h.matchingSvc.MatchDonor(recipient, donor)
 		}
 	}
 
-	var requestsWithDonors []*recipientmodel.Recipient
+	var requestsWithDonors []*bloodreqmodel.BloodRequestWithMatchingDonors
 	for _, request := range allRequests {
 		if len(request.MatchingDonors) != 0 {
 			requestsWithDonors = append(requestsWithDonors, request)

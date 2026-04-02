@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -179,7 +180,7 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 			user.DonorPreference.RecoveryPeriodMonths = *input.Body.DonorPreference.RecoveryPeriodMonths
 		}
 		if input.Body.DonorPreference.CompensationType != nil {
-			user.DonorPreference.CompensationType = usermodel.CompensationType(*input.Body.DonorPreference.CompensationType)
+			user.DonorPreference.CompensationType = common.CompensationType(*input.Body.DonorPreference.CompensationType)
 		}
 		if input.Body.DonorPreference.TaxiCompensation != nil {
 			user.DonorPreference.TaxiCompensation = *input.Body.DonorPreference.TaxiCompensation

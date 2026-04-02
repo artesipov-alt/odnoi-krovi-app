@@ -2,6 +2,7 @@ package domainmapper
 
 import (
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
@@ -51,7 +52,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 			UserID:                e.ID,
 			PreferredLocationIDs:  dp.PreferredLocationIds,
 			RecoveryPeriodMonths:  dp.RecoveryPeriodMonths,
-			CompensationType:      usermodel.CompensationType(dp.CompensationType.String()),
+			CompensationType:      common.CompensationType(dp.CompensationType.String()),
 			TaxiCompensation:      dp.TaxiCompensation,
 			NotificationFrequency: usermodel.NotificationFrequency(dp.NotificationFrequency),
 			CreatedAt:             &dp.CreatedAt,
