@@ -142,6 +142,7 @@ type BloodRequestDetail struct {
 	PetID                    string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
 	BloodVolumeNeeded        int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
 	BloodVolumeReserved      int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"0"`
+	BloodVolumeDonated       int32              `json:"bloodVolumeDonated" doc:"Фактически проведённый объем донации крови в мл" example:"50"`
 	Regions                  []string           `json:"regions" doc:"Список регионов"`
 	SmallPetsNotifyAllowed   bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
 	Description              string             `json:"description,omitempty" doc:"Дополнительное описание"`
