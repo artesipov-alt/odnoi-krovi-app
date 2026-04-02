@@ -13,9 +13,10 @@ type GetByIDHandler struct {
 	petRepo   pet.Repository
 }
 
-func NewGetByIDHandler(bloodRepo bloodsearch.BloodRequestRepository) *GetByIDHandler {
+func NewGetByIDHandler(bloodRepo bloodsearch.BloodRequestRepository, petRepo pet.Repository) *GetByIDHandler {
 	return &GetByIDHandler{
 		bloodRepo: bloodRepo,
+		petRepo:   petRepo,
 	}
 }
 
