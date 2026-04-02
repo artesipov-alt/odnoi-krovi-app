@@ -26,6 +26,7 @@ type BloodRequest struct {
 	PetID                    string
 	BloodVolumeNeeded        int32
 	BloodVolumeReserved      int32
+	BloodVolumeDonated       int32
 	Regions                  []string
 	Description              string
 	SmallPetsNotifyAllowed   bool
@@ -111,6 +112,16 @@ func (b *BloodRequest) AddPhoto(url string) {
 // SetBloodGroups sets compatible blood groups
 func (b *BloodRequest) SetBloodGroups(groups []string) {
 	b.BloodGroupNames = groups
+}
+
+func (b *BloodRequest) CalculateDonatedAmount() {
+	var donated int32
+	for _, app := range b.DonorApplications {
+		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
+			donated += app.Amount
+		}
+	}
+	b.BloodVolumeDonated = donated
 }
 
 // BloodRequestFilter represents filter options for listing requests
