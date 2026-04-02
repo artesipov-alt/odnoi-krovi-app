@@ -164,7 +164,7 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Summary:     "Отклонить донацию по ID",
 		Description: "Отклоняет факт проведения донации по ID отклика донора",
 		Tags:        []string{"blood-request-v1"},
-	}, h.RejectDonation)
+	}, h.CloseBloodSearch)
 
 }
 
@@ -346,4 +346,9 @@ func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *commond
 		return nil, err
 	}
 	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Донация отменена"}}, nil
+}
+
+func (h *BloodRequestHandler) CloseBloodSearch(ctx context.Context, input *commondto.BloodRequestIDPath) (*commondto.DefaultMessageOutput, error) {
+
+	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Метод находится в реализации"}}, nil
 }
