@@ -107,7 +107,7 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 			PetType:        common.PetType(blreq.Edges.Pet.Type),
 			BloodGroupName: blreq.Edges.Pet.Edges.BloodGroupRef.BloodGroup,
 			OwnerName:      blreq.Edges.Pet.Edges.Owner.FullName,
-			PhotoURLs:      blreq.PhotoUrls,
+			PhotoURLs:      blreq.Edges.Pet.PhotoUrls,
 		},
 	}
 
