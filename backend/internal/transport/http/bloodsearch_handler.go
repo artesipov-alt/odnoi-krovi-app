@@ -161,8 +161,8 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		OperationID: "close-blood-request-by-id",
 		Method:      http.MethodPost,
 		Path:        "/v1/blood-request/close/{req_id}",
-		Summary:     "Отклонить донацию по ID",
-		Description: "Отклоняет факт проведения донации по ID отклика донора",
+		Summary:     "Закрыть заявку на поиск крови по ID заявки",
+		Description: "Закрывает заявку на поиск крови по ID заявки",
 		Tags:        []string{"blood-request-v1"},
 	}, h.CloseBloodSearch)
 
