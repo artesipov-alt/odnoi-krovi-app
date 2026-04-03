@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"math"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -87,7 +88,7 @@ type MatchingDonorReadModel struct {
 func NewBloodRequest(petID string, bloodVolumeNeeded float64, regions []string) *BloodRequest {
 	return &BloodRequest{
 		PetID:                    petID,
-		BloodVolumeNeeded:        bloodVolumeNeeded,
+		BloodVolumeNeeded:        math.Round(bloodVolumeNeeded*10) / 10,
 		BloodVolumeReserved:      0,
 		Regions:                  regions,
 		SmallPetsNotifyAllowed:   true,
@@ -136,7 +137,7 @@ func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 			donated += app.Amount
 		}
 	}
-	b.BloodVolumeDonated = donated
+	b.BloodVolumeDonated = math.Round(donated*10) / 10
 
 	reserved := b.BloodVolumeDonated
 	for _, app := range b.DonorApplications {
@@ -149,7 +150,7 @@ func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 			}
 		}
 	}
-	b.BloodVolumeReserved = reserved
+	b.BloodVolumeReserved = math.Round(reserved*10) / 10
 }
 
 func (b *BloodRequest) RecalculateStatus() {
