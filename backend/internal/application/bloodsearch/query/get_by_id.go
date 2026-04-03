@@ -27,7 +27,6 @@ func (h *GetByIDHandler) Handle(ctx context.Context, id string) (*model.BloodReq
 	}
 
 	bloodReq.RecalculateBloodAmount()
-	bloodReq.RecalculateStatus()
 
 	suitableDonors, err := h.petRepo.CountSuitableDonors(ctx, bloodReq.BloodGroupNames)
 	if err != nil {
