@@ -3,6 +3,7 @@ package pg
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -207,7 +208,7 @@ func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseI
 		SetIsConfirmed(true)
 
 	if factAmount != 0 {
-		update.SetAmount(factAmount)
+		update.SetAmount(math.Round(factAmount*10) / 10)
 	}
 
 	if err := update.Exec(ctx); err != nil {

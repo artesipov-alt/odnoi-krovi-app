@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"strings"
 
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
@@ -335,7 +337,13 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 }
 
 func (h *BloodRequestHandler) ConfirmDonation(ctx context.Context, input *dto.ConfirmDonorApplicationInput) (*commondto.DefaultMessageOutput, error) {
-	if err := h.confirmDonationHandler.Handle(ctx, input.ID, input.Body.Amount); err != nil {
+	// Parse Amount, replacing comma with dot
+	amountStr := strings.ReplaceAll(input.Body.Amount, ",", ".")
+	factAmount, err := strconv.ParseFloat(amountStr, 64)
+	if err != nil {
+		return nil, err
+	}
+	if err := h.confirmDonationHandler.Handle(ctx, input.ID, factAmount); err != nil {
 		return nil, err
 	}
 	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Донация успешно подтверждена"}}, nil

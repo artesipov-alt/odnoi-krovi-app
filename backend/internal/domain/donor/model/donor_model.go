@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"math"
 	"time"
 )
 
@@ -54,7 +55,7 @@ func NewDonorResponse(requestID, donorID, compensationType string, amount float6
 	return &DonorResponse{
 		RequestID:        requestID,
 		DonorID:          donorID,
-		Amount:           amount,
+		Amount:           math.Round(amount*10) / 10,
 		CompensationType: compensationType,
 		TaxiCompensation: taxiCompensation,
 		Status:           DonorResponseStatusPending,

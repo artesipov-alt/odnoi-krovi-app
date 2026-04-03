@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"math"
 	"time"
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -721,5 +722,5 @@ func (p *Pet) CalculateDonationAmount() float64 {
 		return 0
 	}
 	amount := limitPerKg * p.WeightKg
-	return amount
+	return math.Round(amount*10) / 10
 }
