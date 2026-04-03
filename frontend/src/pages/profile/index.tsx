@@ -239,8 +239,6 @@ const Profile: FC<Props> = ({ userId }) => {
     if (isLoading || !userData) {
         return null;
     }
-
-
     const identitiesByType = (userData.identities || []).reduce<Partial<Record<SocialRow['type'], UserIdentity>>>(
         (acc, identity) => {
             const providerType = getProviderType(identity.providerName);
@@ -280,52 +278,72 @@ const Profile: FC<Props> = ({ userId }) => {
             return;
         }
 
+        const hasProfileChanges =
+            editFullName.trim() !== (userData.fullName || '').trim() ||
+            normalizePhone(editPhone) !== normalizePhone(userData.phone || '') ||
+            editEmail.trim() !== (userData.email || '').trim();
+        const hasAvatarChanges = !!pendingAvatarFile;
+
+        if (!hasProfileChanges && !hasAvatarChanges) {
+            setIsEditCurtainOpen(false);
+
+            return;
+        }
+
         setIsEditLoading(true);
+        setIsAvatarUploading(hasAvatarChanges);
 
-        const { error } = await updateUser({
-            id: userId,
-            fullName: editFullName,
-            phone: editPhone,
-            email: editEmail,
-        });
+        const [updateResult, photoResult] = await Promise.all([
+            hasProfileChanges
+                ? updateUser({
+                      id: userId,
+                      fullName: editFullName,
+                      phone: editPhone,
+                      email: editEmail,
+                  })
+                : Promise.resolve(null),
+            hasAvatarChanges && pendingAvatarFile
+                ? addPhoto({ id: userId, photo: pendingAvatarFile, isUserAvatar: true })
+                : Promise.resolve(null),
+        ]);
 
-        if (error) {
-            toast.warn(error);
+        if (updateResult?.error) {
+            toast.warn(updateResult.error);
+        }
+
+        if (hasAvatarChanges && photoResult && !photoResult.success) {
+            toast.warn('Не удалось обновить фотографию, попробуйте еще раз');
+        }
+
+        const hasUpdateSuccess = hasProfileChanges && !updateResult?.error;
+        const hasPhotoSuccess = hasAvatarChanges && !!photoResult?.success;
+
+        if (hasUpdateSuccess || hasPhotoSuccess) {
+            await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
+        }
+
+        if ((hasProfileChanges && updateResult?.error) || (hasAvatarChanges && photoResult && !photoResult.success)) {
+            setIsAvatarUploading(false);
             setIsEditLoading(false);
 
             return;
         }
 
-        if (pendingAvatarFile) {
-            setIsAvatarUploading(true);
-
-            const { success } = await addPhoto({ id: userId, photo: pendingAvatarFile, isUserAvatar: true });
-
-            setIsAvatarUploading(false);
-
-            if (!success) {
-                toast.warn('Не удалось обновить фотографию, попробуйте еще раз');
-                setIsEditLoading(false);
-
-                return;
-            }
-        }
-
-        await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
         setPendingAvatarFile(null);
         setPendingAvatarPreviewUrl(null);
         setIsEditCurtainOpen(false);
+        setIsAvatarUploading(false);
         setIsEditLoading(false);
     };
 
+    const isEditSaving = isEditLoading || isAvatarUploading;
     const isEditSaveDisabled =
-        isEditLoading ||
+        isEditSaving ||
         !editFullName.trim() ||
         !editPhone.trim() ||
         !editEmail.trim() ||
         !isPhoneValid ||
-        !isEmailValid ||
-        isAvatarUploading;
+        !isEmailValid;
 
     const onEditAvatarClickHandler = () => {
         if (isAvatarUploading) {
@@ -405,7 +423,6 @@ const Profile: FC<Props> = ({ userId }) => {
                 await navigator.share({
                     title: 'Приглашение в Одной Крови',
                     text: shareText,
-                    url: shareUrl,
                 });
 
                 return;
@@ -715,7 +732,14 @@ const Profile: FC<Props> = ({ userId }) => {
                                 )}
                             </div>
                             <button type='submit' className={styles.editSaveButton} disabled={isEditSaveDisabled}>
-                                Сохранить изменения
+                                {isEditSaving ? (
+                                    <span className={styles.editSaveButtonContent}>
+                                        <span className={styles.editSaveButtonLoader} />
+                                        <span>Сохраняем...</span>
+                                    </span>
+                                ) : (
+                                    'Сохранить изменения'
+                                )}
                             </button>
                         </form>
                     </div>
