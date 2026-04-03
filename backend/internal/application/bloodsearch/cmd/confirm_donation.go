@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
@@ -32,12 +33,12 @@ func NewConfirmDonationHandler(
 }
 
 func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID string, factAmount float64) error {
-	if err := h.donorRepo.Confirm(ctx, donorResponseID, factAmount); err != nil {
-		return err
-	}
 	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
+			return err
+		}
 
-		bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
 		if err != nil {
 			return err
 		}
@@ -49,6 +50,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
+		slog.Info("DEBUG_STATUS_UPDATE: Updating status", "id", bloodReq.ID, "status", bloodReq.Status)
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
 			return err
 		}
