@@ -74,7 +74,7 @@ func (_c *BloodSearchRequestCreate) SetPetID(v string) *BloodSearchRequestCreate
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (_c *BloodSearchRequestCreate) SetBloodVolumeNeeded(v int32) *BloodSearchRequestCreate {
+func (_c *BloodSearchRequestCreate) SetBloodVolumeNeeded(v float64) *BloodSearchRequestCreate {
 	_c.mutation.SetBloodVolumeNeeded(v)
 	return _c
 }
@@ -364,7 +364,7 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.BloodVolumeNeeded(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
+		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
 		_node.BloodVolumeNeeded = value
 	}
 	if value, ok := _c.mutation.Regions(); ok {
@@ -535,7 +535,7 @@ func (u *BloodSearchRequestUpsert) UpdatePetID() *BloodSearchRequestUpsert {
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (u *BloodSearchRequestUpsert) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpsert {
+func (u *BloodSearchRequestUpsert) SetBloodVolumeNeeded(v float64) *BloodSearchRequestUpsert {
 	u.Set(bloodsearchrequest.FieldBloodVolumeNeeded, v)
 	return u
 }
@@ -547,7 +547,7 @@ func (u *BloodSearchRequestUpsert) UpdateBloodVolumeNeeded() *BloodSearchRequest
 }
 
 // AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
-func (u *BloodSearchRequestUpsert) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsert {
+func (u *BloodSearchRequestUpsert) AddBloodVolumeNeeded(v float64) *BloodSearchRequestUpsert {
 	u.Add(bloodsearchrequest.FieldBloodVolumeNeeded, v)
 	return u
 }
@@ -803,14 +803,14 @@ func (u *BloodSearchRequestUpsertOne) UpdatePetID() *BloodSearchRequestUpsertOne
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (u *BloodSearchRequestUpsertOne) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertOne {
+func (u *BloodSearchRequestUpsertOne) SetBloodVolumeNeeded(v float64) *BloodSearchRequestUpsertOne {
 	return u.Update(func(s *BloodSearchRequestUpsert) {
 		s.SetBloodVolumeNeeded(v)
 	})
 }
 
 // AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
-func (u *BloodSearchRequestUpsertOne) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertOne {
+func (u *BloodSearchRequestUpsertOne) AddBloodVolumeNeeded(v float64) *BloodSearchRequestUpsertOne {
 	return u.Update(func(s *BloodSearchRequestUpsert) {
 		s.AddBloodVolumeNeeded(v)
 	})
@@ -1266,14 +1266,14 @@ func (u *BloodSearchRequestUpsertBulk) UpdatePetID() *BloodSearchRequestUpsertBu
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (u *BloodSearchRequestUpsertBulk) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertBulk {
+func (u *BloodSearchRequestUpsertBulk) SetBloodVolumeNeeded(v float64) *BloodSearchRequestUpsertBulk {
 	return u.Update(func(s *BloodSearchRequestUpsert) {
 		s.SetBloodVolumeNeeded(v)
 	})
 }
 
 // AddBloodVolumeNeeded adds v to the "blood_volume_needed" field.
-func (u *BloodSearchRequestUpsertBulk) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpsertBulk {
+func (u *BloodSearchRequestUpsertBulk) AddBloodVolumeNeeded(v float64) *BloodSearchRequestUpsertBulk {
 	return u.Update(func(s *BloodSearchRequestUpsert) {
 		s.AddBloodVolumeNeeded(v)
 	})

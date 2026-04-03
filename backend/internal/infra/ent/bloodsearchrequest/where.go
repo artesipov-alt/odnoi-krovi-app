@@ -86,7 +86,7 @@ func PetID(v string) predicate.BloodSearchRequest {
 }
 
 // BloodVolumeNeeded applies equality check predicate on the "blood_volume_needed" field. It's identical to BloodVolumeNeededEQ.
-func BloodVolumeNeeded(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeeded(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodVolumeNeeded, v))
 }
 
@@ -306,42 +306,42 @@ func PetIDContainsFold(v string) predicate.BloodSearchRequest {
 }
 
 // BloodVolumeNeededEQ applies the EQ predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededEQ(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededEQ(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldEQ(FieldBloodVolumeNeeded, v))
 }
 
 // BloodVolumeNeededNEQ applies the NEQ predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededNEQ(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededNEQ(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldNEQ(FieldBloodVolumeNeeded, v))
 }
 
 // BloodVolumeNeededIn applies the In predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededIn(vs ...int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededIn(vs ...float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldIn(FieldBloodVolumeNeeded, vs...))
 }
 
 // BloodVolumeNeededNotIn applies the NotIn predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededNotIn(vs ...int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededNotIn(vs ...float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldNotIn(FieldBloodVolumeNeeded, vs...))
 }
 
 // BloodVolumeNeededGT applies the GT predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededGT(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededGT(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldGT(FieldBloodVolumeNeeded, v))
 }
 
 // BloodVolumeNeededGTE applies the GTE predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededGTE(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededGTE(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldGTE(FieldBloodVolumeNeeded, v))
 }
 
 // BloodVolumeNeededLT applies the LT predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededLT(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededLT(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldLT(FieldBloodVolumeNeeded, v))
 }
 
 // BloodVolumeNeededLTE applies the LTE predicate on the "blood_volume_needed" field.
-func BloodVolumeNeededLTE(v int32) predicate.BloodSearchRequest {
+func BloodVolumeNeededLTE(v float64) predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(sql.FieldLTE(FieldBloodVolumeNeeded, v))
 }
 

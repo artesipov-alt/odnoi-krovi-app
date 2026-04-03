@@ -951,8 +951,8 @@ type BloodSearchRequestMutation struct {
 	created_at                  *time.Time
 	updated_at                  *time.Time
 	deleted_at                  *time.Time
-	blood_volume_needed         *int32
-	addblood_volume_needed      *int32
+	blood_volume_needed         *float64
+	addblood_volume_needed      *float64
 	regions                     *[]string
 	appendregions               []string
 	small_pets_notify_allowed   *bool
@@ -1241,13 +1241,13 @@ func (m *BloodSearchRequestMutation) ResetPetID() {
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (m *BloodSearchRequestMutation) SetBloodVolumeNeeded(i int32) {
-	m.blood_volume_needed = &i
+func (m *BloodSearchRequestMutation) SetBloodVolumeNeeded(f float64) {
+	m.blood_volume_needed = &f
 	m.addblood_volume_needed = nil
 }
 
 // BloodVolumeNeeded returns the value of the "blood_volume_needed" field in the mutation.
-func (m *BloodSearchRequestMutation) BloodVolumeNeeded() (r int32, exists bool) {
+func (m *BloodSearchRequestMutation) BloodVolumeNeeded() (r float64, exists bool) {
 	v := m.blood_volume_needed
 	if v == nil {
 		return
@@ -1258,7 +1258,7 @@ func (m *BloodSearchRequestMutation) BloodVolumeNeeded() (r int32, exists bool) 
 // OldBloodVolumeNeeded returns the old "blood_volume_needed" field's value of the BloodSearchRequest entity.
 // If the BloodSearchRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodSearchRequestMutation) OldBloodVolumeNeeded(ctx context.Context) (v int32, err error) {
+func (m *BloodSearchRequestMutation) OldBloodVolumeNeeded(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBloodVolumeNeeded is only allowed on UpdateOne operations")
 	}
@@ -1272,17 +1272,17 @@ func (m *BloodSearchRequestMutation) OldBloodVolumeNeeded(ctx context.Context) (
 	return oldValue.BloodVolumeNeeded, nil
 }
 
-// AddBloodVolumeNeeded adds i to the "blood_volume_needed" field.
-func (m *BloodSearchRequestMutation) AddBloodVolumeNeeded(i int32) {
+// AddBloodVolumeNeeded adds f to the "blood_volume_needed" field.
+func (m *BloodSearchRequestMutation) AddBloodVolumeNeeded(f float64) {
 	if m.addblood_volume_needed != nil {
-		*m.addblood_volume_needed += i
+		*m.addblood_volume_needed += f
 	} else {
-		m.addblood_volume_needed = &i
+		m.addblood_volume_needed = &f
 	}
 }
 
 // AddedBloodVolumeNeeded returns the value that was added to the "blood_volume_needed" field in this mutation.
-func (m *BloodSearchRequestMutation) AddedBloodVolumeNeeded() (r int32, exists bool) {
+func (m *BloodSearchRequestMutation) AddedBloodVolumeNeeded() (r float64, exists bool) {
 	v := m.addblood_volume_needed
 	if v == nil {
 		return
@@ -2076,7 +2076,7 @@ func (m *BloodSearchRequestMutation) SetField(name string, value ent.Value) erro
 		m.SetPetID(v)
 		return nil
 	case bloodsearchrequest.FieldBloodVolumeNeeded:
-		v, ok := value.(int32)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2183,7 +2183,7 @@ func (m *BloodSearchRequestMutation) AddedField(name string) (ent.Value, bool) {
 func (m *BloodSearchRequestMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case bloodsearchrequest.FieldBloodVolumeNeeded:
-		v, ok := value.(int32)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3804,8 +3804,8 @@ type DonorResponseMutation struct {
 	created_at        *time.Time
 	updated_at        *time.Time
 	deleted_at        *time.Time
-	amount            *int32
-	addamount         *int32
+	amount            *float64
+	addamount         *float64
 	compensation_type *donorresponse.CompensationType
 	taxi_compensation *bool
 	status            *donorresponse.Status
@@ -4046,13 +4046,13 @@ func (m *DonorResponseMutation) ResetDeletedAt() {
 }
 
 // SetAmount sets the "amount" field.
-func (m *DonorResponseMutation) SetAmount(i int32) {
-	m.amount = &i
+func (m *DonorResponseMutation) SetAmount(f float64) {
+	m.amount = &f
 	m.addamount = nil
 }
 
 // Amount returns the value of the "amount" field in the mutation.
-func (m *DonorResponseMutation) Amount() (r int32, exists bool) {
+func (m *DonorResponseMutation) Amount() (r float64, exists bool) {
 	v := m.amount
 	if v == nil {
 		return
@@ -4063,7 +4063,7 @@ func (m *DonorResponseMutation) Amount() (r int32, exists bool) {
 // OldAmount returns the old "amount" field's value of the DonorResponse entity.
 // If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DonorResponseMutation) OldAmount(ctx context.Context) (v int32, err error) {
+func (m *DonorResponseMutation) OldAmount(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAmount is only allowed on UpdateOne operations")
 	}
@@ -4077,17 +4077,17 @@ func (m *DonorResponseMutation) OldAmount(ctx context.Context) (v int32, err err
 	return oldValue.Amount, nil
 }
 
-// AddAmount adds i to the "amount" field.
-func (m *DonorResponseMutation) AddAmount(i int32) {
+// AddAmount adds f to the "amount" field.
+func (m *DonorResponseMutation) AddAmount(f float64) {
 	if m.addamount != nil {
-		*m.addamount += i
+		*m.addamount += f
 	} else {
-		m.addamount = &i
+		m.addamount = &f
 	}
 }
 
 // AddedAmount returns the value that was added to the "amount" field in this mutation.
-func (m *DonorResponseMutation) AddedAmount() (r int32, exists bool) {
+func (m *DonorResponseMutation) AddedAmount() (r float64, exists bool) {
 	v := m.addamount
 	if v == nil {
 		return
@@ -4515,7 +4515,7 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case donorresponse.FieldAmount:
-		v, ok := value.(int32)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4580,7 +4580,7 @@ func (m *DonorResponseMutation) AddedField(name string) (ent.Value, bool) {
 func (m *DonorResponseMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case donorresponse.FieldAmount:
-		v, ok := value.(int32)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

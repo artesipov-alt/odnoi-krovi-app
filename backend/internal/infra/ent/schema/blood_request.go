@@ -18,7 +18,7 @@ type BloodSearchRequest struct {
 func (BloodSearchRequest) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("pet_id"),
-		field.Int32("blood_volume_needed"),
+		field.Float("blood_volume_needed"),
 		field.JSON("regions", []string{}).
 			Annotations(entgql.Type("Int")),
 		field.Bool("small_pets_notify_allowed").

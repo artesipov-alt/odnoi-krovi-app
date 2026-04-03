@@ -68,13 +68,13 @@ func (_c *DonorResponseCreate) SetNillableDeletedAt(v *time.Time) *DonorResponse
 }
 
 // SetAmount sets the "amount" field.
-func (_c *DonorResponseCreate) SetAmount(v int32) *DonorResponseCreate {
+func (_c *DonorResponseCreate) SetAmount(v float64) *DonorResponseCreate {
 	_c.mutation.SetAmount(v)
 	return _c
 }
 
 // SetNillableAmount sets the "amount" field if the given value is not nil.
-func (_c *DonorResponseCreate) SetNillableAmount(v *int32) *DonorResponseCreate {
+func (_c *DonorResponseCreate) SetNillableAmount(v *float64) *DonorResponseCreate {
 	if v != nil {
 		_c.SetAmount(*v)
 	}
@@ -290,7 +290,7 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.Amount(); ok {
-		_spec.SetField(donorresponse.FieldAmount, field.TypeInt32, value)
+		_spec.SetField(donorresponse.FieldAmount, field.TypeFloat64, value)
 		_node.Amount = value
 	}
 	if value, ok := _c.mutation.CompensationType(); ok {
@@ -426,7 +426,7 @@ func (u *DonorResponseUpsert) ClearDeletedAt() *DonorResponseUpsert {
 }
 
 // SetAmount sets the "amount" field.
-func (u *DonorResponseUpsert) SetAmount(v int32) *DonorResponseUpsert {
+func (u *DonorResponseUpsert) SetAmount(v float64) *DonorResponseUpsert {
 	u.Set(donorresponse.FieldAmount, v)
 	return u
 }
@@ -438,7 +438,7 @@ func (u *DonorResponseUpsert) UpdateAmount() *DonorResponseUpsert {
 }
 
 // AddAmount adds v to the "amount" field.
-func (u *DonorResponseUpsert) AddAmount(v int32) *DonorResponseUpsert {
+func (u *DonorResponseUpsert) AddAmount(v float64) *DonorResponseUpsert {
 	u.Add(donorresponse.FieldAmount, v)
 	return u
 }
@@ -602,14 +602,14 @@ func (u *DonorResponseUpsertOne) ClearDeletedAt() *DonorResponseUpsertOne {
 }
 
 // SetAmount sets the "amount" field.
-func (u *DonorResponseUpsertOne) SetAmount(v int32) *DonorResponseUpsertOne {
+func (u *DonorResponseUpsertOne) SetAmount(v float64) *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.SetAmount(v)
 	})
 }
 
 // AddAmount adds v to the "amount" field.
-func (u *DonorResponseUpsertOne) AddAmount(v int32) *DonorResponseUpsertOne {
+func (u *DonorResponseUpsertOne) AddAmount(v float64) *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.AddAmount(v)
 	})
@@ -960,14 +960,14 @@ func (u *DonorResponseUpsertBulk) ClearDeletedAt() *DonorResponseUpsertBulk {
 }
 
 // SetAmount sets the "amount" field.
-func (u *DonorResponseUpsertBulk) SetAmount(v int32) *DonorResponseUpsertBulk {
+func (u *DonorResponseUpsertBulk) SetAmount(v float64) *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.SetAmount(v)
 	})
 }
 
 // AddAmount adds v to the "amount" field.
-func (u *DonorResponseUpsertBulk) AddAmount(v int32) *DonorResponseUpsertBulk {
+func (u *DonorResponseUpsertBulk) AddAmount(v float64) *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.AddAmount(v)
 	})

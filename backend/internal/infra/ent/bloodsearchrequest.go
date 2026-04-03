@@ -28,7 +28,7 @@ type BloodSearchRequest struct {
 	// PetID holds the value of the "pet_id" field.
 	PetID string `json:"pet_id,omitempty"`
 	// BloodVolumeNeeded holds the value of the "blood_volume_needed" field.
-	BloodVolumeNeeded int32 `json:"blood_volume_needed,omitempty"`
+	BloodVolumeNeeded float64 `json:"blood_volume_needed,omitempty"`
 	// Regions holds the value of the "regions" field.
 	Regions []string `json:"regions,omitempty"`
 	// SmallPetsNotifyAllowed holds the value of the "small_pets_notify_allowed" field.
@@ -100,7 +100,7 @@ func (*BloodSearchRequest) scanValues(columns []string) ([]any, error) {
 		case bloodsearchrequest.FieldSmallPetsNotifyAllowed, bloodsearchrequest.FieldPrioritySearch, bloodsearchrequest.FieldIncludeUnknownBloodGroup:
 			values[i] = new(sql.NullBool)
 		case bloodsearchrequest.FieldBloodVolumeNeeded:
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullFloat64)
 		case bloodsearchrequest.FieldID, bloodsearchrequest.FieldPetID, bloodsearchrequest.FieldStatus, bloodsearchrequest.FieldDescription:
 			values[i] = new(sql.NullString)
 		case bloodsearchrequest.FieldCreatedAt, bloodsearchrequest.FieldUpdatedAt, bloodsearchrequest.FieldDeletedAt:
@@ -152,10 +152,10 @@ func (_m *BloodSearchRequest) assignValues(columns []string, values []any) error
 				_m.PetID = value.String
 			}
 		case bloodsearchrequest.FieldBloodVolumeNeeded:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field blood_volume_needed", values[i])
 			} else if value.Valid {
-				_m.BloodVolumeNeeded = int32(value.Int64)
+				_m.BloodVolumeNeeded = value.Float64
 			}
 		case bloodsearchrequest.FieldRegions:
 			if value, ok := values[i].(*[]byte); !ok {

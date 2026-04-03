@@ -25,7 +25,7 @@ type DonorResponse struct {
 	DonorName        string
 	DonorPhotos      []string
 	DonorBloodGroup  string
-	Amount           int32
+	Amount           float64
 	WarnFactors      []string
 	CompensationType string
 	TaxiCompensation bool
@@ -44,7 +44,7 @@ type DonorPreloadFilter struct {
 }
 
 // NewDonorResponse creates a new donor response with validation
-func NewDonorResponse(requestID, donorID, compensationType string, amount int32, taxiCompensation bool) (*DonorResponse, error) {
+func NewDonorResponse(requestID, donorID, compensationType string, amount float64, taxiCompensation bool) (*DonorResponse, error) {
 	if requestID == "" {
 		return nil, errors.New("request ID is required")
 	}

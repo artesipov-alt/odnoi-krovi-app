@@ -566,14 +566,14 @@ type BloodSearchRequestWhereInput struct {
 	PetIDContainsFold *string  `json:"petIDContainsFold,omitempty"`
 
 	// "blood_volume_needed" field predicates.
-	BloodVolumeNeeded      *int32  `json:"bloodVolumeNeeded,omitempty"`
-	BloodVolumeNeededNEQ   *int32  `json:"bloodVolumeNeededNEQ,omitempty"`
-	BloodVolumeNeededIn    []int32 `json:"bloodVolumeNeededIn,omitempty"`
-	BloodVolumeNeededNotIn []int32 `json:"bloodVolumeNeededNotIn,omitempty"`
-	BloodVolumeNeededGT    *int32  `json:"bloodVolumeNeededGT,omitempty"`
-	BloodVolumeNeededGTE   *int32  `json:"bloodVolumeNeededGTE,omitempty"`
-	BloodVolumeNeededLT    *int32  `json:"bloodVolumeNeededLT,omitempty"`
-	BloodVolumeNeededLTE   *int32  `json:"bloodVolumeNeededLTE,omitempty"`
+	BloodVolumeNeeded      *float64  `json:"bloodVolumeNeeded,omitempty"`
+	BloodVolumeNeededNEQ   *float64  `json:"bloodVolumeNeededNEQ,omitempty"`
+	BloodVolumeNeededIn    []float64 `json:"bloodVolumeNeededIn,omitempty"`
+	BloodVolumeNeededNotIn []float64 `json:"bloodVolumeNeededNotIn,omitempty"`
+	BloodVolumeNeededGT    *float64  `json:"bloodVolumeNeededGT,omitempty"`
+	BloodVolumeNeededGTE   *float64  `json:"bloodVolumeNeededGTE,omitempty"`
+	BloodVolumeNeededLT    *float64  `json:"bloodVolumeNeededLT,omitempty"`
+	BloodVolumeNeededLTE   *float64  `json:"bloodVolumeNeededLTE,omitempty"`
 
 	// "small_pets_notify_allowed" field predicates.
 	SmallPetsNotifyAllowed    *bool `json:"smallPetsNotifyAllowed,omitempty"`
@@ -1621,16 +1621,16 @@ type DonorResponseWhereInput struct {
 	DeletedAtNotNil bool        `json:"deletedAtNotNil,omitempty"`
 
 	// "amount" field predicates.
-	Amount       *int32  `json:"amount,omitempty"`
-	AmountNEQ    *int32  `json:"amountNEQ,omitempty"`
-	AmountIn     []int32 `json:"amountIn,omitempty"`
-	AmountNotIn  []int32 `json:"amountNotIn,omitempty"`
-	AmountGT     *int32  `json:"amountGT,omitempty"`
-	AmountGTE    *int32  `json:"amountGTE,omitempty"`
-	AmountLT     *int32  `json:"amountLT,omitempty"`
-	AmountLTE    *int32  `json:"amountLTE,omitempty"`
-	AmountIsNil  bool    `json:"amountIsNil,omitempty"`
-	AmountNotNil bool    `json:"amountNotNil,omitempty"`
+	Amount       *float64  `json:"amount,omitempty"`
+	AmountNEQ    *float64  `json:"amountNEQ,omitempty"`
+	AmountIn     []float64 `json:"amountIn,omitempty"`
+	AmountNotIn  []float64 `json:"amountNotIn,omitempty"`
+	AmountGT     *float64  `json:"amountGT,omitempty"`
+	AmountGTE    *float64  `json:"amountGTE,omitempty"`
+	AmountLT     *float64  `json:"amountLT,omitempty"`
+	AmountLTE    *float64  `json:"amountLTE,omitempty"`
+	AmountIsNil  bool      `json:"amountIsNil,omitempty"`
+	AmountNotNil bool      `json:"amountNotNil,omitempty"`
 
 	// "compensation_type" field predicates.
 	CompensationType       *donorresponse.CompensationType  `json:"compensationType,omitempty"`

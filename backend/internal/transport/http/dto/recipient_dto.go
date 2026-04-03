@@ -36,9 +36,9 @@ type RecipientDetail struct {
 	PetType                  string             `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	OwnerName                string             `json:"ownerName,omitempty" doc:"Имя владельца" example:"Иван Иванов"`
 	SearchRegions            []string           `json:"regions,omitempty" doc:"Список регионов" example:"[\"MSK\", \"MO\"]"`
-	BloodVolumeNeeded        int32              `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"200"`
-	BloodVolumeReserved      int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
-	BloodVolumeRemaining     int32              `json:"bloodVolumeRemaining,omitempty" doc:"Необходимый остаток объема крови в мл" example:"100"`
+	BloodVolumeNeeded        float64            `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" example:"200"`
+	BloodVolumeReserved      float64            `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"50"`
+	BloodVolumeRemaining     float64            `json:"bloodVolumeRemaining,omitempty" doc:"Необходимый остаток объема крови в мл" example:"100"`
 	SearchingBloodNames      []string           `json:"searchingBloodNames,omitempty" doc:"Список искомых групп крови" example:"[\"DEA 1+\", \"A\"]"`
 	PhotoURLs                []string           `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	BloodGroupName           string             `json:"bloodGroupName" doc:"Группа крови реципиента"`
@@ -73,7 +73,7 @@ type RecipientDetailsOutput struct {
 type MatchingDonor struct {
 	PetID           string   `json:"petId" doc:"ID питомца донора" example:"PET-ABCDEABCDE"`
 	PetName         string   `json:"petName" doc:"Имя питомца донора" example:"Рекс"`
-	Amount          int32    `json:"amount" doc:"Количество возможной крови для донорства" example:"1"`
+	Amount          float64  `json:"amount" doc:"Количество возможной крови для донорства" example:"1"`
 	DonorBloodGroup string   `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
 	PhotoURLs       []string `json:"photoUrls,omitempty" doc:"Список URL фотографий донора"`
 }

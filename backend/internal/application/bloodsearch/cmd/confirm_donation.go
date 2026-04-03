@@ -30,7 +30,7 @@ func NewConfirmDonationHandler(
 	}
 }
 
-func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID string, factAmount int32) error {
+func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID string, factAmount float64) error {
 	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
 			return err

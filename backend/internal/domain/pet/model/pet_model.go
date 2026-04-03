@@ -58,33 +58,30 @@ const (
 
 // Pet представляет доменную модель питомца
 type Pet struct {
-	ID                      string
-	Name                    string
-	PetStatus               PetStatus
-	Type                    common.PetType
-	WeightKg                float64
-	Gender                  Gender
-	BirthDate               *time.Time
-	ChipNumber              string
-	PhotoURLs               []string
-	LivingCondition         LivingCondition
-	ReproductiveStatus      ReproductiveStatus
-	OwnerID                 string
-	OwnerName               string
-	BreedRefID              *string
-	BloodGroupName          *string
-	SearchingBlood          bool
-	HaveBloodReqApplication bool
-	PlaningDonation         bool
-	StopFactors             []string
-	WarnFactors             []string
-	Bonuses                 []string
-	Health                  *PetHealth
-	Treatments              *PetTreatment
-	Analyses                []*PetAnalysis
-	CreatedAt               *time.Time
-	UpdatedAt               *time.Time
-	DeletedAt               *time.Time
+	ID                 string
+	Name               string
+	PetStatus          PetStatus
+	Type               common.PetType
+	WeightKg           float64
+	Gender             Gender
+	BirthDate          *time.Time
+	ChipNumber         string
+	PhotoURLs          []string
+	LivingCondition    LivingCondition
+	ReproductiveStatus ReproductiveStatus
+	OwnerID            string
+	OwnerName          string
+	BreedRefID         *string
+	BloodGroupName     *string
+	StopFactors        []string
+	WarnFactors        []string
+	Bonuses            []string
+	Health             *PetHealth
+	Treatments         *PetTreatment
+	Analyses           []*PetAnalysis
+	CreatedAt          *time.Time
+	UpdatedAt          *time.Time
+	DeletedAt          *time.Time
 }
 
 // PetHealth представляет здоровье питомца
@@ -713,7 +710,7 @@ func FilterDonors(pets []*Pet) []*Pet {
 // calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)
 // Для собак: не более 17.6 мл/кг
 // Для кошек: не более 13.2 мл/кг
-func (p *Pet) CalculateDonationAmount() int32 {
+func (p *Pet) CalculateDonationAmount() float64 {
 	var limitPerKg float64
 	switch p.Type {
 	case "dog":
@@ -724,5 +721,5 @@ func (p *Pet) CalculateDonationAmount() int32 {
 		return 0
 	}
 	amount := limitPerKg * p.WeightKg
-	return int32(amount)
+	return amount
 }

@@ -81,7 +81,7 @@ func DeletedAt(v time.Time) predicate.DonorResponse {
 }
 
 // Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
-func Amount(v int32) predicate.DonorResponse {
+func Amount(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldAmount, v))
 }
 
@@ -226,42 +226,42 @@ func DeletedAtNotNil() predicate.DonorResponse {
 }
 
 // AmountEQ applies the EQ predicate on the "amount" field.
-func AmountEQ(v int32) predicate.DonorResponse {
+func AmountEQ(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldAmount, v))
 }
 
 // AmountNEQ applies the NEQ predicate on the "amount" field.
-func AmountNEQ(v int32) predicate.DonorResponse {
+func AmountNEQ(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNEQ(FieldAmount, v))
 }
 
 // AmountIn applies the In predicate on the "amount" field.
-func AmountIn(vs ...int32) predicate.DonorResponse {
+func AmountIn(vs ...float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldIn(FieldAmount, vs...))
 }
 
 // AmountNotIn applies the NotIn predicate on the "amount" field.
-func AmountNotIn(vs ...int32) predicate.DonorResponse {
+func AmountNotIn(vs ...float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotIn(FieldAmount, vs...))
 }
 
 // AmountGT applies the GT predicate on the "amount" field.
-func AmountGT(v int32) predicate.DonorResponse {
+func AmountGT(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldGT(FieldAmount, v))
 }
 
 // AmountGTE applies the GTE predicate on the "amount" field.
-func AmountGTE(v int32) predicate.DonorResponse {
+func AmountGTE(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldGTE(FieldAmount, v))
 }
 
 // AmountLT applies the LT predicate on the "amount" field.
-func AmountLT(v int32) predicate.DonorResponse {
+func AmountLT(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldLT(FieldAmount, v))
 }
 
 // AmountLTE applies the LTE predicate on the "amount" field.
-func AmountLTE(v int32) predicate.DonorResponse {
+func AmountLTE(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldLTE(FieldAmount, v))
 }
 

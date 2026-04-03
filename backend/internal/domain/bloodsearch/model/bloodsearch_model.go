@@ -25,9 +25,9 @@ const (
 type BloodRequest struct {
 	ID                       string
 	PetID                    string
-	BloodVolumeNeeded        int32
-	BloodVolumeReserved      int32
-	BloodVolumeDonated       int32
+	BloodVolumeNeeded        float64
+	BloodVolumeReserved      float64
+	BloodVolumeDonated       float64
 	Regions                  []string
 	SmallPetsNotifyAllowed   bool
 	Status                   BloodRequestStatus
@@ -78,13 +78,13 @@ type DefaultDonorPrefs struct {
 type MatchingDonorReadModel struct {
 	PetID           string
 	PetName         string
-	Amount          int32
+	Amount          float64
 	DonorBloodGroup string
 	PhotoURLs       []string
 }
 
 // NewBloodRequest creates a new blood request with default values
-func NewBloodRequest(petID string, bloodVolumeNeeded int32, regions []string) *BloodRequest {
+func NewBloodRequest(petID string, bloodVolumeNeeded float64, regions []string) *BloodRequest {
 	return &BloodRequest{
 		PetID:                    petID,
 		BloodVolumeNeeded:        bloodVolumeNeeded,
@@ -130,7 +130,7 @@ func (b *BloodRequest) SetBloodGroups(groups []string) {
 }
 
 func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
-	var donated int32
+	var donated float64
 	for _, app := range b.DonorApplications {
 		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
 			donated += app.Amount

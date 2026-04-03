@@ -72,14 +72,14 @@ func (_u *BloodSearchRequestUpdate) SetNillablePetID(v *string) *BloodSearchRequ
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (_u *BloodSearchRequestUpdate) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) SetBloodVolumeNeeded(v float64) *BloodSearchRequestUpdate {
 	_u.mutation.ResetBloodVolumeNeeded()
 	_u.mutation.SetBloodVolumeNeeded(v)
 	return _u
 }
 
 // SetNillableBloodVolumeNeeded sets the "blood_volume_needed" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdate) SetNillableBloodVolumeNeeded(v *int32) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) SetNillableBloodVolumeNeeded(v *float64) *BloodSearchRequestUpdate {
 	if v != nil {
 		_u.SetBloodVolumeNeeded(*v)
 	}
@@ -87,7 +87,7 @@ func (_u *BloodSearchRequestUpdate) SetNillableBloodVolumeNeeded(v *int32) *Bloo
 }
 
 // AddBloodVolumeNeeded adds value to the "blood_volume_needed" field.
-func (_u *BloodSearchRequestUpdate) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpdate {
+func (_u *BloodSearchRequestUpdate) AddBloodVolumeNeeded(v float64) *BloodSearchRequestUpdate {
 	_u.mutation.AddBloodVolumeNeeded(v)
 	return _u
 }
@@ -375,10 +375,10 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.BloodVolumeNeeded(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
+		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
 	}
 	if value, ok := _u.mutation.AddedBloodVolumeNeeded(); ok {
-		_spec.AddField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
+		_spec.AddField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
 	}
 	if value, ok := _u.mutation.Regions(); ok {
 		_spec.SetField(bloodsearchrequest.FieldRegions, field.TypeJSON, value)
@@ -585,14 +585,14 @@ func (_u *BloodSearchRequestUpdateOne) SetNillablePetID(v *string) *BloodSearchR
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
-func (_u *BloodSearchRequestUpdateOne) SetBloodVolumeNeeded(v int32) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) SetBloodVolumeNeeded(v float64) *BloodSearchRequestUpdateOne {
 	_u.mutation.ResetBloodVolumeNeeded()
 	_u.mutation.SetBloodVolumeNeeded(v)
 	return _u
 }
 
 // SetNillableBloodVolumeNeeded sets the "blood_volume_needed" field if the given value is not nil.
-func (_u *BloodSearchRequestUpdateOne) SetNillableBloodVolumeNeeded(v *int32) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) SetNillableBloodVolumeNeeded(v *float64) *BloodSearchRequestUpdateOne {
 	if v != nil {
 		_u.SetBloodVolumeNeeded(*v)
 	}
@@ -600,7 +600,7 @@ func (_u *BloodSearchRequestUpdateOne) SetNillableBloodVolumeNeeded(v *int32) *B
 }
 
 // AddBloodVolumeNeeded adds value to the "blood_volume_needed" field.
-func (_u *BloodSearchRequestUpdateOne) AddBloodVolumeNeeded(v int32) *BloodSearchRequestUpdateOne {
+func (_u *BloodSearchRequestUpdateOne) AddBloodVolumeNeeded(v float64) *BloodSearchRequestUpdateOne {
 	_u.mutation.AddBloodVolumeNeeded(v)
 	return _u
 }
@@ -918,10 +918,10 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.BloodVolumeNeeded(); ok {
-		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
+		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
 	}
 	if value, ok := _u.mutation.AddedBloodVolumeNeeded(); ok {
-		_spec.AddField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeInt32, value)
+		_spec.AddField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
 	}
 	if value, ok := _u.mutation.Regions(); ok {
 		_spec.SetField(bloodsearchrequest.FieldRegions, field.TypeJSON, value)

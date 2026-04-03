@@ -17,7 +17,7 @@ type DonorApplication struct {
 	DonorName        string              `json:"donorName" doc:"Имя донора" example:"Барсик"`
 	DonorPhotos      []string            `json:"donorPhotos,omitempty" doc:"Фотографии донора"`
 	DonorBloodGroup  string              `json:"donorBloodGroup" doc:"Группа крови донора" example:"DEA 1+"`
-	Amount           int32               `json:"amount" doc:"Объем крови в мл" example:"450"`
+	Amount           float64             `json:"amount" doc:"Объем крови в мл" example:"450"`
 	WarnFactors      []RestrictionFactor `json:"warnFactors,omitempty" doc:"Предупреждающие факторы"`
 	CompensationType string              `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
 	TaxiCompensation bool                `json:"taxiCompensation" doc:"Компенсация такси" example:"true"`

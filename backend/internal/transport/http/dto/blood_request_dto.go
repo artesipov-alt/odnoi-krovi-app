@@ -22,7 +22,7 @@ type CreateBloodRequestInput struct {
 // CreateBloodRequestBody представляет тело запроса на создание заявки
 type CreateBloodRequestBody struct {
 	PetID                    string   `json:"petId" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
-	BloodVolumeNeeded        int32    `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" minimum:"1" example:"100"`
+	BloodVolumeNeeded        float64  `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" minimum:"1" example:"100"`
 	Regions                  []string `json:"regions" doc:"Список ID регионов" example:"[\"MOSCOW\", \"SPB\"]"`
 	SmallPetsNotifyAllowed   bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
 	Description              string   `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
@@ -57,8 +57,8 @@ type UpdateBloodRequestInput struct {
 
 // UpdateBloodRequestBody представляет тело запроса на обновление заявки
 type UpdateBloodRequestBody struct {
-	BloodVolumeNeeded        *int32   `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" minimum:"1"`
-	BloodVolumeReserved      *int32   `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" minimum:"0"`
+	BloodVolumeNeeded        *float64 `json:"bloodVolumeNeeded,omitempty" doc:"Необходимый объем крови в мл" minimum:"1"`
+	BloodVolumeReserved      *float64 `json:"bloodVolumeReserved,omitempty" doc:"Зарезервированный объем крови в мл" minimum:"0"`
 	Regions                  []string `json:"regions,omitempty" doc:"Список ID регионов"`
 	SmallPetsNotifyAllowed   *bool    `json:"smallPetsNotifyAllowed,omitempty" doc:"Разрешить уведомления для мелких питомцев"`
 	Description              *string  `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
@@ -140,9 +140,9 @@ type DeleteBloodRequestResult struct {
 type BloodRequestDetail struct {
 	ID                       string             `json:"id" doc:"ID заявки" example:"BLS-ABCDEABCDE"`
 	PetID                    string             `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
-	BloodVolumeNeeded        int32              `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
-	BloodVolumeReserved      int32              `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"0"`
-	BloodVolumeDonated       int32              `json:"bloodVolumeDonated" doc:"Фактически проведённый объем донации крови в мл" example:"50"`
+	BloodVolumeNeeded        float64            `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"100"`
+	BloodVolumeReserved      float64            `json:"bloodVolumeReserved" doc:"Зарезервированный объем крови в мл" example:"0"`
+	BloodVolumeDonated       float64            `json:"bloodVolumeDonated" doc:"Фактически проведённый объем донации крови в мл" example:"50"`
 	Regions                  []string           `json:"regions" doc:"Список регионов"`
 	SmallPetsNotifyAllowed   bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
 	Description              string             `json:"description,omitempty" doc:"Дополнительное описание"`
@@ -168,7 +168,7 @@ type ConfirmDonorApplicationInput struct {
 }
 
 type ConfirmData struct {
-	Amount int32 `json:"amount,omitempty" doc:"Фактический объем донации в мл" minimum:"1"`
+	Amount float64 `json:"amount,omitempty" doc:"Фактический объем донации в мл" minimum:"1"`
 }
 
 // DonorDetail представляет полные данные донора
