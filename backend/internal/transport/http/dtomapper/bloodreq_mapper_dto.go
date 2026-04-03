@@ -2,9 +2,6 @@
 package mapper
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
@@ -122,17 +119,9 @@ func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequestWithAppli
 
 // FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model using the constructor.
 func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.BloodRequest {
-	// Parse BloodVolumeNeeded, replacing comma with dot for international input
-	volumeStr := strings.ReplaceAll(body.BloodVolumeNeeded, ",", ".")
-	bloodVolumeNeeded, err := strconv.ParseFloat(volumeStr, 64)
-	if err != nil {
-		// If parsing fails, default to 0 or handle error; for now, use 0
-		bloodVolumeNeeded = 0
-	}
-
 	req := model.NewBloodRequest(
 		body.PetID,
-		bloodVolumeNeeded,
+		body.BloodVolumeNeeded,
 		body.Regions,
 	)
 
