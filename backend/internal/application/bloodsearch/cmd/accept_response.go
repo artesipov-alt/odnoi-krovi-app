@@ -54,7 +54,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 			return err
 		}
 
-		bloodreq, err := h.bloodRepo.GetByApplicationID(txCtx, application.RequestID)
+		bloodreq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
 		if err != nil {
 			return err
 		}
