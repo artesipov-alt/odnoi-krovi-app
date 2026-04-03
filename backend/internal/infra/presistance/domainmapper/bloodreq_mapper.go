@@ -59,6 +59,8 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 				TaxiCompensation: resp.TaxiCompensation,
 				Status:           donormodel.DonorResponseStatus(resp.Status),
 				IsConfirmed:      resp.IsConfirmed,
+				CreatedAt:        &resp.CreatedAt,
+				UpdatedAt:        &resp.UpdatedAt,
 			}
 			if resp.Edges.Donor != nil {
 				fullDonor := PetToDomain(resp.Edges.Donor)
