@@ -321,6 +321,7 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 	recipientData := dto.RecipientShort{
 		PetName:             donation.RecipientPet.Name,
 		PetType:             string(donation.RecipientPet.Type),
+		BloodVolumeDonated:  donation.BloodRequest.BloodVolumeDonated,
 		BloodVolumeNeeded:   donation.BloodRequest.BloodVolumeNeeded,
 		BloodVolumeReserved: donation.BloodRequest.BloodVolumeReserved,
 		PhotoURLs:           h.storage.BuildPhotoURLs(donation.RecipientPet.PhotoURLs, *donation.Application.UpdatedAt),

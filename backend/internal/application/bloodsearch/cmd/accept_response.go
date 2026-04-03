@@ -43,33 +43,36 @@ func NewApplyResponseHandler(
 }
 
 func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID string) error {
-	bloodreq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
-	if err != nil {
-		return err
-	}
-
 	application, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
 	if err != nil {
 		return err
 	}
 
-	bloodreq.RecalculateBloodAmount()
-	bloodreq.RecalculateStatus()
-
+	var petID string
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
 			return err
 		}
+
+		bloodreq, err := h.bloodRepo.GetByApplicationID(txCtx, application.RequestID)
+		if err != nil {
+			return err
+		}
+
+		bloodreq.RecalculateBloodAmount()
+		bloodreq.RecalculateStatus()
+
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodreq.ID, bloodreq.Status); err != nil {
 			return err
 		}
+		petID = bloodreq.PetID
 		return nil
 	})
 	if err != nil {
 		return err
 	}
 
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodreq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, petID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}
