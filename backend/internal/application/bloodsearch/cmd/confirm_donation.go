@@ -5,6 +5,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
@@ -43,6 +44,10 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 
 		bloodReq.RecalculateBloodAmount()
 		bloodReq.RecalculateStatus()
+
+		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, bloodReq.ID, donormodel.DonorResponseStatusCompleted); err != nil {
+			return err
+		}
 
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
 			return err

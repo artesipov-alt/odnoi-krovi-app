@@ -156,7 +156,7 @@ func (b *BloodRequest) RecalculateStatus() {
 	if b.BloodVolumeReserved == b.BloodVolumeNeeded {
 		b.MarkReservedFull()
 	}
-	if b.BloodVolumeDonated == b.BloodVolumeNeeded {
+	if b.BloodVolumeDonated >= b.BloodVolumeNeeded {
 		b.Close()
 	}
 }
