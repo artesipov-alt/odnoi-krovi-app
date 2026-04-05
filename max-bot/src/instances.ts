@@ -21,6 +21,7 @@ export const redis = new Redis(
   {
     connectTimeout: 5000, // 5 seconds timeout to prevent hanging
     lazyConnect: true, // Connect on first command
+    db: 0, // Explicitly set database to 0 to override any URL db
   },
 );
 
