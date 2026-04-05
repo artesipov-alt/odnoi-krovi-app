@@ -94,7 +94,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		CreatedAt:  *newReq.CreatedAt,
 	}); err != nil {
 		slog.Error("failed to publish blood request created event", "err", err)
-		return nil, nil
+		return newReq, nil
 	}
 
 	return newReq, nil

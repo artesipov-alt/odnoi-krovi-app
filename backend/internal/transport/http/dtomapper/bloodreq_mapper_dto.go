@@ -68,12 +68,12 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequestWithApplications,
 				UpdatedAt:        app.UpdatedAt,
 			}
 
-			if app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
-				acceptedDonorApplications = append(acceptedDonorApplications, dtoApp)
-			} else if app.Status == donormodel.DonorResponseStatusPending {
+			if app.Status == donormodel.DonorResponseStatusPending {
 				donorApplications = append(donorApplications, dtoApp)
 			} else if app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed {
 				completedDonations = append(completedDonations, dtoApp)
+			} else if app.Status != donormodel.DonorResponseStatusCompleted && !app.IsConfirmed && app.Status != donormodel.DonorResponseStatusPending {
+				acceptedDonorApplications = append(acceptedDonorApplications, dtoApp)
 			}
 
 		}
