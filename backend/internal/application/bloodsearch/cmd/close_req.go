@@ -44,7 +44,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 		}
 		for _, application := range bloodReq.DonorApplications {
 			if application.Status != donormodel.DonorResponseStatusCompleted && application.IsConfirmed != true {
-				if err := h.donorRepo.UpdateDonorResponseStatus(ctx, application.DonorID, donormodel.DonorResponseStatusRejected); err != nil {
+				if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, application.ID, donormodel.DonorResponseStatusRejected); err != nil {
 					return err
 				}
 			}

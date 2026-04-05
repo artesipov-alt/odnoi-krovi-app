@@ -17,7 +17,7 @@ interface DonorData {
   ProviderTelegram: string;
   Name: string;
   Phone: string;
-  bloodGroup: string;
+  BloodGroup: string;
 }
 
 interface RecipientData {
@@ -54,7 +54,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
   try {
     const recipientMessage = generateRecipientMessage({
       donorName: DonorData.Name,
-      donorBloodGroup: DonorData.bloodGroup,
+      donorBloodGroup: DonorData.BloodGroup,
     });
 
     const donorMessage = generateDonorMessage({
