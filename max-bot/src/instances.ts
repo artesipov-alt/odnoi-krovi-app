@@ -18,6 +18,10 @@ export const pinologger = pino({
 
 export const redis = new Redis(
   `redis://${Bun.env.REDIS_HOST}:${Bun.env.REDIS_PORT} || "redis://localhost:6379"`,
+  {
+    connectTimeout: 5000, // 5 seconds timeout to prevent hanging
+    lazyConnect: true, // Connect on first command
+  },
 );
 
 // API Configuration
@@ -26,6 +30,8 @@ const apiConfig = new Configuration({
   headers: {
     "Content-Type": "application/json",
   },
+  fetchApi: (url: string, init?: RequestInit) =>
+    fetch(url, { ...init, signal: AbortSignal.timeout(5000) }),
   // Добавьте middleware для логирования, если нужно
   middleware: [
     {

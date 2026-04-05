@@ -179,12 +179,19 @@ export const startHandler = async (ctx: Context) => {
 
   const utmData = parsePayload(payload);
 
+  // Make authentication non-blocking with timeout to prevent delays
+  const authPromise = authUser(maxId, fullName, utmData);
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Authentication timeout")), 5000),
+  );
+
   try {
-    await authUser(maxId, fullName, utmData);
+    await Promise.race([authPromise, timeoutPromise]);
+    pinologger.info({ maxId }, "User authentication successful");
   } catch (error: any) {
     pinologger.error(
       { maxId, error: error.message },
-      "Error in user authentication",
+      "Error in user authentication or timeout",
     );
     // Don't throw - still show welcome message
   }

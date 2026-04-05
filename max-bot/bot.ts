@@ -10,6 +10,15 @@ import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
 
+// Redis error handling
+redis.on("error", (err) => {
+  pinologger.error({ error: err }, "Redis connection error");
+});
+
+redis.on("connect", () => {
+  pinologger.info("Connected to Redis");
+});
+
 async function main() {
   //Плагины бота
   bot.use(logger);
@@ -38,8 +47,6 @@ async function main() {
   const { name, username, user_id } = await bot.api.getMyInfo();
 
   pinologger.info(`Бот ${name || username} ${user_id} запущен`);
-
-  bot.start();
 
   // Redis subscription for events
   redis.subscribe("donor_response.apply", (err, count) => {
@@ -81,6 +88,10 @@ async function main() {
         break;
     }
   });
+
+  pinologger.info("Initiating bot polling");
+  bot.start();
+  pinologger.info("Bot polling initiated");
 
   //Обработка ошибок
   bot.catch(errorHandler);
