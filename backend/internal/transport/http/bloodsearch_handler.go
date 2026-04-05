@@ -29,6 +29,7 @@ type BloodRequestHandler struct {
 	applyResponseHandler   *bloodcmd.ApplyResponseHandler
 	confirmDonationHandler *bloodcmd.ConfirmDonationHandler
 	rejectDonationHandler  *bloodcmd.RejectDonationHandler
+	closeRequestHandler    *bloodcmd.CloseRequestHandler
 	bloodRequestMapper     *mapper.BloodRequestMapper
 	petMapper              *mapper.PetMapper
 	storage                filestorage.Repository
@@ -45,6 +46,7 @@ func NewBloodRequestHandler(
 	applyResponseHandler *bloodcmd.ApplyResponseHandler,
 	confirmDonationHandler *bloodcmd.ConfirmDonationHandler,
 	rejectDonationHandler *bloodcmd.RejectDonationHandler,
+	closeRequestHandler *bloodcmd.CloseRequestHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
@@ -58,6 +60,7 @@ func NewBloodRequestHandler(
 		applyResponseHandler:   applyResponseHandler,
 		confirmDonationHandler: confirmDonationHandler,
 		rejectDonationHandler:  rejectDonationHandler,
+		closeRequestHandler:    closeRequestHandler,
 		bloodRequestMapper:     mapper.NewBloodRequestMapper(storage),
 		petMapper:              mapper.NewPetMapper(storage),
 		storage:                storage,
@@ -350,6 +353,8 @@ func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *commond
 }
 
 func (h *BloodRequestHandler) CloseBloodSearch(ctx context.Context, input *commondto.BloodRequestIDPath) (*commondto.DefaultMessageOutput, error) {
-
-	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Метод находится в реализации"}}, nil
+	if err := h.closeRequestHandler.Handle(ctx, input.ID); err != nil {
+		return nil, err
+	}
+	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Заявка успешно закрыта, все невыполненные донации отменены"}}, nil
 }

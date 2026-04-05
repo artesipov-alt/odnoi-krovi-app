@@ -177,6 +177,7 @@ func main() {
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, bloodRequestRepo)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher)
+		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher)
 		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher)
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
@@ -226,6 +227,7 @@ func main() {
 			applyResponseHandler,
 			confirmDonationHandler,
 			rejectDonationHandler,
+			bloodCloseDonationHandler,
 			fileStorage,
 		)
 		donorHandler := transport.NewDonorHandler(
