@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 	"strings"
 
@@ -53,7 +52,6 @@ func (h *FileHandler) Register(api huma.API) {
 }
 
 func (h *FileHandler) GetPresignURL(ctx context.Context, input *dto.GetUploadURLsInput) (*dto.GetUploadURLsOutput, error) {
-	slog.DebugContext(ctx, "getting presign URL", "entity_id", input.ID)
 	var preloads []string
 	if input.ForPetAvatar {
 		preloads = append(preloads, "pet_avatar")
@@ -94,10 +92,11 @@ func (h *FileHandler) GetPresignURL(ctx context.Context, input *dto.GetUploadURL
 	}
 
 	return &dto.GetUploadURLsOutput{
-		Body: dto.UploadURLsResult{
-			Items: items,
+			Body: dto.UploadURLsResult{
+				Items: items,
+			},
 		},
-	}, nil
+		nil
 }
 
 // getEntityType определяет тип сущности по префиксу ID
@@ -115,7 +114,6 @@ func getEntityType(id string) string {
 }
 
 func (h *FileHandler) ConfirmUpload(ctx context.Context, input *dto.ConfirmUploadInput) (*dto.ConfirmUploadOutput, error) {
-	slog.DebugContext(ctx, "confirming upload", "entity_id", input.Body.EntityID)
 	entityType := getEntityType(input.Body.EntityID)
 	if entityType == "" {
 		return nil, apperrors.BadRequest("Неверный ID сущности")
@@ -137,8 +135,9 @@ func (h *FileHandler) ConfirmUpload(ctx context.Context, input *dto.ConfirmUploa
 	}
 
 	return &dto.ConfirmUploadOutput{
-		Body: dto.ConfirmUploadResult{
-			Message: "Фото подтверждены и добавлены",
+			Body: dto.ConfirmUploadResult{
+				Message: "Фото подтверждены и добавлены",
+			},
 		},
-	}, nil
+		nil
 }

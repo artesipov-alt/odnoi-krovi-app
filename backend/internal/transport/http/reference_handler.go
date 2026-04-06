@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 	"strings"
 
@@ -283,7 +282,6 @@ func (h *ReferenceHandler) GetPetRoles(ctx context.Context, input *dto.GetPetRol
 }
 
 func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *dto.GetBreedsInput) (*dto.GetBreedsOutput, error) {
-	slog.DebugContext(ctx, "getting all breeds")
 	breeds, err := h.getAllBreedsHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
@@ -301,7 +299,6 @@ func (h *ReferenceHandler) GetBreeds(ctx context.Context, input *dto.GetBreedsIn
 }
 
 func (h *ReferenceHandler) GetLocations(ctx context.Context, input *dto.GetLocationsInput) (*dto.GetLocationsOutput, error) {
-	slog.DebugContext(ctx, "getting all locations")
 	locations, err := h.getAllLocationsHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
@@ -319,7 +316,6 @@ func (h *ReferenceHandler) GetLocations(ctx context.Context, input *dto.GetLocat
 }
 
 func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.GetBreedsByTypeInput) (*dto.GetBreedsByTypeOutput, error) {
-	slog.DebugContext(ctx, "getting breeds by type", "pet_type", input.PetType)
 	petTypeStr := input.PetType
 	if petTypeStr == "" {
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")
@@ -353,7 +349,6 @@ func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.GetBr
 }
 
 func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *dto.GetBloodComponentsInput) (*dto.GetBloodComponentsOutput, error) {
-	slog.DebugContext(ctx, "getting blood components")
 	bloodComponents, err := h.getAllBloodComponentsHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
@@ -371,7 +366,6 @@ func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *dto.Ge
 }
 
 func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBloodGroupsInput) (*dto.GetBloodGroupsOutput, error) {
-	slog.DebugContext(ctx, "getting blood groups", "pet_type", input.PetType)
 	petType := input.PetType
 	if petType == "" {
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")

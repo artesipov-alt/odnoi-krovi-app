@@ -275,6 +275,7 @@ func main() {
 			config.DefaultCorsHandler(env, miniappDomain),
 			middleware.AuthMiddleware(tokenGenerator, env, "/api/v1/auth", "/api/docs", "/api/openapi.json"),
 			sloghttp.New(slog.Default()),
+			middleware.TraceIDResponseMiddleware,
 		)
 
 		// Tell the CLI how to start your server.

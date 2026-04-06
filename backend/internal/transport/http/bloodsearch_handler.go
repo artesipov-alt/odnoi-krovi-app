@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
@@ -190,8 +189,6 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 }
 
 func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto.UpdateBloodRequestInput) (*dto.UpdateBloodRequestOutput, error) {
-	slog.DebugContext(ctx, "updating blood request", "request_id", input.ID)
-
 	// Получить текущий объект
 	existing, _, err := h.getByIDHandler.Handle(ctx, input.ID)
 	if err != nil {
@@ -282,7 +279,6 @@ func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *commondto
 }
 
 func (h *BloodRequestHandler) DeleteBloodRequest(ctx context.Context, input *commondto.BloodRequestIDPath) (*commondto.DefaultMessageOutput, error) {
-	slog.DebugContext(ctx, "deleting blood request", "request_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}

@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
@@ -150,7 +149,6 @@ func (h *UserHandler) GetUserContact(ctx context.Context, input *struct {
 }
 
 func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput) (*dto.UpdateUserOutput, error) {
-	slog.DebugContext(ctx, "updating user", "user_id", input.ID)
 
 	user := &usermodel.User{}
 
@@ -202,7 +200,6 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 }
 
 func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.DeleteUserInput) (*dto.DeleteUserOutput, error) {
-	slog.DebugContext(ctx, "deleting user", "user_id", input.ID)
 	if err := h.deleteHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
@@ -213,7 +210,6 @@ func (h *UserHandler) DeleteUser(ctx context.Context, input *dto.DeleteUserInput
 }
 
 func (h *UserHandler) ResetUser(ctx context.Context, input *dto.ResetUserInput) (*dto.ResetUserOutput, error) {
-	slog.DebugContext(ctx, "resetting user", "user_id", input.ID)
 	if err := h.resetHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
@@ -224,7 +220,6 @@ func (h *UserHandler) ResetUser(ctx context.Context, input *dto.ResetUserInput) 
 }
 
 func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.RestoreUserInput) (*dto.RestoreUserOutput, error) {
-	slog.DebugContext(ctx, "restoring user", "user_id", input.ID)
 	if err := h.restoreHandler.Handle(ctx, input.ID); err != nil {
 		return nil, err
 	}
@@ -235,7 +230,6 @@ func (h *UserHandler) RestoreUser(ctx context.Context, input *dto.RestoreUserInp
 }
 
 func (h *UserHandler) DeletedUsers(ctx context.Context, input *dto.GetDeletedUsersInput) (*dto.GetDeletedUsersOutput, error) {
-	slog.DebugContext(ctx, "getting deleted users")
 	users, err := h.getDeletedHandler.Handle(ctx)
 	if err != nil {
 		return nil, err
