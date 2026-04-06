@@ -84,7 +84,10 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bl
 // GetByPetID возвращает заявку по идентификатору питомца
 func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().
-		Where(bloodsearchrequest.PetID(petID)).
+		Where(
+			bloodsearchrequest.PetID(petID),
+			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
+		).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
 				//Возвращаем полного донора, чтобы пересчитать warn-факторы.
