@@ -409,7 +409,7 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
 			Columns: []string{bloodsearchrequest.PetColumn},

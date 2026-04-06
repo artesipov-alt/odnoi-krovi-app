@@ -50,7 +50,7 @@ var (
 		{Name: "on_boarding", Type: field.TypeJSON, Nullable: true},
 		{Name: "priority_search", Type: field.TypeBool, Default: false},
 		{Name: "include_unknown_blood_group", Type: field.TypeBool, Default: false},
-		{Name: "pet_id", Type: field.TypeString, Unique: true},
+		{Name: "pet_id", Type: field.TypeString},
 	}
 	// BloodRequestsTable holds the schema information for the "blood_requests" table.
 	BloodRequestsTable = &schema.Table{

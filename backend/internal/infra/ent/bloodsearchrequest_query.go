@@ -77,7 +77,7 @@ func (_q *BloodSearchRequestQuery) QueryPet() *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil

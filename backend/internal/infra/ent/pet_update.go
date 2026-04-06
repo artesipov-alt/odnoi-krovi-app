@@ -465,23 +465,19 @@ func (_u *PetUpdate) AddDonations(v ...*DonorResponse) *PetUpdate {
 	return _u.AddDonationIDs(ids...)
 }
 
-// SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
-func (_u *PetUpdate) SetBloodSearchRequestID(id string) *PetUpdate {
-	_u.mutation.SetBloodSearchRequestID(id)
+// AddBloodSearchRequestIDs adds the "blood_search_request" edge to the BloodSearchRequest entity by IDs.
+func (_u *PetUpdate) AddBloodSearchRequestIDs(ids ...string) *PetUpdate {
+	_u.mutation.AddBloodSearchRequestIDs(ids...)
 	return _u
 }
 
-// SetNillableBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID if the given value is not nil.
-func (_u *PetUpdate) SetNillableBloodSearchRequestID(id *string) *PetUpdate {
-	if id != nil {
-		_u = _u.SetBloodSearchRequestID(*id)
+// AddBloodSearchRequest adds the "blood_search_request" edges to the BloodSearchRequest entity.
+func (_u *PetUpdate) AddBloodSearchRequest(v ...*BloodSearchRequest) *PetUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetBloodSearchRequest sets the "blood_search_request" edge to the BloodSearchRequest entity.
-func (_u *PetUpdate) SetBloodSearchRequest(v *BloodSearchRequest) *PetUpdate {
-	return _u.SetBloodSearchRequestID(v.ID)
+	return _u.AddBloodSearchRequestIDs(ids...)
 }
 
 // Mutation returns the PetMutation object of the builder.
@@ -561,10 +557,25 @@ func (_u *PetUpdate) RemoveDonations(v ...*DonorResponse) *PetUpdate {
 	return _u.RemoveDonationIDs(ids...)
 }
 
-// ClearBloodSearchRequest clears the "blood_search_request" edge to the BloodSearchRequest entity.
+// ClearBloodSearchRequest clears all "blood_search_request" edges to the BloodSearchRequest entity.
 func (_u *PetUpdate) ClearBloodSearchRequest() *PetUpdate {
 	_u.mutation.ClearBloodSearchRequest()
 	return _u
+}
+
+// RemoveBloodSearchRequestIDs removes the "blood_search_request" edge to BloodSearchRequest entities by IDs.
+func (_u *PetUpdate) RemoveBloodSearchRequestIDs(ids ...string) *PetUpdate {
+	_u.mutation.RemoveBloodSearchRequestIDs(ids...)
+	return _u
+}
+
+// RemoveBloodSearchRequest removes "blood_search_request" edges to BloodSearchRequest entities.
+func (_u *PetUpdate) RemoveBloodSearchRequest(v ...*BloodSearchRequest) *PetUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveBloodSearchRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -938,7 +949,7 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.BloodSearchRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   pet.BloodSearchRequestTable,
 			Columns: []string{pet.BloodSearchRequestColumn},
@@ -949,9 +960,25 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := _u.mutation.RemovedBloodSearchRequestIDs(); len(nodes) > 0 && !_u.mutation.BloodSearchRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   pet.BloodSearchRequestTable,
+			Columns: []string{pet.BloodSearchRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := _u.mutation.BloodSearchRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   pet.BloodSearchRequestTable,
 			Columns: []string{pet.BloodSearchRequestColumn},
@@ -1413,23 +1440,19 @@ func (_u *PetUpdateOne) AddDonations(v ...*DonorResponse) *PetUpdateOne {
 	return _u.AddDonationIDs(ids...)
 }
 
-// SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
-func (_u *PetUpdateOne) SetBloodSearchRequestID(id string) *PetUpdateOne {
-	_u.mutation.SetBloodSearchRequestID(id)
+// AddBloodSearchRequestIDs adds the "blood_search_request" edge to the BloodSearchRequest entity by IDs.
+func (_u *PetUpdateOne) AddBloodSearchRequestIDs(ids ...string) *PetUpdateOne {
+	_u.mutation.AddBloodSearchRequestIDs(ids...)
 	return _u
 }
 
-// SetNillableBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID if the given value is not nil.
-func (_u *PetUpdateOne) SetNillableBloodSearchRequestID(id *string) *PetUpdateOne {
-	if id != nil {
-		_u = _u.SetBloodSearchRequestID(*id)
+// AddBloodSearchRequest adds the "blood_search_request" edges to the BloodSearchRequest entity.
+func (_u *PetUpdateOne) AddBloodSearchRequest(v ...*BloodSearchRequest) *PetUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return _u
-}
-
-// SetBloodSearchRequest sets the "blood_search_request" edge to the BloodSearchRequest entity.
-func (_u *PetUpdateOne) SetBloodSearchRequest(v *BloodSearchRequest) *PetUpdateOne {
-	return _u.SetBloodSearchRequestID(v.ID)
+	return _u.AddBloodSearchRequestIDs(ids...)
 }
 
 // Mutation returns the PetMutation object of the builder.
@@ -1509,10 +1532,25 @@ func (_u *PetUpdateOne) RemoveDonations(v ...*DonorResponse) *PetUpdateOne {
 	return _u.RemoveDonationIDs(ids...)
 }
 
-// ClearBloodSearchRequest clears the "blood_search_request" edge to the BloodSearchRequest entity.
+// ClearBloodSearchRequest clears all "blood_search_request" edges to the BloodSearchRequest entity.
 func (_u *PetUpdateOne) ClearBloodSearchRequest() *PetUpdateOne {
 	_u.mutation.ClearBloodSearchRequest()
 	return _u
+}
+
+// RemoveBloodSearchRequestIDs removes the "blood_search_request" edge to BloodSearchRequest entities by IDs.
+func (_u *PetUpdateOne) RemoveBloodSearchRequestIDs(ids ...string) *PetUpdateOne {
+	_u.mutation.RemoveBloodSearchRequestIDs(ids...)
+	return _u
+}
+
+// RemoveBloodSearchRequest removes "blood_search_request" edges to BloodSearchRequest entities.
+func (_u *PetUpdateOne) RemoveBloodSearchRequest(v ...*BloodSearchRequest) *PetUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveBloodSearchRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the PetUpdate builder.
@@ -1916,7 +1954,7 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.BloodSearchRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   pet.BloodSearchRequestTable,
 			Columns: []string{pet.BloodSearchRequestColumn},
@@ -1927,9 +1965,25 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := _u.mutation.RemovedBloodSearchRequestIDs(); len(nodes) > 0 && !_u.mutation.BloodSearchRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   pet.BloodSearchRequestTable,
+			Columns: []string{pet.BloodSearchRequestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := _u.mutation.BloodSearchRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   pet.BloodSearchRequestTable,
 			Columns: []string{pet.BloodSearchRequestColumn},

@@ -243,7 +243,7 @@ func (_q *PetQuery) QueryBloodSearchRequest() *BloodSearchRequestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, selector),
 			sqlgraph.To(bloodsearchrequest.Table, bloodsearchrequest.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.BloodSearchRequestTable, pet.BloodSearchRequestColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, pet.BloodSearchRequestTable, pet.BloodSearchRequestColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -697,8 +697,11 @@ func (_q *PetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pet, err
 		}
 	}
 	if query := _q.withBloodSearchRequest; query != nil {
-		if err := _q.loadBloodSearchRequest(ctx, query, nodes, nil,
-			func(n *Pet, e *BloodSearchRequest) { n.Edges.BloodSearchRequest = e }); err != nil {
+		if err := _q.loadBloodSearchRequest(ctx, query, nodes,
+			func(n *Pet) { n.Edges.BloodSearchRequest = []*BloodSearchRequest{} },
+			func(n *Pet, e *BloodSearchRequest) {
+				n.Edges.BloodSearchRequest = append(n.Edges.BloodSearchRequest, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -923,6 +926,9 @@ func (_q *PetQuery) loadBloodSearchRequest(ctx context.Context, query *BloodSear
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
 	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(bloodsearchrequest.FieldPetID)

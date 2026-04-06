@@ -231,7 +231,7 @@ func newPetStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PetInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+		sqlgraph.Edge(sqlgraph.M2O, true, PetTable, PetColumn),
 	)
 }
 func newResponsesStep() *sqlgraph.Step {

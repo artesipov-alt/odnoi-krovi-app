@@ -452,7 +452,7 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
 			Columns: []string{bloodsearchrequest.PetColumn},
@@ -465,7 +465,7 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
 			Columns: []string{bloodsearchrequest.PetColumn},
@@ -995,7 +995,7 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
 			Columns: []string{bloodsearchrequest.PetColumn},
@@ -1008,7 +1008,7 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
 			Columns: []string{bloodsearchrequest.PetColumn},

@@ -65,14 +65,14 @@ func (c *EntConfig) GetDSN() string {
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
 }
 
-// ConnectEnt подключается к PostgreSQL и возвращает экземпляр ent.Client
-func ConnectEnt(config *EntConfig) (*ent.Client, error) {
+// ConnectEnt подключается к PostgreSQL и возвращает экземпляр ent.Client и sql.DB
+func ConnectEnt(config *EntConfig) (*ent.Client, *sql.DB, error) {
 	dsn := config.GetDSN()
 
 	// Открываем соединение через стандартный sql.DB
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed opening connection to postgres: %w", err)
+		return nil, nil, fmt.Errorf("failed opening connection to postgres: %w", err)
 	}
 
 	// Создаем драйвер Ent на основе существующего соединения
@@ -85,11 +85,11 @@ func ConnectEnt(config *EntConfig) (*ent.Client, error) {
 	// Register global hooks
 	client.Use(schema.SoftDeleteHook())
 
-	return client, nil
+	return client, db, nil
 }
 
 // RunMigrations запускает автоматическую миграцию схем
-func RunMigrations(client *ent.Client) error {
+func RunMigrations(client *ent.Client, db *sql.DB) error {
 	ctx := context.Background()
 
 	// При миграции Ent будет использовать SchemaConfig, заданный при инициализации клиента.
@@ -102,5 +102,15 @@ func RunMigrations(client *ent.Client) error {
 		return fmt.Errorf("failed creating schema resources: %w", err)
 	}
 	log.Println("ENT migrations completed successfully")
+
+	// Создаём partial unique index для поддержки множественных closed/draft заявок на одного питомца
+	// Standard unique constraint был удалён WithDropIndex, создаём partial только для active заявок
+	if _, err := db.ExecContext(ctx, `
+		CREATE UNIQUE INDEX IF NOT EXISTS blood_requests_pet_id_key
+		ON blood_requests (pet_id) WHERE status = 'active'
+	`); err != nil {
+		return fmt.Errorf("failed to create partial unique index: %w", err)
+	}
+	log.Println("Custom partial unique index created successfully")
 	return nil
 }

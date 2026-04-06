@@ -330,10 +330,17 @@ func ByDonations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByBloodSearchRequestField orders the results by blood_search_request field.
-func ByBloodSearchRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByBloodSearchRequestCount orders the results by blood_search_request count.
+func ByBloodSearchRequestCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBloodSearchRequestStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newBloodSearchRequestStep(), opts...)
+	}
+}
+
+// ByBloodSearchRequest orders the results by blood_search_request terms.
+func ByBloodSearchRequest(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBloodSearchRequestStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newOwnerStep() *sqlgraph.Step {
@@ -389,6 +396,6 @@ func newBloodSearchRequestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BloodSearchRequestInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, BloodSearchRequestTable, BloodSearchRequestColumn),
+		sqlgraph.Edge(sqlgraph.O2M, false, BloodSearchRequestTable, BloodSearchRequestColumn),
 	)
 }

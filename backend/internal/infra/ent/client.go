@@ -721,7 +721,7 @@ func (c *BloodSearchRequestClient) QueryPet(_m *BloodSearchRequest) *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -1763,7 +1763,7 @@ func (c *PetClient) QueryBloodSearchRequest(_m *Pet) *BloodSearchRequestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(pet.Table, pet.FieldID, id),
 			sqlgraph.To(bloodsearchrequest.Table, bloodsearchrequest.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, pet.BloodSearchRequestTable, pet.BloodSearchRequestColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, pet.BloodSearchRequestTable, pet.BloodSearchRequestColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
