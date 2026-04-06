@@ -1,5 +1,4 @@
-import BrokenImage from '@mui/icons-material/BrokenImage';
-import Button from '@mui/material/Button';
+import { Button } from '@mui/material';
 import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { useGetUserById } from 'hooks/useGetUserById';
@@ -15,7 +14,7 @@ import Max from 'imgs/svg/max';
 import Phone from 'imgs/svg/phone';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Tg from 'imgs/svg/tg';
-import { ChangeEvent, FC, ReactNode, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
@@ -171,8 +170,7 @@ const Profile: FC<Props> = ({ userId }) => {
 
     const [isEditFullNameFocused, setIsEditFullNameFocused] = useState(false);
     const [isEditEmailFocused, setIsEditEmailFocused] = useState(false);
-    const [isHeaderAvatarLoadError, setIsHeaderAvatarLoadError] = useState(false);
-    const [isEditAvatarLoadError, setIsEditAvatarLoadError] = useState(false);
+    const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
     useBodyScrollLock(isInvitePopupOpen || isEditCurtainOpen);
 
@@ -210,11 +208,7 @@ const Profile: FC<Props> = ({ userId }) => {
     }, [pendingAvatarFile]);
 
     useEffect(() => {
-        setIsHeaderAvatarLoadError(false);
-    }, [avatarUrl]);
-
-    useEffect(() => {
-        setIsEditAvatarLoadError(false);
+        setFailedAvatarUrl(null);
     }, [pendingAvatarPreviewUrl, avatarUrl]);
 
     useEffect(() => {
@@ -454,45 +448,10 @@ const Profile: FC<Props> = ({ userId }) => {
         window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
-    const editAvatarUrl = pendingAvatarPreviewUrl || avatarUrl;
-
-    let headerAvatarContent: ReactNode;
-
-    if (!avatarUrl) {
-        headerAvatarContent = userInitial;
-    } else if (isHeaderAvatarLoadError) {
-        headerAvatarContent = (
-            <span className={styles.avatarBrokenWrap} aria-hidden>
-                <BrokenImage className={styles.avatarBrokenIcon} />
-            </span>
-        );
-    } else {
-        headerAvatarContent = (
-            <img
-                src={avatarUrl}
-                alt='Фото профиля'
-                className={styles.avatarImage}
-                onError={() => setIsHeaderAvatarLoadError(true)}
-            />
-        );
-    }
-
-    let editAvatarContent: ReactNode;
-
-    if (!editAvatarUrl) {
-        editAvatarContent = userInitial;
-    } else if (isEditAvatarLoadError) {
-        editAvatarContent = <BrokenImage className={styles.editAvatarBrokenIcon} aria-hidden />;
-    } else {
-        editAvatarContent = (
-            <img
-                src={editAvatarUrl}
-                alt='Фото профиля'
-                className={styles.editAvatarImage}
-                onError={() => setIsEditAvatarLoadError(true)}
-            />
-        );
-    }
+    const editAvatarPrimaryUrl = pendingAvatarPreviewUrl || avatarUrl || null;
+    const editAvatarUrl =
+        editAvatarPrimaryUrl && failedAvatarUrl === editAvatarPrimaryUrl ? avatarUrl || null : editAvatarPrimaryUrl;
+    const headerAvatarUrl = avatarUrl && failedAvatarUrl !== avatarUrl ? avatarUrl : null;
 
     return (
         <Layout>
@@ -501,7 +460,18 @@ const Profile: FC<Props> = ({ userId }) => {
                     <button type='button' className={styles.backButton} onClick={() => navigate('/owner')}>
                         <BackAngularArrow />
                     </button>
-                    <div className={styles.avatar}>{headerAvatarContent}</div>
+                    <div className={styles.avatar}>
+                        {headerAvatarUrl ? (
+                            <img
+                                src={headerAvatarUrl}
+                                alt='Фото профиля'
+                                className={styles.avatarImage}
+                                onError={() => setFailedAvatarUrl(headerAvatarUrl)}
+                            />
+                        ) : (
+                            userInitial
+                        )}
+                    </div>
                     <h1 className={styles.fullName}>{userData.fullName}</h1>
                 </div>
 
@@ -681,7 +651,16 @@ const Profile: FC<Props> = ({ userId }) => {
                     <div className={styles.editCurtainWrapper}>
                         <div className={styles.editCurtainHeader}>
                             <div className={styles.editAvatarCircle}>
-                                {editAvatarContent}
+                                {editAvatarUrl ? (
+                                    <img
+                                        src={editAvatarUrl}
+                                        alt='Фото профиля'
+                                        className={styles.editAvatarImage}
+                                        onError={() => setFailedAvatarUrl(editAvatarUrl)}
+                                    />
+                                ) : (
+                                    userInitial
+                                )}
                                 <button
                                     type='button'
                                     className={styles.editHeaderIcon}
