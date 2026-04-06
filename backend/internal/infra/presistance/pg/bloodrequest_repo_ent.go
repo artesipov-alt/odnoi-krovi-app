@@ -86,7 +86,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.PetID(petID),
-			bloodsearchrequest.StatusEQ(bloodsearchrequest.StatusActive),
+			bloodsearchrequest.StatusIn(bloodsearchrequest.StatusActive, bloodsearchrequest.StatusReservedFull),
 		).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
