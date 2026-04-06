@@ -1,9 +1,5 @@
 @import 'styles/colors';
 
-.layout {
-    background: @white-bg;
-    min-height: 100vh;
-}
 
 .page {
     min-height: 100vh;
@@ -61,13 +57,6 @@
     line-height: 1.08;
     font-weight: 400;
     color: @white;
-}
-
-.username {
-    margin: 8px 0 0;
-    color: rgba(223, 196, 205, 0.92);
-    font-size: 14px;
-    line-height: 1.2;
 }
 
 .content {
@@ -351,27 +340,6 @@
     text-align: center;
 }
 
-.trailing {
-    position: relative;
-    width: 14px;
-    height: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0;
-
-    &::before {
-        content: '\00D7';
-        color: @border5;
-        font-family:
-            Proxima Nova,
-            sans-serif;
-        font-weight: 400;
-        font-size: 18px;
-        line-height: 1;
-    }
-}
-
 .bindButton {
     width: 90px;
     height: 34px;
@@ -401,16 +369,6 @@
         box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
         border-color: darken(@grayBg19, 10%);
     }
-}
-
-.popupOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1200;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    background: rgba(39, 33, 40, 0.34);
 }
 
 .popupShell {
@@ -554,108 +512,6 @@
     font-size: 14px;
     line-height: 16px;
     cursor: pointer;
-}
-
-.aboutPanel {
-    width: 100%;
-    max-width: 341px;
-    margin: 0 auto;
-    background: @white;
-    border-radius: 10px;
-    overflow: hidden;
-    padding: 12px 0 16px;
-}
-
-.aboutHeader {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 14px;
-}
-
-.aboutBackButton {
-    border: 0;
-    background: transparent;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-
-    :global(svg) {
-        width: 18px;
-        height: 18px;
-        fill: @common-red;
-    }
-}
-
-.aboutTitle {
-    font-family: Marmelad, sans-serif;
-    font-size: 18px;
-    line-height: 20px;
-    color: @common-red;
-    font-weight: 400;
-}
-
-.aboutMenu {
-    margin-top: 16px;
-    padding: 0 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.aboutMenuItem {
-    border: 0;
-    background: @white;
-    border-radius: 8px;
-    padding: 14px 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.aboutMenuItemIcon {
-    width: 18px;
-    height: 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    :global(svg) {
-        width: 18px;
-        height: 18px;
-        display: block;
-    }
-}
-
-.aboutMenuItemText {
-    flex: 1;
-    text-align: left;
-    font-family:
-        Proxima Nova,
-        sans-serif;
-    font-size: 14px;
-    line-height: 16px;
-    color: @textColor1;
-}
-
-.aboutMenuItemChevron {
-    width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    :global(svg) {
-        width: 14px;
-        height: 14px;
-        transform: rotate(-90deg);
-        display: block;
-    }
 }
 
 .editCurtainWrapper {

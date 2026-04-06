@@ -1,4 +1,4 @@
-import Button from '@mui/material/Button';
+import { Button } from '@mui/material';
 import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { useGetUserById } from 'hooks/useGetUserById';
@@ -170,6 +170,7 @@ const Profile: FC<Props> = ({ userId }) => {
 
     const [isEditFullNameFocused, setIsEditFullNameFocused] = useState(false);
     const [isEditEmailFocused, setIsEditEmailFocused] = useState(false);
+    const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
     useBodyScrollLock(isInvitePopupOpen || isEditCurtainOpen);
 
@@ -189,6 +190,7 @@ const Profile: FC<Props> = ({ userId }) => {
         setEditEmail(userData.email || '');
         setPendingAvatarFile(null);
         setPendingAvatarPreviewUrl(null);
+        setFailedAvatarUrl(null);
     }, [isEditCurtainOpen, userData]);
 
     useEffect(() => {
@@ -331,6 +333,7 @@ const Profile: FC<Props> = ({ userId }) => {
 
         setPendingAvatarFile(null);
         setPendingAvatarPreviewUrl(null);
+        setFailedAvatarUrl(null);
         setIsEditCurtainOpen(false);
         setIsAvatarUploading(false);
         setIsEditLoading(false);
@@ -368,6 +371,7 @@ const Profile: FC<Props> = ({ userId }) => {
             return;
         }
 
+        setFailedAvatarUrl(null);
         setPendingAvatarFile(newPhoto);
         e.target.value = '';
     };
@@ -443,7 +447,9 @@ const Profile: FC<Props> = ({ userId }) => {
         window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
-    const editAvatarUrl = pendingAvatarPreviewUrl || avatarUrl;
+    const headerAvatarUrl = avatarUrl && failedAvatarUrl !== avatarUrl ? avatarUrl : null;
+    const isPendingAvatarFailed = !!pendingAvatarPreviewUrl && failedAvatarUrl === pendingAvatarPreviewUrl;
+    const editAvatarUrl = pendingAvatarPreviewUrl && !isPendingAvatarFailed ? pendingAvatarPreviewUrl : headerAvatarUrl;
 
     return (
         <Layout>
@@ -453,8 +459,13 @@ const Profile: FC<Props> = ({ userId }) => {
                         <BackAngularArrow />
                     </button>
                     <div className={styles.avatar}>
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt='Фото профиля' className={styles.avatarImage} />
+                        {headerAvatarUrl ? (
+                            <img
+                                src={headerAvatarUrl}
+                                alt='Фото профиля'
+                                className={styles.avatarImage}
+                                onError={() => setFailedAvatarUrl(headerAvatarUrl)}
+                            />
                         ) : (
                             userInitial
                         )}
@@ -639,7 +650,12 @@ const Profile: FC<Props> = ({ userId }) => {
                         <div className={styles.editCurtainHeader}>
                             <div className={styles.editAvatarCircle}>
                                 {editAvatarUrl ? (
-                                    <img src={editAvatarUrl} alt='Фото профиля' className={styles.editAvatarImage} />
+                                    <img
+                                        src={editAvatarUrl}
+                                        alt='Фото профиля'
+                                        className={styles.editAvatarImage}
+                                        onError={() => setFailedAvatarUrl(editAvatarUrl)}
+                                    />
                                 ) : (
                                     userInitial
                                 )}
