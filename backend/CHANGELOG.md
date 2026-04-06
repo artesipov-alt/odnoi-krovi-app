@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.9.0] - 2026-04-06
+
+### Исправлено
+- **Добавлено значение по умолчанию для поля `is_confirmed` в схеме `DonorResponse`:**
+  - В схему `DonorResponse` добавлено значение по умолчанию для поля `is_confirmed`.
+
+### Изменено
+- **Удалено расширение `entgql` и `gqlgen`, изменена связь `Pet-BloodSearchRequest` на M2M:**
+  - Удалено расширение `entgql` и `gqlgen`.
+  - Связь `Pet-BloodSearchRequest` изменена на M2M (многие ко многим).
+
+
 ## [3.8.12] - 2026-04-05
 
 ### Добавлено
