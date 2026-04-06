@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -86,8 +87,8 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(
 			bloodsearchrequest.PetID(petID),
-			bloodsearchrequest.StatusIn(bloodsearchrequest.StatusActive, bloodsearchrequest.StatusReservedFull),
 		).
+		Order(bloodsearchrequest.ByCreatedAt(sql.OrderDesc())).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
 				//Возвращаем полного донора, чтобы пересчитать warn-факторы.
