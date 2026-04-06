@@ -11,7 +11,7 @@ type Bonuses = {
     isFormerDonor: boolean;
 };
 
-type Health = {
+export type Health = {
     healthStatus: string;
     medications?: string;
     transfused?: boolean;
@@ -19,7 +19,7 @@ type Health = {
     surgicalInterventions?: string;
 };
 
-type Treatments = {
+export type Treatments = {
     dewormingDate?: Date;
     rabiesVaccinationDate?: Date;
     infectionVaccinationDate?: Date;

@@ -12,22 +12,41 @@ import MiniPaw from 'imgs/svg/miniPaw';
 import MiniSinglePaw from 'imgs/svg/miniSinglePaw';
 import Pin from 'imgs/svg/pin';
 import Accordion from 'pages/adding/common/Accordion';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
+import { toast } from 'react-toastify';
 import { getDateFormat } from 'utils/utils';
 
-import { GetPoolRequestResponse, Onboardings } from 'api/bloodRequest';
+import { closeSearch } from 'api/apiServices/closeSearch';
+import { GetPoolRequestResponse, Onboardings, PoolRequestStatus, RespondingDonorStatus } from 'api/bloodRequest';
+import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CircularProgress } from 'components/CircularProgress';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
 import SearchOnboarding, { View } from '../Onboarding';
+import CompletedDonations from './CompletedDonations';
+import DonationComplete from './DonationComplete';
+import DonationDetails from './DonationDetails';
+import PlaningDonations from './PlaningDonations';
 import styles from './SearchCard.module.less';
+import SearchFinish from './SearchFinish';
+
+type SelectedDonation = {
+    id: string;
+    status: RespondingDonorStatus;
+};
+
+type DonationCompletePage = {
+    isOpen: boolean;
+    volume?: number;
+};
 
 type Props = GetPoolRequestResponse & {
     name: string;
     petId: string;
     type: PetType;
+    userId: string;
     avatar?: string;
     isLoading: boolean;
     bloodGroup: string;
@@ -36,13 +55,13 @@ type Props = GetPoolRequestResponse & {
     defaultOpenTab?: number;
     onBoarding?: Onboardings[];
     expireLimitWasShown: boolean;
-    onBoardingConfirm: () => void;
+    poolRequestRefetch: () => void;
 };
 
 const tabs = [
-    { title: 'Детали', id: 0, disabled: false },
-    { title: 'Выбрано', id: 1, disabled: false },
-    { title: 'Получено', id: 2, disabled: true },
+    { title: 'Детали', id: 0 },
+    { title: 'Выбрано', id: 1 },
+    { title: 'Получено', id: 2 },
 ];
 
 const SearchCard: FC<Props> = ({
@@ -50,7 +69,9 @@ const SearchCard: FC<Props> = ({
     name,
     type,
     petId,
+    userId,
     avatar,
+    status,
     onClose,
     regions,
     goToOwner,
@@ -59,46 +80,162 @@ const SearchCard: FC<Props> = ({
     bloodGroup,
     onBoarding,
     description,
+    acceptedDonors,
     defaultOpenTab = 0,
     bloodGroupNames,
-    onBoardingConfirm,
     bloodComponentIds,
     bloodVolumeNeeded,
+    completedDonations,
+    poolRequestRefetch,
     bloodVolumeReserved,
     expireLimitWasShown,
     smallPetsNotifyAllowed,
     createdAt = '',
 }) => {
     const [tab, setTab] = useState<number>(defaultOpenTab);
+    const [isSearchFinishPageOpen, setIsSearchFinishPageOpen] = useState<boolean>(false);
+    const [selectedDonation, setSelectedDonation] = useState<SelectedDonation | null>(null);
+    const [donationCompletePage, setDonationCompletePage] = useState<DonationCompletePage>({ isOpen: false });
 
     const { data: locationsDict = [] } = useLocationsQuery();
     const { data: bloodComponentsDict = [] } = useBloodComponentsQuery();
+
+    const showToast = useCallback((text: string) => {
+        toast.warn(text, {
+            onClose: () => {
+                // onClose();
+            },
+        });
+    }, []);
 
     const onTabClickHandler = (tabId: number) => () => {
         setTab(tabId);
     };
 
+    const onDonationClickHandler = (openDonationId: string, donationStatus: RespondingDonorStatus) => {
+        setSelectedDonation({ id: openDonationId, status: donationStatus });
+    };
+
+    const onCloseDonationHandler = () => {
+        setSelectedDonation(null);
+    };
+
+    const onDonationCompleteHandler = (volume: number) => {
+        onCloseDonationHandler();
+
+        setDonationCompletePage({ isOpen: true, volume });
+    };
+
+    const onIsSearchFinishHandler = async () => {
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+
+        onCloseDonationHandler();
+
+        setIsSearchFinishPageOpen(true);
+    };
+
+    const onCloseSearchClickHandler = async () => {
+        const response = await closeSearch(id);
+
+        if (!response) {
+            showToast('Не удалось завершить поиск');
+        }
+
+        setTab(0);
+        setDonationCompletePage({ isOpen: false });
+
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+
+        poolRequestRefetch();
+    };
+
+    const onBackToSearchClickHandler = () => {
+        setDonationCompletePage({ isOpen: false });
+
+        poolRequestRefetch();
+    };
+
+    const onOpenDetailsClickHandler = () => {
+        setTab(0);
+        setIsSearchFinishPageOpen(false);
+
+        poolRequestRefetch();
+    };
+
+    if (selectedDonation) {
+        return (
+            <DonationDetails
+                userId={userId}
+                onReject={poolRequestRefetch}
+                donationId={selectedDonation.id}
+                status={selectedDonation.status}
+                onClose={onCloseDonationHandler}
+                onIsSearchFinish={onIsSearchFinishHandler}
+                onDonationComplete={onDonationCompleteHandler}
+            />
+        );
+    }
+
     if (!(onBoarding || []).includes(Onboardings.BLOOD_CARD)) {
-        return <SearchOnboarding view={View.CARD} id={id} onSucess={onBoardingConfirm} onBoarding={onBoarding} />;
+        return <SearchOnboarding view={View.CARD} id={id} onSucess={poolRequestRefetch} onBoarding={onBoarding} />;
+    }
+
+    if (donationCompletePage.isOpen && !!donationCompletePage.volume) {
+        return (
+            <DonationComplete
+                type={type}
+                avatar={avatar}
+                bloodVolumeNeeded={bloodVolumeNeeded}
+                onEndSearch={onCloseSearchClickHandler}
+                onBackToSearch={onBackToSearchClickHandler}
+                bloodVolumeDonated={donationCompletePage.volume || 44}
+            />
+        );
+    }
+
+    if (isSearchFinishPageOpen) {
+        return (
+            <SearchFinish
+                type={type}
+                avatar={avatar}
+                onBackToOwner={goToOwner}
+                bloodVolumeNeeded={bloodVolumeNeeded}
+                bloodVolumeDonated={bloodVolumeNeeded}
+                onOpenDetail={onOpenDetailsClickHandler}
+            />
+        );
     }
 
     return (
         <Layout>
             <div className={styles.wrapper}>
                 <div className={styles.header}>
-                    <div className={styles.back} onClick={expireLimitWasShown ? goToOwner : onClose}>
+                    <div
+                        className={styles.back}
+                        onClick={expireLimitWasShown || status === PoolRequestStatus.CLOSED ? goToOwner : onClose}
+                    >
                         <BackAngularArrow />
                     </div>
                     <h2 className={styles.name}>Поиск от {getDateFormat(new Date(createdAt))}</h2>
                 </div>
                 <div className={styles.tabs}>
-                    {tabs.map(({ title, id: tabId, disabled }) => (
+                    {(status !== PoolRequestStatus.CLOSED ? tabs : [tabs[0], tabs[2]]).map(({ title, id: tabId }) => (
                         <div
                             key={title}
                             onClick={onTabClickHandler(tabId)}
-                            className={cn(styles.tab, { [styles.active]: tab === tabId, [styles.disabled]: disabled })}
+                            className={cn(styles.tab, {
+                                [styles.active]: tab === tabId,
+                                [styles.searchIsClosed]: status === PoolRequestStatus.CLOSED,
+                                [styles.disabled]: tabId === 2 && !completedDonations?.length,
+                            })}
                         >
                             {title}
+                            {tabId === 1 && !!acceptedDonors?.length && (
+                                <div className={styles.tabCounter}>{acceptedDonors.length}</div>
+                            )}
+                            {tabId === 2 && !!completedDonations?.length && (
+                                <div className={styles.tabCounter}>{completedDonations.length}</div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -117,7 +254,9 @@ const SearchCard: FC<Props> = ({
                                         <div className={styles.icon}>
                                             <Blood />
                                         </div>
-                                        <p className={styles.text}>Ищем</p>
+                                        <p className={styles.text}>
+                                            {status === PoolRequestStatus.CLOSED ? 'Искал' : 'Ищем'}
+                                        </p>
                                     </div>
                                     <div className={styles.bloodInfo}>
                                         <div className={styles.bloodGroup}>{bloodGroup}</div>
@@ -128,7 +267,9 @@ const SearchCard: FC<Props> = ({
                                                   .map((group) => (
                                                       <div
                                                           key={group}
-                                                          className={cn(styles.bloodGroup, { [styles.needed]: true })}
+                                                          className={cn(styles.bloodGroup, {
+                                                              [styles.needed]: true,
+                                                          })}
                                                       >
                                                           {group}
                                                       </div>
@@ -216,24 +357,46 @@ const SearchCard: FC<Props> = ({
                                 </Accordion>
                             </>
                         )}
-                        <Button
-                            fullWidth
-                            // onClick={onConfirmButtonClickHandler}
-                            className={styles.confirm}
-                        >
-                            Расширить поиск
-                        </Button>
-                        <Button
-                            fullWidth
-                            startIcon={<Cancel />}
-                            // onClick={onConfirmButtonClickHandler}
-                            className={styles.cancel}
-                        >
-                            Отменить поиск
-                        </Button>
+                        {status !== PoolRequestStatus.CLOSED ? (
+                            <>
+                                <Button
+                                    fullWidth
+                                    // onClick={onConfirmButtonClickHandler}
+                                    className={cn(styles.confirm, { [styles.disabled]: true })}
+                                >
+                                    Расширить поиск
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    startIcon={<Cancel />}
+                                    className={styles.cancel}
+                                    onClick={onCloseSearchClickHandler}
+                                >
+                                    Отменить поиск
+                                </Button>
+                            </>
+                        ) : (
+                            <Button
+                                fullWidth
+                                disabled
+                                // onClick={onConfirmButtonClickHandler}
+                                className={cn(styles.confirm, { [styles.disabled]: true })}
+                            >
+                                Создать новый поиск
+                            </Button>
+                        )}
                     </>
                 )}
-                {tab === 1 && <div>В разработке</div>}
+                {tab === 1 && !!acceptedDonors?.length && (
+                    <div className={styles.selected}>
+                        <PlaningDonations donorResponses={acceptedDonors} onDonationClick={onDonationClickHandler} />
+                    </div>
+                )}
+                {tab === 2 && !!completedDonations?.length && (
+                    <div className={styles.selected}>
+                        <CompletedDonations donations={completedDonations} />
+                    </div>
+                )}
                 {isLoading && (
                     <div className={styles.loading}>
                         <Loading size={90} thickness={4} />

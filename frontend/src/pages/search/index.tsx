@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { Onboardings } from 'api/bloodRequest';
+import { Onboardings, PoolRequestStatus } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
 import { PetType } from 'api/types';
 import { CircularProgress } from 'components/CircularProgress';
@@ -153,6 +153,7 @@ const Search: FC<Props> = ({ userId }) => {
     if (donorDetails.isOpen && donorDetails.id) {
         return (
             <DonorForRecipient
+                userId={userId}
                 onClose={onDonorToggle}
                 donorId={donorDetails.id}
                 onBackToSearch={onOpenCardFromDonorRespond}
@@ -175,6 +176,7 @@ const Search: FC<Props> = ({ userId }) => {
         return (
             <SearchCard
                 {...poolRequest}
+                userId={userId}
                 goToOwner={goToOwner}
                 petId={selectedPet.id}
                 name={selectedPet.name}
@@ -185,7 +187,7 @@ const Search: FC<Props> = ({ userId }) => {
                 avatar={selectedPet.photoUrls?.[0]}
                 bloodGroup={selectedPet.bloodGroup}
                 onBoarding={poolRequest?.onBoarding}
-                onBoardingConfirm={poolRequestRefetch}
+                poolRequestRefetch={poolRequestRefetch}
                 expireLimitWasShown={expireLimitWasShown}
             />
         );
@@ -263,21 +265,27 @@ const Search: FC<Props> = ({ userId }) => {
                             className={cn(styles.tab, { [styles.active]: tab === ind })}
                         >
                             {title}
-                            {ind === 0 && isBloodFound && renderTabCounter(poolRequest?.responses?.length)}
+                            {ind === 0 &&
+                                isBloodFound &&
+                                poolRequest?.responses?.length &&
+                                renderTabCounter(poolRequest.responses.length)}
                             {ind === 1 && isPacketsBloodFound && renderTabCounter()}
                         </div>
                     ))}
                 </div>
-                {tab === 0 && !isLoading && !isBloodFound && (
+                {tab === 0 && !isLoading && !poolRequest?.responses && (
                     <NoResults tab={tab} suitableDonors={poolRequest?.suitableDonors} />
                 )}
                 {tab === 1 && !isLoading && !isPacketsBloodFound && <NoResults tab={tab} />}
-                {tab === 0 && !isLoading && isBloodFound && (
+                {tab === 0 && !isLoading && !!poolRequest?.responses && (
                     <DonorsShowcase
+                        userId={userId}
+                        goToOwner={goToOwner}
+                        searchId={poolRequest.id}
                         petType={selectedPet?.type}
                         onDonorClick={onDonorToggle}
+                        list={poolRequest.responses}
                         showStartView={showStartView}
-                        list={poolRequest?.responses}
                         onOpenWarnFactors={onOpenWarnFactorsToggle}
                         setIsStartViewShown={setIsStartViewShownHandler}
                     />

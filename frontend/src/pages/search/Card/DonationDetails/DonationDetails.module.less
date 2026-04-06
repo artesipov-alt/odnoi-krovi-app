@@ -1,0 +1,583 @@
+@import 'styles/colors';
+
+.wrapper {
+    position: relative;
+    padding: 12px 11px 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 33px;
+    margin-bottom: 17px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.title {
+    flex-grow: 1;
+    padding: 0 11px;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    color: @textColor2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.photos {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.avatarWrapper {
+    position: relative;
+}
+
+.avatar {
+    width: 156px;
+    height: 156px;
+    border-radius: 50%;
+    border: 12px solid @white;
+    box-sizing: border-box;
+}
+
+.neededVolume {
+    position: absolute;
+    top: 53px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 51px;
+    height: 51px;
+    color: @red1;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 28px;
+    background: @red21;
+    border-radius: 50%;
+    padding-top: 8px;
+    box-sizing: border-box;
+
+    span {
+        display: block;
+        font-size: 14px;
+        line-height: 0;
+    }
+}
+
+.name {
+    margin: 10px 0 0;
+    color: @textColor6;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+}
+
+.photoDivider {
+    flex-shrink: 1;
+    width: 40px;
+}
+
+.tiles {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: calc(50% - 4px);
+    padding: 22px 18px;
+    border-radius: 6px;
+    background: @white;
+    box-sizing: border-box;
+
+    &.noActive {
+        opacity: 0.6;
+        pointer-events: none;
+
+        & .tileTitle {
+            color: @textColor4;
+        }
+
+        & .arrowTileIcon {
+            display: none;
+        }
+    }
+
+    &.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+
+        & .tileTitle {
+            color: @textColor4;
+        }
+
+        & .arrowTileIcon
+        {
+            display: none;
+        }
+    }
+
+    &.conditionTile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 5px;
+
+        & .tileTitle {
+            margin-left: 0;
+        }
+    }
+
+    & .conditions {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.tileIcon {
+    width: 16px;
+    height: 16px;
+
+    &.needFill {
+        fill: @grayBg6;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.tileTitle {
+    margin-left: 8px;
+    color: @textColor1;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.arrowTileIcon {
+    width: 6px;
+    height: 23px;
+    margin-left: auto;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @grayBg6;
+    }
+}
+
+.analizesCount {
+    position: absolute;
+    bottom: 13px;
+    left: 18px;
+    color: @textColor1;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 11px;
+}
+
+.rewardFreeIcon {
+    width: 33px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 2px solid #a3dc95;
+    background: linear-gradient(180deg, #90DF75 0%, #62B655 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 33px;
+        height: 33px;
+        border-radius: 12px;
+    }
+
+    & .sum {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+
+    & .descr {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 10px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+}
+
+.rewardNotFreeIcon {
+    width: 33px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #828282;
+    background: linear-gradient(180deg, #747474 0%, #1F1F1F 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 33px;
+        height: 33px;
+        border-radius: 12px;
+    }
+
+    & .descr {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 14px;
+    }
+}
+
+.rewardFeedIcon {
+    width: 33px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #FF9570;
+    background: linear-gradient(180deg, #FF9252 0%, #FF3F15 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+    }
+
+    & .icon {
+        width: 20px;
+        height: 20px;
+        fill: @white;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}
+
+.taxiIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #FFCF70;
+    background: linear-gradient(180deg, #FFCF53 0%, #F90 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        transform: translateX(-5px);
+        border-radius: 12px;
+    }
+
+    & .icon {
+        width: 20px;
+        height: 20px;
+        fill: @white;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin: 24px 0 20px;
+
+    &.completed {
+        flex-wrap: wrap;
+    }
+}
+
+.chatIcon {
+    display: flex;
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    background: rgba(217, 217, 217, 0.50);
+
+    svg {
+        margin: auto;
+        width: 17px;
+        height: 17px;
+        fill: @black;
+    }
+}
+
+.confirmDonation {
+    flex-grow: 1 !important;
+    height: 50px;
+    border-radius: 8px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 16px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+
+    &.reject {
+        background: @textColor4 !important;
+        color: @white !important;
+    }
+}
+
+.volumeInput {
+    height: 60px;
+    width: 135px !important;
+    margin: 21px auto 0;
+}
+
+.volumeHtmlInput {
+    color: @textColor2;
+    text-align: center;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: 400 !important;
+    line-height: 24px !important;
+
+    &:focus {
+        font-size: 22px !important;
+    }
+}
+
+.endAdornment {
+    color: @textColor1;
+    height: 60px;
+    line-height: 60px;
+    width: 45px;
+    text-align: right;
+    border-left: 1px solid @border3;
+}
+
+.exclamation {
+    width: 53px;
+    height: 53px;
+    margin: 0 auto;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.curtainTitle {
+    margin: 14px 0 26px;
+    color: @textColor2;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.curtainDecr {
+    margin: 0;
+    padding: 0 10px;
+    color: @textColor7;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.curtainList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 22px 0 29px;
+    padding: 0 10px 0 15px;
+}
+
+.curtainListItem {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    font-family: Proxima Nova, sans-serif;
+}
+
+.curtainListItemNumber {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: @white4;
+    background: @orange5;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    border-radius: 15px;
+}
+
+.curtainListItemText {
+    margin: 0;
+    color: @textColor7;
+    font-size: 12px;
+    font-style: normal;
+    line-height: 15px;
+}
+
+.linkDescr {
+    margin: 0;
+    text-align: center;
+    color: @textColor1;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.messengers {
+    display: flex;
+    justify-content: center;
+    gap: 29px;
+    margin: 20px 0 29px;
+}
+
+.identity {
+    width: 44px;
+    height: 44px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.backLink {
+    margin: 0;
+    color: @textColor7;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    opacity: .6;
+}
+
+.completedTile {
+    width: 100%;
+    padding: 16px;
+    color: @white6;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    border-radius: 10px;
+    background: @textColor1;
+}
+
+.donorConfirmationSubTitle {
+    margin-top: 16px;
+    opacity: .6;
+}
+
+.donorConfirmationConfirm {
+    color: @white !important;
+    background: @textColor4 !important;
+}
+
+.donorConfirmationCurtain {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 12px;
+    margin: 37px 0 13px;
+}
+
+.donorConfirmationIcon {
+    width: 16px;
+    height: 20px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @red22;
+    }
+}
+
+.donorConfirmationVolume {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    color: @textColor2;
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+}
+
+.donorConfirmationNumber {
+    margin: 0;
+    font-size: 32px;
+    line-height: 35px;
+}
+
+.donorConfirmationDescr {
+    margin: 0;
+    font-size: 22px;
+    line-height: 26px;
+}
+
+.loading {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}

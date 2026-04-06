@@ -43,6 +43,11 @@
 }
 
 .tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     width: 33.33%;
     padding: 12px 10px;
     color: @textColor4;
@@ -55,13 +60,38 @@
 
     &.active {
         color: @textColor2;
-        border-bottom: 2px solid @textColor2;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background-color: @textColor2;
+        }
     }
 
     &.disabled {
         pointer-events: none;
         opacity: .4;
     }
+
+    &.searchIsClosed {
+        width: 50%;
+    }
+}
+
+.tabCounter {
+    min-width: 20px;
+    height: 20px;
+    background: @red13;
+    border-radius: 50%;
+    color: @grayBg6;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
 }
 
 .main {
@@ -311,6 +341,10 @@
     line-height: 20px !important;
     color: @textColor3 !important;
     text-transform: none !important;
+
+    &.disabled {
+        opacity: 0.5;
+    }
 }
 
 .cancel {
@@ -350,4 +384,8 @@
     inset: 0;
     background-color: rgba(0,0,0,0.4);
     z-index: 10000;
+}
+
+.selected {
+    margin-top: 22px;
 }

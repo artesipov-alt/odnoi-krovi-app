@@ -83,10 +83,10 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                 description,
                 prioritySearch: false,
                 includeUnknownBloodGroup,
-                bloodVolumeNeeded: Number(bloodVolume),
                 regions: locations as unknown as number[],
                 smallPetsNotifyAllowed: notifyOfSmallDonors,
                 bloodComponentIds: bloodComponents as unknown as number[],
+                bloodVolumeNeeded: Number(bloodVolume.replace(',', '.')),
                 bloodGroupNames: bloodGroupDict[petType].reduce((res, item) => {
                     if (desiredBloodGroups.includes(item.value)) {
                         res.push(item.label);

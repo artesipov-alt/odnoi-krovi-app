@@ -291,6 +291,8 @@ const AnalysesStep: FC<Props> = ({ petId, onClose, isEditMode, analyses, petType
         setIsSaveButtonActive(Object.keys(changesRef.current).length > 0);
     }, [leukemia, immunodeficiency, hemoplasmosis, bartonellosis, babesiosis, dirofilaria, ehrlichiosis, anaplasmosis]);
 
+    console.log('analyses', analyses);
+
     return (
         <div className={styles.wrapper}>
             <Header title='Здоровье' onClose={onClose} isEditMode={isEditMode} icon={<Analizes />} />

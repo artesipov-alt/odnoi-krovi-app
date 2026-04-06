@@ -6,16 +6,22 @@ import NotPaid from 'imgs/svg/notPaid';
 import Paid from 'imgs/svg/paid';
 import RoundQuestion from 'imgs/svg/roundQuestion';
 import TaxiBig from 'imgs/svg/taxiBig';
-import { FC, MouseEvent } from 'react';
+import { FC, MouseEvent, useCallback } from 'react';
+import { toast } from 'react-toastify';
 
+import { closeSearch } from 'api/apiServices/closeSearch';
 import { RespondingDonor } from 'api/bloodRequest';
+import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType } from 'api/user';
 
 import styles from './DonorsShowcase.module.less';
 
 type Props = {
+    userId: string;
+    searchId: string;
     petType?: PetType;
+    goToOwner: () => void;
     showStartView: boolean;
     list?: RespondingDonor[];
     setIsStartViewShown: () => void;
@@ -25,14 +31,33 @@ type Props = {
 
 const DonorsShowcase: FC<Props> = ({
     list,
+    userId,
     petType,
+    searchId,
+    goToOwner,
     onDonorClick,
     showStartView,
     onOpenWarnFactors,
     setIsStartViewShown,
 }) => {
+    const showToast = useCallback((text: string) => {
+        toast.warn(text);
+    }, []);
+
     const onConfirmButtonClickHandler = () => {
         setIsStartViewShown();
+    };
+
+    const onCLoseSearchClickHandler = async () => {
+        const response = await closeSearch(searchId);
+
+        if (!response) {
+            showToast('Не удалось завершить поиск');
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+
+        goToOwner();
     };
 
     const onShowWarnFactorsToggle = (donorId: string) => (e: MouseEvent<HTMLDivElement>) => {
@@ -61,7 +86,9 @@ const DonorsShowcase: FC<Props> = ({
                         </div>
                     </Button>
                 </div>
-                <div className={styles.cancelButton}>Завершить поиск</div>
+                <div role='button' onClick={onCLoseSearchClickHandler} className={styles.cancelButton}>
+                    Завершить поиск
+                </div>
                 <img className={styles.startViewImg} src={donorShowcaseStart} alt='donorShowcaseStart' />
             </div>
         );
