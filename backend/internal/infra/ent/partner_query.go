@@ -20,14 +20,11 @@ import (
 // PartnerQuery is the builder for querying Partner entities.
 type PartnerQuery struct {
 	config
-	ctx                        *QueryContext
-	order                      []partner.OrderOption
-	inters                     []Interceptor
-	predicates                 []predicate.Partner
-	withPartnerIdentities      *UserIdentityQuery
-	modifiers                  []func(*sql.Selector)
-	loadTotal                  []func(context.Context, []*Partner) error
-	withNamedPartnerIdentities map[string]*UserIdentityQuery
+	ctx                   *QueryContext
+	order                 []partner.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.Partner
+	withPartnerIdentities *UserIdentityQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -387,9 +384,6 @@ func (_q *PartnerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Part
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -403,18 +397,6 @@ func (_q *PartnerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Part
 		if err := _q.loadPartnerIdentities(ctx, query, nodes,
 			func(n *Partner) { n.Edges.PartnerIdentities = []*UserIdentity{} },
 			func(n *Partner, e *UserIdentity) { n.Edges.PartnerIdentities = append(n.Edges.PartnerIdentities, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedPartnerIdentities {
-		if err := _q.loadPartnerIdentities(ctx, query, nodes,
-			func(n *Partner) { n.appendNamedPartnerIdentities(name) },
-			func(n *Partner, e *UserIdentity) { n.appendNamedPartnerIdentities(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -454,9 +436,6 @@ func (_q *PartnerQuery) loadPartnerIdentities(ctx context.Context, query *UserId
 
 func (_q *PartnerQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -534,20 +513,6 @@ func (_q *PartnerQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// WithNamedPartnerIdentities tells the query-builder to eager-load the nodes that are connected to the "partner_identities"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *PartnerQuery) WithNamedPartnerIdentities(name string, opts ...func(*UserIdentityQuery)) *PartnerQuery {
-	query := (&UserIdentityClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedPartnerIdentities == nil {
-		_q.withNamedPartnerIdentities = make(map[string]*UserIdentityQuery)
-	}
-	_q.withNamedPartnerIdentities[name] = query
-	return _q
 }
 
 // PartnerGroupBy is the group-by builder for Partner entities.

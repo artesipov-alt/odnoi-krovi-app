@@ -28,12 +28,13 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 		},
 	}
 
-	if req.Edges.Pet != nil {
-		recipient.RecipientData.PetName = req.Edges.Pet.Name
-		recipient.RecipientData.PetType = common.PetType(req.Edges.Pet.Type)
-		recipient.RecipientData.PhotoURLs = req.Edges.Pet.PhotoUrls
-		if req.Edges.Pet.Edges.BloodGroupRef != nil {
-			recipient.RecipientData.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
+	if len(req.Edges.Pet) > 0 {
+		pet := req.Edges.Pet[0]
+		recipient.RecipientData.PetName = pet.Name
+		recipient.RecipientData.PetType = common.PetType(pet.Type)
+		recipient.RecipientData.PhotoURLs = pet.PhotoUrls
+		if pet.Edges.BloodGroupRef != nil {
+			recipient.RecipientData.BloodGroupName = pet.Edges.BloodGroupRef.BloodGroup
 		}
 	}
 

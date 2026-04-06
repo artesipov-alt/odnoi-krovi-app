@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -83,15 +82,10 @@ type PetEdges struct {
 	// Donations holds the value of the donations edge.
 	Donations []*DonorResponse `json:"donations,omitempty"`
 	// BloodSearchRequest holds the value of the blood_search_request edge.
-	BloodSearchRequest *BloodSearchRequest `json:"blood_search_request,omitempty"`
+	BloodSearchRequest []*BloodSearchRequest `json:"blood_search_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [8]bool
-	// totalCount holds the count of the edges above.
-	totalCount [8]map[string]int
-
-	namedAnalyses  map[string][]*PetAnalysis
-	namedDonations map[string][]*DonorResponse
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
@@ -168,12 +162,10 @@ func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
 }
 
 // BloodSearchRequestOrErr returns the BloodSearchRequest value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PetEdges) BloodSearchRequestOrErr() (*BloodSearchRequest, error) {
-	if e.BloodSearchRequest != nil {
+// was not loaded in eager-loading.
+func (e PetEdges) BloodSearchRequestOrErr() ([]*BloodSearchRequest, error) {
+	if e.loadedTypes[7] {
 		return e.BloodSearchRequest, nil
-	} else if e.loadedTypes[7] {
-		return nil, &NotFoundError{label: bloodsearchrequest.Label}
 	}
 	return nil, &NotLoadedError{edge: "blood_search_request"}
 }
@@ -467,54 +459,6 @@ func (_m *Pet) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.Bonuses))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedAnalyses returns the Analyses named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *Pet) NamedAnalyses(name string) ([]*PetAnalysis, error) {
-	if _m.Edges.namedAnalyses == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedAnalyses[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *Pet) appendNamedAnalyses(name string, edges ...*PetAnalysis) {
-	if _m.Edges.namedAnalyses == nil {
-		_m.Edges.namedAnalyses = make(map[string][]*PetAnalysis)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedAnalyses[name] = []*PetAnalysis{}
-	} else {
-		_m.Edges.namedAnalyses[name] = append(_m.Edges.namedAnalyses[name], edges...)
-	}
-}
-
-// NamedDonations returns the Donations named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *Pet) NamedDonations(name string) ([]*DonorResponse, error) {
-	if _m.Edges.namedDonations == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedDonations[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *Pet) appendNamedDonations(name string, edges ...*DonorResponse) {
-	if _m.Edges.namedDonations == nil {
-		_m.Edges.namedDonations = make(map[string][]*DonorResponse)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedDonations[name] = []*DonorResponse{}
-	} else {
-		_m.Edges.namedDonations[name] = append(_m.Edges.namedDonations[name], edges...)
-	}
 }
 
 // Pets is a parsable slice of Pet.

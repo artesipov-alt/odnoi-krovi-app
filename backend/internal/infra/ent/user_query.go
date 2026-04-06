@@ -24,20 +24,15 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx                   *QueryContext
-	order                 []user.OrderOption
-	inters                []Interceptor
-	predicates            []predicate.User
-	withPets              *PetQuery
-	withLocation          *LocationQuery
-	withDonorPreference   *DonorPreferenceQuery
-	withIdentities        *UserIdentityQuery
-	withUtmHistories      *UtmHistoryQuery
-	modifiers             []func(*sql.Selector)
-	loadTotal             []func(context.Context, []*User) error
-	withNamedPets         map[string]*PetQuery
-	withNamedIdentities   map[string]*UserIdentityQuery
-	withNamedUtmHistories map[string]*UtmHistoryQuery
+	ctx                 *QueryContext
+	order               []user.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.User
+	withPets            *PetQuery
+	withLocation        *LocationQuery
+	withDonorPreference *DonorPreferenceQuery
+	withIdentities      *UserIdentityQuery
+	withUtmHistories    *UtmHistoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -537,9 +532,6 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -579,32 +571,6 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadUtmHistories(ctx, query, nodes,
 			func(n *User) { n.Edges.UtmHistories = []*UtmHistory{} },
 			func(n *User, e *UtmHistory) { n.Edges.UtmHistories = append(n.Edges.UtmHistories, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedPets {
-		if err := _q.loadPets(ctx, query, nodes,
-			func(n *User) { n.appendNamedPets(name) },
-			func(n *User, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedIdentities {
-		if err := _q.loadIdentities(ctx, query, nodes,
-			func(n *User) { n.appendNamedIdentities(name) },
-			func(n *User, e *UserIdentity) { n.appendNamedIdentities(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedUtmHistories {
-		if err := _q.loadUtmHistories(ctx, query, nodes,
-			func(n *User) { n.appendNamedUtmHistories(name) },
-			func(n *User, e *UtmHistory) { n.appendNamedUtmHistories(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -761,9 +727,6 @@ func (_q *UserQuery) loadUtmHistories(ctx context.Context, query *UtmHistoryQuer
 
 func (_q *UserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -844,48 +807,6 @@ func (_q *UserQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// WithNamedPets tells the query-builder to eager-load the nodes that are connected to the "pets"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *UserQuery {
-	query := (&PetClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedPets == nil {
-		_q.withNamedPets = make(map[string]*PetQuery)
-	}
-	_q.withNamedPets[name] = query
-	return _q
-}
-
-// WithNamedIdentities tells the query-builder to eager-load the nodes that are connected to the "identities"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithNamedIdentities(name string, opts ...func(*UserIdentityQuery)) *UserQuery {
-	query := (&UserIdentityClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedIdentities == nil {
-		_q.withNamedIdentities = make(map[string]*UserIdentityQuery)
-	}
-	_q.withNamedIdentities[name] = query
-	return _q
-}
-
-// WithNamedUtmHistories tells the query-builder to eager-load the nodes that are connected to the "utm_histories"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *UserQuery) WithNamedUtmHistories(name string, opts ...func(*UtmHistoryQuery)) *UserQuery {
-	query := (&UtmHistoryClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedUtmHistories == nil {
-		_q.withNamedUtmHistories = make(map[string]*UtmHistoryQuery)
-	}
-	_q.withNamedUtmHistories[name] = query
-	return _q
 }
 
 // UserGroupBy is the group-by builder for User entities.

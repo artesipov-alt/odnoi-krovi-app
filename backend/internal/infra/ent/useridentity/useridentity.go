@@ -4,8 +4,6 @@ package useridentity
 
 import (
 	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -189,22 +187,4 @@ func newPartnerStep() *sqlgraph.Step {
 		sqlgraph.To(PartnerInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, PartnerTable, PartnerColumn),
 	)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e Provider) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *Provider) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = Provider(str)
-	if err := ProviderValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid Provider", str)
-	}
-	return nil
 }

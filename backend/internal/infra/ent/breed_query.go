@@ -20,14 +20,11 @@ import (
 // BreedQuery is the builder for querying Breed entities.
 type BreedQuery struct {
 	config
-	ctx           *QueryContext
-	order         []breed.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.Breed
-	withPets      *PetQuery
-	modifiers     []func(*sql.Selector)
-	loadTotal     []func(context.Context, []*Breed) error
-	withNamedPets map[string]*PetQuery
+	ctx        *QueryContext
+	order      []breed.OrderOption
+	inters     []Interceptor
+	predicates []predicate.Breed
+	withPets   *PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -387,9 +384,6 @@ func (_q *BreedQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Breed,
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -403,18 +397,6 @@ func (_q *BreedQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Breed,
 		if err := _q.loadPets(ctx, query, nodes,
 			func(n *Breed) { n.Edges.Pets = []*Pet{} },
 			func(n *Breed, e *Pet) { n.Edges.Pets = append(n.Edges.Pets, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedPets {
-		if err := _q.loadPets(ctx, query, nodes,
-			func(n *Breed) { n.appendNamedPets(name) },
-			func(n *Breed, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -457,9 +439,6 @@ func (_q *BreedQuery) loadPets(ctx context.Context, query *PetQuery, nodes []*Br
 
 func (_q *BreedQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -537,20 +516,6 @@ func (_q *BreedQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// WithNamedPets tells the query-builder to eager-load the nodes that are connected to the "pets"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *BreedQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *BreedQuery {
-	query := (&PetClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedPets == nil {
-		_q.withNamedPets = make(map[string]*PetQuery)
-	}
-	_q.withNamedPets[name] = query
-	return _q
 }
 
 // BreedGroupBy is the group-by builder for Breed entities.

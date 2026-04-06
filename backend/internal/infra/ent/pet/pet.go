@@ -118,13 +118,11 @@ const (
 	DonationsInverseTable = "donor_responses"
 	// DonationsColumn is the table column denoting the donations relation/edge.
 	DonationsColumn = "donor_response_donor"
-	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge.
-	BloodSearchRequestTable = "blood_requests"
+	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge. The primary key declared below.
+	BloodSearchRequestTable = "pet_blood_search_request"
 	// BloodSearchRequestInverseTable is the table name for the BloodSearchRequest entity.
 	// It exists in this package in order to avoid circular dependency with the "bloodsearchrequest" package.
 	BloodSearchRequestInverseTable = "blood_requests"
-	// BloodSearchRequestColumn is the table column denoting the blood_search_request relation/edge.
-	BloodSearchRequestColumn = "pet_id"
 )
 
 // Columns holds all SQL columns for pet fields.
@@ -149,6 +147,12 @@ var Columns = []string{
 	FieldBloodGroupID,
 	FieldBonuses,
 }
+
+var (
+	// BloodSearchRequestPrimaryKey and BloodSearchRequestColumn2 are the table columns denoting the
+	// primary key for the blood_search_request relation (M2M).
+	BloodSearchRequestPrimaryKey = []string{"pet_id", "blood_search_request_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -330,10 +334,17 @@ func ByDonations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByBloodSearchRequestField orders the results by blood_search_request field.
-func ByBloodSearchRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByBloodSearchRequestCount orders the results by blood_search_request count.
+func ByBloodSearchRequestCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBloodSearchRequestStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newBloodSearchRequestStep(), opts...)
+	}
+}
+
+// ByBloodSearchRequest orders the results by blood_search_request terms.
+func ByBloodSearchRequest(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBloodSearchRequestStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newOwnerStep() *sqlgraph.Step {
@@ -389,6 +400,6 @@ func newBloodSearchRequestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BloodSearchRequestInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, BloodSearchRequestTable, BloodSearchRequestColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, BloodSearchRequestTable, BloodSearchRequestPrimaryKey...),
 	)
 }

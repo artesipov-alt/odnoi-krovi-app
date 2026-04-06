@@ -193,9 +193,19 @@ func (_c *BloodSearchRequestCreate) SetNillableID(v *string) *BloodSearchRequest
 	return _c
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_c *BloodSearchRequestCreate) SetPet(v *Pet) *BloodSearchRequestCreate {
-	return _c.SetPetID(v.ID)
+// AddPetIDs adds the "pet" edge to the Pet entity by IDs.
+func (_c *BloodSearchRequestCreate) AddPetIDs(ids ...string) *BloodSearchRequestCreate {
+	_c.mutation.AddPetIDs(ids...)
+	return _c
+}
+
+// AddPet adds the "pet" edges to the Pet entity.
+func (_c *BloodSearchRequestCreate) AddPet(v ...*Pet) *BloodSearchRequestCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddPetIDs(ids...)
 }
 
 // AddResponseIDs adds the "responses" edge to the DonorResponse entity by IDs.
@@ -312,9 +322,6 @@ func (_c *BloodSearchRequestCreate) check() error {
 	if _, ok := _c.mutation.IncludeUnknownBloodGroup(); !ok {
 		return &ValidationError{Name: "include_unknown_blood_group", err: errors.New(`ent: missing required field "BloodSearchRequest.include_unknown_blood_group"`)}
 	}
-	if len(_c.mutation.PetIDs()) == 0 {
-		return &ValidationError{Name: "pet", err: errors.New(`ent: missing required edge "BloodSearchRequest.pet"`)}
-	}
 	return nil
 }
 
@@ -363,6 +370,10 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		_spec.SetField(bloodsearchrequest.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
+	if value, ok := _c.mutation.PetID(); ok {
+		_spec.SetField(bloodsearchrequest.FieldPetID, field.TypeString, value)
+		_node.PetID = value
+	}
 	if value, ok := _c.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
 		_node.BloodVolumeNeeded = value
@@ -409,10 +420,10 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 	}
 	if nodes := _c.mutation.PetIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
-			Columns: []string{bloodsearchrequest.PetColumn},
+			Columns: bloodsearchrequest.PetPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -421,7 +432,6 @@ func (_c *BloodSearchRequestCreate) createSpec() (*BloodSearchRequest, *sqlgraph
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.PetID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.ResponsesIDs(); len(nodes) > 0 {

@@ -26,8 +26,6 @@ type UserIdentityQuery struct {
 	predicates  []predicate.UserIdentity
 	withUser    *UserQuery
 	withPartner *PartnerQuery
-	modifiers   []func(*sql.Selector)
-	loadTotal   []func(context.Context, []*UserIdentity) error
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -422,9 +420,6 @@ func (_q *UserIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -443,11 +438,6 @@ func (_q *UserIdentityQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if query := _q.withPartner; query != nil {
 		if err := _q.loadPartner(ctx, query, nodes, nil,
 			func(n *UserIdentity, e *Partner) { n.Edges.Partner = e }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -515,9 +505,6 @@ func (_q *UserIdentityQuery) loadPartner(ctx context.Context, query *PartnerQuer
 
 func (_q *UserIdentityQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique

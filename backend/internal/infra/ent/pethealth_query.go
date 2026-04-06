@@ -25,8 +25,6 @@ type PetHealthQuery struct {
 	inters     []Interceptor
 	predicates []predicate.PetHealth
 	withOwner  *PetQuery
-	modifiers  []func(*sql.Selector)
-	loadTotal  []func(context.Context, []*PetHealth) error
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -386,9 +384,6 @@ func (_q *PetHealthQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pe
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -401,11 +396,6 @@ func (_q *PetHealthQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pe
 	if query := _q.withOwner; query != nil {
 		if err := _q.loadOwner(ctx, query, nodes, nil,
 			func(n *PetHealth, e *Pet) { n.Edges.Owner = e }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -442,9 +432,6 @@ func (_q *PetHealthQuery) loadOwner(ctx context.Context, query *PetQuery, nodes 
 
 func (_q *PetHealthQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique

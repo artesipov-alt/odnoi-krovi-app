@@ -50,10 +50,7 @@ func (BloodSearchRequest) Fields() []ent.Field {
 func (BloodSearchRequest) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("pet", Pet.Type).
-			Ref("blood_search_request").
-			Field("pet_id").
-			Unique().
-			Required(),
+			Ref("blood_search_request"),
 		edge.To("responses", DonorResponse.Type),
 	}
 }

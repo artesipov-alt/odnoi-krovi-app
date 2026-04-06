@@ -235,7 +235,6 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 	return domainmapper.PetToDomainSlice(pets), nil
 }
 
-// Update обновляет существующего питомца и его связанные сущности в транзакции
 func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *model.Pet) (*model.Pet, error) {
 	if id == "" {
 		return nil, errors.New("неверный ID питомца")
@@ -323,24 +322,22 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 			}
 			_, err = updater.Save(ctx)
 		} else {
-			var healthInput ent.CreatePetHealthInput
-			healthInput.HealthStatus = new(pethealth.HealthStatus(petDomain.Health.HealthStatus))
+			healthBuilder := tx.PetHealth.Create().
+				SetHealthStatus(pethealth.HealthStatus(petDomain.Health.HealthStatus)).
+				SetOwnerID(id)
 			if petDomain.Health.LastDonation != nil {
-				healthInput.LastDonation = petDomain.Health.LastDonation
+				healthBuilder.SetLastDonation(*petDomain.Health.LastDonation)
 			}
 			if petDomain.Health.Transfused != nil {
-				healthInput.Transfused = petDomain.Health.Transfused
+				healthBuilder.SetTransfused(*petDomain.Health.Transfused)
 			}
 			if petDomain.Health.Medications != nil {
-				healthInput.Medications = petDomain.Health.Medications
+				healthBuilder.SetMedications(*petDomain.Health.Medications)
 			}
 			if petDomain.Health.SurgicalInterventions != nil {
-				healthInput.SurgicalInterventions = petDomain.Health.SurgicalInterventions
+				healthBuilder.SetSurgicalInterventions(*petDomain.Health.SurgicalInterventions)
 			}
-			_, err = tx.PetHealth.Create().
-				SetInput(healthInput).
-				SetOwnerID(id).
-				Save(ctx)
+			_, err = healthBuilder.Save(ctx)
 		}
 		if err != nil {
 			tx.Rollback()

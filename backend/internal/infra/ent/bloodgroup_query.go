@@ -20,14 +20,11 @@ import (
 // BloodGroupQuery is the builder for querying BloodGroup entities.
 type BloodGroupQuery struct {
 	config
-	ctx           *QueryContext
-	order         []bloodgroup.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.BloodGroup
-	withPets      *PetQuery
-	modifiers     []func(*sql.Selector)
-	loadTotal     []func(context.Context, []*BloodGroup) error
-	withNamedPets map[string]*PetQuery
+	ctx        *QueryContext
+	order      []bloodgroup.OrderOption
+	inters     []Interceptor
+	predicates []predicate.BloodGroup
+	withPets   *PetQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -387,9 +384,6 @@ func (_q *BloodGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*B
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -403,18 +397,6 @@ func (_q *BloodGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*B
 		if err := _q.loadPets(ctx, query, nodes,
 			func(n *BloodGroup) { n.Edges.Pets = []*Pet{} },
 			func(n *BloodGroup, e *Pet) { n.Edges.Pets = append(n.Edges.Pets, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedPets {
-		if err := _q.loadPets(ctx, query, nodes,
-			func(n *BloodGroup) { n.appendNamedPets(name) },
-			func(n *BloodGroup, e *Pet) { n.appendNamedPets(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -457,9 +439,6 @@ func (_q *BloodGroupQuery) loadPets(ctx context.Context, query *PetQuery, nodes 
 
 func (_q *BloodGroupQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -537,20 +516,6 @@ func (_q *BloodGroupQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// WithNamedPets tells the query-builder to eager-load the nodes that are connected to the "pets"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *BloodGroupQuery) WithNamedPets(name string, opts ...func(*PetQuery)) *BloodGroupQuery {
-	query := (&PetClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedPets == nil {
-		_q.withNamedPets = make(map[string]*PetQuery)
-	}
-	_q.withNamedPets[name] = query
-	return _q
 }
 
 // BloodGroupGroupBy is the group-by builder for BloodGroup entities.

@@ -69,12 +69,6 @@ type UserEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [5]bool
-	// totalCount holds the count of the edges above.
-	totalCount [5]map[string]int
-
-	namedPets         map[string][]*Pet
-	namedIdentities   map[string][]*UserIdentity
-	namedUtmHistories map[string][]*UtmHistory
 }
 
 // PetsOrErr returns the Pets value or an error if the edge
@@ -355,78 +349,6 @@ func (_m *User) String() string {
 	builder.WriteString(_m.OriginSource)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedPets returns the Pets named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *User) NamedPets(name string) ([]*Pet, error) {
-	if _m.Edges.namedPets == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedPets[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *User) appendNamedPets(name string, edges ...*Pet) {
-	if _m.Edges.namedPets == nil {
-		_m.Edges.namedPets = make(map[string][]*Pet)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedPets[name] = []*Pet{}
-	} else {
-		_m.Edges.namedPets[name] = append(_m.Edges.namedPets[name], edges...)
-	}
-}
-
-// NamedIdentities returns the Identities named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *User) NamedIdentities(name string) ([]*UserIdentity, error) {
-	if _m.Edges.namedIdentities == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedIdentities[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *User) appendNamedIdentities(name string, edges ...*UserIdentity) {
-	if _m.Edges.namedIdentities == nil {
-		_m.Edges.namedIdentities = make(map[string][]*UserIdentity)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedIdentities[name] = []*UserIdentity{}
-	} else {
-		_m.Edges.namedIdentities[name] = append(_m.Edges.namedIdentities[name], edges...)
-	}
-}
-
-// NamedUtmHistories returns the UtmHistories named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *User) NamedUtmHistories(name string) ([]*UtmHistory, error) {
-	if _m.Edges.namedUtmHistories == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedUtmHistories[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *User) appendNamedUtmHistories(name string, edges ...*UtmHistory) {
-	if _m.Edges.namedUtmHistories == nil {
-		_m.Edges.namedUtmHistories = make(map[string][]*UtmHistory)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedUtmHistories[name] = []*UtmHistory{}
-	} else {
-		_m.Edges.namedUtmHistories[name] = append(_m.Edges.namedUtmHistories[name], edges...)
-	}
 }
 
 // Users is a parsable slice of User.

@@ -21,15 +21,12 @@ import (
 // BloodSearchRequestQuery is the builder for querying BloodSearchRequest entities.
 type BloodSearchRequestQuery struct {
 	config
-	ctx                *QueryContext
-	order              []bloodsearchrequest.OrderOption
-	inters             []Interceptor
-	predicates         []predicate.BloodSearchRequest
-	withPet            *PetQuery
-	withResponses      *DonorResponseQuery
-	modifiers          []func(*sql.Selector)
-	loadTotal          []func(context.Context, []*BloodSearchRequest) error
-	withNamedResponses map[string]*DonorResponseQuery
+	ctx           *QueryContext
+	order         []bloodsearchrequest.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.BloodSearchRequest
+	withPet       *PetQuery
+	withResponses *DonorResponseQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -80,7 +77,7 @@ func (_q *BloodSearchRequestQuery) QueryPet() *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -424,9 +421,6 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -437,8 +431,9 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 		return nodes, nil
 	}
 	if query := _q.withPet; query != nil {
-		if err := _q.loadPet(ctx, query, nodes, nil,
-			func(n *BloodSearchRequest, e *Pet) { n.Edges.Pet = e }); err != nil {
+		if err := _q.loadPet(ctx, query, nodes,
+			func(n *BloodSearchRequest) { n.Edges.Pet = []*Pet{} },
+			func(n *BloodSearchRequest, e *Pet) { n.Edges.Pet = append(n.Edges.Pet, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -449,46 +444,66 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 			return nil, err
 		}
 	}
-	for name, query := range _q.withNamedResponses {
-		if err := _q.loadResponses(ctx, query, nodes,
-			func(n *BloodSearchRequest) { n.appendNamedResponses(name) },
-			func(n *BloodSearchRequest, e *DonorResponse) { n.appendNamedResponses(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for i := range _q.loadTotal {
-		if err := _q.loadTotal[i](ctx, nodes); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
 func (_q *BloodSearchRequestQuery) loadPet(ctx context.Context, query *PetQuery, nodes []*BloodSearchRequest, init func(*BloodSearchRequest), assign func(*BloodSearchRequest, *Pet)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*BloodSearchRequest)
-	for i := range nodes {
-		fk := nodes[i].PetID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[string]*BloodSearchRequest)
+	nids := make(map[string]map[*BloodSearchRequest]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
 		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(bloodsearchrequest.PetTable)
+		s.Join(joinT).On(s.C(pet.FieldID), joinT.C(bloodsearchrequest.PetPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(bloodsearchrequest.PetPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(bloodsearchrequest.PetPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
 	}
-	query.Where(pet.IDIn(ids...))
-	neighbors, err := query.All(ctx)
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullString)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullString).String
+				inValue := values[1].(*sql.NullString).String
+				if nids[inValue] == nil {
+					nids[inValue] = map[*BloodSearchRequest]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Pet](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "pet_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "pet" node returned %v`, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
@@ -527,9 +542,6 @@ func (_q *BloodSearchRequestQuery) loadResponses(ctx context.Context, query *Don
 
 func (_q *BloodSearchRequestQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -552,9 +564,6 @@ func (_q *BloodSearchRequestQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != bloodsearchrequest.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withPet != nil {
-			_spec.Node.AddColumnOnce(bloodsearchrequest.FieldPetID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
@@ -610,20 +619,6 @@ func (_q *BloodSearchRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// WithNamedResponses tells the query-builder to eager-load the nodes that are connected to the "responses"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *BloodSearchRequestQuery) WithNamedResponses(name string, opts ...func(*DonorResponseQuery)) *BloodSearchRequestQuery {
-	query := (&DonorResponseClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedResponses == nil {
-		_q.withNamedResponses = make(map[string]*DonorResponseQuery)
-	}
-	_q.withNamedResponses[name] = query
-	return _q
 }
 
 // BloodSearchRequestGroupBy is the group-by builder for BloodSearchRequest entities.

@@ -4,8 +4,6 @@ package donorresponse
 
 import (
 	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -233,40 +231,4 @@ func newDonorStep() *sqlgraph.Step {
 		sqlgraph.To(DonorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, DonorTable, DonorColumn),
 	)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e CompensationType) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *CompensationType) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = CompensationType(str)
-	if err := CompensationTypeValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid CompensationType", str)
-	}
-	return nil
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e Status) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *Status) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = Status(str)
-	if err := StatusValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid Status", str)
-	}
-	return nil
 }

@@ -48,10 +48,6 @@ type PartnerEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
-	// totalCount holds the count of the edges above.
-	totalCount [1]map[string]int
-
-	namedPartnerIdentities map[string][]*UserIdentity
 }
 
 // PartnerIdentitiesOrErr returns the PartnerIdentities value or an error if the edge
@@ -218,30 +214,6 @@ func (_m *Partner) String() string {
 	builder.WriteString(_m.LastUsedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedPartnerIdentities returns the PartnerIdentities named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *Partner) NamedPartnerIdentities(name string) ([]*UserIdentity, error) {
-	if _m.Edges.namedPartnerIdentities == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedPartnerIdentities[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *Partner) appendNamedPartnerIdentities(name string, edges ...*UserIdentity) {
-	if _m.Edges.namedPartnerIdentities == nil {
-		_m.Edges.namedPartnerIdentities = make(map[string][]*UserIdentity)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedPartnerIdentities[name] = []*UserIdentity{}
-	} else {
-		_m.Edges.namedPartnerIdentities[name] = append(_m.Edges.namedPartnerIdentities[name], edges...)
-	}
 }
 
 // Partners is a parsable slice of Partner.

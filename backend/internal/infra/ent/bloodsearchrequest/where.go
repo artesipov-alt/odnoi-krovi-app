@@ -515,7 +515,7 @@ func HasPet() predicate.BloodSearchRequest {
 	return predicate.BloodSearchRequest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, PetTable, PetPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

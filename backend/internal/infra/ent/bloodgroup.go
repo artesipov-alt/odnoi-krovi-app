@@ -35,10 +35,6 @@ type BloodGroupEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
-	// totalCount holds the count of the edges above.
-	totalCount [1]map[string]int
-
-	namedPets map[string][]*Pet
 }
 
 // PetsOrErr returns the Pets value or an error if the edge
@@ -147,30 +143,6 @@ func (_m *BloodGroup) String() string {
 	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedPets returns the Pets named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *BloodGroup) NamedPets(name string) ([]*Pet, error) {
-	if _m.Edges.namedPets == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedPets[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *BloodGroup) appendNamedPets(name string, edges ...*Pet) {
-	if _m.Edges.namedPets == nil {
-		_m.Edges.namedPets = make(map[string][]*Pet)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedPets[name] = []*Pet{}
-	} else {
-		_m.Edges.namedPets[name] = append(_m.Edges.namedPets[name], edges...)
-	}
 }
 
 // BloodGroups is a parsable slice of BloodGroup.

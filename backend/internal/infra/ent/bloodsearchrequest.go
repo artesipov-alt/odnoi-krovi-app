@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 )
 
 // BloodSearchRequest is the model entity for the BloodSearchRequest schema.
@@ -58,25 +57,19 @@ type BloodSearchRequest struct {
 // BloodSearchRequestEdges holds the relations/edges for other nodes in the graph.
 type BloodSearchRequestEdges struct {
 	// Pet holds the value of the pet edge.
-	Pet *Pet `json:"pet,omitempty"`
+	Pet []*Pet `json:"pet,omitempty"`
 	// Responses holds the value of the responses edge.
 	Responses []*DonorResponse `json:"responses,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
-	// totalCount holds the count of the edges above.
-	totalCount [2]map[string]int
-
-	namedResponses map[string][]*DonorResponse
 }
 
 // PetOrErr returns the Pet value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e BloodSearchRequestEdges) PetOrErr() (*Pet, error) {
-	if e.Pet != nil {
+// was not loaded in eager-loading.
+func (e BloodSearchRequestEdges) PetOrErr() ([]*Pet, error) {
+	if e.loadedTypes[0] {
 		return e.Pet, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: pet.Label}
 	}
 	return nil, &NotLoadedError{edge: "pet"}
 }
@@ -321,30 +314,6 @@ func (_m *BloodSearchRequest) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.IncludeUnknownBloodGroup))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedResponses returns the Responses named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *BloodSearchRequest) NamedResponses(name string) ([]*DonorResponse, error) {
-	if _m.Edges.namedResponses == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedResponses[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *BloodSearchRequest) appendNamedResponses(name string, edges ...*DonorResponse) {
-	if _m.Edges.namedResponses == nil {
-		_m.Edges.namedResponses = make(map[string][]*DonorResponse)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedResponses[name] = []*DonorResponse{}
-	} else {
-		_m.Edges.namedResponses[name] = append(_m.Edges.namedResponses[name], edges...)
-	}
 }
 
 // BloodSearchRequests is a parsable slice of BloodSearchRequest.

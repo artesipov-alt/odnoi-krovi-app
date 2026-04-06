@@ -39,6 +39,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "pet_id", Type: field.TypeString},
 		{Name: "blood_volume_needed", Type: field.TypeFloat64},
 		{Name: "regions", Type: field.TypeJSON},
 		{Name: "small_pets_notify_allowed", Type: field.TypeBool, Default: true},
@@ -50,21 +51,12 @@ var (
 		{Name: "on_boarding", Type: field.TypeJSON, Nullable: true},
 		{Name: "priority_search", Type: field.TypeBool, Default: false},
 		{Name: "include_unknown_blood_group", Type: field.TypeBool, Default: false},
-		{Name: "pet_id", Type: field.TypeString, Unique: true},
 	}
 	// BloodRequestsTable holds the schema information for the "blood_requests" table.
 	BloodRequestsTable = &schema.Table{
 		Name:       "blood_requests",
 		Columns:    BloodRequestsColumns,
 		PrimaryKey: []*schema.Column{BloodRequestsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "blood_requests_pets_blood_search_request",
-				Columns:    []*schema.Column{BloodRequestsColumns[15]},
-				RefColumns: []*schema.Column{PetsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
 	}
 	// RefBreedsColumns holds the columns for the "ref_breeds" table.
 	RefBreedsColumns = []*schema.Column{
@@ -394,6 +386,31 @@ var (
 			},
 		},
 	}
+	// PetBloodSearchRequestColumns holds the columns for the "pet_blood_search_request" table.
+	PetBloodSearchRequestColumns = []*schema.Column{
+		{Name: "pet_id", Type: field.TypeString},
+		{Name: "blood_search_request_id", Type: field.TypeString},
+	}
+	// PetBloodSearchRequestTable holds the schema information for the "pet_blood_search_request" table.
+	PetBloodSearchRequestTable = &schema.Table{
+		Name:       "pet_blood_search_request",
+		Columns:    PetBloodSearchRequestColumns,
+		PrimaryKey: []*schema.Column{PetBloodSearchRequestColumns[0], PetBloodSearchRequestColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "pet_blood_search_request_pet_id",
+				Columns:    []*schema.Column{PetBloodSearchRequestColumns[0]},
+				RefColumns: []*schema.Column{PetsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "pet_blood_search_request_blood_search_request_id",
+				Columns:    []*schema.Column{PetBloodSearchRequestColumns[1]},
+				RefColumns: []*schema.Column{BloodRequestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		RefBloodcTable,
@@ -411,6 +428,7 @@ var (
 		UsersTable,
 		UserIdentitiesTable,
 		UserUtmHistoryTable,
+		PetBloodSearchRequestTable,
 	}
 )
 
@@ -421,7 +439,6 @@ func init() {
 	RefBloodgTable.Annotation = &entsql.Annotation{
 		Table: "ref_bloodg",
 	}
-	BloodRequestsTable.ForeignKeys[0].RefTable = PetsTable
 	BloodRequestsTable.Annotation = &entsql.Annotation{
 		Table: "blood_requests",
 	}
@@ -474,4 +491,6 @@ func init() {
 	UserUtmHistoryTable.Annotation = &entsql.Annotation{
 		Table: "user_utm_history",
 	}
+	PetBloodSearchRequestTable.ForeignKeys[0].RefTable = PetsTable
+	PetBloodSearchRequestTable.ForeignKeys[1].RefTable = BloodRequestsTable
 }

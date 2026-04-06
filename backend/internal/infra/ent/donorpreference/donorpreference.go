@@ -4,8 +4,6 @@ package donorpreference
 
 import (
 	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -209,40 +207,4 @@ func newUserStep() *sqlgraph.Step {
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, UserTable, UserColumn),
 	)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e CompensationType) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *CompensationType) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = CompensationType(str)
-	if err := CompensationTypeValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid CompensationType", str)
-	}
-	return nil
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e NotificationFrequency) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *NotificationFrequency) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = NotificationFrequency(str)
-	if err := NotificationFrequencyValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid NotificationFrequency", str)
-	}
-	return nil
 }

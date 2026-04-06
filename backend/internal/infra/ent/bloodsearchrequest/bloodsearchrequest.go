@@ -4,8 +4,6 @@ package bloodsearchrequest
 
 import (
 	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"entgo.io/ent"
@@ -54,13 +52,11 @@ const (
 	EdgeResponses = "responses"
 	// Table holds the table name of the bloodsearchrequest in the database.
 	Table = "blood_requests"
-	// PetTable is the table that holds the pet relation/edge.
-	PetTable = "blood_requests"
+	// PetTable is the table that holds the pet relation/edge. The primary key declared below.
+	PetTable = "pet_blood_search_request"
 	// PetInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
 	PetInverseTable = "pets"
-	// PetColumn is the table column denoting the pet relation/edge.
-	PetColumn = "pet_id"
 	// ResponsesTable is the table that holds the responses relation/edge.
 	ResponsesTable = "donor_responses"
 	// ResponsesInverseTable is the table name for the DonorResponse entity.
@@ -89,6 +85,12 @@ var Columns = []string{
 	FieldPrioritySearch,
 	FieldIncludeUnknownBloodGroup,
 }
+
+var (
+	// PetPrimaryKey and PetColumn2 are the table columns denoting the
+	// primary key for the pet relation (M2M).
+	PetPrimaryKey = []string{"pet_id", "blood_search_request_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -209,10 +211,17 @@ func ByIncludeUnknownBloodGroup(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIncludeUnknownBloodGroup, opts...).ToFunc()
 }
 
-// ByPetField orders the results by pet field.
-func ByPetField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByPetCount orders the results by pet count.
+func ByPetCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPetStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newPetStep(), opts...)
+	}
+}
+
+// ByPet orders the results by pet terms.
+func ByPet(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPetStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -233,7 +242,7 @@ func newPetStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PetInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, PetTable, PetColumn),
+		sqlgraph.Edge(sqlgraph.M2M, true, PetTable, PetPrimaryKey...),
 	)
 }
 func newResponsesStep() *sqlgraph.Step {
@@ -242,22 +251,4 @@ func newResponsesStep() *sqlgraph.Step {
 		sqlgraph.To(ResponsesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ResponsesTable, ResponsesColumn),
 	)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e Status) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *Status) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = Status(str)
-	if err := StatusValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid Status", str)
-	}
-	return nil
 }

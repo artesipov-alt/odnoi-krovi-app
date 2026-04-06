@@ -4,8 +4,6 @@ package bloodgroup
 
 import (
 	"fmt"
-	"io"
-	"strconv"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -123,22 +121,4 @@ func newPetsStep() *sqlgraph.Step {
 		sqlgraph.To(PetsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, PetsTable, PetsColumn),
 	)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (e PetType) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(e.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (e *PetType) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("enum %T must be a string", val)
-	}
-	*e = PetType(str)
-	if err := PetTypeValidator(*e); err != nil {
-		return fmt.Errorf("%s is not a valid PetType", str)
-	}
-	return nil
 }

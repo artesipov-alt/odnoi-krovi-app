@@ -252,9 +252,19 @@ func (_u *BloodSearchRequestUpdate) SetNillableIncludeUnknownBloodGroup(v *bool)
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *BloodSearchRequestUpdate) SetPet(v *Pet) *BloodSearchRequestUpdate {
-	return _u.SetPetID(v.ID)
+// AddPetIDs adds the "pet" edge to the Pet entity by IDs.
+func (_u *BloodSearchRequestUpdate) AddPetIDs(ids ...string) *BloodSearchRequestUpdate {
+	_u.mutation.AddPetIDs(ids...)
+	return _u
+}
+
+// AddPet adds the "pet" edges to the Pet entity.
+func (_u *BloodSearchRequestUpdate) AddPet(v ...*Pet) *BloodSearchRequestUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPetIDs(ids...)
 }
 
 // AddResponseIDs adds the "responses" edge to the DonorResponse entity by IDs.
@@ -277,10 +287,25 @@ func (_u *BloodSearchRequestUpdate) Mutation() *BloodSearchRequestMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
+// ClearPet clears all "pet" edges to the Pet entity.
 func (_u *BloodSearchRequestUpdate) ClearPet() *BloodSearchRequestUpdate {
 	_u.mutation.ClearPet()
 	return _u
+}
+
+// RemovePetIDs removes the "pet" edge to Pet entities by IDs.
+func (_u *BloodSearchRequestUpdate) RemovePetIDs(ids ...string) *BloodSearchRequestUpdate {
+	_u.mutation.RemovePetIDs(ids...)
+	return _u
+}
+
+// RemovePet removes "pet" edges to Pet entities.
+func (_u *BloodSearchRequestUpdate) RemovePet(v ...*Pet) *BloodSearchRequestUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePetIDs(ids...)
 }
 
 // ClearResponses clears all "responses" edges to the DonorResponse entity.
@@ -347,9 +372,6 @@ func (_u *BloodSearchRequestUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "BloodSearchRequest.status": %w`, err)}
 		}
 	}
-	if _u.mutation.PetCleared() && len(_u.mutation.PetIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "BloodSearchRequest.pet"`)
-	}
 	return nil
 }
 
@@ -373,6 +395,9 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.PetID(); ok {
+		_spec.SetField(bloodsearchrequest.FieldPetID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
@@ -452,10 +477,10 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
-			Columns: []string{bloodsearchrequest.PetColumn},
+			Columns: bloodsearchrequest.PetPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -463,12 +488,28 @@ func (_u *BloodSearchRequestUpdate) sqlSave(ctx context.Context) (_node int, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedPetIDs(); len(nodes) > 0 && !_u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
-			Columns: []string{bloodsearchrequest.PetColumn},
+			Columns: bloodsearchrequest.PetPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   bloodsearchrequest.PetTable,
+			Columns: bloodsearchrequest.PetPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -765,9 +806,19 @@ func (_u *BloodSearchRequestUpdateOne) SetNillableIncludeUnknownBloodGroup(v *bo
 	return _u
 }
 
-// SetPet sets the "pet" edge to the Pet entity.
-func (_u *BloodSearchRequestUpdateOne) SetPet(v *Pet) *BloodSearchRequestUpdateOne {
-	return _u.SetPetID(v.ID)
+// AddPetIDs adds the "pet" edge to the Pet entity by IDs.
+func (_u *BloodSearchRequestUpdateOne) AddPetIDs(ids ...string) *BloodSearchRequestUpdateOne {
+	_u.mutation.AddPetIDs(ids...)
+	return _u
+}
+
+// AddPet adds the "pet" edges to the Pet entity.
+func (_u *BloodSearchRequestUpdateOne) AddPet(v ...*Pet) *BloodSearchRequestUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPetIDs(ids...)
 }
 
 // AddResponseIDs adds the "responses" edge to the DonorResponse entity by IDs.
@@ -790,10 +841,25 @@ func (_u *BloodSearchRequestUpdateOne) Mutation() *BloodSearchRequestMutation {
 	return _u.mutation
 }
 
-// ClearPet clears the "pet" edge to the Pet entity.
+// ClearPet clears all "pet" edges to the Pet entity.
 func (_u *BloodSearchRequestUpdateOne) ClearPet() *BloodSearchRequestUpdateOne {
 	_u.mutation.ClearPet()
 	return _u
+}
+
+// RemovePetIDs removes the "pet" edge to Pet entities by IDs.
+func (_u *BloodSearchRequestUpdateOne) RemovePetIDs(ids ...string) *BloodSearchRequestUpdateOne {
+	_u.mutation.RemovePetIDs(ids...)
+	return _u
+}
+
+// RemovePet removes "pet" edges to Pet entities.
+func (_u *BloodSearchRequestUpdateOne) RemovePet(v ...*Pet) *BloodSearchRequestUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePetIDs(ids...)
 }
 
 // ClearResponses clears all "responses" edges to the DonorResponse entity.
@@ -873,9 +939,6 @@ func (_u *BloodSearchRequestUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "BloodSearchRequest.status": %w`, err)}
 		}
 	}
-	if _u.mutation.PetCleared() && len(_u.mutation.PetIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "BloodSearchRequest.pet"`)
-	}
 	return nil
 }
 
@@ -916,6 +979,9 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(bloodsearchrequest.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.PetID(); ok {
+		_spec.SetField(bloodsearchrequest.FieldPetID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.BloodVolumeNeeded(); ok {
 		_spec.SetField(bloodsearchrequest.FieldBloodVolumeNeeded, field.TypeFloat64, value)
@@ -995,10 +1061,10 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 	}
 	if _u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
-			Columns: []string{bloodsearchrequest.PetColumn},
+			Columns: bloodsearchrequest.PetPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
@@ -1006,12 +1072,28 @@ func (_u *BloodSearchRequestUpdateOne) sqlSave(ctx context.Context) (_node *Bloo
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedPetIDs(); len(nodes) > 0 && !_u.mutation.PetCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
 			Table:   bloodsearchrequest.PetTable,
-			Columns: []string{bloodsearchrequest.PetColumn},
+			Columns: bloodsearchrequest.PetPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PetIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   bloodsearchrequest.PetTable,
+			Columns: bloodsearchrequest.PetPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
