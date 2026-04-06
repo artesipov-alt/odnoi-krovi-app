@@ -101,7 +101,7 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 				})
 			})
 		}).
-		Only(ctx)
+		First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrBloodRequestNotFound
