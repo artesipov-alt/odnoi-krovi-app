@@ -3,7 +3,7 @@ import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { useGetUserById } from 'hooks/useGetUserById';
 import bonusBg from 'imgs/bonusBg.png';
-import profileBonus from 'imgs/profileBonus.png';
+// import profileBonus from 'imgs/profileBonus.png';
 import profilePhoto from 'imgs/profilePhoto.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import ChatBubble from 'imgs/svg/chatBubble';
@@ -512,7 +512,7 @@ const Profile: FC<Props> = ({ userId }) => {
                         <img src={profilePhoto} alt='Питомцы' className={styles.bonusImage} />
                     </div>
 
-                    <div className={styles.bonusCardNew}>
+                    {/* <div className={styles.bonusCardNew}>
                         <div className={styles.bonusCardNewTitle}>
                             Спасайте жизни
                             <br />
@@ -526,7 +526,7 @@ const Profile: FC<Props> = ({ userId }) => {
                             Пригласить друга
                         </Button>
                         <img src={profileBonus} alt='Питомцы-доноры' className={styles.bonusCardNewImage} />
-                    </div>
+                    </div> */}
 
                     {/* <PromoSlider /> */}
 
