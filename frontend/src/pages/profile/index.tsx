@@ -190,6 +190,7 @@ const Profile: FC<Props> = ({ userId }) => {
         setEditEmail(userData.email || '');
         setPendingAvatarFile(null);
         setPendingAvatarPreviewUrl(null);
+        setFailedAvatarUrl(null);
     }, [isEditCurtainOpen, userData]);
 
     useEffect(() => {
@@ -206,10 +207,6 @@ const Profile: FC<Props> = ({ userId }) => {
             URL.revokeObjectURL(objectUrl);
         };
     }, [pendingAvatarFile]);
-
-    useEffect(() => {
-        setFailedAvatarUrl(null);
-    }, [pendingAvatarPreviewUrl, avatarUrl]);
 
     useEffect(() => {
         if (!isInvitePopupOpen) {
@@ -336,6 +333,7 @@ const Profile: FC<Props> = ({ userId }) => {
 
         setPendingAvatarFile(null);
         setPendingAvatarPreviewUrl(null);
+        setFailedAvatarUrl(null);
         setIsEditCurtainOpen(false);
         setIsAvatarUploading(false);
         setIsEditLoading(false);
@@ -373,6 +371,7 @@ const Profile: FC<Props> = ({ userId }) => {
             return;
         }
 
+        setFailedAvatarUrl(null);
         setPendingAvatarFile(newPhoto);
         e.target.value = '';
     };
