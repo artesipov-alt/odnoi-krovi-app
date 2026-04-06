@@ -951,7 +951,6 @@ type BloodSearchRequestMutation struct {
 	created_at                  *time.Time
 	updated_at                  *time.Time
 	deleted_at                  *time.Time
-	pet_id                      *string
 	blood_volume_needed         *float64
 	addblood_volume_needed      *float64
 	regions                     *[]string
@@ -970,8 +969,7 @@ type BloodSearchRequestMutation struct {
 	priority_search             *bool
 	include_unknown_blood_group *bool
 	clearedFields               map[string]struct{}
-	pet                         map[string]struct{}
-	removedpet                  map[string]struct{}
+	pet                         *string
 	clearedpet                  bool
 	responses                   map[string]struct{}
 	removedresponses            map[string]struct{}
@@ -1208,12 +1206,12 @@ func (m *BloodSearchRequestMutation) ResetDeletedAt() {
 
 // SetPetID sets the "pet_id" field.
 func (m *BloodSearchRequestMutation) SetPetID(s string) {
-	m.pet_id = &s
+	m.pet = &s
 }
 
 // PetID returns the value of the "pet_id" field in the mutation.
 func (m *BloodSearchRequestMutation) PetID() (r string, exists bool) {
-	v := m.pet_id
+	v := m.pet
 	if v == nil {
 		return
 	}
@@ -1239,7 +1237,7 @@ func (m *BloodSearchRequestMutation) OldPetID(ctx context.Context) (v string, er
 
 // ResetPetID resets all changes to the "pet_id" field.
 func (m *BloodSearchRequestMutation) ResetPetID() {
-	m.pet_id = nil
+	m.pet = nil
 }
 
 // SetBloodVolumeNeeded sets the "blood_volume_needed" field.
@@ -1802,19 +1800,10 @@ func (m *BloodSearchRequestMutation) ResetIncludeUnknownBloodGroup() {
 	m.include_unknown_blood_group = nil
 }
 
-// AddPetIDs adds the "pet" edge to the Pet entity by ids.
-func (m *BloodSearchRequestMutation) AddPetIDs(ids ...string) {
-	if m.pet == nil {
-		m.pet = make(map[string]struct{})
-	}
-	for i := range ids {
-		m.pet[ids[i]] = struct{}{}
-	}
-}
-
 // ClearPet clears the "pet" edge to the Pet entity.
 func (m *BloodSearchRequestMutation) ClearPet() {
 	m.clearedpet = true
+	m.clearedFields[bloodsearchrequest.FieldPetID] = struct{}{}
 }
 
 // PetCleared reports if the "pet" edge to the Pet entity was cleared.
@@ -1822,29 +1811,12 @@ func (m *BloodSearchRequestMutation) PetCleared() bool {
 	return m.clearedpet
 }
 
-// RemovePetIDs removes the "pet" edge to the Pet entity by IDs.
-func (m *BloodSearchRequestMutation) RemovePetIDs(ids ...string) {
-	if m.removedpet == nil {
-		m.removedpet = make(map[string]struct{})
-	}
-	for i := range ids {
-		delete(m.pet, ids[i])
-		m.removedpet[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedPet returns the removed IDs of the "pet" edge to the Pet entity.
-func (m *BloodSearchRequestMutation) RemovedPetIDs() (ids []string) {
-	for id := range m.removedpet {
-		ids = append(ids, id)
-	}
-	return
-}
-
 // PetIDs returns the "pet" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// PetID instead. It exists only for internal usage by the builders.
 func (m *BloodSearchRequestMutation) PetIDs() (ids []string) {
-	for id := range m.pet {
-		ids = append(ids, id)
+	if id := m.pet; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -1853,7 +1825,6 @@ func (m *BloodSearchRequestMutation) PetIDs() (ids []string) {
 func (m *BloodSearchRequestMutation) ResetPet() {
 	m.pet = nil
 	m.clearedpet = false
-	m.removedpet = nil
 }
 
 // AddResponseIDs adds the "responses" edge to the DonorResponse entity by ids.
@@ -1954,7 +1925,7 @@ func (m *BloodSearchRequestMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, bloodsearchrequest.FieldDeletedAt)
 	}
-	if m.pet_id != nil {
+	if m.pet != nil {
 		fields = append(fields, bloodsearchrequest.FieldPetID)
 	}
 	if m.blood_volume_needed != nil {
@@ -2350,11 +2321,9 @@ func (m *BloodSearchRequestMutation) AddedEdges() []string {
 func (m *BloodSearchRequestMutation) AddedIDs(name string) []ent.Value {
 	switch name {
 	case bloodsearchrequest.EdgePet:
-		ids := make([]ent.Value, 0, len(m.pet))
-		for id := range m.pet {
-			ids = append(ids, id)
+		if id := m.pet; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	case bloodsearchrequest.EdgeResponses:
 		ids := make([]ent.Value, 0, len(m.responses))
 		for id := range m.responses {
@@ -2368,9 +2337,6 @@ func (m *BloodSearchRequestMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BloodSearchRequestMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.removedpet != nil {
-		edges = append(edges, bloodsearchrequest.EdgePet)
-	}
 	if m.removedresponses != nil {
 		edges = append(edges, bloodsearchrequest.EdgeResponses)
 	}
@@ -2381,12 +2347,6 @@ func (m *BloodSearchRequestMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *BloodSearchRequestMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case bloodsearchrequest.EdgePet:
-		ids := make([]ent.Value, 0, len(m.removedpet))
-		for id := range m.removedpet {
-			ids = append(ids, id)
-		}
-		return ids
 	case bloodsearchrequest.EdgeResponses:
 		ids := make([]ent.Value, 0, len(m.removedresponses))
 		for id := range m.removedresponses {
@@ -2425,6 +2385,9 @@ func (m *BloodSearchRequestMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *BloodSearchRequestMutation) ClearEdge(name string) error {
 	switch name {
+	case bloodsearchrequest.EdgePet:
+		m.ClearPet()
+		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest unique edge %s", name)
 }
@@ -6184,8 +6147,7 @@ type PetMutation struct {
 	donations                   map[string]struct{}
 	removeddonations            map[string]struct{}
 	cleareddonations            bool
-	blood_search_request        map[string]struct{}
-	removedblood_search_request map[string]struct{}
+	blood_search_request        *string
 	clearedblood_search_request bool
 	done                        bool
 	oldValue                    func(context.Context) (*Pet, error)
@@ -7474,14 +7436,9 @@ func (m *PetMutation) ResetDonations() {
 	m.removeddonations = nil
 }
 
-// AddBloodSearchRequestIDs adds the "blood_search_request" edge to the BloodSearchRequest entity by ids.
-func (m *PetMutation) AddBloodSearchRequestIDs(ids ...string) {
-	if m.blood_search_request == nil {
-		m.blood_search_request = make(map[string]struct{})
-	}
-	for i := range ids {
-		m.blood_search_request[ids[i]] = struct{}{}
-	}
+// SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by id.
+func (m *PetMutation) SetBloodSearchRequestID(id string) {
+	m.blood_search_request = &id
 }
 
 // ClearBloodSearchRequest clears the "blood_search_request" edge to the BloodSearchRequest entity.
@@ -7494,29 +7451,20 @@ func (m *PetMutation) BloodSearchRequestCleared() bool {
 	return m.clearedblood_search_request
 }
 
-// RemoveBloodSearchRequestIDs removes the "blood_search_request" edge to the BloodSearchRequest entity by IDs.
-func (m *PetMutation) RemoveBloodSearchRequestIDs(ids ...string) {
-	if m.removedblood_search_request == nil {
-		m.removedblood_search_request = make(map[string]struct{})
-	}
-	for i := range ids {
-		delete(m.blood_search_request, ids[i])
-		m.removedblood_search_request[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedBloodSearchRequest returns the removed IDs of the "blood_search_request" edge to the BloodSearchRequest entity.
-func (m *PetMutation) RemovedBloodSearchRequestIDs() (ids []string) {
-	for id := range m.removedblood_search_request {
-		ids = append(ids, id)
+// BloodSearchRequestID returns the "blood_search_request" edge ID in the mutation.
+func (m *PetMutation) BloodSearchRequestID() (id string, exists bool) {
+	if m.blood_search_request != nil {
+		return *m.blood_search_request, true
 	}
 	return
 }
 
 // BloodSearchRequestIDs returns the "blood_search_request" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BloodSearchRequestID instead. It exists only for internal usage by the builders.
 func (m *PetMutation) BloodSearchRequestIDs() (ids []string) {
-	for id := range m.blood_search_request {
-		ids = append(ids, id)
+	if id := m.blood_search_request; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -7525,7 +7473,6 @@ func (m *PetMutation) BloodSearchRequestIDs() (ids []string) {
 func (m *PetMutation) ResetBloodSearchRequest() {
 	m.blood_search_request = nil
 	m.clearedblood_search_request = false
-	m.removedblood_search_request = nil
 }
 
 // Where appends a list predicates to the PetMutation builder.
@@ -8117,11 +8064,9 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 		}
 		return ids
 	case pet.EdgeBloodSearchRequest:
-		ids := make([]ent.Value, 0, len(m.blood_search_request))
-		for id := range m.blood_search_request {
-			ids = append(ids, id)
+		if id := m.blood_search_request; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -8134,9 +8079,6 @@ func (m *PetMutation) RemovedEdges() []string {
 	}
 	if m.removeddonations != nil {
 		edges = append(edges, pet.EdgeDonations)
-	}
-	if m.removedblood_search_request != nil {
-		edges = append(edges, pet.EdgeBloodSearchRequest)
 	}
 	return edges
 }
@@ -8154,12 +8096,6 @@ func (m *PetMutation) RemovedIDs(name string) []ent.Value {
 	case pet.EdgeDonations:
 		ids := make([]ent.Value, 0, len(m.removeddonations))
 		for id := range m.removeddonations {
-			ids = append(ids, id)
-		}
-		return ids
-	case pet.EdgeBloodSearchRequest:
-		ids := make([]ent.Value, 0, len(m.removedblood_search_request))
-		for id := range m.removedblood_search_request {
 			ids = append(ids, id)
 		}
 		return ids
@@ -8239,6 +8175,9 @@ func (m *PetMutation) ClearEdge(name string) error {
 		return nil
 	case pet.EdgeBloodGroupRef:
 		m.ClearBloodGroupRef()
+		return nil
+	case pet.EdgeBloodSearchRequest:
+		m.ClearBloodSearchRequest()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet unique edge %s", name)

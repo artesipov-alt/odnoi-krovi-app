@@ -77,7 +77,7 @@ func (_q *BloodSearchRequestQuery) QueryPet() *PetQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(bloodsearchrequest.Table, bloodsearchrequest.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2O, true, bloodsearchrequest.PetTable, bloodsearchrequest.PetColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -431,9 +431,8 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 		return nodes, nil
 	}
 	if query := _q.withPet; query != nil {
-		if err := _q.loadPet(ctx, query, nodes,
-			func(n *BloodSearchRequest) { n.Edges.Pet = []*Pet{} },
-			func(n *BloodSearchRequest, e *Pet) { n.Edges.Pet = append(n.Edges.Pet, e) }); err != nil {
+		if err := _q.loadPet(ctx, query, nodes, nil,
+			func(n *BloodSearchRequest, e *Pet) { n.Edges.Pet = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -448,62 +447,30 @@ func (_q *BloodSearchRequestQuery) sqlAll(ctx context.Context, hooks ...queryHoo
 }
 
 func (_q *BloodSearchRequestQuery) loadPet(ctx context.Context, query *PetQuery, nodes []*BloodSearchRequest, init func(*BloodSearchRequest), assign func(*BloodSearchRequest, *Pet)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[string]*BloodSearchRequest)
-	nids := make(map[string]map[*BloodSearchRequest]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*BloodSearchRequest)
+	for i := range nodes {
+		fk := nodes[i].PetID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
 		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(bloodsearchrequest.PetTable)
-		s.Join(joinT).On(s.C(pet.FieldID), joinT.C(bloodsearchrequest.PetPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(bloodsearchrequest.PetPrimaryKey[1]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(bloodsearchrequest.PetPrimaryKey[1]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
+	if len(ids) == 0 {
+		return nil
 	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullString)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := values[0].(*sql.NullString).String
-				inValue := values[1].(*sql.NullString).String
-				if nids[inValue] == nil {
-					nids[inValue] = map[*BloodSearchRequest]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Pet](ctx, query, qr, query.inters)
+	query.Where(pet.IDIn(ids...))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "pet" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "pet_id" returned %v`, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
 	return nil
@@ -564,6 +531,9 @@ func (_q *BloodSearchRequestQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != bloodsearchrequest.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withPet != nil {
+			_spec.Node.AddColumnOnce(bloodsearchrequest.FieldPetID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

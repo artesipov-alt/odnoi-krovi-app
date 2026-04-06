@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 )
 
 // BloodSearchRequest is the model entity for the BloodSearchRequest schema.
@@ -57,7 +58,7 @@ type BloodSearchRequest struct {
 // BloodSearchRequestEdges holds the relations/edges for other nodes in the graph.
 type BloodSearchRequestEdges struct {
 	// Pet holds the value of the pet edge.
-	Pet []*Pet `json:"pet,omitempty"`
+	Pet *Pet `json:"pet,omitempty"`
 	// Responses holds the value of the responses edge.
 	Responses []*DonorResponse `json:"responses,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -66,10 +67,12 @@ type BloodSearchRequestEdges struct {
 }
 
 // PetOrErr returns the Pet value or an error if the edge
-// was not loaded in eager-loading.
-func (e BloodSearchRequestEdges) PetOrErr() ([]*Pet, error) {
-	if e.loadedTypes[0] {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BloodSearchRequestEdges) PetOrErr() (*Pet, error) {
+	if e.Pet != nil {
 		return e.Pet, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: pet.Label}
 	}
 	return nil, &NotLoadedError{edge: "pet"}
 }

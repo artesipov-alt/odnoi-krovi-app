@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -82,7 +83,7 @@ type PetEdges struct {
 	// Donations holds the value of the donations edge.
 	Donations []*DonorResponse `json:"donations,omitempty"`
 	// BloodSearchRequest holds the value of the blood_search_request edge.
-	BloodSearchRequest []*BloodSearchRequest `json:"blood_search_request,omitempty"`
+	BloodSearchRequest *BloodSearchRequest `json:"blood_search_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [8]bool
@@ -162,10 +163,12 @@ func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
 }
 
 // BloodSearchRequestOrErr returns the BloodSearchRequest value or an error if the edge
-// was not loaded in eager-loading.
-func (e PetEdges) BloodSearchRequestOrErr() ([]*BloodSearchRequest, error) {
-	if e.loadedTypes[7] {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PetEdges) BloodSearchRequestOrErr() (*BloodSearchRequest, error) {
+	if e.BloodSearchRequest != nil {
 		return e.BloodSearchRequest, nil
+	} else if e.loadedTypes[7] {
+		return nil, &NotFoundError{label: bloodsearchrequest.Label}
 	}
 	return nil, &NotLoadedError{edge: "blood_search_request"}
 }

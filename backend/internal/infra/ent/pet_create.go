@@ -376,19 +376,23 @@ func (_c *PetCreate) AddDonations(v ...*DonorResponse) *PetCreate {
 	return _c.AddDonationIDs(ids...)
 }
 
-// AddBloodSearchRequestIDs adds the "blood_search_request" edge to the BloodSearchRequest entity by IDs.
-func (_c *PetCreate) AddBloodSearchRequestIDs(ids ...string) *PetCreate {
-	_c.mutation.AddBloodSearchRequestIDs(ids...)
+// SetBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID.
+func (_c *PetCreate) SetBloodSearchRequestID(id string) *PetCreate {
+	_c.mutation.SetBloodSearchRequestID(id)
 	return _c
 }
 
-// AddBloodSearchRequest adds the "blood_search_request" edges to the BloodSearchRequest entity.
-func (_c *PetCreate) AddBloodSearchRequest(v ...*BloodSearchRequest) *PetCreate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
+// SetNillableBloodSearchRequestID sets the "blood_search_request" edge to the BloodSearchRequest entity by ID if the given value is not nil.
+func (_c *PetCreate) SetNillableBloodSearchRequestID(id *string) *PetCreate {
+	if id != nil {
+		_c = _c.SetBloodSearchRequestID(*id)
 	}
-	return _c.AddBloodSearchRequestIDs(ids...)
+	return _c
+}
+
+// SetBloodSearchRequest sets the "blood_search_request" edge to the BloodSearchRequest entity.
+func (_c *PetCreate) SetBloodSearchRequest(v *BloodSearchRequest) *PetCreate {
+	return _c.SetBloodSearchRequestID(v.ID)
 }
 
 // Mutation returns the PetMutation object of the builder.
@@ -666,10 +670,10 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	}
 	if nodes := _c.mutation.BloodSearchRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   pet.BloodSearchRequestTable,
-			Columns: pet.BloodSearchRequestPrimaryKey,
+			Columns: []string{pet.BloodSearchRequestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bloodsearchrequest.FieldID, field.TypeString),
