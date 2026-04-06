@@ -65,10 +65,10 @@ export type GetUserResponse = {
     consentPd?: boolean;
     locationId?: number;
     telegramId?: number;
+    identities: Identities[];
     onBoarding?: Onboarding[];
     organizationName?: string;
     donorPreference?: DonorPreference;
-    identities?: Identities[];
 };
 
 export type UpdateUserRequest = {
@@ -95,8 +95,15 @@ export type UpdateUserResponse = {
     error?: string;
 };
 
-export type GetUserIdentitiesResponse = GetUserResponse & {
-    identities: Identities[];
+export type GetUserIdentitiesResponse = GetUserResponse;
+
+export type GetUserContactsRequest = {
+    id: string;
+    provider: string;
+};
+
+export type GetUserContactsResponse = {
+    message: string;
 };
 
 export interface IUserApi {
@@ -104,6 +111,7 @@ export interface IUserApi {
     getUserByTelegramId(id: number): AxiosPromise<GetUserResponse>;
     updateUser(params: UpdateUserRequest): AxiosPromise<UpdateUserResponse>;
     getUserIdentities(id: string): AxiosPromise<GetUserIdentitiesResponse>;
+    getUserContacts(params: GetUserContactsRequest): AxiosPromise<GetUserContactsResponse>;
 }
 
 export const USER_URL = '/v1/user';
@@ -120,5 +128,8 @@ export const userApi = (): IUserApi => ({
     },
     getUserIdentities(id) {
         return instance.get(`${USER_URL}/${id}?with_identities=true`);
+    },
+    getUserContacts({ id, provider }) {
+        return instance.get(`${USER_URL}/${id}/contact?provider=${provider}`);
     },
 });

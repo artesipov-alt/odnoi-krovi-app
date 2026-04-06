@@ -14,8 +14,10 @@ type Props = {
     contentBorderRadius?: CSSProperties['borderRadius'];
     contentOverflow?: CSSProperties['overflow'];
     columnOfButtons?: boolean;
-    cancelButtonTitle?: string;
     noRednerButtons?: boolean;
+    cancelButtonTitle?: string;
+    subTitleClassName?: string;
+    confirmButtonClassName?: string;
     confirmButtonTitle?: string;
     isDisableCancelButton?: boolean;
     shouldCloseByWrapperClick?: boolean;
@@ -34,9 +36,11 @@ const Curtain: FC<Props> = ({
     contentOverflow,
     noRednerButtons,
     columnOfButtons,
+    subTitleClassName,
     cancelButtonTitle,
     confirmButtonTitle,
     isDisableCancelButton,
+    confirmButtonClassName,
     shouldCloseByWrapperClick,
 }) => {
     const onWrapperClickHandler = (e: MouseEvent<HTMLDivElement>) => {
@@ -62,7 +66,7 @@ const Curtain: FC<Props> = ({
         <div className={styles.wrapper} onClick={onWrapperClickHandler}>
             <div className={styles.content} style={contentStyle}>
                 {!!title && <h1 className={styles.title}>{title}</h1>}
-                {subTitle && <div className={styles.subTitle}>{subTitle}</div>}
+                {subTitle && <div className={cn(styles.subTitle, subTitleClassName)}>{subTitle}</div>}
                 {children}
                 {!noRednerButtons && (
                     <div className={cn(styles.buttons, { [styles.column]: columnOfButtons })}>
@@ -79,7 +83,11 @@ const Curtain: FC<Props> = ({
                                 {confirmButtonTitle || 'Вернуться'}
                             </p>
                         ) : (
-                            <Button onClick={onConfirm} className={styles.button} variant='contained'>
+                            <Button
+                                onClick={onConfirm}
+                                variant='contained'
+                                className={cn(styles.button, confirmButtonClassName)}
+                            >
                                 {confirmButtonTitle}
                             </Button>
                         )}

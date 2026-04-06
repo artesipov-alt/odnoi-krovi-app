@@ -161,7 +161,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </>
                 );
             }
-            case petStatus === Role.NONE || petStatus === Role.DONOR: {
+            case petStatus === Role.NONE || petStatus === Role.DONOR || petStatus === Role.RECOVERING: {
                 return (
                     <div
                         onClick={onRecipientLabelClickHandler('startSearch', petId)}
@@ -325,7 +325,10 @@ const Owner: FC<Props> = ({ userId }) => {
                     </>
                 )}
             {userData?.donorPreference &&
-                pets?.pets.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length) && (
+                pets?.pets.some(
+                    ({ donorRestrictions, petStatus }) =>
+                        !donorRestrictions?.stopFactors?.length || petStatus === Role.PLANNED_DONATION,
+                ) && (
                     <>
                         <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
                             <div className={styles.preferencesettings}>

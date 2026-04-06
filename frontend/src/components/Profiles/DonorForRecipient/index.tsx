@@ -34,6 +34,7 @@ import { getPets } from 'api/apiServices/getPets';
 import { getUserIdentities } from 'api/apiServices/getUserIdentities';
 import { GetDonorInfoResponse } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
+import { queryClient } from 'api/queryClient';
 import { PetGender, PetType } from 'api/types';
 import { CompensationType, Identities, Role } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
@@ -68,6 +69,7 @@ type ChatCurtain = {
 };
 
 type Props = {
+    userId: string;
     donorId: string;
     responseId: string;
     onClose: () => void;
@@ -92,7 +94,7 @@ const curtainList = [
     'Не передавайте свои паспортные данные',
 ];
 
-const DonorForRecipient: FC<Props> = ({ onClose, donorId, responseId, onBackToSearch }) => {
+const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, onBackToSearch }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isGlobalLoading, setIsGlobalLoading] = useState(true);
     const [isWarnFactorsOpen, setIsWarnFactorsOpen] = useState(false);
@@ -162,7 +164,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, responseId, onBackToSe
                 setCheckOtherDonors({ isOpen: true, pets: recoveringPets });
             }
 
-            getOwnerIdentities();
+            await getOwnerIdentities();
         } catch (error) {
             showToast('Не удалось получить остальных питомцев хозяина донора, для проверки');
         } finally {
@@ -210,6 +212,8 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, responseId, onBackToSe
 
             return;
         }
+
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
 
         onBackToSearch();
     };
