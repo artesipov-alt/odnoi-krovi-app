@@ -107,7 +107,7 @@ var (
 		{Name: "compensation_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"free", "paid", "food"}},
 		{Name: "taxi_compensation", Type: field.TypeBool, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "accepted", "rejected", "cancelled", "completed", "failed"}},
-		{Name: "is_confirmed", Type: field.TypeBool, Nullable: true},
+		{Name: "is_confirmed", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "blood_search_request_responses", Type: field.TypeString},
 		{Name: "donor_response_donor", Type: field.TypeString},
 	}

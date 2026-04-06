@@ -166,6 +166,10 @@ func init() {
 	donorresponse.DefaultUpdatedAt = donorresponseDescUpdatedAt.Default.(func() time.Time)
 	// donorresponse.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	donorresponse.UpdateDefaultUpdatedAt = donorresponseDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// donorresponseDescIsConfirmed is the schema descriptor for is_confirmed field.
+	donorresponseDescIsConfirmed := donorresponseFields[4].Descriptor()
+	// donorresponse.DefaultIsConfirmed holds the default value on creation for the is_confirmed field.
+	donorresponse.DefaultIsConfirmed = donorresponseDescIsConfirmed.Default.(bool)
 	// donorresponseDescID is the schema descriptor for id field.
 	donorresponseDescID := donorresponseMixinFields0[0].Descriptor()
 	// donorresponse.DefaultID holds the default value on creation for the id field.

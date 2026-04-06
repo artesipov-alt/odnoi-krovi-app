@@ -19,7 +19,7 @@ func (DonorResponse) Fields() []ent.Field {
 		field.Enum("compensation_type").Values("free", "paid", "food").Optional(),
 		field.Bool("taxi_compensation").Optional(),
 		field.Enum("status").Values("pending", "accepted", "rejected", "cancelled", "completed", "failed"),
-		field.Bool("is_confirmed").Optional(),
+		field.Bool("is_confirmed").Default(false).Optional(),
 	}
 }
 

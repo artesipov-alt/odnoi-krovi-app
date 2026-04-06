@@ -208,6 +208,10 @@ func (_c *DonorResponseCreate) defaults() {
 		v := donorresponse.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.IsConfirmed(); !ok {
+		v := donorresponse.DefaultIsConfirmed
+		_c.mutation.SetIsConfirmed(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := donorresponse.DefaultID()
 		_c.mutation.SetID(v)
