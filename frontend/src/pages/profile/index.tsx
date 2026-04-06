@@ -447,10 +447,9 @@ const Profile: FC<Props> = ({ userId }) => {
         window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
-    const editAvatarPrimaryUrl = pendingAvatarPreviewUrl || avatarUrl || null;
-    const editAvatarUrl =
-        editAvatarPrimaryUrl && failedAvatarUrl === editAvatarPrimaryUrl ? avatarUrl || null : editAvatarPrimaryUrl;
     const headerAvatarUrl = avatarUrl && failedAvatarUrl !== avatarUrl ? avatarUrl : null;
+    const isPendingAvatarFailed = !!pendingAvatarPreviewUrl && failedAvatarUrl === pendingAvatarPreviewUrl;
+    const editAvatarUrl = pendingAvatarPreviewUrl && !isPendingAvatarFailed ? pendingAvatarPreviewUrl : headerAvatarUrl;
 
     return (
         <Layout>
