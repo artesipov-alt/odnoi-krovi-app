@@ -5,12 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/migrate"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/runtime"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
+	sloghttp "github.com/samber/slog-http"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -65,24 +67,25 @@ func (c *EntConfig) GetDSN() string {
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
 }
 
-// ConnectEnt подключается к PostgreSQL и возвращает экземпляр ent.Client и sql.DB
 func ConnectEnt(config *EntConfig) (*ent.Client, *sql.DB, error) {
 	dsn := config.GetDSN()
 
-	// Открываем соединение через стандартный sql.DB
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed opening connection to postgres: %w", err)
 	}
 
-	// Создаем драйвер Ent на основе существующего соединения
 	drv := entsql.OpenDB(dialect.Postgres, db)
 
-	client := ent.NewClient(ent.Driver(drv), ent.Debug())
+	debugDrv := dialect.DebugWithContext(drv, func(ctx context.Context, v ...any) {
+		slog.DebugContext(ctx, "SQL",
+			"query", fmt.Sprint(v...),
+			"rid", sloghttp.GetRequestIDFromContext(ctx),
+		)
+	})
 
+	client := ent.NewClient(ent.Driver(debugDrv))
 	client.Intercept(schema.DbInterceptor())
-
-	// Register global hooks
 	client.Use(schema.SoftDeleteHook())
 
 	return client, db, nil
