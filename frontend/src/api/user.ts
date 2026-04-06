@@ -69,7 +69,6 @@ export type GetUserResponse = {
     onBoarding?: Onboarding[];
     organizationName?: string;
     donorPreference?: DonorPreference;
-    identities?: Identities[];
 };
 
 export type UpdateUserRequest = {
