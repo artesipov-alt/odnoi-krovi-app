@@ -10,14 +10,14 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type GetPlannedDonationsResult struct {
-	ApplicationData   donormodel.DonorResponse
-	RecipientData     bloodreqmodel.BloodRequestWithApplications
-	RecipentOwnerData usermodel.User
+	ApplicationData  donormodel.DonorResponse
+	BloodSearchData  bloodreqmodel.BloodRequestWithApplications
+	RecipientPetData petmodel.Pet
 }
 
 type PlannedDonationsHandler struct {
@@ -59,14 +59,10 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get pet")
 			}
-			user, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{})
-			if err != nil {
-				return nil, apperrors.Internal(err, "failed to get user")
-			}
 			result = append(result, &GetPlannedDonationsResult{
-				ApplicationData:   *application,
-				RecipientData:     *request,
-				RecipentOwnerData: *user,
+				ApplicationData:  *application,
+				BloodSearchData:  *request,
+				RecipientPetData: *recipientPet,
 			})
 		}
 	}

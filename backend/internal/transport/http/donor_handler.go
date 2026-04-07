@@ -21,6 +21,7 @@ type DonorHandler struct {
 	recipientsListHandler   *query.ListRequestsHandler
 	recipientDetailsHandler *query.RecipientDetailHandler
 	applyHandler            *cmd.ApplyForRequestHandler
+	plannedDonationsList    *query.PlannedDonationsHandler
 	storage                 filestorage.Repository
 }
 
@@ -29,12 +30,14 @@ func NewDonorHandler(
 	recipientsListHandler *query.ListRequestsHandler,
 	recipientDetailsHandler *query.RecipientDetailHandler,
 	applyHandler *cmd.ApplyForRequestHandler,
+	plannedDonationsList *query.PlannedDonationsHandler,
 	storage filestorage.Repository,
 ) *DonorHandler {
 	return &DonorHandler{
 		recipientsListHandler:   recipientsListHandler,
 		recipientDetailsHandler: recipientDetailsHandler,
 		applyHandler:            applyHandler,
+		plannedDonationsList:    plannedDonationsList,
 		storage:                 storage,
 	}
 }
@@ -218,10 +221,60 @@ func (h *DonorHandler) ApplyForBloodRequest(ctx context.Context, input *dto.Appl
 	}, nil
 }
 
-// GetPlannedDonations возвращает список планируемых донаций.
-func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto.UserIDPath) (*commondto.ResultMessage, error) {
-	// TODO: Implement GetPlannedDonations
-	return &commondto.ResultMessage{Message: "Метод находится в разработке"}, nil
+// GetPlannedDonations returns a list of planned donations.
+func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto.UserIDPath) (*dto.ListPlannedDonationsOutput, error) {
+	results, err := h.plannedDonationsList.Handle(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	donationCards := make([]dto.DonationCardForDonor, len(results))
+	for _, res := range results {
+		application := dto.ApplicationShort{
+			ID:               res.ApplicationData.ID,
+			PetName:          res.ApplicationData.DonorName,
+			Amount:           res.ApplicationData.Amount,
+			PhotoURLs:        h.storage.BuildPhotoURLs(res.ApplicationData.DonorPhotos, *res.ApplicationData.UpdatedAt),
+			CompensationType: res.ApplicationData.CompensationType,
+			TaxiCompensation: res.ApplicationData.TaxiCompensation,
+			IsConfirmed:      res.ApplicationData.IsConfirmed,
+			Bonuses:          []string{},
+			RejectedReason:   res.ApplicationData.RejctedReason,
+			Status:           string(res.ApplicationData.Status),
+		}
+
+		recipient := dto.RecipientForDonor{
+			ID:                  res.BloodSearchData.ID,
+			PetName:             res.RecipientPetData.Name,
+			PetType:             string(res.RecipientPetData.Type),
+			OwnerName:           res.RecipientPetData.OwnerName,
+			OwnerID:             res.RecipientPetData.OwnerID,
+			BloodVolumeNeeded:   res.BloodSearchData.BloodVolumeNeeded,
+			BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,
+			BloodVolumeDonated:  res.BloodSearchData.BloodVolumeDonated,
+			PhotoURLs:           h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
+			BloodGroupNames:     res.BloodSearchData.BloodGroupNames,
+			AdvancedInfo: &dto.AdvancedInfoDTO{
+				PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
+				Description: res.BloodSearchData.AdvancedInfo.Description,
+			},
+			Status:    string(res.BloodSearchData.Status),
+			CreatedAt: res.BloodSearchData.CreatedAt,
+			UpdatedAt: res.BloodSearchData.UpdatedAt,
+		}
+
+		donationCards = append(donationCards, dto.DonationCardForDonor{
+			ApplicationData: application,
+			RecipientData:   recipient,
+		})
+	}
+
+	return &dto.ListPlannedDonationsOutput{
+		Body: dto.PlannedDonationsList{
+			Items: donationCards,
+			Total: len(donationCards),
+		},
+	}, nil
 }
 
 // CompleteDonation помечает донацию как состоявшуюся.

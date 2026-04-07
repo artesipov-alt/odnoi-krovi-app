@@ -14,7 +14,6 @@ type DonationCardForDonor struct {
 type ApplicationShort struct {
 	ID               string   `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
 	PetName          string   `json:"petName" doc:"Имя питомца" example:"Шарик"`
-	PetType          string   `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	Amount           float64  `json:"amount" doc:"Объем крови в мл" example:"450"`
 	PhotoURLs        []string `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	CompensationType string   `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
@@ -51,3 +50,12 @@ type AdvancedInfoDTO struct {
 // =====================================================================
 // 						 Тела для запросов в HUMA
 // =====================================================================
+
+type PlannedDonationsList struct {
+	Items []DonationCardForDonor `json:"items" doc:"Список планируемых донаций"`
+	Total int                    `json:"total" doc:"Общее количество донаций"`
+}
+
+type ListPlannedDonationsOutput struct {
+	Body PlannedDonationsList
+}

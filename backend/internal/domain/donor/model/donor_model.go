@@ -31,6 +31,7 @@ type DonorResponse struct {
 	CompensationType string
 	TaxiCompensation bool
 	IsConfirmed      bool
+	RejctedReason    string
 	Status           DonorResponseStatus
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
