@@ -89,7 +89,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "complete-donation",
 		Method:      http.MethodPost,
-		Path:        "/v1/donor/donation/{donation_id}/complete",
+		Path:        "/v1/donor/donation/{res_id}/complete",
 		Summary:     "Подтвердить донацию",
 		Description: "Помечает донацию как состоявшуюся",
 		Tags:        []string{"donor-v1"},
@@ -99,7 +99,7 @@ func (h *DonorHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "cancel-donation",
 		Method:      http.MethodPost,
-		Path:        "/v1/donor/donation/{donation_id}/cancel",
+		Path:        "/v1/donor/donation/{res_id}/cancel",
 		Summary:     "Отменить донацию",
 		Description: "Отменяет запланированную донацию",
 		Tags:        []string{"donor-v1"},

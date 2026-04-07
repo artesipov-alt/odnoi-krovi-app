@@ -8,7 +8,9 @@ apis/UsersV1Api.ts
 apis/index.ts
 index.ts
 models/AdvancedInfo.ts
+models/AdvancedInfoDTO.ts
 models/AppError.ts
+models/ApplicationShort.ts
 models/ApplyForBloodRequestBody.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
@@ -27,6 +29,7 @@ models/DeletePetResult.ts
 models/DeleteUserResult.ts
 models/DeletedUsersList.ts
 models/DonationCard.ts
+models/DonationCardForDonor.ts
 models/DonorApplication.ts
 models/DonorApplicationResult.ts
 models/DonorDetail.ts
@@ -52,7 +55,9 @@ models/PetRolesList.ts
 models/PetTreatment.ts
 models/PetTypesList.ts
 models/PetWithApplication.ts
+models/PlannedDonationsList.ts
 models/RecipientDetail.ts
+models/RecipientForDonor.ts
 models/RecipientShort.ts
 models/RecipientsList.ts
 models/ReferenceItem.ts

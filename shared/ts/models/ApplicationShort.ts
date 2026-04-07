@@ -16,38 +16,68 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CoreApplicationData
+ * @interface ApplicationShort
  */
-export interface CoreApplicationData {
+export interface ApplicationShort {
     [key: string]: any | any;
     /**
      * Объем крови в мл
      * @type {number}
-     * @memberof CoreApplicationData
+     * @memberof ApplicationShort
      */
     amount: number;
     /**
+     * Бонусы портала
+     * @type {Array<string>}
+     * @memberof ApplicationShort
+     */
+    bonuses: Array<string>;
+    /**
      * Условия донации
      * @type {string}
-     * @memberof CoreApplicationData
+     * @memberof ApplicationShort
      */
-    compensationType: CoreApplicationDataCompensationTypeEnum;
+    compensationType: ApplicationShortCompensationTypeEnum;
     /**
      * ID отклика
      * @type {string}
-     * @memberof CoreApplicationData
+     * @memberof ApplicationShort
      */
     id: string;
     /**
+     * Подтверждение отклика от реципиента
+     * @type {boolean}
+     * @memberof ApplicationShort
+     */
+    isConfirmed: boolean;
+    /**
+     * Имя питомца
+     * @type {string}
+     * @memberof ApplicationShort
+     */
+    petName: string;
+    /**
+     * Список URL фотографий
+     * @type {Array<string>}
+     * @memberof ApplicationShort
+     */
+    photoUrls?: Array<string>;
+    /**
+     * Причина отказа от донации реципиентом
+     * @type {string}
+     * @memberof ApplicationShort
+     */
+    rejectedReason?: string;
+    /**
      * Статус отклика
      * @type {string}
-     * @memberof CoreApplicationData
+     * @memberof ApplicationShort
      */
-    status: CoreApplicationDataStatusEnum;
+    status: ApplicationShortStatusEnum;
     /**
      * Компенсация такси
      * @type {boolean}
-     * @memberof CoreApplicationData
+     * @memberof ApplicationShort
      */
     taxiCompensation: boolean;
 }
@@ -56,17 +86,17 @@ export interface CoreApplicationData {
 /**
  * @export
  */
-export const CoreApplicationDataCompensationTypeEnum = {
+export const ApplicationShortCompensationTypeEnum = {
     Free: 'free',
     Paid: 'paid',
     Food: 'food'
 } as const;
-export type CoreApplicationDataCompensationTypeEnum = typeof CoreApplicationDataCompensationTypeEnum[keyof typeof CoreApplicationDataCompensationTypeEnum];
+export type ApplicationShortCompensationTypeEnum = typeof ApplicationShortCompensationTypeEnum[keyof typeof ApplicationShortCompensationTypeEnum];
 
 /**
  * @export
  */
-export const CoreApplicationDataStatusEnum = {
+export const ApplicationShortStatusEnum = {
     Pending: 'pending',
     Accepted: 'accepted',
     Rejected: 'rejected',
@@ -74,26 +104,29 @@ export const CoreApplicationDataStatusEnum = {
     Completed: 'completed',
     Failed: 'failed'
 } as const;
-export type CoreApplicationDataStatusEnum = typeof CoreApplicationDataStatusEnum[keyof typeof CoreApplicationDataStatusEnum];
+export type ApplicationShortStatusEnum = typeof ApplicationShortStatusEnum[keyof typeof ApplicationShortStatusEnum];
 
 
 /**
- * Check if a given object implements the CoreApplicationData interface.
+ * Check if a given object implements the ApplicationShort interface.
  */
-export function instanceOfCoreApplicationData(value: object): value is CoreApplicationData {
+export function instanceOfApplicationShort(value: object): value is ApplicationShort {
     if (!('amount' in value) || value['amount'] === undefined) return false;
+    if (!('bonuses' in value) || value['bonuses'] === undefined) return false;
     if (!('compensationType' in value) || value['compensationType'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('isConfirmed' in value) || value['isConfirmed'] === undefined) return false;
+    if (!('petName' in value) || value['petName'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('taxiCompensation' in value) || value['taxiCompensation'] === undefined) return false;
     return true;
 }
 
-export function CoreApplicationDataFromJSON(json: any): CoreApplicationData {
-    return CoreApplicationDataFromJSONTyped(json, false);
+export function ApplicationShortFromJSON(json: any): ApplicationShort {
+    return ApplicationShortFromJSONTyped(json, false);
 }
 
-export function CoreApplicationDataFromJSONTyped(json: any, ignoreDiscriminator: boolean): CoreApplicationData {
+export function ApplicationShortFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApplicationShort {
     if (json == null) {
         return json;
     }
@@ -101,18 +134,23 @@ export function CoreApplicationDataFromJSONTyped(json: any, ignoreDiscriminator:
         
             ...json,
         'amount': json['amount'],
+        'bonuses': json['bonuses'],
         'compensationType': json['compensationType'],
         'id': json['id'],
+        'isConfirmed': json['isConfirmed'],
+        'petName': json['petName'],
+        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
+        'rejectedReason': json['rejectedReason'] == null ? undefined : json['rejectedReason'],
         'status': json['status'],
         'taxiCompensation': json['taxiCompensation'],
     };
 }
 
-export function CoreApplicationDataToJSON(json: any): CoreApplicationData {
-    return CoreApplicationDataToJSONTyped(json, false);
+export function ApplicationShortToJSON(json: any): ApplicationShort {
+    return ApplicationShortToJSONTyped(json, false);
 }
 
-export function CoreApplicationDataToJSONTyped(value?: CoreApplicationData | null, ignoreDiscriminator: boolean = false): any {
+export function ApplicationShortToJSONTyped(value?: ApplicationShort | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -121,8 +159,13 @@ export function CoreApplicationDataToJSONTyped(value?: CoreApplicationData | nul
         
             ...value,
         'amount': value['amount'],
+        'bonuses': value['bonuses'],
         'compensationType': value['compensationType'],
         'id': value['id'],
+        'isConfirmed': value['isConfirmed'],
+        'petName': value['petName'],
+        'photoUrls': value['photoUrls'],
+        'rejectedReason': value['rejectedReason'],
         'status': value['status'],
         'taxiCompensation': value['taxiCompensation'],
     };

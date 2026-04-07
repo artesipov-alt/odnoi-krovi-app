@@ -13,47 +13,55 @@
  */
 
 import { mapValues } from '../runtime';
+import type { DonationCardForDonor } from './DonationCardForDonor';
+import {
+    DonationCardForDonorFromJSON,
+    DonationCardForDonorFromJSONTyped,
+    DonationCardForDonorToJSON,
+    DonationCardForDonorToJSONTyped,
+} from './DonationCardForDonor';
+
 /**
  * 
  * @export
- * @interface ValidateDonorResult
+ * @interface PlannedDonationsList
  */
-export interface ValidateDonorResult {
+export interface PlannedDonationsList {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ValidateDonorResult
+     * @memberof PlannedDonationsList
      */
     readonly $schema?: string;
     /**
-     * ID питомца
-     * @type {string}
-     * @memberof ValidateDonorResult
+     * Список планируемых донаций
+     * @type {Array<DonationCardForDonor>}
+     * @memberof PlannedDonationsList
      */
-    id: string;
+    items: Array<DonationCardForDonor>;
     /**
-     * Дата обновления
-     * @type {Date}
-     * @memberof ValidateDonorResult
+     * Общее количество донаций
+     * @type {number}
+     * @memberof PlannedDonationsList
      */
-    updatedAt: Date;
+    total: number;
 }
 
 /**
- * Check if a given object implements the ValidateDonorResult interface.
+ * Check if a given object implements the PlannedDonationsList interface.
  */
-export function instanceOfValidateDonorResult(value: object): value is ValidateDonorResult {
-    if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('updatedAt' in value) || value['updatedAt'] === undefined) return false;
+export function instanceOfPlannedDonationsList(value: object): value is PlannedDonationsList {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('total' in value) || value['total'] === undefined) return false;
     return true;
 }
 
-export function ValidateDonorResultFromJSON(json: any): ValidateDonorResult {
-    return ValidateDonorResultFromJSONTyped(json, false);
+export function PlannedDonationsListFromJSON(json: any): PlannedDonationsList {
+    return PlannedDonationsListFromJSONTyped(json, false);
 }
 
-export function ValidateDonorResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): ValidateDonorResult {
+export function PlannedDonationsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): PlannedDonationsList {
     if (json == null) {
         return json;
     }
@@ -61,16 +69,16 @@ export function ValidateDonorResultFromJSONTyped(json: any, ignoreDiscriminator:
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'id': json['id'],
-        'updatedAt': (new Date(json['updatedAt'])),
+        'items': ((json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
+        'total': json['total'],
     };
 }
 
-export function ValidateDonorResultToJSON(json: any): ValidateDonorResult {
-    return ValidateDonorResultToJSONTyped(json, false);
+export function PlannedDonationsListToJSON(json: any): PlannedDonationsList {
+    return PlannedDonationsListToJSONTyped(json, false);
 }
 
-export function ValidateDonorResultToJSONTyped(value?: Omit<ValidateDonorResult, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function PlannedDonationsListToJSONTyped(value?: Omit<PlannedDonationsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,8 +86,8 @@ export function ValidateDonorResultToJSONTyped(value?: Omit<ValidateDonorResult,
     return {
         
             ...value,
-        'id': value['id'],
-        'updatedAt': value['updatedAt'].toISOString(),
+        'items': ((value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
+        'total': value['total'],
     };
 }
 

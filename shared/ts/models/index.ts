@@ -1,7 +1,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AdvancedInfo';
+export * from './AdvancedInfoDTO';
 export * from './AppError';
+export * from './ApplicationShort';
 export * from './ApplyForBloodRequestBody';
 export * from './BloodComponentsList';
 export * from './BloodGroupsList';
@@ -20,6 +22,7 @@ export * from './DeletePetResult';
 export * from './DeleteUserResult';
 export * from './DeletedUsersList';
 export * from './DonationCard';
+export * from './DonationCardForDonor';
 export * from './DonorApplication';
 export * from './DonorApplicationResult';
 export * from './DonorDetail';
@@ -45,7 +48,9 @@ export * from './PetRolesList';
 export * from './PetTreatment';
 export * from './PetTypesList';
 export * from './PetWithApplication';
+export * from './PlannedDonationsList';
 export * from './RecipientDetail';
+export * from './RecipientForDonor';
 export * from './RecipientShort';
 export * from './RecipientsList';
 export * from './ReferenceItem';

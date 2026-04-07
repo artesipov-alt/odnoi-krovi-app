@@ -16,54 +16,52 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UploadItem
+ * @interface AdvancedInfoDTO
  */
-export interface UploadItem {
+export interface AdvancedInfoDTO {
     [key: string]: any | any;
     /**
-     * Путь к файлу в хранилище
+     * Дополнительное описание
      * @type {string}
-     * @memberof UploadItem
+     * @memberof AdvancedInfoDTO
      */
-    path: string;
+    description?: string;
     /**
-     * Подписанная ссылка для загрузки файла
-     * @type {string}
-     * @memberof UploadItem
+     * Список URL фотографий
+     * @type {Array<string>}
+     * @memberof AdvancedInfoDTO
      */
-    url: string;
+    photoUrls?: Array<string>;
 }
 
 /**
- * Check if a given object implements the UploadItem interface.
+ * Check if a given object implements the AdvancedInfoDTO interface.
  */
-export function instanceOfUploadItem(value: object): value is UploadItem {
-    if (!('path' in value) || value['path'] === undefined) return false;
-    if (!('url' in value) || value['url'] === undefined) return false;
+export function instanceOfAdvancedInfoDTO(value: object): value is AdvancedInfoDTO {
     return true;
 }
 
-export function UploadItemFromJSON(json: any): UploadItem {
-    return UploadItemFromJSONTyped(json, false);
+export function AdvancedInfoDTOFromJSON(json: any): AdvancedInfoDTO {
+    return AdvancedInfoDTOFromJSONTyped(json, false);
 }
 
-export function UploadItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): UploadItem {
+export function AdvancedInfoDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): AdvancedInfoDTO {
     if (json == null) {
         return json;
     }
     return {
         
             ...json,
-        'path': json['path'],
-        'url': json['url'],
+        'description': json['description'] == null ? undefined : json['description'],
+        'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
     };
 }
 
-export function UploadItemToJSON(json: any): UploadItem {
-    return UploadItemToJSONTyped(json, false);
+export function AdvancedInfoDTOToJSON(json: any): AdvancedInfoDTO {
+    return AdvancedInfoDTOToJSONTyped(json, false);
 }
 
-export function UploadItemToJSONTyped(value?: UploadItem | null, ignoreDiscriminator: boolean = false): any {
+export function AdvancedInfoDTOToJSONTyped(value?: AdvancedInfoDTO | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -71,8 +69,8 @@ export function UploadItemToJSONTyped(value?: UploadItem | null, ignoreDiscrimin
     return {
         
             ...value,
-        'path': value['path'],
-        'url': value['url'],
+        'description': value['description'],
+        'photoUrls': value['photoUrls'],
     };
 }
 
