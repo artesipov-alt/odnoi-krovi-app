@@ -255,7 +255,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 			BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,
 			BloodVolumeDonated:  res.BloodSearchData.BloodVolumeDonated,
 			PhotoURLs:           h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
-			BloodGroupNames:     res.BloodSearchData.BloodGroupNames,
+			SearchingBloodNames: res.BloodSearchData.BloodGroupNames,
 			AdvancedInfo: &dto.AdvancedInfoDTO{
 				PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
 				Description: res.BloodSearchData.AdvancedInfo.Description,

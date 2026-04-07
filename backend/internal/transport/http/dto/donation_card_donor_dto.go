@@ -33,7 +33,7 @@ type RecipientForDonor struct {
 	BloodVolumeDonated  float64          `json:"bloodVolumeDonated" doc:"Фактически проведённый объем донации крови в мл" example:"50"`
 	AdvancedInfo        *AdvancedInfoDTO `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
 	PhotoURLs           []string         `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
-	BloodGroupNames     []string         `json:"bloodGroupNames" doc:"Список групп крови"`
+	SearchingBloodNames []string         `json:"searchingBloodNames" doc:"Список групп крови"`
 	BloodGroup          string           `json:"bloodGroup" doc:"Группа крови реципиента"`
 	Regions             []string         `json:"regions,omitempty" doc:"Список ID регионов"`
 	OwnerID             string           `json:"ownerID" doc:"Идентификатор владельца"`
