@@ -41,7 +41,7 @@ type CreateBloodRequestOutput struct {
 type CreateBloodRequestResult struct {
 	ID        string     `json:"id" doc:"ID созданной заявки" example:"BLS-ABCDEABCDE"`
 	PetID     string     `json:"petId" doc:"ID питомца" example:"PET-ABCDEABCDE"`
-	Status    string     `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Status    string     `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	CreatedAt *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
 }
 
@@ -152,7 +152,7 @@ type BloodRequestDetail struct {
 	OnBoarding               []string           `json:"onBoarding" doc:"Список пройденных онбордингов"`
 	PrioritySearch           bool               `json:"prioritySearch" doc:"Приоритетный поиск"`
 	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
-	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	Responses                []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
 	AcceptedDonors           []DonorApplication `json:"acceptedDonors,omitempty" doc:"Принятые отклики доноров"`
 	CompletedDonations       []DonorApplication `json:"completedDonations,omitempty" doc:"Завершенные донации"`

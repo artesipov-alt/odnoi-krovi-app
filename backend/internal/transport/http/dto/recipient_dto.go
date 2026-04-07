@@ -6,7 +6,7 @@ import (
 
 // DonorPreloadQuery представляет параметры для предзагрузки связанных данных
 type DonorPreloadQuery struct {
-	Status string `query:"status,omitempty" doc:"Статус заявки" enum:"active,closed,draft"`
+	Status string `query:"status,omitempty" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	Limit  int    `query:"limit,omitempty" doc:"Максимальное количество результатов" minimum:"1" maximum:"100"`
 	Offset int    `query:"offset,omitempty" doc:"Смещение для пагинации" minimum:"0"`
 }
@@ -45,7 +45,7 @@ type RecipientDetail struct {
 	PrioritySearch           bool               `json:"prioritySearch,omitempty" doc:"Приоритетный поиск"`
 	SmallPetsNotifyAllowed   bool               `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
 	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
-	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,draft"`
+	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	AdvancedInfo             *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
 	MatchingDonors           []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
 	DefaultDonorPrefs        *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
