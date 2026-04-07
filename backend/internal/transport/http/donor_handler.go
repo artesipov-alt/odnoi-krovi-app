@@ -228,7 +228,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 		return nil, err
 	}
 
-	donationCards := make([]dto.DonationCardForDonor, len(results))
+	donationCards := make([]dto.DonationCardForDonor, 0, len(results))
 	for _, res := range results {
 		application := dto.ApplicationShort{
 			ID:               res.ApplicationData.ID,

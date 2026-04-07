@@ -44,7 +44,7 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 		return nil, apperrors.Internal(err, "failed to get pets for user")
 	}
 
-	result := make([]*GetPlannedDonationsResult, len(donorPets))
+	result := make([]*GetPlannedDonationsResult, 0, len(donorPets))
 	for _, dPet := range donorPets {
 		application, err := h.donorRepo.GetByPetID(ctx, dPet.ID)
 		if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
@@ -52,8 +52,12 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 		}
 		if application != nil {
 			request, err := h.bloodReqRepo.GetByApplicationID(ctx, application.ID)
-			if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-				return nil, apperrors.Internal(err, "failed to get blood request")
+			if err != nil {
+				if !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
+					return nil, apperrors.Internal(err, "failed to get blood request")
+				}
+				// Skip if blood request not found
+				continue
 			}
 			recipientPet, err := h.petRepo.GetByID(ctx, request.PetID, pet.PetPreloadOptions{})
 			if err != nil {
