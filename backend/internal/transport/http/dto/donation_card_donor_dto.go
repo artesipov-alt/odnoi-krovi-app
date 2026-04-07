@@ -34,6 +34,8 @@ type RecipientForDonor struct {
 	AdvancedInfo        *AdvancedInfoDTO `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
 	PhotoURLs           []string         `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	BloodGroupNames     []string         `json:"bloodGroupNames" doc:"Список групп крови"`
+	BloodGroup          string           `json:"bloodGroup" doc:"Группа крови реципиента"`
+	Regions             []string         `json:"regions,omitempty" doc:"Список ID регионов"`
 	OwnerID             string           `json:"ownerID" doc:"Идентификатор владельца"`
 	OwnerName           string           `json:"ownerName" doc:"Имя владельца"`
 	Status              string           `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
