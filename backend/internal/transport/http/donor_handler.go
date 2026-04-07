@@ -232,9 +232,9 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 	for _, res := range results {
 		application := dto.ApplicationShort{
 			ID:               res.ApplicationData.ID,
-			PetName:          res.ApplicationData.DonorName,
+			PetName:          res.DonorPetData.Name,
 			Amount:           res.ApplicationData.Amount,
-			PhotoURLs:        h.storage.BuildPhotoURLs(res.ApplicationData.DonorPhotos, *res.ApplicationData.UpdatedAt),
+			PhotoURLs:        h.storage.BuildPhotoURLs(res.DonorPetData.PhotoURLs, *res.ApplicationData.UpdatedAt),
 			CompensationType: res.ApplicationData.CompensationType,
 			TaxiCompensation: res.ApplicationData.TaxiCompensation,
 			IsConfirmed:      res.ApplicationData.IsConfirmed,

@@ -16,6 +16,7 @@ import (
 
 type GetPlannedDonationsResult struct {
 	ApplicationData  donormodel.DonorResponse
+	DonorPetData     petmodel.Pet
 	BloodSearchData  bloodreqmodel.BloodRequestWithApplications
 	RecipientPetData petmodel.Pet
 }
@@ -67,6 +68,7 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 				ApplicationData:  *application,
 				BloodSearchData:  *request,
 				RecipientPetData: *recipientPet,
+				DonorPetData:     *dPet,
 			})
 		}
 	}
