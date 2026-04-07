@@ -72,6 +72,36 @@ func (h *DonorHandler) Register(api huma.API) {
 		DefaultStatus: http.StatusCreated,
 	}, h.ApplyForBloodRequest)
 
+	// Получить список планируемых донаций
+	huma.Register(api, huma.Operation{
+		OperationID: "get-planned-donations",
+		Method:      http.MethodGet,
+		Path:        "/v1/donor/planned-donations/{user_id}",
+		Summary:     "Получить список планируемых донаций",
+		Description: "Возвращает список планируемых донаций по user ID",
+		Tags:        []string{"donor-v1"},
+	}, h.GetPlannedDonations)
+
+	// Подтвердить донацию
+	huma.Register(api, huma.Operation{
+		OperationID: "complete-donation",
+		Method:      http.MethodPost,
+		Path:        "/v1/donor/donation/{donation_id}/complete",
+		Summary:     "Подтвердить донацию",
+		Description: "Помечает донацию как состоявшуюся",
+		Tags:        []string{"donor-v1"},
+	}, h.CompleteDonation)
+
+	// Отменить донацию
+	huma.Register(api, huma.Operation{
+		OperationID: "cancel-donation",
+		Method:      http.MethodPost,
+		Path:        "/v1/donor/donation/{donation_id}/cancel",
+		Summary:     "Отменить донацию",
+		Description: "Отменяет запланированную донацию",
+		Tags:        []string{"donor-v1"},
+	}, h.CancelDonation)
+
 }
 
 func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetRecipientsListInput) (*dto.ListRecipientsOutput, error) {
@@ -115,13 +145,13 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 	return &dto.ListRecipientsOutput{Body: dto.RecipientsList{Items: items, Total: len(items)}}, nil
 }
 
-func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *struct{ commondto.BloodRequestIDPath }) (*dto.RecipientDetailsOutput, error) {
+func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto.BloodRequestIDPath) (*dto.RecipientDetailsOutput, error) {
 	userID := middleware.GetUserID(ctx)
 	if userID == "" {
 		return nil, apperrors.Unauthorized("user ID is missing in context")
 	}
 
-	recipient, err := h.recipientDetailsHandler.Handle(ctx, input.BloodRequestIDPath.ID, userID)
+	recipient, err := h.recipientDetailsHandler.Handle(ctx, input.ID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -186,4 +216,22 @@ func (h *DonorHandler) ApplyForBloodRequest(ctx context.Context, input *dto.Appl
 			CreatedAt: resp.CreatedAt,
 		},
 	}, nil
+}
+
+// GetPlannedDonations возвращает список планируемых донаций.
+func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto.UserIDPath) (*commondto.ResultMessage, error) {
+	// TODO: Implement GetPlannedDonations
+	return &commondto.ResultMessage{Message: "Метод находится в разработке"}, nil
+}
+
+// CompleteDonation помечает донацию как состоявшуюся.
+func (h *DonorHandler) CompleteDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.ResultMessage, error) {
+	// TODO: Implement CompleteDonation
+	return &commondto.ResultMessage{Message: "Метод находится в разработке"}, nil
+}
+
+// CancelDonation отменяет запланированную донацию.
+func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.ResultMessage, error) {
+	// TODO: Implement CancelDonation
+	return &commondto.ResultMessage{Message: "Метод находится в разработке"}, nil
 }

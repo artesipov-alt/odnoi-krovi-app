@@ -18,6 +18,7 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 	coversNeededAmount := false
 	avilableDonorAmount := pet.CalculateDonationAmount()
 	halfVolume := (bloodreq.BloodVolumeNeeded - bloodreq.BloodVolumeReserved) / 2
+	// bloodSearchRegions := bloodreq.Regions
 
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или любая если реципиент разрешил
 	if pet.BloodGroupName != nil {
