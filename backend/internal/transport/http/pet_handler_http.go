@@ -182,16 +182,16 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 		WithAll:        input.WithAll,
 	}
 
-	pets, err := h.getByUserHandler.Handle(ctx, input.UserIDPath.ID, opts)
+	result, err := h.getByUserHandler.Handle(ctx, input.UserIDPath.ID, opts)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.GetPetsByUserOutput{
 		Body: dto.GetPetsByUserResult{
-			Pets:           h.petMapper.ToResponseSlice(pets),
-			TotalPets:      len(pets),
-			TotalDonations: 0,
+			Pets:                  h.petMapper.ToResponseSlice(result.Pets),
+			TotalPets:             result.TotalPets,
+			TotalPlannedDonations: result.TotalDonations,
 		},
 	}, nil
 }
