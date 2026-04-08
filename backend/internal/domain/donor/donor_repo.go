@@ -21,4 +21,5 @@ type Repository interface {
 	Count(ctx context.Context) (int, error)
 	GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error)
 	Confirm(ctx context.Context, id string, factAmount float64) error
+	CompleteDonation(ctx context.Context, id string, factAmount float64) error
 }

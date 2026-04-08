@@ -217,3 +217,20 @@ func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseI
 
 	return nil
 }
+
+// Завершение донации донором
+func (r *EntDonorResponseRepository) CompleteDonation(ctx context.Context, donorResponseID string, factAmount float64) error {
+	update := r.client(ctx).DonorResponse.
+		UpdateOneID(donorResponseID).
+		SetStatus(donorresponse.StatusCompleted)
+
+	if factAmount != 0 {
+		update.SetAmount(math.Round(factAmount*10) / 10)
+	}
+
+	if err := update.Exec(ctx); err != nil {
+		return fmt.Errorf("failed to complete donation: %w", err)
+	}
+
+	return nil
+}

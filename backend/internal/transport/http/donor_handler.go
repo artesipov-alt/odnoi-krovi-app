@@ -22,6 +22,8 @@ type DonorHandler struct {
 	recipientDetailsHandler *query.RecipientDetailHandler
 	applyHandler            *cmd.ApplyForRequestHandler
 	plannedDonationsList    *query.PlannedDonationsHandler
+	completeDonationHandler *cmd.CompleteDonationHandler
+	cancelDonationHandler   *cmd.CancelDonationHandler
 	storage                 filestorage.Repository
 }
 
@@ -31,6 +33,8 @@ func NewDonorHandler(
 	recipientDetailsHandler *query.RecipientDetailHandler,
 	applyHandler *cmd.ApplyForRequestHandler,
 	plannedDonationsList *query.PlannedDonationsHandler,
+	completeDonationHandler *cmd.CompleteDonationHandler,
+	cancelDonationHandler *cmd.CancelDonationHandler,
 	storage filestorage.Repository,
 ) *DonorHandler {
 	return &DonorHandler{
@@ -38,6 +42,8 @@ func NewDonorHandler(
 		recipientDetailsHandler: recipientDetailsHandler,
 		applyHandler:            applyHandler,
 		plannedDonationsList:    plannedDonationsList,
+		completeDonationHandler: completeDonationHandler,
+		cancelDonationHandler:   cancelDonationHandler,
 		storage:                 storage,
 	}
 }
@@ -280,13 +286,19 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 }
 
 // CompleteDonation помечает донацию как состоявшуюся.
-func (h *DonorHandler) CompleteDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.ResultMessage, error) {
-	// TODO: Implement CompleteDonation
-	return &commondto.ResultMessage{Message: "Метод находится в разработке"}, nil
+func (h *DonorHandler) CompleteDonation(ctx context.Context, input *dto.CompleteDonationInput) (*commondto.ResultMessage, error) {
+	err := h.completeDonationHandler.Handle(ctx, input.ID, input.Body.Amount)
+	if err != nil {
+		return nil, err
+	}
+	return &commondto.ResultMessage{Message: "Donation completed successfully"}, nil
 }
 
 // CancelDonation отменяет запланированную донацию.
 func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.ResultMessage, error) {
-	// TODO: Implement CancelDonation
-	return &commondto.ResultMessage{Message: "Метод находится в разработке"}, nil
+	err := h.cancelDonationHandler.Handle(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &commondto.ResultMessage{Message: "Donation cancelled successfully"}, nil
 }

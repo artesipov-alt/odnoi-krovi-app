@@ -178,3 +178,18 @@ type DonorApplicationResult struct {
 	Status    string     `json:"status" doc:"Статус отклика" enum:"pending,accepted,declined,donated"`
 	CreatedAt *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z"`
 }
+
+// ============================================
+// Complete Donation
+// ============================================
+
+// CompleteDonationInput представляет запрос на завершение донации
+type CompleteDonationInput struct {
+	commondto.DonorApplicationIDPath
+	Body CompleteDonationBody
+}
+
+// CompleteDonationBody представляет тело запроса на завершение донации
+type CompleteDonationBody struct {
+	Amount float64 `json:"amount" doc:"Объем крови в мл" minimum:"1" maximum:"500" example:"450"`
+}
