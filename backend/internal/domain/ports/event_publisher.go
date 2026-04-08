@@ -14,6 +14,7 @@ type EventPublisher interface {
 	//==========================
 	PublishBloodRequestCreated(ctx context.Context, event bloodsearchevent.BloodRequestCreated) error
 	PublishDonorApply(ctx context.Context, event bloodsearchevent.ApplyDonor) error
+	PublishDonationConfirmed(ctx context.Context, event bloodsearchevent.DonationConfirmed) error
 
 	//==========================
 	// 			Donor

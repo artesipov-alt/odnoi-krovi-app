@@ -3,17 +3,25 @@ package cmd
 import (
 	"context"
 	"log/slog"
+	"time"
 
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
+	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
 type ConfirmDonationHandler struct {
 	bloodRepo bloodsearch.BloodRequestRepository
 	donorRepo donor.Repository
+	petRepo   pet.Repository
+	userRepo  user.Repository
 	txManager *presistance.TxManager
 	publisher ports.EventPublisher
 }
@@ -21,18 +29,25 @@ type ConfirmDonationHandler struct {
 func NewConfirmDonationHandler(
 	bloodRepo bloodsearch.BloodRequestRepository,
 	donorRepo donor.Repository,
+	petRepo pet.Repository,
+	userRepo user.Repository,
 	txManager *presistance.TxManager,
 	publisher ports.EventPublisher,
 ) *ConfirmDonationHandler {
 	return &ConfirmDonationHandler{
 		bloodRepo: bloodRepo,
 		donorRepo: donorRepo,
+		petRepo:   petRepo,
+		userRepo:  userRepo,
 		txManager: txManager,
 		publisher: publisher,
 	}
 }
 
 func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID string, factAmount float64) error {
+	var bloodReq *bloodmodel.BloodRequestWithApplications
+	var application *donormodel.DonorResponse
+
 	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
 			return err
@@ -41,7 +56,8 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
-		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
+		var err error
+		bloodReq, err = h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
 		if err != nil {
 			return err
 		}
@@ -54,8 +70,51 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
+		application, err = h.donorRepo.GetDonorResponseByID(txCtx, donorResponseID)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
+	if err != nil {
+		return err
+	}
 
-	return err
+	// Get donor data
+	donorPet, err := h.petRepo.GetByID(ctx, application.DonorID, pet.PetPreloadOptions{})
+	if err != nil {
+		return err
+	}
+	donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+		WithIdentities: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Extract ProviderMaxID
+	var donorMaxID string
+	for _, identity := range donorUser.Identities {
+		if identity.ProviderName == authmodel.ProviderMax {
+			donorMaxID = identity.ProviderUserID
+			break
+		}
+	}
+
+	event := bloodsearchevent.DonationConfirmed{
+		Initiator: "recipient",
+		DonorData: bloodsearchevent.DonorInfo{
+			ProviderMaxID: donorMaxID,
+			Name:          donorUser.FullName,
+		},
+		Volume:    factAmount,
+		CreatedAt: time.Now(),
+	}
+
+	if err := h.publisher.PublishDonationConfirmed(ctx, event); err != nil {
+		return err
+	}
+
+	return nil
 }

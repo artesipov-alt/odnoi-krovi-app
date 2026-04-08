@@ -2,13 +2,28 @@ package events
 
 import (
 	"time"
-
-	userevents "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
 )
 
+type DonorData struct {
+	Name             string
+	ProviderMaxID    string
+	ProviderTelegram string
+	Phone            string
+	BloodGroup       string
+}
+
+type RecipientData struct {
+	Name             string
+	ProviderMaxID    string
+	ProviderTelegram string
+	Phone            string
+	BloodGroup       string
+	Volume           float64
+}
+
 type ApplyDonor struct {
-	DonorData     userevents.ContactData
-	RecipientData userevents.ContactData
+	DonorData     DonorData
+	RecipientData RecipientData
 	CreatedAt     time.Time
 }
 

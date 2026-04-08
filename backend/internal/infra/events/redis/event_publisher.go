@@ -11,10 +11,11 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const channelBloodRequestCreated = "blood_request.created"
-const channelDonorResponseApply = "donor_response.apply"
-const channelRecipientResponseApply = "recipient_response.apply"
-const channelUserContact = "user.contact"
+const channelBloodRequestCreated = "blood_request_created"
+const channelDonorResponseApply = "donor_response_apply"
+const channelDonationConfirmed = "donation_confirmed"
+const channelRecipientResponseApply = "recipient_response_apply"
+const channelUserContact = "user_contact"
 
 type EventPublisher struct {
 	client *redis.Client
@@ -46,6 +47,18 @@ func (p *EventPublisher) PublishDonorApply(
 	}
 
 	return p.client.Publish(ctx, channelDonorResponseApply, payload).Err()
+}
+
+func (p *EventPublisher) PublishDonationConfirmed(
+	ctx context.Context,
+	event bloodsearchevent.DonationConfirmed,
+) error {
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("marshal event: %w", err)
+	}
+
+	return p.client.Publish(ctx, channelDonationConfirmed, payload).Err()
 }
 
 func (p *EventPublisher) PublishRecipientApply(

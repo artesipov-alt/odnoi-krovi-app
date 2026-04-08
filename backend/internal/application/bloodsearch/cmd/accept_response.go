@@ -4,14 +4,16 @@ import (
 	"context"
 	"time"
 
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
+	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	userevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
@@ -42,6 +44,18 @@ func NewApplyResponseHandler(
 	}
 }
 
+func extractProviderIDs(user *usermodel.User) (maxID, telegramID string) {
+	for _, identity := range user.Identities {
+		if identity.ProviderName == authmodel.ProviderMax {
+			maxID = identity.ProviderUserID
+		}
+		if identity.ProviderName == authmodel.ProviderTelegram {
+			telegramID = identity.ProviderUserID
+		}
+	}
+	return
+}
+
 func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID string) error {
 	application, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
 	if err != nil {
@@ -49,12 +63,13 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 	}
 
 	var petID string
+	var bloodreq *bloodmodel.BloodRequestWithApplications
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
 			return err
 		}
 
-		bloodreq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
+		bloodreq, err = h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
 		if err != nil {
 			return err
 		}
@@ -94,12 +109,29 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		return err
 	}
 
-	eventRecipient := userevent.GenerateContact(recipientUser)
-	eventDonor := userevent.GenerateContact(donorUser)
+	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
+	recipientMaxID, recipientTelegramID := extractProviderIDs(recipientUser)
+
+	donorData := events.DonorData{
+		Name:             donorUser.FullName,
+		Phone:            donorUser.Phone,
+		BloodGroup:       *donorPet.BloodGroupName,
+		ProviderMaxID:    donorMaxID,
+		ProviderTelegram: donorTelegramID,
+	}
+
+	recipientData := events.RecipientData{
+		Name:             recipientUser.FullName,
+		Phone:            recipientUser.Phone,
+		BloodGroup:       *recipientPet.BloodGroupName,
+		Volume:           bloodreq.BloodVolumeNeeded,
+		ProviderMaxID:    recipientMaxID,
+		ProviderTelegram: recipientTelegramID,
+	}
 
 	event := events.ApplyDonor{
-		DonorData:     eventDonor.UserData,
-		RecipientData: eventRecipient.UserData,
+		DonorData:     donorData,
+		RecipientData: recipientData,
 		CreatedAt:     time.Now(),
 	}
 
