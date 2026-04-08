@@ -5,10 +5,10 @@ import {
   errCommandTest,
   apiTestHandler,
 } from "./src/handlers/commands";
-import { handleDonorApply } from "./src/events/donor/donorApply";
-import { handleRecipientApply } from "./src/events/recipient/recipientApply";
-import { handleNewRecipients } from "./src/events/donor/newRecipients";
-import { handleDonationCompleted } from "./src/events/donation/donationCompleted";
+import { handleDonorApply } from "./src/events/recipient/donorApply";
+import { handleRecipientApply } from "./src/events/donor/recipientApply";
+import { handleNewRecipients } from "./src/events/recipient/newRecipients";
+import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
@@ -16,10 +16,10 @@ import { errorHandler } from "./src/handlers/errors";
 
 // Event handlers map
 const eventHandlers: Record<string, (event: any) => Promise<void>> = {
-  "donor_response.apply": handleDonorApply,
-  "recipient_response.apply": handleRecipientApply,
+  donor_response_apply: handleDonorApply,
+  recipient_response_apply: handleRecipientApply,
   new_recipients: handleNewRecipients,
-  donation_completed: handleDonationCompleted,
+  donation_confirmed: handleDonationConfirmed,
 };
 
 // Helper function for subscribing to channels
