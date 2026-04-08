@@ -5,7 +5,8 @@ import (
 )
 
 type DonorData struct {
-	Name             string
+	UserName         string
+	PetName          string
 	ProviderMaxID    string
 	ProviderTelegram string
 	Phone            string
@@ -13,7 +14,8 @@ type DonorData struct {
 }
 
 type RecipientData struct {
-	Name             string
+	UserName         string
+	PetName          string
 	ProviderMaxID    string
 	ProviderTelegram string
 	Phone            string

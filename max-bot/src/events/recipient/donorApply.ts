@@ -15,7 +15,8 @@ interface ApplyDonorEvent {
 interface DonorData {
   ProviderMaxID: string;
   ProviderTelegram: string;
-  Name: string;
+  UserName: string;
+  PetName: string;
   Phone: string;
   BloodGroup: string;
 }
@@ -23,7 +24,8 @@ interface DonorData {
 interface RecipientData {
   ProviderMaxID: string;
   ProviderTelegram: string;
-  Name: string;
+  UserName: string;
+  PetName: string;
   Phone: string;
   BloodGroup: string;
   Volume: number;
@@ -53,12 +55,12 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   try {
     const recipientMessage = generateRecipientMessage({
-      donorName: DonorData.Name,
+      donorName: DonorData.PetName,
       donorBloodGroup: DonorData.BloodGroup,
     });
 
     const donorMessage = generateDonorMessage({
-      recipientName: RecipientData.Name,
+      recipientName: RecipientData.PetName,
       recipientBloodGroup: RecipientData.BloodGroup,
       recipientVolume: RecipientData.Volume,
     });
@@ -71,10 +73,10 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
           {
             type: "contact",
             payload: {
-              name: DonorData.Name,
+              name: DonorData.UserName,
               contact_id: Number(donorProviderMaxID),
               vcf_phone: DonorData.Phone,
-              vcf_info: generateVCF(DonorData.Name, DonorData.Phone),
+              vcf_info: generateVCF(DonorData.UserName, DonorData.Phone),
             },
           },
         ],
@@ -86,10 +88,10 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
         {
           type: "contact",
           payload: {
-            name: RecipientData.Name,
+            name: RecipientData.UserName,
             contact_id: Number(recipientProviderMaxID),
             vcf_phone: RecipientData.Phone,
-            vcf_info: generateVCF(RecipientData.Name, RecipientData.Phone),
+            vcf_info: generateVCF(RecipientData.UserName, RecipientData.Phone),
           },
         },
       ],

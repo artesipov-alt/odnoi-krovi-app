@@ -3,12 +3,15 @@ package events
 import "time"
 
 type DonorInfo struct {
-	ProviderMaxID string
-	Name          string
+	UserName         string
+	PetName          string
+	ProviderMaxID    string
+	ProviderTelegram string
+	Phone            string
+	BloodGroup       string
 }
 
 type DonationConfirmed struct {
-	Initiator string
 	DonorData DonorInfo
 	Volume    float64
 	CreatedAt time.Time

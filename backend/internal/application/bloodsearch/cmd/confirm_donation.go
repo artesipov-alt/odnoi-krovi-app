@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -93,20 +92,17 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		return err
 	}
 
-	// Extract ProviderMaxID
-	var donorMaxID string
-	for _, identity := range donorUser.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
-			donorMaxID = identity.ProviderUserID
-			break
-		}
-	}
+	// Extract Provider IDs
+	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
 
 	event := bloodsearchevent.DonationConfirmed{
-		Initiator: "recipient",
 		DonorData: bloodsearchevent.DonorInfo{
-			ProviderMaxID: donorMaxID,
-			Name:          donorUser.FullName,
+			UserName:         donorUser.FullName,
+			PetName:          donorPet.Name,
+			ProviderMaxID:    donorMaxID,
+			ProviderTelegram: donorTelegramID,
+			Phone:            donorUser.Phone,
+			BloodGroup:       *donorPet.BloodGroupName,
 		},
 		Volume:    factAmount,
 		CreatedAt: time.Now(),

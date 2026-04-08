@@ -113,7 +113,8 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 	recipientMaxID, recipientTelegramID := extractProviderIDs(recipientUser)
 
 	donorData := events.DonorData{
-		Name:             donorUser.FullName,
+		UserName:         donorUser.FullName,
+		PetName:          donorPet.Name,
 		Phone:            donorUser.Phone,
 		BloodGroup:       *donorPet.BloodGroupName,
 		ProviderMaxID:    donorMaxID,
@@ -121,7 +122,8 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 	}
 
 	recipientData := events.RecipientData{
-		Name:             recipientUser.FullName,
+		UserName:         recipientUser.FullName,
+		PetName:          recipientPet.Name,
 		Phone:            recipientUser.Phone,
 		BloodGroup:       *recipientPet.BloodGroupName,
 		Volume:           bloodreq.BloodVolumeNeeded,

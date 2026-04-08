@@ -5,8 +5,12 @@ import { generateDonationMessage } from "./helpers";
 // Уведомление о подтвержденной донации (от реципиента донору).
 interface DonationConfirmedEvent {
   DonorData: {
+    UserName: string;
+    PetName: string;
     ProviderMaxID: string;
-    Name: string;
+    ProviderTelegram: string;
+    Phone: string;
+    BloodGroup: string;
   };
   Volume: number; // Объем донации в мл
 }
@@ -16,12 +20,15 @@ export const handleDonationConfirmed = async (
 ) => {
   const { DonorData, Volume } = event;
 
-  const targetId = DonorData.ProviderMaxID;
+  let targetId = DonorData.ProviderMaxID;
+  if (!targetId || targetId.trim() === "") {
+    targetId = DonorData.ProviderTelegram;
+  }
 
   if (!targetId || targetId.trim() === "") {
     pinologger.warn(
-      { donorId: DonorData.ProviderMaxID },
-      "Donor ID is empty, skipping notification",
+      { donorUserName: DonorData.UserName },
+      "Donor ProviderMaxID and ProviderTelegram are empty, skipping notification",
     );
     return;
   }
