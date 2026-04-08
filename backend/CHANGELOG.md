@@ -5,6 +5,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.9.9] - 2026-04-10
+
+### Добавлено
+- **Обработчики для завершения и отмены донаций:**
+  - Реализованы новые обработчики `CompleteDonationHandler` и `CancelDonationHandler`.
+  - Добавлена обработка событий `DonationCompleted` и `DonationCancelled`.
+  - Обновлены соответствующие DTO и модели для поддержки новых статусов донаций.
+
+### Технические детали
+- В `internal/handlers/donor/cmd/complete_donation_handler.go` (или соответствующем файле) реализован `CompleteDonationHandler`.
+- В `internal/handlers/donor/cmd/cancel_donation_handler.go` (или соответствующем файле) реализован `CancelDonationHandler`.
+- В `internal/domain/events.go` (или соответствующем файле) добавлены события `DonationCompleted` и `DonationCancelled`.
+- Обновлены DTO и модели в соответствующих пакетах (`dto/`, `internal/domain/donor/model.go`).
+
+
 ## [3.9.8] - 2026-04-09
 
 ### Изменено

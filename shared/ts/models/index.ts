@@ -9,6 +9,7 @@ export * from './BloodComponentsList';
 export * from './BloodGroupsList';
 export * from './BloodRequestDetail';
 export * from './BreedsList';
+export * from './CompleteDonationBody';
 export * from './ConfirmData';
 export * from './ConfirmUploadBody';
 export * from './ConfirmUploadResult';

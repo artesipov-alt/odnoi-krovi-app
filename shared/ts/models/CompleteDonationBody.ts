@@ -13,48 +13,40 @@
  */
 
 import { mapValues } from '../runtime';
-import type { ReferenceItem } from './ReferenceItem';
-import {
-    ReferenceItemFromJSON,
-    ReferenceItemFromJSONTyped,
-    ReferenceItemToJSON,
-    ReferenceItemToJSONTyped,
-} from './ReferenceItem';
-
 /**
  * 
  * @export
- * @interface PetRolesList
+ * @interface CompleteDonationBody
  */
-export interface PetRolesList {
+export interface CompleteDonationBody {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof PetRolesList
+     * @memberof CompleteDonationBody
      */
     readonly $schema?: string;
     /**
-     * Список ролей питомцев
-     * @type {Array<ReferenceItem>}
-     * @memberof PetRolesList
+     * Объем крови в мл
+     * @type {number}
+     * @memberof CompleteDonationBody
      */
-    data: Array<ReferenceItem>;
+    amount: number;
 }
 
 /**
- * Check if a given object implements the PetRolesList interface.
+ * Check if a given object implements the CompleteDonationBody interface.
  */
-export function instanceOfPetRolesList(value: object): value is PetRolesList {
-    if (!('data' in value) || value['data'] === undefined) return false;
+export function instanceOfCompleteDonationBody(value: object): value is CompleteDonationBody {
+    if (!('amount' in value) || value['amount'] === undefined) return false;
     return true;
 }
 
-export function PetRolesListFromJSON(json: any): PetRolesList {
-    return PetRolesListFromJSONTyped(json, false);
+export function CompleteDonationBodyFromJSON(json: any): CompleteDonationBody {
+    return CompleteDonationBodyFromJSONTyped(json, false);
 }
 
-export function PetRolesListFromJSONTyped(json: any, ignoreDiscriminator: boolean): PetRolesList {
+export function CompleteDonationBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): CompleteDonationBody {
     if (json == null) {
         return json;
     }
@@ -62,15 +54,15 @@ export function PetRolesListFromJSONTyped(json: any, ignoreDiscriminator: boolea
         
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'amount': json['amount'],
     };
 }
 
-export function PetRolesListToJSON(json: any): PetRolesList {
-    return PetRolesListToJSONTyped(json, false);
+export function CompleteDonationBodyToJSON(json: any): CompleteDonationBody {
+    return CompleteDonationBodyToJSONTyped(json, false);
 }
 
-export function PetRolesListToJSONTyped(value?: Omit<PetRolesList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function CompleteDonationBodyToJSONTyped(value?: Omit<CompleteDonationBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,7 +70,7 @@ export function PetRolesListToJSONTyped(value?: Omit<PetRolesList, '$schema'> | 
     return {
         
             ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'amount': value['amount'],
     };
 }
 
