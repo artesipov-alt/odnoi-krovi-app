@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
@@ -60,6 +61,25 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Internal(err, "failed to check donor existence")
 	}
 
+	exitingApplication, err := h.donorRepo.GetByPetID(ctx, donorPet.ID)
+	if err != nil {
+		if !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
+			return nil, apperrors.Internal(err, "failed to check donor application existence")
+		}
+	}
+
+	// Инициализируем donorResponse: существующая заявка или новая модель
+	var donorResponse *model.DonorResponse
+	if exitingApplication != nil {
+		donorResponse = exitingApplication
+	} else {
+		resp, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
+		if err != nil {
+			return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
+		}
+		donorResponse = resp
+	}
+
 	// Получаем данные реципиента
 	recipientPet, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
 	if err != nil {
@@ -79,23 +99,34 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		}
 	}
 
-	// Create domain model using constructor
-	resp, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
-	if err != nil {
-		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
-	}
+	err = h.txManager.WithTx(ctx, func(ctx context.Context) error {
+		if exitingApplication != nil {
+			if err := h.donorRepo.UpdateDonorResponseStatus(ctx, exitingApplication.ID, donormodel.DonorResponseStatusPending); err != nil {
+				return apperrors.Internal(err, "failed to update existing donor application")
+			}
+		} else {
+			donorResponse, err = h.donorRepo.CreateDonorResponse(ctx, donorResponse)
+			if err != nil {
+				return err
+			}
+		}
 
-	donorResponse, err := h.donorRepo.CreateDonorResponse(ctx, resp)
-	if err != nil {
-		return nil, err
-	}
+		if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
+			DonorName:                       donorPet.Name,
+			DonorBloodGroup:                 *donorPet.BloodGroupName,
+			RecipientProviderMaxID:          recipientProviderMaxID,
+			RecipientPetName:                recipientPet.Name,
+			RecipientPetSearchingBloodGroup: req.BloodGroupNames,
+			RecipientPetNeededVolume:        req.BloodVolumeNeeded,
+			CreatedAt:                       *donorResponse.CreatedAt,
+		}); err != nil {
+			return err
+		}
 
-	if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
-		DonorName:              donorPet.Name,
-		DonorBloodGroup:        *donorPet.BloodGroupName,
-		RecipientProviderMaxID: recipientProviderMaxID,
-		CreatedAt:              *donorResponse.CreatedAt,
-	}); err != nil {
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
