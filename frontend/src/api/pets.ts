@@ -85,7 +85,7 @@ export type Pet = {
 export type GetPetsResponse = {
     pets: Pet[];
     totalPets: number;
-    totalDonations: number;
+    totalPlannedDonations?: number;
 };
 
 export type CreatePetRequest = Omit<Pet, 'id'> & { userId: string };

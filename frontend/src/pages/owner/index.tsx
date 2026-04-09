@@ -7,6 +7,7 @@ import BloodFound from 'imgs/svg/bloodFound';
 import BloodSearch from 'imgs/svg/bloodSearch';
 import Bonus from 'imgs/svg/bonus';
 import DonorButton from 'imgs/svg/donorButton';
+import Pause from 'imgs/svg/pause';
 import Paw from 'imgs/svg/paw';
 import RecipientButton from 'imgs/svg/recipientButton';
 import RoundCancel from 'imgs/svg/roundCancel';
@@ -16,6 +17,7 @@ import { FC, MouseEvent, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getCorrectDeclension, Variants } from 'utils/utils';
 
+import { PlannedDonation } from 'api/donor';
 import { DonorRestrictions, Pet } from 'api/pets';
 import { queryClient } from 'api/queryClient';
 import { Onboarding, Role } from 'api/user';
@@ -23,10 +25,11 @@ import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 import PetProfile from 'components/Profiles/Pet';
 
-import Pause from '../../imgs/svg/pause';
+import DonationDetails from './DonationDetails';
 import DonorPreference, { View as DonorPreferenceView } from './DonorPreference';
 import RecipientOnboarding from './Onboardings/Recipient';
 import styles from './Owner.module.less';
+import PlannedDonations from './PlannedDonations';
 import DidNotRecover from './Statuses/DidNotRecover';
 import DonationQuestions from './Statuses/DonationQuestions';
 import NotReady from './Statuses/NotReady';
@@ -40,6 +43,11 @@ type View = Role.DONOR | Role.RECIPIENT | Role.BLOOD_FOUND | Role.NONE;
 type DonorStatus = {
     isOpen: boolean;
     status?: 'didNotRecover' | 'donationQuestions' | 'notReady';
+};
+
+type DonationDetailsType = {
+    isOpen: boolean;
+    donation?: PlannedDonation;
 };
 
 const tabs = [
@@ -56,6 +64,7 @@ const Owner: FC<Props> = ({ userId }) => {
     const [donorStatus, setDonorStatus] = useState<DonorStatus>({ isOpen: false });
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
     const [isDonorPreferenceOpen, setIsDonorPreferenceOpen] = useState<boolean>(false);
+    const [donationDetails, setDonationDetails] = useState<DonationDetailsType>({ isOpen: false });
     const [isDonorPreferenceOnboardingWasShown, setIsDonorPreferenceOnboardingWasShown] = useState<boolean>(false);
 
     const { data: pets, isLoading, refetch } = usePetsQuery(userId);
@@ -88,7 +97,15 @@ const Owner: FC<Props> = ({ userId }) => {
         navigate('/adding');
     };
 
-    const onTabClick = (tabId: number) => () => {
+    const onTabClick = (tabId: number) => async () => {
+        if (tabId === tab) {
+            return;
+        }
+
+        if (tabId === 1) {
+            await queryClient.invalidateQueries({ queryKey: ['plannedDonations', userId] });
+        }
+
         setTab(tabId);
     };
 
@@ -215,6 +232,14 @@ const Owner: FC<Props> = ({ userId }) => {
         await queryClient.invalidateQueries({ queryKey: ['recipientsList', userId] });
 
         navigate('/recipientsList');
+    };
+
+    const onDonationClickHandler = (donation: PlannedDonation) => {
+        setDonationDetails({ isOpen: true, donation });
+    };
+
+    const onDonationDetailsCloseHandler = () => {
+        setDonationDetails({ isOpen: false });
     };
 
     const renderDonorLabel = (petData: Pet, donorRestrictions?: DonorRestrictions) => {
@@ -447,6 +472,17 @@ const Owner: FC<Props> = ({ userId }) => {
         );
     }
 
+    if (donationDetails.isOpen && donationDetails.donation) {
+        return (
+            <DonationDetails
+                userId={userId}
+                identities={userData?.identities}
+                donation={donationDetails.donation}
+                onClose={onDonationDetailsCloseHandler}
+            />
+        );
+    }
+
     if (
         (view === Role.RECIPIENT || view === Role.BLOOD_FOUND) &&
         (!userData?.onBoarding || !userData?.onBoarding?.includes(Onboarding.FIND_BLOOD))
@@ -476,12 +512,14 @@ const Owner: FC<Props> = ({ userId }) => {
                         )}
                     </div>
                     <h1 className={styles.fullName}>{userData?.fullName || ''}</h1>
-                    <button type='button' className={styles.bonusCounter} onClick={() => navigate('/bonuses')}>
-                        <span className={styles.bonusCounterIcon}>
-                            <Bonus />
-                        </span>
-                        <span className={styles.bonusCounterValue}>0</span>
-                    </button>
+                    {view === 'donor' && (
+                        <button type='button' className={styles.bonusCounter} onClick={() => navigate('/bonuses')}>
+                            <span className={styles.bonusCounterIcon}>
+                                <Bonus />
+                            </span>
+                            <span className={styles.bonusCounterValue}>0</span>
+                        </button>
+                    )}
                 </div>
                 {(isLoading || isUserDataLoading) && (
                     <div className={styles.loading}>
@@ -509,12 +547,18 @@ const Owner: FC<Props> = ({ userId }) => {
                                     >
                                         {title}
                                         {ind === 0 && renderTabCounter(pets.totalPets)}
-                                        {ind === 1 && !!pets.totalDonations && renderTabCounter(pets.totalDonations)}
+                                        {ind === 1 &&
+                                            !!pets.totalPlannedDonations &&
+                                            renderTabCounter(pets.totalPlannedDonations)}
                                     </div>
                                 ))}
                             </div>
                         )}
-                        {view === 'donor' && tab === 1 && <div className={styles.plannedDonations} />}
+                        {view === 'donor' && tab === 1 && (
+                            <div className={styles.plannedDonations}>
+                                <PlannedDonations onDonationClick={onDonationClickHandler} id={userId} />
+                            </div>
+                        )}
                         {tab === 0 && (
                             <div className={cn(styles.showcase, { [styles.donorView]: view === 'donor' })}>
                                 {view === 'donor' && renderSettingsTab()}

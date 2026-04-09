@@ -77,7 +77,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
             bloodRequestPhoto,
             petStatus: Role.NONE,
             type: petType as PetType,
-            weightKg: Number(weight),
+            weightKg: Number(weight.replace(',', '.')),
             bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
             poolInfo: {
                 description,

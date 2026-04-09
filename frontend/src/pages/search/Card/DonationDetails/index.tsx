@@ -201,7 +201,7 @@ const DonationDetails: FC<Props> = ({
             return;
         }
 
-        if (Number(newValue.replace(',', '.')) > (donation?.recipientData.bloodVolumeNeeded || 0)) {
+        if (Number(newValue.replace(',', '.')) > (donation?.donorData.availableBloodAmount || 0)) {
             return;
         }
 

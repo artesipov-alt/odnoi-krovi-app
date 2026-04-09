@@ -107,11 +107,11 @@ const ParamsStep: FC<Props> = ({
     );
     const [newGender, setNewGender] = useState<string | undefined>(gender);
     const [newBloodGroup, setNewBloodGroup] = useState<string>(bloodGroup);
-    const [newWeight, setNewWeight] = useState<string>(`${weightKg}`);
     const [newChipNumber, setNewChipNumber] = useState<string>(chipNumber || 'none');
     const [autocompleteInputValue, setAutocompleteInputValue] = useState('');
     const [isSaveButtonActive, setIsSaveButtonActive] = useState<boolean>(false);
     const [newLivingCondition, setNewLivingCondition] = useState<string | undefined>(livingCondition);
+    const [newWeight, setNewWeight] = useState<string>(`${weightKg}`.replace('.', ','));
     const [newReproductiveStatus, setNewReproductiveStatus] = useState<string | undefined>(reproductiveStatus);
 
     const onChangeNameHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -279,7 +279,7 @@ const ParamsStep: FC<Props> = ({
         }
 
         if (weightKg !== Number(newWeight)) {
-            newData.weightKg = Number(newWeight);
+            newData.weightKg = Number(newWeight.replace(',', '.'));
         }
 
         if (newBreed?.value !== breedId) {
@@ -571,7 +571,7 @@ const ParamsStep: FC<Props> = ({
             <ViewString name='Вид' value={petTypes.filter(({ value }) => value === type)[0]?.label} />
             {gender && <ViewString name='Пол' value={petGenders.filter(({ value }) => value === gender)[0]?.label} />}
             {chipNumber && <ViewString name='Чип' value={chipNumber} />}
-            <ViewString name='Вес' value={`${weightKg} кг`} />
+            <ViewString name='Вес' value={`${weightKg} кг`.replace('.', ',')} />
             {birthDate && <ViewString name='Возраст' value={calculateAge(birthDate)} />}
             <ViewString name='Группа крови' value={bloodGroup === 'none' ? 'Не указано' : bloodGroup} />
             {breedId && (

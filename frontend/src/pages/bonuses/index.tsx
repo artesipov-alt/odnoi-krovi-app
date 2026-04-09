@@ -35,64 +35,66 @@ const tabs: Array<{ key: BonusTab; title: string; count: number; Icon: FC }> = [
 
 const bonusByTab: Record<BonusTab, BonusItem[]> = {
     priority: [],
-    drugs: [
-        {
-            id: 'drug-1',
-            title: '“Вемелкам”',
-            subtitle: 'Открыть QR-код',
-            statusLabel: 'бессрочно',
-            image: cardBonus,
-        },
-        {
-            id: 'drug-2',
-            title: '“Ветом”',
-            subtitle: 'Открыть QR-код',
-            statusLabel: 'до 18.05.2028',
-        },
-        {
-            id: 'drug-3',
-            title: '“Ветом”',
-            subtitle: 'Открыть QR-код',
-            statusLabel: 'до 28.05.2028',
-        },
-        {
-            id: 'drug-4',
-            title: '“Ветом”',
-            subtitle: 'Барсик - донация от 21.102025',
-            statusLabel: 'использован',
-            isDisabled: true,
-        },
-        {
-            id: 'drug-5',
-            title: '“Ветом”',
-            subtitle: 'Барсик - донация от 21.102025',
-            statusLabel: 'истек 28.05.2025',
-            isDisabled: true,
-        },
-    ],
-    food: [
-        {
-            id: 'food-1',
-            title: 'ProPlan с индейкой',
-            subtitle: 'Открыть QR-код',
-            statusLabel: 'бессрочно',
-            image: cardBonus,
-        },
-        {
-            id: 'food-2',
-            title: 'ProPlan с индейкой',
-            subtitle: 'Открыть промокод',
-            statusLabel: 'бессрочно',
-            image: cardBonus,
-        },
-        {
-            id: 'food-3',
-            title: 'ProPlan для стерилизованных кошек',
-            subtitle: 'Открыть промокод',
-            statusLabel: 'бессрочно',
-            image: cardBonus,
-        },
-    ],
+    drugs: [],
+    // drugs: [
+    //     {
+    //         id: 'drug-1',
+    //         title: '“Вемелкам”',
+    //         subtitle: 'Открыть QR-код',
+    //         statusLabel: 'бессрочно',
+    //         image: cardBonus,
+    //     },
+    //     {
+    //         id: 'drug-2',
+    //         title: '“Ветом”',
+    //         subtitle: 'Открыть QR-код',
+    //         statusLabel: 'до 18.05.2028',
+    //     },
+    //     {
+    //         id: 'drug-3',
+    //         title: '“Ветом”',
+    //         subtitle: 'Открыть QR-код',
+    //         statusLabel: 'до 28.05.2028',
+    //     },
+    //     {
+    //         id: 'drug-4',
+    //         title: '“Ветом”',
+    //         subtitle: 'Барсик - донация от 21.102025',
+    //         statusLabel: 'использован',
+    //         isDisabled: true,
+    //     },
+    //     {
+    //         id: 'drug-5',
+    //         title: '“Ветом”',
+    //         subtitle: 'Барсик - донация от 21.102025',
+    //         statusLabel: 'истек 28.05.2025',
+    //         isDisabled: true,
+    //     },
+    // ],
+    food: [],
+    // food: [
+    //     {
+    //         id: 'food-1',
+    //         title: 'ProPlan с индейкой',
+    //         subtitle: 'Открыть QR-код',
+    //         statusLabel: 'бессрочно',
+    //         image: cardBonus,
+    //     },
+    //     {
+    //         id: 'food-2',
+    //         title: 'ProPlan с индейкой',
+    //         subtitle: 'Открыть промокод',
+    //         statusLabel: 'бессрочно',
+    //         image: cardBonus,
+    //     },
+    //     {
+    //         id: 'food-3',
+    //         title: 'ProPlan для стерилизованных кошек',
+    //         subtitle: 'Открыть промокод',
+    //         statusLabel: 'бессрочно',
+    //         image: cardBonus,
+    //     },
+    // ],
     other: [],
 };
 

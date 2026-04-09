@@ -104,14 +104,14 @@ const Second: FC<Props> = ({
 
         if (
             petType === PetType.CAT &&
-            Number(newValue.replace(',', '.')) > Number((Number(weight) * 13.2).toFixed(2))
+            Number(newValue.replace(',', '.')) > Number((Number(weight.replace(',', '.')) * 66).toFixed(2))
         ) {
             return;
         }
 
         if (
             petType === PetType.DOG &&
-            Number(newValue.replace(',', '.')) > Number((Number(weight) * 17.6).toFixed(2))
+            Number(newValue.replace(',', '.')) > Number((Number(weight.replace(',', '.')) * 88).toFixed(2))
         ) {
             return;
         }
@@ -213,7 +213,7 @@ const Second: FC<Props> = ({
             <FormItem
                 title='Какой объем требуется?'
                 // subtitle={`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
-                subtitle={`до ${Number((Number(weight) * (petType === PetType.DOG ? 17.6 : 13.2)).toFixed(2))} мл`}
+                subtitle={`до ${Number((Number(weight.replace(',', '.')) * (petType === PetType.DOG ? 88 : 66)).toFixed(2))} мл`}
             >
                 <TextField
                     name='volume'

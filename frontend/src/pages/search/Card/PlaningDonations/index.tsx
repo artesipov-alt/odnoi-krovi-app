@@ -15,6 +15,21 @@ type Props = {
     onDonationClick: (id: string, status: RespondingDonorStatus) => void;
 };
 
+const getSortedDonations = (donations: RespondingDonor[]) =>
+    [...donations].sort((a, b) => {
+        const isLowPriority = (status: RespondingDonorStatus) =>
+            status === RespondingDonorStatus.REJECTED || status === RespondingDonorStatus.CANCELED;
+
+        const aLow = isLowPriority(a.status);
+        const bLow = isLowPriority(b.status);
+
+        if (aLow && !bLow) return 1;
+
+        if (!aLow && bLow) return -1;
+
+        return 0;
+    });
+
 const PlaningDonations: FC<Props> = ({ donorResponses, onDonationClick }) => {
     const [isInfoCurtainOpen, setIsInfoCurtainOpen] = useState(false);
 
@@ -38,42 +53,45 @@ const PlaningDonations: FC<Props> = ({ donorResponses, onDonationClick }) => {
                 </div>
             </div>
             <div className={styles.list}>
-                {donorResponses.map(({ id, status, donorName, donorBloodGroup, donorPhotos, amount }) => (
-                    <div
-                        key={id}
-                        onClick={onDonationClickHandler(id, status)}
-                        className={cn(styles.listItem, {
-                            [styles.notActive]:
-                                status === RespondingDonorStatus.REJECTED || status === RespondingDonorStatus.CANCELED,
-                        })}
-                    >
-                        <div className={styles.photo}>
-                            <img className={styles.photoImg} src={donorPhotos[0]} alt={donorName} />
-                            <div className={styles.bloodGroup}>{donorBloodGroup}</div>
-                        </div>
-                        <div className={styles.info}>
-                            <p className={styles.name}>{donorName.toUpperCase()}</p>
-                            <div className={styles.status}>
-                                {status === RespondingDonorStatus.ACCEPTED && (
-                                    <p className={styles.acceptedText}>Донация состоялась?</p>
-                                )}
-                                {status === RespondingDonorStatus.COMPLETED && (
-                                    <p className={styles.acceptedText}>Хозяин донора сообщил о донации</p>
-                                )}
-                                {status === RespondingDonorStatus.REJECTED && (
-                                    <p className={styles.acceptedText}>Реципиент отказался от донации</p>
-                                )}
-                                {status === RespondingDonorStatus.CANCELED && (
-                                    <p className={styles.acceptedText}>Донор отказался от донации</p>
-                                )}
+                {getSortedDonations(donorResponses).map(
+                    ({ id, status, donorName, donorBloodGroup, donorPhotos, amount }) => (
+                        <div
+                            key={id}
+                            onClick={onDonationClickHandler(id, status)}
+                            className={cn(styles.listItem, {
+                                [styles.notActive]:
+                                    status === RespondingDonorStatus.REJECTED ||
+                                    status === RespondingDonorStatus.CANCELED,
+                            })}
+                        >
+                            <div className={styles.photo}>
+                                <img className={styles.photoImg} src={donorPhotos[0]} alt={donorName} />
+                                <div className={styles.bloodGroup}>{donorBloodGroup}</div>
+                            </div>
+                            <div className={styles.info}>
+                                <p className={styles.name}>{donorName.toUpperCase()}</p>
+                                <div className={styles.status}>
+                                    {status === RespondingDonorStatus.ACCEPTED && (
+                                        <p className={styles.acceptedText}>Донация состоялась?</p>
+                                    )}
+                                    {status === RespondingDonorStatus.COMPLETED && (
+                                        <p className={styles.acceptedText}>Хозяин донора сообщил о донации</p>
+                                    )}
+                                    {status === RespondingDonorStatus.REJECTED && (
+                                        <p className={styles.acceptedText}>Реципиент отказался от донации</p>
+                                    )}
+                                    {status === RespondingDonorStatus.CANCELED && (
+                                        <p className={styles.acceptedText}>Донор отказался от донации</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={styles.bloodVolume}>
+                                <p className={styles.bloodVolumeNumber}>{amount}</p>
+                                <p className={styles.bloodVolumeDescr}>мл</p>
                             </div>
                         </div>
-                        <div className={styles.bloodVolume}>
-                            <p className={styles.bloodVolumeNumber}>{amount}</p>
-                            <p className={styles.bloodVolumeDescr}>мл</p>
-                        </div>
-                    </div>
-                ))}
+                    ),
+                )}
             </div>
             {isInfoCurtainOpen && (
                 <Curtain noRednerButtons shouldCloseByWrapperClick onClose={onCurtainOpenToggle}>
