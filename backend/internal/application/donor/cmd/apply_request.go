@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
@@ -61,10 +60,17 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Internal(err, "failed to check donor existence")
 	}
 
-	exitingApplication, err := h.donorRepo.GetByPetID(ctx, donorPet.ID)
+	responses, err := h.donorRepo.GetDonorResponsesByRequestID(ctx, req.ID)
 	if err != nil {
-		if !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
-			return nil, apperrors.Internal(err, "failed to check donor application existence")
+		return nil, apperrors.Internal(err, "failed to get donor responses for request")
+	}
+
+	// Ищем существующий отклик донора на эту заявку
+	var exitingApplication *model.DonorResponse
+	for _, resp := range responses {
+		if resp.DonorID == donorPet.ID {
+			exitingApplication = resp
+			break
 		}
 	}
 
