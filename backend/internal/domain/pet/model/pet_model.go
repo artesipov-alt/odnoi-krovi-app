@@ -598,7 +598,7 @@ func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *b
 
 	if bloodReq != nil {
 		for _, app := range bloodReq.DonorApplications {
-			if app.Status == donormodel.DonorResponseStatusPending || app.Status == donormodel.DonorResponseStatusAccepted {
+			if app.Status == donormodel.DonorResponseStatusPending || app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed == false) {
 				p.PetStatus = PetStatusBloodFound
 				break
 			}
@@ -607,7 +607,7 @@ func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *b
 	if len(p.StopFactors) == 0 {
 		p.PetStatus = PetStatusDonor
 	}
-	if application != nil && (application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending) {
+	if application != nil && (application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false)) {
 		p.PetStatus = PetStatusPlannedDonation
 	}
 }
