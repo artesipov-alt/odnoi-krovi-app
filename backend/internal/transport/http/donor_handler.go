@@ -288,19 +288,19 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 	}, nil
 }
 
-func (h *DonorHandler) CompleteDonation(ctx context.Context, input *dto.CompleteDonationInput) (*commondto.ResultMessage, error) {
+func (h *DonorHandler) CompleteDonation(ctx context.Context, input *dto.CompleteDonationInput) (*commondto.DefaultMessageOutput, error) {
 	err := h.completeDonationHandler.Handle(ctx, input.ID, input.Body.Amount)
 	if err != nil {
 		return nil, err
 	}
-	return &commondto.ResultMessage{Message: "Донация успешно завершена"}, nil
+	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Донация успешно завершена"}}, nil
 }
 
 // CancelDonation отменяет запланированную донацию.
-func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.ResultMessage, error) {
+func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.DefaultMessageOutput, error) {
 	err := h.cancelDonationHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
-	return &commondto.ResultMessage{Message: "Донация успешно отменена"}, nil
+	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Донация успешно отменена"}}, nil
 }

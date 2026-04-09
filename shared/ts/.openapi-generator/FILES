@@ -62,7 +62,6 @@ models/RecipientForDonor.ts
 models/RecipientShort.ts
 models/RecipientsList.ts
 models/ReferenceItem.ts
-models/RejectData.ts
 models/ReproductiveStatusesList.ts
 models/ResetUserResult.ts
 models/RestoreUserResult.ts

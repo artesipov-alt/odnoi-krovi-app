@@ -55,7 +55,6 @@ export * from './RecipientForDonor';
 export * from './RecipientShort';
 export * from './RecipientsList';
 export * from './ReferenceItem';
-export * from './RejectData';
 export * from './ReproductiveStatusesList';
 export * from './ResetUserResult';
 export * from './RestoreUserResult';
