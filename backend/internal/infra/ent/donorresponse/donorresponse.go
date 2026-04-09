@@ -32,6 +32,8 @@ const (
 	FieldStatus = "status"
 	// FieldIsConfirmed holds the string denoting the is_confirmed field in the database.
 	FieldIsConfirmed = "is_confirmed"
+	// FieldRejectedReason holds the string denoting the rejected_reason field in the database.
+	FieldRejectedReason = "rejected_reason"
 	// EdgeRequest holds the string denoting the request edge name in mutations.
 	EdgeRequest = "request"
 	// EdgeDonor holds the string denoting the donor edge name in mutations.
@@ -65,6 +67,7 @@ var Columns = []string{
 	FieldTaxiCompensation,
 	FieldStatus,
 	FieldIsConfirmed,
+	FieldRejectedReason,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "donor_responses"
@@ -205,6 +208,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByIsConfirmed orders the results by the is_confirmed field.
 func ByIsConfirmed(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsConfirmed, opts...).ToFunc()
+}
+
+// ByRejectedReason orders the results by the rejected_reason field.
+func ByRejectedReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRejectedReason, opts...).ToFunc()
 }
 
 // ByRequestField orders the results by request field.

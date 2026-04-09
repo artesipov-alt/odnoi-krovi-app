@@ -157,6 +157,26 @@ func (_u *DonorResponseUpdate) ClearIsConfirmed() *DonorResponseUpdate {
 	return _u
 }
 
+// SetRejectedReason sets the "rejected_reason" field.
+func (_u *DonorResponseUpdate) SetRejectedReason(v string) *DonorResponseUpdate {
+	_u.mutation.SetRejectedReason(v)
+	return _u
+}
+
+// SetNillableRejectedReason sets the "rejected_reason" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableRejectedReason(v *string) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetRejectedReason(*v)
+	}
+	return _u
+}
+
+// ClearRejectedReason clears the value of the "rejected_reason" field.
+func (_u *DonorResponseUpdate) ClearRejectedReason() *DonorResponseUpdate {
+	_u.mutation.ClearRejectedReason()
+	return _u
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
 func (_u *DonorResponseUpdate) SetRequestID(id string) *DonorResponseUpdate {
 	_u.mutation.SetRequestID(id)
@@ -303,6 +323,12 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if _u.mutation.IsConfirmedCleared() {
 		_spec.ClearField(donorresponse.FieldIsConfirmed, field.TypeBool)
+	}
+	if value, ok := _u.mutation.RejectedReason(); ok {
+		_spec.SetField(donorresponse.FieldRejectedReason, field.TypeString, value)
+	}
+	if _u.mutation.RejectedReasonCleared() {
+		_spec.ClearField(donorresponse.FieldRejectedReason, field.TypeString)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -509,6 +535,26 @@ func (_u *DonorResponseUpdateOne) ClearIsConfirmed() *DonorResponseUpdateOne {
 	return _u
 }
 
+// SetRejectedReason sets the "rejected_reason" field.
+func (_u *DonorResponseUpdateOne) SetRejectedReason(v string) *DonorResponseUpdateOne {
+	_u.mutation.SetRejectedReason(v)
+	return _u
+}
+
+// SetNillableRejectedReason sets the "rejected_reason" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableRejectedReason(v *string) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetRejectedReason(*v)
+	}
+	return _u
+}
+
+// ClearRejectedReason clears the value of the "rejected_reason" field.
+func (_u *DonorResponseUpdateOne) ClearRejectedReason() *DonorResponseUpdateOne {
+	_u.mutation.ClearRejectedReason()
+	return _u
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
 func (_u *DonorResponseUpdateOne) SetRequestID(id string) *DonorResponseUpdateOne {
 	_u.mutation.SetRequestID(id)
@@ -685,6 +731,12 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 	}
 	if _u.mutation.IsConfirmedCleared() {
 		_spec.ClearField(donorresponse.FieldIsConfirmed, field.TypeBool)
+	}
+	if value, ok := _u.mutation.RejectedReason(); ok {
+		_spec.SetField(donorresponse.FieldRejectedReason, field.TypeString, value)
+	}
+	if _u.mutation.RejectedReasonCleared() {
+		_spec.ClearField(donorresponse.FieldRejectedReason, field.TypeString)
 	}
 	if _u.mutation.RequestCleared() {
 		edge := &sqlgraph.EdgeSpec{

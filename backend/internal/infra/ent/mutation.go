@@ -3810,6 +3810,7 @@ type DonorResponseMutation struct {
 	taxi_compensation *bool
 	status            *donorresponse.Status
 	is_confirmed      *bool
+	rejected_reason   *string
 	clearedFields     map[string]struct{}
 	request           *string
 	clearedrequest    bool
@@ -4298,6 +4299,55 @@ func (m *DonorResponseMutation) ResetIsConfirmed() {
 	delete(m.clearedFields, donorresponse.FieldIsConfirmed)
 }
 
+// SetRejectedReason sets the "rejected_reason" field.
+func (m *DonorResponseMutation) SetRejectedReason(s string) {
+	m.rejected_reason = &s
+}
+
+// RejectedReason returns the value of the "rejected_reason" field in the mutation.
+func (m *DonorResponseMutation) RejectedReason() (r string, exists bool) {
+	v := m.rejected_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRejectedReason returns the old "rejected_reason" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldRejectedReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRejectedReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRejectedReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRejectedReason: %w", err)
+	}
+	return oldValue.RejectedReason, nil
+}
+
+// ClearRejectedReason clears the value of the "rejected_reason" field.
+func (m *DonorResponseMutation) ClearRejectedReason() {
+	m.rejected_reason = nil
+	m.clearedFields[donorresponse.FieldRejectedReason] = struct{}{}
+}
+
+// RejectedReasonCleared returns if the "rejected_reason" field was cleared in this mutation.
+func (m *DonorResponseMutation) RejectedReasonCleared() bool {
+	_, ok := m.clearedFields[donorresponse.FieldRejectedReason]
+	return ok
+}
+
+// ResetRejectedReason resets all changes to the "rejected_reason" field.
+func (m *DonorResponseMutation) ResetRejectedReason() {
+	m.rejected_reason = nil
+	delete(m.clearedFields, donorresponse.FieldRejectedReason)
+}
+
 // SetRequestID sets the "request" edge to the BloodSearchRequest entity by id.
 func (m *DonorResponseMutation) SetRequestID(id string) {
 	m.request = &id
@@ -4410,7 +4460,7 @@ func (m *DonorResponseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorResponseMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, donorresponse.FieldCreatedAt)
 	}
@@ -4434,6 +4484,9 @@ func (m *DonorResponseMutation) Fields() []string {
 	}
 	if m.is_confirmed != nil {
 		fields = append(fields, donorresponse.FieldIsConfirmed)
+	}
+	if m.rejected_reason != nil {
+		fields = append(fields, donorresponse.FieldRejectedReason)
 	}
 	return fields
 }
@@ -4459,6 +4512,8 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case donorresponse.FieldIsConfirmed:
 		return m.IsConfirmed()
+	case donorresponse.FieldRejectedReason:
+		return m.RejectedReason()
 	}
 	return nil, false
 }
@@ -4484,6 +4539,8 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldStatus(ctx)
 	case donorresponse.FieldIsConfirmed:
 		return m.OldIsConfirmed(ctx)
+	case donorresponse.FieldRejectedReason:
+		return m.OldRejectedReason(ctx)
 	}
 	return nil, fmt.Errorf("unknown DonorResponse field %s", name)
 }
@@ -4549,6 +4606,13 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsConfirmed(v)
 		return nil
+	case donorresponse.FieldRejectedReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRejectedReason(v)
+		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse field %s", name)
 }
@@ -4609,6 +4673,9 @@ func (m *DonorResponseMutation) ClearedFields() []string {
 	if m.FieldCleared(donorresponse.FieldIsConfirmed) {
 		fields = append(fields, donorresponse.FieldIsConfirmed)
 	}
+	if m.FieldCleared(donorresponse.FieldRejectedReason) {
+		fields = append(fields, donorresponse.FieldRejectedReason)
+	}
 	return fields
 }
 
@@ -4637,6 +4704,9 @@ func (m *DonorResponseMutation) ClearField(name string) error {
 		return nil
 	case donorresponse.FieldIsConfirmed:
 		m.ClearIsConfirmed()
+		return nil
+	case donorresponse.FieldRejectedReason:
+		m.ClearRejectedReason()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse nullable field %s", name)
@@ -4669,6 +4739,9 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 		return nil
 	case donorresponse.FieldIsConfirmed:
 		m.ResetIsConfirmed()
+		return nil
+	case donorresponse.FieldRejectedReason:
+		m.ResetRejectedReason()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse field %s", name)

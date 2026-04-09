@@ -219,7 +219,7 @@ func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseI
 }
 
 // Завершение донации донором
-func (r *EntDonorResponseRepository) CompleteDonation(ctx context.Context, donorResponseID string, factAmount float64) error {
+func (r *EntDonorResponseRepository) Complete(ctx context.Context, donorResponseID string, factAmount float64) error {
 	update := r.client(ctx).DonorResponse.
 		UpdateOneID(donorResponseID).
 		SetStatus(donorresponse.StatusCompleted)
@@ -230,6 +230,46 @@ func (r *EntDonorResponseRepository) CompleteDonation(ctx context.Context, donor
 
 	if err := update.Exec(ctx); err != nil {
 		return fmt.Errorf("failed to complete donation: %w", err)
+	}
+
+	return nil
+}
+
+// Reject отклоняет отклик донора с причиной
+func (r *EntDonorResponseRepository) Reject(ctx context.Context, req *donormodel.DonorResponse) error {
+	update := r.client(ctx).DonorResponse.
+		UpdateOneID(req.ID).
+		SetStatus(donorresponse.Status(req.Status)).
+		SetRejectedReason(req.RejectedReason)
+
+	if err := update.Exec(ctx); err != nil {
+		return fmt.Errorf("failed to reject donor response: %w", err)
+	}
+
+	return nil
+}
+
+// Cancel отменяет отклик донора
+func (r *EntDonorResponseRepository) Cancel(ctx context.Context, donorResponseID string) error {
+	update := r.client(ctx).DonorResponse.
+		UpdateOneID(donorResponseID).
+		SetStatus(donorresponse.StatusCancelled)
+
+	if err := update.Exec(ctx); err != nil {
+		return fmt.Errorf("failed to cancel donor response: %w", err)
+	}
+
+	return nil
+}
+
+// Accept accepts a donor response
+func (r *EntDonorResponseRepository) Accept(ctx context.Context, donorResponseID string) error {
+	update := r.client(ctx).DonorResponse.
+		UpdateOneID(donorResponseID).
+		SetStatus(donorresponse.StatusAccepted)
+
+	if err := update.Exec(ctx); err != nil {
+		return fmt.Errorf("failed to accept donor response: %w", err)
 	}
 
 	return nil

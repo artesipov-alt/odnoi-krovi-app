@@ -247,7 +247,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				TaxiCompensation: res.ApplicationData.TaxiCompensation,
 				IsConfirmed:      res.ApplicationData.IsConfirmed,
 				Bonuses:          []string{},
-				RejectedReason:   res.ApplicationData.RejctedReason,
+				RejectedReason:   res.ApplicationData.RejectedReason,
 				Status:           string(res.ApplicationData.Status),
 			}
 

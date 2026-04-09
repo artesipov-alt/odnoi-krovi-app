@@ -20,6 +20,10 @@ type Repository interface {
 	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
 	Count(ctx context.Context) (int, error)
 	GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error)
-	Confirm(ctx context.Context, id string, factAmount float64) error
-	CompleteDonation(ctx context.Context, id string, factAmount float64) error
+	//=============================================
+	Accept(ctx context.Context, id string) error
+	Reject(ctx context.Context, res *donormodel.DonorResponse) error
+	Complete(ctx context.Context, id string, amount float64) error
+	Confirm(ctx context.Context, id string, amount float64) error
+	Cancel(ctx context.Context, id string) error
 }

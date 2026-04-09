@@ -30,7 +30,7 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 		return apperrors.BadRequest("donor response status is invalid").WithMessage("donor response must be accepted to complete donation")
 	}
 
-	if err := h.donorRepo.CompleteDonation(ctx, donorResponse.ID, amount); err != nil {
+	if err := h.donorRepo.Complete(ctx, donorResponse.ID, amount); err != nil {
 		return err
 	}
 

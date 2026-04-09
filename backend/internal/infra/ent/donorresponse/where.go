@@ -95,6 +95,11 @@ func IsConfirmed(v bool) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldIsConfirmed, v))
 }
 
+// RejectedReason applies equality check predicate on the "rejected_reason" field. It's identical to RejectedReasonEQ.
+func RejectedReason(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldRejectedReason, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldCreatedAt, v))
@@ -363,6 +368,81 @@ func IsConfirmedIsNil() predicate.DonorResponse {
 // IsConfirmedNotNil applies the NotNil predicate on the "is_confirmed" field.
 func IsConfirmedNotNil() predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotNull(FieldIsConfirmed))
+}
+
+// RejectedReasonEQ applies the EQ predicate on the "rejected_reason" field.
+func RejectedReasonEQ(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldRejectedReason, v))
+}
+
+// RejectedReasonNEQ applies the NEQ predicate on the "rejected_reason" field.
+func RejectedReasonNEQ(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldRejectedReason, v))
+}
+
+// RejectedReasonIn applies the In predicate on the "rejected_reason" field.
+func RejectedReasonIn(vs ...string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIn(FieldRejectedReason, vs...))
+}
+
+// RejectedReasonNotIn applies the NotIn predicate on the "rejected_reason" field.
+func RejectedReasonNotIn(vs ...string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotIn(FieldRejectedReason, vs...))
+}
+
+// RejectedReasonGT applies the GT predicate on the "rejected_reason" field.
+func RejectedReasonGT(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGT(FieldRejectedReason, v))
+}
+
+// RejectedReasonGTE applies the GTE predicate on the "rejected_reason" field.
+func RejectedReasonGTE(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGTE(FieldRejectedReason, v))
+}
+
+// RejectedReasonLT applies the LT predicate on the "rejected_reason" field.
+func RejectedReasonLT(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLT(FieldRejectedReason, v))
+}
+
+// RejectedReasonLTE applies the LTE predicate on the "rejected_reason" field.
+func RejectedReasonLTE(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLTE(FieldRejectedReason, v))
+}
+
+// RejectedReasonContains applies the Contains predicate on the "rejected_reason" field.
+func RejectedReasonContains(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldContains(FieldRejectedReason, v))
+}
+
+// RejectedReasonHasPrefix applies the HasPrefix predicate on the "rejected_reason" field.
+func RejectedReasonHasPrefix(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldHasPrefix(FieldRejectedReason, v))
+}
+
+// RejectedReasonHasSuffix applies the HasSuffix predicate on the "rejected_reason" field.
+func RejectedReasonHasSuffix(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldHasSuffix(FieldRejectedReason, v))
+}
+
+// RejectedReasonIsNil applies the IsNil predicate on the "rejected_reason" field.
+func RejectedReasonIsNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIsNull(FieldRejectedReason))
+}
+
+// RejectedReasonNotNil applies the NotNil predicate on the "rejected_reason" field.
+func RejectedReasonNotNil() predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotNull(FieldRejectedReason))
+}
+
+// RejectedReasonEqualFold applies the EqualFold predicate on the "rejected_reason" field.
+func RejectedReasonEqualFold(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEqualFold(FieldRejectedReason, v))
+}
+
+// RejectedReasonContainsFold applies the ContainsFold predicate on the "rejected_reason" field.
+func RejectedReasonContainsFold(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldContainsFold(FieldRejectedReason, v))
 }
 
 // HasRequest applies the HasEdge predicate on the "request" edge.

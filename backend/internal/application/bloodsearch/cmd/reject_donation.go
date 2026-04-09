@@ -5,7 +5,6 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
@@ -31,28 +30,24 @@ func NewRejectDonationHandler(
 	}
 }
 
-func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID string) error {
+func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID string, rejectedReason string) error {
 	application, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
 	if err != nil {
 		return err
 	}
-	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
-	if err != nil {
-		return err
-	}
 
-	bloodReq.RecalculateBloodAmount()
-	bloodReq.RecalculateStatus()
-
-	status := donormodel.DonorResponseStatusAccepted
-	if application.Status == status {
-		status = donormodel.DonorResponseStatusRejected
-	}
+	application.Reject(rejectedReason)
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, status); err != nil {
+		if err := h.donorRepo.Reject(txCtx, application); err != nil {
 			return err
 		}
+		bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+		if err != nil {
+			return err
+		}
+		bloodReq.RecalculateBloodAmount()
+		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
 			return err
 		}

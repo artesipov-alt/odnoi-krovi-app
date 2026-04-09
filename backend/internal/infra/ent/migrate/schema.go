@@ -116,6 +116,7 @@ var (
 		{Name: "taxi_compensation", Type: field.TypeBool, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "accepted", "rejected", "cancelled", "completed", "failed"}},
 		{Name: "is_confirmed", Type: field.TypeBool, Nullable: true, Default: false},
+		{Name: "rejected_reason", Type: field.TypeString, Nullable: true},
 		{Name: "blood_search_request_responses", Type: field.TypeString},
 		{Name: "donor_response_donor", Type: field.TypeString},
 	}
@@ -127,13 +128,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "donor_responses_blood_requests_responses",
-				Columns:    []*schema.Column{DonorResponsesColumns[9]},
+				Columns:    []*schema.Column{DonorResponsesColumns[10]},
 				RefColumns: []*schema.Column{BloodRequestsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "donor_responses_pets_donor",
-				Columns:    []*schema.Column{DonorResponsesColumns[10]},
+				Columns:    []*schema.Column{DonorResponsesColumns[11]},
 				RefColumns: []*schema.Column{PetsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

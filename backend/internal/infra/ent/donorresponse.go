@@ -35,6 +35,8 @@ type DonorResponse struct {
 	Status donorresponse.Status `json:"status,omitempty"`
 	// IsConfirmed holds the value of the "is_confirmed" field.
 	IsConfirmed bool `json:"is_confirmed,omitempty"`
+	// RejectedReason holds the value of the "rejected_reason" field.
+	RejectedReason string `json:"rejected_reason,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorResponseQuery when eager-loading is set.
 	Edges                          DonorResponseEdges `json:"edges"`
@@ -85,7 +87,7 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case donorresponse.FieldAmount:
 			values[i] = new(sql.NullFloat64)
-		case donorresponse.FieldID, donorresponse.FieldCompensationType, donorresponse.FieldStatus:
+		case donorresponse.FieldID, donorresponse.FieldCompensationType, donorresponse.FieldStatus, donorresponse.FieldRejectedReason:
 			values[i] = new(sql.NullString)
 		case donorresponse.FieldCreatedAt, donorresponse.FieldUpdatedAt, donorresponse.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -162,6 +164,12 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_confirmed", values[i])
 			} else if value.Valid {
 				_m.IsConfirmed = value.Bool
+			}
+		case donorresponse.FieldRejectedReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field rejected_reason", values[i])
+			} else if value.Valid {
+				_m.RejectedReason = value.String
 			}
 		case donorresponse.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -248,6 +256,9 @@ func (_m *DonorResponse) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_confirmed=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsConfirmed))
+	builder.WriteString(", ")
+	builder.WriteString("rejected_reason=")
+	builder.WriteString(_m.RejectedReason)
 	builder.WriteByte(')')
 	return builder.String()
 }

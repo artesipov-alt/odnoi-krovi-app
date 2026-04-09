@@ -129,6 +129,20 @@ func (_c *DonorResponseCreate) SetNillableIsConfirmed(v *bool) *DonorResponseCre
 	return _c
 }
 
+// SetRejectedReason sets the "rejected_reason" field.
+func (_c *DonorResponseCreate) SetRejectedReason(v string) *DonorResponseCreate {
+	_c.mutation.SetRejectedReason(v)
+	return _c
+}
+
+// SetNillableRejectedReason sets the "rejected_reason" field if the given value is not nil.
+func (_c *DonorResponseCreate) SetNillableRejectedReason(v *string) *DonorResponseCreate {
+	if v != nil {
+		_c.SetRejectedReason(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DonorResponseCreate) SetID(v string) *DonorResponseCreate {
 	_c.mutation.SetID(v)
@@ -312,6 +326,10 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.IsConfirmed(); ok {
 		_spec.SetField(donorresponse.FieldIsConfirmed, field.TypeBool, value)
 		_node.IsConfirmed = value
+	}
+	if value, ok := _c.mutation.RejectedReason(); ok {
+		_spec.SetField(donorresponse.FieldRejectedReason, field.TypeString, value)
+		_node.RejectedReason = value
 	}
 	if nodes := _c.mutation.RequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -519,6 +537,24 @@ func (u *DonorResponseUpsert) ClearIsConfirmed() *DonorResponseUpsert {
 	return u
 }
 
+// SetRejectedReason sets the "rejected_reason" field.
+func (u *DonorResponseUpsert) SetRejectedReason(v string) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldRejectedReason, v)
+	return u
+}
+
+// UpdateRejectedReason sets the "rejected_reason" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateRejectedReason() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldRejectedReason)
+	return u
+}
+
+// ClearRejectedReason clears the value of the "rejected_reason" field.
+func (u *DonorResponseUpsert) ClearRejectedReason() *DonorResponseUpsert {
+	u.SetNull(donorresponse.FieldRejectedReason)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -707,6 +743,27 @@ func (u *DonorResponseUpsertOne) UpdateIsConfirmed() *DonorResponseUpsertOne {
 func (u *DonorResponseUpsertOne) ClearIsConfirmed() *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.ClearIsConfirmed()
+	})
+}
+
+// SetRejectedReason sets the "rejected_reason" field.
+func (u *DonorResponseUpsertOne) SetRejectedReason(v string) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetRejectedReason(v)
+	})
+}
+
+// UpdateRejectedReason sets the "rejected_reason" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateRejectedReason() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateRejectedReason()
+	})
+}
+
+// ClearRejectedReason clears the value of the "rejected_reason" field.
+func (u *DonorResponseUpsertOne) ClearRejectedReason() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearRejectedReason()
 	})
 }
 
@@ -1065,6 +1122,27 @@ func (u *DonorResponseUpsertBulk) UpdateIsConfirmed() *DonorResponseUpsertBulk {
 func (u *DonorResponseUpsertBulk) ClearIsConfirmed() *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.ClearIsConfirmed()
+	})
+}
+
+// SetRejectedReason sets the "rejected_reason" field.
+func (u *DonorResponseUpsertBulk) SetRejectedReason(v string) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetRejectedReason(v)
+	})
+}
+
+// UpdateRejectedReason sets the "rejected_reason" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateRejectedReason() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateRejectedReason()
+	})
+}
+
+// ClearRejectedReason clears the value of the "rejected_reason" field.
+func (u *DonorResponseUpsertBulk) ClearRejectedReason() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.ClearRejectedReason()
 	})
 }
 
