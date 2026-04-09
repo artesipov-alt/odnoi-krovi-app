@@ -592,6 +592,7 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 
 // CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
 func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
+	p.PetStatus = PetStatusNone
 	if bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed {
 		p.PetStatus = PetStatusRecipient
 	}
