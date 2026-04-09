@@ -112,7 +112,7 @@ func (b *BloodRequest) Close() {
 }
 
 // Activate marks the request as active
-func (b *BloodRequest) activate() {
+func (b *BloodRequest) Activate() {
 	b.Status = BloodRequestStatusActive
 }
 
@@ -156,6 +156,8 @@ func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 func (b *BloodRequest) RecalculateStatus() {
 	if b.BloodVolumeReserved >= b.BloodVolumeNeeded {
 		b.MarkReservedFull()
+	} else {
+		b.Activate()
 	}
 	if b.BloodVolumeDonated >= b.BloodVolumeNeeded {
 		b.Close()
