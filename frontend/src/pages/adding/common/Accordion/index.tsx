@@ -7,11 +7,12 @@ import styles from './Accordion.module.less';
 type Props = {
     title: string;
     icon: ReactNode;
+    className?: string;
     children: ReactNode;
     onToggle?: (isOpen: boolean) => void;
 };
 
-const Accordion: FC<Props> = ({ children, title, icon, onToggle }) => {
+const Accordion: FC<Props> = ({ children, title, icon, onToggle, className }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const onClickHandler = () => {
@@ -21,7 +22,7 @@ const Accordion: FC<Props> = ({ children, title, icon, onToggle }) => {
     };
 
     return (
-        <div className={styles.accordion}>
+        <div className={cn(styles.accordion, className)}>
             <div onClick={onClickHandler} className={cn(styles.infoItemTitle, { [styles.noMargin]: true })}>
                 <div className={styles.icon}>{icon}</div>
                 <div className={styles.title}>{title}</div>

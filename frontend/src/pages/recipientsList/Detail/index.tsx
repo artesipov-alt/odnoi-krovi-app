@@ -139,6 +139,7 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
 
     const onCancelCurtainClickHandler = async () => {
         await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+        await queryClient.invalidateQueries({ queryKey: ['plannedDonations', userId] });
 
         navigate('/owner#donorDonations');
     };

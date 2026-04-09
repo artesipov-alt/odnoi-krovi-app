@@ -85,6 +85,7 @@ const SearchCard: FC<Props> = ({
     bloodGroupNames,
     bloodComponentIds,
     bloodVolumeNeeded,
+    bloodVolumeDonated,
     completedDonations,
     poolRequestRefetch,
     bloodVolumeReserved,
@@ -230,9 +231,22 @@ const SearchCard: FC<Props> = ({
                             })}
                         >
                             {title}
-                            {tabId === 1 && !!acceptedDonors?.length && (
-                                <div className={styles.tabCounter}>{acceptedDonors.length}</div>
-                            )}
+                            {tabId === 1 &&
+                                !!acceptedDonors?.filter(
+                                    (resStatus) =>
+                                        resStatus.status !== RespondingDonorStatus.CANCELED &&
+                                        resStatus.status !== RespondingDonorStatus.REJECTED,
+                                ).length && (
+                                    <div className={styles.tabCounter}>
+                                        {
+                                            acceptedDonors?.filter(
+                                                (resStatus) =>
+                                                    resStatus.status !== RespondingDonorStatus.CANCELED &&
+                                                    resStatus.status !== RespondingDonorStatus.REJECTED,
+                                            ).length
+                                        }
+                                    </div>
+                                )}
                             {tabId === 2 && !!completedDonations?.length && (
                                 <div className={styles.tabCounter}>{completedDonations.length}</div>
                             )}
@@ -304,7 +318,14 @@ const SearchCard: FC<Props> = ({
                                             strokeWidth={15}
                                             total={bloodVolumeNeeded}
                                             color='var(--red10, #FF2727)'
-                                            current={bloodVolumeReserved || 0}
+                                            current={
+                                                // eslint-disable-next-line no-nested-ternary
+                                                status === PoolRequestStatus.CLOSED
+                                                    ? bloodVolumeDonated > bloodVolumeNeeded
+                                                        ? bloodVolumeNeeded
+                                                        : bloodVolumeDonated
+                                                    : bloodVolumeReserved || 0
+                                            }
                                         />
                                         <div className={styles.neededVolume}>
                                             {bloodVolumeNeeded}
@@ -372,7 +393,9 @@ const SearchCard: FC<Props> = ({
                                     className={styles.cancel}
                                     onClick={onCloseSearchClickHandler}
                                 >
-                                    Отменить поиск
+                                    {!!completedDonations?.length || !!acceptedDonors?.length
+                                        ? 'Завершить поиск'
+                                        : 'Отменить поиск'}
                                 </Button>
                             </>
                         ) : (

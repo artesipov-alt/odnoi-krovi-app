@@ -39,6 +39,20 @@ export const CircularProgress: FC<Props> = ({
         };
     }, [center, radius, progress]);
 
+    const getDotRadius = () => {
+        switch (`${current}`.length) {
+            case 3: {
+                return 16;
+            }
+            case 4: {
+                return 18;
+            }
+            default: {
+                return 14;
+            }
+        }
+    };
+
     return (
         <svg
             width={size}
@@ -75,13 +89,7 @@ export const CircularProgress: FC<Props> = ({
             {showDot && (
                 <g transform={`translate(${dotPosition.x}, ${dotPosition.y})`}>
                     {/* Фон точки */}
-                    <circle
-                        cx={0}
-                        cy={0}
-                        fill='currentColor'
-                        className={styles.progressDot}
-                        r={`${current}`.length > 2 ? 16 : 14}
-                    />
+                    <circle cx={0} cy={0} fill='currentColor' className={styles.progressDot} r={getDotRadius()} />
                     {/* Текст: текущее число (без %) */}
                     <text
                         x={0.5}

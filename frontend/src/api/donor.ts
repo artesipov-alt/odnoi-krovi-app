@@ -1,5 +1,6 @@
 import { AxiosPromise } from 'axios';
 
+import { PoolRequestStatus } from './bloodRequest';
 import { instance } from './instance';
 import { PetType } from './types';
 import { CompensationType } from './user';
@@ -9,6 +10,16 @@ export enum RecipientStatus {
     ACTIVE = 'active',
     CLOSED = 'closed',
 }
+
+export enum DonorStatus {
+    FAILED = 'failed',
+    PENDING = 'pending',
+    ACCEPTED = 'accepted',
+    REJECTED = 'rejected',
+    CANCELLED = 'cancelled',
+    COMPLETED = 'completed',
+}
+
 export type MatchingDonors = {
     petId: string;
     petName: string;
@@ -87,10 +98,62 @@ export type BloodSearchApplyResponse = {
     status: RecipientStatus;
 };
 
+export type PlannedDonationDonorInfo = {
+    // id донации
+    id: string;
+    amount: number;
+    petName: string;
+    bonuses: string[];
+    photoUrls: string[];
+    status: DonorStatus;
+    isConfirmed: boolean;
+    rejectedReason: string;
+    taxiCompensation: boolean;
+    compensationType: CompensationType;
+};
+
+export type PlannedDonationRecipientInfo = {
+    // id питомца
+    id: string;
+    ownerID: string;
+    petName: string;
+    petType: PetType;
+    regions: string[];
+    updatedAt: string;
+    createdAt: string;
+    deletedAt: string;
+    ownerName: string;
+    bloodGroup: string;
+    photoUrls?: string[];
+    status: PoolRequestStatus;
+    bloodVolumeNeeded: number;
+    bloodVolumeDonated: number;
+    advancedInfo: AdvancedInfo;
+    bloodVolumeReserved: number;
+    searchingBloodNames: string[];
+};
+
+export type PlannedDonation = {
+    applicationData: PlannedDonationDonorInfo;
+    recipientData: PlannedDonationRecipientInfo;
+};
+
+export type GetPlannedDonationsResponse = {
+    items: PlannedDonation[];
+};
+
+export type CompleteDonationRequest = {
+    id: string;
+    amount: number;
+};
+
 export interface IDonorApi {
     getRecipientsList(id: string, status?: RecipientStatus): AxiosPromise<GetRecipientsListResponse>;
     getRecipientDetails(id: string): AxiosPromise<GetRecipientDetailsResponse>;
     bloodSearchApply(params: BloodSearchApplyRequest): AxiosPromise<BloodSearchApplyResponse>;
+    getPlannedDonations(id: string): AxiosPromise<GetPlannedDonationsResponse>;
+    cancelDonation(id: string): AxiosPromise<void>;
+    completeDonation(params: CompleteDonationRequest): AxiosPromise<void>;
 }
 
 export const DONOR_URL = '/v1/donor';
@@ -104,5 +167,14 @@ export const donorApi = (): IDonorApi => ({
     },
     bloodSearchApply({ id, ...params }) {
         return instance.post(`${DONOR_URL}/recipient/${id}/apply`, params);
+    },
+    getPlannedDonations(id) {
+        return instance.get(`${DONOR_URL}/planned-donations/${id}`);
+    },
+    cancelDonation(id) {
+        return instance.post(`${DONOR_URL}/donation/${id}/cancel`);
+    },
+    completeDonation({ id, ...params }) {
+        return instance.post(`${DONOR_URL}/donation/${id}/complete`, params);
     },
 });

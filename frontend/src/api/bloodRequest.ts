@@ -9,6 +9,7 @@ export enum PoolRequestStatus {
     DRAFT = 'draft',
     CLOSED = 'closed',
     ACTIVE = 'active',
+    RESERVED_FULL = 'reserved_full',
 }
 
 export enum Onboardings {
@@ -70,6 +71,7 @@ export type GetPoolRequestResponse = {
     suitableDonors: number;
     bloodGroupNames: string[];
     bloodVolumeNeeded: number;
+    bloodVolumeDonated: number;
     status?: PoolRequestStatus;
     onBoarding?: Onboardings[];
     bloodComponentIds: string[];
