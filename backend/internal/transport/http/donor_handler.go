@@ -236,45 +236,48 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 
 	donationCards := make([]dto.DonationCardForDonor, 0, len(results))
 	for _, res := range results {
-		application := dto.ApplicationShort{
-			ID:               res.ApplicationData.ID,
-			PetName:          res.DonorPetData.Name,
-			Amount:           res.ApplicationData.Amount,
-			PhotoURLs:        h.storage.BuildPhotoURLs(res.DonorPetData.PhotoURLs, *res.ApplicationData.UpdatedAt),
-			CompensationType: res.ApplicationData.CompensationType,
-			TaxiCompensation: res.ApplicationData.TaxiCompensation,
-			IsConfirmed:      res.ApplicationData.IsConfirmed,
-			Bonuses:          []string{},
-			RejectedReason:   res.ApplicationData.RejctedReason,
-			Status:           string(res.ApplicationData.Status),
-		}
+		// В планируемой донации не должно возвращаться отмененный статус донором.
+		if res.ApplicationData.Status != model.DonorResponseStatusCancelled {
+			application := dto.ApplicationShort{
+				ID:               res.ApplicationData.ID,
+				PetName:          res.DonorPetData.Name,
+				Amount:           res.ApplicationData.Amount,
+				PhotoURLs:        h.storage.BuildPhotoURLs(res.DonorPetData.PhotoURLs, *res.ApplicationData.UpdatedAt),
+				CompensationType: res.ApplicationData.CompensationType,
+				TaxiCompensation: res.ApplicationData.TaxiCompensation,
+				IsConfirmed:      res.ApplicationData.IsConfirmed,
+				Bonuses:          []string{},
+				RejectedReason:   res.ApplicationData.RejctedReason,
+				Status:           string(res.ApplicationData.Status),
+			}
 
-		recipient := dto.RecipientForDonor{
-			ID:                  res.BloodSearchData.ID,
-			PetName:             res.RecipientPetData.Name,
-			PetType:             string(res.RecipientPetData.Type),
-			OwnerName:           res.RecipientPetData.OwnerName,
-			OwnerID:             res.RecipientPetData.OwnerID,
-			BloodGroup:          *res.RecipientPetData.BloodGroupName,
-			Regions:             res.BloodSearchData.Regions,
-			BloodVolumeNeeded:   res.BloodSearchData.BloodVolumeNeeded,
-			BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,
-			BloodVolumeDonated:  res.BloodSearchData.BloodVolumeDonated,
-			PhotoURLs:           h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
-			SearchingBloodNames: res.BloodSearchData.BloodGroupNames,
-			AdvancedInfo: &dto.AdvancedInfoDTO{
-				PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
-				Description: res.BloodSearchData.AdvancedInfo.Description,
-			},
-			Status:    string(res.BloodSearchData.Status),
-			CreatedAt: res.BloodSearchData.CreatedAt,
-			UpdatedAt: res.BloodSearchData.UpdatedAt,
-		}
+			recipient := dto.RecipientForDonor{
+				ID:                  res.BloodSearchData.ID,
+				PetName:             res.RecipientPetData.Name,
+				PetType:             string(res.RecipientPetData.Type),
+				OwnerName:           res.RecipientPetData.OwnerName,
+				OwnerID:             res.RecipientPetData.OwnerID,
+				BloodGroup:          *res.RecipientPetData.BloodGroupName,
+				Regions:             res.BloodSearchData.Regions,
+				BloodVolumeNeeded:   res.BloodSearchData.BloodVolumeNeeded,
+				BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,
+				BloodVolumeDonated:  res.BloodSearchData.BloodVolumeDonated,
+				PhotoURLs:           h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
+				SearchingBloodNames: res.BloodSearchData.BloodGroupNames,
+				AdvancedInfo: &dto.AdvancedInfoDTO{
+					PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
+					Description: res.BloodSearchData.AdvancedInfo.Description,
+				},
+				Status:    string(res.BloodSearchData.Status),
+				CreatedAt: res.BloodSearchData.CreatedAt,
+				UpdatedAt: res.BloodSearchData.UpdatedAt,
+			}
 
-		donationCards = append(donationCards, dto.DonationCardForDonor{
-			ApplicationData: application,
-			RecipientData:   recipient,
-		})
+			donationCards = append(donationCards, dto.DonationCardForDonor{
+				ApplicationData: application,
+				RecipientData:   recipient,
+			})
+		}
 	}
 
 	return &dto.ListPlannedDonationsOutput{
