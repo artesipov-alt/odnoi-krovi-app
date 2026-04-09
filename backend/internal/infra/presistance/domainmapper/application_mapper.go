@@ -19,6 +19,8 @@ func ApplicationToDomain(entResp *ent.DonorResponse) *donormodel.DonorResponse {
 		CompensationType: string(entResp.CompensationType),
 		TaxiCompensation: entResp.TaxiCompensation,
 		Status:           donormodel.DonorResponseStatus(entResp.Status),
+		IsConfirmed:      entResp.IsConfirmed,
+		RejectedReason:   entResp.RejectedReason,
 		CreatedAt:        &entResp.CreatedAt,
 		UpdatedAt:        &entResp.UpdatedAt,
 	}

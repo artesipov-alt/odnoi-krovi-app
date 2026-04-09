@@ -142,7 +142,7 @@ func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 	reserved := b.BloodVolumeDonated
 	for _, app := range b.DonorApplications {
 		// Ищем только откликнувшихся доноров
-		if !app.IsConfirmed && app.Status == donormodel.DonorResponseStatusAccepted || !app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
+		if (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusAccepted) || (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusCompleted) {
 			reserved += app.Amount
 			// Обрезаем до максимального
 			if reserved >= b.BloodVolumeNeeded {
