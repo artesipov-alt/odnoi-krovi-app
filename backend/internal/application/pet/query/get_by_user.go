@@ -70,6 +70,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 			return nil, apperrors.Internal(err, "failed to get blood request")
 		}
+
 		pet.RecalculateFactors(time.Now(), application, bloodReq)
 		pet.CalculateStatus(application, bloodReq)
 	}

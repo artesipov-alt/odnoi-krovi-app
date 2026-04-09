@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"time"
 
@@ -592,19 +593,25 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 
 // CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
 func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
+	fmt.Printf("DEBUG CalculateStatus: Pet %s, initial status %s\n", p.ID, p.PetStatus)
 	if bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed {
 		if len(bloodReq.DonorApplications) > 0 {
 			p.PetStatus = PetStatusBloodFound
+			fmt.Printf("DEBUG: Set to BloodFound (has applications)\n")
 		} else {
 			p.PetStatus = PetStatusRecipient
+			fmt.Printf("DEBUG: Set to Recipient (no applications)\n")
 		}
 	}
 	if len(p.StopFactors) == 0 {
 		p.PetStatus = PetStatusDonor
+		fmt.Printf("DEBUG: Set to Donor (no stop factors)\n")
 	}
 	if application != nil && application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) {
 		p.PetStatus = PetStatusPlannedDonation
+		fmt.Printf("DEBUG: Set to PlannedDonation (application status: %s, confirmed: %t)\n", application.Status, application.IsConfirmed)
 	}
+	fmt.Printf("DEBUG CalculateStatus: Pet %s, final status %s\n", p.ID, p.PetStatus)
 }
 
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца

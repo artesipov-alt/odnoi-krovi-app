@@ -59,6 +59,7 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 				TaxiCompensation: resp.TaxiCompensation,
 				Status:           donormodel.DonorResponseStatus(resp.Status),
 				IsConfirmed:      resp.IsConfirmed,
+				RejectedReason:   resp.RejectedReason,
 				CreatedAt:        &resp.CreatedAt,
 				UpdatedAt:        &resp.UpdatedAt,
 			}
