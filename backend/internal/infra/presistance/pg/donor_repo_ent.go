@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -117,10 +118,11 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 
 func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error) {
 	entResp, err := r.client(ctx).DonorResponse.Query().
-		Where(donorresponse.HasDonorWith(pet.ID(petID)), donorresponse.Or(donorresponse.StatusNEQ(donorresponse.StatusCompleted), donorresponse.IsConfirmedNEQ(true))).
+		Where(donorresponse.HasDonorWith(pet.ID(petID))).
+		Order(donorresponse.ByCreatedAt(sql.OrderDesc())).
 		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
 		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
-		Only(ctx)
+		First(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
