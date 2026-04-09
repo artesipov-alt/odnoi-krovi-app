@@ -64,7 +64,11 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 			return nil, apperrors.Internal(err, "failed to get donor application")
 		}
 		if application != nil {
-			plannedDonations = append(plannedDonations, application)
+			if application.Status != donormodel.DonorResponseStatusAccepted ||
+				(application.Status != donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) ||
+				application.Status == donormodel.DonorResponseStatusPending {
+				plannedDonations = append(plannedDonations, application)
+			}
 		}
 		bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, pet.ID)
 		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
