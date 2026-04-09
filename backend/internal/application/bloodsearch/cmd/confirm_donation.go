@@ -71,7 +71,18 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
-		// if err := h
+		if bloodReq.Status == bloodmodel.BloodRequestStatusClosed {
+			for _, app := range bloodReq.DonorApplications {
+				if app.ID != donorResponseID && (app.Status == donormodel.DonorResponseStatusPending || app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed != true)) {
+					if err := app.Reject("other"); err != nil {
+						return err
+					}
+					if err := h.donorRepo.Reject(txCtx, &app); err != nil {
+						return err
+					}
+				}
+			}
+		}
 
 		application, err = h.donorRepo.GetDonorResponseByID(txCtx, donorResponseID)
 		if err != nil {
