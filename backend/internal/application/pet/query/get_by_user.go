@@ -64,8 +64,8 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 			return nil, apperrors.Internal(err, "failed to get donor application")
 		}
 		if application != nil {
-			if application.Status != donormodel.DonorResponseStatusAccepted ||
-				(application.Status != donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) ||
+			if application.Status == donormodel.DonorResponseStatusAccepted ||
+				(application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) ||
 				application.Status == donormodel.DonorResponseStatusPending {
 				plannedDonations = append(plannedDonations, application)
 			}

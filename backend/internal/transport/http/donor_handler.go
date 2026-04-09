@@ -237,7 +237,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 	donationCards := make([]dto.DonationCardForDonor, 0, len(results))
 	for _, res := range results {
 		// В планируемой донации не должно возвращаться отмененный статус донором.
-		if res.ApplicationData.Status != model.DonorResponseStatusCancelled {
+		if res.ApplicationData.Status != model.DonorResponseStatusCancelled && res.ApplicationData.IsConfirmed != true {
 			application := dto.ApplicationShort{
 				ID:               res.ApplicationData.ID,
 				PetName:          res.DonorPetData.Name,
