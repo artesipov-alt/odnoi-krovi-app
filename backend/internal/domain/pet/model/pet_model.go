@@ -607,7 +607,7 @@ func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *b
 		p.PetStatus = PetStatusDonor
 		fmt.Printf("DEBUG: Set to Donor (no stop factors)\n")
 	}
-	if application != nil && application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) {
+	if application != nil && (application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false)) {
 		p.PetStatus = PetStatusPlannedDonation
 		fmt.Printf("DEBUG: Set to PlannedDonation (application status: %s, confirmed: %t)\n", application.Status, application.IsConfirmed)
 	}
