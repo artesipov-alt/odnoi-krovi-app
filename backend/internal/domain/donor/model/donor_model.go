@@ -77,6 +77,9 @@ func (d *DonorResponse) Reject(reason string) error {
 	}
 
 	switch d.Status {
+	case DonorResponseStatusPending:
+		d.Status = DonorResponseStatusRejected
+		d.RejectedReason = reason
 	case DonorResponseStatusAccepted:
 		d.Status = DonorResponseStatusRejected
 		d.RejectedReason = reason

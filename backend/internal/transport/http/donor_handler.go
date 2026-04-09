@@ -288,13 +288,12 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 	}, nil
 }
 
-// CompleteDonation помечает донацию как состоявшуюся.
 func (h *DonorHandler) CompleteDonation(ctx context.Context, input *dto.CompleteDonationInput) (*commondto.ResultMessage, error) {
 	err := h.completeDonationHandler.Handle(ctx, input.ID, input.Body.Amount)
 	if err != nil {
 		return nil, err
 	}
-	return &commondto.ResultMessage{Message: "Donation completed successfully"}, nil
+	return &commondto.ResultMessage{Message: "Донация успешно завершена"}, nil
 }
 
 // CancelDonation отменяет запланированную донацию.
@@ -303,5 +302,5 @@ func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.Dono
 	if err != nil {
 		return nil, err
 	}
-	return &commondto.ResultMessage{Message: "Donation cancelled successfully"}, nil
+	return &commondto.ResultMessage{Message: "Донация успешно отменена"}, nil
 }
