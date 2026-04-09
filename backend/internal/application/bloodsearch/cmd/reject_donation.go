@@ -36,7 +36,9 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	application.Reject(rejectedReason)
+	if err := application.Reject(rejectedReason); err != nil {
+		return err
+	}
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.Reject(txCtx, application); err != nil {

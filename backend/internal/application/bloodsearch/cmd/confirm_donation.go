@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -47,14 +46,18 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 	var bloodReq *bloodmodel.BloodRequestWithApplications
 	var application *donormodel.DonorResponse
 
-	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+	application, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
+	if err != nil {
+		return err
+	}
+
+	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		if err := application.Confirm(factAmount); err != nil {
+			return err
+		}
 		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
 			return err
 		}
-		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, donormodel.DonorResponseStatusCompleted); err != nil {
-			return err
-		}
-
 		var err error
 		bloodReq, err = h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
 		if err != nil {
@@ -64,7 +67,6 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		bloodReq.RecalculateBloodAmount()
 		bloodReq.RecalculateStatus()
 
-		slog.Info("DEBUG_STATUS_UPDATE: Updating status", "id", bloodReq.ID, "status", bloodReq.Status)
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
 			return err
 		}

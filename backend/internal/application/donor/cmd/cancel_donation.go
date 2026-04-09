@@ -30,7 +30,7 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 		return apperrors.BadRequest("donor response status is invalid").WithMessage("cannot cancel a completed donation")
 	}
 
-	if err := h.donorRepo.UpdateDonorResponseStatus(ctx, resID, donormodel.DonorResponseStatusCancelled); err != nil {
+	if err := h.donorRepo.Cancel(ctx, resID); err != nil {
 		return apperrors.Internal(err, "failed to cancel donation")
 	}
 	return nil

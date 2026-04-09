@@ -205,6 +205,7 @@ func (r *EntDonorResponseRepository) Count(ctx context.Context) (int, error) {
 func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseID string, factAmount float64) error {
 	update := r.client(ctx).DonorResponse.
 		UpdateOneID(donorResponseID).
+		SetStatus(donorresponse.StatusCompleted).
 		SetIsConfirmed(true)
 
 	if factAmount != 0 {

@@ -9,7 +9,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -64,8 +63,12 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 
 	var petID string
 	var bloodreq *bloodmodel.BloodRequestWithApplications
+
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.donorRepo.UpdateDonorResponseStatus(txCtx, donorResponseID, donormodel.DonorResponseStatusAccepted); err != nil {
+		if err := application.Accept(); err != nil {
+			return err
+		}
+		if err := h.donorRepo.Accept(txCtx, donorResponseID); err != nil {
 			return err
 		}
 

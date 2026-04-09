@@ -29,7 +29,6 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 	if donorResponse.Status != donormodel.DonorResponseStatusAccepted {
 		return apperrors.BadRequest("donor response status is invalid").WithMessage("donor response must be accepted to complete donation")
 	}
-
 	if err := h.donorRepo.Complete(ctx, donorResponse.ID, amount); err != nil {
 		return err
 	}
