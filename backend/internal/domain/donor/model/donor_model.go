@@ -104,7 +104,7 @@ func (d *DonorResponse) Complete(amount float64) error {
 }
 
 func (d *DonorResponse) Confirm(amount float64) error {
-	if d.Status != DonorResponseStatusAccepted {
+	if d.Status != DonorResponseStatusAccepted && !(d.Status == DonorResponseStatusCompleted && d.IsConfirmed == false) {
 		return errors.New("Невозможно подтвердить отклик. не верный первичный статус")
 	}
 	d.Status = DonorResponseStatusCompleted
