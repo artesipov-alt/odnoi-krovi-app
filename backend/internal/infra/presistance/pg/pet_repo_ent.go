@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -630,4 +631,26 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 // Exists проверяет существование питомца (алиас для ExistsByID для совместимости с PetReadRepository)
 func (r *EntPetRepository) Exists(ctx context.Context, id string) (bool, error) {
 	return r.ExistsByID(ctx, id)
+}
+
+// SetLastDonation обновляет дату последнего донорства питомца
+func (r *EntPetRepository) SetLastDonation(ctx context.Context, petID string, lastDonationDate *time.Time) error {
+	if petID == "" {
+		return errors.New("неверный ID питомца")
+	}
+
+	updater := r.client.PetHealth.Update().Where(pethealth.HasOwnerWith(entpet.ID(petID)))
+
+	if lastDonationDate != nil {
+		updater.SetLastDonation(*lastDonationDate)
+	} else {
+		updater.ClearLastDonation()
+	}
+
+	_, err := updater.Save(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось обновить дату последнего донорства питомца: %w", err)
+	}
+
+	return nil
 }

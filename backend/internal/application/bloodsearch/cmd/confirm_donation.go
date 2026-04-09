@@ -71,6 +71,8 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
+		// if err := h
+
 		application, err = h.donorRepo.GetDonorResponseByID(txCtx, donorResponseID)
 		if err != nil {
 			return err

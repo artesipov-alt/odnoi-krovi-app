@@ -2,6 +2,7 @@ package pet
 
 import (
 	"context"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
@@ -32,6 +33,8 @@ type PetWriteRepository interface {
 
 	// Update обновляет существующего питомца
 	Update(ctx context.Context, id string, pet *model.Pet) (*model.Pet, error)
+
+	SetLastDonation(ctx context.Context, petID string, lastDonationDate *time.Time) error
 
 	// Delete удаляет питомца (soft delete)
 	DeleteWithRelations(ctx context.Context, id string) error
