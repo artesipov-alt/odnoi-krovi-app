@@ -331,7 +331,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                     </div>
                 </div>
             </div>
-            {(!!donation.recipientData?.advancedInfo?.description.length ||
+            {(!!donation.recipientData?.advancedInfo?.description?.length ||
                 !!donation.recipientData?.advancedInfo?.photoUrls?.[0]) && (
                 <Accordion className={styles.accordion} icon={<Pin />} title='Дополнительная информация'>
                     <div className={styles.itemText}>{donation.recipientData?.advancedInfo?.description}</div>
@@ -339,7 +339,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         <img
                             alt='Фото рецепиента'
                             className={styles.bloodRequestPhoto}
-                            src={donation.recipientData.advancedInfo.photoUrls[0]}
+                            src={donation.recipientData.advancedInfo?.photoUrls[0]}
                         />
                     )}
                 </Accordion>
