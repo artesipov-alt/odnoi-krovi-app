@@ -16,61 +16,52 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface Identity
+ * @interface RejectData
  */
-export interface Identity {
+export interface RejectData {
     [key: string]: any | any;
     /**
-     * ID пользователя у провайдера
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof Identity
+     * @memberof RejectData
      */
-    providerId: string;
+    readonly $schema?: string;
     /**
-     * Название провайдера идентификации (например, telegram, max)
+     * Причина отклонения
      * @type {string}
-     * @memberof Identity
+     * @memberof RejectData
      */
-    providerName: string;
-    /**
-     * URL для ссылки на профиль пользователя у провайдера с меткой
-     * @type {string}
-     * @memberof Identity
-     */
-    refUrl?: string;
+    reason?: string;
 }
 
 /**
- * Check if a given object implements the Identity interface.
+ * Check if a given object implements the RejectData interface.
  */
-export function instanceOfIdentity(value: object): value is Identity {
-    if (!('providerId' in value) || value['providerId'] === undefined) return false;
-    if (!('providerName' in value) || value['providerName'] === undefined) return false;
+export function instanceOfRejectData(value: object): value is RejectData {
     return true;
 }
 
-export function IdentityFromJSON(json: any): Identity {
-    return IdentityFromJSONTyped(json, false);
+export function RejectDataFromJSON(json: any): RejectData {
+    return RejectDataFromJSONTyped(json, false);
 }
 
-export function IdentityFromJSONTyped(json: any, ignoreDiscriminator: boolean): Identity {
+export function RejectDataFromJSONTyped(json: any, ignoreDiscriminator: boolean): RejectData {
     if (json == null) {
         return json;
     }
     return {
         
             ...json,
-        'providerId': json['providerId'],
-        'providerName': json['providerName'],
-        'refUrl': json['refUrl'] == null ? undefined : json['refUrl'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'reason': json['reason'] == null ? undefined : json['reason'],
     };
 }
 
-export function IdentityToJSON(json: any): Identity {
-    return IdentityToJSONTyped(json, false);
+export function RejectDataToJSON(json: any): RejectData {
+    return RejectDataToJSONTyped(json, false);
 }
 
-export function IdentityToJSONTyped(value?: Identity | null, ignoreDiscriminator: boolean = false): any {
+export function RejectDataToJSONTyped(value?: Omit<RejectData, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -78,9 +69,7 @@ export function IdentityToJSONTyped(value?: Identity | null, ignoreDiscriminator
     return {
         
             ...value,
-        'providerId': value['providerId'],
-        'providerName': value['providerName'],
-        'refUrl': value['refUrl'],
+        'reason': value['reason'],
     };
 }
 

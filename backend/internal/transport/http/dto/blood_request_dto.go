@@ -172,7 +172,7 @@ type ConfirmData struct {
 }
 
 type RejectData struct {
-	Reason string `json:"reason,omitempty" doc:"Причина отклонения"`
+	Reason *string `json:"reason,omitempty" doc:"Причина отклонения"`
 }
 
 type RejectDonorApplicationInput struct {
