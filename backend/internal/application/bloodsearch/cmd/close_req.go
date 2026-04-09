@@ -43,7 +43,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 			return err
 		}
 		for _, application := range bloodReq.DonorApplications {
-			if application.Status != donormodel.DonorResponseStatusCompleted && application.IsConfirmed != true {
+			if application.Status == donormodel.DonorResponseStatusPending || application.Status == donormodel.DonorResponseStatusAccepted || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed != true) {
 				if err := application.Reject("other"); err != nil {
 					return err
 				}
