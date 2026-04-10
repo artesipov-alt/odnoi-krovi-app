@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.10.0] - 2026-04-10
+
+### Изменено
+- **Пакетная выборка заявок доноров и запросов крови по ID питомцев:**
+  - Репозитории заявок доноров и запросов крови теперь используют пакетную выборку по ID питомцев для оптимизации производительности.
+  - Вспомогательная функция `findActiveApplication` была реализована для выбора наиболее актуальной активной заявки.
+
+### Технические детали
+- В `internal/repositories/donor/ent_donor_response_repository.go` и `internal/repositories/bloodsearch/ent_blood_request_repository.go` (или соответствующих файлах) реализованы методы `GetByPetIDs`.
+- В `internal/domain/donor/model.go` (или соответствующем файле) добавлена вспомогательная функция `findActiveApplication`.
+
 ## [3.9.14] - 2026-04-10
 
 ### Исправлено
