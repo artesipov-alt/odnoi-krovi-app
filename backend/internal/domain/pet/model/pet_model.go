@@ -590,10 +590,25 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 	return ""
 }
 
-// CalculateDonorStatus вычисляет, может ли питомец быть донором на основе стоп-факторов
+// CalculateStatus определяет статус питомца на основе заявки на кровь и откликов доноров.
+// Логика:
+//  1. Если есть активная заявка на кровь (статус не Closed), проверяем наличие активных откликов доноров.
+//     Активный отклик - это отклик со статусом Pending, Accepted или Completed, но не подтвержденный (IsConfirmed == false).
+//     Если есть хотя бы один такой отклик, статус питомца устанавливается в BloodFound.
+//     Иначе - в Recipient (идет поиск).
+//  2. Если заявки на кровь нет или она закрыта, и у питомца нет стоп-факторов, статус устанавливается в Donor.
+//  3. Если питомец имеет собственный отклик со статусом Accepted, Pending или Completed без подтверждения,
+//     статус переопределяется в PlannedDonation (планируемая донация).
 func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
 	if bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed {
-		if len(bloodReq.DonorApplications) > 0 {
+		hasActiveApplication := false
+		for _, app := range bloodReq.DonorApplications {
+			if app.Status == donormodel.DonorResponseStatusPending || app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
+				hasActiveApplication = true
+				break
+			}
+		}
+		if hasActiveApplication {
 			p.PetStatus = PetStatusBloodFound
 		} else {
 			p.PetStatus = PetStatusRecipient
