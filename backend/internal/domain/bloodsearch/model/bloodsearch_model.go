@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"time"
 
@@ -136,27 +135,22 @@ func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 	for _, app := range b.DonorApplications {
 		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
 			donated += app.Amount
-			fmt.Printf("DEBUG: Added to donated: ID=%s, Amount=%.1f, Status=%s, IsConfirmed=%t\n", app.ID, app.Amount, app.Status, app.IsConfirmed)
 		}
 	}
 	b.BloodVolumeDonated = math.Round(donated*10) / 10
-	fmt.Printf("DEBUG: BloodVolumeDonated=%.1f\n", b.BloodVolumeDonated)
 
 	reserved := b.BloodVolumeDonated
 	for _, app := range b.DonorApplications {
 		// Ищем только откликнувшихся доноров
 		if (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusAccepted) || (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusCompleted) {
 			reserved += app.Amount
-			fmt.Printf("DEBUG: Added to reserved: ID=%s, Amount=%.1f, Status=%s, IsConfirmed=%t, Reserved now=%.1f\n", app.ID, app.Amount, app.Status, app.IsConfirmed, reserved)
 			// Обрезаем до максимального
 			if reserved >= b.BloodVolumeNeeded {
 				reserved = b.BloodVolumeNeeded
-				fmt.Printf("DEBUG: Reserved capped to %.1f\n", reserved)
 			}
 		}
 	}
 	b.BloodVolumeReserved = math.Round(reserved*10) / 10
-	fmt.Printf("DEBUG: Final BloodVolumeReserved=%.1f\n", b.BloodVolumeReserved)
 }
 
 func (b *BloodRequest) RecalculateStatus() {
