@@ -45,12 +45,22 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 		return nil, apperrors.Internal(err, "failed to get pets for user")
 	}
 
+	// Collect pet IDs for batch queries
+	petIDs := make([]string, len(donorPets))
+	for i, dPet := range donorPets {
+		petIDs[i] = dPet.ID
+	}
+
+	// Batch fetch applications
+	applicationsMap, err := h.donorRepo.GetByPetIDs(ctx, petIDs)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get donor applications")
+	}
+
 	result := make([]*GetPlannedDonationsResult, 0, len(donorPets))
 	for _, dPet := range donorPets {
-		application, err := h.donorRepo.GetByPetID(ctx, dPet.ID)
-		if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
-			return nil, apperrors.Internal(err, "failed to get donor application")
-		}
+		applications := applicationsMap[dPet.ID]
+		application := findActiveApplication(applications)
 		if application != nil {
 			request, err := h.bloodReqRepo.GetByApplicationID(ctx, application.ID)
 			if err != nil {

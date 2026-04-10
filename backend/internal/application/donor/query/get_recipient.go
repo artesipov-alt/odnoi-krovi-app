@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -45,15 +44,27 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		return nil, apperrors.Internal(err, "failed to get pets for user")
 	}
 
+	// Collect pet IDs for batch queries
+	petIDs := make([]string, len(pets))
+	for i, pet := range pets {
+		petIDs[i] = pet.ID
+	}
+
+	// Batch fetch applications and blood requests
+	applicationsMap, err := h.donorRepo.GetByPetIDs(ctx, petIDs)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get donor applications")
+	}
+
+	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get blood requests")
+	}
+
 	for _, pet := range pets {
-		application, err := h.donorRepo.GetByPetID(ctx, pet.ID)
-		if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
-			return nil, apperrors.Internal(err, "failed to get donor application")
-		}
-		bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, pet.ID)
-		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-			return nil, apperrors.Internal(err, "failed to get blood request")
-		}
+		applications := applicationsMap[pet.ID]
+		application := findActiveApplication(applications)
+		bloodReq := bloodReqsMap[pet.ID]
 		pet.RecalculateFactors(time.Now(), application, bloodReq)
 		pet.CalculateStatus(application, bloodReq)
 	}
