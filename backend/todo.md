@@ -14,6 +14,11 @@
    - Вернуть прямое разыменование: `BloodGroup: *donorPet.BloodGroupName,` и `BloodGroup: *recipientPet.BloodGroupName,`
    - Причина: BloodGroupName всегда будет не-nil после применения по умолчанию.
 
+3. **odnoi-krovi-app/backend/internal/application/bloodsearch/cmd/confirm_donation.go**
+   - Удалить переменную `donorBloodGroup` и её проверку nil (около строк 113-117).
+   - Вернуть прямое разыменование: `BloodGroup: *donorPet.BloodGroupName,`
+   - Причина: BloodGroupName всегда будет не-nil после применения по умолчанию.
+
 ## Шаги для завершения:
 - Запустить миграцию базы данных/скрипт для установки групп крови по умолчанию для всех питомцев, где blood_group_id NULL.
 - Обновить логику создания/обновления питомцев, чтобы blood_group_id всегда устанавливался.
