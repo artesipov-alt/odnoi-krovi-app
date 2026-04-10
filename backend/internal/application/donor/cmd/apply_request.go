@@ -117,9 +117,14 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 			}
 		}
 
+		donorBloodGroup := ""
+		if donorPet.BloodGroupName != nil {
+			donorBloodGroup = *donorPet.BloodGroupName
+		}
+
 		if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
 			DonorName:                       donorPet.Name,
-			DonorBloodGroup:                 *donorPet.BloodGroupName,
+			DonorBloodGroup:                 donorBloodGroup,
 			RecipientProviderMaxID:          recipientProviderMaxID,
 			RecipientPetName:                recipientPet.Name,
 			RecipientPetSearchingBloodGroup: req.BloodGroupNames,
