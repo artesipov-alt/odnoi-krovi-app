@@ -69,7 +69,9 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 				app.DonorID = resp.Edges.Donor.ID
 				app.DonorName = resp.Edges.Donor.Name
 				app.DonorPhotos = resp.Edges.Donor.PhotoUrls
-				app.DonorBloodGroup = resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup
+				if resp.Edges.Donor.Edges.BloodGroupRef != nil {
+					app.DonorBloodGroup = resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup
+				}
 				app.WarnFactors = fullDonor.WarnFactors
 			}
 			donorApps[i] = app
