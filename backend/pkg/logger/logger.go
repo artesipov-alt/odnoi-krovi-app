@@ -15,7 +15,7 @@ func NewSlogHandler(env string) slog.Handler {
 	var formatter charmlog.Formatter
 
 	switch strings.ToLower(env) {
-	case "prod", "production":
+	case "info":
 		level = charmlog.InfoLevel
 		formatter = charmlog.JSONFormatter
 	default:

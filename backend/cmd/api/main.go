@@ -61,7 +61,7 @@ func main() {
 		miniappDomain := os.Getenv("MINIAPP_DOMAIN") // Получаем домен мини-приложения
 
 		// Заменяем стандартный слог логером от Charm Bracelet.
-		logger.SetupSlogDefaultLogger(env)
+		logger.SetupSlogDefaultLogger(os.Getenv("LOG_LEVEL"))
 
 		// Корневой mux
 		rootMux := http.NewServeMux()
