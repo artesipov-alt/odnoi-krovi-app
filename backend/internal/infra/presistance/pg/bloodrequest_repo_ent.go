@@ -111,6 +111,41 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 	return domainmapper.BloodReqToDomain(req), nil
 }
 
+// GetByPetIDs возвращает мапу заявок по идентификаторам питомцев
+func (r *EntBloodRequestRepository) GetByPetIDs(ctx context.Context, petIDs []string) (map[string]*bloodreqmodel.BloodRequestWithApplications, error) {
+	if len(petIDs) == 0 {
+		return make(map[string]*bloodreqmodel.BloodRequestWithApplications), nil
+	}
+
+	reqs, err := r.client(ctx).BloodSearchRequest.Query().
+		Where(bloodsearchrequest.PetIDIn(petIDs...)).
+		Order(bloodsearchrequest.ByCreatedAt(sql.OrderDesc())).
+		WithResponses(func(drq *ent.DonorResponseQuery) {
+			drq.WithDonor(func(pq *ent.PetQuery) {
+				pq.WithBloodGroupRef()
+				pq.WithHealth()
+				pq.WithTreatments()
+				pq.WithAnalyses()
+				pq.WithOwner(func(uq *ent.UserQuery) {
+					uq.Select(entuser.FieldFullName)
+				})
+			})
+		}).
+		All(ctx)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to execute blood request query by pet IDs")
+	}
+
+	result := make(map[string]*bloodreqmodel.BloodRequestWithApplications)
+	for _, req := range reqs {
+		petID := req.PetID
+		if _, exists := result[petID]; !exists {
+			result[petID] = domainmapper.BloodReqToDomain(req)
+		}
+	}
+	return result, nil
+}
+
 // GetByApplicationID возвращает заявку по id отклика на эту заявку
 func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	req, err := r.client(ctx).BloodSearchRequest.Query().

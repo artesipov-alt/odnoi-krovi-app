@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -14,6 +13,19 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
+
+// findActiveApplication finds the most recent active donor application from the list.
+// Active means status is Accepted, Pending, or Completed but not confirmed.
+func findActiveApplication(applications []*donormodel.DonorResponse) *donormodel.DonorResponse {
+	for _, app := range applications {
+		if app.Status == donormodel.DonorResponseStatusAccepted ||
+			app.Status == donormodel.DonorResponseStatusPending ||
+			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
+			return app
+		}
+	}
+	return nil
+}
 
 type GetByUserResult struct {
 	Pets           []*model.Pet
@@ -57,12 +69,27 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
+	// Collect pet IDs for batch queries
+	petIDs := make([]string, len(pets))
+	for i, pet := range pets {
+		petIDs[i] = pet.ID
+	}
+
+	// Batch fetch applications and blood requests
+	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get donor applications")
+	}
+
+	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get blood requests")
+	}
+
 	plannedDonations := make([]*donormodel.DonorResponse, 0, len(pets))
 	for _, pet := range pets {
-		application, err := h.donorRespRepo.GetByPetID(ctx, pet.ID)
-		if err != nil && !errors.Is(err, apperrors.ErrDonorResponseNotFound) {
-			return nil, apperrors.Internal(err, "failed to get donor application")
-		}
+		applications := applicationsMap[pet.ID]
+		application := findActiveApplication(applications)
 		if application != nil {
 			if application.Status == donormodel.DonorResponseStatusAccepted ||
 				(application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) ||
@@ -70,10 +97,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 				plannedDonations = append(plannedDonations, application)
 			}
 		}
-		bloodReq, err := h.bloodReqRepo.GetByPetID(ctx, pet.ID)
-		if err != nil && !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
-			return nil, apperrors.Internal(err, "failed to get blood request")
-		}
+		bloodReq := bloodReqsMap[pet.ID]
 
 		pet.RecalculateFactors(time.Now(), application, bloodReq)
 		pet.CalculateStatus(application, bloodReq)

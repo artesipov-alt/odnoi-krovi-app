@@ -134,6 +134,30 @@ func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID strin
 	return domainmapper.ApplicationToDomain(entResp), nil
 }
 
+// GetByPetIDs возвращает мапу слайсов откликов доноров по идентификаторам питомцев (все отклики, отсортированные по дате создания DESC)
+func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []string) (map[string][]*donormodel.DonorResponse, error) {
+	if len(petIDs) == 0 {
+		return make(map[string][]*donormodel.DonorResponse), nil
+	}
+
+	entResps, err := r.client(ctx).DonorResponse.Query().
+		Where(donorresponse.HasDonorWith(pet.IDIn(petIDs...))).
+		Order(donorresponse.ByCreatedAt(sql.OrderDesc())).
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
+		All(ctx)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to execute donor response query by pet IDs")
+	}
+
+	result := make(map[string][]*donormodel.DonorResponse)
+	for _, entResp := range entResps {
+		petID := entResp.Edges.Donor.ID
+		result[petID] = append(result[petID], domainmapper.ApplicationToDomain(entResp))
+	}
+	return result, nil
+}
+
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id string, status donormodel.DonorResponseStatus) error {
 	return r.client(ctx).DonorResponse.
 		UpdateOneID(id).

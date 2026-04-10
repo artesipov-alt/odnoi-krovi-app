@@ -29,10 +29,11 @@ const (
 func AuthMiddleware(jwtGenerator *auth.JWTGenerator, env string, excludedPaths ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if env == "dev" || env == "development" {
-				next.ServeHTTP(w, r)
-				return
-			}
+			// Раскомментировать, если необходимо, не проверять заголовки авторизации. Часть запросов может не работать, так как достает айтишник из заголовка.
+			// if env == "dev" || env == "development" {
+			// 	next.ServeHTTP(w, r)
+			// 	return
+			// }
 
 			// Проверяем, нужно ли пропустить аутентификацию для этого пути
 			path := r.URL.Path

@@ -60,30 +60,10 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Internal(err, "failed to check donor existence")
 	}
 
-	responses, err := h.donorRepo.GetDonorResponsesByRequestID(ctx, req.ID)
+	// Создаём новый отклик донора
+	donorResponse, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get donor responses for request")
-	}
-
-	// Ищем существующий отклик донора на эту заявку
-	var exitingApplication *model.DonorResponse
-	for _, resp := range responses {
-		if resp.DonorID == donorPet.ID {
-			exitingApplication = resp
-			break
-		}
-	}
-
-	// Инициализируем donorResponse: существующая заявка или новая модель
-	var donorResponse *model.DonorResponse
-	if exitingApplication != nil {
-		donorResponse = exitingApplication
-	} else {
-		resp, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
-		if err != nil {
-			return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
-		}
-		donorResponse = resp
+		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}
 
 	// Получаем данные реципиента
@@ -106,15 +86,9 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 
 	err = h.txManager.WithTx(ctx, func(ctx context.Context) error {
-		if exitingApplication != nil {
-			if err := h.donorRepo.UpdateDonorResponseStatus(ctx, exitingApplication.ID, donormodel.DonorResponseStatusPending); err != nil {
-				return apperrors.Internal(err, "failed to update existing donor application")
-			}
-		} else {
-			donorResponse, err = h.donorRepo.CreateDonorResponse(ctx, donorResponse)
-			if err != nil {
-				return err
-			}
+		donorResponse, err = h.donorRepo.CreateDonorResponse(ctx, donorResponse)
+		if err != nil {
+			return err
 		}
 
 		donorBloodGroup := ""
