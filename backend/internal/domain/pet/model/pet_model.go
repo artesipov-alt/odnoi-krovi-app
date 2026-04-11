@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"math"
+	"slices"
 	"time"
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -187,30 +188,31 @@ func (p *Pet) SetOwnerID(id string) error {
 type FactorCode string
 
 const (
-	StopFactorTooOld                       FactorCode = "STOP_TOO_OLD"
-	StopFactorNoPhoto                      FactorCode = "STOP_NO_PHOTO"
-	StopFactorNoInfectionVaccination       FactorCode = "STOP_NO_INFECTION_VACCINATION"
-	StopFactorNoRabiesVaccination          FactorCode = "STOP_NO_RABIES_VACCINATION"
-	StopFactorVaccinationExpired           FactorCode = "STOP_VACCINATION_EXPIRED"
-	StopFactorVaccinationTooRecent         FactorCode = "STOP_VACCINATION_TOO_RECENT"
-	StopFactorEctoparasiteTreatmentExpired FactorCode = "STOP_ECTOPARASITE_TREATMENT_EXPIRED"
-	StopFactorNoDeworming                  FactorCode = "STOP_NO_DEWORMING"
-	StopFactorNoEctoparasiteTreatment      FactorCode = "STOP_NO_ECTOPARASITE_TREATMENT"
-	StopFactorDewormingExpired             FactorCode = "STOP_DEWORMING_EXPIRED"
-	StopFactorTooYoung                     FactorCode = "STOP_TOO_YOUNG"
-	StopFactorPregnancy                    FactorCode = "STOP_PREGNANCY"
-	StopFactorLactation                    FactorCode = "STOP_LACTATION"
-	StopFactorEstrus                       FactorCode = "STOP_ESTRUS"
-	StopFactorHasDiseases                  FactorCode = "STOP_HAS_DISEASES"
-	StopFactorDonationTooRecent            FactorCode = "STOP_DONATION_TOO_RECENT"
-	StopFactorTransfused                   FactorCode = "STOP_TRANSFUSED"
-	StopFactorCurrentlyRecipient           FactorCode = "STOP_CURRENTLY_RECIPIENT"
+	StopFactorTooOld                       FactorCode = "STOP_TOO_OLD"                        // Питомец слишком стар для донации (больше 8 лет)
+	StopFactorNoPhoto                      FactorCode = "STOP_NO_PHOTO"                       // Отсутствует фотография питомца
+	StopFactorNoInfectionVaccination       FactorCode = "STOP_NO_INFECTION_VACCINATION"       // Отсутствует вакцинация от инфекций
+	StopFactorNoRabiesVaccination          FactorCode = "STOP_NO_RABIES_VACCINATION"          // Отсутствует вакцинация от бешенства
+	StopFactorVaccinationExpired           FactorCode = "STOP_VACCINATION_EXPIRED"            // Срок вакцинации истек (больше года)
+	StopFactorVaccinationTooRecent         FactorCode = "STOP_VACCINATION_TOO_RECENT"         // Вакцинация сделана слишком недавно (меньше месяца)
+	StopFactorEctoparasiteTreatmentExpired FactorCode = "STOP_ECTOPARASITE_TREATMENT_EXPIRED" // Срок обработки от эктопаразитов истек (больше 3 месяцев)
+	StopFactorNoDeworming                  FactorCode = "STOP_NO_DEWORMING"                   // Не проведена дегельминтизация
+	StopFactorNoEctoparasiteTreatment      FactorCode = "STOP_NO_ECTOPARASITE_TREATMENT"      // Не проведена обработка от эктопаразитов
+	StopFactorDewormingExpired             FactorCode = "STOP_DEWORMING_EXPIRED"              // Срок дегельминтизации истек (больше 3 месяцев)
+	StopFactorTooYoung                     FactorCode = "STOP_TOO_YOUNG"                      // Питомец слишком молод для донации (меньше года)
+	StopFactorPregnancy                    FactorCode = "STOP_PREGNANCY"                      // Беременность
+	StopFactorLactation                    FactorCode = "STOP_LACTATION"                      // Лактация
+	StopFactorEstrus                       FactorCode = "STOP_ESTRUS"                         // Течка
+	StopFactorHasDiseases                  FactorCode = "STOP_HAS_DISEASES"                   // Наличие заболеваний
+	StopFactorDonationTooRecent            FactorCode = "STOP_DONATION_TOO_RECENT"            // Последняя донация была слишком недавно (меньше 2 месяцев)
+	StopFactorTransfused                   FactorCode = "STOP_TRANSFUSED"                     // Питомец получал переливание крови
+	StopFactorCurrentlyRecipient           FactorCode = "STOP_CURRENTLY_RECIPIENT"            // Питомец в данный момент является реципиентом
 
-	WarnFactorTakingMedications    FactorCode = "WARN_TAKING_MEDICATIONS"
-	WarnFactorSurgicalIntervention FactorCode = "WARN_SURGICAL_INTERVENTION"
-	WarnFactorApproaching8Years    FactorCode = "WARN_APPROACHING_8_YEARS"
-	WarnFactorFreeRange            FactorCode = "WARN_FREE_RANGE"
-	WarnFactorNoCurrentAnalyses    FactorCode = "WARN_NO_CURRENT_ANALYSES"
+	WarnFactorTakingMedications    FactorCode = "WARN_TAKING_MEDICATIONS"    // Питомец принимает медикаменты
+	WarnFactorSurgicalIntervention FactorCode = "WARN_SURGICAL_INTERVENTION" // Было хирургическое вмешательство
+	WarnFactorApproaching8Years    FactorCode = "WARN_APPROACHING_8_YEARS"   // Питомец приближается к 8 годам
+	WarnFactorFreeRange            FactorCode = "WARN_FREE_RANGE"            // Питомец на самовыгуле
+	WarnFactorNoCurrentAnalyses    FactorCode = "WARN_NO_CURRENT_ANALYSES"   // Отсутствуют актуальные анализы
+	WarnFactorUnknownBloodGroup    FactorCode = "WARN_UNKNOWN_BLOOD_GROUP"   // Неизвестна группа крови
 )
 
 // FactorDescription представляет описание фактора
@@ -313,6 +315,10 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 		Description:    "Отсутствуют актуальные анализы",
 		SubDescription: "Рекомендованы проверки раз в год на особо опасные инфекции - их можно сдать перед донацией (в некоторых клиниках за 1 день)",
 	},
+	WarnFactorUnknownBloodGroup: {
+		Description:    "Неизвестная группа крови",
+		SubDescription: "Рекомендуется определить группу крови перед донацией",
+	},
 }
 
 // GetFactorDescription возвращает описание для данного кода фактора
@@ -386,6 +392,9 @@ func (p *Pet) GetWarnFactors(now time.Time, donorApplication *donormodel.DonorRe
 		factors = append(factors, code)
 	}
 	if code := p.checkWarnAnalyses(now); code != "" {
+		factors = append(factors, code)
+	}
+	if code := p.checkWarnBloodGroup(); code != "" {
 		factors = append(factors, code)
 	}
 	return factors
@@ -590,6 +599,13 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 	return ""
 }
 
+func (p *Pet) checkWarnBloodGroup() FactorCode {
+	if p.BloodGroupName == nil || *p.BloodGroupName == "" {
+		return WarnFactorUnknownBloodGroup
+	}
+	return ""
+}
+
 // CalculateStatus определяет статус питомца на основе заявки на кровь и откликов доноров.
 // Логика:
 //  1. Если есть активная заявка на кровь (статус не Closed), проверяем наличие активных откликов доноров.
@@ -618,6 +634,10 @@ func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *b
 	}
 	if application != nil && (application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false)) {
 		p.PetStatus = PetStatusPlannedDonation
+	}
+	// Set Recovering status if DonationTooRecent stop factor is present
+	if slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent)) {
+		p.PetStatus = PetStatusRecovering
 	}
 }
 

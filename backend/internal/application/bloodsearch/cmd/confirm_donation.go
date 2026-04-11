@@ -89,6 +89,11 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
+		now := time.Now()
+		if err := h.petRepo.SetLastDonation(txCtx, application.DonorID, &now); err != nil {
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {
