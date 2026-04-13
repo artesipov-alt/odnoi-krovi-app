@@ -615,30 +615,63 @@ func (p *Pet) checkWarnBloodGroup() FactorCode {
 //  2. Если заявки на кровь нет или она закрыта, и у питомца нет стоп-факторов, статус устанавливается в Donor.
 //  3. Если питомец имеет собственный отклик со статусом Accepted, Pending или Completed без подтверждения,
 //     статус переопределяется в PlannedDonation (планируемая донация).
+//  4. Если есть стоп-фактор DonationTooRecent, статус устанавливается в Recovering, но только если не в Recipient или BloodFound.
 func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
-	if bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed {
-		hasActiveApplication := false
-		for _, app := range bloodReq.DonorApplications {
-			if app.Status == donormodel.DonorResponseStatusPending || app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
-				hasActiveApplication = true
-				break
-			}
-		}
-		if hasActiveApplication {
+	if p.hasActiveBloodRequest(bloodReq) {
+		if p.hasActiveDonorApplications(bloodReq) {
 			p.PetStatus = PetStatusBloodFound
 		} else {
 			p.PetStatus = PetStatusRecipient
 		}
-	} else if len(p.StopFactors) == 0 {
+	} else if p.canBeDonor() {
 		p.PetStatus = PetStatusDonor
 	}
-	if application != nil && (application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false)) {
+
+	if p.hasPlannedDonation(application) {
 		p.PetStatus = PetStatusPlannedDonation
 	}
-	// Set Recovering status if DonationTooRecent stop factor is present, but only if not in Recipient or BloodFound
-	if slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent)) && p.PetStatus != PetStatusRecipient && p.PetStatus != PetStatusBloodFound {
+
+	if p.shouldBeRecovering() && p.PetStatus != PetStatusRecipient && p.PetStatus != PetStatusBloodFound {
 		p.PetStatus = PetStatusRecovering
 	}
+}
+
+// hasActiveBloodRequest проверяет, есть ли активная заявка на кровь
+func (p *Pet) hasActiveBloodRequest(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
+	return bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed
+}
+
+// hasActiveDonorApplications проверяет наличие активных откликов доноров
+func (p *Pet) hasActiveDonorApplications(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
+	if bloodReq == nil {
+		return false
+	}
+	for _, app := range bloodReq.DonorApplications {
+		if app.Status == donormodel.DonorResponseStatusPending ||
+			app.Status == donormodel.DonorResponseStatusAccepted ||
+			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
+			return true
+		}
+	}
+	return false
+}
+
+// canBeDonor проверяет возможность быть донором (нет стоп-факторов)
+func (p *Pet) canBeDonor() bool {
+	return len(p.StopFactors) == 0
+}
+
+// hasPlannedDonation проверяет, есть ли планируемая донация
+func (p *Pet) hasPlannedDonation(application *donormodel.DonorResponse) bool {
+	return application != nil &&
+		(application.Status == donormodel.DonorResponseStatusAccepted ||
+			application.Status == donormodel.DonorResponseStatusPending ||
+			(application.Status == donormodel.DonorResponseStatusCompleted && !application.IsConfirmed))
+}
+
+// shouldBeRecovering проверяет необходимость статуса Recovering
+func (p *Pet) shouldBeRecovering() bool {
+	return slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent))
 }
 
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
