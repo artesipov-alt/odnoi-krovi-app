@@ -9,9 +9,6 @@ import (
 // BloodComponent is the predicate function for bloodcomponent builders.
 type BloodComponent func(*sql.Selector)
 
-// BloodGroup is the predicate function for bloodgroup builders.
-type BloodGroup func(*sql.Selector)
-
 // BloodSearchRequest is the predicate function for bloodsearchrequest builders.
 type BloodSearchRequest func(*sql.Selector)
 

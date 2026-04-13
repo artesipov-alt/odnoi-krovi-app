@@ -65,7 +65,6 @@ func (r *EntBloodRequestRepository) GetByID(ctx context.Context, id string) (*bl
 		Where(bloodsearchrequest.ID(id)).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
-				pq.WithBloodGroupRef()
 				pq.WithOwner(func(uq *ent.UserQuery) {
 					uq.Select(entuser.FieldFullName)
 				})
@@ -92,7 +91,6 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
 				//Возвращаем полного донора, чтобы пересчитать warn-факторы.
-				pq.WithBloodGroupRef()
 				pq.WithHealth()
 				pq.WithTreatments()
 				pq.WithAnalyses()
@@ -122,7 +120,6 @@ func (r *EntBloodRequestRepository) GetByPetIDs(ctx context.Context, petIDs []st
 		Order(bloodsearchrequest.ByCreatedAt(sql.OrderDesc())).
 		WithResponses(func(drq *ent.DonorResponseQuery) {
 			drq.WithDonor(func(pq *ent.PetQuery) {
-				pq.WithBloodGroupRef()
 				pq.WithHealth()
 				pq.WithTreatments()
 				pq.WithAnalyses()
@@ -238,7 +235,6 @@ func (r *EntBloodRequestRepository) AdaptiveList(ctx context.Context, filters do
 			bloodsearchrequest.StatusEQ(bloodsearchrequest.Status(filters.Status)),
 		).
 		WithPet(func(pq *ent.PetQuery) {
-			pq.WithBloodGroupRef()
 		}).
 		Limit(filters.Limit).
 		Offset(filters.Offset).

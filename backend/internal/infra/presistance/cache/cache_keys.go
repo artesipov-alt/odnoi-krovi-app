@@ -31,9 +31,6 @@ const (
 	// Blood component keys
 	BloodComponentByIDKey = "blood_component:id:%s"
 
-	// Blood group keys
-	BloodGroupsByPetTypeKey = "blood_groups:pet_type:%s"
-
 	// Breed keys
 	BreedByIDKey    = "breed:id:%d"
 	BreedsListKey   = "breeds:list"

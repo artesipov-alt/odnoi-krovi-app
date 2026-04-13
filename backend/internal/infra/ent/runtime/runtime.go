@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -41,26 +40,6 @@ func init() {
 		return func(name string) error {
 			for _, fn := range fns {
 				if err := fn(name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	bloodgroupFields := schema.BloodGroup{}.Fields()
-	_ = bloodgroupFields
-	// bloodgroupDescBloodGroup is the schema descriptor for blood_group field.
-	bloodgroupDescBloodGroup := bloodgroupFields[2].Descriptor()
-	// bloodgroup.BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
-	bloodgroup.BloodGroupValidator = func() func(string) error {
-		validators := bloodgroupDescBloodGroup.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(blood_group string) error {
-			for _, fn := range fns {
-				if err := fn(blood_group); err != nil {
 					return err
 				}
 			}
@@ -236,6 +215,10 @@ func init() {
 	petDescChipNumber := petFields[5].Descriptor()
 	// pet.ChipNumberValidator is a validator for the "chip_number" field. It is called by the builders before save.
 	pet.ChipNumberValidator = petDescChipNumber.Validators[0].(func(string) error)
+	// petDescBloodGroup is the schema descriptor for blood_group field.
+	petDescBloodGroup := petFields[13].Descriptor()
+	// pet.BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
+	pet.BloodGroupValidator = petDescBloodGroup.Validators[0].(func(string) error)
 	// petDescID is the schema descriptor for id field.
 	petDescID := petMixinFields0[0].Descriptor()
 	// pet.DefaultID holds the default value on creation for the id field.

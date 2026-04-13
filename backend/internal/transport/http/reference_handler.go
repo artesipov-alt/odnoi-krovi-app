@@ -8,7 +8,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/enums"
@@ -22,6 +23,7 @@ type ReferenceHandler struct {
 	getAllLocationsHandler       *query.GetAllLocationsHandler
 	getAllBloodComponentsHandler *query.GetAllBloodComponentsHandler
 	getBloodGroupsByTypeHandler  *query.GetBloodGroupsByPetTypeHandler
+	bloodInfoRepo                reference.BloodInfoRepository
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
@@ -31,6 +33,7 @@ func NewReferenceHandler(
 	getAllLocationsHandler *query.GetAllLocationsHandler,
 	getAllBloodComponentsHandler *query.GetAllBloodComponentsHandler,
 	getBloodGroupsByTypeHandler *query.GetBloodGroupsByPetTypeHandler,
+	bloodInfoRepo reference.BloodInfoRepository,
 ) *ReferenceHandler {
 	return &ReferenceHandler{
 		getAllBreedsHandler:          getAllBreedsHandler,
@@ -38,6 +41,7 @@ func NewReferenceHandler(
 		getAllLocationsHandler:       getAllLocationsHandler,
 		getAllBloodComponentsHandler: getAllBloodComponentsHandler,
 		getBloodGroupsByTypeHandler:  getBloodGroupsByTypeHandler,
+		bloodInfoRepo:                bloodInfoRepo,
 	}
 }
 
@@ -371,7 +375,7 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBlo
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")
 	}
 
-	bloodGroups, err := h.getBloodGroupsByTypeHandler.Handle(ctx, bloodgroup.PetType(petType))
+	bloodGroups, err := h.getBloodGroupsByTypeHandler.Handle(ctx, petType)
 	if err != nil {
 		return nil, err
 	}
@@ -379,7 +383,7 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBlo
 	items := make([]dto.ReferenceItem, len(bloodGroups))
 	for i, bloodGroup := range bloodGroups {
 		items[i] = dto.ReferenceItem{
-			Value: bloodGroup.ID,
+			Value: bloodGroup.BloodGroup,
 			Label: bloodGroup.BloodGroup,
 		}
 	}

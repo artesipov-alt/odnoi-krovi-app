@@ -1,56 +1,8 @@
 package seeds
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 )
-
-// BloodGroupData представляет структуру для данных группы крови
-type BloodGroupData struct {
-	PetType     bloodgroup.PetType
-	BloodGroup  string
-	Description string
-}
-
-var AllBloodGroups = []BloodGroupData{
-	// Группы крови для собак
-	{
-		PetType:     bloodgroup.PetTypeDog,
-		BloodGroup:  "DEA 1+",
-		Description: "Универсальный донор для собак с положительным DEA 1+",
-	},
-	{
-		PetType:     bloodgroup.PetTypeDog,
-		BloodGroup:  "DEA 1-",
-		Description: "Универсальный донор для всех собак",
-	},
-	{
-		PetType:     bloodgroup.PetTypeDog,
-		BloodGroup:  "Неизвестная",
-		Description: "Неизвестная группа крови у собак",
-	},
-	// Группы крови для кошек
-	{
-		PetType:     bloodgroup.PetTypeCat,
-		BloodGroup:  "A",
-		Description: "Самая распространенная группа крови у кошек",
-	},
-	{
-		PetType:     bloodgroup.PetTypeCat,
-		BloodGroup:  "B",
-		Description: "Часто встречается у определенных пород (британская, рекс)",
-	},
-	{
-		PetType:     bloodgroup.PetTypeCat,
-		BloodGroup:  "AB",
-		Description: "Очень редкая группа крови",
-	},
-	{
-		PetType:     bloodgroup.PetTypeCat,
-		BloodGroup:  "Неизвестная",
-		Description: "Неизвестная группа крови у кошек",
-	},
-}
 
 // AllBloodComponents содержит все предопределенные компоненты крови
 var AllBloodComponents = []string{

@@ -47,8 +47,8 @@ const (
 	FieldLivingCondition = "living_condition"
 	// FieldReproductiveStatus holds the string denoting the reproductive_status field in the database.
 	FieldReproductiveStatus = "reproductive_status"
-	// FieldBloodGroupID holds the string denoting the blood_group_id field in the database.
-	FieldBloodGroupID = "blood_group_id"
+	// FieldBloodGroup holds the string denoting the blood_group field in the database.
+	FieldBloodGroup = "blood_group"
 	// FieldBonuses holds the string denoting the bonuses field in the database.
 	FieldBonuses = "bonuses"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
@@ -61,8 +61,6 @@ const (
 	EdgeAnalyses = "analyses"
 	// EdgeBreedRef holds the string denoting the breed_ref edge name in mutations.
 	EdgeBreedRef = "breed_ref"
-	// EdgeBloodGroupRef holds the string denoting the blood_group_ref edge name in mutations.
-	EdgeBloodGroupRef = "blood_group_ref"
 	// EdgeDonations holds the string denoting the donations edge name in mutations.
 	EdgeDonations = "donations"
 	// EdgeBloodSearchRequest holds the string denoting the blood_search_request edge name in mutations.
@@ -104,13 +102,6 @@ const (
 	BreedRefInverseTable = "ref_breeds"
 	// BreedRefColumn is the table column denoting the breed_ref relation/edge.
 	BreedRefColumn = "breed_id"
-	// BloodGroupRefTable is the table that holds the blood_group_ref relation/edge.
-	BloodGroupRefTable = "pets"
-	// BloodGroupRefInverseTable is the table name for the BloodGroup entity.
-	// It exists in this package in order to avoid circular dependency with the "bloodgroup" package.
-	BloodGroupRefInverseTable = "ref_bloodg"
-	// BloodGroupRefColumn is the table column denoting the blood_group_ref relation/edge.
-	BloodGroupRefColumn = "blood_group_id"
 	// DonationsTable is the table that holds the donations relation/edge.
 	DonationsTable = "donor_responses"
 	// DonationsInverseTable is the table name for the DonorResponse entity.
@@ -146,7 +137,7 @@ var Columns = []string{
 	FieldTreatmentID,
 	FieldLivingCondition,
 	FieldReproductiveStatus,
-	FieldBloodGroupID,
+	FieldBloodGroup,
 	FieldBonuses,
 }
 
@@ -175,6 +166,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// ChipNumberValidator is a validator for the "chip_number" field. It is called by the builders before save.
 	ChipNumberValidator func(string) error
+	// BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
+	BloodGroupValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -262,9 +255,9 @@ func ByReproductiveStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReproductiveStatus, opts...).ToFunc()
 }
 
-// ByBloodGroupID orders the results by the blood_group_id field.
-func ByBloodGroupID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBloodGroupID, opts...).ToFunc()
+// ByBloodGroup orders the results by the blood_group field.
+func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBloodGroup, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.
@@ -306,13 +299,6 @@ func ByAnalyses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 func ByBreedRefField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newBreedRefStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByBloodGroupRefField orders the results by blood_group_ref field.
-func ByBloodGroupRefField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBloodGroupRefStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -376,13 +362,6 @@ func newBreedRefStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BreedRefInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, BreedRefTable, BreedRefColumn),
-	)
-}
-func newBloodGroupRefStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(BloodGroupRefInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, BloodGroupRefTable, BloodGroupRefColumn),
 	)
 }
 func newDonationsStep() *sqlgraph.Step {

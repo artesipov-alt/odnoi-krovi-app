@@ -21,18 +21,6 @@ func (f BloodComponentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BloodComponentMutation", m)
 }
 
-// The BloodGroupFunc type is an adapter to allow the use of ordinary
-// function as BloodGroup mutator.
-type BloodGroupFunc func(context.Context, *ent.BloodGroupMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f BloodGroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.BloodGroupMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BloodGroupMutation", m)
-}
-
 // The BloodSearchRequestFunc type is an adapter to allow the use of ordinary
 // function as BloodSearchRequest mutator.
 type BloodSearchRequestFunc func(context.Context, *ent.BloodSearchRequestMutation) (ent.Value, error)

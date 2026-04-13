@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -39,7 +38,6 @@ const (
 
 	// Node types.
 	TypeBloodComponent     = "BloodComponent"
-	TypeBloodGroup         = "BloodGroup"
 	TypeBloodSearchRequest = "BloodSearchRequest"
 	TypeBreed              = "Breed"
 	TypeDonorPreference    = "DonorPreference"
@@ -385,561 +383,6 @@ func (m *BloodComponentMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *BloodComponentMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown BloodComponent edge %s", name)
-}
-
-// BloodGroupMutation represents an operation that mutates the BloodGroup nodes in the graph.
-type BloodGroupMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *string
-	pet_type      *bloodgroup.PetType
-	blood_group   *string
-	description   *string
-	clearedFields map[string]struct{}
-	pets          map[string]struct{}
-	removedpets   map[string]struct{}
-	clearedpets   bool
-	done          bool
-	oldValue      func(context.Context) (*BloodGroup, error)
-	predicates    []predicate.BloodGroup
-}
-
-var _ ent.Mutation = (*BloodGroupMutation)(nil)
-
-// bloodgroupOption allows management of the mutation configuration using functional options.
-type bloodgroupOption func(*BloodGroupMutation)
-
-// newBloodGroupMutation creates new mutation for the BloodGroup entity.
-func newBloodGroupMutation(c config, op Op, opts ...bloodgroupOption) *BloodGroupMutation {
-	m := &BloodGroupMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeBloodGroup,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withBloodGroupID sets the ID field of the mutation.
-func withBloodGroupID(id string) bloodgroupOption {
-	return func(m *BloodGroupMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *BloodGroup
-		)
-		m.oldValue = func(ctx context.Context) (*BloodGroup, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().BloodGroup.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withBloodGroup sets the old BloodGroup of the mutation.
-func withBloodGroup(node *BloodGroup) bloodgroupOption {
-	return func(m *BloodGroupMutation) {
-		m.oldValue = func(context.Context) (*BloodGroup, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m BloodGroupMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m BloodGroupMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of BloodGroup entities.
-func (m *BloodGroupMutation) SetID(id string) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *BloodGroupMutation) ID() (id string, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *BloodGroupMutation) IDs(ctx context.Context) ([]string, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []string{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().BloodGroup.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetPetType sets the "pet_type" field.
-func (m *BloodGroupMutation) SetPetType(bt bloodgroup.PetType) {
-	m.pet_type = &bt
-}
-
-// PetType returns the value of the "pet_type" field in the mutation.
-func (m *BloodGroupMutation) PetType() (r bloodgroup.PetType, exists bool) {
-	v := m.pet_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPetType returns the old "pet_type" field's value of the BloodGroup entity.
-// If the BloodGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodGroupMutation) OldPetType(ctx context.Context) (v bloodgroup.PetType, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPetType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPetType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPetType: %w", err)
-	}
-	return oldValue.PetType, nil
-}
-
-// ResetPetType resets all changes to the "pet_type" field.
-func (m *BloodGroupMutation) ResetPetType() {
-	m.pet_type = nil
-}
-
-// SetBloodGroup sets the "blood_group" field.
-func (m *BloodGroupMutation) SetBloodGroup(s string) {
-	m.blood_group = &s
-}
-
-// BloodGroup returns the value of the "blood_group" field in the mutation.
-func (m *BloodGroupMutation) BloodGroup() (r string, exists bool) {
-	v := m.blood_group
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldBloodGroup returns the old "blood_group" field's value of the BloodGroup entity.
-// If the BloodGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodGroupMutation) OldBloodGroup(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodGroup is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodGroup requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodGroup: %w", err)
-	}
-	return oldValue.BloodGroup, nil
-}
-
-// ResetBloodGroup resets all changes to the "blood_group" field.
-func (m *BloodGroupMutation) ResetBloodGroup() {
-	m.blood_group = nil
-}
-
-// SetDescription sets the "description" field.
-func (m *BloodGroupMutation) SetDescription(s string) {
-	m.description = &s
-}
-
-// Description returns the value of the "description" field in the mutation.
-func (m *BloodGroupMutation) Description() (r string, exists bool) {
-	v := m.description
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDescription returns the old "description" field's value of the BloodGroup entity.
-// If the BloodGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BloodGroupMutation) OldDescription(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDescription requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
-	}
-	return oldValue.Description, nil
-}
-
-// ClearDescription clears the value of the "description" field.
-func (m *BloodGroupMutation) ClearDescription() {
-	m.description = nil
-	m.clearedFields[bloodgroup.FieldDescription] = struct{}{}
-}
-
-// DescriptionCleared returns if the "description" field was cleared in this mutation.
-func (m *BloodGroupMutation) DescriptionCleared() bool {
-	_, ok := m.clearedFields[bloodgroup.FieldDescription]
-	return ok
-}
-
-// ResetDescription resets all changes to the "description" field.
-func (m *BloodGroupMutation) ResetDescription() {
-	m.description = nil
-	delete(m.clearedFields, bloodgroup.FieldDescription)
-}
-
-// AddPetIDs adds the "pets" edge to the Pet entity by ids.
-func (m *BloodGroupMutation) AddPetIDs(ids ...string) {
-	if m.pets == nil {
-		m.pets = make(map[string]struct{})
-	}
-	for i := range ids {
-		m.pets[ids[i]] = struct{}{}
-	}
-}
-
-// ClearPets clears the "pets" edge to the Pet entity.
-func (m *BloodGroupMutation) ClearPets() {
-	m.clearedpets = true
-}
-
-// PetsCleared reports if the "pets" edge to the Pet entity was cleared.
-func (m *BloodGroupMutation) PetsCleared() bool {
-	return m.clearedpets
-}
-
-// RemovePetIDs removes the "pets" edge to the Pet entity by IDs.
-func (m *BloodGroupMutation) RemovePetIDs(ids ...string) {
-	if m.removedpets == nil {
-		m.removedpets = make(map[string]struct{})
-	}
-	for i := range ids {
-		delete(m.pets, ids[i])
-		m.removedpets[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedPets returns the removed IDs of the "pets" edge to the Pet entity.
-func (m *BloodGroupMutation) RemovedPetsIDs() (ids []string) {
-	for id := range m.removedpets {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// PetsIDs returns the "pets" edge IDs in the mutation.
-func (m *BloodGroupMutation) PetsIDs() (ids []string) {
-	for id := range m.pets {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetPets resets all changes to the "pets" edge.
-func (m *BloodGroupMutation) ResetPets() {
-	m.pets = nil
-	m.clearedpets = false
-	m.removedpets = nil
-}
-
-// Where appends a list predicates to the BloodGroupMutation builder.
-func (m *BloodGroupMutation) Where(ps ...predicate.BloodGroup) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the BloodGroupMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *BloodGroupMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.BloodGroup, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *BloodGroupMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *BloodGroupMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (BloodGroup).
-func (m *BloodGroupMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *BloodGroupMutation) Fields() []string {
-	fields := make([]string, 0, 3)
-	if m.pet_type != nil {
-		fields = append(fields, bloodgroup.FieldPetType)
-	}
-	if m.blood_group != nil {
-		fields = append(fields, bloodgroup.FieldBloodGroup)
-	}
-	if m.description != nil {
-		fields = append(fields, bloodgroup.FieldDescription)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *BloodGroupMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case bloodgroup.FieldPetType:
-		return m.PetType()
-	case bloodgroup.FieldBloodGroup:
-		return m.BloodGroup()
-	case bloodgroup.FieldDescription:
-		return m.Description()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *BloodGroupMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case bloodgroup.FieldPetType:
-		return m.OldPetType(ctx)
-	case bloodgroup.FieldBloodGroup:
-		return m.OldBloodGroup(ctx)
-	case bloodgroup.FieldDescription:
-		return m.OldDescription(ctx)
-	}
-	return nil, fmt.Errorf("unknown BloodGroup field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *BloodGroupMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case bloodgroup.FieldPetType:
-		v, ok := value.(bloodgroup.PetType)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPetType(v)
-		return nil
-	case bloodgroup.FieldBloodGroup:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetBloodGroup(v)
-		return nil
-	case bloodgroup.FieldDescription:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDescription(v)
-		return nil
-	}
-	return fmt.Errorf("unknown BloodGroup field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *BloodGroupMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *BloodGroupMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *BloodGroupMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown BloodGroup numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *BloodGroupMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(bloodgroup.FieldDescription) {
-		fields = append(fields, bloodgroup.FieldDescription)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *BloodGroupMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *BloodGroupMutation) ClearField(name string) error {
-	switch name {
-	case bloodgroup.FieldDescription:
-		m.ClearDescription()
-		return nil
-	}
-	return fmt.Errorf("unknown BloodGroup nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *BloodGroupMutation) ResetField(name string) error {
-	switch name {
-	case bloodgroup.FieldPetType:
-		m.ResetPetType()
-		return nil
-	case bloodgroup.FieldBloodGroup:
-		m.ResetBloodGroup()
-		return nil
-	case bloodgroup.FieldDescription:
-		m.ResetDescription()
-		return nil
-	}
-	return fmt.Errorf("unknown BloodGroup field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *BloodGroupMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.pets != nil {
-		edges = append(edges, bloodgroup.EdgePets)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *BloodGroupMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case bloodgroup.EdgePets:
-		ids := make([]ent.Value, 0, len(m.pets))
-		for id := range m.pets {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *BloodGroupMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.removedpets != nil {
-		edges = append(edges, bloodgroup.EdgePets)
-	}
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *BloodGroupMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case bloodgroup.EdgePets:
-		ids := make([]ent.Value, 0, len(m.removedpets))
-		for id := range m.removedpets {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *BloodGroupMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.clearedpets {
-		edges = append(edges, bloodgroup.EdgePets)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *BloodGroupMutation) EdgeCleared(name string) bool {
-	switch name {
-	case bloodgroup.EdgePets:
-		return m.clearedpets
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *BloodGroupMutation) ClearEdge(name string) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown BloodGroup unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *BloodGroupMutation) ResetEdge(name string) error {
-	switch name {
-	case bloodgroup.EdgePets:
-		m.ResetPets()
-		return nil
-	}
-	return fmt.Errorf("unknown BloodGroup edge %s", name)
 }
 
 // BloodSearchRequestMutation represents an operation that mutates the BloodSearchRequest nodes in the graph.
@@ -6201,6 +5644,7 @@ type PetMutation struct {
 	appendphoto_urls            []string
 	living_condition            *string
 	reproductive_status         *string
+	blood_group                 *string
 	bonuses                     *[]string
 	appendbonuses               []string
 	clearedFields               map[string]struct{}
@@ -6215,8 +5659,6 @@ type PetMutation struct {
 	clearedanalyses             bool
 	breed_ref                   *string
 	clearedbreed_ref            bool
-	blood_group_ref             *string
-	clearedblood_group_ref      bool
 	donations                   map[string]struct{}
 	removeddonations            map[string]struct{}
 	cleareddonations            bool
@@ -7101,53 +6543,53 @@ func (m *PetMutation) ResetReproductiveStatus() {
 	delete(m.clearedFields, pet.FieldReproductiveStatus)
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (m *PetMutation) SetBloodGroupID(s string) {
-	m.blood_group_ref = &s
+// SetBloodGroup sets the "blood_group" field.
+func (m *PetMutation) SetBloodGroup(s string) {
+	m.blood_group = &s
 }
 
-// BloodGroupID returns the value of the "blood_group_id" field in the mutation.
-func (m *PetMutation) BloodGroupID() (r string, exists bool) {
-	v := m.blood_group_ref
+// BloodGroup returns the value of the "blood_group" field in the mutation.
+func (m *PetMutation) BloodGroup() (r string, exists bool) {
+	v := m.blood_group
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldBloodGroupID returns the old "blood_group_id" field's value of the Pet entity.
+// OldBloodGroup returns the old "blood_group" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldBloodGroupID(ctx context.Context) (v *string, err error) {
+func (m *PetMutation) OldBloodGroup(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBloodGroupID is only allowed on UpdateOne operations")
+		return v, errors.New("OldBloodGroup is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBloodGroupID requires an ID field in the mutation")
+		return v, errors.New("OldBloodGroup requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBloodGroupID: %w", err)
+		return v, fmt.Errorf("querying old value for OldBloodGroup: %w", err)
 	}
-	return oldValue.BloodGroupID, nil
+	return oldValue.BloodGroup, nil
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (m *PetMutation) ClearBloodGroupID() {
-	m.blood_group_ref = nil
-	m.clearedFields[pet.FieldBloodGroupID] = struct{}{}
+// ClearBloodGroup clears the value of the "blood_group" field.
+func (m *PetMutation) ClearBloodGroup() {
+	m.blood_group = nil
+	m.clearedFields[pet.FieldBloodGroup] = struct{}{}
 }
 
-// BloodGroupIDCleared returns if the "blood_group_id" field was cleared in this mutation.
-func (m *PetMutation) BloodGroupIDCleared() bool {
-	_, ok := m.clearedFields[pet.FieldBloodGroupID]
+// BloodGroupCleared returns if the "blood_group" field was cleared in this mutation.
+func (m *PetMutation) BloodGroupCleared() bool {
+	_, ok := m.clearedFields[pet.FieldBloodGroup]
 	return ok
 }
 
-// ResetBloodGroupID resets all changes to the "blood_group_id" field.
-func (m *PetMutation) ResetBloodGroupID() {
-	m.blood_group_ref = nil
-	delete(m.clearedFields, pet.FieldBloodGroupID)
+// ResetBloodGroup resets all changes to the "blood_group" field.
+func (m *PetMutation) ResetBloodGroup() {
+	m.blood_group = nil
+	delete(m.clearedFields, pet.FieldBloodGroup)
 }
 
 // SetBonuses sets the "bonuses" field.
@@ -7416,46 +6858,6 @@ func (m *PetMutation) ResetBreedRef() {
 	m.clearedbreed_ref = false
 }
 
-// SetBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by id.
-func (m *PetMutation) SetBloodGroupRefID(id string) {
-	m.blood_group_ref = &id
-}
-
-// ClearBloodGroupRef clears the "blood_group_ref" edge to the BloodGroup entity.
-func (m *PetMutation) ClearBloodGroupRef() {
-	m.clearedblood_group_ref = true
-	m.clearedFields[pet.FieldBloodGroupID] = struct{}{}
-}
-
-// BloodGroupRefCleared reports if the "blood_group_ref" edge to the BloodGroup entity was cleared.
-func (m *PetMutation) BloodGroupRefCleared() bool {
-	return m.BloodGroupIDCleared() || m.clearedblood_group_ref
-}
-
-// BloodGroupRefID returns the "blood_group_ref" edge ID in the mutation.
-func (m *PetMutation) BloodGroupRefID() (id string, exists bool) {
-	if m.blood_group_ref != nil {
-		return *m.blood_group_ref, true
-	}
-	return
-}
-
-// BloodGroupRefIDs returns the "blood_group_ref" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// BloodGroupRefID instead. It exists only for internal usage by the builders.
-func (m *PetMutation) BloodGroupRefIDs() (ids []string) {
-	if id := m.blood_group_ref; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetBloodGroupRef resets all changes to the "blood_group_ref" edge.
-func (m *PetMutation) ResetBloodGroupRef() {
-	m.blood_group_ref = nil
-	m.clearedblood_group_ref = false
-}
-
 // AddDonationIDs adds the "donations" edge to the DonorResponse entity by ids.
 func (m *PetMutation) AddDonationIDs(ids ...string) {
 	if m.donations == nil {
@@ -7647,8 +7049,8 @@ func (m *PetMutation) Fields() []string {
 	if m.reproductive_status != nil {
 		fields = append(fields, pet.FieldReproductiveStatus)
 	}
-	if m.blood_group_ref != nil {
-		fields = append(fields, pet.FieldBloodGroupID)
+	if m.blood_group != nil {
+		fields = append(fields, pet.FieldBloodGroup)
 	}
 	if m.bonuses != nil {
 		fields = append(fields, pet.FieldBonuses)
@@ -7693,8 +7095,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.LivingCondition()
 	case pet.FieldReproductiveStatus:
 		return m.ReproductiveStatus()
-	case pet.FieldBloodGroupID:
-		return m.BloodGroupID()
+	case pet.FieldBloodGroup:
+		return m.BloodGroup()
 	case pet.FieldBonuses:
 		return m.Bonuses()
 	}
@@ -7738,8 +7140,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldLivingCondition(ctx)
 	case pet.FieldReproductiveStatus:
 		return m.OldReproductiveStatus(ctx)
-	case pet.FieldBloodGroupID:
-		return m.OldBloodGroupID(ctx)
+	case pet.FieldBloodGroup:
+		return m.OldBloodGroup(ctx)
 	case pet.FieldBonuses:
 		return m.OldBonuses(ctx)
 	}
@@ -7863,12 +7265,12 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReproductiveStatus(v)
 		return nil
-	case pet.FieldBloodGroupID:
+	case pet.FieldBloodGroup:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBloodGroupID(v)
+		m.SetBloodGroup(v)
 		return nil
 	case pet.FieldBonuses:
 		v, ok := value.([]string)
@@ -7958,8 +7360,8 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldReproductiveStatus) {
 		fields = append(fields, pet.FieldReproductiveStatus)
 	}
-	if m.FieldCleared(pet.FieldBloodGroupID) {
-		fields = append(fields, pet.FieldBloodGroupID)
+	if m.FieldCleared(pet.FieldBloodGroup) {
+		fields = append(fields, pet.FieldBloodGroup)
 	}
 	if m.FieldCleared(pet.FieldBonuses) {
 		fields = append(fields, pet.FieldBonuses)
@@ -8014,8 +7416,8 @@ func (m *PetMutation) ClearField(name string) error {
 	case pet.FieldReproductiveStatus:
 		m.ClearReproductiveStatus()
 		return nil
-	case pet.FieldBloodGroupID:
-		m.ClearBloodGroupID()
+	case pet.FieldBloodGroup:
+		m.ClearBloodGroup()
 		return nil
 	case pet.FieldBonuses:
 		m.ClearBonuses()
@@ -8076,8 +7478,8 @@ func (m *PetMutation) ResetField(name string) error {
 	case pet.FieldReproductiveStatus:
 		m.ResetReproductiveStatus()
 		return nil
-	case pet.FieldBloodGroupID:
-		m.ResetBloodGroupID()
+	case pet.FieldBloodGroup:
+		m.ResetBloodGroup()
 		return nil
 	case pet.FieldBonuses:
 		m.ResetBonuses()
@@ -8088,7 +7490,7 @@ func (m *PetMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PetMutation) AddedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 7)
 	if m.owner != nil {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -8103,9 +7505,6 @@ func (m *PetMutation) AddedEdges() []string {
 	}
 	if m.breed_ref != nil {
 		edges = append(edges, pet.EdgeBreedRef)
-	}
-	if m.blood_group_ref != nil {
-		edges = append(edges, pet.EdgeBloodGroupRef)
 	}
 	if m.donations != nil {
 		edges = append(edges, pet.EdgeDonations)
@@ -8142,10 +7541,6 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 		if id := m.breed_ref; id != nil {
 			return []ent.Value{*id}
 		}
-	case pet.EdgeBloodGroupRef:
-		if id := m.blood_group_ref; id != nil {
-			return []ent.Value{*id}
-		}
 	case pet.EdgeDonations:
 		ids := make([]ent.Value, 0, len(m.donations))
 		for id := range m.donations {
@@ -8164,7 +7559,7 @@ func (m *PetMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PetMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 7)
 	if m.removedanalyses != nil {
 		edges = append(edges, pet.EdgeAnalyses)
 	}
@@ -8205,7 +7600,7 @@ func (m *PetMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PetMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 8)
+	edges := make([]string, 0, 7)
 	if m.clearedowner {
 		edges = append(edges, pet.EdgeOwner)
 	}
@@ -8220,9 +7615,6 @@ func (m *PetMutation) ClearedEdges() []string {
 	}
 	if m.clearedbreed_ref {
 		edges = append(edges, pet.EdgeBreedRef)
-	}
-	if m.clearedblood_group_ref {
-		edges = append(edges, pet.EdgeBloodGroupRef)
 	}
 	if m.cleareddonations {
 		edges = append(edges, pet.EdgeDonations)
@@ -8247,8 +7639,6 @@ func (m *PetMutation) EdgeCleared(name string) bool {
 		return m.clearedanalyses
 	case pet.EdgeBreedRef:
 		return m.clearedbreed_ref
-	case pet.EdgeBloodGroupRef:
-		return m.clearedblood_group_ref
 	case pet.EdgeDonations:
 		return m.cleareddonations
 	case pet.EdgeBloodSearchRequest:
@@ -8273,9 +7663,6 @@ func (m *PetMutation) ClearEdge(name string) error {
 	case pet.EdgeBreedRef:
 		m.ClearBreedRef()
 		return nil
-	case pet.EdgeBloodGroupRef:
-		m.ClearBloodGroupRef()
-		return nil
 	}
 	return fmt.Errorf("unknown Pet unique edge %s", name)
 }
@@ -8298,9 +7685,6 @@ func (m *PetMutation) ResetEdge(name string) error {
 		return nil
 	case pet.EdgeBreedRef:
 		m.ResetBreedRef()
-		return nil
-	case pet.EdgeBloodGroupRef:
-		m.ResetBloodGroupRef()
 		return nil
 	case pet.EdgeDonations:
 		m.ResetDonations()

@@ -38,7 +38,7 @@ func (Pet) Fields() []ent.Field {
 		field.String("treatment_id").Optional(),
 		field.String("living_condition").Optional(),
 		field.String("reproductive_status").Optional(),
-		field.String("blood_group_id").Optional().Nillable(),
+		field.String("blood_group").Optional().MaxLen(50),
 		field.JSON("bonuses", []string{}).Optional(),
 	}
 }
@@ -64,10 +64,6 @@ func (Pet) Edges() []ent.Edge {
 			Ref("pets").
 			Unique().
 			Field("breed_id"),
-		edge.From("blood_group_ref", BloodGroup.Type).
-			Ref("pets").
-			Unique().
-			Field("blood_group_id"),
 		edge.From("donations", DonorResponse.Type).
 			Ref("donor"),
 		edge.To("blood_search_request", BloodSearchRequest.Type),

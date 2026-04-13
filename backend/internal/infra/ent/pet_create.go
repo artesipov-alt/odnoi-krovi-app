@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -231,16 +230,16 @@ func (_c *PetCreate) SetNillableReproductiveStatus(v *string) *PetCreate {
 	return _c
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (_c *PetCreate) SetBloodGroupID(v string) *PetCreate {
-	_c.mutation.SetBloodGroupID(v)
+// SetBloodGroup sets the "blood_group" field.
+func (_c *PetCreate) SetBloodGroup(v string) *PetCreate {
+	_c.mutation.SetBloodGroup(v)
 	return _c
 }
 
-// SetNillableBloodGroupID sets the "blood_group_id" field if the given value is not nil.
-func (_c *PetCreate) SetNillableBloodGroupID(v *string) *PetCreate {
+// SetNillableBloodGroup sets the "blood_group" field if the given value is not nil.
+func (_c *PetCreate) SetNillableBloodGroup(v *string) *PetCreate {
 	if v != nil {
-		_c.SetBloodGroupID(*v)
+		_c.SetBloodGroup(*v)
 	}
 	return _c
 }
@@ -342,25 +341,6 @@ func (_c *PetCreate) SetBreedRef(v *Breed) *PetCreate {
 	return _c.SetBreedRefID(v.ID)
 }
 
-// SetBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID.
-func (_c *PetCreate) SetBloodGroupRefID(id string) *PetCreate {
-	_c.mutation.SetBloodGroupRefID(id)
-	return _c
-}
-
-// SetNillableBloodGroupRefID sets the "blood_group_ref" edge to the BloodGroup entity by ID if the given value is not nil.
-func (_c *PetCreate) SetNillableBloodGroupRefID(id *string) *PetCreate {
-	if id != nil {
-		_c = _c.SetBloodGroupRefID(*id)
-	}
-	return _c
-}
-
-// SetBloodGroupRef sets the "blood_group_ref" edge to the BloodGroup entity.
-func (_c *PetCreate) SetBloodGroupRef(v *BloodGroup) *PetCreate {
-	return _c.SetBloodGroupRefID(v.ID)
-}
-
 // AddDonationIDs adds the "donations" edge to the DonorResponse entity by IDs.
 func (_c *PetCreate) AddDonationIDs(ids ...string) *PetCreate {
 	_c.mutation.AddDonationIDs(ids...)
@@ -459,6 +439,11 @@ func (_c *PetCreate) check() error {
 			return &ValidationError{Name: "chip_number", err: fmt.Errorf(`ent: validator failed for field "Pet.chip_number": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.BloodGroup(); ok {
+		if err := pet.BloodGroupValidator(v); err != nil {
+			return &ValidationError{Name: "blood_group", err: fmt.Errorf(`ent: validator failed for field "Pet.blood_group": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -542,6 +527,10 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.ReproductiveStatus(); ok {
 		_spec.SetField(pet.FieldReproductiveStatus, field.TypeString, value)
 		_node.ReproductiveStatus = value
+	}
+	if value, ok := _c.mutation.BloodGroup(); ok {
+		_spec.SetField(pet.FieldBloodGroup, field.TypeString, value)
+		_node.BloodGroup = value
 	}
 	if value, ok := _c.mutation.Bonuses(); ok {
 		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
@@ -629,23 +618,6 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BreedID = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.BloodGroupRefIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   pet.BloodGroupRefTable,
-			Columns: []string{pet.BloodGroupRefColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bloodgroup.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.BloodGroupID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.DonationsIDs(); len(nodes) > 0 {
@@ -990,21 +962,21 @@ func (u *PetUpsert) ClearReproductiveStatus() *PetUpsert {
 	return u
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (u *PetUpsert) SetBloodGroupID(v string) *PetUpsert {
-	u.Set(pet.FieldBloodGroupID, v)
+// SetBloodGroup sets the "blood_group" field.
+func (u *PetUpsert) SetBloodGroup(v string) *PetUpsert {
+	u.Set(pet.FieldBloodGroup, v)
 	return u
 }
 
-// UpdateBloodGroupID sets the "blood_group_id" field to the value that was provided on create.
-func (u *PetUpsert) UpdateBloodGroupID() *PetUpsert {
-	u.SetExcluded(pet.FieldBloodGroupID)
+// UpdateBloodGroup sets the "blood_group" field to the value that was provided on create.
+func (u *PetUpsert) UpdateBloodGroup() *PetUpsert {
+	u.SetExcluded(pet.FieldBloodGroup)
 	return u
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (u *PetUpsert) ClearBloodGroupID() *PetUpsert {
-	u.SetNull(pet.FieldBloodGroupID)
+// ClearBloodGroup clears the value of the "blood_group" field.
+func (u *PetUpsert) ClearBloodGroup() *PetUpsert {
+	u.SetNull(pet.FieldBloodGroup)
 	return u
 }
 
@@ -1378,24 +1350,24 @@ func (u *PetUpsertOne) ClearReproductiveStatus() *PetUpsertOne {
 	})
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (u *PetUpsertOne) SetBloodGroupID(v string) *PetUpsertOne {
+// SetBloodGroup sets the "blood_group" field.
+func (u *PetUpsertOne) SetBloodGroup(v string) *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
-		s.SetBloodGroupID(v)
+		s.SetBloodGroup(v)
 	})
 }
 
-// UpdateBloodGroupID sets the "blood_group_id" field to the value that was provided on create.
-func (u *PetUpsertOne) UpdateBloodGroupID() *PetUpsertOne {
+// UpdateBloodGroup sets the "blood_group" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateBloodGroup() *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
-		s.UpdateBloodGroupID()
+		s.UpdateBloodGroup()
 	})
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (u *PetUpsertOne) ClearBloodGroupID() *PetUpsertOne {
+// ClearBloodGroup clears the value of the "blood_group" field.
+func (u *PetUpsertOne) ClearBloodGroup() *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
-		s.ClearBloodGroupID()
+		s.ClearBloodGroup()
 	})
 }
 
@@ -1939,24 +1911,24 @@ func (u *PetUpsertBulk) ClearReproductiveStatus() *PetUpsertBulk {
 	})
 }
 
-// SetBloodGroupID sets the "blood_group_id" field.
-func (u *PetUpsertBulk) SetBloodGroupID(v string) *PetUpsertBulk {
+// SetBloodGroup sets the "blood_group" field.
+func (u *PetUpsertBulk) SetBloodGroup(v string) *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
-		s.SetBloodGroupID(v)
+		s.SetBloodGroup(v)
 	})
 }
 
-// UpdateBloodGroupID sets the "blood_group_id" field to the value that was provided on create.
-func (u *PetUpsertBulk) UpdateBloodGroupID() *PetUpsertBulk {
+// UpdateBloodGroup sets the "blood_group" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateBloodGroup() *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
-		s.UpdateBloodGroupID()
+		s.UpdateBloodGroup()
 	})
 }
 
-// ClearBloodGroupID clears the value of the "blood_group_id" field.
-func (u *PetUpsertBulk) ClearBloodGroupID() *PetUpsertBulk {
+// ClearBloodGroup clears the value of the "blood_group" field.
+func (u *PetUpsertBulk) ClearBloodGroup() *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
-		s.ClearBloodGroupID()
+		s.ClearBloodGroup()
 	})
 }
 

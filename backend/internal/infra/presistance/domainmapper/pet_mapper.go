@@ -33,9 +33,9 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		DeletedAt:          e.DeletedAt,
 	}
 
-	// Map BloodGroupName from edge if available
-	if e.Edges.BloodGroupRef != nil {
-		pet.BloodGroupName = &e.Edges.BloodGroupRef.BloodGroup
+	// Map BloodGroupName directly from field
+	if e.BloodGroup != "" {
+		pet.BloodGroupName = &e.BloodGroup
 	}
 
 	// Map BreedRefID from edge if available

@@ -16,7 +16,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -39,8 +38,6 @@ type Client struct {
 	Schema *migrate.Schema
 	// BloodComponent is the client for interacting with the BloodComponent builders.
 	BloodComponent *BloodComponentClient
-	// BloodGroup is the client for interacting with the BloodGroup builders.
-	BloodGroup *BloodGroupClient
 	// BloodSearchRequest is the client for interacting with the BloodSearchRequest builders.
 	BloodSearchRequest *BloodSearchRequestClient
 	// Breed is the client for interacting with the Breed builders.
@@ -79,7 +76,6 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.BloodComponent = NewBloodComponentClient(c.config)
-	c.BloodGroup = NewBloodGroupClient(c.config)
 	c.BloodSearchRequest = NewBloodSearchRequestClient(c.config)
 	c.Breed = NewBreedClient(c.config)
 	c.DonorPreference = NewDonorPreferenceClient(c.config)
@@ -186,7 +182,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                ctx,
 		config:             cfg,
 		BloodComponent:     NewBloodComponentClient(cfg),
-		BloodGroup:         NewBloodGroupClient(cfg),
 		BloodSearchRequest: NewBloodSearchRequestClient(cfg),
 		Breed:              NewBreedClient(cfg),
 		DonorPreference:    NewDonorPreferenceClient(cfg),
@@ -220,7 +215,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                ctx,
 		config:             cfg,
 		BloodComponent:     NewBloodComponentClient(cfg),
-		BloodGroup:         NewBloodGroupClient(cfg),
 		BloodSearchRequest: NewBloodSearchRequestClient(cfg),
 		Breed:              NewBreedClient(cfg),
 		DonorPreference:    NewDonorPreferenceClient(cfg),
@@ -263,10 +257,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed,
-		c.DonorPreference, c.DonorResponse, c.Location, c.Partner, c.Pet,
-		c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User, c.UserIdentity,
-		c.UtmHistory,
+		c.BloodComponent, c.BloodSearchRequest, c.Breed, c.DonorPreference,
+		c.DonorResponse, c.Location, c.Partner, c.Pet, c.PetAnalysis, c.PetHealth,
+		c.PetTreatment, c.User, c.UserIdentity, c.UtmHistory,
 	} {
 		n.Use(hooks...)
 	}
@@ -276,10 +269,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.BloodComponent, c.BloodGroup, c.BloodSearchRequest, c.Breed,
-		c.DonorPreference, c.DonorResponse, c.Location, c.Partner, c.Pet,
-		c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User, c.UserIdentity,
-		c.UtmHistory,
+		c.BloodComponent, c.BloodSearchRequest, c.Breed, c.DonorPreference,
+		c.DonorResponse, c.Location, c.Partner, c.Pet, c.PetAnalysis, c.PetHealth,
+		c.PetTreatment, c.User, c.UserIdentity, c.UtmHistory,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -290,8 +282,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *BloodComponentMutation:
 		return c.BloodComponent.mutate(ctx, m)
-	case *BloodGroupMutation:
-		return c.BloodGroup.mutate(ctx, m)
 	case *BloodSearchRequestMutation:
 		return c.BloodSearchRequest.mutate(ctx, m)
 	case *BreedMutation:
@@ -453,155 +443,6 @@ func (c *BloodComponentClient) mutate(ctx context.Context, m *BloodComponentMuta
 		return (&BloodComponentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown BloodComponent mutation op: %q", m.Op())
-	}
-}
-
-// BloodGroupClient is a client for the BloodGroup schema.
-type BloodGroupClient struct {
-	config
-}
-
-// NewBloodGroupClient returns a client for the BloodGroup from the given config.
-func NewBloodGroupClient(c config) *BloodGroupClient {
-	return &BloodGroupClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `bloodgroup.Hooks(f(g(h())))`.
-func (c *BloodGroupClient) Use(hooks ...Hook) {
-	c.hooks.BloodGroup = append(c.hooks.BloodGroup, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `bloodgroup.Intercept(f(g(h())))`.
-func (c *BloodGroupClient) Intercept(interceptors ...Interceptor) {
-	c.inters.BloodGroup = append(c.inters.BloodGroup, interceptors...)
-}
-
-// Create returns a builder for creating a BloodGroup entity.
-func (c *BloodGroupClient) Create() *BloodGroupCreate {
-	mutation := newBloodGroupMutation(c.config, OpCreate)
-	return &BloodGroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of BloodGroup entities.
-func (c *BloodGroupClient) CreateBulk(builders ...*BloodGroupCreate) *BloodGroupCreateBulk {
-	return &BloodGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *BloodGroupClient) MapCreateBulk(slice any, setFunc func(*BloodGroupCreate, int)) *BloodGroupCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &BloodGroupCreateBulk{err: fmt.Errorf("calling to BloodGroupClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*BloodGroupCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &BloodGroupCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for BloodGroup.
-func (c *BloodGroupClient) Update() *BloodGroupUpdate {
-	mutation := newBloodGroupMutation(c.config, OpUpdate)
-	return &BloodGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *BloodGroupClient) UpdateOne(_m *BloodGroup) *BloodGroupUpdateOne {
-	mutation := newBloodGroupMutation(c.config, OpUpdateOne, withBloodGroup(_m))
-	return &BloodGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *BloodGroupClient) UpdateOneID(id string) *BloodGroupUpdateOne {
-	mutation := newBloodGroupMutation(c.config, OpUpdateOne, withBloodGroupID(id))
-	return &BloodGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for BloodGroup.
-func (c *BloodGroupClient) Delete() *BloodGroupDelete {
-	mutation := newBloodGroupMutation(c.config, OpDelete)
-	return &BloodGroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *BloodGroupClient) DeleteOne(_m *BloodGroup) *BloodGroupDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BloodGroupClient) DeleteOneID(id string) *BloodGroupDeleteOne {
-	builder := c.Delete().Where(bloodgroup.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &BloodGroupDeleteOne{builder}
-}
-
-// Query returns a query builder for BloodGroup.
-func (c *BloodGroupClient) Query() *BloodGroupQuery {
-	return &BloodGroupQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeBloodGroup},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a BloodGroup entity by its id.
-func (c *BloodGroupClient) Get(ctx context.Context, id string) (*BloodGroup, error) {
-	return c.Query().Where(bloodgroup.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *BloodGroupClient) GetX(ctx context.Context, id string) *BloodGroup {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryPets queries the pets edge of a BloodGroup.
-func (c *BloodGroupClient) QueryPets(_m *BloodGroup) *PetQuery {
-	query := (&PetClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(bloodgroup.Table, bloodgroup.FieldID, id),
-			sqlgraph.To(pet.Table, pet.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, bloodgroup.PetsTable, bloodgroup.PetsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *BloodGroupClient) Hooks() []Hook {
-	return c.hooks.BloodGroup
-}
-
-// Interceptors returns the client interceptors.
-func (c *BloodGroupClient) Interceptors() []Interceptor {
-	return c.inters.BloodGroup
-}
-
-func (c *BloodGroupClient) mutate(ctx context.Context, m *BloodGroupMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&BloodGroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&BloodGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&BloodGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&BloodGroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown BloodGroup mutation op: %q", m.Op())
 	}
 }
 
@@ -1723,22 +1564,6 @@ func (c *PetClient) QueryBreedRef(_m *Pet) *BreedQuery {
 	return query
 }
 
-// QueryBloodGroupRef queries the blood_group_ref edge of a Pet.
-func (c *PetClient) QueryBloodGroupRef(_m *Pet) *BloodGroupQuery {
-	query := (&BloodGroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(pet.Table, pet.FieldID, id),
-			sqlgraph.To(bloodgroup.Table, bloodgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, pet.BloodGroupRefTable, pet.BloodGroupRefColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryDonations queries the donations edge of a Pet.
 func (c *PetClient) QueryDonations(_m *Pet) *DonorResponseQuery {
 	query := (&DonorResponseClient{config: c.config}).Query()
@@ -2780,13 +2605,13 @@ func (c *UtmHistoryClient) mutate(ctx context.Context, m *UtmHistoryMutation) (V
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorPreference,
-		DonorResponse, Location, Partner, Pet, PetAnalysis, PetHealth, PetTreatment,
-		User, UserIdentity, UtmHistory []ent.Hook
+		BloodComponent, BloodSearchRequest, Breed, DonorPreference, DonorResponse,
+		Location, Partner, Pet, PetAnalysis, PetHealth, PetTreatment, User,
+		UserIdentity, UtmHistory []ent.Hook
 	}
 	inters struct {
-		BloodComponent, BloodGroup, BloodSearchRequest, Breed, DonorPreference,
-		DonorResponse, Location, Partner, Pet, PetAnalysis, PetHealth, PetTreatment,
-		User, UserIdentity, UtmHistory []ent.Interceptor
+		BloodComponent, BloodSearchRequest, Breed, DonorPreference, DonorResponse,
+		Location, Partner, Pet, PetAnalysis, PetHealth, PetTreatment, User,
+		UserIdentity, UtmHistory []ent.Interceptor
 	}
 )

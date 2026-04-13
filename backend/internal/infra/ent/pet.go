@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -55,8 +54,8 @@ type Pet struct {
 	LivingCondition string `json:"living_condition,omitempty"`
 	// ReproductiveStatus holds the value of the "reproductive_status" field.
 	ReproductiveStatus string `json:"reproductive_status,omitempty"`
-	// BloodGroupID holds the value of the "blood_group_id" field.
-	BloodGroupID *string `json:"blood_group_id,omitempty"`
+	// BloodGroup holds the value of the "blood_group" field.
+	BloodGroup string `json:"blood_group,omitempty"`
 	// Bonuses holds the value of the "bonuses" field.
 	Bonuses []string `json:"bonuses,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -77,15 +76,13 @@ type PetEdges struct {
 	Analyses []*PetAnalysis `json:"analyses,omitempty"`
 	// BreedRef holds the value of the breed_ref edge.
 	BreedRef *Breed `json:"breed_ref,omitempty"`
-	// BloodGroupRef holds the value of the blood_group_ref edge.
-	BloodGroupRef *BloodGroup `json:"blood_group_ref,omitempty"`
 	// Donations holds the value of the donations edge.
 	Donations []*DonorResponse `json:"donations,omitempty"`
 	// BloodSearchRequest holds the value of the blood_search_request edge.
 	BloodSearchRequest []*BloodSearchRequest `json:"blood_search_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [7]bool
 }
 
 // OwnerOrErr returns the Owner value or an error if the edge
@@ -141,21 +138,10 @@ func (e PetEdges) BreedRefOrErr() (*Breed, error) {
 	return nil, &NotLoadedError{edge: "breed_ref"}
 }
 
-// BloodGroupRefOrErr returns the BloodGroupRef value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PetEdges) BloodGroupRefOrErr() (*BloodGroup, error) {
-	if e.BloodGroupRef != nil {
-		return e.BloodGroupRef, nil
-	} else if e.loadedTypes[5] {
-		return nil, &NotFoundError{label: bloodgroup.Label}
-	}
-	return nil, &NotLoadedError{edge: "blood_group_ref"}
-}
-
 // DonationsOrErr returns the Donations value or an error if the edge
 // was not loaded in eager-loading.
 func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[5] {
 		return e.Donations, nil
 	}
 	return nil, &NotLoadedError{edge: "donations"}
@@ -164,7 +150,7 @@ func (e PetEdges) DonationsOrErr() ([]*DonorResponse, error) {
 // BloodSearchRequestOrErr returns the BloodSearchRequest value or an error if the edge
 // was not loaded in eager-loading.
 func (e PetEdges) BloodSearchRequestOrErr() ([]*BloodSearchRequest, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[6] {
 		return e.BloodSearchRequest, nil
 	}
 	return nil, &NotLoadedError{edge: "blood_search_request"}
@@ -179,7 +165,7 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroupID:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroup:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
@@ -305,12 +291,11 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ReproductiveStatus = value.String
 			}
-		case pet.FieldBloodGroupID:
+		case pet.FieldBloodGroup:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field blood_group_id", values[i])
+				return fmt.Errorf("unexpected type %T for field blood_group", values[i])
 			} else if value.Valid {
-				_m.BloodGroupID = new(string)
-				*_m.BloodGroupID = value.String
+				_m.BloodGroup = value.String
 			}
 		case pet.FieldBonuses:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -356,11 +341,6 @@ func (_m *Pet) QueryAnalyses() *PetAnalysisQuery {
 // QueryBreedRef queries the "breed_ref" edge of the Pet entity.
 func (_m *Pet) QueryBreedRef() *BreedQuery {
 	return NewPetClient(_m.config).QueryBreedRef(_m)
-}
-
-// QueryBloodGroupRef queries the "blood_group_ref" edge of the Pet entity.
-func (_m *Pet) QueryBloodGroupRef() *BloodGroupQuery {
-	return NewPetClient(_m.config).QueryBloodGroupRef(_m)
 }
 
 // QueryDonations queries the "donations" edge of the Pet entity.
@@ -450,10 +430,8 @@ func (_m *Pet) String() string {
 	builder.WriteString("reproductive_status=")
 	builder.WriteString(_m.ReproductiveStatus)
 	builder.WriteString(", ")
-	if v := _m.BloodGroupID; v != nil {
-		builder.WriteString("blood_group_id=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("blood_group=")
+	builder.WriteString(_m.BloodGroup)
 	builder.WriteString(", ")
 	builder.WriteString("bonuses=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Bonuses))

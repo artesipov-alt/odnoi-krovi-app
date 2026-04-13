@@ -32,8 +32,8 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 		recipient.RecipientData.PetName = req.Edges.Pet.Name
 		recipient.RecipientData.PetType = common.PetType(req.Edges.Pet.Type)
 		recipient.RecipientData.PhotoURLs = req.Edges.Pet.PhotoUrls
-		if req.Edges.Pet.Edges.BloodGroupRef != nil {
-			recipient.RecipientData.BloodGroupName = req.Edges.Pet.Edges.BloodGroupRef.BloodGroup
+		if req.Edges.Pet.BloodGroup != "" {
+			recipient.RecipientData.BloodGroupName = req.Edges.Pet.BloodGroup
 		}
 	}
 
@@ -69,8 +69,8 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 				app.DonorID = resp.Edges.Donor.ID
 				app.DonorName = resp.Edges.Donor.Name
 				app.DonorPhotos = resp.Edges.Donor.PhotoUrls
-				if resp.Edges.Donor.Edges.BloodGroupRef != nil {
-					app.DonorBloodGroup = resp.Edges.Donor.Edges.BloodGroupRef.BloodGroup
+				if fullDonor.BloodGroupName != nil {
+					app.DonorBloodGroup = *fullDonor.BloodGroupName
 				}
 				app.WarnFactors = fullDonor.WarnFactors
 			}

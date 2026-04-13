@@ -8,78 +8,10 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 )
-
-// SeedBloodGroups заполняет таблицу групп крови начальными данными через ENT
-func SeedBloodGroups(ctx context.Context, client *ent.Client) error {
-	// Получаем все существующие ID для вычисления следующего номера
-	existingIDs, err := client.BloodGroup.Query().Select(bloodgroup.FieldID).All(ctx)
-	if err != nil {
-		slog.ErrorContext(ctx, "Ошибка при получении существующих ID групп крови", "error", err)
-		return err
-	}
-	maxNum := 0
-	for _, bg := range existingIDs {
-		parts := strings.Split(bg.ID, "-")
-		if len(parts) == 2 {
-			if num, err := strconv.Atoi(parts[1]); err == nil && num > maxNum {
-				maxNum = num
-			}
-		}
-	}
-	counter := maxNum + 1
-
-	for _, g := range AllBloodGroups {
-		// Проверяем, существует ли уже такая группа крови
-		exists, err := client.BloodGroup.Query().
-			Where(
-				bloodgroup.PetTypeEQ(g.PetType),
-				bloodgroup.BloodGroupEQ(g.BloodGroup),
-			).
-			Exist(ctx)
-
-		if err != nil {
-			slog.ErrorContext(ctx, "Ошибка при проверке существования группы крови", "error", err)
-			return err
-		}
-
-		if !exists {
-			// Если не существует, создаем новую запись
-			err := client.BloodGroup.Create().
-				SetID(schema.BloodGroupPrefix + "-" + strconv.Itoa(counter)).
-				SetPetType(g.PetType).
-				SetBloodGroup(g.BloodGroup).
-				SetDescription(g.Description).
-				Exec(ctx)
-			counter++
-
-			if err != nil {
-				slog.ErrorContext(ctx, "Ошибка при создании группы крови",
-					"pet_type", string(g.PetType),
-					"blood_group", g.BloodGroup,
-					"error", err,
-				)
-				return err
-			}
-			slog.InfoContext(ctx, "Группа крови добавлена",
-				"pet_type", string(g.PetType),
-				"blood_group", g.BloodGroup,
-			)
-		} else {
-			slog.DebugContext(ctx, "Группа крови уже существует",
-				"pet_type", string(g.PetType),
-				"blood_group", g.BloodGroup,
-			)
-		}
-	}
-
-	slog.InfoContext(ctx, "Заполнение таблицы групп крови завершено")
-	return nil
-}
 
 // SeedBloodComponents заполняет таблицу компонентов крови начальными данными через ENT
 func SeedBloodComponents(ctx context.Context, client *ent.Client) error {

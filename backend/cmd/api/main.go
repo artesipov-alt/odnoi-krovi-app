@@ -109,7 +109,6 @@ func main() {
 
 		//Миграции
 		ctx := context.Background()
-		seeds.SeedBloodGroups(ctx, db)
 		seeds.SeedBloodComponents(ctx, db)
 		seeds.SeedLocations(ctx, db)
 		seeds.SeedBreeds(ctx, db)
@@ -134,7 +133,7 @@ func main() {
 		getBreedsByTypeHandler := refquery.NewGetBreedsByPetTypeHandler(breedRepo)
 		getAllLocationsHandler := refquery.NewGetAllLocationsHandler(locationRepo)
 		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler(bloodInfoRepo)
-		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler(bloodInfoRepo)
+		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler()
 
 		//Дополнительные сервисы для аунтификации
 		// miniAppDataValidator := auth.NewAppValidator(os.Getenv("TG_BOT_TOKEN"), os.Getenv("MAX_BOT_TOKEN"))
@@ -198,6 +197,7 @@ func main() {
 			getAllLocationsHandler,
 			getAllBloodComponentsHandler,
 			getBloodGroupsByTypeHandler,
+			bloodInfoRepo,
 		)
 		userHandler := transport.NewUserHandler(
 			userDeleteHandler,

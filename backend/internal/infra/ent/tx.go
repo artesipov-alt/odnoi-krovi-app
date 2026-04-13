@@ -14,8 +14,6 @@ type Tx struct {
 	config
 	// BloodComponent is the client for interacting with the BloodComponent builders.
 	BloodComponent *BloodComponentClient
-	// BloodGroup is the client for interacting with the BloodGroup builders.
-	BloodGroup *BloodGroupClient
 	// BloodSearchRequest is the client for interacting with the BloodSearchRequest builders.
 	BloodSearchRequest *BloodSearchRequestClient
 	// Breed is the client for interacting with the Breed builders.
@@ -174,7 +172,6 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.BloodComponent = NewBloodComponentClient(tx.config)
-	tx.BloodGroup = NewBloodGroupClient(tx.config)
 	tx.BloodSearchRequest = NewBloodSearchRequestClient(tx.config)
 	tx.Breed = NewBreedClient(tx.config)
 	tx.DonorPreference = NewDonorPreferenceClient(tx.config)

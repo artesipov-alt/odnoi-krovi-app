@@ -12,7 +12,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	entlocation "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -80,12 +79,7 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 	}
 
 	if petDomain.BloodGroupName != nil {
-		bg, err := tx.BloodGroup.Query().Where(bloodgroup.BloodGroupEQ(*petDomain.BloodGroupName)).Only(ctx)
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("не удалось найти группу крови: %w", err)
-		}
-		builder.SetBloodGroupRefID(bg.ID)
+		builder.SetBloodGroup(*petDomain.BloodGroupName)
 	}
 
 	newPet, err := builder.Save(ctx)
@@ -173,7 +167,6 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetPreloadOptions) (*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.ID(id)).
 		WithBreedRef().
-		WithBloodGroupRef().
 		WithOwner(func(uq *ent.UserQuery) {
 			uq.Select(entuser.FieldFullName)
 		})
@@ -208,7 +201,6 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
 	pquery := r.client.Pet.Query().Where(entpet.UserID(userID)).
 		WithBreedRef().
-		WithBloodGroupRef().
 		WithOwner(func(uq *ent.UserQuery) {
 			uq.Select(entuser.FieldFullName)
 		})
@@ -277,12 +269,7 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 		updater.SetBreedRefID(*petDomain.BreedRefID)
 	}
 	if petDomain.BloodGroupName != nil {
-		bg, err := tx.BloodGroup.Query().Where(bloodgroup.BloodGroupEQ(*petDomain.BloodGroupName)).Only(ctx)
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("blood group not found: %w", err)
-		}
-		updater.SetBloodGroupRefID(bg.ID)
+		updater.SetBloodGroup(*petDomain.BloodGroupName)
 	}
 
 	_, err = updater.Save(ctx)
@@ -593,13 +580,12 @@ func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, blo
 		WithOwner(func(uq *ent.UserQuery) {
 			uq.Select(entuser.FieldFullName)
 		}).
-		WithBloodGroupRef().
 		WithBreedRef().
 		WithHealth().
 		WithTreatments().
 		WithAnalyses().
 		Where(
-			entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
+			entpet.BloodGroupIn(bloodGroups...),
 		)
 	if len(regions) > 0 {
 		query = query.Where(
@@ -619,7 +605,7 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 	// 		func(s *sql.Selector) {
 	// 			s.Where(sqljson.LenEQ(entpet.FieldStopFactors, 0))
 	// 		},
-	// 		entpet.HasBloodGroupRefWith(bloodgroup.BloodGroupIn(bloodGroups...)),
+	// 		entpet.BloodGroupIn(bloodGroups...),
 	// 	).
 	// 	Count(ctx)
 	// if err != nil {

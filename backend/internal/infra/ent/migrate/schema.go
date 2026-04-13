@@ -20,19 +20,6 @@ var (
 		Columns:    RefBloodcColumns,
 		PrimaryKey: []*schema.Column{RefBloodcColumns[0]},
 	}
-	// RefBloodgColumns holds the columns for the "ref_bloodg" table.
-	RefBloodgColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "pet_type", Type: field.TypeEnum, Enums: []string{"dog", "cat"}},
-		{Name: "blood_group", Type: field.TypeString, Size: 50},
-		{Name: "description", Type: field.TypeString, Nullable: true},
-	}
-	// RefBloodgTable holds the schema information for the "ref_bloodg" table.
-	RefBloodgTable = &schema.Table{
-		Name:       "ref_bloodg",
-		Columns:    RefBloodgColumns,
-		PrimaryKey: []*schema.Column{RefBloodgColumns[0]},
-	}
 	// BloodRequestsColumns holds the columns for the "blood_requests" table.
 	BloodRequestsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -185,8 +172,8 @@ var (
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "living_condition", Type: field.TypeString, Nullable: true},
 		{Name: "reproductive_status", Type: field.TypeString, Nullable: true},
+		{Name: "blood_group", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "bonuses", Type: field.TypeJSON, Nullable: true},
-		{Name: "blood_group_id", Type: field.TypeString, Nullable: true},
 		{Name: "breed_id", Type: field.TypeString, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "treatment_id", Type: field.TypeString, Unique: true, Nullable: true},
@@ -198,12 +185,6 @@ var (
 		Columns:    PetsColumns,
 		PrimaryKey: []*schema.Column{PetsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "pets_ref_bloodg_pets",
-				Columns:    []*schema.Column{PetsColumns[14]},
-				RefColumns: []*schema.Column{RefBloodgColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
 			{
 				Symbol:     "pets_ref_breeds_pets",
 				Columns:    []*schema.Column{PetsColumns[15]},
@@ -398,7 +379,6 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		RefBloodcTable,
-		RefBloodgTable,
 		BloodRequestsTable,
 		RefBreedsTable,
 		DonorPreferencesTable,
@@ -418,9 +398,6 @@ var (
 func init() {
 	RefBloodcTable.Annotation = &entsql.Annotation{
 		Table: "ref_bloodc",
-	}
-	RefBloodgTable.Annotation = &entsql.Annotation{
-		Table: "ref_bloodg",
 	}
 	BloodRequestsTable.ForeignKeys[0].RefTable = PetsTable
 	BloodRequestsTable.Annotation = &entsql.Annotation{
@@ -444,11 +421,10 @@ func init() {
 	PartnersTable.Annotation = &entsql.Annotation{
 		Table: "partners",
 	}
-	PetsTable.ForeignKeys[0].RefTable = RefBloodgTable
-	PetsTable.ForeignKeys[1].RefTable = RefBreedsTable
-	PetsTable.ForeignKeys[2].RefTable = PetHealthsTable
-	PetsTable.ForeignKeys[3].RefTable = PetTreatmentsTable
-	PetsTable.ForeignKeys[4].RefTable = UsersTable
+	PetsTable.ForeignKeys[0].RefTable = RefBreedsTable
+	PetsTable.ForeignKeys[1].RefTable = PetHealthsTable
+	PetsTable.ForeignKeys[2].RefTable = PetTreatmentsTable
+	PetsTable.ForeignKeys[3].RefTable = UsersTable
 	PetsTable.Annotation = &entsql.Annotation{
 		Table: "pets",
 	}

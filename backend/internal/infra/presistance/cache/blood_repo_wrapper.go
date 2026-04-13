@@ -6,7 +6,6 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodgroup"
 )
 
 // CachedBloodInfoRepository реализует кеширующий репозиторий для работы с группами крови
@@ -65,26 +64,4 @@ func (r *CachedBloodInfoRepository) ComponentByID(ctx context.Context, id string
 	r.cache.SetJSON(ctx, cacheKey, componentPtr, LongTTL)
 
 	return componentPtr, nil
-}
-
-// BloodGroupsByPetType возвращает группы крови по типу животного с кешированием
-func (r *CachedBloodInfoRepository) BloodGroupsByPetType(ctx context.Context, petType bloodgroup.PetType) ([]*ent.BloodGroup, error) {
-	cacheKey := fmt.Sprintf(BloodGroupsByPetTypeKey, petType)
-
-	// Пытаемся получить из кэша
-	var bloodGroups []*ent.BloodGroup
-	if err := r.cache.GetJSON(ctx, cacheKey, &bloodGroups); err == nil {
-		return bloodGroups, nil
-	}
-
-	// Получаем из БД
-	bloodGroups, err := r.repo.BloodGroupsByPetType(ctx, petType)
-	if err != nil {
-		return nil, err
-	}
-
-	// Сохраняем в кэш
-	r.cache.SetJSON(ctx, cacheKey, bloodGroups, LongTTL)
-
-	return bloodGroups, nil
 }
