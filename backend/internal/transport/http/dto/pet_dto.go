@@ -90,7 +90,7 @@ type CreatePetBody struct {
 	AgeMonths          int               `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах (дополнение к ageYears)" example:"6"`
 	ChipNumber         string            `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
 	LivingCondition    string            `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
-	ReproductiveStatus string            `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
+	ReproductiveStatus string            `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus,none"`
 	BreedID            string            `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
 	BloodGroup         string            `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,Неизвестная" example:"DEA 1+"`
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
@@ -133,7 +133,7 @@ type UpdatePetBody struct {
 	AgeMonths          *int              `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах" example:"6"`
 	ChipNumber         *string           `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
 	LivingCondition    *string           `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
-	ReproductiveStatus *string           `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
+	ReproductiveStatus *string           `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus,none"`
 	BreedID            *string           `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
 	BloodGroup         *string           `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,Неизвестная" example:"DEA 1+"`
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
@@ -181,7 +181,7 @@ type PetDetail struct {
 	ChipNumber           string             `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
 	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"URLs фотографий" example:"https://example.com/photo.jpg"`
 	LivingCondition      string             `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
-	ReproductiveStatus   string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
+	ReproductiveStatus   string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus,none"`
 	BreedID              string             `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
 	BloodGroup           string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,Неизвестная" example:"DEA 1+"`
 	PetStatus            string             `json:"petStatus" doc:"Статус питомца" enum:"none,donor,recipient,blood_found,recovering,planned_donation" example:"donor"`

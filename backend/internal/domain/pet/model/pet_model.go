@@ -44,6 +44,7 @@ const (
 type ReproductiveStatus string
 
 const (
+	ReproductiveStatusNone      ReproductiveStatus = "none"
 	ReproductiveStatusPregnancy ReproductiveStatus = "pregnancy"
 	ReproductiveStatusLactation ReproductiveStatus = "lactation"
 	ReproductiveStatusEstrus    ReproductiveStatus = "estrus"
