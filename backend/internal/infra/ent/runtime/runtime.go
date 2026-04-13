@@ -5,7 +5,6 @@ package runtime
 import (
 	"time"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -26,26 +25,6 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	bloodcomponentFields := schema.BloodComponent{}.Fields()
-	_ = bloodcomponentFields
-	// bloodcomponentDescName is the schema descriptor for name field.
-	bloodcomponentDescName := bloodcomponentFields[1].Descriptor()
-	// bloodcomponent.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	bloodcomponent.NameValidator = func() func(string) error {
-		validators := bloodcomponentDescName.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(name string) error {
-			for _, fn := range fns {
-				if err := fn(name); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	bloodsearchrequestMixin := schema.BloodSearchRequest{}.Mixin()
 	bloodsearchrequestMixinInters0 := bloodsearchrequestMixin[0].Interceptors()
 	bloodsearchrequest.Interceptors[0] = bloodsearchrequestMixinInters0[0]

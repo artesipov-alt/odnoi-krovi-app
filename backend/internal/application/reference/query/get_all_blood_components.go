@@ -3,20 +3,15 @@ package query
 import (
 	"context"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 )
 
-type GetAllBloodComponentsHandler struct {
-	bloodInfoRepo reference.BloodInfoRepository
+type GetAllBloodComponentsHandler struct{}
+
+func NewGetAllBloodComponentsHandler() *GetAllBloodComponentsHandler {
+	return &GetAllBloodComponentsHandler{}
 }
 
-func NewGetAllBloodComponentsHandler(bloodInfoRepo reference.BloodInfoRepository) *GetAllBloodComponentsHandler {
-	return &GetAllBloodComponentsHandler{
-		bloodInfoRepo: bloodInfoRepo,
-	}
-}
-
-func (h *GetAllBloodComponentsHandler) Handle(ctx context.Context) ([]*ent.BloodComponent, error) {
-	return h.bloodInfoRepo.AllComponents(ctx)
+func (h *GetAllBloodComponentsHandler) Handle(ctx context.Context) ([]common.BloodComponent, error) {
+	return common.BloodComponents, nil
 }

@@ -78,8 +78,8 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 		builder.SetBreedRefID(*petDomain.BreedRefID)
 	}
 
-	if petDomain.BloodGroupName != nil {
-		builder.SetBloodGroup(*petDomain.BloodGroupName)
+	if petDomain.BloodGroupName != "" {
+		builder.SetBloodGroup(petDomain.BloodGroupName)
 	}
 
 	newPet, err := builder.Save(ctx)
@@ -268,8 +268,8 @@ func (r *EntPetRepository) Update(ctx context.Context, id string, petDomain *mod
 	if petDomain.BreedRefID != nil {
 		updater.SetBreedRefID(*petDomain.BreedRefID)
 	}
-	if petDomain.BloodGroupName != nil {
-		updater.SetBloodGroup(*petDomain.BloodGroupName)
+	if petDomain.BloodGroupName != "" {
+		updater.SetBloodGroup(petDomain.BloodGroupName)
 	}
 
 	_, err = updater.Save(ctx)

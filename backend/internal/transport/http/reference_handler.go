@@ -9,7 +9,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -24,7 +23,6 @@ type ReferenceHandler struct {
 	getAllLocationsHandler       *query.GetAllLocationsHandler
 	getAllBloodComponentsHandler *query.GetAllBloodComponentsHandler
 	getBloodGroupsByTypeHandler  *query.GetBloodGroupsByPetTypeHandler
-	bloodInfoRepo                reference.BloodInfoRepository
 }
 
 // NewReferenceHandler создает новый обработчик справочных данных
@@ -34,7 +32,6 @@ func NewReferenceHandler(
 	getAllLocationsHandler *query.GetAllLocationsHandler,
 	getAllBloodComponentsHandler *query.GetAllBloodComponentsHandler,
 	getBloodGroupsByTypeHandler *query.GetBloodGroupsByPetTypeHandler,
-	bloodInfoRepo reference.BloodInfoRepository,
 ) *ReferenceHandler {
 	return &ReferenceHandler{
 		getAllBreedsHandler:          getAllBreedsHandler,
@@ -42,7 +39,6 @@ func NewReferenceHandler(
 		getAllLocationsHandler:       getAllLocationsHandler,
 		getAllBloodComponentsHandler: getAllBloodComponentsHandler,
 		getBloodGroupsByTypeHandler:  getBloodGroupsByTypeHandler,
-		bloodInfoRepo:                bloodInfoRepo,
 	}
 }
 

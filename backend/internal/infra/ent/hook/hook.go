@@ -9,18 +9,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
 
-// The BloodComponentFunc type is an adapter to allow the use of ordinary
-// function as BloodComponent mutator.
-type BloodComponentFunc func(context.Context, *ent.BloodComponentMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f BloodComponentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.BloodComponentMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BloodComponentMutation", m)
-}
-
 // The BloodSearchRequestFunc type is an adapter to allow the use of ordinary
 // function as BloodSearchRequest mutator.
 type BloodSearchRequestFunc func(context.Context, *ent.BloodSearchRequestMutation) (ent.Value, error)

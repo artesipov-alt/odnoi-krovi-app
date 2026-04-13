@@ -91,10 +91,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 			return err
 		}
 
-		donorBloodGroup := ""
-		if donorPet.BloodGroupName != nil {
-			donorBloodGroup = *donorPet.BloodGroupName
-		}
+		donorBloodGroup := donorPet.BloodGroupName
 
 		if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
 			DonorName:                       donorPet.Name,

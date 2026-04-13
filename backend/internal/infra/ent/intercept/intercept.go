@@ -8,7 +8,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -79,33 +78,6 @@ func (f TraverseFunc) Traverse(ctx context.Context, q ent.Query) error {
 		return err
 	}
 	return f(ctx, query)
-}
-
-// The BloodComponentFunc type is an adapter to allow the use of ordinary function as a Querier.
-type BloodComponentFunc func(context.Context, *ent.BloodComponentQuery) (ent.Value, error)
-
-// Query calls f(ctx, q).
-func (f BloodComponentFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
-	if q, ok := q.(*ent.BloodComponentQuery); ok {
-		return f(ctx, q)
-	}
-	return nil, fmt.Errorf("unexpected query type %T. expect *ent.BloodComponentQuery", q)
-}
-
-// The TraverseBloodComponent type is an adapter to allow the use of ordinary function as Traverser.
-type TraverseBloodComponent func(context.Context, *ent.BloodComponentQuery) error
-
-// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
-func (f TraverseBloodComponent) Intercept(next ent.Querier) ent.Querier {
-	return next
-}
-
-// Traverse calls f(ctx, q).
-func (f TraverseBloodComponent) Traverse(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.BloodComponentQuery); ok {
-		return f(ctx, q)
-	}
-	return fmt.Errorf("unexpected query type %T. expect *ent.BloodComponentQuery", q)
 }
 
 // The BloodSearchRequestFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -462,8 +434,6 @@ func (f TraverseUtmHistory) Traverse(ctx context.Context, q ent.Query) error {
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
-	case *ent.BloodComponentQuery:
-		return &query[*ent.BloodComponentQuery, predicate.BloodComponent, bloodcomponent.OrderOption]{typ: ent.TypeBloodComponent, tq: q}, nil
 	case *ent.BloodSearchRequestQuery:
 		return &query[*ent.BloodSearchRequestQuery, predicate.BloodSearchRequest, bloodsearchrequest.OrderOption]{typ: ent.TypeBloodSearchRequest, tq: q}, nil
 	case *ent.BreedQuery:

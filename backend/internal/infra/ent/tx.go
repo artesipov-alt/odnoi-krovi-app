@@ -12,8 +12,6 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// BloodComponent is the client for interacting with the BloodComponent builders.
-	BloodComponent *BloodComponentClient
 	// BloodSearchRequest is the client for interacting with the BloodSearchRequest builders.
 	BloodSearchRequest *BloodSearchRequestClient
 	// Breed is the client for interacting with the Breed builders.
@@ -171,7 +169,6 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.BloodComponent = NewBloodComponentClient(tx.config)
 	tx.BloodSearchRequest = NewBloodSearchRequestClient(tx.config)
 	tx.Breed = NewBreedClient(tx.config)
 	tx.DonorPreference = NewDonorPreferenceClient(tx.config)
@@ -194,7 +191,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: BloodComponent.QueryXXX(), the query will be executed
+// applies a query, for example: BloodSearchRequest.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

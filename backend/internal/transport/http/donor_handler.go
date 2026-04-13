@@ -257,7 +257,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				PetType:             string(res.RecipientPetData.Type),
 				OwnerName:           res.RecipientPetData.OwnerName,
 				OwnerID:             res.RecipientPetData.OwnerID,
-				BloodGroup:          *res.RecipientPetData.BloodGroupName,
+				BloodGroup:          res.RecipientPetData.BloodGroupName,
 				Regions:             res.BloodSearchData.Regions,
 				BloodVolumeNeeded:   res.BloodSearchData.BloodVolumeNeeded,
 				BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,

@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
@@ -86,7 +85,6 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			bloodcomponent.Table:     bloodcomponent.ValidColumn,
 			bloodsearchrequest.Table: bloodsearchrequest.ValidColumn,
 			breed.Table:              breed.ValidColumn,
 			donorpreference.Table:    donorpreference.ValidColumn,

@@ -75,7 +75,7 @@ type Pet struct {
 	OwnerID            string
 	OwnerName          string
 	BreedRefID         *string
-	BloodGroupName     *string
+	BloodGroupName     string
 	StopFactors        []string
 	WarnFactors        []string
 	Bonuses            []string
@@ -124,7 +124,7 @@ func NewPet(
 	livingCondition LivingCondition,
 	reproductiveStatus ReproductiveStatus,
 	breedRefID *string,
-	bloodGroupName *string,
+	bloodGroupName string,
 	health *PetHealth,
 	treatments *PetTreatment,
 	analyses []*PetAnalysis,
@@ -601,7 +601,7 @@ func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
 }
 
 func (p *Pet) checkWarnBloodGroup() FactorCode {
-	if p.BloodGroupName == nil || *p.BloodGroupName == "" {
+	if p.BloodGroupName == "" {
 		return WarnFactorUnknownBloodGroup
 	}
 	return ""
@@ -731,9 +731,7 @@ func (p *Pet) UpdateFrom(other *Pet) error {
 	if other.BreedRefID != nil {
 		p.BreedRefID = other.BreedRefID
 	}
-	if other.BloodGroupName != nil {
-		p.BloodGroupName = other.BloodGroupName
-	}
+	p.BloodGroupName = other.BloodGroupName
 
 	// Обновляем срезы (полностью заменяем)
 	if other.PhotoURLs != nil {

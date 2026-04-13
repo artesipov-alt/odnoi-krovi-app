@@ -115,30 +115,20 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
 	recipientMaxID, recipientTelegramID := extractProviderIDs(recipientUser)
 
-	donorBloodGroup := ""
-	if donorPet.BloodGroupName != nil {
-		donorBloodGroup = *donorPet.BloodGroupName
-	}
-
 	donorData := events.DonorData{
 		UserName:         donorUser.FullName,
 		PetName:          donorPet.Name,
 		Phone:            donorUser.Phone,
-		BloodGroup:       donorBloodGroup,
+		BloodGroup:       donorPet.BloodGroupName,
 		ProviderMaxID:    donorMaxID,
 		ProviderTelegram: donorTelegramID,
-	}
-
-	recipientBloodGroup := ""
-	if recipientPet.BloodGroupName != nil {
-		recipientBloodGroup = *recipientPet.BloodGroupName
 	}
 
 	recipientData := events.RecipientData{
 		UserName:         recipientUser.FullName,
 		PetName:          recipientPet.Name,
 		Phone:            recipientUser.Phone,
-		BloodGroup:       recipientBloodGroup,
+		BloodGroup:       recipientPet.BloodGroupName,
 		Volume:           bloodreq.BloodVolumeNeeded,
 		ProviderMaxID:    recipientMaxID,
 		ProviderTelegram: recipientTelegramID,

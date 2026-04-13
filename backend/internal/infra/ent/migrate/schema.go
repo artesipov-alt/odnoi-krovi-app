@@ -9,17 +9,6 @@ import (
 )
 
 var (
-	// RefBloodcColumns holds the columns for the "ref_bloodc" table.
-	RefBloodcColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "name", Type: field.TypeString, Size: 255},
-	}
-	// RefBloodcTable holds the schema information for the "ref_bloodc" table.
-	RefBloodcTable = &schema.Table{
-		Name:       "ref_bloodc",
-		Columns:    RefBloodcColumns,
-		PrimaryKey: []*schema.Column{RefBloodcColumns[0]},
-	}
 	// BloodRequestsColumns holds the columns for the "blood_requests" table.
 	BloodRequestsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -378,7 +367,6 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		RefBloodcTable,
 		BloodRequestsTable,
 		RefBreedsTable,
 		DonorPreferencesTable,
@@ -396,9 +384,6 @@ var (
 )
 
 func init() {
-	RefBloodcTable.Annotation = &entsql.Annotation{
-		Table: "ref_bloodc",
-	}
 	BloodRequestsTable.ForeignKeys[0].RefTable = PetsTable
 	BloodRequestsTable.Annotation = &entsql.Annotation{
 		Table: "blood_requests",

@@ -4,18 +4,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 )
 
-// AllBloodComponents содержит все предопределенные компоненты крови
-var AllBloodComponents = []string{
-	"Цельная кровь",
-	"Эритроцитарная масса",
-	"Свежезамороженная плазма",
-	"Замороженная плазма",
-	"Тромбоконцентрат",
-	"Обогащенная тромбоцитами плазма",
-	"Криопреципитат",
-	"Криосупернатант",
-}
-
 // LocationData представляет структуру для данных локации
 type LocationData struct {
 	ID   string

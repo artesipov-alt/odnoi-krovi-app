@@ -109,7 +109,6 @@ func main() {
 
 		//Миграции
 		ctx := context.Background()
-		seeds.SeedBloodComponents(ctx, db)
 		seeds.SeedLocations(ctx, db)
 		seeds.SeedBreeds(ctx, db)
 
@@ -117,7 +116,6 @@ func main() {
 		userRepo := pg.NewEntUserRepository(db)
 		locationRepo := pg.NewEntLocationRepository(db)
 		breedRepo := pg.NewEntBreedRepository(db)
-		bloodInfoRepo := pg.NewEntBloodInfoRepository(db)
 		petRepo := pg.NewEntPetRepository(db)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
@@ -132,7 +130,7 @@ func main() {
 		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
 		getBreedsByTypeHandler := refquery.NewGetBreedsByPetTypeHandler(breedRepo)
 		getAllLocationsHandler := refquery.NewGetAllLocationsHandler(locationRepo)
-		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler(bloodInfoRepo)
+		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler()
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler()
 
 		//Дополнительные сервисы для аунтификации
@@ -197,7 +195,6 @@ func main() {
 			getAllLocationsHandler,
 			getAllBloodComponentsHandler,
 			getBloodGroupsByTypeHandler,
-			bloodInfoRepo,
 		)
 		userHandler := transport.NewUserHandler(
 			userDeleteHandler,
@@ -216,7 +213,6 @@ func main() {
 			petRevalidateHandler,
 			petGetByIDHandler,
 			petGetByUserHandler,
-			bloodInfoRepo,
 			fileStorage,
 		)
 		bloodRequestHandler := transport.NewBloodRequestHandler(

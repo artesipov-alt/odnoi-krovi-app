@@ -21,9 +21,8 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 	// bloodSearchRegions := bloodreq.Regions
 
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или любая если реципиент разрешил
-	if pet.BloodGroupName != nil {
-		sameBlood = slices.Contains(bloodreq.BloodGroupNames, *pet.BloodGroupName)
-	} else if bloodreq.IncludeUnknownBloodGroup {
+	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName)
+	if !sameBlood && bloodreq.IncludeUnknownBloodGroup {
 		sameBlood = true
 	}
 
@@ -35,10 +34,7 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 	}
 
 	if sameBlood && coversNeededAmount {
-		donorBloodGroup := ""
-		if pet.BloodGroupName != nil {
-			donorBloodGroup = *pet.BloodGroupName
-		}
+		donorBloodGroup := pet.BloodGroupName
 		bloodreq.MatchingDonors = append(bloodreq.MatchingDonors, bloodreqmodel.MatchingDonorReadModel{
 			PetName:         pet.Name,
 			PetID:           pet.ID,

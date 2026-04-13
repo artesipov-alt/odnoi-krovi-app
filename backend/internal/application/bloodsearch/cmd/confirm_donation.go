@@ -119,11 +119,6 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 	// Extract Provider IDs
 	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
 
-	donorBloodGroup := ""
-	if donorPet.BloodGroupName != nil {
-		donorBloodGroup = *donorPet.BloodGroupName
-	}
-
 	event := bloodsearchevent.DonationConfirmed{
 		DonorData: bloodsearchevent.DonorInfo{
 			UserName:         donorUser.FullName,
@@ -131,7 +126,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			ProviderMaxID:    donorMaxID,
 			ProviderTelegram: donorTelegramID,
 			Phone:            donorUser.Phone,
-			BloodGroup:       donorBloodGroup,
+			BloodGroup:       donorPet.BloodGroupName,
 		},
 		Volume:    factAmount,
 		CreatedAt: time.Now(),

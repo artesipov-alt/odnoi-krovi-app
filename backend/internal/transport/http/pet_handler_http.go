@@ -9,7 +9,6 @@ import (
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
 	"github.com/danielgtaylor/huma/v2"
@@ -23,7 +22,6 @@ type PetHandler struct {
 	revalidateHandler *petcmd.RevalidateDonorHandler
 	getByIDHandler    *petquery.GetByIDHandler
 	getByUserHandler  *petquery.GetByUserHandler
-	bloodInfoRepo     reference.BloodInfoRepository
 	petMapper         *mapper.PetMapper
 	storage           filestorage.Repository
 }
@@ -36,7 +34,6 @@ func NewPetHandler(
 	revalidateHandler *petcmd.RevalidateDonorHandler,
 	getByIDHandler *petquery.GetByIDHandler,
 	getByUserHandler *petquery.GetByUserHandler,
-	bloodInfoRepo reference.BloodInfoRepository,
 	storage filestorage.Repository,
 ) *PetHandler {
 	return &PetHandler{
@@ -46,7 +43,6 @@ func NewPetHandler(
 		revalidateHandler: revalidateHandler,
 		getByIDHandler:    getByIDHandler,
 		getByUserHandler:  getByUserHandler,
-		bloodInfoRepo:     bloodInfoRepo,
 		petMapper:         mapper.NewPetMapper(storage),
 		storage:           storage,
 	}

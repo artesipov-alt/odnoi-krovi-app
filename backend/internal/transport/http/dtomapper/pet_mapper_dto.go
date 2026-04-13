@@ -84,9 +84,7 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 	if petmodel.BreedRefID != nil {
 		petDTO.BreedID = *petmodel.BreedRefID
 	}
-	if petmodel.BloodGroupName != nil {
-		petDTO.BloodGroup = *petmodel.BloodGroupName
-	}
+	petDTO.BloodGroup = petmodel.BloodGroupName
 
 	if petmodel.Health != nil {
 		healthStatus := string(petmodel.Health.HealthStatus)
@@ -172,10 +170,12 @@ func (m *PetMapper) FromCreate(petDto dto.CreatePetBody) (*model.Pet, error) {
 		breedRefID = &petDto.BreedID
 	}
 
-	var bloodGroupName *string
-	if petDto.BloodGroup != "" {
-		bloodGroupName = &petDto.BloodGroup
+	var bloodGroupName string
+	bloodGroup := petDto.BloodGroup
+	if bloodGroup == "" {
+		bloodGroup = "unknown"
 	}
+	bloodGroupName = bloodGroup
 
 	var reproductiveStatus model.ReproductiveStatus
 	if petDto.ReproductiveStatus != "" {
@@ -294,7 +294,11 @@ func (m *PetMapper) ToUpdateModel(petDto dto.UpdatePetBody) *model.Pet {
 		petUpdate.BreedRefID = petDto.BreedID
 	}
 	if petDto.BloodGroup != nil {
-		petUpdate.BloodGroupName = petDto.BloodGroup
+		bloodGroup := *petDto.BloodGroup
+		if bloodGroup == "" {
+			bloodGroup = "unknown"
+		}
+		petUpdate.BloodGroupName = bloodGroup
 	}
 	if petDto.BirthDate != nil {
 		petUpdate.BirthDate = petDto.BirthDate
@@ -402,9 +406,7 @@ func (m *PetMapper) ToSimplifiedResponse(pet *model.Pet) dto.PetDetail {
 		dtoPet.BreedID = *pet.BreedRefID
 	}
 
-	if pet.BloodGroupName != nil {
-		dtoPet.BloodGroup = *pet.BloodGroupName
-	}
+	dtoPet.BloodGroup = pet.BloodGroupName
 
 	if pet.LivingCondition != "" {
 		dtoPet.LivingCondition = string(pet.LivingCondition)
