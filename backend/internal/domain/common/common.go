@@ -37,8 +37,8 @@ var BloodComponents = []BloodComponent{
 }
 
 var (
-	DogBloodGroups = []string{"DEA 1+", "DEA 1-", "unknown"}
-	CatBloodGroups = []string{"A", "B", "AB", "unknown"}
+	DogBloodGroups = []string{"DEA 1+", "DEA 1-", "UNKNOWN"}
+	CatBloodGroups = []string{"A", "B", "AB", "UNKNOWN"}
 )
 
 // GetBloodGroupsByPetType возвращает список групп крови для указанного типа питомца

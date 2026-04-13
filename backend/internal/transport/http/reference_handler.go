@@ -381,7 +381,7 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBlo
 	items := make([]dto.ReferenceItem, len(bloodGroups))
 	for i, bloodGroup := range bloodGroups {
 		items[i] = dto.ReferenceItem{
-			Value: "",
+			Value: bloodGroup,
 			Label: bloodGroup,
 		}
 	}
