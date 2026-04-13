@@ -149,9 +149,6 @@ func NewPet(
 	if gender != "" && gender != GenderMale && gender != GenderFemale {
 		return nil, errors.New("invalid gender")
 	}
-	if chipNumber != "" && len(chipNumber) != 15 {
-		return nil, errors.New("chip number must be 15 characters")
-	}
 
 	pet := &Pet{
 		Name:               name,
