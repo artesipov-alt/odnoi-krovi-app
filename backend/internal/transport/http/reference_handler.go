@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 
@@ -370,11 +371,12 @@ func (h *ReferenceHandler) GetBloodComponents(ctx context.Context, input *dto.Ge
 }
 
 func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBloodGroupsInput) (*dto.GetBloodGroupsOutput, error) {
-	petType := input.PetType
-	if petType == "" {
+	petTypeStr := input.PetType
+	if petTypeStr == "" {
 		return nil, apperrors.BadRequest("Необходимо указать тип животного")
 	}
 
+	petType := common.PetType(petTypeStr)
 	bloodGroups, err := h.getBloodGroupsByTypeHandler.Handle(ctx, petType)
 	if err != nil {
 		return nil, err
@@ -383,8 +385,8 @@ func (h *ReferenceHandler) GetBloodGroups(ctx context.Context, input *dto.GetBlo
 	items := make([]dto.ReferenceItem, len(bloodGroups))
 	for i, bloodGroup := range bloodGroups {
 		items[i] = dto.ReferenceItem{
-			Value: bloodGroup.BloodGroup,
-			Label: bloodGroup.BloodGroup,
+			Value: "",
+			Label: bloodGroup,
 		}
 	}
 
