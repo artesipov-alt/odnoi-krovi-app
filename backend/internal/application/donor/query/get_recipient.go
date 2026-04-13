@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -65,7 +66,13 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 
 	for _, pet := range pets {
 		applications := applicationsMap[pet.ID]
-		application := findActiveApplication(applications)
+		var application *donormodel.DonorResponse
+		for _, app := range applications {
+			if app.IsActiveForDonation() {
+				application = app
+				break
+			}
+		}
 		bloodReq := bloodReqsMap[pet.ID]
 		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
 	}

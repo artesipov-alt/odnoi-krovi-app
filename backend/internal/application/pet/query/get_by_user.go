@@ -14,19 +14,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
-// findActiveApplication finds the most recent active donor application from the list.
-// Active means status is Accepted, Pending, or Completed but not confirmed.
-func findActiveApplication(applications []*donormodel.DonorResponse) *donormodel.DonorResponse {
-	for _, app := range applications {
-		if app.Status == donormodel.DonorResponseStatusAccepted ||
-			app.Status == donormodel.DonorResponseStatusPending ||
-			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
-			return app
-		}
-	}
-	return nil
-}
-
 type GetByUserResult struct {
 	Pets           []*model.Pet
 	TotalPets      int
@@ -103,13 +90,15 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	plannedDonations := make([]*donormodel.DonorResponse, 0, len(pets))
 	for _, pet := range pets {
 		applications := applicationsMap[pet.ID]
-		application := findActiveApplication(applications)
-		if application != nil {
-			if application.Status == donormodel.DonorResponseStatusAccepted ||
-				(application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false) ||
-				application.Status == donormodel.DonorResponseStatusPending {
-				plannedDonations = append(plannedDonations, application)
+		var application *donormodel.DonorResponse
+		for _, app := range applications {
+			if app.IsActiveForDonation() {
+				application = app
+				break
 			}
+		}
+		if application != nil {
+			plannedDonations = append(plannedDonations, application)
 		}
 		bloodReq := bloodReqsMap[pet.ID]
 

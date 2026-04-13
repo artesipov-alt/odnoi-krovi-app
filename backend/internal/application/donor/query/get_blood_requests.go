@@ -58,7 +58,13 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 	for _, pet := range pets {
 		applications := applicationsMap[pet.ID]
-		application := findActiveApplication(applications)
+		var application *donormodel.DonorResponse
+		for _, app := range applications {
+			if app.IsActiveForDonation() {
+				application = app
+				break
+			}
+		}
 		bloodReq := bloodReqsMap[pet.ID]
 		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
 	}

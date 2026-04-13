@@ -60,7 +60,13 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 	result := make([]*GetPlannedDonationsResult, 0, len(donorPets))
 	for _, dPet := range donorPets {
 		applications := applicationsMap[dPet.ID]
-		application := findActiveApplication(applications)
+		var application *donormodel.DonorResponse
+		for _, app := range applications {
+			if app.IsActiveForDonation() {
+				application = app
+				break
+			}
+		}
 		if application != nil {
 			request, err := h.bloodReqRepo.GetByApplicationID(ctx, application.ID)
 			if err != nil {

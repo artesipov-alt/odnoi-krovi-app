@@ -16,19 +16,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 )
 
-// findActiveApplication finds the most recent active donor application from the list.
-// Active means status is Accepted, Pending, or Completed but not confirmed.
-func findActiveApplication(applications []*donormodel.DonorResponse) *donormodel.DonorResponse {
-	for _, app := range applications {
-		if app.Status == donormodel.DonorResponseStatusAccepted ||
-			app.Status == donormodel.DonorResponseStatusPending ||
-			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
-			return app
-		}
-	}
-	return nil
-}
-
 type CreateRequestHandler struct {
 	bloodRepo  bloodsearch.BloodRequestRepository
 	petRepo    pet.Repository
@@ -102,7 +89,13 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	timeNow := time.Now()
 	for _, pet := range pets {
 		applications := applicationsMap[pet.ID]
-		donorApplication := findActiveApplication(applications)
+		var donorApplication *donormodel.DonorResponse
+		for _, app := range applications {
+			if app.IsActiveForDonation() {
+				donorApplication = app
+				break
+			}
+		}
 		donorBloodReq := bloodReqsMap[pet.ID]
 		h.petService.RecalculateFactorsAndStatus(pet, timeNow, donorApplication, donorBloodReq)
 	}
