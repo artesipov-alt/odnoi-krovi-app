@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"strconv"
+	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodcomponent"
@@ -15,7 +16,24 @@ import (
 
 // SeedBloodGroups заполняет таблицу групп крови начальными данными через ENT
 func SeedBloodGroups(ctx context.Context, client *ent.Client) error {
-	for i, g := range AllBloodGroups {
+	// Получаем все существующие ID для вычисления следующего номера
+	existingIDs, err := client.BloodGroup.Query().Select(bloodgroup.FieldID).All(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "Ошибка при получении существующих ID групп крови", "error", err)
+		return err
+	}
+	maxNum := 0
+	for _, bg := range existingIDs {
+		parts := strings.Split(bg.ID, "-")
+		if len(parts) == 2 {
+			if num, err := strconv.Atoi(parts[1]); err == nil && num > maxNum {
+				maxNum = num
+			}
+		}
+	}
+	counter := maxNum + 1
+
+	for _, g := range AllBloodGroups {
 		// Проверяем, существует ли уже такая группа крови
 		exists, err := client.BloodGroup.Query().
 			Where(
@@ -32,11 +50,12 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client) error {
 		if !exists {
 			// Если не существует, создаем новую запись
 			err := client.BloodGroup.Create().
-				SetID(schema.BloodGroupPrefix + "-" + strconv.Itoa(i+1)).
+				SetID(schema.BloodGroupPrefix + "-" + strconv.Itoa(counter)).
 				SetPetType(g.PetType).
 				SetBloodGroup(g.BloodGroup).
 				SetDescription(g.Description).
 				Exec(ctx)
+			counter++
 
 			if err != nil {
 				slog.ErrorContext(ctx, "Ошибка при создании группы крови",
@@ -64,7 +83,24 @@ func SeedBloodGroups(ctx context.Context, client *ent.Client) error {
 
 // SeedBloodComponents заполняет таблицу компонентов крови начальными данными через ENT
 func SeedBloodComponents(ctx context.Context, client *ent.Client) error {
-	for i, name := range AllBloodComponents {
+	// Получаем все существующие ID для вычисления следующего номера
+	existingIDs, err := client.BloodComponent.Query().Select(bloodcomponent.FieldID).All(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "Ошибка при получении существующих ID компонентов крови", "error", err)
+		return err
+	}
+	maxNum := 0
+	for _, bc := range existingIDs {
+		parts := strings.Split(bc.ID, "-")
+		if len(parts) == 2 {
+			if num, err := strconv.Atoi(parts[1]); err == nil && num > maxNum {
+				maxNum = num
+			}
+		}
+	}
+	counter := maxNum + 1
+
+	for _, name := range AllBloodComponents {
 		// Проверяем, существует ли уже такой компонент крови
 		exists, err := client.BloodComponent.Query().
 			Where(bloodcomponent.NameEQ(name)).
@@ -78,9 +114,10 @@ func SeedBloodComponents(ctx context.Context, client *ent.Client) error {
 		if !exists {
 			// Если не существует, создаем новую запись
 			err := client.BloodComponent.Create().
-				SetID(schema.BloodComponentPrefix + "-" + strconv.Itoa(i+1)).
+				SetID(schema.BloodComponentPrefix + "-" + strconv.Itoa(counter)).
 				SetName(name).
 				Exec(ctx)
+			counter++
 
 			if err != nil {
 				slog.ErrorContext(ctx, "Ошибка при создании компонента крови",
