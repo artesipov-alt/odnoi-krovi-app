@@ -654,3 +654,21 @@ func (r *EntPetRepository) SetLastDonation(ctx context.Context, petID string, la
 
 	return nil
 }
+
+// SetTransfused обновляет флаг переливания крови питомца
+func (r *EntPetRepository) SetTransfused(ctx context.Context, petID string, transfused bool) error {
+	if petID == "" {
+		return errors.New("неверный ID питомца")
+	}
+
+	updater := r.client.PetHealth.Update().Where(pethealth.HasOwnerWith(entpet.ID(petID)))
+
+	updater.SetTransfused(transfused)
+
+	_, err := updater.Save(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось обновить флаг переливания питомца: %w", err)
+	}
+
+	return nil
+}

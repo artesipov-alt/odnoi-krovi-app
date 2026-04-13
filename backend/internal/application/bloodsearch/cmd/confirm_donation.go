@@ -82,6 +82,10 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 					}
 				}
 			}
+			// Установить флаг переливания для recipient'а
+			if err := h.petRepo.SetTransfused(txCtx, bloodReq.PetID, true); err != nil {
+				return err
+			}
 		}
 
 		application, err = h.donorRepo.GetDonorResponseByID(txCtx, donorResponseID)

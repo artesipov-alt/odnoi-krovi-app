@@ -36,6 +36,8 @@ type PetWriteRepository interface {
 
 	SetLastDonation(ctx context.Context, petID string, lastDonationDate *time.Time) error
 
+	SetTransfused(ctx context.Context, petID string, transfused bool) error
+
 	// Delete удаляет питомца (soft delete)
 	DeleteWithRelations(ctx context.Context, id string) error
 }

@@ -635,8 +635,8 @@ func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *b
 	if application != nil && (application.Status == donormodel.DonorResponseStatusAccepted || application.Status == donormodel.DonorResponseStatusPending || (application.Status == donormodel.DonorResponseStatusCompleted && application.IsConfirmed == false)) {
 		p.PetStatus = PetStatusPlannedDonation
 	}
-	// Set Recovering status if DonationTooRecent stop factor is present
-	if slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent)) {
+	// Set Recovering status if DonationTooRecent stop factor is present, but only if not in Recipient or BloodFound
+	if slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent)) && p.PetStatus != PetStatusRecipient && p.PetStatus != PetStatusBloodFound {
 		p.PetStatus = PetStatusRecovering
 	}
 }
