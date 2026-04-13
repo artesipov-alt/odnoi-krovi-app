@@ -88,6 +88,9 @@ var (
 // HealthStatus defines the type for the "health_status" enum field.
 type HealthStatus string
 
+// HealthStatusUnknown is the default value of the HealthStatus enum.
+const DefaultHealthStatus = HealthStatusUnknown
+
 // HealthStatus values.
 const (
 	HealthStatusHealthy HealthStatus = "healthy"

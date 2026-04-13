@@ -98,7 +98,7 @@ func (PetHealth) Mixin() []ent.Mixin {
 // Fields of the PetHealth.
 func (PetHealth) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("health_status").Values("healthy", "ill", "unknown").Optional(),
+		field.Enum("health_status").Values("healthy", "ill", "unknown").Default("unknown").Optional(),
 		field.Time("last_donation").Optional().Nillable(),
 		field.Bool("transfused").Optional(),
 		field.String("medications").Optional(),

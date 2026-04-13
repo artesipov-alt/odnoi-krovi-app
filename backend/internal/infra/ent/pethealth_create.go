@@ -204,6 +204,10 @@ func (_c *PetHealthCreate) defaults() {
 		v := pethealth.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.HealthStatus(); !ok {
+		v := pethealth.DefaultHealthStatus
+		_c.mutation.SetHealthStatus(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := pethealth.DefaultID()
 		_c.mutation.SetID(v)

@@ -231,7 +231,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "health_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"healthy", "ill", "unknown"}},
+		{Name: "health_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"healthy", "ill", "unknown"}, Default: "unknown"},
 		{Name: "last_donation", Type: field.TypeTime, Nullable: true},
 		{Name: "transfused", Type: field.TypeBool, Nullable: true},
 		{Name: "medications", Type: field.TypeString, Nullable: true},
