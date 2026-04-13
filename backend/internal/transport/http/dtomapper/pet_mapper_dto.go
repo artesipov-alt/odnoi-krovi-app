@@ -183,9 +183,8 @@ func (m *PetMapper) FromCreate(petDto dto.CreatePetBody) (*model.Pet, error) {
 	}
 
 	// Handle PetHealth
-	var health *model.PetHealth
+	var health *model.PetHealth = &model.PetHealth{}
 	if petDto.Health != nil {
-		health = &model.PetHealth{}
 		if petDto.Health.HealthStatus != nil {
 			health.HealthStatus = model.HealthStatus(*petDto.Health.HealthStatus)
 		}
