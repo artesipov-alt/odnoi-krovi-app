@@ -19,15 +19,17 @@ type RecipientDetailHandler struct {
 	bloodReqRepo bloodsearch.BloodRequestRepository
 	userRepo     user.Repository
 	matchingSvc  bloodsearch.MatchingService
+	petService   *pet.PetService
 }
 
-func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService) *RecipientDetailHandler {
+func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService) *RecipientDetailHandler {
 	return &RecipientDetailHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
 		bloodReqRepo: bloodReqRepo,
 		userRepo:     userRepo,
 		matchingSvc:  matchingSvc,
+		petService:   petService,
 	}
 }
 
@@ -65,8 +67,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		applications := applicationsMap[pet.ID]
 		application := findActiveApplication(applications)
 		bloodReq := bloodReqsMap[pet.ID]
-		pet.RecalculateFactors(time.Now(), application, bloodReq)
-		pet.CalculateStatus(application, bloodReq)
+		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)

@@ -18,14 +18,16 @@ type ListRequestsHandler struct {
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.BloodRequestRepository
 	matchingSvc   bloodsearch.MatchingService
+	petService    *pet.PetService
 }
 
-func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, matchingSvc bloodsearch.MatchingService) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService) *ListRequestsHandler {
 	return &ListRequestsHandler{
 		petRepo:       petRepo,
 		donorRespRepo: donorRespRepo,
 		bloodReqRepo:  bloodReqRepo,
 		matchingSvc:   matchingSvc,
+		petService:    petService,
 	}
 }
 
@@ -58,8 +60,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		applications := applicationsMap[pet.ID]
 		application := findActiveApplication(applications)
 		bloodReq := bloodReqsMap[pet.ID]
-		pet.RecalculateFactors(time.Now(), application, bloodReq)
-		pet.CalculateStatus(application, bloodReq)
+		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)

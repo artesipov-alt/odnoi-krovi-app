@@ -17,13 +17,15 @@ type GetDonorByIDHandler struct {
 	petReadRepo pet.PetReadRepository
 	donorRepo   donor.Repository
 	bloodRepo   bloodsearch.BloodRequestRepository
+	petService  *pet.PetService
 }
 
-func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.BloodRequestRepository) *GetDonorByIDHandler {
+func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.BloodRequestRepository, petService *pet.PetService) *GetDonorByIDHandler {
 	return &GetDonorByIDHandler{
 		petReadRepo: petReadRepo,
 		donorRepo:   donorRepo,
 		bloodRepo:   bloodRepo,
+		petService:  petService,
 	}
 }
 
@@ -51,8 +53,7 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 		bloodReq.RecalculateStatus()
 	}
 
-	pet.RecalculateFactors(time.Now(), application, bloodReq)
-	pet.CalculateStatus(application, bloodReq)
+	h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
 
 	return pet, application, nil
 }

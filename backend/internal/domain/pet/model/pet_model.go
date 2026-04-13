@@ -3,12 +3,9 @@ package model
 import (
 	"errors"
 	"math"
-	"slices"
 	"time"
 
-	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
 // PetStatus представляет статус питомца
@@ -79,6 +76,7 @@ type Pet struct {
 	StopFactors        []string
 	WarnFactors        []string
 	Bonuses            []string
+	RecoveryDays       *int
 	Health             *PetHealth
 	Treatments         *PetTreatment
 	Analyses           []*PetAnalysis
@@ -330,7 +328,7 @@ func GetAllFactors() map[FactorCode]FactorDescription {
 }
 
 // GetStopFactors возвращает список стоп-факторов для питомца на основе текущего времени
-func (p *Pet) GetStopFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) []FactorCode {
+func (p *Pet) GetStopFactors(now time.Time, isRecipient bool) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkPhoto(); code != "" {
 		factors = append(factors, code)
@@ -371,14 +369,14 @@ func (p *Pet) GetStopFactors(now time.Time, donorApplication *donormodel.DonorRe
 	if code := p.checkDonationHistory(now); code != "" {
 		factors = append(factors, code)
 	}
-	if bloodReq != nil && bloodReq.Status == bloodreqmodel.BloodRequestStatusActive {
+	if isRecipient {
 		factors = append(factors, StopFactorCurrentlyRecipient)
 	}
 	return factors
 }
 
 // GetWarnFactors возвращает список варн-факторов для питомца на основе текущего времени
-func (p *Pet) GetWarnFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) []FactorCode {
+func (p *Pet) GetWarnFactors(now time.Time) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkWarnAge(now); code != "" {
 		factors = append(factors, code)
@@ -604,88 +602,17 @@ func (p *Pet) checkWarnBloodGroup() FactorCode {
 	return ""
 }
 
-// CalculateStatus определяет статус питомца на основе заявки на кровь и откликов доноров.
-// Логика:
-//  1. Если есть активная заявка на кровь (статус не Closed), проверяем наличие активных откликов доноров.
-//     Активный отклик - это отклик со статусом Pending, Accepted или Completed, но не подтвержденный (IsConfirmed == false).
-//     Если есть хотя бы один такой отклик, статус питомца устанавливается в BloodFound.
-//     Иначе - в Recipient (идет поиск).
-//  2. Если заявки на кровь нет или она закрыта, и у питомца нет стоп-факторов, статус устанавливается в Donor.
-//  3. Если питомец имеет собственный отклик со статусом Accepted, Pending или Completed без подтверждения,
-//     статус переопределяется в PlannedDonation (планируемая донация).
-//  4. Если есть стоп-фактор DonationTooRecent, статус устанавливается в Recovering, но только если не в Recipient или BloodFound и питомец не был перелитым (Transfused).
-func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
-	if p.hasActiveBloodRequest(bloodReq) {
-		if p.hasActiveDonorApplications(bloodReq) {
-			p.PetStatus = PetStatusBloodFound
-		} else {
-			p.PetStatus = PetStatusRecipient
-		}
-	} else if p.canBeDonor() {
-		p.PetStatus = PetStatusDonor
-	}
-
-	if p.hasPlannedDonation(application) {
-		p.PetStatus = PetStatusPlannedDonation
-	}
-
-	if p.shouldBeRecovering() && p.PetStatus != PetStatusRecipient && p.PetStatus != PetStatusBloodFound {
-		p.PetStatus = PetStatusRecovering
-	}
-}
-
-// hasActiveBloodRequest проверяет, есть ли активная заявка на кровь
-func (p *Pet) hasActiveBloodRequest(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
-	return bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed
-}
-
-// hasActiveDonorApplications проверяет наличие активных откликов доноров
-func (p *Pet) hasActiveDonorApplications(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
-	if bloodReq == nil {
-		return false
-	}
-	for _, app := range bloodReq.DonorApplications {
-		if app.Status == donormodel.DonorResponseStatusPending ||
-			app.Status == donormodel.DonorResponseStatusAccepted ||
-			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
-			return true
-		}
-	}
-	return false
-}
-
-// canBeDonor проверяет возможность быть донором (нет стоп-факторов)
-func (p *Pet) canBeDonor() bool {
-	return len(p.StopFactors) == 0
-}
-
-// hasPlannedDonation проверяет, есть ли планируемая донация
-func (p *Pet) hasPlannedDonation(application *donormodel.DonorResponse) bool {
-	return application != nil &&
-		(application.Status == donormodel.DonorResponseStatusAccepted ||
-			application.Status == donormodel.DonorResponseStatusPending ||
-			(application.Status == donormodel.DonorResponseStatusCompleted && !application.IsConfirmed))
-}
-
-// shouldBeRecovering проверяет необходимость статуса Recovering
-func (p *Pet) shouldBeRecovering() bool {
-	if p.Health != nil && p.Health.Transfused != nil && *p.Health.Transfused {
-		return false
-	}
-	return slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent))
-}
-
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
 // Этот метод инкапсулирует логику обновления факторов внутри агрегата
 // RecalculateFactors пересчитывает стоп-факторы и факторы-предупреждения
-func (p *Pet) RecalculateFactors(now time.Time, donorApplication *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
-	stopFactors := p.GetStopFactors(now, donorApplication, bloodReq)
+func (p *Pet) RecalculateFactors(now time.Time, isRecipient bool) {
+	stopFactors := p.GetStopFactors(now, isRecipient)
 	p.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {
 		p.StopFactors[i] = string(f)
 	}
 
-	warnFactors := p.GetWarnFactors(now, donorApplication, bloodReq)
+	warnFactors := p.GetWarnFactors(now)
 	p.WarnFactors = make([]string, len(warnFactors))
 	for i, f := range warnFactors {
 		p.WarnFactors[i] = string(f)
@@ -742,6 +669,9 @@ func (p *Pet) UpdateFrom(other *Pet) error {
 	}
 	if other.WarnFactors != nil {
 		p.WarnFactors = other.WarnFactors
+	}
+	if other.RecoveryDays != nil {
+		p.RecoveryDays = other.RecoveryDays
 	}
 
 	// Обновляем вложенные структуры

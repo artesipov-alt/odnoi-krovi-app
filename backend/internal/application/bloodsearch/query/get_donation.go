@@ -19,6 +19,7 @@ type GetDonationHandler struct {
 	petReadRepo pet.PetReadRepository
 	donorRepo   donor.Repository
 	bloodRepo   bloodsearch.BloodRequestRepository
+	petService  *pet.PetService
 }
 
 type GetDonationResult struct {
@@ -28,11 +29,12 @@ type GetDonationResult struct {
 	RecipientPet *petmodel.Pet
 }
 
-func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.BloodRequestRepository) *GetDonationHandler {
+func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.BloodRequestRepository, petService *pet.PetService) *GetDonationHandler {
 	return &GetDonationHandler{
 		donorRepo:   donorRepo,
 		bloodRepo:   bloodRepo,
 		petReadRepo: petReadRepo,
+		petService:  petService,
 	}
 }
 
@@ -54,8 +56,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 		return nil, err
 	}
 
-	donorPet.RecalculateFactors(time.Now(), application, donorBloodReq)
-	donorPet.CalculateStatus(application, donorBloodReq)
+	h.petService.RecalculateFactorsAndStatus(donorPet, time.Now(), application, donorBloodReq)
 
 	bloodReq, err := h.bloodRepo.GetByID(ctx, application.RequestID)
 	if err != nil {
@@ -73,8 +74,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	if err != nil {
 		return nil, err
 	}
-	recipientPet.RecalculateFactors(time.Now(), nil, bloodReq)
-	recipientPet.CalculateStatus(nil, bloodReq)
+	h.petService.RecalculateFactorsAndStatus(recipientPet, time.Now(), nil, bloodReq)
 
 	return &GetDonationResult{
 		Application:  application,

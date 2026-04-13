@@ -8,10 +8,10 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
 
 // findActiveApplication finds the most recent active donor application from the list.
@@ -38,6 +38,7 @@ type GetByUserHandler struct {
 	userRepo      user.Repository
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.BloodRequestRepository
+	petService    *pet.PetService
 }
 
 func NewGetByUserHandler(
@@ -45,13 +46,14 @@ func NewGetByUserHandler(
 	userRepo user.Repository,
 	donorRespRepo donor.Repository,
 	bloodReqRepo bloodsearch.BloodRequestRepository,
-
+	petService *pet.PetService,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
 		petReadRepo:   petReadRepo,
 		userRepo:      userRepo,
 		bloodReqRepo:  bloodReqRepo,
 		donorRespRepo: donorRespRepo,
+		petService:    petService,
 	}
 }
 
@@ -62,6 +64,18 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 	if !exists {
 		return nil, apperrors.ErrUserNotFound
+	}
+
+	owner, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{
+		WithDonorPreference: true,
+	})
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get owner")
+	}
+
+	recoveryPeriodMonths := 0
+	if owner.DonorPreference != nil {
+		recoveryPeriodMonths = owner.DonorPreference.RecoveryPeriodMonths
 	}
 
 	pets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
@@ -99,8 +113,8 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		}
 		bloodReq := bloodReqsMap[pet.ID]
 
-		pet.RecalculateFactors(time.Now(), application, bloodReq)
-		pet.CalculateStatus(application, bloodReq)
+		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
+		pet.RecoveryDays = h.petService.CalculateRecoveryDays(pet, recoveryPeriodMonths, time.Now())
 	}
 
 	return &GetByUserResult{

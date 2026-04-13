@@ -43,6 +43,7 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 		WeightKg:             petmodel.WeightKg,
 		BirthDate:            petmodel.BirthDate,
 		PetStatus:            string(petmodel.PetStatus),
+		RecoveryDays:         petmodel.RecoveryDays,
 		LivingCondition:      string(petmodel.LivingCondition),
 		Gender:               string(petmodel.Gender),
 		Type:                 string(petmodel.Type),

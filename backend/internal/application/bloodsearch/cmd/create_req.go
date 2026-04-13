@@ -30,10 +30,11 @@ func findActiveApplication(applications []*donormodel.DonorResponse) *donormodel
 }
 
 type CreateRequestHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
-	petRepo   pet.Repository
-	donorRepo donor.Repository
-	publisher ports.EventPublisher
+	bloodRepo  bloodsearch.BloodRequestRepository
+	petRepo    pet.Repository
+	donorRepo  donor.Repository
+	publisher  ports.EventPublisher
+	petService *pet.PetService
 }
 
 func NewCreateRequestHandler(
@@ -41,12 +42,14 @@ func NewCreateRequestHandler(
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
 	publisher ports.EventPublisher,
+	petService *pet.PetService,
 ) *CreateRequestHandler {
 	return &CreateRequestHandler{
-		bloodRepo: bloodRepo,
-		petRepo:   petRepo,
-		donorRepo: donorRepo,
-		publisher: publisher,
+		bloodRepo:  bloodRepo,
+		petRepo:    petRepo,
+		donorRepo:  donorRepo,
+		publisher:  publisher,
+		petService: petService,
 	}
 }
 
@@ -101,8 +104,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		applications := applicationsMap[pet.ID]
 		donorApplication := findActiveApplication(applications)
 		donorBloodReq := bloodReqsMap[pet.ID]
-		pet.RecalculateFactors(timeNow, donorApplication, donorBloodReq)
-		pet.CalculateStatus(donorApplication, donorBloodReq)
+		h.petService.RecalculateFactorsAndStatus(pet, timeNow, donorApplication, donorBloodReq)
 	}
 
 	var avilableDonors []petmodel.Pet
