@@ -10,9 +10,8 @@ import (
 // Общие типы (вспомогательные)
 // ============================================
 
-// PetHealth представляет информацию о здоровье питомца
 type PetHealth struct {
-	HealthStatus          *string    `json:"healthStatus,omitempty" doc:"Общее состояние здоровья питомца" enum:"healthy,ill,unknown"`
+	HealthStatus          *string    `json:"healthStatus,omitempty" doc:"Общее состояние здоровья питомца" enum:"healthy,ill,unknown" default:"unknown"`
 	LastDonation          *time.Time `json:"lastDonation,omitempty" doc:"Дата последней сдачи крови" example:"2023-10-01T12:00:00Z"`
 	Transfused            *bool      `json:"transfused,omitempty" doc:"Были ли переливания крови" example:"false"`
 	Medications           *string    `json:"medications,omitempty" doc:"Текущие лекарства" example:"Antibiotics"`
@@ -88,7 +87,7 @@ type CreatePetBody struct {
 	BirthDate          *time.Time        `json:"birthDate,omitempty" doc:"Дата рождения" example:"2020-05-15T00:00:00Z"`
 	AgeYears           int               `json:"ageYears,omitempty" validate:"omitempty,min=0,max=30" doc:"Возраст в годах (альтернатива birthDate)" example:"3"`
 	AgeMonths          int               `json:"ageMonths,omitempty" validate:"omitempty,min=0,max=11" doc:"Возраст в месяцах (дополнение к ageYears)" example:"6"`
-	ChipNumber         string            `json:"chipNumber,omitempty" validate:"omitempty,len=15" doc:"Номер чипа" example:"123456789012345"`
+	ChipNumber         string            `json:"chipNumber,omitempty" doc:"Номер чипа" example:"123456789012345"`
 	LivingCondition    string            `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
 	ReproductiveStatus string            `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus,none"`
 	BreedID            string            `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
