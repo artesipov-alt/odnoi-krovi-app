@@ -615,7 +615,7 @@ func (p *Pet) checkWarnBloodGroup() FactorCode {
 //  2. Если заявки на кровь нет или она закрыта, и у питомца нет стоп-факторов, статус устанавливается в Donor.
 //  3. Если питомец имеет собственный отклик со статусом Accepted, Pending или Completed без подтверждения,
 //     статус переопределяется в PlannedDonation (планируемая донация).
-//  4. Если есть стоп-фактор DonationTooRecent, статус устанавливается в Recovering, но только если не в Recipient или BloodFound.
+//  4. Если есть стоп-фактор DonationTooRecent, статус устанавливается в Recovering, но только если не в Recipient или BloodFound и питомец не был перелитым (Transfused).
 func (p *Pet) CalculateStatus(application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
 	if p.hasActiveBloodRequest(bloodReq) {
 		if p.hasActiveDonorApplications(bloodReq) {
@@ -671,6 +671,9 @@ func (p *Pet) hasPlannedDonation(application *donormodel.DonorResponse) bool {
 
 // shouldBeRecovering проверяет необходимость статуса Recovering
 func (p *Pet) shouldBeRecovering() bool {
+	if p.Health != nil && p.Health.Transfused != nil && *p.Health.Transfused {
+		return false
+	}
 	return slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent))
 }
 
