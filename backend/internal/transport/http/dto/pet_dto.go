@@ -92,7 +92,7 @@ type CreatePetBody struct {
 	LivingCondition    string            `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
 	ReproductiveStatus string            `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
 	BreedID            string            `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
-	BloodGroup         string            `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	BloodGroup         string            `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,Неизвестная" example:"DEA 1+"`
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
@@ -135,7 +135,7 @@ type UpdatePetBody struct {
 	LivingCondition    *string           `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
 	ReproductiveStatus *string           `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
 	BreedID            *string           `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
-	BloodGroup         *string           `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	BloodGroup         *string           `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,Неизвестная" example:"DEA 1+"`
 	Health             *PetHealth        `json:"health,omitempty" doc:"Информация о здоровье"`
 	Treatments         *PetTreatment     `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses           *PetAnalysisGroup `json:"analyses,omitempty" doc:"Группированные анализы"`
@@ -183,7 +183,7 @@ type PetDetail struct {
 	LivingCondition      string             `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
 	ReproductiveStatus   string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus"`
 	BreedID              string             `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
-	BloodGroup           string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"DEA 1+"`
+	BloodGroup           string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,Неизвестная" example:"DEA 1+"`
 	PetStatus            string             `json:"petStatus" doc:"Статус питомца" enum:"none,donor,recipient,blood_found,recovering,planned_donation" example:"donor"`
 	AvailableBloodAmount float64            `json:"availableBloodAmount,omitempty" doc:"Доступный объем крови для донации в мл" example:"450"`
 	DonorRestrictions    *DonorRestrictions `json:"donorRestrictions,omitempty" doc:"Стоп-факторы и предупреждения"`

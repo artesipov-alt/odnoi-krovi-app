@@ -12,7 +12,6 @@ type BloodGroupData struct {
 	Description string
 }
 
-// AllBloodGroups содержит все предопределенные группы крови
 var AllBloodGroups = []BloodGroupData{
 	// Группы крови для собак
 	{
@@ -24,6 +23,11 @@ var AllBloodGroups = []BloodGroupData{
 		PetType:     bloodgroup.PetTypeDog,
 		BloodGroup:  "DEA 1-",
 		Description: "Универсальный донор для всех собак",
+	},
+	{
+		PetType:     bloodgroup.PetTypeDog,
+		BloodGroup:  "Неизвестная",
+		Description: "Неизвестная группа крови у собак",
 	},
 	// Группы крови для кошек
 	{
@@ -40,6 +44,11 @@ var AllBloodGroups = []BloodGroupData{
 		PetType:     bloodgroup.PetTypeCat,
 		BloodGroup:  "AB",
 		Description: "Очень редкая группа крови",
+	},
+	{
+		PetType:     bloodgroup.PetTypeCat,
+		BloodGroup:  "Неизвестная",
+		Description: "Неизвестная группа крови у кошек",
 	},
 }
 
