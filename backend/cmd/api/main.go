@@ -158,7 +158,7 @@ func main() {
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService)
 		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
 		donorGetCompletedDonationsHandler := donorquery.NewCompletedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
-		completeDonationHandler := donorcmd.NewCompleteDonationHandler(donorResponseRepo)
+		completeDonationHandler := donorcmd.NewCompleteDonationHandler(donorResponseRepo, bloodRequestRepo, petRepo, userRepo, publisher)
 		cancelDonationHandler := donorcmd.NewCancelDonationHandler(donorResponseRepo, bloodRequestRepo, txManager, publisher, petRepo, userRepo)
 
 		// Инициализация pet handlers
