@@ -342,6 +342,8 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 			Bonuses:          []string{},
 			RejectedReason:   res.ApplicationData.RejectedReason,
 			Status:           string(res.ApplicationData.Status),
+			CreatedAt:        res.ApplicationData.CreatedAt,
+			UpdatedAt:        res.ApplicationData.UpdatedAt,
 		}
 
 		recipient := dto.RecipientForDonor{
