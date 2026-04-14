@@ -110,7 +110,7 @@ const ImgEditor: FC<Props> = ({
 
     const renderLabels = () => (
         <>
-            {!isMiniView && <span className={styles.bloodGroup}>{bloodGroup || '?'}</span>}
+            {!isMiniView && <span className={styles.bloodGroup}>{bloodGroup !== 'UNKNOWN' ? bloodGroup : '?'}</span>}
             {weight && (
                 <div className={styles.weight}>
                     <span>{weight}</span>

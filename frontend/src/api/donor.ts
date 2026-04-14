@@ -81,6 +81,7 @@ export type GetRecipientDetailsResponse = {
     bloodVolumeReserved: number;
     searchingBloodNames: string[];
     matchingDonors?: MatchingDonor[];
+    includeUnknownBloodGroup?: boolean;
 };
 
 export type BloodSearchApplyRequest = {
@@ -131,6 +132,7 @@ export type PlannedDonationRecipientInfo = {
     advancedInfo: AdvancedInfo;
     bloodVolumeReserved: number;
     searchingBloodNames: string[];
+    includeUnknownBloodGroup?: boolean;
 };
 
 export type PlannedDonation = {

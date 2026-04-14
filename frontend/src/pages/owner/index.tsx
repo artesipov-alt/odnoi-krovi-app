@@ -118,7 +118,8 @@ const Owner: FC<Props> = ({ userId }) => {
     };
 
     const onRecipientLabelClickHandler =
-        (label: 'startSearch' | 'activeSearch' | 'bloodFound', petId: string) => (e: MouseEvent<HTMLDivElement>) => {
+        (label: 'startSearch' | 'activeSearch' | 'bloodFound', petId: string) =>
+        async (e: MouseEvent<HTMLDivElement>) => {
             e.stopPropagation();
 
             if (label === 'startSearch') {
@@ -130,6 +131,8 @@ const Owner: FC<Props> = ({ userId }) => {
             }
 
             if (label === 'bloodFound') {
+                await queryClient.invalidateQueries({ queryKey: ['poolRequestByPetId', petId] });
+
                 navigate(`/search/${petId}?bloodFound=true`);
             }
         };
@@ -251,9 +254,10 @@ const Owner: FC<Props> = ({ userId }) => {
                         className={cn(styles.label, { [styles.didNotRecover]: true })}
                     >
                         <div className={styles.recover}>
-                            <p className={styles.recoverDays}>15</p>
-                            <p className={styles.recoverDescr}>{getCorrectDeclension(Variants.DAYS, 15)}</p>
-                            {/* TODO заменить на дни до восстановления */}
+                            <p className={styles.recoverDays}>{petData?.recoveryDays}</p>
+                            <p className={styles.recoverDescr}>
+                                {getCorrectDeclension(Variants.DAYS, petData.recoveryDays || 1)}
+                            </p>
                         </div>
                         <div className={styles.labelText}>До восстановления</div>
                     </div>
@@ -568,7 +572,9 @@ const Owner: FC<Props> = ({ userId }) => {
                                             {!!pet.photoUrls?.[0] && (
                                                 <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />
                                             )}
-                                            <div className={styles.bloodGroup}>{pet.bloodGroup || '?'}</div>
+                                            <div className={styles.bloodGroup}>
+                                                {pet.bloodGroup !== 'UNKNOWN' ? pet.bloodGroup : '?'}
+                                            </div>
                                             <div className={styles.photoFooter}>
                                                 <p className={styles.name}>{pet.name.toUpperCase()}</p>
                                                 {(view === Role.RECIPIENT || view === Role.BLOOD_FOUND) &&

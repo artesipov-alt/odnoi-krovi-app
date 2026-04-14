@@ -143,6 +143,14 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         onClose();
     };
 
+    const onBlurDonatedBloodVolumeHandler = ({
+        target: { value },
+    }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (Number(value) < 10) {
+            setDonatedBloodVolume('10');
+        }
+    };
+
     const onChangeDonatedBloodVolumeHandler = ({
         target: { value },
     }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -272,9 +280,11 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         </div>
                         <div className={styles.bloodInfo}>
                             <div className={styles.bloodGroup}>{donation.recipientData.bloodGroup}</div>
-                            {donation.recipientData.searchingBloodNames.some(
+                            {(donation.recipientData.searchingBloodNames.some(
                                 (group) => group !== donation.recipientData.bloodGroup,
-                            ) && ' +'}
+                            ) ||
+                                donation.recipientData.includeUnknownBloodGroup) &&
+                                ' +'}
                             {donation.recipientData.searchingBloodNames.some(
                                 (group) => group !== donation.recipientData.bloodGroup,
                             )
@@ -291,6 +301,9 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                                           </div>
                                       ))
                                 : ''}
+                            {donation.recipientData.includeUnknownBloodGroup && (
+                                <div className={cn(styles.bloodGroup, { [styles.needed]: true })}>?</div>
+                            )}
                         </div>
                     </div>
                     <div className={styles.lineItem}>
@@ -418,7 +431,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                     onClose={onConfirmDonationToggle}
                     onConfirm={onConfirmDonationToggle}
                     onCancel={onConfirmDonationClickHandler}
-                    isDisableCancelButton={!donatedBloodVolume}
+                    isDisableCancelButton={!donatedBloodVolume || Number(donatedBloodVolume) < 10}
                 >
                     <TextField
                         name='volume'
@@ -427,6 +440,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         value={donatedBloodVolume}
                         inputClass={styles.volumeInput}
                         htmlInputClass={styles.volumeHtmlInput}
+                        onBlur={onBlurDonatedBloodVolumeHandler}
                         onChange={onChangeDonatedBloodVolumeHandler}
                         endAdornment={<div className={styles.endAdornment}>мл</div>}
                     />

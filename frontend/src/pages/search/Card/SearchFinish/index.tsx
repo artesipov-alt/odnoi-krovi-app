@@ -36,15 +36,15 @@ const SearchFinish: FC<Props> = ({
                     src={avatar || (type === PetType.DOG ? dogRoundStub : catRoundStub)}
                 />
                 <CircularProgress
-                    showDot
+                    // showDot
                     size={180}
                     strokeWidth={15}
-                    total={bloodVolumeNeeded}
-                    current={bloodVolumeDonated}
+                    total={5}
+                    current={5}
                     color='var(--red10, #FF2727)'
                 />
                 <div className={styles.neededVolume}>
-                    {bloodVolumeNeeded}
+                    {bloodVolumeDonated}
                     <span>мл</span>
                 </div>
             </div>

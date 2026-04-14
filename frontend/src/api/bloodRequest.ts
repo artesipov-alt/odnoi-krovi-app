@@ -79,6 +79,7 @@ export type GetPoolRequestResponse = {
     bloodVolumeReserved?: number;
     smallPetsNotifyAllowed: true;
     acceptedDonors?: RespondingDonor[];
+    includeUnknownBloodGroup?: boolean;
     completedDonations?: RespondingDonor[];
 };
 

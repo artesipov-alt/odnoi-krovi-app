@@ -34,6 +34,7 @@ type Props = {
     desiredBloodGroups: string[];
     notifyOfSmallDonors: boolean;
     bloodRequestPhoto: File | null;
+    includeUnknownBloodGroup: boolean;
     bloodGroupDict: BloodAndBreedGroupsDict;
     onConfirmButtonClick: (step: number) => void;
 };
@@ -57,6 +58,7 @@ const Check: FC<Props> = ({
     bloodComponentsDict,
     notifyOfSmallDonors,
     onConfirmButtonClick,
+    includeUnknownBloodGroup,
 }) => {
     const onConfirmButtonClickHandler = () => {
         onConfirmButtonClick(4);
@@ -106,6 +108,7 @@ const Check: FC<Props> = ({
                                     {bloodGroupDict[petType]?.filter(({ value }) => value === group)?.[0]?.label}
                                 </div>
                             ))}
+                            {includeUnknownBloodGroup && <div className={styles.bloodGroup}>?</div>}
                         </div>
                     </div>
                 </div>

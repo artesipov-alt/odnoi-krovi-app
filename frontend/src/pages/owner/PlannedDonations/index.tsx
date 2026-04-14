@@ -2,6 +2,7 @@ import cn from 'classnames';
 import { usePlannedDonations } from 'hooks/usePlannedDonations';
 import catRoundStub from 'imgs/catRoundStub.png';
 import dogRoundStub from 'imgs/dogRoundStub.png';
+import emptyBg from 'imgs/emptyBg.png';
 import AccordionArrow from 'imgs/svg/accordionArrow';
 import { FC, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
@@ -45,58 +46,65 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
     }
 
     return (
-        <div className={styles.wrapper}>
-            {donations?.map((donation) => (
-                <div
-                    className={styles.tile}
-                    key={donation.applicationData.id}
-                    onClick={onDonationClickHandler(donation)}
-                >
-                    <div className={styles.avatars}>
-                        <div className={styles.pet}>
-                            <img
-                                className={styles.photo}
-                                alt={donation.applicationData.petName}
-                                src={donation.applicationData.photoUrls[0]}
-                            />
-                            <p className={styles.name}>{donation.applicationData.petName.toUpperCase()}</p>
+        <div className={cn(styles.wrapper, { [styles.noItems]: !donations?.length })}>
+            {!!donations?.length &&
+                donations.map((donation) => (
+                    <div
+                        className={styles.tile}
+                        key={donation.applicationData.id}
+                        onClick={onDonationClickHandler(donation)}
+                    >
+                        <div className={styles.avatars}>
+                            <div className={styles.pet}>
+                                <img
+                                    className={styles.photo}
+                                    alt={donation.applicationData.petName}
+                                    src={donation.applicationData.photoUrls[0]}
+                                />
+                                <p className={styles.name}>{donation.applicationData.petName.toUpperCase()}</p>
+                            </div>
+                            <div className={cn(styles.pet, { [styles.recipient]: true })}>
+                                <img
+                                    alt={donation.recipientData.petName}
+                                    src={
+                                        donation.recipientData.photoUrls?.[0]
+                                            ? donation.recipientData.photoUrls[0]
+                                            : getDefaultPhoto(donation.recipientData.petType)
+                                    }
+                                    className={cn(styles.photo, { [styles.isRecipient]: true })}
+                                />
+                                <p className={styles.name}>{donation.recipientData.petName.toUpperCase()}</p>
+                            </div>
                         </div>
-                        <div className={cn(styles.pet, { [styles.recipient]: true })}>
-                            <img
-                                alt={donation.recipientData.petName}
-                                src={
-                                    donation.recipientData.photoUrls?.[0]
-                                        ? donation.recipientData.photoUrls[0]
-                                        : getDefaultPhoto(donation.recipientData.petType)
-                                }
-                                className={cn(styles.photo, { [styles.isRecipient]: true })}
-                            />
-                            <p className={styles.name}>{donation.recipientData.petName.toUpperCase()}</p>
+                        <div className={styles.info}>
+                            <p className={styles.infoText}>
+                                {donation.applicationData.status === DonorStatus.PENDING &&
+                                    'Можно отказаться и запланировать новую донацию'}
+                                {donation.applicationData.status === DonorStatus.ACCEPTED &&
+                                    !donation.applicationData.rejectedReason &&
+                                    'Проведите донацию или откажитесь'}
+                                {donation.applicationData.status === DonorStatus.ACCEPTED &&
+                                    !!donation.applicationData.rejectedReason &&
+                                    'Хозяин реципиента не подтвердил донацию'}
+                                {donation.applicationData.status === DonorStatus.COMPLETED &&
+                                    'Ожидается подтверждение реципиента'}
+                            </p>
+                            <div className={styles.infoIcon}>
+                                <AccordionArrow />
+                            </div>
+                        </div>
+                        <div className={styles.bloodVolume}>
+                            <p className={styles.bloodVolumeNumber}>{donation.recipientData.bloodVolumeNeeded}</p>
+                            <p className={styles.bloodVolumeDescr}>мл</p>
                         </div>
                     </div>
-                    <div className={styles.info}>
-                        <p className={styles.infoText}>
-                            {donation.applicationData.status === DonorStatus.PENDING &&
-                                'Можно отказаться и запланировать новую донацию'}
-                            {donation.applicationData.status === DonorStatus.ACCEPTED &&
-                                !donation.applicationData.rejectedReason &&
-                                'Проведите донацию или откажитесь'}
-                            {donation.applicationData.status === DonorStatus.ACCEPTED &&
-                                !!donation.applicationData.rejectedReason &&
-                                'Хозяин реципиента не подтвердил донацию'}
-                            {donation.applicationData.status === DonorStatus.COMPLETED &&
-                                'Ожидается подтверждение реципиента'}
-                        </p>
-                        <div className={styles.infoIcon}>
-                            <AccordionArrow />
-                        </div>
-                    </div>
-                    <div className={styles.bloodVolume}>
-                        <p className={styles.bloodVolumeNumber}>{donation.recipientData.bloodVolumeNeeded}</p>
-                        <p className={styles.bloodVolumeDescr}>мл</p>
-                    </div>
+                ))}
+            {!donations?.length && (
+                <div className={styles.emptyBlock}>
+                    <div className={styles.emptyTitle}>Здесь пока пусто...</div>
+                    <img src={emptyBg} alt='Питомцы' className={styles.emptyImage} />
                 </div>
-            ))}
+            )}
         </div>
     );
 };

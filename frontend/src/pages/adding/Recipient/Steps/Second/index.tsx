@@ -156,24 +156,26 @@ const Second: FC<Props> = ({
             <FormItem title='Какую группу ищете?'>
                 <div>
                     <div className={styles.bloodGroups}>
-                        {bloodGroupDict[petType]?.map(({ label, value }) => {
-                            const isGroupChecked = desiredBloodGroups.includes(value);
+                        {bloodGroupDict[petType]
+                            ?.filter(({ value }) => value !== 'UNKNOWN')
+                            .map(({ label, value }) => {
+                                const isGroupChecked = desiredBloodGroups.includes(value);
 
-                            return (
-                                <div
-                                    key={value}
-                                    onClick={onChangeDesiredBloodGroupHandler(value)}
-                                    className={cn(styles.bloodItem, { [styles.checked]: isGroupChecked })}
-                                >
-                                    <span>{label}</span>
-                                    {isGroupChecked && value === bloodGroup && (
-                                        <div className={styles.lockIcon}>
-                                            <Lock />
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                return (
+                                    <div
+                                        key={value}
+                                        onClick={onChangeDesiredBloodGroupHandler(value)}
+                                        className={cn(styles.bloodItem, { [styles.checked]: isGroupChecked })}
+                                    >
+                                        <span>{label}</span>
+                                        {isGroupChecked && value === bloodGroup && (
+                                            <div className={styles.lockIcon}>
+                                                <Lock />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                     </div>
                     <div className={styles.unknownBloodGroup}>
                         <div className={cn(styles.labelWrapper, { [styles.noMargin]: true })}>

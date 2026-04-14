@@ -290,6 +290,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
                     bloodComponentsDict={bloodComponentsDict}
                     notifyOfSmallDonors={notifyOfSmallDonors}
                     onConfirmButtonClick={onConfirmButtonClickHandler}
+                    includeUnknownBloodGroup={includeUnknownBloodGroup}
                     bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                     bloodGroup={
                         bloodGroupDict[selectedPet?.type || '']?.filter(
@@ -329,7 +330,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
                                         onClick={onChangeBloodGroupHandler(label)}
                                         className={cn(styles.bloodItem, { [styles.checked]: bloodGroup === label })}
                                     >
-                                        {label}
+                                        {label !== 'UNKNOWN' ? label : 'Не знаю'}
                                     </div>
                                 ))}
                             </div>

@@ -60,7 +60,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     const [breed, setBreed] = useState<Dict | null>(null);
     const [bloodGroup, setBloodGroup] = useState<string>('');
     const [livingCondition, setLivingCondition] = useState<string>('');
-    const [reproductiveStatus, setReproductiveStatus] = useState<string>('');
+    const [reproductiveStatus, setReproductiveStatus] = useState<string>('none');
 
     // 3 step
     const [healthStatus, setHealthStatus] = useState<string>('');
@@ -237,7 +237,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
 
     const onChangePetGenderHandler = (newGender: string) => {
         setPetGender(newGender);
-        setReproductiveStatus('');
+        setReproductiveStatus('none');
     };
 
     const onChangeChipNumberHandler = (newValue: string) => {
@@ -536,11 +536,14 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
             birthDate: exactDate || undefined,
             ageYears: Number(approximateDateYear) || undefined,
             ageMonths: Number(approximateDateMonth) || undefined,
-            chipNumber: chipNumber === 'none' ? undefined : chipNumber,
+            chipNumber: chipNumber === 'none' ? 'none' : chipNumber,
             weightKg: Number(weight.replace(',', '.')),
             bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
             livingCondition: livingConditionsDict.find((item) => item.value === livingCondition)?.value,
-            reproductiveStatus: reproductiveStatusesDict.find((item) => item.value === reproductiveStatus)?.value,
+            reproductiveStatus:
+                reproductiveStatus === 'none'
+                    ? 'none'
+                    : reproductiveStatusesDict.find((item) => item.value === reproductiveStatus)?.value,
             health: {
                 healthStatus: healthStatusesDict.find((item) => item.value === healthStatus)?.value!,
                 lastDonation: lastDonation || undefined,

@@ -123,15 +123,21 @@ const ParamsStep: FC<Props> = ({
         setNewBreed(null);
         setNewBloodGroup('');
         setNewWeight('');
-        setNewReproductiveStatus(undefined);
+        setNewReproductiveStatus('none');
     };
 
     const onPetGenderChangeHandler = (newPetGender: string) => () => {
         setNewGender(newPetGender);
-        setNewReproductiveStatus(undefined);
+        setNewReproductiveStatus('none');
     };
 
     const onChangeChipNumberHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const newValue = value.trim();
+
+        if (value && !newValue.match(regexInt)) {
+            return;
+        }
+
         setNewChipNumber(value.trim());
     };
 
@@ -201,7 +207,7 @@ const ParamsStep: FC<Props> = ({
 
     const onChangerReproductiveStatusHandler = (newValue: string) => () => {
         if (newValue === newReproductiveStatus) {
-            setNewReproductiveStatus(undefined);
+            setNewReproductiveStatus('none');
 
             return;
         }
@@ -272,11 +278,15 @@ const ParamsStep: FC<Props> = ({
             newData.gender = newGender as PetGender;
         }
 
-        if (chipNumber !== newChipNumber && newChipNumber !== 'none') {
+        if (chipNumber !== newChipNumber) {
             newData.chipNumber = newChipNumber;
-        } else if (chipNumber && newChipNumber === 'none') {
-            newData.chipNumber = undefined;
         }
+
+        // if (chipNumber !== newChipNumber && newChipNumber !== 'none') {
+        //     newData.chipNumber = newChipNumber;
+        // } else if (chipNumber && newChipNumber === 'none') {
+        //     newData.chipNumber = undefined;
+        // }
 
         if (weightKg !== Number(newWeight)) {
             newData.weightKg = Number(newWeight.replace(',', '.'));
@@ -393,7 +403,7 @@ const ParamsStep: FC<Props> = ({
                         onClick={onNoChipClickHandler}
                         className={cn(styles.buttonsRowItem, { [styles.checked]: newChipNumber === 'none' })}
                     >
-                        Отсутвует
+                        Отсутствует
                     </Button>
                 </div>
             </FormItem>
@@ -453,17 +463,15 @@ const ParamsStep: FC<Props> = ({
             <FormItem title='Группа крови'>
                 <>
                     <div className={cn(styles.buttonsRow, { [styles.dogGroup]: newPetType === PetType.DOG })}>
-                        {[...bloodGroupDict[newPetType], { value: 'none', label: 'Не знаю' }].map(
-                            ({ label, value }) => (
-                                <Button
-                                    key={value}
-                                    onClick={onChangeBloodGroupHandler(label)}
-                                    className={cn(styles.buttonsRowItem, { [styles.checked]: newBloodGroup === label })}
-                                >
-                                    {label}
-                                </Button>
-                            ),
-                        )}
+                        {bloodGroupDict[newPetType].map(({ label, value }) => (
+                            <Button
+                                key={value}
+                                onClick={onChangeBloodGroupHandler(label)}
+                                className={cn(styles.buttonsRowItem, { [styles.checked]: newBloodGroup === label })}
+                            >
+                                {label !== 'UNKNOWN' ? label : 'Не знаю'}
+                            </Button>
+                        ))}
                     </div>
                     {newPetType === PetType.DOG && (
                         <Alert
@@ -570,10 +578,10 @@ const ParamsStep: FC<Props> = ({
             <ViewString name='Кличка' value={name.toUpperCase()} />
             <ViewString name='Вид' value={petTypes.filter(({ value }) => value === type)[0]?.label} />
             {gender && <ViewString name='Пол' value={petGenders.filter(({ value }) => value === gender)[0]?.label} />}
-            {chipNumber && <ViewString name='Чип' value={chipNumber} />}
+            {chipNumber && <ViewString name='Чип' value={chipNumber === 'none' ? 'Отсутствует' : chipNumber} />}
             <ViewString name='Вес' value={`${weightKg} кг`.replace('.', ',')} />
             {birthDate && <ViewString name='Возраст' value={calculateAge(birthDate)} />}
-            <ViewString name='Группа крови' value={bloodGroup === 'none' ? 'Не указано' : bloodGroup} />
+            <ViewString name='Группа крови' value={bloodGroup === 'UNKNOWN' ? 'Не определена' : bloodGroup} />
             {breedId && (
                 <ViewString
                     name='Порода'
@@ -586,7 +594,7 @@ const ParamsStep: FC<Props> = ({
                     value={livingConditionsDict.filter(({ value }) => value === livingCondition)[0]?.label}
                 />
             )}
-            {reproductiveStatus && (
+            {reproductiveStatus && reproductiveStatus !== 'none' && (
                 <ViewString
                     name='Состояние питомца'
                     value={reproductiveStatusesDict.filter(({ value }) => value === reproductiveStatus)[0]?.label}
@@ -615,7 +623,9 @@ const ParamsStep: FC<Props> = ({
                 name !== newName ||
                 type !== newPetType ||
                 gender !== newGender ||
-                (chipNumber ? chipNumber !== newChipNumber : !!newChipNumber && newChipNumber !== 'none') ||
+                (chipNumber === 'none'
+                    ? newChipNumber.length >= 15
+                    : (newChipNumber.length >= 15 && chipNumber !== newChipNumber) || newChipNumber === 'none') ||
                 bloodGroup !== newBloodGroup ||
                 weightKg !== Number(newWeight) ||
                 newBreed.value !== breedId ||

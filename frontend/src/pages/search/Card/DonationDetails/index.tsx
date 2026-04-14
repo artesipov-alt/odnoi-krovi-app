@@ -208,6 +208,14 @@ const DonationDetails: FC<Props> = ({
         setDonatedBloodVolume(newValue);
     };
 
+    const onBlurDonatedBloodVolumeHandler = ({
+        target: { value },
+    }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (Number(value) < 10) {
+            setDonatedBloodVolume('10');
+        }
+    };
+
     const onCloseChatCurtainClickHandler = () => {
         setChatCurtain({ isOpen: false });
     };
@@ -545,7 +553,7 @@ const DonationDetails: FC<Props> = ({
                     onClose={onConfirmDonationToggle}
                     onConfirm={onConfirmDonationToggle}
                     onCancel={onConfirmDonationClickHandler()}
-                    isDisableCancelButton={!donatedBloodVolume}
+                    isDisableCancelButton={!donatedBloodVolume || Number(donatedBloodVolume) < 10}
                 >
                     <TextField
                         name='volume'
@@ -554,6 +562,7 @@ const DonationDetails: FC<Props> = ({
                         value={donatedBloodVolume}
                         inputClass={styles.volumeInput}
                         htmlInputClass={styles.volumeHtmlInput}
+                        onBlur={onBlurDonatedBloodVolumeHandler}
                         onChange={onChangeDonatedBloodVolumeHandler}
                         endAdornment={<div className={styles.endAdornment}>мл</div>}
                     />

@@ -530,11 +530,13 @@ const PetProfile: FC<Props> = ({
                                 </div>
                             </div>
                         )}
-                        <div onClick={onDeleteClickHandler} className={styles.button}>
-                            <div className={cn(styles.icon, { [styles.basket]: true })}>
-                                <Basket />
+                        {(petStatus === Role.NONE || petStatus === Role.DONOR) && (
+                            <div onClick={onDeleteClickHandler} className={styles.button}>
+                                <div className={cn(styles.icon, { [styles.basket]: true })}>
+                                    <Basket />
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
                 <div className={styles.info}>

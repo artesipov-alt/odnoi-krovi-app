@@ -177,15 +177,17 @@ const First: FC<Props> = ({
                 {petType ? (
                     <>
                         <div className={cn(styles.bloodGroups, { [styles.dogGroup]: petType === PetType.DOG })}>
-                            {bloodGroupDict[petType].map(({ label, value }) => (
-                                <div
-                                    key={value}
-                                    onClick={onChangeBloodGroupHandler(value)}
-                                    className={cn(styles.bloodItem, { [styles.checked]: bloodGroup === value })}
-                                >
-                                    {label}
-                                </div>
-                            ))}
+                            {bloodGroupDict[petType]
+                                .filter(({ value }) => value !== 'UNKNOWN')
+                                .map(({ label, value }) => (
+                                    <div
+                                        key={value}
+                                        onClick={onChangeBloodGroupHandler(value)}
+                                        className={cn(styles.bloodItem, { [styles.checked]: bloodGroup === value })}
+                                    >
+                                        {label}
+                                    </div>
+                                ))}
                         </div>
                         {petType === PetType.DOG && (
                             <Alert
