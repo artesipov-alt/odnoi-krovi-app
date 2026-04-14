@@ -34,8 +34,8 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 	// (Тип-питомца) Бизнес-логика, типы питомцев должны совпадать
 	sameType = pet.Type == bloodreq.RecipientData.PetType
 
-	// (Регионы) Бизнес-логика, регионы донора должны пересекаться с регионами поиска или донор не указал предпочтений
-	sameRegion = len(preferredLocations) == 0 || hasIntersection(preferredLocations, bloodSearchRegions)
+	// (Регионы) Бизнес-логика, если запрос не указал регионы или донор не указал предпочтений, подходит; иначе - пересечение регионов
+	sameRegion = len(bloodSearchRegions) == 0 || len(preferredLocations) == 0 || hasIntersection(preferredLocations, bloodSearchRegions)
 
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или неизвестная если реципиент разрешил
 	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && pet.BloodGroupName == "UNKNOWN")
