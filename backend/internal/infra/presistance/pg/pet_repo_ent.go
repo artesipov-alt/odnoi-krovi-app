@@ -7,16 +7,19 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	entdonorpreference "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pettreatment"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
@@ -587,14 +590,24 @@ func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, blo
 			entpet.BloodGroupIn(bloodGroups...),
 		)
 	if len(regions) > 0 {
+		// Build predicates: any region contained in JSON array OR array length zero (including null)
+		predicates := make([]predicate.DonorPreference, 0, len(regions)+1)
+		for _, region := range regions {
+			region := region // capture loop variable
+			predicates = append(predicates, func(s *sql.Selector) {
+				s.Where(sqljson.ValueContains(entdonorpreference.FieldPreferredLocationIds, region))
+			})
+		}
+		// Add predicate for empty array or null
+		predicates = append(predicates, func(s *sql.Selector) {
+			s.Where(sql.Or(
+				sqljson.LenEQ(entdonorpreference.FieldPreferredLocationIds, 0),
+				sqljson.ValueIsNull(entdonorpreference.FieldPreferredLocationIds),
+			))
+		})
 		query = query.Where(
 			entpet.HasOwnerWith(entuser.HasDonorPreferenceWith(
-				func(s *sql.Selector) {
-					s.Where(sql.Or(
-						sql.ExprP("preferred_location_ids && ?", regions),
-						sql.ExprP("array_length(preferred_location_ids, 1) = 0"),
-					))
-				},
+				entdonorpreference.Or(predicates...),
 			)),
 		)
 	}
