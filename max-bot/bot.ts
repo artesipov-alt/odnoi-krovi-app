@@ -8,6 +8,8 @@ import {
 import { handleDonorApply } from "./src/events/recipient/donorApply";
 import { handleRecipientApply } from "./src/events/donor/recipientApply";
 import { handleDonorCancel } from "./src/events/donor/donorCancel";
+import { handleDonorReject } from "./src/events/donor/donorReject";
+import { handleDonorNotConfirmed } from "./src/events/donor/donorNotConfirmed";
 import { handleNewRecipients } from "./src/events/recipient/newRecipients";
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 import { handleUserContact } from "./src/events/user/handleUserContact";
@@ -21,6 +23,8 @@ const eventHandlers: Record<string, (event: any) => Promise<void>> = {
   donor_response_apply: handleDonorApply,
   recipient_response_apply: handleRecipientApply,
   donor_cancel: handleDonorCancel,
+  donor_reject: handleDonorReject,
+  donor_not_confirmed: handleDonorNotConfirmed,
   new_recipients: handleNewRecipients,
   donation_confirmed: handleDonationConfirmed,
   user_contact: handleUserContact,

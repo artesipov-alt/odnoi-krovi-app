@@ -21,6 +21,8 @@ type EventPublisher interface {
 	//==========================
 	PublishRecipientApply(ctx context.Context, event donorevent.RecipientApply) error
 	PublishDonorCancel(ctx context.Context, event donorevent.DonorCancel) error
+	PublishDonorReject(ctx context.Context, event donorevent.DonorReject) error
+	PublishDonorNotConfirmed(ctx context.Context, event donorevent.DonorNotConfirmed) error
 
 	//==========================
 	// 			User
