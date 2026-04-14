@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.13.2] - 2026-04-14
+
+### Добавлено
+- **Добавлено `IncludeUnknownBloodGroup` в `RecipientForDonor`:**
+  - Добавлено поле `IncludeUnknownBloodGroup` в DTO `RecipientForDonor` и заполнено в обработчике `GetPlannedDonations`.
+
+### Технические детали
+- В `dto/recipient.go` (или соответствующем файле) добавлено поле `IncludeUnknownBloodGroup` в `RecipientForDonor` DTO.
+- В `internal/handlers/donor/query/get_planned_donations_handler.go` (или соответствующем файле) заполнено поле `IncludeUnknownBloodGroup`.
+
+
+
 ## [3.13.0] - 2026-04-14
 
 ### Добавлено
