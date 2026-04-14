@@ -18,13 +18,14 @@ import (
 )
 
 type DonorHandler struct {
-	recipientsListHandler   *query.ListRequestsHandler
-	recipientDetailsHandler *query.RecipientDetailHandler
-	applyHandler            *cmd.ApplyForRequestHandler
-	plannedDonationsList    *query.PlannedDonationsHandler
-	completeDonationHandler *cmd.CompleteDonationHandler
-	cancelDonationHandler   *cmd.CancelDonationHandler
-	storage                 filestorage.Repository
+	recipientsListHandler     *query.ListRequestsHandler
+	recipientDetailsHandler   *query.RecipientDetailHandler
+	applyHandler              *cmd.ApplyForRequestHandler
+	plannedDonationsList      *query.PlannedDonationsHandler
+	completedDonationsHandler *query.CompletedDonationsHandler
+	completeDonationHandler   *cmd.CompleteDonationHandler
+	cancelDonationHandler     *cmd.CancelDonationHandler
+	storage                   filestorage.Repository
 }
 
 // NewDonorHandler creates a new handler for donor-related operations.
@@ -33,18 +34,20 @@ func NewDonorHandler(
 	recipientDetailsHandler *query.RecipientDetailHandler,
 	applyHandler *cmd.ApplyForRequestHandler,
 	plannedDonationsList *query.PlannedDonationsHandler,
+	completedDonationsHandler *query.CompletedDonationsHandler,
 	completeDonationHandler *cmd.CompleteDonationHandler,
 	cancelDonationHandler *cmd.CancelDonationHandler,
 	storage filestorage.Repository,
 ) *DonorHandler {
 	return &DonorHandler{
-		recipientsListHandler:   recipientsListHandler,
-		recipientDetailsHandler: recipientDetailsHandler,
-		applyHandler:            applyHandler,
-		plannedDonationsList:    plannedDonationsList,
-		completeDonationHandler: completeDonationHandler,
-		cancelDonationHandler:   cancelDonationHandler,
-		storage:                 storage,
+		recipientsListHandler:     recipientsListHandler,
+		recipientDetailsHandler:   recipientDetailsHandler,
+		applyHandler:              applyHandler,
+		plannedDonationsList:      plannedDonationsList,
+		completedDonationsHandler: completedDonationsHandler,
+		completeDonationHandler:   completeDonationHandler,
+		cancelDonationHandler:     cancelDonationHandler,
+		storage:                   storage,
 	}
 }
 
@@ -90,6 +93,16 @@ func (h *DonorHandler) Register(api huma.API) {
 		Description: "Возвращает список планируемых донаций по user ID",
 		Tags:        []string{"donor-v1"},
 	}, h.GetPlannedDonations)
+
+	// Получить список завершенных донаций
+	huma.Register(api, huma.Operation{
+		OperationID: "get-completed-donations",
+		Method:      http.MethodGet,
+		Path:        "/v1/donor/completed-donations/{user_id}",
+		Summary:     "Получить список завершенных донаций",
+		Description: "Возвращает список завершенных донаций по user ID",
+		Tags:        []string{"donor-v1"},
+	}, h.GetCompletedDonations)
 
 	// Подтвердить донацию
 	huma.Register(api, huma.Operation{
@@ -305,4 +318,66 @@ func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.Dono
 		return nil, err
 	}
 	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Донация успешно отменена"}}, nil
+}
+
+// GetCompletedDonations returns a list of completed donations.
+func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commondto.UserIDPath) (*dto.ListCompletedDonationsOutput, error) {
+	results, err := h.completedDonationsHandler.Handle(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	donationCards := make([]dto.DonationCardForDonor, 0, len(results))
+	var totalVolume float64
+	for _, res := range results {
+		totalVolume += res.ApplicationData.Amount
+		application := dto.ApplicationShort{
+			ID:               res.ApplicationData.ID,
+			PetName:          res.DonorPetData.Name,
+			Amount:           res.ApplicationData.Amount,
+			PhotoURLs:        h.storage.BuildPhotoURLs(res.DonorPetData.PhotoURLs, *res.ApplicationData.UpdatedAt),
+			CompensationType: res.ApplicationData.CompensationType,
+			TaxiCompensation: res.ApplicationData.TaxiCompensation,
+			IsConfirmed:      res.ApplicationData.IsConfirmed,
+			Bonuses:          []string{},
+			RejectedReason:   res.ApplicationData.RejectedReason,
+			Status:           string(res.ApplicationData.Status),
+		}
+
+		recipient := dto.RecipientForDonor{
+			ID:                  res.BloodSearchData.ID,
+			PetName:             res.RecipientPetData.Name,
+			PetType:             string(res.RecipientPetData.Type),
+			OwnerName:           res.RecipientPetData.OwnerName,
+			OwnerID:             res.RecipientPetData.OwnerID,
+			BloodGroup:          res.RecipientPetData.BloodGroupName,
+			Regions:             res.BloodSearchData.Regions,
+			BloodVolumeNeeded:   res.BloodSearchData.BloodVolumeNeeded,
+			BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,
+			BloodVolumeDonated:  res.BloodSearchData.BloodVolumeDonated,
+			PhotoURLs:           h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
+			SearchingBloodNames: res.BloodSearchData.BloodGroupNames,
+			AdvancedInfo: &dto.AdvancedInfoDTO{
+				PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
+				Description: res.BloodSearchData.AdvancedInfo.Description,
+			},
+			Status:    string(res.BloodSearchData.Status),
+			CreatedAt: res.BloodSearchData.CreatedAt,
+			UpdatedAt: res.BloodSearchData.UpdatedAt,
+		}
+
+		donationCards = append(donationCards, dto.DonationCardForDonor{
+			ApplicationData: application,
+			RecipientData:   recipient,
+		})
+	}
+
+	return &dto.ListCompletedDonationsOutput{
+		Body: dto.CompletedDonationsList{
+			Items:          donationCards,
+			Total:          len(donationCards),
+			TotalDonations: len(donationCards),
+			TotalVolume:    totalVolume,
+		},
+	}, nil
 }

@@ -157,6 +157,7 @@ func main() {
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, txManager)
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService)
 		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
+		donorGetCompletedDonationsHandler := donorquery.NewCompletedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
 		completeDonationHandler := donorcmd.NewCompleteDonationHandler(donorResponseRepo)
 		cancelDonationHandler := donorcmd.NewCancelDonationHandler(donorResponseRepo, bloodRequestRepo, txManager)
 
@@ -236,6 +237,7 @@ func main() {
 			donorGetRecipientDetailsHandler,
 			donorApplyBloodHandler,
 			donorGetPlannedDonationsHandler,
+			donorGetCompletedDonationsHandler,
 			completeDonationHandler,
 			cancelDonationHandler,
 			fileStorage,
