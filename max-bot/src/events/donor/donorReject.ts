@@ -1,4 +1,3 @@
-odnoi-krovi-app/max-bot/src/events/donor/donorReject.ts
 import { bot, pinologger } from "../../instances";
 
 interface DonorRejectEvent {
@@ -11,11 +10,7 @@ interface DonorRejectEvent {
 }
 
 export const handleDonorReject = async (event: DonorRejectEvent) => {
-  const {
-    RecipientPetName,
-    RecipientBloodGroup,
-    DonorProviderMaxID,
-  } = event;
+  const { RecipientPetName, RecipientBloodGroup, DonorProviderMaxID } = event;
 
   if (!DonorProviderMaxID || DonorProviderMaxID.trim() === "") {
     pinologger.warn(
