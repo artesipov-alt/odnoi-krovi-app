@@ -2,6 +2,11 @@
 
 .wrapper {
     padding: 0 12px;
+
+    &.noItems {
+        height: inherit;
+        padding: 0;
+    }
 }
 
 .tile {
@@ -73,7 +78,6 @@
 }
 
 .infoIcon {
-    //position: absolute;
     width: 6px;
     height: 23px;
     margin-left: auto;
@@ -120,4 +124,31 @@
     inset: 0;
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 10000;
+}
+
+.emptyBlock {
+    min-height: 470px;
+    height: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-image: url('imgs/emptyPlanedDonationBg.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.emptyTitle {
+    color: @textColor2;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    line-height: 24px;
+}
+
+.emptyImage {
+    max-width: 90%;
+    margin: 0 auto;
+    object-fit: contain;
 }

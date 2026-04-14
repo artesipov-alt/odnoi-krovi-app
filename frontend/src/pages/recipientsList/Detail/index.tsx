@@ -186,7 +186,9 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                         </div>
                         <div className={styles.bloodInfo}>
                             <div className={styles.bloodGroup}>{recipient.bloodGroupName}</div>
-                            {recipient.searchingBloodNames.some((group) => group !== recipient.bloodGroupName) && ' +'}
+                            {(recipient.searchingBloodNames.some((group) => group !== recipient.bloodGroupName) ||
+                                recipient.includeUnknownBloodGroup) &&
+                                ' +'}
                             {recipient.searchingBloodNames.some((group) => group !== recipient.bloodGroupName)
                                 ? recipient.searchingBloodNames
                                       .filter((group) => group !== recipient.bloodGroupName)
@@ -196,6 +198,9 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                                           </div>
                                       ))
                                 : ''}
+                            {recipient.includeUnknownBloodGroup && (
+                                <div className={cn(styles.bloodGroup, { [styles.needed]: true })}>?</div>
+                            )}
                         </div>
                     </div>
                     <div className={cn(styles.leftItem, { [styles.location]: true })}>
@@ -316,18 +321,19 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                     <p className={styles.donorDescr}>Выберите донора</p>
                     <div className={styles.showcase}>
                         {recipient.matchingDonors.map(({ amount, donorBloodGroup, petId, petName, photoUrls }) => (
-                            <div key={`${petId}`} className={styles.pet}>
+                            <div key={`${petId}`} className={styles.pet} onClick={onCheckItemClickHandler(petId)}>
                                 <div className={styles.photo}>
                                     <img alt={petName} src={photoUrls[0]} className={styles.img} />
                                     <div className={styles.donorBloodInfo}>
-                                        <div className={styles.donorBloodGroup}>{donorBloodGroup || '?'}</div>
+                                        <div className={styles.donorBloodGroup}>
+                                            {donorBloodGroup !== 'UNKNOWN' ? donorBloodGroup : '?'}
+                                        </div>
                                         <div className={styles.bloodVolume}>
                                             <p className={styles.bloodVolumeNumber}>{amount}</p>
                                             <p className={styles.bloodVolumeDescr}>мл</p>
                                         </div>
                                     </div>
                                     <div
-                                        onClick={onCheckItemClickHandler(petId)}
                                         className={cn(styles.checkItem, { [styles.checked]: checkedDonor === petId })}
                                     />
                                     <div className={styles.photoFooter}>

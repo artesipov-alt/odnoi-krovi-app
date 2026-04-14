@@ -406,7 +406,13 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                             color='var(--red10, #FF2727)'
                             current={10}
                         />
-                        <div className={styles.avatarNameChar}>{info.name.charAt(0).toUpperCase()}</div>
+                        <div
+                            className={cn(styles.avatarBloodChar, {
+                                [styles.withPadding]: info.type === PetType.DOG && info.bloodGroup !== 'UNKNOWN',
+                            })}
+                        >
+                            {info.bloodGroup !== 'UNKNOWN' ? info.bloodGroup : '?'}
+                        </div>
                     </div>
                 </div>
             </div>

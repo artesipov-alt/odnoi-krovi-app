@@ -287,6 +287,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                     bloodComponentsDict={bloodComponentsDict}
                     notifyOfSmallDonors={notifyOfSmallDonors}
                     onConfirmButtonClick={onConfirmButtonClickHandler}
+                    includeUnknownBloodGroup={includeUnknownBloodGroup}
                     bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
                 />
             )}

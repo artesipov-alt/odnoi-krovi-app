@@ -73,7 +73,7 @@ const Second: FC<Props> = ({
 
     const onChangerReproductiveStatusHandler = (newStatus: string) => () => {
         if (newStatus === reproductiveStatus) {
-            onChangeReproductiveStatus('');
+            onChangeReproductiveStatus('none');
 
             return;
         }
@@ -138,17 +138,15 @@ const Second: FC<Props> = ({
             <FormItem title='Группа крови питомца'>
                 <>
                     <div className={cn(styles.buttonsRow, { [styles.dogGroup]: petType === PetType.DOG })}>
-                        {[...(bloodGroupDict[petType] || []), { value: 'none', label: 'Не знаю' }].map(
-                            ({ label, value }) => (
-                                <Button
-                                    key={value}
-                                    onClick={onChangeBloodGroupHandler(value)}
-                                    className={cn(styles.buttonsRowItem, { [styles.checked]: bloodGroup === value })}
-                                >
-                                    {label}
-                                </Button>
-                            ),
-                        )}
+                        {bloodGroupDict[petType].map(({ label, value }) => (
+                            <Button
+                                key={value}
+                                onClick={onChangeBloodGroupHandler(value)}
+                                className={cn(styles.buttonsRowItem, { [styles.checked]: bloodGroup === value })}
+                            >
+                                {label !== 'UNKNOWN' ? label : 'Не знаю'}
+                            </Button>
+                        ))}
                     </div>
                     {petType === PetType.DOG && (
                         <Alert

@@ -76,6 +76,7 @@ export type Pet = {
     analyses?: Analyses;
     chipNumber?: string;
     photoUrls?: string[];
+    recoveryDays?: number;
     treatments?: Treatments;
     livingCondition?: string;
     reproductiveStatus?: string;

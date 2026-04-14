@@ -60,7 +60,7 @@ type Props = GetPoolRequestResponse & {
 
 const tabs = [
     { title: 'Детали', id: 0 },
-    { title: 'Выбрано', id: 1 },
+    { title: 'Найдено', id: 1 },
     { title: 'Получено', id: 2 },
 ];
 
@@ -90,6 +90,7 @@ const SearchCard: FC<Props> = ({
     poolRequestRefetch,
     bloodVolumeReserved,
     expireLimitWasShown,
+    includeUnknownBloodGroup,
     smallPetsNotifyAllowed,
     createdAt = '',
 }) => {
@@ -274,7 +275,9 @@ const SearchCard: FC<Props> = ({
                                     </div>
                                     <div className={styles.bloodInfo}>
                                         <div className={styles.bloodGroup}>{bloodGroup}</div>
-                                        {bloodGroupNames.some((group) => group !== bloodGroup) && ' +'}
+                                        {(bloodGroupNames.some((group) => group !== bloodGroup) ||
+                                            includeUnknownBloodGroup) &&
+                                            ' +'}
                                         {bloodGroupNames.some((group) => group !== bloodGroup)
                                             ? bloodGroupNames
                                                   .filter((group) => group !== bloodGroup)
@@ -289,6 +292,15 @@ const SearchCard: FC<Props> = ({
                                                       </div>
                                                   ))
                                             : ''}
+                                        {includeUnknownBloodGroup && (
+                                            <div
+                                                className={cn(styles.bloodGroup, {
+                                                    [styles.needed]: true,
+                                                })}
+                                            >
+                                                ?
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className={cn(styles.leftItem, { [styles.location]: true })}>

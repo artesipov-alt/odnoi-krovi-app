@@ -37,9 +37,10 @@ const CheckOtherDonors: FC<Props> = ({ pets, onSuccess, onClose, avatar }) => (
                             <p className={styles.donorName}>{pet.name.toUpperCase()}</p>
                             <div className={styles.label}>
                                 <div className={styles.recover}>
-                                    <p className={styles.recoverDays}>15</p>
-                                    <p className={styles.recoverDescr}>{getCorrectDeclension(Variants.DAYS, 15)}</p>
-                                    {/* TODO заменить на дни до восстановления */}
+                                    <p className={styles.recoverDays}>pet.recoveryDays</p>
+                                    <p className={styles.recoverDescr}>
+                                        {getCorrectDeclension(Variants.DAYS, pet.recoveryDays || 1)}
+                                    </p>
                                 </div>
                                 <div className={styles.labelText}>До восстановления</div>
                             </div>

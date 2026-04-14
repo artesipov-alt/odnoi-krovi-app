@@ -82,6 +82,12 @@ const First: FC<Props> = ({
     };
 
     const onChangeChipNumberHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const newValue = value.trim();
+
+        if (value && !newValue.match(regexInt)) {
+            return;
+        }
+
         onChangeChipNumber(value.trim());
     };
 
@@ -136,6 +142,7 @@ const First: FC<Props> = ({
                 !!petType &&
                 !!petGender &&
                 !!chipNumber &&
+                (chipNumber.length >= 15 || chipNumber === 'none') &&
                 (birthDateType === BirthDate.EXACT_DATE
                     ? !!exactDate
                     : !!approximateDateMonth || !!approximateDateYear),
@@ -220,7 +227,7 @@ const First: FC<Props> = ({
                         onClick={onNoChipClickHandler}
                         className={cn(styles.buttonsRowItem, { [styles.checked]: chipNumber === 'none' })}
                     >
-                        Отсутвует
+                        Отсутствует
                     </Button>
                 </div>
             </FormItem>

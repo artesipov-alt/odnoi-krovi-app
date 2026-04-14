@@ -23,7 +23,7 @@ const CompletedDonations: FC<Props> = ({ donations }) => (
                 <div key={id} className={styles.listItem}>
                     <div className={styles.photo}>
                         <img className={styles.photoImg} src={donorPhotos[0]} alt={donorName} />
-                        <div className={styles.bloodGroup}>{donorBloodGroup}</div>
+                        <div className={styles.bloodGroup}>{donorBloodGroup !== 'UNKNOWN' ? donorBloodGroup : '?'}</div>
                     </div>
                     <div className={styles.info}>
                         <p className={styles.name}>{donorName.toUpperCase()}</p>

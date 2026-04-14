@@ -107,7 +107,9 @@ const DonorsShowcase: FC<Props> = ({
                             <img className={styles.img} src={pet?.donorPhotos?.[0]} alt={pet?.donorName} />
                         )}
                         <div className={styles.info}>
-                            <div className={styles.bloodGroup}>{pet?.donorBloodGroup || '?'}</div>
+                            <div className={styles.bloodGroup}>
+                                {pet?.donorBloodGroup !== 'UNKNOWN' ? pet?.donorBloodGroup : '?'}
+                            </div>
                             <div className={styles.icon}>
                                 {pet.compensationType === CompensationType.FREE && <NotPaid />}
                                 {pet.compensationType === CompensationType.PAID && <Paid />}
