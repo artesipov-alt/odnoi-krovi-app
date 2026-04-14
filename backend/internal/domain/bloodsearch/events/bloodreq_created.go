@@ -12,8 +12,8 @@ type BloodRequestCreated struct {
 }
 
 type Peers struct {
-	TelegramID int32
-	MaxID      int32
+	TelegramID string
+	MaxID      string
 }
 
 func (e BloodRequestCreated) EventName() string     { return "BloodRequestCreated" }

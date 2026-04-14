@@ -14,12 +14,14 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
 
 type CreateRequestHandler struct {
 	bloodRepo  bloodsearch.BloodRequestRepository
 	petRepo    pet.Repository
 	donorRepo  donor.Repository
+	userRepo   user.Repository
 	publisher  ports.EventPublisher
 	petService *pet.PetService
 }
@@ -28,6 +30,7 @@ func NewCreateRequestHandler(
 	bloodRepo bloodsearch.BloodRequestRepository,
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
+	userRepo user.Repository,
 	publisher ports.EventPublisher,
 	petService *pet.PetService,
 ) *CreateRequestHandler {
@@ -35,6 +38,7 @@ func NewCreateRequestHandler(
 		bloodRepo:  bloodRepo,
 		petRepo:    petRepo,
 		donorRepo:  donorRepo,
+		userRepo:   userRepo,
 		publisher:  publisher,
 		petService: petService,
 	}
@@ -107,11 +111,31 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		}
 	}
 
+	// Get peers for available donors
+	var peers []events.Peers
+	for _, donorPet := range avilableDonors {
+		donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+			WithIdentities: true,
+		})
+		if err != nil {
+			slog.Error("failed to get donor user", "err", err, "petID", donorPet.ID)
+			continue
+		}
+		maxID, telegramID := extractProviderIDs(donorUser)
+		if maxID != "" || telegramID != "" {
+			peers = append(peers, events.Peers{
+				MaxID:      maxID,
+				TelegramID: telegramID,
+			})
+		}
+	}
+
 	if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
-		RequestID:  newReq.ID,
-		BloodTypes: req.BloodGroupNames,
-		Regions:    req.Regions,
-		CreatedAt:  *newReq.CreatedAt,
+		RequestID:      newReq.ID,
+		BloodTypes:     req.BloodGroupNames,
+		Regions:        req.Regions,
+		AvilableDonors: peers,
+		CreatedAt:      *newReq.CreatedAt,
 	}); err != nil {
 		slog.Error("failed to publish blood request created event", "err", err)
 		return newReq, nil
