@@ -130,6 +130,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		}
 	}
 
+	slog.Info("publishing blood request created event", "requestID", newReq.ID, "peersCount", len(peers))
 	if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
 		RequestID:      newReq.ID,
 		BloodTypes:     req.BloodGroupNames,

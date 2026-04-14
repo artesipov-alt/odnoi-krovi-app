@@ -20,11 +20,8 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 	halfVolume := (bloodreq.BloodVolumeNeeded - bloodreq.BloodVolumeReserved) / 2
 	// bloodSearchRegions := bloodreq.Regions
 
-	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или любая если реципиент разрешил
-	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName)
-	if !sameBlood && bloodreq.IncludeUnknownBloodGroup {
-		sameBlood = true
-	}
+	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или неизвестная если реципиент разрешил
+	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && pet.BloodGroupName == "UNKNOWN")
 
 	// (Количество-крови) Бизнес-логика, донор должен покрывать весь объем или хотя бы половину от остатка если реципиент разрешил
 	if bloodreq.BloodVolumeReserved+avilableDonorAmount >= bloodreq.BloodVolumeNeeded {

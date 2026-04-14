@@ -14,6 +14,7 @@ interface BloodRequestCreatedEvent {
 export const handleBloodRequestCreated = async (
   event: BloodRequestCreatedEvent,
 ) => {
+  pinologger.info({ event }, "Received blood_request_created event");
   const { BloodTypes, Regions, AvilableDonors } = event;
 
   for (const donor of AvilableDonors) {
