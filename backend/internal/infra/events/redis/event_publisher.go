@@ -15,6 +15,7 @@ const channelBloodRequestCreated = "blood_request_created"
 const channelDonorResponseApply = "donor_response_apply"
 const channelDonationConfirmed = "donation_confirmed"
 const channelRecipientResponseApply = "recipient_response_apply"
+const channelDonorCancel = "donor_cancel"
 const channelUserContact = "user_contact"
 
 type EventPublisher struct {
@@ -71,6 +72,18 @@ func (p *EventPublisher) PublishRecipientApply(
 	}
 
 	return p.client.Publish(ctx, channelRecipientResponseApply, payload).Err()
+}
+
+func (p *EventPublisher) PublishDonorCancel(
+	ctx context.Context,
+	event donorevent.DonorCancel,
+) error {
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return fmt.Errorf("marshal event: %w", err)
+	}
+
+	return p.client.Publish(ctx, channelDonorCancel, payload).Err()
 }
 
 func (p *EventPublisher) PublishUserContact(

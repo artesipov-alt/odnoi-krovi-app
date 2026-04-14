@@ -7,6 +7,7 @@ import {
 } from "./src/handlers/commands";
 import { handleDonorApply } from "./src/events/recipient/donorApply";
 import { handleRecipientApply } from "./src/events/donor/recipientApply";
+import { handleDonorCancel } from "./src/events/donor/donorCancel";
 import { handleNewRecipients } from "./src/events/recipient/newRecipients";
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 
@@ -18,6 +19,7 @@ import { errorHandler } from "./src/handlers/errors";
 const eventHandlers: Record<string, (event: any) => Promise<void>> = {
   donor_response_apply: handleDonorApply,
   recipient_response_apply: handleRecipientApply,
+  donor_cancel: handleDonorCancel,
   new_recipients: handleNewRecipients,
   donation_confirmed: handleDonationConfirmed,
 };

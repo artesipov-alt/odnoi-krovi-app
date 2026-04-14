@@ -20,6 +20,7 @@ type EventPublisher interface {
 	// 			Donor
 	//==========================
 	PublishRecipientApply(ctx context.Context, event donorevent.RecipientApply) error
+	PublishDonorCancel(ctx context.Context, event donorevent.DonorCancel) error
 
 	//==========================
 	// 			User
