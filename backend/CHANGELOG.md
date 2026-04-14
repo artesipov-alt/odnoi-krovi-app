@@ -5,7 +5,22 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
-## [3.12.0] - 2026-04-15
+## [3.12.0] - 2026-04-16
+
+### Добавлено
+- **Добавлена конечная точка `GetCompletedDonations` для доноров:**
+  - Реализована новая конечная точка `/v1/donor/completed-donations/{user_id}`, которая позволяет донорам получать список своих завершенных донаций.
+  - Добавлен новый обработчик `CompletedDonationsHandler` и соответствующий DTO `ListCompletedDonationsOutput` для поддержки этой функциональности.
+  - В модель `DonorResponse` добавлен метод `IsClosedForDonation()`.
+
+### Технические детали
+- В `internal/handlers/donor/query/get_completed_donations_handler.go` (или соответствующем файле) реализован `CompletedDonationsHandler`.
+- В `dto/donor.go` (или соответствующем файле) добавлен `ListCompletedDonationsOutput` DTO.
+- В `internal/domain/donor/model.go` (или соответствующем файле) добавлен метод `IsClosedForDonation()`.
+
+
+
+## [3.11.1] - 2026-04-15
 
 ### Изменено
 - **Рефакторинг для использования `DonorResponse.IsActiveForDonation()`:**

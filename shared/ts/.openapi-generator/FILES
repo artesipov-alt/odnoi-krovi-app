@@ -17,6 +17,7 @@ models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
 models/BreedsList.ts
 models/CompleteDonationBody.ts
+models/CompletedDonationsList.ts
 models/ConfirmData.ts
 models/ConfirmUploadBody.ts
 models/ConfirmUploadResult.ts

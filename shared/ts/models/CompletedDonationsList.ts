@@ -24,44 +24,58 @@ import {
 /**
  * 
  * @export
- * @interface PlannedDonationsList
+ * @interface CompletedDonationsList
  */
-export interface PlannedDonationsList {
+export interface CompletedDonationsList {
     [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof PlannedDonationsList
+     * @memberof CompletedDonationsList
      */
     readonly $schema?: string;
     /**
-     * Список планируемых донаций
+     * Список завершенных донаций
      * @type {Array<DonationCardForDonor>}
-     * @memberof PlannedDonationsList
+     * @memberof CompletedDonationsList
      */
     items: Array<DonationCardForDonor>;
     /**
      * Общее количество донаций
      * @type {number}
-     * @memberof PlannedDonationsList
+     * @memberof CompletedDonationsList
      */
     total: number;
+    /**
+     * Общее количество завершенных донаций
+     * @type {number}
+     * @memberof CompletedDonationsList
+     */
+    totalDonations: number;
+    /**
+     * Общий объем сданной крови в мл
+     * @type {number}
+     * @memberof CompletedDonationsList
+     */
+    totalVolume: number;
 }
 
 /**
- * Check if a given object implements the PlannedDonationsList interface.
+ * Check if a given object implements the CompletedDonationsList interface.
  */
-export function instanceOfPlannedDonationsList(value: object): value is PlannedDonationsList {
+export function instanceOfCompletedDonationsList(value: object): value is CompletedDonationsList {
     if (!('items' in value) || value['items'] === undefined) return false;
     if (!('total' in value) || value['total'] === undefined) return false;
+    if (!('totalDonations' in value) || value['totalDonations'] === undefined) return false;
+    if (!('totalVolume' in value) || value['totalVolume'] === undefined) return false;
     return true;
 }
 
-export function PlannedDonationsListFromJSON(json: any): PlannedDonationsList {
-    return PlannedDonationsListFromJSONTyped(json, false);
+export function CompletedDonationsListFromJSON(json: any): CompletedDonationsList {
+    return CompletedDonationsListFromJSONTyped(json, false);
 }
 
-export function PlannedDonationsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): PlannedDonationsList {
+export function CompletedDonationsListFromJSONTyped(json: any, ignoreDiscriminator: boolean): CompletedDonationsList {
     if (json == null) {
         return json;
     }
@@ -71,14 +85,16 @@ export function PlannedDonationsListFromJSONTyped(json: any, ignoreDiscriminator
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'items': ((json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
         'total': json['total'],
+        'totalDonations': json['totalDonations'],
+        'totalVolume': json['totalVolume'],
     };
 }
 
-export function PlannedDonationsListToJSON(json: any): PlannedDonationsList {
-    return PlannedDonationsListToJSONTyped(json, false);
+export function CompletedDonationsListToJSON(json: any): CompletedDonationsList {
+    return CompletedDonationsListToJSONTyped(json, false);
 }
 
-export function PlannedDonationsListToJSONTyped(value?: Omit<PlannedDonationsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function CompletedDonationsListToJSONTyped(value?: Omit<CompletedDonationsList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -88,6 +104,8 @@ export function PlannedDonationsListToJSONTyped(value?: Omit<PlannedDonationsLis
             ...value,
         'items': ((value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
         'total': value['total'],
+        'totalDonations': value['totalDonations'],
+        'totalVolume': value['totalVolume'],
     };
 }
 
