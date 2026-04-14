@@ -15,10 +15,14 @@ func NewMatchingService() *MatchingService {
 
 func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, pet *petmodel.Pet) {
 	sameBlood := false
+	sameType := false
 	coversNeededAmount := false
 	avilableDonorAmount := pet.CalculateDonationAmount()
 	halfVolume := (bloodreq.BloodVolumeNeeded - bloodreq.BloodVolumeReserved) / 2
 	// bloodSearchRegions := bloodreq.Regions
+
+	// (Тип-питомца) Бизнес-логика, типы питомцев должны совпадать
+	sameType = pet.Type == bloodreq.RecipientData.PetType
 
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или неизвестная если реципиент разрешил
 	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && pet.BloodGroupName == "UNKNOWN")
@@ -30,7 +34,7 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 		coversNeededAmount = true
 	}
 
-	if sameBlood && coversNeededAmount {
+	if sameType && sameBlood && coversNeededAmount {
 		donorBloodGroup := pet.BloodGroupName
 		bloodreq.MatchingDonors = append(bloodreq.MatchingDonors, bloodreqmodel.MatchingDonorReadModel{
 			PetName:         pet.Name,
