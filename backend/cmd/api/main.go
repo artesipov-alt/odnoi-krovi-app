@@ -153,7 +153,7 @@ func main() {
 		matchingSvc := *bloodsearch.NewMatchingService()
 		petService := pet.NewPetService()
 
-		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, petService)
+		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, petService, userRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, txManager)
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService)
 		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)

@@ -11,6 +11,7 @@ import (
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
 
 type ListRequestsHandler struct {
@@ -19,19 +20,33 @@ type ListRequestsHandler struct {
 	bloodReqRepo  bloodsearch.BloodRequestRepository
 	matchingSvc   bloodsearch.MatchingService
 	petService    *pet.PetService
+	userRepo      user.Repository
 }
 
-func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService, userRepo user.Repository) *ListRequestsHandler {
 	return &ListRequestsHandler{
 		petRepo:       petRepo,
 		donorRespRepo: donorRespRepo,
 		bloodReqRepo:  bloodReqRepo,
 		matchingSvc:   matchingSvc,
 		petService:    petService,
+		userRepo:      userRepo,
 	}
 }
 
 func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters donormodel.DonorPreloadFilter) ([]*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
+	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{
+		WithDonorPreference: true,
+	})
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get user")
+	}
+
+	preferredLocations := []string{}
+	if user.DonorPreference != nil {
+		preferredLocations = user.DonorPreference.PreferredLocationIDs
+	}
+
 	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
 		WithAll: true,
 	})
@@ -79,7 +94,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	// Find matching donors
 	for _, recipient := range allRequests {
 		for _, donor := range potentialDonors {
-			h.matchingSvc.MatchDonor(recipient, donor)
+			h.matchingSvc.MatchDonor(recipient, donor, preferredLocations)
 		}
 	}
 

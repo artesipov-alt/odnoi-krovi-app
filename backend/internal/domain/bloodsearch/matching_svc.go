@@ -13,16 +13,29 @@ func NewMatchingService() *MatchingService {
 	return &MatchingService{}
 }
 
-func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, pet *petmodel.Pet) {
+func hasIntersection(a, b []string) bool {
+	for _, x := range a {
+		if slices.Contains(b, x) {
+			return true
+		}
+	}
+	return false
+}
+
+func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, pet *petmodel.Pet, preferredLocations []string) {
 	sameBlood := false
 	sameType := false
+	sameRegion := false
 	coversNeededAmount := false
 	avilableDonorAmount := pet.CalculateDonationAmount()
 	halfVolume := (bloodreq.BloodVolumeNeeded - bloodreq.BloodVolumeReserved) / 2
-	// bloodSearchRegions := bloodreq.Regions
+	bloodSearchRegions := bloodreq.Regions
 
 	// (Тип-питомца) Бизнес-логика, типы питомцев должны совпадать
 	sameType = pet.Type == bloodreq.RecipientData.PetType
+
+	// (Регионы) Бизнес-логика, регионы донора должны пересекаться с регионами поиска или донор не указал предпочтений
+	sameRegion = len(preferredLocations) == 0 || hasIntersection(preferredLocations, bloodSearchRegions)
 
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или неизвестная если реципиент разрешил
 	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && pet.BloodGroupName == "UNKNOWN")
@@ -34,7 +47,7 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 		coversNeededAmount = true
 	}
 
-	if sameType && sameBlood && coversNeededAmount {
+	if sameType && sameRegion && sameBlood && coversNeededAmount {
 		donorBloodGroup := pet.BloodGroupName
 		bloodreq.MatchingDonors = append(bloodreq.MatchingDonors, bloodreqmodel.MatchingDonorReadModel{
 			PetName:         pet.Name,

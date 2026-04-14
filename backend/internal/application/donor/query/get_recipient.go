@@ -35,6 +35,18 @@ func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repositor
 }
 
 func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, userID string) (*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
+	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{
+		WithDonorPreference: true,
+	})
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get user")
+	}
+
+	preferredLocations := []string{}
+	if user.DonorPreference != nil {
+		preferredLocations = user.DonorPreference.PreferredLocationIDs
+	}
+
 	recipient, err := h.donorRepo.GetRecipient(ctx, blodreqID)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get recipient")
@@ -80,14 +92,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	potentialDonors := petmodel.FilterDonors(pets)
 
 	for _, donorPet := range potentialDonors {
-		h.matchingSvc.MatchDonor(recipient, donorPet)
-	}
-
-	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{
-		WithDonorPreference: true,
-	})
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get user for recipient details")
+		h.matchingSvc.MatchDonor(recipient, donorPet, preferredLocations)
 	}
 
 	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)
