@@ -13,8 +13,12 @@ export const generateDonorMessage = (params: {
   return `На ваше предложение откликнулся реципиент - ${params.recipientName} (${params.recipientVolume} мл, группа ${params.recipientBloodGroup})\n\nХозяин реципиента получил Ваши контакты. Дождитесь, пока с Вами свяжутся, или напишите хозяину реципиента`;
 };
 
-export const generateDonationMessage = (params: { volume: number }): string => {
-  return `Реципиент подтвердил донацию в ${params.volume} мл.\n\nДонация состоялась успешно! Спасибо за вашу помощь.`;
+export const generateDonationMessage = (params: {
+  volume: number;
+  recipientPetName: string;
+  recipientBloodGroup: string;
+}): string => {
+  return `Донация подтверждена (реципиент ${params.recipientPetName}, группа ${params.recipientBloodGroup}). Спасибо за Вашу помощь! Вам начислены бонусы – посмотрите их на Портале.`;
 };
 
 export const generateVCF = (name: string, phone: string): string => {

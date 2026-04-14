@@ -11,10 +11,16 @@ type DonorInfo struct {
 	BloodGroup       string
 }
 
+type RecipientInfo struct {
+	PetName    string
+	BloodGroup string
+}
+
 type DonationConfirmed struct {
-	DonorData DonorInfo
-	Volume    float64
-	CreatedAt time.Time
+	DonorData     DonorInfo
+	RecipientData RecipientInfo
+	Volume        float64
+	CreatedAt     time.Time
 }
 
 func (e DonationConfirmed) EventName() string     { return "DonationConfirmed" }

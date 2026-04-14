@@ -12,13 +12,17 @@ interface DonationConfirmedEvent {
     Phone: string;
     BloodGroup: string;
   };
+  RecipientData: {
+    PetName: string;
+    BloodGroup: string;
+  };
   Volume: number; // Объем донации в мл
 }
 
 export const handleDonationConfirmed = async (
   event: DonationConfirmedEvent,
 ) => {
-  const { DonorData, Volume } = event;
+  const { DonorData, RecipientData, Volume } = event;
 
   let targetId = DonorData.ProviderMaxID;
   if (!targetId || targetId.trim() === "") {
@@ -36,6 +40,8 @@ export const handleDonationConfirmed = async (
   try {
     const message = generateDonationMessage({
       volume: Volume,
+      recipientPetName: RecipientData.PetName,
+      recipientBloodGroup: RecipientData.BloodGroup,
     });
 
     await bot.api.sendMessageToUser(Number(targetId), message);

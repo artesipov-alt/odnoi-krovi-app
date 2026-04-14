@@ -10,6 +10,7 @@ import { handleRecipientApply } from "./src/events/donor/recipientApply";
 import { handleDonorCancel } from "./src/events/donor/donorCancel";
 import { handleNewRecipients } from "./src/events/recipient/newRecipients";
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
+import { handleUserContact } from "./src/events/user/handleUserContact";
 
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
@@ -22,6 +23,7 @@ const eventHandlers: Record<string, (event: any) => Promise<void>> = {
   donor_cancel: handleDonorCancel,
   new_recipients: handleNewRecipients,
   donation_confirmed: handleDonationConfirmed,
+  user_contact: handleUserContact,
 };
 
 // Helper function for subscribing to channels

@@ -116,6 +116,16 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		return err
 	}
 
+	// Get recipient data
+	bloodReq, err = h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+	if err != nil {
+		return err
+	}
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	if err != nil {
+		return err
+	}
+
 	// Extract Provider IDs
 	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
 
@@ -127,6 +137,10 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			ProviderTelegram: donorTelegramID,
 			Phone:            donorUser.Phone,
 			BloodGroup:       donorPet.BloodGroupName,
+		},
+		RecipientData: bloodsearchevent.RecipientInfo{
+			PetName:    recipientPet.Name,
+			BloodGroup: recipientPet.BloodGroupName,
 		},
 		Volume:    factAmount,
 		CreatedAt: time.Now(),
