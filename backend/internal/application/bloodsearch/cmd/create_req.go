@@ -72,6 +72,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
+	slog.Info("found pets by blood group and region", "count", len(pets), "bloodGroups", req.BloodGroupNames, "regions", req.Regions)
 
 	// Collect pet IDs for batch queries
 	petIDs := make([]string, len(pets))
@@ -110,6 +111,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 			avilableDonors = append(avilableDonors, *pet)
 		}
 	}
+	slog.Info("filtered available donors", "count", len(avilableDonors))
 
 	// Get peers for available donors
 	var peers []events.Peers

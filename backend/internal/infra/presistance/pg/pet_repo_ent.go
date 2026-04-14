@@ -13,7 +13,6 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
-	entlocation "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -589,7 +588,14 @@ func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, blo
 		)
 	if len(regions) > 0 {
 		query = query.Where(
-			entpet.HasOwnerWith(entuser.HasLocationWith(entlocation.IDIn(regions...))),
+			entpet.HasOwnerWith(entuser.HasDonorPreferenceWith(
+				func(s *sql.Selector) {
+					s.Where(sql.Or(
+						sql.ExprP("preferred_location_ids && ?", regions),
+						sql.ExprP("array_length(preferred_location_ids, 1) = 0"),
+					))
+				},
+			)),
 		)
 	}
 	pets, err := query.All(ctx)
