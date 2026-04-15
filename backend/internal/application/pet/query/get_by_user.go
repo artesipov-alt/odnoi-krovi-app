@@ -15,9 +15,10 @@ import (
 )
 
 type GetByUserResult struct {
-	Pets           []*model.Pet
-	TotalPets      int
-	TotalDonations int
+	Pets                    []*model.Pet
+	TotalPets               int
+	TotalPlannedDonations   int
+	TotalCompletedDonations int
 }
 
 type GetByUserHandler struct {
@@ -88,6 +89,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 
 	plannedDonations := make([]*donormodel.DonorResponse, 0, len(pets))
+	totalCompletedDonations := 0
 	for _, pet := range pets {
 		applications := applicationsMap[pet.ID]
 		var application *donormodel.DonorResponse
@@ -95,6 +97,9 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 			if app.IsActiveForDonation() {
 				application = app
 				break
+			}
+			if app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed {
+				totalCompletedDonations++
 			}
 		}
 		if application != nil {
@@ -107,8 +112,9 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 
 	return &GetByUserResult{
-		Pets:           pets,
-		TotalPets:      len(pets),
-		TotalDonations: len(plannedDonations),
+		Pets:                    pets,
+		TotalPets:               len(pets),
+		TotalPlannedDonations:   len(plannedDonations),
+		TotalCompletedDonations: totalCompletedDonations,
 	}, nil
 }

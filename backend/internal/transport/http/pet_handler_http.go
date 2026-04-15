@@ -185,9 +185,10 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 
 	return &dto.GetPetsByUserOutput{
 		Body: dto.GetPetsByUserResult{
-			Pets:                  h.petMapper.ToResponseSlice(result.Pets),
-			TotalPets:             result.TotalPets,
-			TotalPlannedDonations: result.TotalDonations,
+			Pets:                    h.petMapper.ToResponseSlice(result.Pets),
+			TotalPets:               result.TotalPets,
+			TotalPlannedDonations:   result.TotalPlannedDonations,
+			TotalCompletedDonations: result.TotalCompletedDonations,
 		},
 	}, nil
 }

@@ -211,11 +211,11 @@ type GetPetsByUserOutput struct {
 	Body GetPetsByUserResult
 }
 
-// GetPetsByUserResult представляет результат получения питомцев пользователя
 type GetPetsByUserResult struct {
-	Pets                  []PetDetail `json:"pets" doc:"Список питомцев"`
-	TotalPets             int         `json:"totalPets" doc:"Общее количество питомцев у пользователя" example:"5"`
-	TotalPlannedDonations int         `json:"totalPlannedDonations,omitempty" doc:"Общее количество планируемых донаций питомцев пользователя" example:"12"` // Добавлено по запросу
+	Pets                    []PetDetail `json:"pets" doc:"Список питомцев"`
+	TotalPets               int         `json:"totalPets" doc:"Общее количество питомцев у пользователя" example:"5"`
+	TotalPlannedDonations   int         `json:"totalPlannedDonations,omitempty" doc:"Общее количество планируемых донаций питомцев пользователя" example:"12"`
+	TotalCompletedDonations int         `json:"totalCompletedDonations,omitempty" doc:"Общее количество завершенных донаций питомцев пользователя" example:"10"`
 }
 
 // ============================================

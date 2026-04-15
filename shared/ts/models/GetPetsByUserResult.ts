@@ -41,6 +41,12 @@ export interface GetPetsByUserResult {
      */
     pets: Array<PetDetail>;
     /**
+     * Общее количество завершенных донаций питомцев пользователя
+     * @type {number}
+     * @memberof GetPetsByUserResult
+     */
+    totalCompletedDonations?: number;
+    /**
      * Общее количество питомцев у пользователя
      * @type {number}
      * @memberof GetPetsByUserResult
@@ -76,6 +82,7 @@ export function GetPetsByUserResultFromJSONTyped(json: any, ignoreDiscriminator:
             ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'pets': ((json['pets'] as Array<any>).map(PetDetailFromJSON)),
+        'totalCompletedDonations': json['totalCompletedDonations'] == null ? undefined : json['totalCompletedDonations'],
         'totalPets': json['totalPets'],
         'totalPlannedDonations': json['totalPlannedDonations'] == null ? undefined : json['totalPlannedDonations'],
     };
@@ -94,6 +101,7 @@ export function GetPetsByUserResultToJSONTyped(value?: Omit<GetPetsByUserResult,
         
             ...value,
         'pets': ((value['pets'] as Array<any>).map(PetDetailToJSON)),
+        'totalCompletedDonations': value['totalCompletedDonations'],
         'totalPets': value['totalPets'],
         'totalPlannedDonations': value['totalPlannedDonations'],
     };

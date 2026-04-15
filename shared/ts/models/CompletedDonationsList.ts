@@ -47,11 +47,11 @@ export interface CompletedDonationsList {
      */
     total: number;
     /**
-     * Общее количество завершенных донаций
+     * Общее количество завершенных донаций питомцев пользователя
      * @type {number}
      * @memberof CompletedDonationsList
      */
-    totalDonations: number;
+    totalCompletedDonations?: number;
     /**
      * Общий объем сданной крови в мл
      * @type {number}
@@ -66,7 +66,6 @@ export interface CompletedDonationsList {
 export function instanceOfCompletedDonationsList(value: object): value is CompletedDonationsList {
     if (!('items' in value) || value['items'] === undefined) return false;
     if (!('total' in value) || value['total'] === undefined) return false;
-    if (!('totalDonations' in value) || value['totalDonations'] === undefined) return false;
     if (!('totalVolume' in value) || value['totalVolume'] === undefined) return false;
     return true;
 }
@@ -85,7 +84,7 @@ export function CompletedDonationsListFromJSONTyped(json: any, ignoreDiscriminat
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'items': ((json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
         'total': json['total'],
-        'totalDonations': json['totalDonations'],
+        'totalCompletedDonations': json['totalCompletedDonations'] == null ? undefined : json['totalCompletedDonations'],
         'totalVolume': json['totalVolume'],
     };
 }
@@ -104,7 +103,7 @@ export function CompletedDonationsListToJSONTyped(value?: Omit<CompletedDonation
             ...value,
         'items': ((value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
         'total': value['total'],
-        'totalDonations': value['totalDonations'],
+        'totalCompletedDonations': value['totalCompletedDonations'],
         'totalVolume': value['totalVolume'],
     };
 }
