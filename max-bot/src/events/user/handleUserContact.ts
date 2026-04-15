@@ -1,4 +1,5 @@
 import { bot, pinologger } from "../../instances";
+import { generateVCF } from "../recipient/helpers";
 
 interface UserContactEvent {
   NotifyProvider: string;
@@ -31,7 +32,24 @@ export const handleUserContact = async (event: UserContactEvent) => {
   try {
     const message = `Контакт пользователя: ${UserData.Name}\nТелефон: ${UserData.Phone}`;
 
-    await bot.api.sendMessageToUser(Number(SendTo), message);
+    const contactId =
+      NotifyProvider === "max_bot"
+        ? Number(UserData.ProviderMaxID)
+        : Number(UserData.ProviderTelegram);
+
+    await bot.api.sendMessageToUser(Number(SendTo), message, {
+      attachments: [
+        {
+          type: "contact",
+          payload: {
+            name: UserData.Name,
+            contact_id: contactId,
+            vcf_phone: UserData.Phone,
+            vcf_info: generateVCF(UserData.Name, UserData.Phone),
+          },
+        },
+      ],
+    });
 
     pinologger.info(
       { sendTo: SendTo, userName: UserData.Name },
