@@ -68,7 +68,7 @@ type ListPlannedDonationsOutput struct {
 type CompletedDonationsList struct {
 	Items                   []DonationCardForDonor `json:"items" doc:"Список завершенных донаций"`
 	Total                   int                    `json:"total" doc:"Общее количество донаций"`
-	TotalDonatedVolume      float64                `json:"totalVolume" doc:"Общий объем сданной крови в мл"`
+	TotalDonatedVolume      float64                `json:"totalDonatedVolume" doc:"Общий объем сданной крови в мл"`
 	TotalCompletedDonations int                    `json:"totalCompletedDonations,omitempty" doc:"Общее количество завершенных донаций питомцев пользователя" example:"10"`
 }
 
