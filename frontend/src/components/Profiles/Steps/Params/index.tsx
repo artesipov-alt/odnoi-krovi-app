@@ -282,12 +282,6 @@ const ParamsStep: FC<Props> = ({
             newData.chipNumber = newChipNumber;
         }
 
-        // if (chipNumber !== newChipNumber && newChipNumber !== 'none') {
-        //     newData.chipNumber = newChipNumber;
-        // } else if (chipNumber && newChipNumber === 'none') {
-        //     newData.chipNumber = undefined;
-        // }
-
         if (weightKg !== Number(newWeight)) {
             newData.weightKg = Number(newWeight.replace(',', '.'));
         }
