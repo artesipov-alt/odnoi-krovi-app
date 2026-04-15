@@ -104,6 +104,7 @@ const PetProfile: FC<Props> = ({
     updatePets,
     bloodGroup,
     chipNumber,
+    recoveryDays,
     treatments = {},
     livingCondition,
     donorRestrictions,
@@ -338,9 +339,10 @@ const PetProfile: FC<Props> = ({
                     <>
                         <div className={cn(styles.label, { [styles.didNotRecover]: true })}>
                             <div className={styles.recover}>
-                                <p className={styles.recoverDays}>15</p>
-                                <p className={styles.recoverDescr}>{getCorrectDeclension(Variants.DAYS, 15)}</p>
-                                {/* TODO заменить на дни до восстановления */}
+                                <p className={styles.recoverDays}>{recoveryDays}</p>
+                                <p className={styles.recoverDescr}>
+                                    {getCorrectDeclension(Variants.DAYS, recoveryDays || 1)}
+                                </p>
                             </div>
                             <div className={styles.labelText}>До восстановления</div>
                         </div>
