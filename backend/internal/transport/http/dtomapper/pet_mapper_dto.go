@@ -317,10 +317,9 @@ func (m *PetMapper) ToUpdateModel(petDto dto.UpdatePetBody) *model.Pet {
 	}
 
 	// Handle PetHealth
-	healthmodel := &model.PetHealth{
-		HealthStatus: model.HealthStatusUnknown,
-	}
+
 	if petDto.Health != nil {
+		healthmodel := &model.PetHealth{}
 		if petDto.Health.HealthStatus != nil {
 			healthmodel.HealthStatus = model.HealthStatus(*petDto.Health.HealthStatus)
 		}
@@ -336,8 +335,8 @@ func (m *PetMapper) ToUpdateModel(petDto dto.UpdatePetBody) *model.Pet {
 		if petDto.Health.SurgicalInterventions != nil {
 			healthmodel.SurgicalInterventions = petDto.Health.SurgicalInterventions
 		}
+		petUpdate.Health = healthmodel
 	}
-	petUpdate.Health = healthmodel
 
 	// Handle PetTreatment
 	if petDto.Treatments != nil {
