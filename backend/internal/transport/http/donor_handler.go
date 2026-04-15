@@ -330,8 +330,8 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 
 	donationCards := make([]dto.DonationCardForDonor, 0, len(results))
 	var totalVolume float64
+	var totalDonations int
 	for _, res := range results {
-		totalVolume += res.ApplicationData.Amount
 		application := dto.ApplicationShort{
 			ID:               res.ApplicationData.ID,
 			PetName:          res.DonorPetData.Name,
@@ -373,13 +373,18 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 			ApplicationData: application,
 			RecipientData:   recipient,
 		})
+
+		if res.ApplicationData.Status != model.DonorResponseStatusRejected && res.ApplicationData.Status != model.DonorResponseStatusCancelled {
+			totalVolume += res.ApplicationData.Amount
+			totalDonations++
+		}
 	}
 
 	return &dto.ListCompletedDonationsOutput{
 		Body: dto.CompletedDonationsList{
 			Items:          donationCards,
 			Total:          len(donationCards),
-			TotalDonations: len(donationCards),
+			TotalDonations: totalDonations,
 			TotalVolume:    totalVolume,
 		},
 	}, nil
