@@ -16,7 +16,11 @@ interface UserContactEvent {
 export const handleUserContact = async (event: UserContactEvent) => {
   const { NotifyProvider, SendTo, UserData } = event;
 
-  if (NotifyProvider !== "telegram" || !SendTo || SendTo.trim() === "") {
+  if (
+    (NotifyProvider !== "telegram_bot" && NotifyProvider !== "max_bot") ||
+    !SendTo ||
+    SendTo.trim() === ""
+  ) {
     pinologger.warn(
       { notifyProvider: NotifyProvider, sendTo: SendTo },
       "Invalid provider or SendTo is empty, skipping notification",
