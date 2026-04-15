@@ -26,6 +26,7 @@ const (
 type BloodRequest struct {
 	ID                       string
 	PetID                    string
+	OwnerID                  string
 	BloodVolumeNeeded        float64
 	BloodVolumeReserved      float64
 	BloodVolumeDonated       float64

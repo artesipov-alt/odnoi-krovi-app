@@ -22,24 +22,26 @@ func hasIntersection(a, b []string) bool {
 	return false
 }
 
-func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, pet *petmodel.Pet, preferredLocations []string) {
+func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, donorPet *petmodel.Pet, preferredLocations []string, ownerID string) {
 	sameBlood := false
 	sameType := false
-	// sameRegion := false
+	sameRegion := false
+	sameOwner := false
 	coversNeededAmount := false
-	avilableDonorAmount := pet.CalculateDonationAmount()
+	avilableDonorAmount := donorPet.CalculateDonationAmount()
 	halfVolume := (bloodreq.BloodVolumeNeeded - bloodreq.BloodVolumeReserved) / 2
-	// bloodSearchRegions := bloodreq.Regions
+	bloodSearchRegions := bloodreq.Regions
 
 	// (Тип-питомца) Бизнес-логика, типы питомцев должны совпадать
-	sameType = pet.Type == bloodreq.RecipientData.PetType
+	sameType = donorPet.Type == bloodreq.RecipientData.PetType
 
-	// (Регионы) Бизнес-логика, если запрос не указал регионы или донор не указал предпочтений, подходит; иначе - пересечение регионов
-	// sameRegion = len(bloodSearchRegions) == 0 || len(preferredLocations) == 0 || hasIntersection(preferredLocations, bloodSearchRegions)
+	// (Регионы) Бизнес-логика, Создавая поиск, рецепиин всегда указывает регионы. И донор может быть донором, только если указал регионы.
+	sameRegion = hasIntersection(bloodSearchRegions, preferredLocations)
 
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или неизвестная если реципиент разрешил
-	sameBlood = slices.Contains(bloodreq.BloodGroupNames, pet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && pet.BloodGroupName == "UNKNOWN")
+	sameBlood = slices.Contains(bloodreq.BloodGroupNames, donorPet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && donorPet.BloodGroupName == "UNKNOWN")
 
+	sameOwner = donorPet.OwnerID == ownerID
 	// (Количество-крови) Бизнес-логика, донор должен покрывать весь объем или хотя бы половину от остатка если реципиент разрешил
 	if bloodreq.BloodVolumeReserved+avilableDonorAmount >= bloodreq.BloodVolumeNeeded {
 		coversNeededAmount = true
@@ -47,14 +49,14 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 		coversNeededAmount = true
 	}
 
-	if sameType && sameBlood && coversNeededAmount {
-		donorBloodGroup := pet.BloodGroupName
+	if sameType && sameBlood && sameRegion && !sameOwner && coversNeededAmount {
+		donorBloodGroup := donorPet.BloodGroupName
 		bloodreq.MatchingDonors = append(bloodreq.MatchingDonors, bloodreqmodel.MatchingDonorReadModel{
-			PetName:         pet.Name,
-			PetID:           pet.ID,
+			PetName:         donorPet.Name,
+			PetID:           donorPet.ID,
 			DonorBloodGroup: donorBloodGroup,
-			PhotoURLs:       pet.PhotoURLs,
-			Amount:          pet.CalculateDonationAmount(),
+			PhotoURLs:       donorPet.PhotoURLs,
+			Amount:          donorPet.CalculateDonationAmount(),
 		})
 	}
 }

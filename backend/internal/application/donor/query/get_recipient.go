@@ -92,7 +92,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	potentialDonors := petmodel.FilterDonors(pets)
 
 	for _, donorPet := range potentialDonors {
-		h.matchingSvc.MatchDonor(recipient, donorPet, preferredLocations)
+		h.matchingSvc.MatchDonor(recipient, donorPet, preferredLocations, userID)
 	}
 
 	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)

@@ -19,11 +19,13 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 		BloodRequest: bloodreqmodel.BloodRequest{
 			ID:                       req.ID,
 			PetID:                    req.PetID,
+			OwnerID:                  req.Edges.Pet.UserID,
 			BloodVolumeNeeded:        req.BloodVolumeNeeded,
 			PrioritySearch:           req.PrioritySearch,
 			IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
 			BloodGroupNames:          req.BloodGroupNames,
 			SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
+			Regions:                  req.Regions,
 			Status:                   bloodreqmodel.BloodRequestStatus(req.Status),
 		},
 	}
