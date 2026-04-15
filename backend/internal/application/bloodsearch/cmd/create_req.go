@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -114,7 +115,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	slog.Info("filtered available donors", "count", len(avilableDonors))
 
 	// Get peers for available donors
-	var peers []events.Peers
+	peersMap := make(map[string]events.Peers)
 	for _, donorPet := range avilableDonors {
 		donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
 			WithIdentities: true,
@@ -125,11 +126,18 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		}
 		maxID, telegramID := extractProviderIDs(donorUser)
 		if maxID != "" || telegramID != "" {
-			peers = append(peers, events.Peers{
-				MaxID:      maxID,
-				TelegramID: telegramID,
-			})
+			key := fmt.Sprintf("%s|%s", maxID, telegramID)
+			if _, exists := peersMap[key]; !exists {
+				peersMap[key] = events.Peers{
+					MaxID:      maxID,
+					TelegramID: telegramID,
+				}
+			}
 		}
+	}
+	peers := make([]events.Peers, 0, len(peersMap))
+	for _, p := range peersMap {
+		peers = append(peers, p)
 	}
 
 	slog.Info("publishing blood request created event", "requestID", newReq.ID, "peersCount", len(peers))
