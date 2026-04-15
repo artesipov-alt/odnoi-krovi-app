@@ -30,7 +30,7 @@ export const handleUserContact = async (event: UserContactEvent) => {
   }
 
   try {
-    const message = `Контакт пользователя: ${UserData.Name}\nТелефон: ${UserData.Phone}`;
+    const message = `Контакт пользователя`;
 
     const contactId =
       NotifyProvider === "max_bot"
