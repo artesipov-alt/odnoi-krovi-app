@@ -184,31 +184,32 @@ func (p *Pet) SetOwnerID(id string) error {
 type FactorCode string
 
 const (
-	StopFactorTooOld                       FactorCode = "STOP_TOO_OLD"                        // Питомец слишком стар для донации (больше 8 лет)
-	StopFactorNoPhoto                      FactorCode = "STOP_NO_PHOTO"                       // Отсутствует фотография питомца
-	StopFactorNoInfectionVaccination       FactorCode = "STOP_NO_INFECTION_VACCINATION"       // Отсутствует вакцинация от инфекций
-	StopFactorNoRabiesVaccination          FactorCode = "STOP_NO_RABIES_VACCINATION"          // Отсутствует вакцинация от бешенства
-	StopFactorVaccinationExpired           FactorCode = "STOP_VACCINATION_EXPIRED"            // Срок вакцинации истек (больше года)
-	StopFactorVaccinationTooRecent         FactorCode = "STOP_VACCINATION_TOO_RECENT"         // Вакцинация сделана слишком недавно (меньше месяца)
-	StopFactorEctoparasiteTreatmentExpired FactorCode = "STOP_ECTOPARASITE_TREATMENT_EXPIRED" // Срок обработки от эктопаразитов истек (больше 3 месяцев)
-	StopFactorNoDeworming                  FactorCode = "STOP_NO_DEWORMING"                   // Не проведена дегельминтизация
-	StopFactorNoEctoparasiteTreatment      FactorCode = "STOP_NO_ECTOPARASITE_TREATMENT"      // Не проведена обработка от эктопаразитов
-	StopFactorDewormingExpired             FactorCode = "STOP_DEWORMING_EXPIRED"              // Срок дегельминтизации истек (больше 3 месяцев)
-	StopFactorTooYoung                     FactorCode = "STOP_TOO_YOUNG"                      // Питомец слишком молод для донации (меньше года)
-	StopFactorPregnancy                    FactorCode = "STOP_PREGNANCY"                      // Беременность
-	StopFactorLactation                    FactorCode = "STOP_LACTATION"                      // Лактация
-	StopFactorEstrus                       FactorCode = "STOP_ESTRUS"                         // Течка
-	StopFactorHasDiseases                  FactorCode = "STOP_HAS_DISEASES"                   // Наличие заболеваний
-	StopFactorDonationTooRecent            FactorCode = "STOP_DONATION_TOO_RECENT"            // Последняя донация была слишком недавно (меньше 2 месяцев)
-	StopFactorTransfused                   FactorCode = "STOP_TRANSFUSED"                     // Питомец получал переливание крови
-	StopFactorCurrentlyRecipient           FactorCode = "STOP_CURRENTLY_RECIPIENT"            // Питомец в данный момент является реципиентом
+	StopFactorTooOld                  FactorCode = "STOP_TOO_OLD"                   // Питомец слишком стар для донации (больше 8 лет)
+	StopFactorNoPhoto                 FactorCode = "STOP_NO_PHOTO"                  // Отсутствует фотография питомца
+	StopFactorNoInfectionVaccination  FactorCode = "STOP_NO_INFECTION_VACCINATION"  // Отсутствует вакцинация от инфекций
+	StopFactorNoRabiesVaccination     FactorCode = "STOP_NO_RABIES_VACCINATION"     // Отсутствует вакцинация от бешенства
+	StopFactorVaccinationExpired      FactorCode = "STOP_VACCINATION_EXPIRED"       // Срок вакцинации истек (больше года)
+	StopFactorVaccinationTooRecent    FactorCode = "STOP_VACCINATION_TOO_RECENT"    // Вакцинация сделана слишком недавно (меньше месяца)
+	StopFactorNoDeworming             FactorCode = "STOP_NO_DEWORMING"              // Не проведена дегельминтизация
+	StopFactorNoEctoparasiteTreatment FactorCode = "STOP_NO_ECTOPARASITE_TREATMENT" // Не проведена обработка от эктопаразитов
+	StopFactorTooYoung                FactorCode = "STOP_TOO_YOUNG"                 // Питомец слишком молод для донации (меньше года)
+	StopFactorPregnancy               FactorCode = "STOP_PREGNANCY"                 // Беременность
+	StopFactorLactation               FactorCode = "STOP_LACTATION"                 // Лактация
+	StopFactorEstrus                  FactorCode = "STOP_ESTRUS"                    // Течка
+	StopFactorHasDiseases             FactorCode = "STOP_HAS_DISEASES"              // Наличие заболеваний
+	StopFactorDonationTooRecent       FactorCode = "STOP_DONATION_TOO_RECENT"       // Последняя донация была слишком недавно (меньше 2 месяцев)
+	StopFactorTransfused              FactorCode = "STOP_TRANSFUSED"                // Питомец получал переливание крови
+	StopFactorCurrentlyRecipient      FactorCode = "STOP_CURRENTLY_RECIPIENT"       // Питомец в данный момент является реципиентом
 
-	WarnFactorTakingMedications    FactorCode = "WARN_TAKING_MEDICATIONS"    // Питомец принимает медикаменты
-	WarnFactorSurgicalIntervention FactorCode = "WARN_SURGICAL_INTERVENTION" // Было хирургическое вмешательство
-	WarnFactorApproaching8Years    FactorCode = "WARN_APPROACHING_8_YEARS"   // Питомец приближается к 8 годам
-	WarnFactorFreeRange            FactorCode = "WARN_FREE_RANGE"            // Питомец на самовыгуле
-	WarnFactorNoCurrentAnalyses    FactorCode = "WARN_NO_CURRENT_ANALYSES"   // Отсутствуют актуальные анализы
-	WarnFactorUnknownBloodGroup    FactorCode = "WARN_UNKNOWN_BLOOD_GROUP"   // Неизвестна группа крови
+	WarnFactorTakingMedications            FactorCode = "WARN_TAKING_MEDICATIONS"             // Питомец принимает медикаменты
+	WarnFactorSurgicalIntervention         FactorCode = "WARN_SURGICAL_INTERVENTION"          // Было хирургическое вмешательство
+	WarnFactorApproaching8Years            FactorCode = "WARN_APPROACHING_8_YEARS"            // Питомец приближается к 8 годам
+	WarnFactorFreeRange                    FactorCode = "WARN_FREE_RANGE"                     // Питомец на самовыгуле
+	WarnFactorNoCurrentAnalyses            FactorCode = "WARN_NO_CURRENT_ANALYSES"            // Отсутствуют актуальные анализы
+	WarnFactorUnknownBloodGroup            FactorCode = "WARN_UNKNOWN_BLOOD_GROUP"            // Неизвестна группа крови
+	WarnFactorVaccinationExpired           FactorCode = "WARN_VACCINATION_EXPIRED"            // Срок вакцинации истек (больше года)
+	WarnFactorDewormingExpired             FactorCode = "WARN_DEWORMING_EXPIRED"              // Срок дегельминтизации истек (больше 3 месяцев)
+	WarnFactorEctoparasiteTreatmentExpired FactorCode = "WARN_ECTOPARASITE_TREATMENT_EXPIRED" // Срок обработки от эктопаразитов истек (больше 3 месяцев)
 )
 
 // FactorDescription представляет описание фактора
@@ -235,7 +236,7 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 		Description:    "Отсутствует вакцинация от бешенства",
 		SubDescription: "",
 	},
-	StopFactorVaccinationExpired: {
+	WarnFactorVaccinationExpired: {
 		Description:    "Прошло больше года после вакцинации",
 		SubDescription: "",
 	},
@@ -243,7 +244,7 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 		Description:    "Прошло меньше месяца после вакцинации",
 		SubDescription: "",
 	},
-	StopFactorEctoparasiteTreatmentExpired: {
+	WarnFactorEctoparasiteTreatmentExpired: {
 		Description:    "Прошло больше 3 месяцев после обработки от эктопаразитов",
 		SubDescription: "",
 	},
@@ -255,7 +256,7 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 		Description:    "Не обработан от эктопаразитов",
 		SubDescription: "",
 	},
-	StopFactorDewormingExpired: {
+	WarnFactorDewormingExpired: {
 		Description:    "Прошло больше 3 месяцев после дегельминтизации",
 		SubDescription: "",
 	},
@@ -339,9 +340,7 @@ func (p *Pet) GetStopFactors(now time.Time, isRecipient bool) []FactorCode {
 	if code := p.checkNoRabiesVaccination(); code != "" {
 		factors = append(factors, code)
 	}
-	if code := p.checkVaccinationExpired(now); code != "" {
-		factors = append(factors, code)
-	}
+
 	if code := p.checkVaccinationTooRecent(now); code != "" {
 		factors = append(factors, code)
 	}
@@ -351,12 +350,7 @@ func (p *Pet) GetStopFactors(now time.Time, isRecipient bool) []FactorCode {
 	if code := p.checkNoEctoparasiteTreatment(); code != "" {
 		factors = append(factors, code)
 	}
-	if code := p.checkDewormingExpired(now); code != "" {
-		factors = append(factors, code)
-	}
-	if code := p.checkEctoparasiteTreatmentExpired(now); code != "" {
-		factors = append(factors, code)
-	}
+
 	if code := p.checkStopAge(now); code != "" {
 		factors = append(factors, code)
 	}
@@ -393,6 +387,15 @@ func (p *Pet) GetWarnFactors(now time.Time) []FactorCode {
 	if code := p.checkWarnBloodGroup(); code != "" {
 		factors = append(factors, code)
 	}
+	if code := p.checkVaccinationExpired(now); code != "" {
+		factors = append(factors, code)
+	}
+	if code := p.checkDewormingExpired(now); code != "" {
+		factors = append(factors, code)
+	}
+	if code := p.checkEctoparasiteTreatmentExpired(now); code != "" {
+		factors = append(factors, code)
+	}
 	return factors
 }
 
@@ -427,10 +430,10 @@ func (p *Pet) checkVaccinationExpired(now time.Time) FactorCode {
 	}
 	yearAgo := now.AddDate(-1, 0, 0)
 	if p.Treatments.RabiesVaccinationDate != nil && p.Treatments.RabiesVaccinationDate.Before(yearAgo) {
-		return StopFactorVaccinationExpired
+		return WarnFactorVaccinationExpired
 	}
 	if p.Treatments.InfectionVaccinationDate != nil && p.Treatments.InfectionVaccinationDate.Before(yearAgo) {
-		return StopFactorVaccinationExpired
+		return WarnFactorVaccinationExpired
 	}
 	return ""
 }
@@ -468,24 +471,24 @@ func (p *Pet) checkNoEctoparasiteTreatment() FactorCode {
 
 // checkDewormingExpired проверяет, не просрочена ли дегельминтизация
 func (p *Pet) checkDewormingExpired(now time.Time) FactorCode {
-	if p.Treatments == nil || p.Treatments.DewormingDate == nil {
+	if p.Treatments == nil {
 		return ""
 	}
 	threeMonthsAgo := now.AddDate(0, -3, 0)
-	if p.Treatments.DewormingDate.Before(threeMonthsAgo) {
-		return StopFactorDewormingExpired
+	if p.Treatments.DewormingDate != nil && p.Treatments.DewormingDate.Before(threeMonthsAgo) {
+		return WarnFactorDewormingExpired
 	}
 	return ""
 }
 
 // checkEctoparasiteTreatmentExpired проверяет, не просрочена ли обработка от эктопаразитов
 func (p *Pet) checkEctoparasiteTreatmentExpired(now time.Time) FactorCode {
-	if p.Treatments == nil || p.Treatments.EctoparasiteTreatmentDate == nil {
+	if p.Treatments == nil {
 		return ""
 	}
 	threeMonthsAgo := now.AddDate(0, -3, 0)
-	if p.Treatments.EctoparasiteTreatmentDate.Before(threeMonthsAgo) {
-		return StopFactorEctoparasiteTreatmentExpired
+	if p.Treatments.EctoparasiteTreatmentDate != nil && p.Treatments.EctoparasiteTreatmentDate.Before(threeMonthsAgo) {
+		return WarnFactorEctoparasiteTreatmentExpired
 	}
 	return ""
 }
