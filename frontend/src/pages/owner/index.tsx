@@ -424,7 +424,13 @@ const Owner: FC<Props> = ({ userId }) => {
 
     if (donorStatus.isOpen) {
         if (donorStatus.status === 'didNotRecover') {
-            return <DidNotRecover onClose={onDonorStatusCloseHandler} onOpenPetProfile={onOpenPetProfileFromStatus} />;
+            return (
+                <DidNotRecover
+                    onClose={onDonorStatusCloseHandler}
+                    recoveryDays={selectedPet?.recoveryDays || 1}
+                    onOpenPetProfile={onOpenPetProfileFromStatus}
+                />
+            );
         }
 
         if (donorStatus.status === 'notReady') {
