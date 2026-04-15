@@ -11,7 +11,7 @@ import (
 // ============================================
 
 type PetHealth struct {
-	HealthStatus          *string    `json:"healthStatus,omitempty" doc:"Общее состояние здоровья питомца" enum:"healthy,ill,unknown" default:"unknown"`
+	HealthStatus          *string    `json:"healthStatus,omitempty" doc:"Общее состояние здоровья питомца" enum:"healthy,ill,unknown"`
 	LastDonation          *time.Time `json:"lastDonation,omitempty" doc:"Дата последней сдачи крови" example:"2023-10-01T12:00:00Z"`
 	Transfused            *bool      `json:"transfused,omitempty" doc:"Были ли переливания крови" example:"false"`
 	Medications           *string    `json:"medications,omitempty" doc:"Текущие лекарства" example:"Antibiotics"`
