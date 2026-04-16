@@ -32,7 +32,7 @@ export const handleBloodRequestCreated = async (
     }
 
     try {
-      const message = `Появилась новая заявка на донацию крови (${BloodTypes.join(", ")}) в регионах: ${Regions.join(", ")}. Проверьте на Портале.`;
+      const message = `Питомцам нужна ваша помощь!\n\nЗайдите на Портал, чтобы узнать детали.`;
 
       await bot.api.sendMessageToUser(Number(targetId), message);
 
