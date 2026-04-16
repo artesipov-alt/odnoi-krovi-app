@@ -364,6 +364,10 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsEditCurtainOpen(false);
     };
 
+    const testlink = () => {
+        window.open('https://www.ozon.ru/seller/vetmarket');
+    };
+
     const onAvatarSelectHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const newPhoto = e.target.files?.[0];
 
@@ -531,7 +535,11 @@ const Profile: FC<Props> = ({ userId }) => {
                     {/* <PromoSlider /> */}
 
                     <div className={styles.infoButtons}>
-                        <button type='button' className={cn(styles.infoButton, styles.infoButton_disabled)} disabled>
+                        <button
+                            type='button'
+                            className={cn(styles.infoButton, styles.infoButton_disabled)}
+                            onClick={testlink}
+                        >
                             <span className={styles.infoIcon}>
                                 <ChatBubble />
                             </span>
