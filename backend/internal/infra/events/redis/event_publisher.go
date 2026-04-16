@@ -136,3 +136,43 @@ func (p *EventPublisher) PublishUserContact(
 
 	return p.client.Publish(ctx, channelUserContact, payload).Err()
 }
+
+// NoOpEventPublisher is a no-operation event publisher that does nothing.
+// Used when Redis is not available, allowing the server to start without event publishing.
+type NoOpEventPublisher struct{}
+
+func (p *NoOpEventPublisher) PublishBloodRequestCreated(ctx context.Context, event bloodsearchevent.BloodRequestCreated) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishDonorApply(ctx context.Context, event bloodsearchevent.ApplyDonor) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishDonationConfirmed(ctx context.Context, event bloodsearchevent.DonationConfirmed) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishRecipientApply(ctx context.Context, event donorevent.RecipientApply) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishDonorCancel(ctx context.Context, event donorevent.DonorCancel) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishDonorReject(ctx context.Context, event donorevent.DonorReject) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishDonorNotConfirmed(ctx context.Context, event donorevent.DonorNotConfirmed) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishDonorCompleted(ctx context.Context, event donorevent.DonorCompleted) error {
+	return nil
+}
+
+func (p *NoOpEventPublisher) PublishUserContact(ctx context.Context, event userevent.UserContact) error {
+	return nil
+}

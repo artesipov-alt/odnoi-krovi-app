@@ -31,6 +31,7 @@ import (
 	userquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
@@ -96,10 +97,13 @@ func main() {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
 		}
+		var publisher ports.EventPublisher
 		redisClient, err := config.NewRedisClientFromEnv()
 		if err != nil {
-			slog.Error("Ошибка подключения к Redis", "error", err)
-			os.Exit(1)
+			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
+			publisher = &events.NoOpEventPublisher{}
+		} else {
+			publisher = events.NewEventPublisher(redisClient)
 		}
 
 		// Запуск миграций
@@ -123,9 +127,6 @@ func main() {
 		partnerRepo := pg.NewEntPartnerRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
-
-		// Инициализация publisher для событий
-		publisher := events.NewEventPublisher(redisClient)
 
 		// Инициализация reference query handlers
 		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
