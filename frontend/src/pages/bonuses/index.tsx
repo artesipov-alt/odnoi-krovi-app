@@ -27,9 +27,9 @@ type BonusItem = {
 };
 
 const tabs: Array<{ key: BonusTab; title: string; count: number; Icon: FC }> = [
-    { key: 'priority', title: 'Приоритет', count: 4, Icon: Priority },
-    { key: 'drugs', title: 'Препараты', count: 3, Icon: Drugs },
-    { key: 'food', title: 'Корм', count: 3, Icon: Feed },
+    { key: 'priority', title: 'Приоритет', count: 0, Icon: Priority },
+    { key: 'drugs', title: 'Препараты', count: 0, Icon: Drugs },
+    { key: 'food', title: 'Корм', count: 0, Icon: Feed },
     { key: 'other', title: 'Другое', count: 0, Icon: Other },
 ];
 
