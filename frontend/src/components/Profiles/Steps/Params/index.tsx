@@ -17,6 +17,7 @@ import { Dict, PetGenderDict, PetTypeDict } from 'api/reference';
 import { PetGender, PetType } from 'api/types';
 import Alert from 'components/Alert';
 import DatePicker from 'components/DatePicker';
+import Layout from 'components/Layout';
 import TextField from 'components/TextField';
 
 import Header from '../Header';
@@ -656,10 +657,10 @@ const ParamsStep: FC<Props> = ({
     ]);
 
     return (
-        <div className={styles.wrapper}>
+        <Layout className={styles.wrapper}>
             <Header title='Параметры' onClose={onClose} isEditMode={isEditMode} icon={<Params />} />
             {isEditMode ? renderEditView() : renderView()}
-        </div>
+        </Layout>
     );
 };
 

@@ -1,0 +1,509 @@
+@import 'styles/colors';
+
+.wrapper {
+    position: relative;
+    padding: 12px 11px 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 33px;
+    margin-bottom: 17px;
+}
+
+.back {
+    width: 24px;
+    height: 24px;
+    fill: @red1;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.title {
+    flex-grow: 1;
+    padding: 0 11px;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    color: @textColor2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.photos {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.avatarWrapper {
+    position: relative;
+}
+
+.avatar {
+    width: 156px;
+    height: 156px;
+    border-radius: 50%;
+    border: 12px solid @white;
+    box-sizing: border-box;
+}
+
+.neededVolume {
+    position: absolute;
+    top: 53px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 51px;
+    height: 51px;
+    color: @red1;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 28px;
+    background: @red21;
+    border-radius: 50%;
+    padding-top: 8px;
+    box-sizing: border-box;
+
+    span {
+        display: block;
+        font-size: 14px;
+        line-height: 0;
+    }
+}
+
+.name {
+    margin: 10px 0 0;
+    color: @textColor6;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+}
+
+.photoDivider {
+    flex-shrink: 1;
+    width: 40px;
+}
+
+.recipientInfo {
+    margin: 20px 0 8px;
+    padding: 18px 18px 22px;
+    border-radius: 6px;
+    background: @white;
+    font-family: Marmelad, sans-serif;
+}
+
+.infoTitle {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.infoTitleIcon {
+    width: 11px;
+    height: 12px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @grayBg6;
+    }
+}
+
+.infoTitleDescr {
+    margin: 0;
+    color: @textColor1;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.line {
+    display: flex;
+    gap: 12px;
+
+    &.last {
+        margin-top: 22px;
+    }
+}
+
+.lineItem {
+    width: 50%;
+
+    &.isAvatar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}
+
+.lineTitle {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+
+    &.leftMargin {
+        gap: 13px;
+    }
+}
+
+.lineTitleIcon {
+    display: flex;
+    width: 8px;
+    height: 11px;
+    fill: @grayBg13;
+    opacity: 0.5;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.lineTitleText {
+    margin: 0;
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    line-height: 10px;
+}
+
+.bloodInfo {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: @textColor4;
+    font-size: 10px;
+    margin-top: 6px;
+}
+
+.bloodGroup {
+    display: inline-block;
+    padding: 3px 5.5px;
+    border-radius: 30px;
+    background: @red2;
+    color: @white1;
+    font-family: Marmelad, sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    line-height: 10px;
+
+    &.needed {
+        color: @textColor1;
+        background: @red5;
+    }
+}
+
+.bloodVolume {
+    display: flex;
+    gap: 5px;
+    align-items: baseline;
+    color: @textColor1;
+    margin-left: 21px;
+}
+
+.bloodVolumeNumber {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.bloodVolumeDescr {
+    margin: 0;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 14px;
+}
+
+.ownerAvatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 25px;
+    color: @white-bg;
+    text-align: center;
+    line-height: 34px;
+    background: linear-gradient(0deg, #AD6262 0%, #AD6262 100%);
+}
+
+.ownerTitle {
+    margin: 0;
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    line-height: 10px;
+}
+
+.ownerName {
+    margin: 0;
+    color: @textColor1;
+    font-family: Marmelad, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.location {
+    margin: 0 0 0 21px;
+    color: @textColor1;
+    font-family: Marmelad, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.settings {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 50%;
+    padding: 0 13px;
+    border-radius: 10px;
+    background: @white;
+
+    & .text {
+        color: @textColor1;
+        font-family: Marmelad, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 16px;
+    }
+
+    &:first-child {
+        opacity: .4;
+    }
+}
+
+.icons {
+    display: flex;
+    margin-right: -5px;
+}
+
+.bonusIcon {
+    width: 34px;
+    height: 34px;
+
+    &:last-child {
+        transform: translateX(-5px);
+    }
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
+}
+
+.rewardTitle {
+    margin: 28px 0 12px;
+    color: @textColor2;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.reward {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 21px;
+}
+
+.rewardItem {
+    width: 33.33%;
+    padding: 8px 0;
+    border-radius: 10px;
+    background: #FFF;
+    text-align: center;
+    box-sizing: border-box;
+
+    &.checked {
+        outline: 2px solid @red2;
+        outline-offset: -2px;
+    }
+
+    &.disabled {
+        opacity: .5;
+    }
+}
+
+.rewardFreeIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 2px solid #a3dc95;
+    background: linear-gradient(180deg, #90DF75 0%, #62B655 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+    }
+
+    & .sum {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+
+    & .descr {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 10px;
+        font-weight: 400;
+        line-height: 18px;
+    }
+}
+
+.rewardNotFreeIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #828282;
+    background: linear-gradient(180deg, #747474 0%, #1F1F1F 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+    }
+
+    & .descr {
+        margin: 0;
+        color: @white;
+        font-family: Marmelad, sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 14px;
+    }
+}
+
+.rewardFeedIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #FF9570;
+    background: linear-gradient(180deg, #FF9252 0%, #FF3F15 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+    }
+
+    & .icon {
+        width: 20px;
+        height: 20px;
+        fill: @white;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}
+
+.rewardItemText {
+    margin: 8px 0 0;
+    color: @textColor1;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+}
+
+.taxi {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 33px;
+
+    & .taxiTitle {
+        display: flex;
+        gap: 11px;
+        align-items: center;
+    }
+
+    & .taxiDescr {
+        margin: 0;
+        color: @textColor6;
+        font-family: Proxima Nova, sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 15px;
+    }
+}
+
+.taxiIcon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 15px;
+    border: 1px solid #FFCF70;
+    background: linear-gradient(180deg, #FFCF53 0%, #F90 100%);
+    box-sizing: border-box;
+
+    &.button {
+        width: 34px;
+        height: 34px;
+        transform: translateX(-5px);
+        border-radius: 12px;
+    }
+
+    & .icon {
+        width: 20px;
+        height: 20px;
+        fill: @white;
+
+        svg {
+            width: inherit;
+            height: inherit;
+            fill: inherit;
+        }
+    }
+}

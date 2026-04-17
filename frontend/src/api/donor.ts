@@ -105,6 +105,8 @@ export type PlannedDonationDonorInfo = {
     amount: number;
     petName: string;
     bonuses: string[];
+    createdAt: string;
+    updatedAt: string;
     photoUrls: string[];
     status: DonorStatus;
     isConfirmed: boolean;
@@ -149,6 +151,13 @@ export type CompleteDonationRequest = {
     amount: number;
 };
 
+export type GetCompletedDonationsResponse = {
+    total: number;
+    items: PlannedDonation[];
+    totalDonatedVolume: number;
+    totalCompletedDonations: number;
+};
+
 export interface IDonorApi {
     getRecipientsList(id: string, status?: RecipientStatus): AxiosPromise<GetRecipientsListResponse>;
     getRecipientDetails(id: string): AxiosPromise<GetRecipientDetailsResponse>;
@@ -156,6 +165,7 @@ export interface IDonorApi {
     getPlannedDonations(id: string): AxiosPromise<GetPlannedDonationsResponse>;
     cancelDonation(id: string): AxiosPromise<void>;
     completeDonation(params: CompleteDonationRequest): AxiosPromise<void>;
+    getCompletedDonations(id: string): AxiosPromise<GetCompletedDonationsResponse>;
 }
 
 export const DONOR_URL = '/v1/donor';
@@ -178,5 +188,8 @@ export const donorApi = (): IDonorApi => ({
     },
     completeDonation({ id, ...params }) {
         return instance.post(`${DONOR_URL}/donation/${id}/complete`, params);
+    },
+    getCompletedDonations(id) {
+        return instance.get(`${DONOR_URL}/completed-donations/${id}`);
     },
 });

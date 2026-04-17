@@ -12,6 +12,7 @@ import AboutTech from './pages/about/Tech';
 import AboutThanks from './pages/about/Thanks';
 import Adding from './pages/adding';
 import Bonuses from './pages/bonuses';
+import DonationsHistory from './pages/donationsHystory';
 import Owner from './pages/owner';
 import Profile from './pages/profile';
 import RecipientsList from './pages/recipientsList';
@@ -40,6 +41,7 @@ const App: FC = () => {
                 <Route path='/about/thanks' element={<AboutThanks />} />
                 <Route path='/about/tech' element={<AboutTech />} />
                 <Route path='/bonuses' element={<Bonuses />} />
+                <Route path='/donationsHistory' element={<DonationsHistory id={user.id} />} />
                 <Route
                     path='/registration'
                     element={<Registration initialize={initialize} userId={user.id} fullName={user.fullName} />}

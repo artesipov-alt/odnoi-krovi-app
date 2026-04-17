@@ -8,6 +8,7 @@ import { getDateFormat } from 'utils/utils';
 import { updatePet } from 'api/apiServices/updatePet';
 import { Pet } from 'api/pets';
 import DatePicker from 'components/DatePicker';
+import Layout from 'components/Layout';
 
 import Header from '../Header';
 import ViewString from '../ViewString';
@@ -256,10 +257,10 @@ const TreatmentsStep: FC<Props> = ({
     ]);
 
     return (
-        <div className={styles.wrapper}>
+        <Layout className={styles.wrapper}>
             <Header title='Обработки' onClose={onClose} isEditMode={isEditMode} icon={<Processing />} />
             {isEditMode ? renderEditView() : renderView()}
-        </div>
+        </Layout>
     );
 };
 

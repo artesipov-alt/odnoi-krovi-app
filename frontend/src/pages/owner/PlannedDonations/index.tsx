@@ -18,6 +18,8 @@ type Props = {
     onDonationClick: (donation: PlannedDonation) => void;
 };
 
+const getDefaultPhoto = (petType: PetType) => (petType === PetType.DOG ? dogRoundStub : catRoundStub);
+
 const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
     const { data: donations, isLoading: isDonationsLoading, refetch, isError } = usePlannedDonations(id);
 
@@ -28,8 +30,6 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
     const onDonationClickHandler = (donation: PlannedDonation) => () => {
         onDonationClick(donation);
     };
-
-    const getDefaultPhoto = (petType: PetType) => (petType === PetType.DOG ? dogRoundStub : catRoundStub);
 
     useEffect(() => {
         if (isError) {

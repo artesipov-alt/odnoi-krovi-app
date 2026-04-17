@@ -221,7 +221,7 @@ const DonationDetails: FC<Props> = ({
     };
 
     const onMessengerClickHandler = (providerName: string) => async () => {
-        const response = await getUserContacts({ id: userId, provider: providerName });
+        const response = await getUserContacts({ id: donation?.donorData.ownerId!, provider: providerName });
 
         if (!response) {
             showToast('Не удалось получить контакт хозяина донора');

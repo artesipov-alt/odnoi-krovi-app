@@ -32,7 +32,7 @@
     font-weight: 400;
 }
 
-.bonusCounter {
+.counter {
     -webkit-appearance: button;
     height: 32px;
     min-width: 62px;
@@ -47,7 +47,7 @@
     cursor: pointer;
 }
 
-.bonusCounterIcon {
+.counterIcon {
     width: 27px;
     height: 27px;
     border-radius: 50%;
@@ -56,7 +56,15 @@
     align-items: center;
     justify-content: center;
 
-    :global(svg) {
+    &.donations {
+        svg {
+            width: 8px;
+            height: 14px;
+            fill: @red2;
+        }
+    }
+
+    svg {
         width: 18px;
         height: 18px;
         display: block;
@@ -256,7 +264,7 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 15px;
-        background: @common-red;
+        background: @red1;
         box-sizing: border-box;
     }
 }
@@ -608,6 +616,10 @@
     border-radius: 7px;
     background: @red14;
     box-sizing: border-box;
+
+    &.isCandidats {
+        background: var(--87, conic-gradient(from -3deg at 100% -13%, #C34968 0deg, #800020 360deg));
+    }
 }
 
 .preferencesettings {
@@ -645,7 +657,7 @@
 }
 
 .isCandidatsTitle {
-    color: @red1;
+    color: @white-bg;
     font-family: Marmelad, sans-serif;
     font-size: 15px;
     font-weight: 400;
@@ -654,9 +666,11 @@
 
 .isCandidatsButton {
     height: 36px;
-    background: @red15 !important;
+    background: var(--111, linear-gradient(270deg, #B3284B 0%, #800020 50%, #6C001B 100%)) !important;
     border-radius: 8px !important;
-    color: rgba(242, 222, 228, 0.8) !important;
+    opacity: .8 !important;
+    color: #F2DEE4CC !important;
+    padding: 0 5px !important;
     text-transform: none !important;
     font-family:
         Proxima Nova,
