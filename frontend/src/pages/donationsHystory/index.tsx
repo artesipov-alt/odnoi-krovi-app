@@ -31,6 +31,27 @@ type Props = {
 
 const tiles = ['количество донаций', 'объем донаций'];
 
+const sortDonationsByStatusAndDate = (items: PlannedDonation[]) => {
+    return items.sort((a, b) => {
+        const statusA = a.applicationData.status;
+        const statusB = b.applicationData.status;
+
+        const isCancelledOrRejectedA = statusA === DonorStatus.CANCELLED || statusA === DonorStatus.REJECTED;
+        const isCancelledOrRejectedB = statusB === DonorStatus.CANCELLED || statusB === DonorStatus.REJECTED;
+
+        // Если один из статусов — отменён/отклонён, а другой — нет, сортируем по приоритету: активные вперед
+        if (isCancelledOrRejectedA !== isCancelledOrRejectedB) {
+            return isCancelledOrRejectedA ? 1 : -1;
+        }
+
+        // Если оба статуса одинаковы (оба отменены или оба нет), сортируем по дате updated_at (свежие — первыми)
+        const dateA = new Date(a.applicationData.updatedAt).getTime();
+        const dateB = new Date(b.applicationData.updatedAt).getTime();
+
+        return dateB - dateA; // Свежие даты в начало
+    });
+};
+
 const getDefaultPhoto = (petType: PetType) => (petType === PetType.DOG ? dogRoundStub : catRoundStub);
 
 const DonationsHistory: FC<Props> = ({ id }) => {
@@ -126,7 +147,7 @@ const DonationsHistory: FC<Props> = ({ id }) => {
                 </div>
             ) : (
                 <div className={styles.list}>
-                    {history.items.map((donation) => {
+                    {sortDonationsByStatusAndDate(history.items).map((donation) => {
                         const isCanceled =
                             donation.applicationData.status === DonorStatus.CANCELLED ||
                             donation.applicationData.status === DonorStatus.REJECTED;
@@ -161,7 +182,7 @@ const DonationsHistory: FC<Props> = ({ id }) => {
                                 </div>
                                 <div className={styles.info}>
                                     <p className={styles.infoTitle}>
-                                        Донация {getDateFormat(new Date(donation.applicationData.updatedAt))}
+                                        Донация от {getDateFormat(new Date(donation.applicationData.updatedAt))}
                                     </p>
                                     <div className={cn(styles.status, { [styles.isCanceled]: isCanceled })}>
                                         <div className={cn(styles.statusIcon, { [styles.isCanceled]: isCanceled })}>
