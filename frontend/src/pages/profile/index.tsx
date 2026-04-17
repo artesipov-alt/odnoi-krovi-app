@@ -364,14 +364,6 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsEditCurtainOpen(false);
     };
 
-    const testlink = () => {
-        window.open('https://www.ozon.ru/seller/vetmarket');
-    };
-
-    const testlink1 = () => {
-        window.open('https://4lapy.ru/catalog/');
-    };
-
     const onAvatarSelectHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const newPhoto = e.target.files?.[0];
 
@@ -539,25 +531,11 @@ const Profile: FC<Props> = ({ userId }) => {
                     {/* <PromoSlider /> */}
 
                     <div className={styles.infoButtons}>
-                        <button
-                            type='button'
-                            className={cn(styles.infoButton, styles.infoButton_disabled)}
-                            onClick={testlink}
-                        >
+                        <button type='button' className={cn(styles.infoButton, styles.infoButton_disabled)}>
                             <span className={styles.infoIcon}>
                                 <ChatBubble />
                             </span>
                             <span className={styles.infoText}>У меня проблема</span>
-                        </button>
-                        <button
-                            type='button'
-                            className={cn(styles.infoButton, styles.infoButton_disabled)}
-                            onClick={testlink1}
-                        >
-                            <span className={styles.infoIcon}>
-                                <ChatBubble />
-                            </span>
-                            <span className={styles.infoText}>У меня проблема2</span>
                         </button>
                         <button type='button' className={styles.infoButton} onClick={() => navigate('/about')}>
                             <span className={cn(styles.infoIcon, styles.infoIcon_app)}>
