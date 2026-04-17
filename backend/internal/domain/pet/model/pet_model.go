@@ -196,7 +196,6 @@ const (
 	StopFactorPregnancy               FactorCode = "STOP_PREGNANCY"                 // Беременность
 	StopFactorLactation               FactorCode = "STOP_LACTATION"                 // Лактация
 	StopFactorEstrus                  FactorCode = "STOP_ESTRUS"                    // Течка
-	StopFactorHasDiseases             FactorCode = "STOP_HAS_DISEASES"              // Наличие заболеваний
 	StopFactorDonationTooRecent       FactorCode = "STOP_DONATION_TOO_RECENT"       // Последняя донация была слишком недавно (меньше 2 месяцев)
 	StopFactorTransfused              FactorCode = "STOP_TRANSFUSED"                // Питомец получал переливание крови
 	StopFactorCurrentlyRecipient      FactorCode = "STOP_CURRENTLY_RECIPIENT"       // Питомец в данный момент является реципиентом
@@ -210,6 +209,8 @@ const (
 	WarnFactorVaccinationExpired           FactorCode = "WARN_VACCINATION_EXPIRED"            // Срок вакцинации истек (больше года)
 	WarnFactorDewormingExpired             FactorCode = "WARN_DEWORMING_EXPIRED"              // Срок дегельминтизации истек (больше 3 месяцев)
 	WarnFactorEctoparasiteTreatmentExpired FactorCode = "WARN_ECTOPARASITE_TREATMENT_EXPIRED" // Срок обработки от эктопаразитов истек (больше 3 месяцев)
+	WarnFactorHasDiseases                  FactorCode = "WARN_HAS_DISEASES"                   // Наличие заболеваний
+	WarnFactorUnknownHealth                FactorCode = "WARN_UNKNOWN_HEALTH"                 // Необходимо проверить состояние здоровья
 )
 
 // FactorDescription представляет описание фактора
@@ -248,6 +249,14 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 		Description:    "Прошло больше 3 месяцев после обработки от эктопаразитов",
 		SubDescription: "",
 	},
+	WarnFactorHasDiseases: {
+		Description:    "Есть заболевания",
+		SubDescription: "",
+	},
+	WarnFactorUnknownHealth: {
+		Description:    "Необходимо проверить состояние здоровья",
+		SubDescription: "",
+	},
 	StopFactorNoDeworming: {
 		Description:    "Не проведена дегельминтизация",
 		SubDescription: "",
@@ -274,10 +283,6 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 	},
 	StopFactorEstrus: {
 		Description:    "Течка",
-		SubDescription: "",
-	},
-	StopFactorHasDiseases: {
-		Description:    "Есть заболевания",
 		SubDescription: "",
 	},
 	StopFactorDonationTooRecent: {
@@ -375,9 +380,7 @@ func (p *Pet) GetWarnFactors(now time.Time) []FactorCode {
 	if code := p.checkWarnAge(now); code != "" {
 		factors = append(factors, code)
 	}
-	if code := p.checkWarnHealth(); code != "" {
-		factors = append(factors, code)
-	}
+	factors = append(factors, p.checkWarnHealth()...)
 	if code := p.checkWarnLivingCondition(); code != "" {
 		factors = append(factors, code)
 	}
@@ -536,9 +539,6 @@ func (p *Pet) checkStopHealth() FactorCode {
 	if p.Health == nil {
 		return ""
 	}
-	if p.Health.HealthStatus != "" && p.Health.HealthStatus != HealthStatusHealthy {
-		return StopFactorHasDiseases
-	}
 	if p.Health.Transfused != nil && *p.Health.Transfused {
 		return StopFactorTransfused
 	}
@@ -546,17 +546,24 @@ func (p *Pet) checkStopHealth() FactorCode {
 }
 
 // checkWarnHealth проверяет здоровье для предупреждений
-func (p *Pet) checkWarnHealth() FactorCode {
+func (p *Pet) checkWarnHealth() []FactorCode {
+	var codes []FactorCode
 	if p.Health == nil {
-		return ""
+		return codes
+	}
+	if p.Health.HealthStatus == HealthStatusIll {
+		codes = append(codes, WarnFactorHasDiseases)
+	}
+	if p.Health.HealthStatus == HealthStatusUnknown {
+		codes = append(codes, WarnFactorUnknownHealth)
 	}
 	if p.Health.Medications != nil && *p.Health.Medications != "" {
-		return WarnFactorTakingMedications
+		codes = append(codes, WarnFactorTakingMedications)
 	}
 	if p.Health.SurgicalInterventions != nil && *p.Health.SurgicalInterventions != "" {
-		return WarnFactorSurgicalIntervention
+		codes = append(codes, WarnFactorSurgicalIntervention)
 	}
-	return ""
+	return codes
 }
 
 // checkDonationHistory проверяет историю донаций
