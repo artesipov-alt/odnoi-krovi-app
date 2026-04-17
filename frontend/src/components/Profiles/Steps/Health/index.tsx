@@ -8,6 +8,7 @@ import { updatePet } from 'api/apiServices/updatePet';
 import { Pet } from 'api/pets';
 import { Dict } from 'api/reference';
 import Alert, { View } from 'components/Alert';
+import Layout from 'components/Layout';
 import TextField from 'components/TextField';
 
 import Header from '../Header';
@@ -336,10 +337,10 @@ const HealthStep: FC<Props> = ({
     ]);
 
     return (
-        <div className={styles.wrapper}>
+        <Layout className={styles.wrapper}>
             <Header title='Здоровье' onClose={onClose} isEditMode={isEditMode} icon={<Health />} />
             {isEditMode ? renderEditView() : renderView()}
-        </div>
+        </Layout>
     );
 };
 

@@ -3,6 +3,7 @@ import cn from 'classnames';
 import { useGetUserById } from 'hooks/useGetUserById';
 import { usePetsQuery } from 'hooks/usePetsQuery';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
+import Blood from 'imgs/svg/blood';
 import BloodFound from 'imgs/svg/bloodFound';
 import BloodSearch from 'imgs/svg/bloodSearch';
 import Bonus from 'imgs/svg/bonus';
@@ -359,7 +360,10 @@ const Owner: FC<Props> = ({ userId }) => {
                         !donorRestrictions?.stopFactors?.length || petStatus === Role.PLANNED_DONATION,
                 ) && (
                     <>
-                        <div className={styles.notCandidatsButton} onClick={onNotPreferenceClickHandler}>
+                        <div
+                            className={cn(styles.notCandidatsButton, { [styles.isCandidats]: true })}
+                            onClick={onNotPreferenceClickHandler}
+                        >
                             <div className={styles.preferencesettings}>
                                 <Settings />
                             </div>
@@ -372,7 +376,7 @@ const Owner: FC<Props> = ({ userId }) => {
                                 onClick={onDonateBloodClickHandler}
                                 className={styles.isCandidatsButton}
                             >
-                                Сдать кровь
+                                Стать донором
                                 <div className={styles.candidatsIcon}>
                                     <BackAngularArrow />
                                 </div>
@@ -523,12 +527,24 @@ const Owner: FC<Props> = ({ userId }) => {
                     </div>
                     <h1 className={styles.fullName}>{userData?.fullName || ''}</h1>
                     {view === 'donor' && (
-                        <button type='button' className={styles.bonusCounter} onClick={() => navigate('/bonuses')}>
-                            <span className={styles.bonusCounterIcon}>
-                                <Bonus />
-                            </span>
-                            <span className={styles.bonusCounterValue}>0</span>
-                        </button>
+                        <>
+                            <button
+                                type='button'
+                                className={styles.counter}
+                                onClick={() => navigate('/donationsHistory')}
+                            >
+                                <span className={cn(styles.counterIcon, { [styles.donations]: true })}>
+                                    <Blood />
+                                </span>
+                                <span className={styles.bonusCounterValue}>{pets?.totalCompletedDonations || 0}</span>
+                            </button>
+                            <button type='button' className={styles.counter} onClick={() => navigate('/bonuses')}>
+                                <span className={styles.counterIcon}>
+                                    <Bonus />
+                                </span>
+                                <span className={styles.bonusCounterValue}>0</span>
+                            </button>
+                        </>
                     )}
                 </div>
                 {(isLoading || isUserDataLoading) && (

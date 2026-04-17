@@ -10,6 +10,7 @@ import { updatePet } from 'api/apiServices/updatePet';
 import { Analyses, Analyses as AnalysesType, AnalysesItem, Pet } from 'api/pets';
 import { AnalysesEnum, AnalysesMapping, AnalysesNamesMapping, AnalysesTypes, PetType } from 'api/types';
 import DatePicker from 'components/DatePicker';
+import Layout from 'components/Layout';
 
 import Header from '../Header';
 import styles from './AnalysesStep.module.less';
@@ -291,10 +292,8 @@ const AnalysesStep: FC<Props> = ({ petId, onClose, isEditMode, analyses, petType
         setIsSaveButtonActive(Object.keys(changesRef.current).length > 0);
     }, [leukemia, immunodeficiency, hemoplasmosis, bartonellosis, babesiosis, dirofilaria, ehrlichiosis, anaplasmosis]);
 
-    console.log('analyses', analyses);
-
     return (
-        <div className={styles.wrapper}>
+        <Layout className={styles.wrapper}>
             <Header title='Здоровье' onClose={onClose} isEditMode={isEditMode} icon={<Analizes />} />
             <>
                 {(petType === PetType.DOG
@@ -337,7 +336,7 @@ const AnalysesStep: FC<Props> = ({ petId, onClose, isEditMode, analyses, petType
                     Сохранить изменения
                 </Button>
             )}
-        </div>
+        </Layout>
     );
 };
 

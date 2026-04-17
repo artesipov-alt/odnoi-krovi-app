@@ -11,6 +11,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { updateUser } from 'api/apiServices/updateUser';
+import { queryClient } from 'api/queryClient';
 import { CompensationType, DonorPreference as DonorPreferenceType, NotificationFrequency } from 'api/user';
 import Layout from 'components/Layout';
 import Multiselect from 'components/Multiselect';
@@ -103,6 +104,8 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
 
             return;
         }
+
+        await queryClient.invalidateQueries({ queryKey: ['pets', id] });
 
         refetchUserData();
     };
