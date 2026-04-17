@@ -107,7 +107,7 @@ const DonationsHistory: FC<Props> = ({ id }) => {
                             <div className={styles.tileIcon}>{i === 0 ? <Blood /> : <BloodVolume />}</div>
                             <p className={styles.tileValue}>
                                 {i === 0
-                                    ? history?.totalCompletedDonations
+                                    ? history?.totalCompletedDonations || 0
                                     : history?.totalDonatedVolume.toString().replace('.', ',')}
                             </p>
                             {i === 1 && <p className={styles.tileUnit}>мл</p>}

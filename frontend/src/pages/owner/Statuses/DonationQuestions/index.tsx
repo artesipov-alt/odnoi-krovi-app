@@ -49,9 +49,11 @@ const DonationQuestions: FC<Props> = ({ onClose, onOpenPetProfile, factors = [] 
                                 <StatusQuestion />
                             </div>
                             <p className={styles.itemDescr}>{description}</p>
-                            <div onClick={onTooltipIconClick(i)} className={styles.infoIcon}>
-                                <Info />
-                            </div>
+                            {!!subDescription && (
+                                <div onClick={onTooltipIconClick(i)} className={styles.infoIcon}>
+                                    <Info />
+                                </div>
+                            )}
                             {openTooltipId === i && <div className={styles.tooltip}>{subDescription}</div>}
                         </div>
                     ))}
