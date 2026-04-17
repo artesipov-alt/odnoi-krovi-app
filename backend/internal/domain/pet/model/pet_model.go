@@ -315,7 +315,7 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 	},
 	WarnFactorNoCurrentAnalyses: {
 		Description:    "Отсутствуют актуальные анализы",
-		SubDescription: "Рекомендованы проверки раз в год на особо опасные инфекции - их можно сдать перед донацией (в некоторых клиниках за 1 день)",
+		SubDescription: "Рекомендованы проверки раз в полгода на особо опасные инфекции - их можно сдать перед донацией (в некоторых клиниках за 1 день)",
 	},
 	WarnFactorUnknownBloodGroup: {
 		Description:    "Неизвестная группа крови",
@@ -381,10 +381,10 @@ func (p *Pet) GetWarnFactors(now time.Time) []FactorCode {
 		factors = append(factors, code)
 	}
 	factors = append(factors, p.checkWarnHealth()...)
-	if code := p.checkWarnLivingCondition(); code != "" {
+	if code := p.checkWarnAnalyses(now); code != "" {
 		factors = append(factors, code)
 	}
-	if code := p.checkWarnAnalyses(now); code != "" {
+	if code := p.checkWarnLivingCondition(); code != "" {
 		factors = append(factors, code)
 	}
 	if code := p.checkWarnBloodGroup(); code != "" {
@@ -588,21 +588,46 @@ func (p *Pet) checkWarnLivingCondition() FactorCode {
 
 // checkWarnAnalyses проверяет анализы
 func (p *Pet) checkWarnAnalyses(now time.Time) FactorCode {
-	if len(p.Analyses) == 0 {
-		return WarnFactorNoCurrentAnalyses
+	required := p.getRequiredAnalyses()
+	if len(required) == 0 {
+		return ""
 	}
-	hasRecent := false
-	yearAgo := now.AddDate(-1, 0, 0)
-	for _, a := range p.Analyses {
-		if a.AnalysisDate != nil && !a.AnalysisDate.Before(yearAgo) {
-			hasRecent = true
-			break
+	sixMonthsAgo := now.AddDate(0, -6, 0)
+	for _, req := range required {
+		found := false
+		for _, a := range p.Analyses {
+			if a.AnalysisName == req && a.AnalysisDate != nil && !a.AnalysisDate.Before(sixMonthsAgo) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return WarnFactorNoCurrentAnalyses
 		}
 	}
-	if !hasRecent {
-		return WarnFactorNoCurrentAnalyses
-	}
 	return ""
+}
+
+func (p *Pet) getRequiredAnalyses() []string {
+	switch p.Type {
+	case common.PetTypeCat:
+		return []string{
+			"leukemia",
+			"immunodeficiency",
+			"hemoplasmosis",
+			"bartonellosis",
+		}
+	case common.PetTypeDog:
+		return []string{
+			"babesiosis",
+			"dirofilaria",
+			"ehrlichiosis",
+			"anaplasmosis",
+			"leukemia",
+			"immunodeficiency",
+		}
+	}
+	return nil
 }
 
 func (p *Pet) checkWarnBloodGroup() FactorCode {
