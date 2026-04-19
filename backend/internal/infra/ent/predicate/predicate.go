@@ -9,6 +9,9 @@ import (
 // BloodSearchRequest is the predicate function for bloodsearchrequest builders.
 type BloodSearchRequest func(*sql.Selector)
 
+// Bonus is the predicate function for bonus builders.
+type Bonus func(*sql.Selector)
+
 // Breed is the predicate function for breed builders.
 type Breed func(*sql.Selector)
 

@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// BloodSearchRequest is the client for interacting with the BloodSearchRequest builders.
 	BloodSearchRequest *BloodSearchRequestClient
+	// Bonus is the client for interacting with the Bonus builders.
+	Bonus *BonusClient
 	// Breed is the client for interacting with the Breed builders.
 	Breed *BreedClient
 	// DonorPreference is the client for interacting with the DonorPreference builders.
@@ -170,6 +172,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.BloodSearchRequest = NewBloodSearchRequestClient(tx.config)
+	tx.Bonus = NewBonusClient(tx.config)
 	tx.Breed = NewBreedClient(tx.config)
 	tx.DonorPreference = NewDonorPreferenceClient(tx.config)
 	tx.DonorResponse = NewDonorResponseClient(tx.config)

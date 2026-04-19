@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -291,6 +292,21 @@ func (_c *UserCreate) AddUtmHistories(v ...*UtmHistory) *UserCreate {
 	return _c.AddUtmHistoryIDs(ids...)
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by IDs.
+func (_c *UserCreate) AddBonuseIDs(ids ...string) *UserCreate {
+	_c.mutation.AddBonuseIDs(ids...)
+	return _c
+}
+
+// AddBonuses adds the "bonuses" edges to the Bonus entity.
+func (_c *UserCreate) AddBonuses(v ...*Bonus) *UserCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddBonuseIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_c *UserCreate) Mutation() *UserMutation {
 	return _c.mutation
@@ -561,6 +577,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.BonusesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

@@ -54,6 +54,8 @@ const (
 	EdgeIdentities = "identities"
 	// EdgeUtmHistories holds the string denoting the utm_histories edge name in mutations.
 	EdgeUtmHistories = "utm_histories"
+	// EdgeBonuses holds the string denoting the bonuses edge name in mutations.
+	EdgeBonuses = "bonuses"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// PetsTable is the table that holds the pets relation/edge.
@@ -91,6 +93,13 @@ const (
 	UtmHistoriesInverseTable = "user_utm_history"
 	// UtmHistoriesColumn is the table column denoting the utm_histories relation/edge.
 	UtmHistoriesColumn = "user_id"
+	// BonusesTable is the table that holds the bonuses relation/edge.
+	BonusesTable = "bonuses"
+	// BonusesInverseTable is the table name for the Bonus entity.
+	// It exists in this package in order to avoid circular dependency with the "bonus" package.
+	BonusesInverseTable = "bonuses"
+	// BonusesColumn is the table column denoting the bonuses relation/edge.
+	BonusesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -303,6 +312,20 @@ func ByUtmHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUtmHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByBonusesCount orders the results by bonuses count.
+func ByBonusesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newBonusesStep(), opts...)
+	}
+}
+
+// ByBonuses orders the results by bonuses terms.
+func ByBonuses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBonusesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPetsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -336,5 +359,12 @@ func newUtmHistoriesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UtmHistoriesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UtmHistoriesTable, UtmHistoriesColumn),
+	)
+}
+func newBonusesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BonusesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, BonusesTable, BonusesColumn),
 	)
 }

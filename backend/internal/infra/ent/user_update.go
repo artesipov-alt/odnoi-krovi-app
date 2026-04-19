@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -327,6 +328,21 @@ func (_u *UserUpdate) AddUtmHistories(v ...*UtmHistory) *UserUpdate {
 	return _u.AddUtmHistoryIDs(ids...)
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by IDs.
+func (_u *UserUpdate) AddBonuseIDs(ids ...string) *UserUpdate {
+	_u.mutation.AddBonuseIDs(ids...)
+	return _u
+}
+
+// AddBonuses adds the "bonuses" edges to the Bonus entity.
+func (_u *UserUpdate) AddBonuses(v ...*Bonus) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddBonuseIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -405,6 +421,27 @@ func (_u *UserUpdate) RemoveUtmHistories(v ...*UtmHistory) *UserUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUtmHistoryIDs(ids...)
+}
+
+// ClearBonuses clears all "bonuses" edges to the Bonus entity.
+func (_u *UserUpdate) ClearBonuses() *UserUpdate {
+	_u.mutation.ClearBonuses()
+	return _u
+}
+
+// RemoveBonuseIDs removes the "bonuses" edge to Bonus entities by IDs.
+func (_u *UserUpdate) RemoveBonuseIDs(ids ...string) *UserUpdate {
+	_u.mutation.RemoveBonuseIDs(ids...)
+	return _u
+}
+
+// RemoveBonuses removes "bonuses" edges to Bonus entities.
+func (_u *UserUpdate) RemoveBonuses(v ...*Bonus) *UserUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveBonuseIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -753,6 +790,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedBonusesIDs(); len(nodes) > 0 && !_u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BonusesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -1066,6 +1148,21 @@ func (_u *UserUpdateOne) AddUtmHistories(v ...*UtmHistory) *UserUpdateOne {
 	return _u.AddUtmHistoryIDs(ids...)
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by IDs.
+func (_u *UserUpdateOne) AddBonuseIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.AddBonuseIDs(ids...)
+	return _u
+}
+
+// AddBonuses adds the "bonuses" edges to the Bonus entity.
+func (_u *UserUpdateOne) AddBonuses(v ...*Bonus) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddBonuseIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -1144,6 +1241,27 @@ func (_u *UserUpdateOne) RemoveUtmHistories(v ...*UtmHistory) *UserUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveUtmHistoryIDs(ids...)
+}
+
+// ClearBonuses clears all "bonuses" edges to the Bonus entity.
+func (_u *UserUpdateOne) ClearBonuses() *UserUpdateOne {
+	_u.mutation.ClearBonuses()
+	return _u
+}
+
+// RemoveBonuseIDs removes the "bonuses" edge to Bonus entities by IDs.
+func (_u *UserUpdateOne) RemoveBonuseIDs(ids ...string) *UserUpdateOne {
+	_u.mutation.RemoveBonuseIDs(ids...)
+	return _u
+}
+
+// RemoveBonuses removes "bonuses" edges to Bonus entities.
+func (_u *UserUpdateOne) RemoveBonuses(v ...*Bonus) *UserUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveBonuseIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1515,6 +1633,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(utmhistory.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedBonusesIDs(); len(nodes) > 0 && !_u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BonusesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.BonusesTable,
+			Columns: []string{user.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

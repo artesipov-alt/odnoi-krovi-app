@@ -66,9 +66,11 @@ type UserEdges struct {
 	Identities []*UserIdentity `json:"identities,omitempty"`
 	// UtmHistories holds the value of the utm_histories edge.
 	UtmHistories []*UtmHistory `json:"utm_histories,omitempty"`
+	// Bonuses holds the value of the bonuses edge.
+	Bonuses []*Bonus `json:"bonuses,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // PetsOrErr returns the Pets value or an error if the edge
@@ -118,6 +120,15 @@ func (e UserEdges) UtmHistoriesOrErr() ([]*UtmHistory, error) {
 		return e.UtmHistories, nil
 	}
 	return nil, &NotLoadedError{edge: "utm_histories"}
+}
+
+// BonusesOrErr returns the Bonuses value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) BonusesOrErr() ([]*Bonus, error) {
+	if e.loadedTypes[5] {
+		return e.Bonuses, nil
+	}
+	return nil, &NotLoadedError{edge: "bonuses"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -279,6 +290,11 @@ func (_m *User) QueryIdentities() *UserIdentityQuery {
 // QueryUtmHistories queries the "utm_histories" edge of the User entity.
 func (_m *User) QueryUtmHistories() *UtmHistoryQuery {
 	return NewUserClient(_m.config).QueryUtmHistories(_m)
+}
+
+// QueryBonuses queries the "bonuses" edge of the User entity.
+func (_m *User) QueryBonuses() *BonusQuery {
+	return NewUserClient(_m.config).QueryBonuses(_m)
 }
 
 // Update returns a builder for updating this User.

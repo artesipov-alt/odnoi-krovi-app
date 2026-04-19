@@ -875,6 +875,29 @@ func HasUtmHistoriesWith(preds ...predicate.UtmHistory) predicate.User {
 	})
 }
 
+// HasBonuses applies the HasEdge predicate on the "bonuses" edge.
+func HasBonuses() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, BonusesTable, BonusesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBonusesWith applies the HasEdge predicate on the "bonuses" edge with a given conditions (other predicates).
+func HasBonusesWith(preds ...predicate.Bonus) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newBonusesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

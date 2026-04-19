@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -37,6 +38,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// BloodSearchRequest is the client for interacting with the BloodSearchRequest builders.
 	BloodSearchRequest *BloodSearchRequestClient
+	// Bonus is the client for interacting with the Bonus builders.
+	Bonus *BonusClient
 	// Breed is the client for interacting with the Breed builders.
 	Breed *BreedClient
 	// DonorPreference is the client for interacting with the DonorPreference builders.
@@ -73,6 +76,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.BloodSearchRequest = NewBloodSearchRequestClient(c.config)
+	c.Bonus = NewBonusClient(c.config)
 	c.Breed = NewBreedClient(c.config)
 	c.DonorPreference = NewDonorPreferenceClient(c.config)
 	c.DonorResponse = NewDonorResponseClient(c.config)
@@ -178,6 +182,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                ctx,
 		config:             cfg,
 		BloodSearchRequest: NewBloodSearchRequestClient(cfg),
+		Bonus:              NewBonusClient(cfg),
 		Breed:              NewBreedClient(cfg),
 		DonorPreference:    NewDonorPreferenceClient(cfg),
 		DonorResponse:      NewDonorResponseClient(cfg),
@@ -210,6 +215,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                ctx,
 		config:             cfg,
 		BloodSearchRequest: NewBloodSearchRequestClient(cfg),
+		Bonus:              NewBonusClient(cfg),
 		Breed:              NewBreedClient(cfg),
 		DonorPreference:    NewDonorPreferenceClient(cfg),
 		DonorResponse:      NewDonorResponseClient(cfg),
@@ -251,9 +257,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.BloodSearchRequest, c.Breed, c.DonorPreference, c.DonorResponse, c.Location,
-		c.Partner, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User,
-		c.UserIdentity, c.UtmHistory,
+		c.BloodSearchRequest, c.Bonus, c.Breed, c.DonorPreference, c.DonorResponse,
+		c.Location, c.Partner, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment,
+		c.User, c.UserIdentity, c.UtmHistory,
 	} {
 		n.Use(hooks...)
 	}
@@ -263,9 +269,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.BloodSearchRequest, c.Breed, c.DonorPreference, c.DonorResponse, c.Location,
-		c.Partner, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment, c.User,
-		c.UserIdentity, c.UtmHistory,
+		c.BloodSearchRequest, c.Bonus, c.Breed, c.DonorPreference, c.DonorResponse,
+		c.Location, c.Partner, c.Pet, c.PetAnalysis, c.PetHealth, c.PetTreatment,
+		c.User, c.UserIdentity, c.UtmHistory,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -276,6 +282,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *BloodSearchRequestMutation:
 		return c.BloodSearchRequest.mutate(ctx, m)
+	case *BonusMutation:
+		return c.Bonus.mutate(ctx, m)
 	case *BreedMutation:
 		return c.Breed.mutate(ctx, m)
 	case *DonorPreferenceMutation:
@@ -468,6 +476,156 @@ func (c *BloodSearchRequestClient) mutate(ctx context.Context, m *BloodSearchReq
 		return (&BloodSearchRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown BloodSearchRequest mutation op: %q", m.Op())
+	}
+}
+
+// BonusClient is a client for the Bonus schema.
+type BonusClient struct {
+	config
+}
+
+// NewBonusClient returns a client for the Bonus from the given config.
+func NewBonusClient(c config) *BonusClient {
+	return &BonusClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `bonus.Hooks(f(g(h())))`.
+func (c *BonusClient) Use(hooks ...Hook) {
+	c.hooks.Bonus = append(c.hooks.Bonus, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `bonus.Intercept(f(g(h())))`.
+func (c *BonusClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Bonus = append(c.inters.Bonus, interceptors...)
+}
+
+// Create returns a builder for creating a Bonus entity.
+func (c *BonusClient) Create() *BonusCreate {
+	mutation := newBonusMutation(c.config, OpCreate)
+	return &BonusCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Bonus entities.
+func (c *BonusClient) CreateBulk(builders ...*BonusCreate) *BonusCreateBulk {
+	return &BonusCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BonusClient) MapCreateBulk(slice any, setFunc func(*BonusCreate, int)) *BonusCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BonusCreateBulk{err: fmt.Errorf("calling to BonusClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BonusCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &BonusCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Bonus.
+func (c *BonusClient) Update() *BonusUpdate {
+	mutation := newBonusMutation(c.config, OpUpdate)
+	return &BonusUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BonusClient) UpdateOne(_m *Bonus) *BonusUpdateOne {
+	mutation := newBonusMutation(c.config, OpUpdateOne, withBonus(_m))
+	return &BonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BonusClient) UpdateOneID(id string) *BonusUpdateOne {
+	mutation := newBonusMutation(c.config, OpUpdateOne, withBonusID(id))
+	return &BonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Bonus.
+func (c *BonusClient) Delete() *BonusDelete {
+	mutation := newBonusMutation(c.config, OpDelete)
+	return &BonusDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BonusClient) DeleteOne(_m *Bonus) *BonusDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BonusClient) DeleteOneID(id string) *BonusDeleteOne {
+	builder := c.Delete().Where(bonus.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BonusDeleteOne{builder}
+}
+
+// Query returns a query builder for Bonus.
+func (c *BonusClient) Query() *BonusQuery {
+	return &BonusQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBonus},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Bonus entity by its id.
+func (c *BonusClient) Get(ctx context.Context, id string) (*Bonus, error) {
+	return c.Query().Where(bonus.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BonusClient) GetX(ctx context.Context, id string) *Bonus {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Bonus.
+func (c *BonusClient) QueryUser(_m *Bonus) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bonus.Table, bonus.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, bonus.UserTable, bonus.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BonusClient) Hooks() []Hook {
+	return c.hooks.Bonus
+}
+
+// Interceptors returns the client interceptors.
+func (c *BonusClient) Interceptors() []Interceptor {
+	inters := c.inters.Bonus
+	return append(inters[:len(inters):len(inters)], bonus.Interceptors[:]...)
+}
+
+func (c *BonusClient) mutate(ctx context.Context, m *BonusMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BonusCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BonusUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BonusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BonusDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Bonus mutation op: %q", m.Op())
 	}
 }
 
@@ -2119,6 +2277,22 @@ func (c *UserClient) QueryUtmHistories(_m *User) *UtmHistoryQuery {
 	return query
 }
 
+// QueryBonuses queries the bonuses edge of a User.
+func (c *UserClient) QueryBonuses(_m *User) *BonusQuery {
+	query := (&BonusClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(bonus.Table, bonus.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.BonusesTable, user.BonusesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -2464,13 +2638,13 @@ func (c *UtmHistoryClient) mutate(ctx context.Context, m *UtmHistoryMutation) (V
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		BloodSearchRequest, Breed, DonorPreference, DonorResponse, Location, Partner,
-		Pet, PetAnalysis, PetHealth, PetTreatment, User, UserIdentity,
+		BloodSearchRequest, Bonus, Breed, DonorPreference, DonorResponse, Location,
+		Partner, Pet, PetAnalysis, PetHealth, PetTreatment, User, UserIdentity,
 		UtmHistory []ent.Hook
 	}
 	inters struct {
-		BloodSearchRequest, Breed, DonorPreference, DonorResponse, Location, Partner,
-		Pet, PetAnalysis, PetHealth, PetTreatment, User, UserIdentity,
+		BloodSearchRequest, Bonus, Breed, DonorPreference, DonorResponse, Location,
+		Partner, Pet, PetAnalysis, PetHealth, PetTreatment, User, UserIdentity,
 		UtmHistory []ent.Interceptor
 	}
 )

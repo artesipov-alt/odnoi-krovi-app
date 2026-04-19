@@ -78,6 +78,8 @@ func (User) Edges() []ent.Edge {
 		edge.To("identities", UserIdentity.Type),
 		// utm_histories - связь с историей UTM пользователя.
 		edge.To("utm_histories", UtmHistory.Type),
+		// bonuses - связь с бонусами пользователя.
+		edge.To("bonuses", Bonus.Type),
 	}
 }
 

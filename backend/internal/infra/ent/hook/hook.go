@@ -21,6 +21,18 @@ func (f BloodSearchRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BloodSearchRequestMutation", m)
 }
 
+// The BonusFunc type is an adapter to allow the use of ordinary
+// function as Bonus mutator.
+type BonusFunc func(context.Context, *ent.BonusMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BonusFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BonusMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BonusMutation", m)
+}
+
 // The BreedFunc type is an adapter to allow the use of ordinary
 // function as Breed mutator.
 type BreedFunc func(context.Context, *ent.BreedMutation) (ent.Value, error)

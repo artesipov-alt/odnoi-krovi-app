@@ -42,6 +42,38 @@ var (
 			},
 		},
 	}
+	// BonusesColumns holds the columns for the "bonuses" table.
+	BonusesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "partner_name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Size: 2147483647},
+		{Name: "target", Type: field.TypeEnum, Enums: []string{"cat", "dog", "all"}},
+		{Name: "recipient", Type: field.TypeEnum, Enums: []string{"donor", "recipient", "all"}},
+		{Name: "category", Type: field.TypeEnum, Enums: []string{"food", "preparation", "other"}},
+		{Name: "promo_code", Type: field.TypeString, Unique: true},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "platform_name", Type: field.TypeString},
+		{Name: "platform_url", Type: field.TypeString, Nullable: true},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "user_id", Type: field.TypeString},
+	}
+	// BonusesTable holds the schema information for the "bonuses" table.
+	BonusesTable = &schema.Table{
+		Name:       "bonuses",
+		Columns:    BonusesColumns,
+		PrimaryKey: []*schema.Column{BonusesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "bonuses_users_bonuses",
+				Columns:    []*schema.Column{BonusesColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// RefBreedsColumns holds the columns for the "ref_breeds" table.
 	RefBreedsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -368,6 +400,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BloodRequestsTable,
+		BonusesTable,
 		RefBreedsTable,
 		DonorPreferencesTable,
 		DonorResponsesTable,
@@ -387,6 +420,10 @@ func init() {
 	BloodRequestsTable.ForeignKeys[0].RefTable = PetsTable
 	BloodRequestsTable.Annotation = &entsql.Annotation{
 		Table: "blood_requests",
+	}
+	BonusesTable.ForeignKeys[0].RefTable = UsersTable
+	BonusesTable.Annotation = &entsql.Annotation{
+		Table: "bonuses",
 	}
 	RefBreedsTable.Annotation = &entsql.Annotation{
 		Table: "ref_breeds",

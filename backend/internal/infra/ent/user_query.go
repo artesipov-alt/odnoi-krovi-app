@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/location"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
@@ -33,6 +34,7 @@ type UserQuery struct {
 	withDonorPreference *DonorPreferenceQuery
 	withIdentities      *UserIdentityQuery
 	withUtmHistories    *UtmHistoryQuery
+	withBonuses         *BonusQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -172,6 +174,28 @@ func (_q *UserQuery) QueryUtmHistories() *UtmHistoryQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(utmhistory.Table, utmhistory.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UtmHistoriesTable, user.UtmHistoriesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryBonuses chains the current query on the "bonuses" edge.
+func (_q *UserQuery) QueryBonuses() *BonusQuery {
+	query := (&BonusClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(bonus.Table, bonus.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.BonusesTable, user.BonusesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -376,6 +400,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withDonorPreference: _q.withDonorPreference.Clone(),
 		withIdentities:      _q.withIdentities.Clone(),
 		withUtmHistories:    _q.withUtmHistories.Clone(),
+		withBonuses:         _q.withBonuses.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -434,6 +459,17 @@ func (_q *UserQuery) WithUtmHistories(opts ...func(*UtmHistoryQuery)) *UserQuery
 		opt(query)
 	}
 	_q.withUtmHistories = query
+	return _q
+}
+
+// WithBonuses tells the query-builder to eager-load the nodes that are connected to
+// the "bonuses" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithBonuses(opts ...func(*BonusQuery)) *UserQuery {
+	query := (&BonusClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withBonuses = query
 	return _q
 }
 
@@ -515,12 +551,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			_q.withPets != nil,
 			_q.withLocation != nil,
 			_q.withDonorPreference != nil,
 			_q.withIdentities != nil,
 			_q.withUtmHistories != nil,
+			_q.withBonuses != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -571,6 +608,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadUtmHistories(ctx, query, nodes,
 			func(n *User) { n.Edges.UtmHistories = []*UtmHistory{} },
 			func(n *User, e *UtmHistory) { n.Edges.UtmHistories = append(n.Edges.UtmHistories, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withBonuses; query != nil {
+		if err := _q.loadBonuses(ctx, query, nodes,
+			func(n *User) { n.Edges.Bonuses = []*Bonus{} },
+			func(n *User, e *Bonus) { n.Edges.Bonuses = append(n.Edges.Bonuses, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -709,6 +753,36 @@ func (_q *UserQuery) loadUtmHistories(ctx context.Context, query *UtmHistoryQuer
 	}
 	query.Where(predicate.UtmHistory(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.UtmHistoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadBonuses(ctx context.Context, query *BonusQuery, nodes []*User, init func(*User), assign func(*User, *Bonus)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(bonus.FieldUserID)
+	}
+	query.Where(predicate.Bonus(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.BonusesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

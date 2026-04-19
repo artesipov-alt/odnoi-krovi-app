@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -58,6 +59,31 @@ func init() {
 	bloodsearchrequestDescID := bloodsearchrequestMixinFields0[0].Descriptor()
 	// bloodsearchrequest.DefaultID holds the default value on creation for the id field.
 	bloodsearchrequest.DefaultID = bloodsearchrequestDescID.Default.(func() string)
+	bonusMixin := schema.Bonus{}.Mixin()
+	bonusMixinInters0 := bonusMixin[0].Interceptors()
+	bonus.Interceptors[0] = bonusMixinInters0[0]
+	bonusMixinFields0 := bonusMixin[0].Fields()
+	_ = bonusMixinFields0
+	bonusFields := schema.Bonus{}.Fields()
+	_ = bonusFields
+	// bonusDescCreatedAt is the schema descriptor for created_at field.
+	bonusDescCreatedAt := bonusMixinFields0[1].Descriptor()
+	// bonus.DefaultCreatedAt holds the default value on creation for the created_at field.
+	bonus.DefaultCreatedAt = bonusDescCreatedAt.Default.(func() time.Time)
+	// bonusDescUpdatedAt is the schema descriptor for updated_at field.
+	bonusDescUpdatedAt := bonusMixinFields0[2].Descriptor()
+	// bonus.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	bonus.DefaultUpdatedAt = bonusDescUpdatedAt.Default.(func() time.Time)
+	// bonus.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	bonus.UpdateDefaultUpdatedAt = bonusDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// bonusDescIsActive is the schema descriptor for is_active field.
+	bonusDescIsActive := bonusFields[10].Descriptor()
+	// bonus.DefaultIsActive holds the default value on creation for the is_active field.
+	bonus.DefaultIsActive = bonusDescIsActive.Default.(bool)
+	// bonusDescID is the schema descriptor for id field.
+	bonusDescID := bonusMixinFields0[0].Descriptor()
+	// bonus.DefaultID holds the default value on creation for the id field.
+	bonus.DefaultID = bonusDescID.Default.(func() string)
 	breedFields := schema.Breed{}.Fields()
 	_ = breedFields
 	// breedDescName is the schema descriptor for name field.

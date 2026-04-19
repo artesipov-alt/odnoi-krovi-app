@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -105,6 +106,33 @@ func (f TraverseBloodSearchRequest) Traverse(ctx context.Context, q ent.Query) e
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.BloodSearchRequestQuery", q)
+}
+
+// The BonusFunc type is an adapter to allow the use of ordinary function as a Querier.
+type BonusFunc func(context.Context, *ent.BonusQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f BonusFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.BonusQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.BonusQuery", q)
+}
+
+// The TraverseBonus type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseBonus func(context.Context, *ent.BonusQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseBonus) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseBonus) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.BonusQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.BonusQuery", q)
 }
 
 // The BreedFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -436,6 +464,8 @@ func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
 	case *ent.BloodSearchRequestQuery:
 		return &query[*ent.BloodSearchRequestQuery, predicate.BloodSearchRequest, bloodsearchrequest.OrderOption]{typ: ent.TypeBloodSearchRequest, tq: q}, nil
+	case *ent.BonusQuery:
+		return &query[*ent.BonusQuery, predicate.Bonus, bonus.OrderOption]{typ: ent.TypeBonus, tq: q}, nil
 	case *ent.BreedQuery:
 		return &query[*ent.BreedQuery, predicate.Breed, breed.OrderOption]{typ: ent.TypeBreed, tq: q}, nil
 	case *ent.DonorPreferenceQuery:

@@ -31,6 +31,7 @@ const (
 	DonorResponsePrefix   = "RES"
 	DonorPreferencePrefix = "DPR"
 	UtmHistoryPrefix      = "UTH"
+	BonusPrefix           = "BNS"
 )
 
 // generateID generates a new ID with prefix and nanoID of 10 characters

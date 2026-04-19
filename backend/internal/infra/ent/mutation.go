@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
@@ -37,6 +38,7 @@ const (
 
 	// Node types.
 	TypeBloodSearchRequest = "BloodSearchRequest"
+	TypeBonus              = "Bonus"
 	TypeBreed              = "Breed"
 	TypeDonorPreference    = "DonorPreference"
 	TypeDonorResponse      = "DonorResponse"
@@ -1513,6 +1515,1135 @@ func (m *BloodSearchRequestMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown BloodSearchRequest edge %s", name)
+}
+
+// BonusMutation represents an operation that mutates the Bonus nodes in the graph.
+type BonusMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
+	partner_name  *string
+	description   *string
+	target        *bonus.Target
+	recipient     *bonus.Recipient
+	category      *bonus.Category
+	promo_code    *string
+	expires_at    *time.Time
+	platform_name *string
+	platform_url  *string
+	is_active     *bool
+	clearedFields map[string]struct{}
+	user          *string
+	cleareduser   bool
+	done          bool
+	oldValue      func(context.Context) (*Bonus, error)
+	predicates    []predicate.Bonus
+}
+
+var _ ent.Mutation = (*BonusMutation)(nil)
+
+// bonusOption allows management of the mutation configuration using functional options.
+type bonusOption func(*BonusMutation)
+
+// newBonusMutation creates new mutation for the Bonus entity.
+func newBonusMutation(c config, op Op, opts ...bonusOption) *BonusMutation {
+	m := &BonusMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeBonus,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withBonusID sets the ID field of the mutation.
+func withBonusID(id string) bonusOption {
+	return func(m *BonusMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Bonus
+		)
+		m.oldValue = func(ctx context.Context) (*Bonus, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Bonus.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withBonus sets the old Bonus of the mutation.
+func withBonus(node *Bonus) bonusOption {
+	return func(m *BonusMutation) {
+		m.oldValue = func(context.Context) (*Bonus, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m BonusMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m BonusMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Bonus entities.
+func (m *BonusMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *BonusMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *BonusMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Bonus.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *BonusMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *BonusMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *BonusMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *BonusMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *BonusMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *BonusMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *BonusMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *BonusMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *BonusMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[bonus.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *BonusMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[bonus.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *BonusMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, bonus.FieldDeletedAt)
+}
+
+// SetUserID sets the "user_id" field.
+func (m *BonusMutation) SetUserID(s string) {
+	m.user = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *BonusMutation) UserID() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *BonusMutation) ResetUserID() {
+	m.user = nil
+}
+
+// SetPartnerName sets the "partner_name" field.
+func (m *BonusMutation) SetPartnerName(s string) {
+	m.partner_name = &s
+}
+
+// PartnerName returns the value of the "partner_name" field in the mutation.
+func (m *BonusMutation) PartnerName() (r string, exists bool) {
+	v := m.partner_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPartnerName returns the old "partner_name" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldPartnerName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPartnerName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPartnerName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPartnerName: %w", err)
+	}
+	return oldValue.PartnerName, nil
+}
+
+// ResetPartnerName resets all changes to the "partner_name" field.
+func (m *BonusMutation) ResetPartnerName() {
+	m.partner_name = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *BonusMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *BonusMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *BonusMutation) ResetDescription() {
+	m.description = nil
+}
+
+// SetTarget sets the "target" field.
+func (m *BonusMutation) SetTarget(b bonus.Target) {
+	m.target = &b
+}
+
+// Target returns the value of the "target" field in the mutation.
+func (m *BonusMutation) Target() (r bonus.Target, exists bool) {
+	v := m.target
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTarget returns the old "target" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldTarget(ctx context.Context) (v bonus.Target, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTarget is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTarget requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTarget: %w", err)
+	}
+	return oldValue.Target, nil
+}
+
+// ResetTarget resets all changes to the "target" field.
+func (m *BonusMutation) ResetTarget() {
+	m.target = nil
+}
+
+// SetRecipient sets the "recipient" field.
+func (m *BonusMutation) SetRecipient(b bonus.Recipient) {
+	m.recipient = &b
+}
+
+// Recipient returns the value of the "recipient" field in the mutation.
+func (m *BonusMutation) Recipient() (r bonus.Recipient, exists bool) {
+	v := m.recipient
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRecipient returns the old "recipient" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldRecipient(ctx context.Context) (v bonus.Recipient, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRecipient is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRecipient requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRecipient: %w", err)
+	}
+	return oldValue.Recipient, nil
+}
+
+// ResetRecipient resets all changes to the "recipient" field.
+func (m *BonusMutation) ResetRecipient() {
+	m.recipient = nil
+}
+
+// SetCategory sets the "category" field.
+func (m *BonusMutation) SetCategory(b bonus.Category) {
+	m.category = &b
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *BonusMutation) Category() (r bonus.Category, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldCategory(ctx context.Context) (v bonus.Category, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *BonusMutation) ResetCategory() {
+	m.category = nil
+}
+
+// SetPromoCode sets the "promo_code" field.
+func (m *BonusMutation) SetPromoCode(s string) {
+	m.promo_code = &s
+}
+
+// PromoCode returns the value of the "promo_code" field in the mutation.
+func (m *BonusMutation) PromoCode() (r string, exists bool) {
+	v := m.promo_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPromoCode returns the old "promo_code" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldPromoCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPromoCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPromoCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPromoCode: %w", err)
+	}
+	return oldValue.PromoCode, nil
+}
+
+// ResetPromoCode resets all changes to the "promo_code" field.
+func (m *BonusMutation) ResetPromoCode() {
+	m.promo_code = nil
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *BonusMutation) SetExpiresAt(t time.Time) {
+	m.expires_at = &t
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *BonusMutation) ExpiresAt() (r time.Time, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldExpiresAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *BonusMutation) ResetExpiresAt() {
+	m.expires_at = nil
+}
+
+// SetPlatformName sets the "platform_name" field.
+func (m *BonusMutation) SetPlatformName(s string) {
+	m.platform_name = &s
+}
+
+// PlatformName returns the value of the "platform_name" field in the mutation.
+func (m *BonusMutation) PlatformName() (r string, exists bool) {
+	v := m.platform_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlatformName returns the old "platform_name" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldPlatformName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlatformName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlatformName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlatformName: %w", err)
+	}
+	return oldValue.PlatformName, nil
+}
+
+// ResetPlatformName resets all changes to the "platform_name" field.
+func (m *BonusMutation) ResetPlatformName() {
+	m.platform_name = nil
+}
+
+// SetPlatformURL sets the "platform_url" field.
+func (m *BonusMutation) SetPlatformURL(s string) {
+	m.platform_url = &s
+}
+
+// PlatformURL returns the value of the "platform_url" field in the mutation.
+func (m *BonusMutation) PlatformURL() (r string, exists bool) {
+	v := m.platform_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlatformURL returns the old "platform_url" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldPlatformURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlatformURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlatformURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlatformURL: %w", err)
+	}
+	return oldValue.PlatformURL, nil
+}
+
+// ClearPlatformURL clears the value of the "platform_url" field.
+func (m *BonusMutation) ClearPlatformURL() {
+	m.platform_url = nil
+	m.clearedFields[bonus.FieldPlatformURL] = struct{}{}
+}
+
+// PlatformURLCleared returns if the "platform_url" field was cleared in this mutation.
+func (m *BonusMutation) PlatformURLCleared() bool {
+	_, ok := m.clearedFields[bonus.FieldPlatformURL]
+	return ok
+}
+
+// ResetPlatformURL resets all changes to the "platform_url" field.
+func (m *BonusMutation) ResetPlatformURL() {
+	m.platform_url = nil
+	delete(m.clearedFields, bonus.FieldPlatformURL)
+}
+
+// SetIsActive sets the "is_active" field.
+func (m *BonusMutation) SetIsActive(b bool) {
+	m.is_active = &b
+}
+
+// IsActive returns the value of the "is_active" field in the mutation.
+func (m *BonusMutation) IsActive() (r bool, exists bool) {
+	v := m.is_active
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsActive returns the old "is_active" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldIsActive(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsActive requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
+	}
+	return oldValue.IsActive, nil
+}
+
+// ResetIsActive resets all changes to the "is_active" field.
+func (m *BonusMutation) ResetIsActive() {
+	m.is_active = nil
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *BonusMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[bonus.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *BonusMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *BonusMutation) UserIDs() (ids []string) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *BonusMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the BonusMutation builder.
+func (m *BonusMutation) Where(ps ...predicate.Bonus) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the BonusMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *BonusMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Bonus, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *BonusMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *BonusMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Bonus).
+func (m *BonusMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *BonusMutation) Fields() []string {
+	fields := make([]string, 0, 14)
+	if m.created_at != nil {
+		fields = append(fields, bonus.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, bonus.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, bonus.FieldDeletedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, bonus.FieldUserID)
+	}
+	if m.partner_name != nil {
+		fields = append(fields, bonus.FieldPartnerName)
+	}
+	if m.description != nil {
+		fields = append(fields, bonus.FieldDescription)
+	}
+	if m.target != nil {
+		fields = append(fields, bonus.FieldTarget)
+	}
+	if m.recipient != nil {
+		fields = append(fields, bonus.FieldRecipient)
+	}
+	if m.category != nil {
+		fields = append(fields, bonus.FieldCategory)
+	}
+	if m.promo_code != nil {
+		fields = append(fields, bonus.FieldPromoCode)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, bonus.FieldExpiresAt)
+	}
+	if m.platform_name != nil {
+		fields = append(fields, bonus.FieldPlatformName)
+	}
+	if m.platform_url != nil {
+		fields = append(fields, bonus.FieldPlatformURL)
+	}
+	if m.is_active != nil {
+		fields = append(fields, bonus.FieldIsActive)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *BonusMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case bonus.FieldCreatedAt:
+		return m.CreatedAt()
+	case bonus.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case bonus.FieldDeletedAt:
+		return m.DeletedAt()
+	case bonus.FieldUserID:
+		return m.UserID()
+	case bonus.FieldPartnerName:
+		return m.PartnerName()
+	case bonus.FieldDescription:
+		return m.Description()
+	case bonus.FieldTarget:
+		return m.Target()
+	case bonus.FieldRecipient:
+		return m.Recipient()
+	case bonus.FieldCategory:
+		return m.Category()
+	case bonus.FieldPromoCode:
+		return m.PromoCode()
+	case bonus.FieldExpiresAt:
+		return m.ExpiresAt()
+	case bonus.FieldPlatformName:
+		return m.PlatformName()
+	case bonus.FieldPlatformURL:
+		return m.PlatformURL()
+	case bonus.FieldIsActive:
+		return m.IsActive()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *BonusMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case bonus.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case bonus.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case bonus.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case bonus.FieldUserID:
+		return m.OldUserID(ctx)
+	case bonus.FieldPartnerName:
+		return m.OldPartnerName(ctx)
+	case bonus.FieldDescription:
+		return m.OldDescription(ctx)
+	case bonus.FieldTarget:
+		return m.OldTarget(ctx)
+	case bonus.FieldRecipient:
+		return m.OldRecipient(ctx)
+	case bonus.FieldCategory:
+		return m.OldCategory(ctx)
+	case bonus.FieldPromoCode:
+		return m.OldPromoCode(ctx)
+	case bonus.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	case bonus.FieldPlatformName:
+		return m.OldPlatformName(ctx)
+	case bonus.FieldPlatformURL:
+		return m.OldPlatformURL(ctx)
+	case bonus.FieldIsActive:
+		return m.OldIsActive(ctx)
+	}
+	return nil, fmt.Errorf("unknown Bonus field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BonusMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case bonus.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case bonus.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case bonus.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case bonus.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case bonus.FieldPartnerName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPartnerName(v)
+		return nil
+	case bonus.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case bonus.FieldTarget:
+		v, ok := value.(bonus.Target)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTarget(v)
+		return nil
+	case bonus.FieldRecipient:
+		v, ok := value.(bonus.Recipient)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRecipient(v)
+		return nil
+	case bonus.FieldCategory:
+		v, ok := value.(bonus.Category)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
+		return nil
+	case bonus.FieldPromoCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPromoCode(v)
+		return nil
+	case bonus.FieldExpiresAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	case bonus.FieldPlatformName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlatformName(v)
+		return nil
+	case bonus.FieldPlatformURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlatformURL(v)
+		return nil
+	case bonus.FieldIsActive:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsActive(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Bonus field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *BonusMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *BonusMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BonusMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Bonus numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *BonusMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(bonus.FieldDeletedAt) {
+		fields = append(fields, bonus.FieldDeletedAt)
+	}
+	if m.FieldCleared(bonus.FieldPlatformURL) {
+		fields = append(fields, bonus.FieldPlatformURL)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *BonusMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *BonusMutation) ClearField(name string) error {
+	switch name {
+	case bonus.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case bonus.FieldPlatformURL:
+		m.ClearPlatformURL()
+		return nil
+	}
+	return fmt.Errorf("unknown Bonus nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *BonusMutation) ResetField(name string) error {
+	switch name {
+	case bonus.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case bonus.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case bonus.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case bonus.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case bonus.FieldPartnerName:
+		m.ResetPartnerName()
+		return nil
+	case bonus.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case bonus.FieldTarget:
+		m.ResetTarget()
+		return nil
+	case bonus.FieldRecipient:
+		m.ResetRecipient()
+		return nil
+	case bonus.FieldCategory:
+		m.ResetCategory()
+		return nil
+	case bonus.FieldPromoCode:
+		m.ResetPromoCode()
+		return nil
+	case bonus.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	case bonus.FieldPlatformName:
+		m.ResetPlatformName()
+		return nil
+	case bonus.FieldPlatformURL:
+		m.ResetPlatformURL()
+		return nil
+	case bonus.FieldIsActive:
+		m.ResetIsActive()
+		return nil
+	}
+	return fmt.Errorf("unknown Bonus field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *BonusMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, bonus.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *BonusMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case bonus.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *BonusMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *BonusMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *BonusMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, bonus.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *BonusMutation) EdgeCleared(name string) bool {
+	switch name {
+	case bonus.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *BonusMutation) ClearEdge(name string) error {
+	switch name {
+	case bonus.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown Bonus unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *BonusMutation) ResetEdge(name string) error {
+	switch name {
+	case bonus.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown Bonus edge %s", name)
 }
 
 // BreedMutation represents an operation that mutates the Breed nodes in the graph.
@@ -9895,6 +11026,9 @@ type UserMutation struct {
 	utm_histories           map[string]struct{}
 	removedutm_histories    map[string]struct{}
 	clearedutm_histories    bool
+	bonuses                 map[string]struct{}
+	removedbonuses          map[string]struct{}
+	clearedbonuses          bool
 	done                    bool
 	oldValue                func(context.Context) (*User, error)
 	predicates              []predicate.User
@@ -10885,6 +12019,60 @@ func (m *UserMutation) ResetUtmHistories() {
 	m.removedutm_histories = nil
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by ids.
+func (m *UserMutation) AddBonuseIDs(ids ...string) {
+	if m.bonuses == nil {
+		m.bonuses = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.bonuses[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBonuses clears the "bonuses" edge to the Bonus entity.
+func (m *UserMutation) ClearBonuses() {
+	m.clearedbonuses = true
+}
+
+// BonusesCleared reports if the "bonuses" edge to the Bonus entity was cleared.
+func (m *UserMutation) BonusesCleared() bool {
+	return m.clearedbonuses
+}
+
+// RemoveBonuseIDs removes the "bonuses" edge to the Bonus entity by IDs.
+func (m *UserMutation) RemoveBonuseIDs(ids ...string) {
+	if m.removedbonuses == nil {
+		m.removedbonuses = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.bonuses, ids[i])
+		m.removedbonuses[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBonuses returns the removed IDs of the "bonuses" edge to the Bonus entity.
+func (m *UserMutation) RemovedBonusesIDs() (ids []string) {
+	for id := range m.removedbonuses {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BonusesIDs returns the "bonuses" edge IDs in the mutation.
+func (m *UserMutation) BonusesIDs() (ids []string) {
+	for id := range m.bonuses {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBonuses resets all changes to the "bonuses" edge.
+func (m *UserMutation) ResetBonuses() {
+	m.bonuses = nil
+	m.clearedbonuses = false
+	m.removedbonuses = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -11296,7 +12484,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.pets != nil {
 		edges = append(edges, user.EdgePets)
 	}
@@ -11311,6 +12499,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.utm_histories != nil {
 		edges = append(edges, user.EdgeUtmHistories)
+	}
+	if m.bonuses != nil {
+		edges = append(edges, user.EdgeBonuses)
 	}
 	return edges
 }
@@ -11345,13 +12536,19 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeBonuses:
+		ids := make([]ent.Value, 0, len(m.bonuses))
+		for id := range m.bonuses {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.removedpets != nil {
 		edges = append(edges, user.EdgePets)
 	}
@@ -11360,6 +12557,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedutm_histories != nil {
 		edges = append(edges, user.EdgeUtmHistories)
+	}
+	if m.removedbonuses != nil {
+		edges = append(edges, user.EdgeBonuses)
 	}
 	return edges
 }
@@ -11386,13 +12586,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeBonuses:
+		ids := make([]ent.Value, 0, len(m.removedbonuses))
+		for id := range m.removedbonuses {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.clearedpets {
 		edges = append(edges, user.EdgePets)
 	}
@@ -11407,6 +12613,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedutm_histories {
 		edges = append(edges, user.EdgeUtmHistories)
+	}
+	if m.clearedbonuses {
+		edges = append(edges, user.EdgeBonuses)
 	}
 	return edges
 }
@@ -11425,6 +12634,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedidentities
 	case user.EdgeUtmHistories:
 		return m.clearedutm_histories
+	case user.EdgeBonuses:
+		return m.clearedbonuses
 	}
 	return false
 }
@@ -11461,6 +12672,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeUtmHistories:
 		m.ResetUtmHistories()
+		return nil
+	case user.EdgeBonuses:
+		m.ResetBonuses()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)
