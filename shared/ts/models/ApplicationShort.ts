@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ApplicationShort
  */
 export interface ApplicationShort {
-    [key: string]: any | any;
     /**
      * Объем крови в мл
      * @type {number}
@@ -31,7 +30,7 @@ export interface ApplicationShort {
      * @type {Array<string>}
      * @memberof ApplicationShort
      */
-    bonuses: Array<string>;
+    bonuses: Array<string> | null;
     /**
      * Условия донации
      * @type {string}
@@ -67,7 +66,7 @@ export interface ApplicationShort {
      * @type {Array<string>}
      * @memberof ApplicationShort
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Причина отказа от донации реципиентом
      * @type {string}
@@ -144,9 +143,8 @@ export function ApplicationShortFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         'amount': json['amount'],
-        'bonuses': json['bonuses'],
+        'bonuses': json['bonuses'] == null ? null : json['bonuses'],
         'compensationType': json['compensationType'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'id': json['id'],
@@ -171,7 +169,6 @@ export function ApplicationShortToJSONTyped(value?: Omit<ApplicationShort, 'crea
 
     return {
         
-            ...value,
         'amount': value['amount'],
         'bonuses': value['bonuses'],
         'compensationType': value['compensationType'],

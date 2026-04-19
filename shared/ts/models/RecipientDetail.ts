@@ -41,7 +41,6 @@ import {
  * @interface RecipientDetail
  */
 export interface RecipientDetail {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -101,7 +100,7 @@ export interface RecipientDetail {
      * @type {Array<MatchingDonor>}
      * @memberof RecipientDetail
      */
-    matchingDonors?: Array<MatchingDonor>;
+    matchingDonors?: Array<MatchingDonor> | null;
     /**
      * Имя владельца
      * @type {string}
@@ -131,7 +130,7 @@ export interface RecipientDetail {
      * @type {Array<string>}
      * @memberof RecipientDetail
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Приоритетный поиск
      * @type {boolean}
@@ -143,13 +142,13 @@ export interface RecipientDetail {
      * @type {Array<string>}
      * @memberof RecipientDetail
      */
-    regions?: Array<string>;
+    regions?: Array<string> | null;
     /**
      * Список искомых групп крови
      * @type {Array<string>}
      * @memberof RecipientDetail
      */
-    searchingBloodNames?: Array<string>;
+    searchingBloodNames?: Array<string> | null;
     /**
      * Разрешить уведомления для мелких питомцев
      * @type {boolean}
@@ -212,7 +211,6 @@ export function RecipientDetailFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'advancedInfo': json['advancedInfo'] == null ? undefined : AdvancedInfoFromJSON(json['advancedInfo']),
         'bloodGroupName': json['bloodGroupName'],
@@ -247,7 +245,6 @@ export function RecipientDetailToJSONTyped(value?: Omit<RecipientDetail, '$schem
 
     return {
         
-            ...value,
         'advancedInfo': AdvancedInfoToJSON(value['advancedInfo']),
         'bloodGroupName': value['bloodGroupName'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],

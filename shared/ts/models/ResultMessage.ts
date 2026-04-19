@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ResultMessage
  */
 export interface ResultMessage {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -52,7 +51,6 @@ export function ResultMessageFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'message': json['message'],
     };
@@ -69,7 +67,6 @@ export function ResultMessageToJSONTyped(value?: Omit<ResultMessage, '$schema'> 
 
     return {
         
-            ...value,
         'message': value['message'],
     };
 }

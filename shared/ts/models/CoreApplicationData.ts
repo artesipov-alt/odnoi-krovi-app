@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface CoreApplicationData
  */
 export interface CoreApplicationData {
-    [key: string]: any | any;
     /**
      * Объем крови в мл
      * @type {number}
@@ -99,7 +98,6 @@ export function CoreApplicationDataFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-            ...json,
         'amount': json['amount'],
         'compensationType': json['compensationType'],
         'id': json['id'],
@@ -119,7 +117,6 @@ export function CoreApplicationDataToJSONTyped(value?: CoreApplicationData | nul
 
     return {
         
-            ...value,
         'amount': value['amount'],
         'compensationType': value['compensationType'],
         'id': value['id'],

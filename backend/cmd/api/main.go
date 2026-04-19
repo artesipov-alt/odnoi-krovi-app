@@ -21,6 +21,7 @@ import (
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
+	bonuscmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bonus/cmd"
 	donorcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
@@ -125,6 +126,7 @@ func main() {
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
 		partnerRepo := pg.NewEntPartnerRepository(db)
+		bonusRepo := pg.NewEntBonusRepository(db)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
 
@@ -249,6 +251,9 @@ func main() {
 			fileConfirmUploadHandler,
 		)
 
+		bonusImportHandler := bonuscmd.NewImportBonusesHandler(bonusRepo)
+		bonusHandler := transport.NewBonusHandler(bonusImportHandler)
+
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
 
@@ -263,6 +268,7 @@ func main() {
 		bloodRequestHandler.Register(humapi)
 		fileHandler.Register(humapi)
 		referenceHandler.Register(humapi)
+		bonusHandler.Register(humapi)
 
 		if portStr := os.Getenv("SERVER_PORT"); portStr != "" {
 			if port, err := strconv.Atoi(portStr); err == nil {

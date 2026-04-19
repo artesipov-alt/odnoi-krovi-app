@@ -1,3 +1,4 @@
+apis/AdminV1Api.ts
 apis/AuthV1Api.ts
 apis/BloodRequestV1Api.ts
 apis/DevApi.ts
@@ -44,6 +45,7 @@ models/GendersList.ts
 models/GetPetsByUserResult.ts
 models/HealthStatusesList.ts
 models/Identity.ts
+models/ImportBonusesResult.ts
 models/LivingConditionsList.ts
 models/LocationsList.ts
 models/MatchingDonor.ts

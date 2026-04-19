@@ -305,6 +305,16 @@ func UserIDHasSuffix(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldHasSuffix(FieldUserID, v))
 }
 
+// UserIDIsNil applies the IsNil predicate on the "user_id" field.
+func UserIDIsNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldIsNull(FieldUserID))
+}
+
+// UserIDNotNil applies the NotNil predicate on the "user_id" field.
+func UserIDNotNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotNull(FieldUserID))
+}
+
 // UserIDEqualFold applies the EqualFold predicate on the "user_id" field.
 func UserIDEqualFold(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEqualFold(FieldUserID, v))

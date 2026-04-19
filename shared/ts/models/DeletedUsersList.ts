@@ -27,7 +27,6 @@ import {
  * @interface DeletedUsersList
  */
 export interface DeletedUsersList {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -45,7 +44,7 @@ export interface DeletedUsersList {
      * @type {Array<UserDetail>}
      * @memberof DeletedUsersList
      */
-    users: Array<UserDetail>;
+    users: Array<UserDetail> | null;
 }
 
 /**
@@ -67,10 +66,9 @@ export function DeletedUsersListFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'message': json['message'],
-        'users': ((json['users'] as Array<any>).map(UserDetailFromJSON)),
+        'users': (json['users'] == null ? null : (json['users'] as Array<any>).map(UserDetailFromJSON)),
     };
 }
 
@@ -85,9 +83,8 @@ export function DeletedUsersListToJSONTyped(value?: Omit<DeletedUsersList, '$sch
 
     return {
         
-            ...value,
         'message': value['message'],
-        'users': ((value['users'] as Array<any>).map(UserDetailToJSON)),
+        'users': (value['users'] == null ? null : (value['users'] as Array<any>).map(UserDetailToJSON)),
     };
 }
 

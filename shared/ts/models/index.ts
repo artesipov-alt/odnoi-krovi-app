@@ -37,6 +37,7 @@ export * from './GendersList';
 export * from './GetPetsByUserResult';
 export * from './HealthStatusesList';
 export * from './Identity';
+export * from './ImportBonusesResult';
 export * from './LivingConditionsList';
 export * from './LocationsList';
 export * from './MatchingDonor';

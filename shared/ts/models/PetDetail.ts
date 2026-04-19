@@ -48,7 +48,6 @@ import {
  * @interface PetDetail
  */
 export interface PetDetail {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -84,7 +83,7 @@ export interface PetDetail {
      * @type {Array<string>}
      * @memberof PetDetail
      */
-    bonuses?: Array<string>;
+    bonuses?: Array<string> | null;
     /**
      * ID породы
      * @type {string}
@@ -168,7 +167,7 @@ export interface PetDetail {
      * @type {Array<string>}
      * @memberof PetDetail
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Дни восстановления после донации
      * @type {number}
@@ -297,7 +296,6 @@ export function PetDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'availableBloodAmount': json['availableBloodAmount'] == null ? undefined : json['availableBloodAmount'],
@@ -338,7 +336,6 @@ export function PetDetailToJSONTyped(value?: Omit<PetDetail, '$schema'|'createdA
 
     return {
         
-            ...value,
         'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'availableBloodAmount': value['availableBloodAmount'],
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),

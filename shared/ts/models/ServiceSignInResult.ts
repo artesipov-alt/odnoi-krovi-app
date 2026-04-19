@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ServiceSignInResult
  */
 export interface ServiceSignInResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -72,7 +71,6 @@ export function ServiceSignInResultFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'accessToken': json['accessToken'] == null ? undefined : json['accessToken'],
         'expiresAt': json['expiresAt'],
@@ -92,7 +90,6 @@ export function ServiceSignInResultToJSONTyped(value?: Omit<ServiceSignInResult,
 
     return {
         
-            ...value,
         'accessToken': value['accessToken'],
         'expiresAt': value['expiresAt'],
         'tokenType': value['tokenType'],

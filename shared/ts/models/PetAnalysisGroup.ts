@@ -27,55 +27,54 @@ import {
  * @interface PetAnalysisGroup
  */
 export interface PetAnalysisGroup {
-    [key: string]: any | any;
     /**
      * Анализ на анаплазмоз
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    anaplasmosis?: Array<PetAnalysis>;
+    anaplasmosis?: Array<PetAnalysis> | null;
     /**
      * Анализ на бабезиоз
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    babesiosis?: Array<PetAnalysis>;
+    babesiosis?: Array<PetAnalysis> | null;
     /**
      * Анализ на бартонеллез
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    bartonellosis?: Array<PetAnalysis>;
+    bartonellosis?: Array<PetAnalysis> | null;
     /**
      * Анализ на дирофиляриоз
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    dirofilaria?: Array<PetAnalysis>;
+    dirofilaria?: Array<PetAnalysis> | null;
     /**
      * Анализ на эрлихиоз
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    ehrlichiosis?: Array<PetAnalysis>;
+    ehrlichiosis?: Array<PetAnalysis> | null;
     /**
      * Анализ на гемоплазмоз
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    hemoplasmosis?: Array<PetAnalysis>;
+    hemoplasmosis?: Array<PetAnalysis> | null;
     /**
      * Анализ на иммунодефицит
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    immunodeficiency?: Array<PetAnalysis>;
+    immunodeficiency?: Array<PetAnalysis> | null;
     /**
      * Анализы на лейкемию
      * @type {Array<PetAnalysis>}
      * @memberof PetAnalysisGroup
      */
-    leukemia?: Array<PetAnalysis>;
+    leukemia?: Array<PetAnalysis> | null;
 }
 
 /**
@@ -95,7 +94,6 @@ export function PetAnalysisGroupFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         'anaplasmosis': json['anaplasmosis'] == null ? undefined : ((json['anaplasmosis'] as Array<any>).map(PetAnalysisFromJSON)),
         'babesiosis': json['babesiosis'] == null ? undefined : ((json['babesiosis'] as Array<any>).map(PetAnalysisFromJSON)),
         'bartonellosis': json['bartonellosis'] == null ? undefined : ((json['bartonellosis'] as Array<any>).map(PetAnalysisFromJSON)),
@@ -118,7 +116,6 @@ export function PetAnalysisGroupToJSONTyped(value?: PetAnalysisGroup | null, ign
 
     return {
         
-            ...value,
         'anaplasmosis': value['anaplasmosis'] == null ? undefined : ((value['anaplasmosis'] as Array<any>).map(PetAnalysisToJSON)),
         'babesiosis': value['babesiosis'] == null ? undefined : ((value['babesiosis'] as Array<any>).map(PetAnalysisToJSON)),
         'bartonellosis': value['bartonellosis'] == null ? undefined : ((value['bartonellosis'] as Array<any>).map(PetAnalysisToJSON)),

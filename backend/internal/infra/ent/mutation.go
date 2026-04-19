@@ -1800,9 +1800,22 @@ func (m *BonusMutation) OldUserID(ctx context.Context) (v string, err error) {
 	return oldValue.UserID, nil
 }
 
+// ClearUserID clears the value of the "user_id" field.
+func (m *BonusMutation) ClearUserID() {
+	m.user = nil
+	m.clearedFields[bonus.FieldUserID] = struct{}{}
+}
+
+// UserIDCleared returns if the "user_id" field was cleared in this mutation.
+func (m *BonusMutation) UserIDCleared() bool {
+	_, ok := m.clearedFields[bonus.FieldUserID]
+	return ok
+}
+
 // ResetUserID resets all changes to the "user_id" field.
 func (m *BonusMutation) ResetUserID() {
 	m.user = nil
+	delete(m.clearedFields, bonus.FieldUserID)
 }
 
 // SetPartnerName sets the "partner_name" field.
@@ -2186,7 +2199,7 @@ func (m *BonusMutation) ClearUser() {
 
 // UserCleared reports if the "user" edge to the User entity was cleared.
 func (m *BonusMutation) UserCleared() bool {
-	return m.cleareduser
+	return m.UserIDCleared() || m.cleareduser
 }
 
 // UserIDs returns the "user" edge IDs in the mutation.
@@ -2495,6 +2508,9 @@ func (m *BonusMutation) ClearedFields() []string {
 	if m.FieldCleared(bonus.FieldDeletedAt) {
 		fields = append(fields, bonus.FieldDeletedAt)
 	}
+	if m.FieldCleared(bonus.FieldUserID) {
+		fields = append(fields, bonus.FieldUserID)
+	}
 	if m.FieldCleared(bonus.FieldPlatformURL) {
 		fields = append(fields, bonus.FieldPlatformURL)
 	}
@@ -2514,6 +2530,9 @@ func (m *BonusMutation) ClearField(name string) error {
 	switch name {
 	case bonus.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case bonus.FieldUserID:
+		m.ClearUserID()
 		return nil
 	case bonus.FieldPlatformURL:
 		m.ClearPlatformURL()

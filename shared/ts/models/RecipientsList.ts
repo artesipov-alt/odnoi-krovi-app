@@ -27,7 +27,6 @@ import {
  * @interface RecipientsList
  */
 export interface RecipientsList {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,7 +38,7 @@ export interface RecipientsList {
      * @type {Array<RecipientDetail>}
      * @memberof RecipientsList
      */
-    items: Array<RecipientDetail>;
+    items: Array<RecipientDetail> | null;
     /**
      * Общее количество реципиентов
      * @type {number}
@@ -67,9 +66,8 @@ export function RecipientsListFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'items': ((json['items'] as Array<any>).map(RecipientDetailFromJSON)),
+        'items': (json['items'] == null ? null : (json['items'] as Array<any>).map(RecipientDetailFromJSON)),
         'total': json['total'],
     };
 }
@@ -85,8 +83,7 @@ export function RecipientsListToJSONTyped(value?: Omit<RecipientsList, '$schema'
 
     return {
         
-            ...value,
-        'items': ((value['items'] as Array<any>).map(RecipientDetailToJSON)),
+        'items': (value['items'] == null ? null : (value['items'] as Array<any>).map(RecipientDetailToJSON)),
         'total': value['total'],
     };
 }

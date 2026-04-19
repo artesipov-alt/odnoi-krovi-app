@@ -27,7 +27,6 @@ import {
  * @interface PlannedDonationsList
  */
 export interface PlannedDonationsList {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,7 +38,7 @@ export interface PlannedDonationsList {
      * @type {Array<DonationCardForDonor>}
      * @memberof PlannedDonationsList
      */
-    items: Array<DonationCardForDonor>;
+    items: Array<DonationCardForDonor> | null;
     /**
      * Общее количество донаций
      * @type {number}
@@ -67,9 +66,8 @@ export function PlannedDonationsListFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'items': ((json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
+        'items': (json['items'] == null ? null : (json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
         'total': json['total'],
     };
 }
@@ -85,8 +83,7 @@ export function PlannedDonationsListToJSONTyped(value?: Omit<PlannedDonationsLis
 
     return {
         
-            ...value,
-        'items': ((value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
+        'items': (value['items'] == null ? null : (value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
         'total': value['total'],
     };
 }

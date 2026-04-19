@@ -48,7 +48,6 @@ import {
  * @interface DonorDetail
  */
 export interface DonorDetail {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -84,7 +83,7 @@ export interface DonorDetail {
      * @type {Array<string>}
      * @memberof DonorDetail
      */
-    bonuses?: Array<string>;
+    bonuses?: Array<string> | null;
     /**
      * ID породы
      * @type {string}
@@ -174,7 +173,7 @@ export interface DonorDetail {
      * @type {Array<string>}
      * @memberof DonorDetail
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Дни восстановления после донации
      * @type {number}
@@ -328,7 +327,6 @@ export function DonorDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'availableBloodAmount': json['availableBloodAmount'] == null ? undefined : json['availableBloodAmount'],
@@ -372,7 +370,6 @@ export function DonorDetailToJSONTyped(value?: Omit<DonorDetail, '$schema'|'crea
 
     return {
         
-            ...value,
         'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'availableBloodAmount': value['availableBloodAmount'],
         'birthDate': value['birthDate'] == null ? value['birthDate'] : value['birthDate'].toISOString(),

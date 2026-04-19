@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface MiniAppSignInBody
  */
 export interface MiniAppSignInBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -34,10 +33,10 @@ export interface MiniAppSignInBody {
     appInitData: string;
     /**
      * Метаданные пользователя
-     * @type {{ [key: string]: any; }}
+     * @type {object}
      * @memberof MiniAppSignInBody
      */
-    metaData?: { [key: string]: any; };
+    metaData?: object;
 }
 
 /**
@@ -58,7 +57,6 @@ export function MiniAppSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'appInitData': json['appInitData'],
         'metaData': json['metaData'] == null ? undefined : json['metaData'],
@@ -76,7 +74,6 @@ export function MiniAppSignInBodyToJSONTyped(value?: Omit<MiniAppSignInBody, '$s
 
     return {
         
-            ...value,
         'appInitData': value['appInitData'],
         'metaData': value['metaData'],
     };

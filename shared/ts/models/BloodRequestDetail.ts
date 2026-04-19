@@ -27,7 +27,6 @@ import {
  * @interface BloodRequestDetail
  */
 export interface BloodRequestDetail {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,19 +38,19 @@ export interface BloodRequestDetail {
      * @type {Array<DonorApplication>}
      * @memberof BloodRequestDetail
      */
-    acceptedDonors?: Array<DonorApplication>;
+    acceptedDonors?: Array<DonorApplication> | null;
     /**
      * Список ID компонентов крови
      * @type {Array<string>}
      * @memberof BloodRequestDetail
      */
-    bloodComponentIds: Array<string>;
+    bloodComponentIds: Array<string> | null;
     /**
      * Список групп крови
      * @type {Array<string>}
      * @memberof BloodRequestDetail
      */
-    bloodGroupNames: Array<string>;
+    bloodGroupNames: Array<string> | null;
     /**
      * Фактически проведённый объем донации крови в мл
      * @type {number}
@@ -75,7 +74,7 @@ export interface BloodRequestDetail {
      * @type {Array<DonorApplication>}
      * @memberof BloodRequestDetail
      */
-    completedDonations?: Array<DonorApplication>;
+    completedDonations?: Array<DonorApplication> | null;
     /**
      * Дата создания
      * @type {Date}
@@ -111,7 +110,7 @@ export interface BloodRequestDetail {
      * @type {Array<string>}
      * @memberof BloodRequestDetail
      */
-    onBoarding: Array<string>;
+    onBoarding: Array<string> | null;
     /**
      * ID питомца
      * @type {string}
@@ -123,7 +122,7 @@ export interface BloodRequestDetail {
      * @type {Array<string>}
      * @memberof BloodRequestDetail
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Приоритетный поиск
      * @type {boolean}
@@ -135,13 +134,13 @@ export interface BloodRequestDetail {
      * @type {Array<string>}
      * @memberof BloodRequestDetail
      */
-    regions: Array<string>;
+    regions: Array<string> | null;
     /**
      * Отклики доноров
      * @type {Array<DonorApplication>}
      * @memberof BloodRequestDetail
      */
-    responses?: Array<DonorApplication>;
+    responses?: Array<DonorApplication> | null;
     /**
      * Разрешить уведомления для мелких питомцев
      * @type {boolean}
@@ -212,11 +211,10 @@ export function BloodRequestDetailFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'acceptedDonors': json['acceptedDonors'] == null ? undefined : ((json['acceptedDonors'] as Array<any>).map(DonorApplicationFromJSON)),
-        'bloodComponentIds': json['bloodComponentIds'],
-        'bloodGroupNames': json['bloodGroupNames'],
+        'bloodComponentIds': json['bloodComponentIds'] == null ? null : json['bloodComponentIds'],
+        'bloodGroupNames': json['bloodGroupNames'] == null ? null : json['bloodGroupNames'],
         'bloodVolumeDonated': json['bloodVolumeDonated'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
         'bloodVolumeReserved': json['bloodVolumeReserved'],
@@ -226,11 +224,11 @@ export function BloodRequestDetailFromJSONTyped(json: any, ignoreDiscriminator: 
         'description': json['description'] == null ? undefined : json['description'],
         'id': json['id'],
         'includeUnknownBloodGroup': json['includeUnknownBloodGroup'],
-        'onBoarding': json['onBoarding'],
+        'onBoarding': json['onBoarding'] == null ? null : json['onBoarding'],
         'petId': json['petId'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'prioritySearch': json['prioritySearch'],
-        'regions': json['regions'],
+        'regions': json['regions'] == null ? null : json['regions'],
         'responses': json['responses'] == null ? undefined : ((json['responses'] as Array<any>).map(DonorApplicationFromJSON)),
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
         'status': json['status'],
@@ -250,7 +248,6 @@ export function BloodRequestDetailToJSONTyped(value?: Omit<BloodRequestDetail, '
 
     return {
         
-            ...value,
         'acceptedDonors': value['acceptedDonors'] == null ? undefined : ((value['acceptedDonors'] as Array<any>).map(DonorApplicationToJSON)),
         'bloodComponentIds': value['bloodComponentIds'],
         'bloodGroupNames': value['bloodGroupNames'],

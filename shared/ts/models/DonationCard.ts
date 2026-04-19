@@ -34,7 +34,6 @@ import {
  * @interface DonationCard
  */
 export interface DonationCard {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -74,7 +73,6 @@ export function DonationCardFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'donorData': PetWithApplicationFromJSON(json['donorData']),
         'recipientData': RecipientShortFromJSON(json['recipientData']),
@@ -92,7 +90,6 @@ export function DonationCardToJSONTyped(value?: Omit<DonationCard, '$schema'> | 
 
     return {
         
-            ...value,
         'donorData': PetWithApplicationToJSON(value['donorData']),
         'recipientData': RecipientShortToJSON(value['recipientData']),
     };

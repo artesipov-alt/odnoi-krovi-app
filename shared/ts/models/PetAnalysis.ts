@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface PetAnalysis
  */
 export interface PetAnalysis {
-    [key: string]: any | any;
     /**
      * Дата проведения анализа
      * @type {Date}
@@ -92,7 +91,6 @@ export function PetAnalysisFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-            ...json,
         'analysisDate': json['analysisDate'] == null ? undefined : (new Date(json['analysisDate'])),
         'analysisName': json['analysisName'] == null ? undefined : json['analysisName'],
         'analysisType': json['analysisType'] == null ? undefined : json['analysisType'],
@@ -111,7 +109,6 @@ export function PetAnalysisToJSONTyped(value?: Omit<PetAnalysis, 'id'> | null, i
 
     return {
         
-            ...value,
         'analysisDate': value['analysisDate'] == null ? value['analysisDate'] : value['analysisDate'].toISOString(),
         'analysisName': value['analysisName'],
         'analysisType': value['analysisType'],

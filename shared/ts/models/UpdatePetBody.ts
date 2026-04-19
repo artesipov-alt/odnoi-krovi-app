@@ -41,7 +41,6 @@ import {
  * @interface UpdatePetBody
  */
 export interface UpdatePetBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -233,7 +232,6 @@ export function UpdatePetBodyFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'ageMonths': json['ageMonths'] == null ? undefined : json['ageMonths'],
         'ageYears': json['ageYears'] == null ? undefined : json['ageYears'],
@@ -266,7 +264,6 @@ export function UpdatePetBodyToJSONTyped(value?: Omit<UpdatePetBody, '$schema'> 
 
     return {
         
-            ...value,
         'ageMonths': value['ageMonths'],
         'ageYears': value['ageYears'],
         'analyses': PetAnalysisGroupToJSON(value['analyses']),

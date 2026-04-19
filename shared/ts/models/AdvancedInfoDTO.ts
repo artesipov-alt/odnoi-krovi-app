@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface AdvancedInfoDTO
  */
 export interface AdvancedInfoDTO {
-    [key: string]: any | any;
     /**
      * Дополнительное описание
      * @type {string}
@@ -31,7 +30,7 @@ export interface AdvancedInfoDTO {
      * @type {Array<string>}
      * @memberof AdvancedInfoDTO
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
 }
 
 /**
@@ -51,7 +50,6 @@ export function AdvancedInfoDTOFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-            ...json,
         'description': json['description'] == null ? undefined : json['description'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
     };
@@ -68,7 +66,6 @@ export function AdvancedInfoDTOToJSONTyped(value?: AdvancedInfoDTO | null, ignor
 
     return {
         
-            ...value,
         'description': value['description'],
         'photoUrls': value['photoUrls'],
     };

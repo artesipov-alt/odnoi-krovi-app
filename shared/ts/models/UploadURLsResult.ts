@@ -27,7 +27,6 @@ import {
  * @interface UploadURLsResult
  */
 export interface UploadURLsResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,7 +38,7 @@ export interface UploadURLsResult {
      * @type {Array<UploadItem>}
      * @memberof UploadURLsResult
      */
-    items: Array<UploadItem>;
+    items: Array<UploadItem> | null;
 }
 
 /**
@@ -60,9 +59,8 @@ export function UploadURLsResultFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'items': ((json['items'] as Array<any>).map(UploadItemFromJSON)),
+        'items': (json['items'] == null ? null : (json['items'] as Array<any>).map(UploadItemFromJSON)),
     };
 }
 
@@ -77,8 +75,7 @@ export function UploadURLsResultToJSONTyped(value?: Omit<UploadURLsResult, '$sch
 
     return {
         
-            ...value,
-        'items': ((value['items'] as Array<any>).map(UploadItemToJSON)),
+        'items': (value['items'] == null ? null : (value['items'] as Array<any>).map(UploadItemToJSON)),
     };
 }
 

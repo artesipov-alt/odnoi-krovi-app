@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ServiceSignInBody
  */
 export interface ServiceSignInBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -34,10 +33,10 @@ export interface ServiceSignInBody {
     fullName?: string;
     /**
      * Метаданные пользователя
-     * @type {{ [key: string]: any; }}
+     * @type {object}
      * @memberof ServiceSignInBody
      */
-    metaData?: { [key: string]: any; };
+    metaData?: object;
     /**
      * ID провайдера
      * @type {string}
@@ -83,7 +82,6 @@ export function ServiceSignInBodyFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'fullName': json['fullName'] == null ? undefined : json['fullName'],
         'metaData': json['metaData'] == null ? undefined : json['metaData'],
@@ -103,7 +101,6 @@ export function ServiceSignInBodyToJSONTyped(value?: Omit<ServiceSignInBody, '$s
 
     return {
         
-            ...value,
         'fullName': value['fullName'],
         'metaData': value['metaData'],
         'providerId': value['providerId'],

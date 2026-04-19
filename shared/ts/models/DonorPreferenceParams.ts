@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface DonorPreferenceParams
  */
 export interface DonorPreferenceParams {
-    [key: string]: any | any;
     /**
      * Тип компенсации
      * @type {string}
@@ -37,7 +36,7 @@ export interface DonorPreferenceParams {
      * @type {Array<string>}
      * @memberof DonorPreferenceParams
      */
-    preferredLocationIds?: Array<string>;
+    preferredLocationIds?: Array<string> | null;
     /**
      * Период восстановления в месяцах
      * @type {number}
@@ -92,7 +91,6 @@ export function DonorPreferenceParamsFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-            ...json,
         'compensationType': json['compensationType'] == null ? undefined : json['compensationType'],
         'notificationFrequency': json['notificationFrequency'] == null ? undefined : json['notificationFrequency'],
         'preferredLocationIds': json['preferredLocationIds'] == null ? undefined : json['preferredLocationIds'],
@@ -112,7 +110,6 @@ export function DonorPreferenceParamsToJSONTyped(value?: DonorPreferenceParams |
 
     return {
         
-            ...value,
         'compensationType': value['compensationType'],
         'notificationFrequency': value['notificationFrequency'],
         'preferredLocationIds': value['preferredLocationIds'],

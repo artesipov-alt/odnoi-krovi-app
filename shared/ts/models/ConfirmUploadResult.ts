@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ConfirmUploadResult
  */
 export interface ConfirmUploadResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -52,7 +51,6 @@ export function ConfirmUploadResultFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'message': json['message'],
     };
@@ -69,7 +67,6 @@ export function ConfirmUploadResultToJSONTyped(value?: Omit<ConfirmUploadResult,
 
     return {
         
-            ...value,
         'message': value['message'],
     };
 }

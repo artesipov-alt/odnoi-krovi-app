@@ -27,7 +27,6 @@ import {
  * @interface RecipientForDonor
  */
 export interface RecipientForDonor {
-    [key: string]: any | any;
     /**
      * Дополнительная информация
      * @type {AdvancedInfoDTO}
@@ -111,19 +110,19 @@ export interface RecipientForDonor {
      * @type {Array<string>}
      * @memberof RecipientForDonor
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Список ID регионов
      * @type {Array<string>}
      * @memberof RecipientForDonor
      */
-    regions?: Array<string>;
+    regions?: Array<string> | null;
     /**
      * Список групп крови
      * @type {Array<string>}
      * @memberof RecipientForDonor
      */
-    searchingBloodNames: Array<string>;
+    searchingBloodNames: Array<string> | null;
     /**
      * Статус заявки
      * @type {string}
@@ -188,7 +187,6 @@ export function RecipientForDonorFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         'advancedInfo': json['advancedInfo'] == null ? undefined : AdvancedInfoDTOFromJSON(json['advancedInfo']),
         'bloodGroup': json['bloodGroup'],
         'bloodVolumeDonated': json['bloodVolumeDonated'],
@@ -204,7 +202,7 @@ export function RecipientForDonorFromJSONTyped(json: any, ignoreDiscriminator: b
         'petType': json['petType'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'regions': json['regions'] == null ? undefined : json['regions'],
-        'searchingBloodNames': json['searchingBloodNames'],
+        'searchingBloodNames': json['searchingBloodNames'] == null ? null : json['searchingBloodNames'],
         'status': json['status'],
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
     };
@@ -221,7 +219,6 @@ export function RecipientForDonorToJSONTyped(value?: Omit<RecipientForDonor, 'cr
 
     return {
         
-            ...value,
         'advancedInfo': AdvancedInfoDTOToJSON(value['advancedInfo']),
         'bloodGroup': value['bloodGroup'],
         'bloodVolumeDonated': value['bloodVolumeDonated'],

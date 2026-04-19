@@ -17,7 +17,8 @@ type Bonus struct {
 func (Bonus) Fields() []ent.Field {
 	return []ent.Field{
 		// user_id — Идентификатор пользователя, которому принадлежит бонус
-		field.String("user_id"),
+		field.String("user_id").
+			Optional(),
 
 		// partner_name — Наименование партнера (юрлицо / бренд)
 		field.String("partner_name"),
@@ -64,8 +65,7 @@ func (Bonus) Edges() []ent.Edge {
 		edge.From("user", User.Type).
 			Ref("bonuses").
 			Field("user_id").
-			Unique().
-			Required(),
+			Unique(),
 	}
 }
 

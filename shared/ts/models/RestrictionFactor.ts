@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface RestrictionFactor
  */
 export interface RestrictionFactor {
-    [key: string]: any | any;
     /**
      * Код фактора
      * @type {string}
@@ -59,7 +58,6 @@ export function RestrictionFactorFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         'code': json['code'],
         'description': json['description'],
         'subDescription': json['subDescription'] == null ? undefined : json['subDescription'],
@@ -77,7 +75,6 @@ export function RestrictionFactorToJSONTyped(value?: RestrictionFactor | null, i
 
     return {
         
-            ...value,
         'code': value['code'],
         'description': value['description'],
         'subDescription': value['subDescription'],

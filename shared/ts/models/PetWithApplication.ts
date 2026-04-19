@@ -55,7 +55,6 @@ import {
  * @interface PetWithApplication
  */
 export interface PetWithApplication {
-    [key: string]: any | any;
     /**
      * Группированные анализы
      * @type {PetAnalysisGroup}
@@ -91,7 +90,7 @@ export interface PetWithApplication {
      * @type {Array<string>}
      * @memberof PetWithApplication
      */
-    bonuses?: Array<string>;
+    bonuses?: Array<string> | null;
     /**
      * ID породы
      * @type {string}
@@ -175,7 +174,7 @@ export interface PetWithApplication {
      * @type {Array<string>}
      * @memberof PetWithApplication
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Дни восстановления после донации
      * @type {number}
@@ -305,7 +304,6 @@ export function PetWithApplicationFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-            ...json,
         'analyses': json['analyses'] == null ? undefined : PetAnalysisGroupFromJSON(json['analyses']),
         'application': CoreApplicationDataFromJSON(json['application']),
         'availableBloodAmount': json['availableBloodAmount'] == null ? undefined : json['availableBloodAmount'],
@@ -346,7 +344,6 @@ export function PetWithApplicationToJSONTyped(value?: Omit<PetWithApplication, '
 
     return {
         
-            ...value,
         'analyses': PetAnalysisGroupToJSON(value['analyses']),
         'application': CoreApplicationDataToJSON(value['application']),
         'availableBloodAmount': value['availableBloodAmount'],

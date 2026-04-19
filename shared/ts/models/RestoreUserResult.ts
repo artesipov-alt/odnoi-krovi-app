@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface RestoreUserResult
  */
 export interface RestoreUserResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -52,7 +51,6 @@ export function RestoreUserResultFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'message': json['message'],
     };
@@ -69,7 +67,6 @@ export function RestoreUserResultToJSONTyped(value?: Omit<RestoreUserResult, '$s
 
     return {
         
-            ...value,
         'message': value['message'],
     };
 }

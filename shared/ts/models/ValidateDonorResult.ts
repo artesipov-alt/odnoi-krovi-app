@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ValidateDonorResult
  */
 export interface ValidateDonorResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -37,7 +36,7 @@ export interface ValidateDonorResult {
      * @type {Date}
      * @memberof ValidateDonorResult
      */
-    updatedAt: Date;
+    updatedAt: Date | null;
 }
 
 /**
@@ -59,10 +58,9 @@ export function ValidateDonorResultFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'id': json['id'],
-        'updatedAt': (new Date(json['updatedAt'])),
+        'updatedAt': (json['updatedAt'] == null ? null : new Date(json['updatedAt'])),
     };
 }
 
@@ -77,9 +75,8 @@ export function ValidateDonorResultToJSONTyped(value?: Omit<ValidateDonorResult,
 
     return {
         
-            ...value,
         'id': value['id'],
-        'updatedAt': value['updatedAt'].toISOString(),
+        'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
     };
 }
 

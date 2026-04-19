@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface AdvancedInfo
  */
 export interface AdvancedInfo {
-    [key: string]: any | any;
     /**
      * Дополнительное описание
      * @type {string}
@@ -31,7 +30,7 @@ export interface AdvancedInfo {
      * @type {Array<string>}
      * @memberof AdvancedInfo
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
 }
 
 /**
@@ -51,7 +50,6 @@ export function AdvancedInfoFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-            ...json,
         'description': json['description'] == null ? undefined : json['description'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
     };
@@ -68,7 +66,6 @@ export function AdvancedInfoToJSONTyped(value?: AdvancedInfo | null, ignoreDiscr
 
     return {
         
-            ...value,
         'description': value['description'],
         'photoUrls': value['photoUrls'],
     };

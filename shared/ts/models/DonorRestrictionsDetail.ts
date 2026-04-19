@@ -27,7 +27,6 @@ import {
  * @interface DonorRestrictionsDetail
  */
 export interface DonorRestrictionsDetail {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,13 +38,13 @@ export interface DonorRestrictionsDetail {
      * @type {Array<FactorDescription>}
      * @memberof DonorRestrictionsDetail
      */
-    stopFactors: Array<FactorDescription>;
+    stopFactors: Array<FactorDescription> | null;
     /**
      * Список варн-факторов
      * @type {Array<FactorDescription>}
      * @memberof DonorRestrictionsDetail
      */
-    warnFactors: Array<FactorDescription>;
+    warnFactors: Array<FactorDescription> | null;
 }
 
 /**
@@ -67,10 +66,9 @@ export function DonorRestrictionsDetailFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'stopFactors': ((json['stopFactors'] as Array<any>).map(FactorDescriptionFromJSON)),
-        'warnFactors': ((json['warnFactors'] as Array<any>).map(FactorDescriptionFromJSON)),
+        'stopFactors': (json['stopFactors'] == null ? null : (json['stopFactors'] as Array<any>).map(FactorDescriptionFromJSON)),
+        'warnFactors': (json['warnFactors'] == null ? null : (json['warnFactors'] as Array<any>).map(FactorDescriptionFromJSON)),
     };
 }
 
@@ -85,9 +83,8 @@ export function DonorRestrictionsDetailToJSONTyped(value?: Omit<DonorRestriction
 
     return {
         
-            ...value,
-        'stopFactors': ((value['stopFactors'] as Array<any>).map(FactorDescriptionToJSON)),
-        'warnFactors': ((value['warnFactors'] as Array<any>).map(FactorDescriptionToJSON)),
+        'stopFactors': (value['stopFactors'] == null ? null : (value['stopFactors'] as Array<any>).map(FactorDescriptionToJSON)),
+        'warnFactors': (value['warnFactors'] == null ? null : (value['warnFactors'] as Array<any>).map(FactorDescriptionToJSON)),
     };
 }
 

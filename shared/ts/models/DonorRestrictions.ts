@@ -27,19 +27,18 @@ import {
  * @interface DonorRestrictions
  */
 export interface DonorRestrictions {
-    [key: string]: any | any;
     /**
      * Стоп-факторы
      * @type {Array<RestrictionFactor>}
      * @memberof DonorRestrictions
      */
-    stopFactors?: Array<RestrictionFactor>;
+    stopFactors?: Array<RestrictionFactor> | null;
     /**
      * Предупреждающие факторы
      * @type {Array<RestrictionFactor>}
      * @memberof DonorRestrictions
      */
-    warnFactors?: Array<RestrictionFactor>;
+    warnFactors?: Array<RestrictionFactor> | null;
 }
 
 /**
@@ -59,7 +58,6 @@ export function DonorRestrictionsFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         'stopFactors': json['stopFactors'] == null ? undefined : ((json['stopFactors'] as Array<any>).map(RestrictionFactorFromJSON)),
         'warnFactors': json['warnFactors'] == null ? undefined : ((json['warnFactors'] as Array<any>).map(RestrictionFactorFromJSON)),
     };
@@ -76,7 +74,6 @@ export function DonorRestrictionsToJSONTyped(value?: DonorRestrictions | null, i
 
     return {
         
-            ...value,
         'stopFactors': value['stopFactors'] == null ? undefined : ((value['stopFactors'] as Array<any>).map(RestrictionFactorToJSON)),
         'warnFactors': value['warnFactors'] == null ? undefined : ((value['warnFactors'] as Array<any>).map(RestrictionFactorToJSON)),
     };

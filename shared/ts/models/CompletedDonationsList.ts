@@ -27,7 +27,6 @@ import {
  * @interface CompletedDonationsList
  */
 export interface CompletedDonationsList {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,7 +38,7 @@ export interface CompletedDonationsList {
      * @type {Array<DonationCardForDonor>}
      * @memberof CompletedDonationsList
      */
-    items: Array<DonationCardForDonor>;
+    items: Array<DonationCardForDonor> | null;
     /**
      * Общее количество донаций
      * @type {number}
@@ -80,9 +79,8 @@ export function CompletedDonationsListFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'items': ((json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
+        'items': (json['items'] == null ? null : (json['items'] as Array<any>).map(DonationCardForDonorFromJSON)),
         'total': json['total'],
         'totalCompletedDonations': json['totalCompletedDonations'] == null ? undefined : json['totalCompletedDonations'],
         'totalDonatedVolume': json['totalDonatedVolume'],
@@ -100,8 +98,7 @@ export function CompletedDonationsListToJSONTyped(value?: Omit<CompletedDonation
 
     return {
         
-            ...value,
-        'items': ((value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
+        'items': (value['items'] == null ? null : (value['items'] as Array<any>).map(DonationCardForDonorToJSON)),
         'total': value['total'],
         'totalCompletedDonations': value['totalCompletedDonations'],
         'totalDonatedVolume': value['totalDonatedVolume'],

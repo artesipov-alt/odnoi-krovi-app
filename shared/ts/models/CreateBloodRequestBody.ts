@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface CreateBloodRequestBody
  */
 export interface CreateBloodRequestBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -31,13 +30,13 @@ export interface CreateBloodRequestBody {
      * @type {Array<string>}
      * @memberof CreateBloodRequestBody
      */
-    bloodComponentIds: Array<string>;
+    bloodComponentIds: Array<string> | null;
     /**
      * Список групп крови
      * @type {Array<string>}
      * @memberof CreateBloodRequestBody
      */
-    bloodGroupNames: Array<CreateBloodRequestBodyBloodGroupNamesEnum>;
+    bloodGroupNames: Array<CreateBloodRequestBodyBloodGroupNamesEnum> | null;
     /**
      * Необходимый объем крови в мл
      * @type {number}
@@ -73,7 +72,7 @@ export interface CreateBloodRequestBody {
      * @type {Array<string>}
      * @memberof CreateBloodRequestBody
      */
-    regions: Array<string>;
+    regions: Array<string> | null;
     /**
      * Разрешить уведомления для мелких питомцев
      * @type {boolean}
@@ -121,16 +120,15 @@ export function CreateBloodRequestBodyFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'bloodComponentIds': json['bloodComponentIds'],
-        'bloodGroupNames': json['bloodGroupNames'],
+        'bloodComponentIds': json['bloodComponentIds'] == null ? null : json['bloodComponentIds'],
+        'bloodGroupNames': json['bloodGroupNames'] == null ? null : json['bloodGroupNames'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
         'description': json['description'] == null ? undefined : json['description'],
         'includeUnknownBloodGroup': json['includeUnknownBloodGroup'],
         'petId': json['petId'],
         'prioritySearch': json['prioritySearch'],
-        'regions': json['regions'],
+        'regions': json['regions'] == null ? null : json['regions'],
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
     };
 }
@@ -146,7 +144,6 @@ export function CreateBloodRequestBodyToJSONTyped(value?: Omit<CreateBloodReques
 
     return {
         
-            ...value,
         'bloodComponentIds': value['bloodComponentIds'],
         'bloodGroupNames': value['bloodGroupNames'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],

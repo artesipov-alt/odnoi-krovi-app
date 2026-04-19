@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface DonorPreference
  */
 export interface DonorPreference {
-    [key: string]: any | any;
     /**
      * Тип компенсации
      * @type {string}
@@ -55,7 +54,7 @@ export interface DonorPreference {
      * @type {Array<string>}
      * @memberof DonorPreference
      */
-    preferredLocationIds: Array<string>;
+    preferredLocationIds: Array<string> | null;
     /**
      * Период восстановления в месяцах
      * @type {number}
@@ -129,13 +128,12 @@ export function DonorPreferenceFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-            ...json,
         'compensationType': json['compensationType'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'id': json['id'],
         'notificationFrequency': json['notificationFrequency'],
-        'preferredLocationIds': json['preferredLocationIds'],
+        'preferredLocationIds': json['preferredLocationIds'] == null ? null : json['preferredLocationIds'],
         'recoveryPeriodMonths': json['recoveryPeriodMonths'],
         'taxiCompensation': json['taxiCompensation'],
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
@@ -154,7 +152,6 @@ export function DonorPreferenceToJSONTyped(value?: Omit<DonorPreference, 'create
 
     return {
         
-            ...value,
         'compensationType': value['compensationType'],
         'notificationFrequency': value['notificationFrequency'],
         'preferredLocationIds': value['preferredLocationIds'],

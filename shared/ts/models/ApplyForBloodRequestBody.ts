@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ApplyForBloodRequestBody
  */
 export interface ApplyForBloodRequestBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -76,7 +75,6 @@ export function ApplyForBloodRequestBodyFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'compensationType': json['compensationType'] == null ? undefined : json['compensationType'],
         'donorId': json['donorId'],
@@ -95,7 +93,6 @@ export function ApplyForBloodRequestBodyToJSONTyped(value?: Omit<ApplyForBloodRe
 
     return {
         
-            ...value,
         'compensationType': value['compensationType'],
         'donorId': value['donorId'],
         'taxiCompensation': value['taxiCompensation'],

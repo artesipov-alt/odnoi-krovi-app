@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface UploadItem
  */
 export interface UploadItem {
-    [key: string]: any | any;
     /**
      * Путь к файлу в хранилище
      * @type {string}
@@ -53,7 +52,6 @@ export function UploadItemFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-            ...json,
         'path': json['path'],
         'url': json['url'],
     };
@@ -70,7 +68,6 @@ export function UploadItemToJSONTyped(value?: UploadItem | null, ignoreDiscrimin
 
     return {
         
-            ...value,
         'path': value['path'],
         'url': value['url'],
     };

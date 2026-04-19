@@ -41,7 +41,6 @@ import {
  * @interface UserDetail
  */
 export interface UserDetail {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -101,7 +100,7 @@ export interface UserDetail {
      * @type {Array<Identity>}
      * @memberof UserDetail
      */
-    identities: Array<Identity>;
+    identities: Array<Identity> | null;
     /**
      * ID локации
      * @type {string}
@@ -113,7 +112,7 @@ export interface UserDetail {
      * @type {Array<string>}
      * @memberof UserDetail
      */
-    onBoarding: Array<UserDetailOnBoardingEnum>;
+    onBoarding: Array<UserDetailOnBoardingEnum> | null;
     /**
      * Название организации
      * @type {string}
@@ -125,7 +124,7 @@ export interface UserDetail {
      * @type {Array<PetDetail>}
      * @memberof UserDetail
      */
-    pets?: Array<PetDetail>;
+    pets?: Array<PetDetail> | null;
     /**
      * Телефон
      * @type {string}
@@ -137,7 +136,7 @@ export interface UserDetail {
      * @type {Array<string>}
      * @memberof UserDetail
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
     /**
      * Роль пользователя
      * @type {string}
@@ -194,7 +193,6 @@ export function UserDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'allowGeo': json['allowGeo'],
         'consentPd': json['consentPd'],
@@ -204,9 +202,9 @@ export function UserDetailFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'email': json['email'] == null ? undefined : json['email'],
         'fullName': json['fullName'],
         'id': json['id'],
-        'identities': ((json['identities'] as Array<any>).map(IdentityFromJSON)),
+        'identities': (json['identities'] == null ? null : (json['identities'] as Array<any>).map(IdentityFromJSON)),
         'locationId': json['locationId'] == null ? undefined : json['locationId'],
-        'onBoarding': json['onBoarding'],
+        'onBoarding': json['onBoarding'] == null ? null : json['onBoarding'],
         'organizationName': json['organizationName'] == null ? undefined : json['organizationName'],
         'pets': json['pets'] == null ? undefined : ((json['pets'] as Array<any>).map(PetDetailFromJSON)),
         'phone': json['phone'] == null ? undefined : json['phone'],
@@ -228,13 +226,12 @@ export function UserDetailToJSONTyped(value?: Omit<UserDetail, '$schema'|'create
 
     return {
         
-            ...value,
         'allowGeo': value['allowGeo'],
         'consentPd': value['consentPd'],
         'donorPreference': DonorPreferenceToJSON(value['donorPreference']),
         'email': value['email'],
         'fullName': value['fullName'],
-        'identities': ((value['identities'] as Array<any>).map(IdentityToJSON)),
+        'identities': (value['identities'] == null ? null : (value['identities'] as Array<any>).map(IdentityToJSON)),
         'locationId': value['locationId'],
         'onBoarding': value['onBoarding'],
         'organizationName': value['organizationName'],

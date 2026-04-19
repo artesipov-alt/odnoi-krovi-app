@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface PetTreatment
  */
 export interface PetTreatment {
-    [key: string]: any | any;
     /**
      * Дата дегельминтизации
      * @type {Date}
@@ -63,7 +62,6 @@ export function PetTreatmentFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-            ...json,
         'dewormingDate': json['dewormingDate'] == null ? undefined : (new Date(json['dewormingDate'])),
         'ectoparasiteTreatmentDate': json['ectoparasiteTreatmentDate'] == null ? undefined : (new Date(json['ectoparasiteTreatmentDate'])),
         'infectionVaccinationDate': json['infectionVaccinationDate'] == null ? undefined : (new Date(json['infectionVaccinationDate'])),
@@ -82,7 +80,6 @@ export function PetTreatmentToJSONTyped(value?: PetTreatment | null, ignoreDiscr
 
     return {
         
-            ...value,
         'dewormingDate': value['dewormingDate'] == null ? value['dewormingDate'] : value['dewormingDate'].toISOString(),
         'ectoparasiteTreatmentDate': value['ectoparasiteTreatmentDate'] == null ? value['ectoparasiteTreatmentDate'] : value['ectoparasiteTreatmentDate'].toISOString(),
         'infectionVaccinationDate': value['infectionVaccinationDate'] == null ? value['infectionVaccinationDate'] : value['infectionVaccinationDate'].toISOString(),

@@ -27,7 +27,6 @@ import {
  * @interface DonorApplication
  */
 export interface DonorApplication {
-    [key: string]: any | any;
     /**
      * Объем крови в мл
      * @type {number}
@@ -166,7 +165,6 @@ export function DonorApplicationFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         'amount': json['amount'],
         'compensationType': json['compensationType'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
@@ -195,7 +193,6 @@ export function DonorApplicationToJSONTyped(value?: DonorApplication | null, ign
 
     return {
         
-            ...value,
         'amount': value['amount'],
         'compensationType': value['compensationType'],
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),

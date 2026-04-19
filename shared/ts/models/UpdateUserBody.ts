@@ -27,7 +27,6 @@ import {
  * @interface UpdateUserBody
  */
 export interface UpdateUserBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -107,7 +106,6 @@ export function UpdateUserBodyFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'allowGeo': json['allowGeo'] == null ? undefined : json['allowGeo'],
         'donorPreference': json['donorPreference'] == null ? undefined : DonorPreferenceParamsFromJSON(json['donorPreference']),
@@ -130,7 +128,6 @@ export function UpdateUserBodyToJSONTyped(value?: Omit<UpdateUserBody, '$schema'
 
     return {
         
-            ...value,
         'allowGeo': value['allowGeo'],
         'donorPreference': DonorPreferenceParamsToJSON(value['donorPreference']),
         'email': value['email'],

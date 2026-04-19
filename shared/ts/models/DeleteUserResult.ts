@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface DeleteUserResult
  */
 export interface DeleteUserResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -52,7 +51,6 @@ export function DeleteUserResultFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'message': json['message'],
     };
@@ -69,7 +67,6 @@ export function DeleteUserResultToJSONTyped(value?: Omit<DeleteUserResult, '$sch
 
     return {
         
-            ...value,
         'message': value['message'],
     };
 }

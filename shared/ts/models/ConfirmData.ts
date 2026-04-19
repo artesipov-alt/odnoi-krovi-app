@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ConfirmData
  */
 export interface ConfirmData {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -51,7 +50,6 @@ export function ConfirmDataFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'amount': json['amount'] == null ? undefined : json['amount'],
     };
@@ -68,7 +66,6 @@ export function ConfirmDataToJSONTyped(value?: Omit<ConfirmData, '$schema'> | nu
 
     return {
         
-            ...value,
         'amount': value['amount'],
     };
 }

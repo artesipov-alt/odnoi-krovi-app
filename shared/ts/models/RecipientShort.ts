@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface RecipientShort
  */
 export interface RecipientShort {
-    [key: string]: any | any;
     /**
      * Фактически проведённый объем донации крови в мл
      * @type {number}
@@ -55,7 +54,7 @@ export interface RecipientShort {
      * @type {Array<string>}
      * @memberof RecipientShort
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
 }
 
 
@@ -91,7 +90,6 @@ export function RecipientShortFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-            ...json,
         'bloodVolumeDonated': json['bloodVolumeDonated'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'],
         'bloodVolumeReserved': json['bloodVolumeReserved'],
@@ -112,7 +110,6 @@ export function RecipientShortToJSONTyped(value?: RecipientShort | null, ignoreD
 
     return {
         
-            ...value,
         'bloodVolumeDonated': value['bloodVolumeDonated'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],
         'bloodVolumeReserved': value['bloodVolumeReserved'],

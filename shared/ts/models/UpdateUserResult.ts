@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface UpdateUserResult
  */
 export interface UpdateUserResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -58,7 +57,6 @@ export function UpdateUserResultFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'id': json['id'],
         'updatedAt': json['updatedAt'] == null ? undefined : (new Date(json['updatedAt'])),
@@ -76,7 +74,6 @@ export function UpdateUserResultToJSONTyped(value?: Omit<UpdateUserResult, '$sch
 
     return {
         
-            ...value,
         'id': value['id'],
         'updatedAt': value['updatedAt'] == null ? value['updatedAt'] : value['updatedAt'].toISOString(),
     };

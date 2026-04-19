@@ -69,6 +69,12 @@ func (_u *BonusUpdate) SetNillableUserID(v *string) *BonusUpdate {
 	return _u
 }
 
+// ClearUserID clears the value of the "user_id" field.
+func (_u *BonusUpdate) ClearUserID() *BonusUpdate {
+	_u.mutation.ClearUserID()
+	return _u
+}
+
 // SetPartnerName sets the "partner_name" field.
 func (_u *BonusUpdate) SetPartnerName(v string) *BonusUpdate {
 	_u.mutation.SetPartnerName(v)
@@ -284,9 +290,6 @@ func (_u *BonusUpdate) check() error {
 			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Bonus.category": %w`, err)}
 		}
 	}
-	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Bonus.user"`)
-	}
 	return nil
 }
 
@@ -430,6 +433,12 @@ func (_u *BonusUpdateOne) SetNillableUserID(v *string) *BonusUpdateOne {
 	if v != nil {
 		_u.SetUserID(*v)
 	}
+	return _u
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (_u *BonusUpdateOne) ClearUserID() *BonusUpdateOne {
+	_u.mutation.ClearUserID()
 	return _u
 }
 
@@ -660,9 +669,6 @@ func (_u *BonusUpdateOne) check() error {
 		if err := bonus.CategoryValidator(v); err != nil {
 			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Bonus.category": %w`, err)}
 		}
-	}
-	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Bonus.user"`)
 	}
 	return nil
 }

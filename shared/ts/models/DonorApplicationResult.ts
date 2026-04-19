@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface DonorApplicationResult
  */
 export interface DonorApplicationResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -92,7 +91,6 @@ export function DonorApplicationResultFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'donorId': json['donorId'],
@@ -113,7 +111,6 @@ export function DonorApplicationResultToJSONTyped(value?: Omit<DonorApplicationR
 
     return {
         
-            ...value,
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'donorId': value['donorId'],
         'id': value['id'],

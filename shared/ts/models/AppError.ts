@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface AppError
  */
 export interface AppError {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -34,10 +33,10 @@ export interface AppError {
     code: string;
     /**
      * 
-     * @type {{ [key: string]: any; }}
+     * @type {object}
      * @memberof AppError
      */
-    details: { [key: string]: any; };
+    details: object;
     /**
      * 
      * @type {number}
@@ -80,7 +79,6 @@ export function AppErrorFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'code': json['Code'],
         'details': json['Details'],
@@ -101,7 +99,6 @@ export function AppErrorToJSONTyped(value?: Omit<AppError, '$schema'> | null, ig
 
     return {
         
-            ...value,
         'Code': value['code'],
         'Details': value['details'],
         'HTTPStatus': value['hTTPStatus'],

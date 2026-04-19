@@ -27,7 +27,6 @@ import {
  * @interface GetPetsByUserResult
  */
 export interface GetPetsByUserResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,7 +38,7 @@ export interface GetPetsByUserResult {
      * @type {Array<PetDetail>}
      * @memberof GetPetsByUserResult
      */
-    pets: Array<PetDetail>;
+    pets: Array<PetDetail> | null;
     /**
      * Общее количество завершенных донаций питомцев пользователя
      * @type {number}
@@ -79,9 +78,8 @@ export function GetPetsByUserResultFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'pets': ((json['pets'] as Array<any>).map(PetDetailFromJSON)),
+        'pets': (json['pets'] == null ? null : (json['pets'] as Array<any>).map(PetDetailFromJSON)),
         'totalCompletedDonations': json['totalCompletedDonations'] == null ? undefined : json['totalCompletedDonations'],
         'totalPets': json['totalPets'],
         'totalPlannedDonations': json['totalPlannedDonations'] == null ? undefined : json['totalPlannedDonations'],
@@ -99,8 +97,7 @@ export function GetPetsByUserResultToJSONTyped(value?: Omit<GetPetsByUserResult,
 
     return {
         
-            ...value,
-        'pets': ((value['pets'] as Array<any>).map(PetDetailToJSON)),
+        'pets': (value['pets'] == null ? null : (value['pets'] as Array<any>).map(PetDetailToJSON)),
         'totalCompletedDonations': value['totalCompletedDonations'],
         'totalPets': value['totalPets'],
         'totalPlannedDonations': value['totalPlannedDonations'],

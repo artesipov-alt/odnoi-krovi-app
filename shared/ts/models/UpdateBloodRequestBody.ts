@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface UpdateBloodRequestBody
  */
 export interface UpdateBloodRequestBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -31,13 +30,13 @@ export interface UpdateBloodRequestBody {
      * @type {Array<string>}
      * @memberof UpdateBloodRequestBody
      */
-    bloodComponentIds?: Array<string>;
+    bloodComponentIds?: Array<string> | null;
     /**
      * Список групп крови
      * @type {Array<string>}
      * @memberof UpdateBloodRequestBody
      */
-    bloodGroupNames?: Array<string>;
+    bloodGroupNames?: Array<string> | null;
     /**
      * Необходимый объем крови в мл
      * @type {number}
@@ -67,7 +66,7 @@ export interface UpdateBloodRequestBody {
      * @type {Array<string>}
      * @memberof UpdateBloodRequestBody
      */
-    onBoarding?: Array<string>;
+    onBoarding?: Array<string> | null;
     /**
      * Приоритетный поиск
      * @type {boolean}
@@ -79,7 +78,7 @@ export interface UpdateBloodRequestBody {
      * @type {Array<string>}
      * @memberof UpdateBloodRequestBody
      */
-    regions?: Array<string>;
+    regions?: Array<string> | null;
     /**
      * Разрешить уведомления для мелких питомцев
      * @type {boolean}
@@ -111,7 +110,6 @@ export function UpdateBloodRequestBodyFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'bloodComponentIds': json['bloodComponentIds'] == null ? undefined : json['bloodComponentIds'],
         'bloodGroupNames': json['bloodGroupNames'] == null ? undefined : json['bloodGroupNames'],
@@ -138,7 +136,6 @@ export function UpdateBloodRequestBodyToJSONTyped(value?: Omit<UpdateBloodReques
 
     return {
         
-            ...value,
         'bloodComponentIds': value['bloodComponentIds'],
         'bloodGroupNames': value['bloodGroupNames'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],

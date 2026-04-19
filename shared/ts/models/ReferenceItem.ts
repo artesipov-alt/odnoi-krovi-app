@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ReferenceItem
  */
 export interface ReferenceItem {
-    [key: string]: any | any;
     /**
      * Отображаемое название
      * @type {string}
@@ -53,7 +52,6 @@ export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-            ...json,
         'label': json['label'],
         'value': json['value'],
     };
@@ -70,7 +68,6 @@ export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDis
 
     return {
         
-            ...value,
         'label': value['label'],
         'value': value['value'],
     };

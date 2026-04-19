@@ -34,7 +34,6 @@ import {
  * @interface DonationCardForDonor
  */
 export interface DonationCardForDonor {
-    [key: string]: any | any;
     /**
      * Данные об отклике
      * @type {ApplicationShort}
@@ -68,7 +67,6 @@ export function DonationCardForDonorFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-            ...json,
         'applicationData': ApplicationShortFromJSON(json['applicationData']),
         'recipientData': RecipientForDonorFromJSON(json['recipientData']),
     };
@@ -85,7 +83,6 @@ export function DonationCardForDonorToJSONTyped(value?: DonationCardForDonor | n
 
     return {
         
-            ...value,
         'applicationData': ApplicationShortToJSON(value['applicationData']),
         'recipientData': RecipientForDonorToJSON(value['recipientData']),
     };

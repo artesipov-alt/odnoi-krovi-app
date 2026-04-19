@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AdminV1Api';
 export * from './AuthV1Api';
 export * from './BloodRequestV1Api';
 export * from './DevApi';

@@ -27,7 +27,6 @@ import {
  * @interface LivingConditionsList
  */
 export interface LivingConditionsList {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -39,7 +38,7 @@ export interface LivingConditionsList {
      * @type {Array<ReferenceItem>}
      * @memberof LivingConditionsList
      */
-    data: Array<ReferenceItem>;
+    data: Array<ReferenceItem> | null;
 }
 
 /**
@@ -60,9 +59,8 @@ export function LivingConditionsListFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'data': ((json['data'] as Array<any>).map(ReferenceItemFromJSON)),
+        'data': (json['data'] == null ? null : (json['data'] as Array<any>).map(ReferenceItemFromJSON)),
     };
 }
 
@@ -77,8 +75,7 @@ export function LivingConditionsListToJSONTyped(value?: Omit<LivingConditionsLis
 
     return {
         
-            ...value,
-        'data': ((value['data'] as Array<any>).map(ReferenceItemToJSON)),
+        'data': (value['data'] == null ? null : (value['data'] as Array<any>).map(ReferenceItemToJSON)),
     };
 }
 

@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface MatchingDonor
  */
 export interface MatchingDonor {
-    [key: string]: any | any;
     /**
      * Количество возможной крови для донорства
      * @type {number}
@@ -49,7 +48,7 @@ export interface MatchingDonor {
      * @type {Array<string>}
      * @memberof MatchingDonor
      */
-    photoUrls?: Array<string>;
+    photoUrls?: Array<string> | null;
 }
 
 /**
@@ -73,7 +72,6 @@ export function MatchingDonorFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-            ...json,
         'amount': json['amount'],
         'donorBloodGroup': json['donorBloodGroup'],
         'petId': json['petId'],
@@ -93,7 +91,6 @@ export function MatchingDonorToJSONTyped(value?: MatchingDonor | null, ignoreDis
 
     return {
         
-            ...value,
         'amount': value['amount'],
         'donorBloodGroup': value['donorBloodGroup'],
         'petId': value['petId'],

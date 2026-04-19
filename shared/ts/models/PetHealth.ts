@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface PetHealth
  */
 export interface PetHealth {
-    [key: string]: any | any;
     /**
      * Общее состояние здоровья питомца
      * @type {string}
@@ -81,7 +80,6 @@ export function PetHealthFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         
-            ...json,
         'healthStatus': json['healthStatus'] == null ? undefined : json['healthStatus'],
         'lastDonation': json['lastDonation'] == null ? undefined : (new Date(json['lastDonation'])),
         'medications': json['medications'] == null ? undefined : json['medications'],
@@ -101,7 +99,6 @@ export function PetHealthToJSONTyped(value?: PetHealth | null, ignoreDiscriminat
 
     return {
         
-            ...value,
         'healthStatus': value['healthStatus'],
         'lastDonation': value['lastDonation'] == null ? value['lastDonation'] : value['lastDonation'].toISOString(),
         'medications': value['medications'],

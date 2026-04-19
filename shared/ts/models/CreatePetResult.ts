@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface CreatePetResult
  */
 export interface CreatePetResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -31,7 +30,7 @@ export interface CreatePetResult {
      * @type {Date}
      * @memberof CreatePetResult
      */
-    createdAt: Date;
+    createdAt: Date | null;
     /**
      * ID созданного питомца
      * @type {string}
@@ -59,9 +58,8 @@ export function CreatePetResultFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'createdAt': (new Date(json['createdAt'])),
+        'createdAt': (json['createdAt'] == null ? null : new Date(json['createdAt'])),
         'id': json['id'],
     };
 }
@@ -77,8 +75,7 @@ export function CreatePetResultToJSONTyped(value?: Omit<CreatePetResult, '$schem
 
     return {
         
-            ...value,
-        'createdAt': value['createdAt'].toISOString(),
+        'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'id': value['id'],
     };
 }

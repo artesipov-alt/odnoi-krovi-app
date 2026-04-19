@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface ConfirmUploadBody
  */
 export interface ConfirmUploadBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -37,7 +36,7 @@ export interface ConfirmUploadBody {
      * @type {Array<string>}
      * @memberof ConfirmUploadBody
      */
-    paths: Array<string>;
+    paths: Array<string> | null;
 }
 
 /**
@@ -59,10 +58,9 @@ export function ConfirmUploadBodyFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'entityId': json['entityId'],
-        'paths': json['paths'],
+        'paths': json['paths'] == null ? null : json['paths'],
     };
 }
 
@@ -77,7 +75,6 @@ export function ConfirmUploadBodyToJSONTyped(value?: Omit<ConfirmUploadBody, '$s
 
     return {
         
-            ...value,
         'entityId': value['entityId'],
         'paths': value['paths'],
     };

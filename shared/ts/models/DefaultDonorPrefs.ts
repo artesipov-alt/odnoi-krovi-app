@@ -19,13 +19,12 @@ import { mapValues } from '../runtime';
  * @interface DefaultDonorPrefs
  */
 export interface DefaultDonorPrefs {
-    [key: string]: any | any;
     /**
      * Бонусы за донорство
      * @type {Array<string>}
      * @memberof DefaultDonorPrefs
      */
-    bonuses: Array<string>;
+    bonuses: Array<string> | null;
     /**
      * Тип компенсации
      * @type {string}
@@ -72,8 +71,7 @@ export function DefaultDonorPrefsFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
-        'bonuses': json['bonuses'],
+        'bonuses': json['bonuses'] == null ? null : json['bonuses'],
         'compensationType': json['compensationType'],
         'taxiCompensation': json['taxiCompensation'],
     };
@@ -90,7 +88,6 @@ export function DefaultDonorPrefsToJSONTyped(value?: DefaultDonorPrefs | null, i
 
     return {
         
-            ...value,
         'bonuses': value['bonuses'],
         'compensationType': value['compensationType'],
         'taxiCompensation': value['taxiCompensation'],

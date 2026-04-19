@@ -72,6 +72,14 @@ func (_c *BonusCreate) SetUserID(v string) *BonusCreate {
 	return _c
 }
 
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_c *BonusCreate) SetNillableUserID(v *string) *BonusCreate {
+	if v != nil {
+		_c.SetUserID(*v)
+	}
+	return _c
+}
+
 // SetPartnerName sets the "partner_name" field.
 func (_c *BonusCreate) SetPartnerName(v string) *BonusCreate {
 	_c.mutation.SetPartnerName(v)
@@ -228,9 +236,6 @@ func (_c *BonusCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Bonus.updated_at"`)}
 	}
-	if _, ok := _c.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Bonus.user_id"`)}
-	}
 	if _, ok := _c.mutation.PartnerName(); !ok {
 		return &ValidationError{Name: "partner_name", err: errors.New(`ent: missing required field "Bonus.partner_name"`)}
 	}
@@ -272,9 +277,6 @@ func (_c *BonusCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsActive(); !ok {
 		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "Bonus.is_active"`)}
-	}
-	if len(_c.mutation.UserIDs()) == 0 {
-		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Bonus.user"`)}
 	}
 	return nil
 }
@@ -472,6 +474,12 @@ func (u *BonusUpsert) SetUserID(v string) *BonusUpsert {
 // UpdateUserID sets the "user_id" field to the value that was provided on create.
 func (u *BonusUpsert) UpdateUserID() *BonusUpsert {
 	u.SetExcluded(bonus.FieldUserID)
+	return u
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *BonusUpsert) ClearUserID() *BonusUpsert {
+	u.SetNull(bonus.FieldUserID)
 	return u
 }
 
@@ -698,6 +706,13 @@ func (u *BonusUpsertOne) SetUserID(v string) *BonusUpsertOne {
 func (u *BonusUpsertOne) UpdateUserID() *BonusUpsertOne {
 	return u.Update(func(s *BonusUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *BonusUpsertOne) ClearUserID() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearUserID()
 	})
 }
 
@@ -1112,6 +1127,13 @@ func (u *BonusUpsertBulk) SetUserID(v string) *BonusUpsertBulk {
 func (u *BonusUpsertBulk) UpdateUserID() *BonusUpsertBulk {
 	return u.Update(func(s *BonusUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (u *BonusUpsertBulk) ClearUserID() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearUserID()
 	})
 }
 

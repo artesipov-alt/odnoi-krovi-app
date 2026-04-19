@@ -58,7 +58,7 @@ var (
 		{Name: "platform_name", Type: field.TypeString},
 		{Name: "platform_url", Type: field.TypeString, Nullable: true},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
-		{Name: "user_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString, Nullable: true},
 	}
 	// BonusesTable holds the schema information for the "bonuses" table.
 	BonusesTable = &schema.Table{
@@ -70,7 +70,7 @@ var (
 				Symbol:     "bonuses_users_bonuses",
 				Columns:    []*schema.Column{BonusesColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}

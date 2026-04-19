@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface Identity
  */
 export interface Identity {
-    [key: string]: any | any;
     /**
      * ID пользователя у провайдера
      * @type {string}
@@ -59,7 +58,6 @@ export function IdentityFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     }
     return {
         
-            ...json,
         'providerId': json['providerId'],
         'providerName': json['providerName'],
         'refUrl': json['refUrl'] == null ? undefined : json['refUrl'],
@@ -77,7 +75,6 @@ export function IdentityToJSONTyped(value?: Identity | null, ignoreDiscriminator
 
     return {
         
-            ...value,
         'providerId': value['providerId'],
         'providerName': value['providerName'],
         'refUrl': value['refUrl'],

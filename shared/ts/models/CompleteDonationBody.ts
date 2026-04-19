@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface CompleteDonationBody
  */
 export interface CompleteDonationBody {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -52,7 +51,6 @@ export function CompleteDonationBodyFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'amount': json['amount'],
     };
@@ -69,7 +67,6 @@ export function CompleteDonationBodyToJSONTyped(value?: Omit<CompleteDonationBod
 
     return {
         
-            ...value,
         'amount': value['amount'],
     };
 }

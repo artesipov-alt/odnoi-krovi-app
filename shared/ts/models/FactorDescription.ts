@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface FactorDescription
  */
 export interface FactorDescription {
-    [key: string]: any | any;
     /**
      * Код фактора
      * @type {string}
@@ -59,7 +58,6 @@ export function FactorDescriptionFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-            ...json,
         'code': json['code'],
         'description': json['description'],
         'subDescription': json['subDescription'] == null ? undefined : json['subDescription'],
@@ -77,7 +75,6 @@ export function FactorDescriptionToJSONTyped(value?: FactorDescription | null, i
 
     return {
         
-            ...value,
         'code': value['code'],
         'description': value['description'],
         'subDescription': value['subDescription'],

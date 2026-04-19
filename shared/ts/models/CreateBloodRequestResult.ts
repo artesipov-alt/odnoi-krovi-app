@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface CreateBloodRequestResult
  */
 export interface CreateBloodRequestResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -85,7 +84,6 @@ export function CreateBloodRequestResultFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
         'id': json['id'],
@@ -105,7 +103,6 @@ export function CreateBloodRequestResultToJSONTyped(value?: Omit<CreateBloodRequ
 
     return {
         
-            ...value,
         'createdAt': value['createdAt'] == null ? value['createdAt'] : value['createdAt'].toISOString(),
         'id': value['id'],
         'petId': value['petId'],

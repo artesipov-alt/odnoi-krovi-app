@@ -19,7 +19,6 @@ import { mapValues } from '../runtime';
  * @interface MiniAppSignInResult
  */
 export interface MiniAppSignInResult {
-    [key: string]: any | any;
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
@@ -72,7 +71,6 @@ export function MiniAppSignInResultFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-            ...json,
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'accessToken': json['accessToken'] == null ? undefined : json['accessToken'],
         'expiresAt': json['expiresAt'],
@@ -92,7 +90,6 @@ export function MiniAppSignInResultToJSONTyped(value?: Omit<MiniAppSignInResult,
 
     return {
         
-            ...value,
         'accessToken': value['accessToken'],
         'expiresAt': value['expiresAt'],
         'tokenType': value['tokenType'],
