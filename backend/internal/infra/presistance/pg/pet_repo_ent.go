@@ -467,17 +467,12 @@ func (r *EntPetRepository) DeleteWithRelations(ctx context.Context, id string) e
 		return fmt.Errorf("не удалось удалить отклики донора: %w", err)
 	}
 
-	// Delete blood request and responses if exists
-	bloodReq, err := r.client.BloodSearchRequest.Query().Where(entbloodreq.PetID(id)).Only(ctx)
-	if err != nil && !ent.IsNotFound(err) {
-		return fmt.Errorf("не удалось получить заявку на кровь: %w", err)
+	// Delete blood requests and responses if exist
+	bloodReqs, err := r.client.BloodSearchRequest.Query().Where(entbloodreq.PetID(id)).All(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось получить заявки на кровь: %w", err)
 	}
-	if bloodReq != nil {
-		// Delete responses
-		_, err = r.client.DonorResponse.Delete().Where(sql.FieldEQ("blood_search_request_responses", bloodReq.ID)).Exec(ctx)
-		if err != nil {
-			return fmt.Errorf("не удалось удалить отклики доноров: %w", err)
-		}
+	for _, bloodReq := range bloodReqs {
 		// Delete blood request
 		err = r.client.BloodSearchRequest.DeleteOneID(bloodReq.ID).Exec(ctx)
 		if err != nil {
