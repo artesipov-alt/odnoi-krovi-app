@@ -74,7 +74,7 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 		}
 
 		// Пересчитываем статус заявки после отмены отклика
-		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, resID)
+		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, resID, false)
 		if err != nil {
 			return apperrors.Internal(err, "failed to get blood request after cancel")
 		}
@@ -92,7 +92,7 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 	}
 
 	// Publish DonorCancel event
-	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, resID)
+	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, resID, false)
 	if err != nil {
 		return apperrors.Internal(err, "failed to get blood request for event")
 	}

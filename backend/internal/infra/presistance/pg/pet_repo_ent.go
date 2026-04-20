@@ -188,7 +188,12 @@ func (r *EntPetRepository) GetByID(ctx context.Context, id string, opts pet.PetP
 		}
 	}
 
-	entPet, err := pquery.Only(ctx)
+	queryCtx := ctx
+	if opts.IgnoreSoftDelete {
+		queryCtx = schema.SkipSoftDelete(ctx)
+	}
+
+	entPet, err := pquery.Only(queryCtx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, apperrors.ErrPetNotFound
@@ -222,9 +227,14 @@ func (r *EntPetRepository) GetByUserID(ctx context.Context, userID string, opts 
 		}
 	}
 
-	pets, err := pquery.All(ctx)
+	queryCtx := ctx
+	if opts.IgnoreSoftDelete {
+		queryCtx = schema.SkipSoftDelete(ctx)
+	}
+
+	pets, err := pquery.All(queryCtx)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get pets")
+		return nil, fmt.Errorf("не удалось получить питомцев: %w", err)
 	}
 
 	return domainmapper.PetToDomainSlice(pets), nil

@@ -12,6 +12,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
@@ -144,11 +145,15 @@ func (r *EntBloodRequestRepository) GetByPetIDs(ctx context.Context, petIDs []st
 }
 
 // GetByApplicationID возвращает заявку по id отклика на эту заявку
-func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithApplications, error) {
+func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id string, ignoreSoftDelete bool) (*bloodreqmodel.BloodRequestWithApplications, error) {
+	queryCtx := ctx
+	if ignoreSoftDelete {
+		queryCtx = schema.SkipSoftDelete(ctx)
+	}
 	req, err := r.client(ctx).BloodSearchRequest.Query().
 		Where(bloodsearchrequest.HasResponsesWith(donorresponse.IDEQ(id))).
 		WithResponses().
-		Only(ctx)
+		Only(queryCtx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil

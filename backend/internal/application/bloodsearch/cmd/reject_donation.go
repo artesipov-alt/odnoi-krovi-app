@@ -55,7 +55,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		if err := h.donorRepo.Reject(txCtx, application); err != nil {
 			return err
 		}
-		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
+		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID, false)
 		if err != nil {
 			return err
 		}
@@ -72,7 +72,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 	}
 
 	// Publish DonorReject event
-	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID, false)
 	if err != nil {
 		return err
 	}

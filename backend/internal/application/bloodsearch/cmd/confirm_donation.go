@@ -59,7 +59,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 		var err error
-		bloodReq, err = h.bloodRepo.GetByApplicationID(txCtx, donorResponseID)
+		bloodReq, err = h.bloodRepo.GetByApplicationID(txCtx, donorResponseID, false)
 		if err != nil {
 			return err
 		}
@@ -117,7 +117,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 	}
 
 	// Get recipient data
-	bloodReq, err = h.bloodRepo.GetByApplicationID(ctx, donorResponseID)
+	bloodReq, err = h.bloodRepo.GetByApplicationID(ctx, donorResponseID, false)
 	if err != nil {
 		return err
 	}

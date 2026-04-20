@@ -39,7 +39,8 @@ func NewCompletedDonationsHandler(donorRepo donor.Repository, petRepo pet.Reposi
 
 func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) ([]*GetCompletedDonationsResult, error) {
 	donorPets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
-		WithAll: true,
+		WithAll:          true,
+		IgnoreSoftDelete: true,
 	})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets for user")
@@ -63,7 +64,7 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 		for _, app := range applications {
 			if app.IsClosedForDonation() {
 				// TODO: N+1 На каждую заявку тянется по одному запросу. Нужно сделать общий метод.
-				request, err := h.bloodReqRepo.GetByApplicationID(ctx, app.ID)
+				request, err := h.bloodReqRepo.GetByApplicationID(ctx, app.ID, true)
 				if err != nil {
 					if !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 						return nil, apperrors.Internal(err, "failed to get blood request")
@@ -71,7 +72,7 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 					// Skip if blood request not found
 					continue
 				}
-				recipientPet, err := h.petRepo.GetByID(ctx, request.PetID, pet.PetPreloadOptions{})
+				recipientPet, err := h.petRepo.GetByID(ctx, request.PetID, pet.PetPreloadOptions{IgnoreSoftDelete: true})
 				if err != nil {
 					return nil, apperrors.Internal(err, "failed to get pet")
 				}

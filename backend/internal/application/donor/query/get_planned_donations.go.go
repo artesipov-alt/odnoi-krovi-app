@@ -68,7 +68,7 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 			}
 		}
 		if application != nil {
-			request, err := h.bloodReqRepo.GetByApplicationID(ctx, application.ID)
+			request, err := h.bloodReqRepo.GetByApplicationID(ctx, application.ID, false)
 			if err != nil {
 				if !errors.Is(err, apperrors.ErrBloodRequestNotFound) {
 					return nil, apperrors.Internal(err, "failed to get blood request")

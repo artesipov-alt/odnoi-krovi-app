@@ -52,7 +52,7 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 	}
 
 	// Publish DonorCompleted event
-	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, resID)
+	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, resID, false)
 	if err != nil {
 		return apperrors.Internal(err, "failed to get blood request")
 	}
