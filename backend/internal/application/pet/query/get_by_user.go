@@ -66,31 +66,41 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		recoveryPeriodMonths = owner.DonorPreference.RecoveryPeriodMonths
 	}
 
-	pets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
+	allPetsOpts := opts
+	allPetsOpts.IgnoreSoftDelete = true
+	allPets, err := h.petReadRepo.GetByUserID(ctx, userID, allPetsOpts)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	// Collect pet IDs for batch queries
-	petIDs := make([]string, len(pets))
-	for i, pet := range pets {
+	// Collect pet IDs for batch queries (all pets, including deleted)
+	petIDs := make([]string, len(allPets))
+	for i, pet := range allPets {
 		petIDs[i] = pet.ID
 	}
 
-	// Batch fetch applications and blood requests
-	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, false)
+	// Batch fetch applications and blood requests (including from deleted pets)
+	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, true)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get donor applications")
 	}
 
-	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs, false)
+	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs, true)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get blood requests")
 	}
 
-	plannedDonations := make([]*donormodel.DonorResponse, 0, len(pets))
+	// Filter active pets for result
+	activePets := make([]*model.Pet, 0, len(allPets))
+	for _, pet := range allPets {
+		if pet.DeletedAt == nil {
+			activePets = append(activePets, pet)
+		}
+	}
+
+	plannedDonations := make([]*donormodel.DonorResponse, 0, len(activePets))
 	totalCompletedDonations := 0
-	for _, pet := range pets {
+	for _, pet := range allPets {
 		applications := applicationsMap[pet.ID]
 		var application *donormodel.DonorResponse
 		for _, app := range applications {
@@ -102,7 +112,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 				totalCompletedDonations++
 			}
 		}
-		if application != nil {
+		if application != nil && pet.DeletedAt == nil { // Only add planned for active pets
 			plannedDonations = append(plannedDonations, application)
 		}
 		bloodReq := bloodReqsMap[pet.ID]
@@ -112,8 +122,8 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 
 	return &GetByUserResult{
-		Pets:                    pets,
-		TotalPets:               len(pets),
+		Pets:                    activePets,
+		TotalPets:               len(activePets),
 		TotalPlannedDonations:   len(plannedDonations),
 		TotalCompletedDonations: totalCompletedDonations,
 	}, nil
