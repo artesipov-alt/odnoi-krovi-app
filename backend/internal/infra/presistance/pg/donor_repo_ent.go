@@ -144,8 +144,12 @@ func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []s
 	if ignoreSoftDelete {
 		queryCtx = schema.SkipSoftDelete(ctx)
 	}
-	entResps, err := r.client(ctx).DonorResponse.Query().
-		Where(donorresponse.HasDonorWith(pet.IDIn(petIDs...))).
+	query := r.client(ctx).DonorResponse.Query().
+		Where(donorresponse.HasDonorWith(pet.IDIn(petIDs...)))
+	if !ignoreSoftDelete {
+		query = query.Where(donorresponse.HasRequestWith(bloodsearchrequest.DeletedAtIsNil()))
+	}
+	entResps, err := query.
 		Order(donorresponse.ByCreatedAt(sql.OrderDesc())).
 		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
 		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).

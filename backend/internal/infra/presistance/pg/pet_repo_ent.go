@@ -13,7 +13,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
-	entbloodreq "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	entdonorpreference "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
@@ -469,19 +468,6 @@ func (r *EntPetRepository) DeleteWithRelations(ctx context.Context, id string) e
 	_, err = r.client.PetAnalysis.Delete().Where(petanalysis.PetID(id)).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось удалить анализы питомца: %w", err)
-	}
-
-	// Delete blood requests and responses if exist
-	bloodReqs, err := r.client.BloodSearchRequest.Query().Where(entbloodreq.PetID(id)).All(ctx)
-	if err != nil {
-		return fmt.Errorf("не удалось получить заявки на кровь: %w", err)
-	}
-	for _, bloodReq := range bloodReqs {
-		// Delete blood request
-		err = r.client.BloodSearchRequest.DeleteOneID(bloodReq.ID).Exec(ctx)
-		if err != nil {
-			return fmt.Errorf("не удалось удалить заявку на кровь: %w", err)
-		}
 	}
 
 	// Мягкое удаление через хук SoftDeleteMixin
