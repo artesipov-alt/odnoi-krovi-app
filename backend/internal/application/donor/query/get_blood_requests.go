@@ -61,12 +61,12 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	}
 
 	// Batch fetch applications and blood requests
-	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs)
+	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, false)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get donor applications")
 	}
 
-	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs)
+	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs, false)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get blood requests")
 	}
