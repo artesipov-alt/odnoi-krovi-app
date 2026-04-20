@@ -623,8 +623,6 @@ func (p *Pet) getRequiredAnalyses() []string {
 			"dirofilaria",
 			"ehrlichiosis",
 			"anaplasmosis",
-			"leukemia",
-			"immunodeficiency",
 		}
 	}
 	return nil
