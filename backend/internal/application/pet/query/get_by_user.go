@@ -80,7 +80,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	}
 
 	// Batch fetch applications and blood requests
-	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs)
+	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, false)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get donor applications")
 	}

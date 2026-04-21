@@ -82,7 +82,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	}
 
 	// Batch fetch applications and blood requests
-	applicationsMap, err := h.donorRepo.GetByPetIDs(ctx, petIDs)
+	applicationsMap, err := h.donorRepo.GetByPetIDs(ctx, petIDs, false)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get donor applications")
 	}

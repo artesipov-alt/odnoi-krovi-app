@@ -14,6 +14,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/domainmapper"
 )
 
@@ -134,12 +135,17 @@ func (r *EntDonorResponseRepository) GetByPetID(ctx context.Context, petID strin
 }
 
 // GetByPetIDs возвращает мапу слайсов откликов доноров по идентификаторам питомцев (все отклики, отсортированные по дате создания DESC)
-func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []string) (map[string][]*donormodel.DonorResponse, error) {
+func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []string, ignoreSoftDelete bool) (map[string][]*donormodel.DonorResponse, error) {
 	if len(petIDs) == 0 {
 		return make(map[string][]*donormodel.DonorResponse), nil
 	}
 
-	query := r.client(ctx).DonorResponse.Query().
+	queryCtx := ctx
+	if ignoreSoftDelete {
+		queryCtx = schema.SkipSoftDelete(ctx)
+	}
+
+	query := r.client(queryCtx).DonorResponse.Query().
 		Where(donorresponse.HasDonorWith(pet.IDIn(petIDs...)))
 	entResps, err := query.
 		Order(donorresponse.ByCreatedAt(sql.OrderDesc())).
