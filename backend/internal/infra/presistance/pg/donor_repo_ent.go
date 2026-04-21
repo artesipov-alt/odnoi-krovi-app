@@ -151,7 +151,7 @@ func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []s
 		Order(donorresponse.ByCreatedAt(sql.OrderDesc())).
 		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
 		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
-		All(ctx)
+		All(queryCtx)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to execute donor response query by pet IDs")
 	}
