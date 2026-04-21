@@ -96,9 +96,9 @@ func (s *BonusService) UnassignBonuses(ctx context.Context, userID string, petTy
 	return s.repo.UnassignBonuses(ctx, userID, petType)
 }
 
-// ConfirmBonuses confirms bonuses for a user by setting stage to unused.
-func (s *BonusService) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error {
-	return s.repo.ConfirmBonuses(ctx, userID, petType)
+// ConfirmBonuses confirms bonuses for a user by setting stage to unused and sets the last donation date.
+func (s *BonusService) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType, donationDate time.Time) error {
+	return s.repo.ConfirmBonuses(ctx, userID, petType, donationDate)
 }
 
 // MarkBonusesAsUsed marks reserved bonuses for a user as used.

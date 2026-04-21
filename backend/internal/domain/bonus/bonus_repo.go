@@ -2,6 +2,7 @@ package bonus
 
 import (
 	"context"
+	"time"
 
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -23,9 +24,15 @@ type Repository interface {
 	// AssignBonuses assigns bonuses to a user by updating their UserID and setting stage to reserved.
 	AssignBonuses(ctx context.Context, bonusIDs []string, userID string) error
 
-	// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID.
-	ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error
+	// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID and sets the last donation date.
+	ConfirmBonuses(ctx context.Context, userID string, petType common.PetType, donationDate time.Time) error
 
 	// MarkBonusesAsUsed marks reserved bonuses for a user as used by setting stage to used.
 	MarkBonusesAsUsed(ctx context.Context, userID string, petType common.PetType) error
+
+	// AddPrioritySearch increments the priority search count for a user by 1
+	AddPrioritySearch(ctx context.Context, id string) error
+
+	// SubtractPrioritySearch decrements the priority search count for a user by 1
+	SubtractPrioritySearch(ctx context.Context, id string) error
 }

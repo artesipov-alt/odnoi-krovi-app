@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -585,68 +584,6 @@ func (r *EntUserRepository) UpsertUTM(ctx context.Context, userID string, metada
 
 	if err != nil {
 		return fmt.Errorf("failed to upsert UTM data: %w", err)
-	}
-
-	return nil
-}
-
-// SetLastDonation sets the last donation date for a user
-func (r *EntUserRepository) SetLastDonation(ctx context.Context, id string, donationDate time.Time) error {
-	if id == "" {
-		return errors.New("invalid user ID")
-	}
-
-	err := r.client(ctx).User.UpdateOneID(id).
-		SetLastDonation(donationDate).
-		Exec(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("user with id %s not found", id)
-		}
-		return fmt.Errorf("failed to set last donation: %w", err)
-	}
-
-	return nil
-}
-
-// AddPrioritySearch increments the priority search count for a user by 1
-func (r *EntUserRepository) AddPrioritySearch(ctx context.Context, id string) error {
-	if id == "" {
-		return errors.New("invalid user ID")
-	}
-
-	err := r.client(ctx).User.Update().
-		Where(entuser.ID(id)).
-		AddPrioritySearchCount(1).
-		Exec(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("user with id %s not found", id)
-		}
-		return fmt.Errorf("failed to add priority search: %w", err)
-	}
-
-	return nil
-}
-
-// SubtractPrioritySearch decrements the priority search count for a user by 1
-func (r *EntUserRepository) SubtractPrioritySearch(ctx context.Context, id string) error {
-	if id == "" {
-		return errors.New("invalid user ID")
-	}
-
-	err := r.client(ctx).User.Update().
-		Where(entuser.ID(id)).
-		AddPrioritySearchCount(-1).
-		Exec(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("user with id %s not found", id)
-		}
-		return fmt.Errorf("failed to subtract priority search: %w", err)
 	}
 
 	return nil

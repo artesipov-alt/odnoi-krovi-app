@@ -107,7 +107,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		if err != nil {
 			return err
 		}
-		if err := h.bonusSvc.ConfirmBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+		if err := h.bonusSvc.ConfirmBonuses(txCtx, donorPet.OwnerID, donorPet.Type, now); err != nil {
 			return err
 		}
 

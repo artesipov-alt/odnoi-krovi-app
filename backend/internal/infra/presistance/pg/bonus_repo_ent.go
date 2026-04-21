@@ -2,24 +2,36 @@ package pg
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	entbonus "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
+	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
 // EntBonusRepository implements bonus.Repository using ENT
 type EntBonusRepository struct {
-	client *ent.Client
+	db *ent.Client
+}
+
+// client returns the ent.Client from the context if a transaction is active,
+// otherwise returns the default client
+func (r *EntBonusRepository) client(ctx context.Context) *ent.Client {
+	if tx := ent.TxFromContext(ctx); tx != nil {
+		return tx.Client()
+	}
+	return r.db
 }
 
 // NewEntBonusRepository creates a new ENT bonus repository
 func NewEntBonusRepository(client *ent.Client) *EntBonusRepository {
 	return &EntBonusRepository{
-		client: client,
+		db: client,
 	}
 }
 
@@ -31,7 +43,7 @@ func (r *EntBonusRepository) CreateBatch(ctx context.Context, bonuses []*bonusmo
 
 	creates := make([]*ent.BonusCreate, len(bonuses))
 	for i, b := range bonuses {
-		create := r.client.Bonus.Create().
+		create := r.client(ctx).Bonus.Create().
 			SetPartnerName(b.PartnerName).
 			SetDescription(b.Description).
 			SetTarget(entbonus.Target(b.Target)).
@@ -52,7 +64,7 @@ func (r *EntBonusRepository) CreateBatch(ctx context.Context, bonuses []*bonusmo
 		creates[i] = create
 	}
 
-	_, err := r.client.Bonus.CreateBulk(creates...).Save(ctx)
+	_, err := r.client(ctx).Bonus.CreateBulk(creates...).Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create bonuses batch: %w", err)
 	}
@@ -66,7 +78,7 @@ func (r *EntBonusRepository) ExistsByPromoCodes(ctx context.Context, codes []str
 		return nil, nil
 	}
 
-	existingBonuses, err := r.client.Bonus.Query().
+	existingBonuses, err := r.client(ctx).Bonus.Query().
 		Where(entbonus.PromoCodeIn(codes...)).
 		All(ctx)
 	if err != nil {
@@ -87,7 +99,7 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 		return nil
 	}
 
-	_, err := r.client.Bonus.Update().
+	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.IDIn(bonusIDs...)).
 		SetUserID(userID).
 		SetStage(entbonus.StageReserved).
@@ -101,7 +113,7 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 
 // UnassignBonuses unassigns reserved bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
 func (r *EntBonusRepository) UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error {
-	_, err := r.client.Bonus.Update().
+	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
 		Where(entbonus.StageEQ(entbonus.StageReserved)).
@@ -115,9 +127,9 @@ func (r *EntBonusRepository) UnassignBonuses(ctx context.Context, userID string,
 	return nil
 }
 
-// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID.
-func (r *EntBonusRepository) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error {
-	_, err := r.client.Bonus.Update().
+// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID and sets the last donation date.
+func (r *EntBonusRepository) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType, donationDate time.Time) error {
+	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
 		Where(entbonus.StageEQ(entbonus.StageReserved)).
@@ -127,12 +139,23 @@ func (r *EntBonusRepository) ConfirmBonuses(ctx context.Context, userID string, 
 		return fmt.Errorf("failed to unreserve bonuses: %w", err)
 	}
 
+	// Set last donation
+	err = r.client(ctx).User.UpdateOneID(userID).
+		SetLastDonation(donationDate).
+		Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("user with id %s not found", userID)
+		}
+		return fmt.Errorf("failed to set last donation: %w", err)
+	}
+
 	return nil
 }
 
 // MarkBonusesAsUsed marks reserved bonuses for a user as used by setting stage to used.
 func (r *EntBonusRepository) MarkBonusesAsUsed(ctx context.Context, userID string, petType common.PetType) error {
-	_, err := r.client.Bonus.Update().
+	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
 		Where(entbonus.StageEQ(entbonus.StageReserved)).
@@ -147,7 +170,7 @@ func (r *EntBonusRepository) MarkBonusesAsUsed(ctx context.Context, userID strin
 
 // GetAvailableBonuses retrieves available (unassigned) bonuses filtered by petType.
 func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType common.PetType) ([]*bonusmodel.Bonus, error) {
-	query := r.client.Bonus.Query().
+	query := r.client(ctx).Bonus.Query().
 		Where(entbonus.StageEQ(entbonus.StageUnused)).
 		Where(entbonus.UserIDIsNil()).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
@@ -170,7 +193,6 @@ func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType co
 			Category:    b.Category.String(),
 			Subcategory: &b.Subcategory,
 			// Возвращаем без промокода.
-			// PromoCode:    b.PromoCode,
 			ExpiresAt:    b.ExpiresAt,
 			PlatformName: b.PlatformName,
 			PlatformURL:  &b.PlatformURL,
@@ -179,4 +201,46 @@ func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType co
 	}
 
 	return result, nil
+}
+
+// AddPrioritySearch increments the priority search count for a user by 1
+func (r *EntBonusRepository) AddPrioritySearch(ctx context.Context, id string) error {
+	if id == "" {
+		return errors.New("invalid user ID")
+	}
+
+	err := r.client(ctx).User.Update().
+		Where(entuser.ID(id)).
+		AddPrioritySearchCount(1).
+		Exec(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("user with id %s not found", id)
+		}
+		return fmt.Errorf("failed to add priority search: %w", err)
+	}
+
+	return nil
+}
+
+// SubtractPrioritySearch decrements the priority search count for a user by 1
+func (r *EntBonusRepository) SubtractPrioritySearch(ctx context.Context, id string) error {
+	if id == "" {
+		return errors.New("invalid user ID")
+	}
+
+	err := r.client(ctx).User.Update().
+		Where(entuser.ID(id)).
+		AddPrioritySearchCount(-1).
+		Exec(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("user with id %s not found", id)
+		}
+		return fmt.Errorf("failed to subtract priority search: %w", err)
+	}
+
+	return nil
 }
