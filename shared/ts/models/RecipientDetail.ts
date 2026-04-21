@@ -34,6 +34,13 @@ import {
     DefaultDonorPrefsToJSON,
     DefaultDonorPrefsToJSONTyped,
 } from './DefaultDonorPrefs';
+import type { Bonus } from './Bonus';
+import {
+    BonusFromJSON,
+    BonusFromJSONTyped,
+    BonusToJSON,
+    BonusToJSONTyped,
+} from './Bonus';
 
 /**
  * 
@@ -53,6 +60,12 @@ export interface RecipientDetail {
      * @memberof RecipientDetail
      */
     advancedInfo?: AdvancedInfo;
+    /**
+     * Доступные бонусы
+     * @type {Array<Bonus>}
+     * @memberof RecipientDetail
+     */
+    availableBonuses: Array<Bonus> | null;
     /**
      * Группа крови реципиента
      * @type {string}
@@ -189,6 +202,7 @@ export type RecipientDetailStatusEnum = typeof RecipientDetailStatusEnum[keyof t
  * Check if a given object implements the RecipientDetail interface.
  */
 export function instanceOfRecipientDetail(value: object): value is RecipientDetail {
+    if (!('availableBonuses' in value) || value['availableBonuses'] === undefined) return false;
     if (!('bloodGroupName' in value) || value['bloodGroupName'] === undefined) return false;
     if (!('bloodVolumeReserved' in value) || value['bloodVolumeReserved'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
@@ -213,6 +227,7 @@ export function RecipientDetailFromJSONTyped(json: any, ignoreDiscriminator: boo
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'advancedInfo': json['advancedInfo'] == null ? undefined : AdvancedInfoFromJSON(json['advancedInfo']),
+        'availableBonuses': (json['availableBonuses'] == null ? null : (json['availableBonuses'] as Array<any>).map(BonusFromJSON)),
         'bloodGroupName': json['bloodGroupName'],
         'bloodVolumeNeeded': json['bloodVolumeNeeded'] == null ? undefined : json['bloodVolumeNeeded'],
         'bloodVolumeRemaining': json['bloodVolumeRemaining'] == null ? undefined : json['bloodVolumeRemaining'],
@@ -246,6 +261,7 @@ export function RecipientDetailToJSONTyped(value?: Omit<RecipientDetail, '$schem
     return {
         
         'advancedInfo': AdvancedInfoToJSON(value['advancedInfo']),
+        'availableBonuses': (value['availableBonuses'] == null ? null : (value['availableBonuses'] as Array<any>).map(BonusToJSON)),
         'bloodGroupName': value['bloodGroupName'],
         'bloodVolumeNeeded': value['bloodVolumeNeeded'],
         'bloodVolumeRemaining': value['bloodVolumeRemaining'],

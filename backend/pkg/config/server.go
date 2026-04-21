@@ -33,7 +33,7 @@ func (s *MyServer) Use(middlewares ...func(http.Handler) http.Handler) {
 
 // NewHumaConfig создает и возвращает конфигурацию Huma API на основе README.md
 func NewHumaConfig(miniappDomain string) huma.Config {
-	config := huma.DefaultConfig("Одной Крови API", "3.14.3")
+	config := huma.DefaultConfig("Одной Крови API", "3.14.5")
 
 	config.Info = &huma.Info{
 		Title:       "Одной Крови API",

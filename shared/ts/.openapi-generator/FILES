@@ -16,6 +16,7 @@ models/ApplyForBloodRequestBody.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
+models/Bonus.ts
 models/BreedsList.ts
 models/CompleteDonationBody.ts
 models/CompletedDonationsList.ts
@@ -41,6 +42,7 @@ models/DonorPreferenceParams.ts
 models/DonorRestrictions.ts
 models/DonorRestrictionsDetail.ts
 models/FactorDescription.ts
+models/FormFile.ts
 models/GendersList.ts
 models/GetPetsByUserResult.ts
 models/HealthStatusesList.ts
