@@ -152,6 +152,9 @@ func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []s
 
 	result := make(map[string][]*donormodel.DonorResponse)
 	for _, entResp := range entResps {
+		if entResp.Edges.Donor == nil {
+			continue
+		}
 		petID := entResp.Edges.Donor.ID
 		result[petID] = append(result[petID], domainmapper.ApplicationToDomain(entResp))
 	}
