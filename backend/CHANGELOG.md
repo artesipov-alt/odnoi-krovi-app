@@ -5,6 +5,26 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.14.8] - 2026-04-21
+
+### Добавлено
+- **Добавлено `TotalPrioritySearch` в `GetPetsByUserResult`:**
+  - Включено количество приоритетных поисков в DTO `GetPetsByUserResult` и соответствующий результат запроса приложения.
+
+## [3.14.7] - 2026-04-21
+
+### Изменено
+- **Рефакторинг логики назначения и подтверждения бонусов:**
+  - Методы `AssignBonuses` и `ConfirmBonuses` в `BonusService` теперь не получают напрямую время `lastDonation`. Вместо этого `BonusService` извлекает и устанавливает `lastDonation` через `BonusRepository`. Это централизует обработку `lastDonation` в `BonusService` и `BonusRepository`.
+  - `ApplyForRequestHandler` больше не извлекает `LastDonation` пользователя-донора напрямую, что упрощает обязанности обработчика.
+
+## [3.14.6] - 2026-04-21
+
+### Изменено
+- **Обновление подтверждения бонусов для включения даты донации:**
+  - Метод `ConfirmBonuses` теперь принимает параметр `donationDate`. Эта дата используется для установки поля `last_donation` для пользователя при подтверждении бонусов.
+  - Методы `AddPrioritySearch` и `SubtractPrioritySearch` перемещены из `user_repo`.
+
 ## [3.14.5] - 2026-04-21
 
 ### Изменено
