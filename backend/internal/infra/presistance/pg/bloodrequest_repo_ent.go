@@ -111,14 +111,9 @@ func (r *EntBloodRequestRepository) GetByPetID(ctx context.Context, petID string
 }
 
 // GetByPetIDs возвращает мапу заявок по идентификаторам питомцев
-func (r *EntBloodRequestRepository) GetByPetIDs(ctx context.Context, petIDs []string, ignoreSoftDelete bool) (map[string]*bloodreqmodel.BloodRequestWithApplications, error) {
+func (r *EntBloodRequestRepository) GetByPetIDs(ctx context.Context, petIDs []string) (map[string]*bloodreqmodel.BloodRequestWithApplications, error) {
 	if len(petIDs) == 0 {
 		return make(map[string]*bloodreqmodel.BloodRequestWithApplications), nil
-	}
-
-	queryCtx := ctx
-	if ignoreSoftDelete {
-		queryCtx = schema.SkipSoftDelete(ctx)
 	}
 
 	reqs, err := r.client(ctx).BloodSearchRequest.Query().
@@ -134,14 +129,16 @@ func (r *EntBloodRequestRepository) GetByPetIDs(ctx context.Context, petIDs []st
 				})
 			})
 		}).
-		All(queryCtx)
+		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get blood requests by pet IDs: %w", err)
 	}
 
 	result := make(map[string]*bloodreqmodel.BloodRequestWithApplications)
 	for _, req := range reqs {
-		result[req.PetID] = domainmapper.BloodReqToDomain(req)
+		if result[req.PetID] == nil {
+			result[req.PetID] = domainmapper.BloodReqToDomain(req)
+		}
 	}
 	return result, nil
 }

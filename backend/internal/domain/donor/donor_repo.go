@@ -20,7 +20,7 @@ type Repository interface {
 	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
 	Count(ctx context.Context) (int, error)
 	GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error)
-	GetByPetIDs(ctx context.Context, petIDs []string, ignoreSoftDelete bool) (map[string][]*donormodel.DonorResponse, error)
+	GetByPetIDs(ctx context.Context, petIDs []string) (map[string][]*donormodel.DonorResponse, error)
 	//=============================================
 	Accept(ctx context.Context, id string) error
 	Reject(ctx context.Context, res *donormodel.DonorResponse) error

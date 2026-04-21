@@ -53,7 +53,7 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 	}
 
 	// Batch fetch applications
-	applicationsMap, err := h.donorRepo.GetByPetIDs(ctx, petIDs, true)
+	applicationsMap, err := h.donorRepo.GetByPetIDs(ctx, petIDs)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get donor applications")
 	}

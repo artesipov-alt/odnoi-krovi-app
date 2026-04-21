@@ -79,13 +79,13 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		petIDs[i] = pet.ID
 	}
 
-	// Batch fetch applications and blood requests (including from deleted pets)
-	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, true)
+	// Batch fetch applications and blood requests
+	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get donor applications")
 	}
 
-	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs, true)
+	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get blood requests")
 	}
@@ -118,6 +118,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		bloodReq := bloodReqsMap[pet.ID]
 
 		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
+
 		pet.RecoveryDays = h.petService.CalculateRecoveryDays(pet, recoveryPeriodMonths, time.Now())
 	}
 
