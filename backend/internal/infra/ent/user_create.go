@@ -209,6 +209,34 @@ func (_c *UserCreate) SetNillableOriginSource(v *string) *UserCreate {
 	return _c
 }
 
+// SetPrioritySearchCount sets the "priority_search_count" field.
+func (_c *UserCreate) SetPrioritySearchCount(v int) *UserCreate {
+	_c.mutation.SetPrioritySearchCount(v)
+	return _c
+}
+
+// SetNillablePrioritySearchCount sets the "priority_search_count" field if the given value is not nil.
+func (_c *UserCreate) SetNillablePrioritySearchCount(v *int) *UserCreate {
+	if v != nil {
+		_c.SetPrioritySearchCount(*v)
+	}
+	return _c
+}
+
+// SetLastDonation sets the "last_donation" field.
+func (_c *UserCreate) SetLastDonation(v time.Time) *UserCreate {
+	_c.mutation.SetLastDonation(v)
+	return _c
+}
+
+// SetNillableLastDonation sets the "last_donation" field if the given value is not nil.
+func (_c *UserCreate) SetNillableLastDonation(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetLastDonation(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *UserCreate) SetID(v string) *UserCreate {
 	_c.mutation.SetID(v)
@@ -362,6 +390,10 @@ func (_c *UserCreate) defaults() {
 		v := user.DefaultRole
 		_c.mutation.SetRole(v)
 	}
+	if _, ok := _c.mutation.PrioritySearchCount(); !ok {
+		v := user.DefaultPrioritySearchCount
+		_c.mutation.SetPrioritySearchCount(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := user.DefaultID()
 		_c.mutation.SetID(v)
@@ -414,6 +446,9 @@ func (_c *UserCreate) check() error {
 		if err := user.OriginSourceValidator(v); err != nil {
 			return &ValidationError{Name: "origin_source", err: fmt.Errorf(`ent: validator failed for field "User.origin_source": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.PrioritySearchCount(); !ok {
+		return &ValidationError{Name: "priority_search_count", err: errors.New(`ent: missing required field "User.priority_search_count"`)}
 	}
 	return nil
 }
@@ -502,6 +537,14 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.OriginSource(); ok {
 		_spec.SetField(user.FieldOriginSource, field.TypeString, value)
 		_node.OriginSource = value
+	}
+	if value, ok := _c.mutation.PrioritySearchCount(); ok {
+		_spec.SetField(user.FieldPrioritySearchCount, field.TypeInt, value)
+		_node.PrioritySearchCount = value
+	}
+	if value, ok := _c.mutation.LastDonation(); ok {
+		_spec.SetField(user.FieldLastDonation, field.TypeTime, value)
+		_node.LastDonation = &value
 	}
 	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -862,6 +905,42 @@ func (u *UserUpsert) ClearOriginSource() *UserUpsert {
 	return u
 }
 
+// SetPrioritySearchCount sets the "priority_search_count" field.
+func (u *UserUpsert) SetPrioritySearchCount(v int) *UserUpsert {
+	u.Set(user.FieldPrioritySearchCount, v)
+	return u
+}
+
+// UpdatePrioritySearchCount sets the "priority_search_count" field to the value that was provided on create.
+func (u *UserUpsert) UpdatePrioritySearchCount() *UserUpsert {
+	u.SetExcluded(user.FieldPrioritySearchCount)
+	return u
+}
+
+// AddPrioritySearchCount adds v to the "priority_search_count" field.
+func (u *UserUpsert) AddPrioritySearchCount(v int) *UserUpsert {
+	u.Add(user.FieldPrioritySearchCount, v)
+	return u
+}
+
+// SetLastDonation sets the "last_donation" field.
+func (u *UserUpsert) SetLastDonation(v time.Time) *UserUpsert {
+	u.Set(user.FieldLastDonation, v)
+	return u
+}
+
+// UpdateLastDonation sets the "last_donation" field to the value that was provided on create.
+func (u *UserUpsert) UpdateLastDonation() *UserUpsert {
+	u.SetExcluded(user.FieldLastDonation)
+	return u
+}
+
+// ClearLastDonation clears the value of the "last_donation" field.
+func (u *UserUpsert) ClearLastDonation() *UserUpsert {
+	u.SetNull(user.FieldLastDonation)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1155,6 +1234,48 @@ func (u *UserUpsertOne) UpdateOriginSource() *UserUpsertOne {
 func (u *UserUpsertOne) ClearOriginSource() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearOriginSource()
+	})
+}
+
+// SetPrioritySearchCount sets the "priority_search_count" field.
+func (u *UserUpsertOne) SetPrioritySearchCount(v int) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetPrioritySearchCount(v)
+	})
+}
+
+// AddPrioritySearchCount adds v to the "priority_search_count" field.
+func (u *UserUpsertOne) AddPrioritySearchCount(v int) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.AddPrioritySearchCount(v)
+	})
+}
+
+// UpdatePrioritySearchCount sets the "priority_search_count" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdatePrioritySearchCount() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdatePrioritySearchCount()
+	})
+}
+
+// SetLastDonation sets the "last_donation" field.
+func (u *UserUpsertOne) SetLastDonation(v time.Time) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetLastDonation(v)
+	})
+}
+
+// UpdateLastDonation sets the "last_donation" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateLastDonation() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateLastDonation()
+	})
+}
+
+// ClearLastDonation clears the value of the "last_donation" field.
+func (u *UserUpsertOne) ClearLastDonation() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearLastDonation()
 	})
 }
 
@@ -1618,6 +1739,48 @@ func (u *UserUpsertBulk) UpdateOriginSource() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearOriginSource() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearOriginSource()
+	})
+}
+
+// SetPrioritySearchCount sets the "priority_search_count" field.
+func (u *UserUpsertBulk) SetPrioritySearchCount(v int) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetPrioritySearchCount(v)
+	})
+}
+
+// AddPrioritySearchCount adds v to the "priority_search_count" field.
+func (u *UserUpsertBulk) AddPrioritySearchCount(v int) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.AddPrioritySearchCount(v)
+	})
+}
+
+// UpdatePrioritySearchCount sets the "priority_search_count" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdatePrioritySearchCount() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdatePrioritySearchCount()
+	})
+}
+
+// SetLastDonation sets the "last_donation" field.
+func (u *UserUpsertBulk) SetLastDonation(v time.Time) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetLastDonation(v)
+	})
+}
+
+// UpdateLastDonation sets the "last_donation" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateLastDonation() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateLastDonation()
+	})
+}
+
+// ClearLastDonation clears the value of the "last_donation" field.
+func (u *UserUpsertBulk) ClearLastDonation() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearLastDonation()
 	})
 }
 

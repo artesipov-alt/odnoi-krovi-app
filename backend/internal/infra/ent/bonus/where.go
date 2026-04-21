@@ -95,6 +95,11 @@ func Description(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldDescription, v))
 }
 
+// Subcategory applies equality check predicate on the "subcategory" field. It's identical to SubcategoryEQ.
+func Subcategory(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldSubcategory, v))
+}
+
 // PromoCode applies equality check predicate on the "promo_code" field. It's identical to PromoCodeEQ.
 func PromoCode(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldPromoCode, v))
@@ -513,6 +518,81 @@ func CategoryIn(vs ...Category) predicate.Bonus {
 // CategoryNotIn applies the NotIn predicate on the "category" field.
 func CategoryNotIn(vs ...Category) predicate.Bonus {
 	return predicate.Bonus(sql.FieldNotIn(FieldCategory, vs...))
+}
+
+// SubcategoryEQ applies the EQ predicate on the "subcategory" field.
+func SubcategoryEQ(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldSubcategory, v))
+}
+
+// SubcategoryNEQ applies the NEQ predicate on the "subcategory" field.
+func SubcategoryNEQ(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNEQ(FieldSubcategory, v))
+}
+
+// SubcategoryIn applies the In predicate on the "subcategory" field.
+func SubcategoryIn(vs ...string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldIn(FieldSubcategory, vs...))
+}
+
+// SubcategoryNotIn applies the NotIn predicate on the "subcategory" field.
+func SubcategoryNotIn(vs ...string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotIn(FieldSubcategory, vs...))
+}
+
+// SubcategoryGT applies the GT predicate on the "subcategory" field.
+func SubcategoryGT(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldGT(FieldSubcategory, v))
+}
+
+// SubcategoryGTE applies the GTE predicate on the "subcategory" field.
+func SubcategoryGTE(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldGTE(FieldSubcategory, v))
+}
+
+// SubcategoryLT applies the LT predicate on the "subcategory" field.
+func SubcategoryLT(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldLT(FieldSubcategory, v))
+}
+
+// SubcategoryLTE applies the LTE predicate on the "subcategory" field.
+func SubcategoryLTE(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldLTE(FieldSubcategory, v))
+}
+
+// SubcategoryContains applies the Contains predicate on the "subcategory" field.
+func SubcategoryContains(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldContains(FieldSubcategory, v))
+}
+
+// SubcategoryHasPrefix applies the HasPrefix predicate on the "subcategory" field.
+func SubcategoryHasPrefix(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldHasPrefix(FieldSubcategory, v))
+}
+
+// SubcategoryHasSuffix applies the HasSuffix predicate on the "subcategory" field.
+func SubcategoryHasSuffix(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldHasSuffix(FieldSubcategory, v))
+}
+
+// SubcategoryIsNil applies the IsNil predicate on the "subcategory" field.
+func SubcategoryIsNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldIsNull(FieldSubcategory))
+}
+
+// SubcategoryNotNil applies the NotNil predicate on the "subcategory" field.
+func SubcategoryNotNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotNull(FieldSubcategory))
+}
+
+// SubcategoryEqualFold applies the EqualFold predicate on the "subcategory" field.
+func SubcategoryEqualFold(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEqualFold(FieldSubcategory, v))
+}
+
+// SubcategoryContainsFold applies the ContainsFold predicate on the "subcategory" field.
+func SubcategoryContainsFold(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldContainsFold(FieldSubcategory, v))
 }
 
 // PromoCodeEQ applies the EQ predicate on the "promo_code" field.

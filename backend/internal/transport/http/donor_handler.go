@@ -173,13 +173,14 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto
 		return nil, apperrors.Unauthorized("user ID is missing in context")
 	}
 
-	recipient, err := h.recipientDetailsHandler.Handle(ctx, input.ID, userID)
+	recipientData, err := h.recipientDetailsHandler.Handle(ctx, input.ID, userID)
 	if err != nil {
 		return nil, err
 	}
+	// Собираем подходящих доноров в ДТО.
 	now := time.Now()
-	matchingDonors := make([]dto.MatchingDonor, len(recipient.MatchingDonors))
-	for i, md := range recipient.MatchingDonors {
+	matchingDonors := make([]dto.MatchingDonor, len(recipientData.Recipient.MatchingDonors))
+	for i, md := range recipientData.Recipient.MatchingDonors {
 		matchingDonors[i] = dto.MatchingDonor{
 			PetID:           md.PetID,
 			PetName:         md.PetName,
@@ -188,37 +189,48 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto
 			PhotoURLs:       h.storage.BuildPhotoURLs(md.PhotoURLs, now),
 		}
 	}
+	// Собираем подходящие бонусы в ДТО.
+	avilableBonuses := make([]dto.Bonus, len(recipientData.AvilableBonuses))
+	for i, bns := range recipientData.AvilableBonuses {
+		avilableBonuses[i] = dto.Bonus{
+			Partner:     bns.PartnerName,
+			Description: bns.Description,
+			Type:        bns.Category,
+		}
+	}
 
+	// Собираем дефолтные настройки донороа в ДТО.
 	var defaultPrefs *dto.DefaultDonorPrefs
-	if recipient.DefaultDonorPrefs != nil {
+	if recipientData.Recipient.DefaultDonorPrefs != nil {
 		defaultPrefs = &dto.DefaultDonorPrefs{
-			CompensationType: string(recipient.DefaultDonorPrefs.CompensationType),
-			Bonuses:          recipient.DefaultDonorPrefs.Bonuses,
-			TaxiCompensation: recipient.DefaultDonorPrefs.TaxiCompensation,
+			CompensationType: string(recipientData.Recipient.DefaultDonorPrefs.CompensationType),
+			Bonuses:          recipientData.Recipient.DefaultDonorPrefs.Bonuses,
+			TaxiCompensation: recipientData.Recipient.DefaultDonorPrefs.TaxiCompensation,
 		}
 	}
 
 	recipientDetail := dto.RecipientDetail{
-		ID:                       recipient.ID,
-		PetID:                    recipient.PetID,
-		PetName:                  recipient.RecipientData.PetName,
-		PetType:                  string(recipient.RecipientData.PetType),
-		OwnerName:                recipient.RecipientData.OwnerName,
-		SearchRegions:            recipient.Regions,
-		BloodVolumeNeeded:        recipient.BloodVolumeNeeded,
-		BloodVolumeReserved:      recipient.BloodVolumeReserved,
-		SearchingBloodNames:      recipient.BloodGroupNames,
-		SmallPetsNotifyAllowed:   recipient.SmallPetsNotifyAllowed,
-		IncludeUnknownBloodGroup: recipient.IncludeUnknownBloodGroup,
-		PhotoURLs:                h.storage.BuildPhotoURLs(recipient.RecipientData.PhotoURLs, now),
-		BloodGroupName:           recipient.RecipientData.BloodGroupName,
-		PrioritySearch:           recipient.PrioritySearch,
-		Status:                   string(recipient.Status),
+		ID:                       recipientData.Recipient.ID,
+		PetID:                    recipientData.Recipient.PetID,
+		PetName:                  recipientData.Recipient.RecipientData.PetName,
+		PetType:                  string(recipientData.Recipient.RecipientData.PetType),
+		OwnerName:                recipientData.Recipient.RecipientData.OwnerName,
+		SearchRegions:            recipientData.Recipient.Regions,
+		BloodVolumeNeeded:        recipientData.Recipient.BloodVolumeNeeded,
+		BloodVolumeReserved:      recipientData.Recipient.BloodVolumeReserved,
+		SearchingBloodNames:      recipientData.Recipient.BloodGroupNames,
+		SmallPetsNotifyAllowed:   recipientData.Recipient.SmallPetsNotifyAllowed,
+		IncludeUnknownBloodGroup: recipientData.Recipient.IncludeUnknownBloodGroup,
+		PhotoURLs:                h.storage.BuildPhotoURLs(recipientData.Recipient.RecipientData.PhotoURLs, now),
+		BloodGroupName:           recipientData.Recipient.RecipientData.BloodGroupName,
+		PrioritySearch:           recipientData.Recipient.PrioritySearch,
+		Status:                   string(recipientData.Recipient.Status),
 		MatchingDonors:           matchingDonors,
 		DefaultDonorPrefs:        defaultPrefs,
+		AvailableBonuses:         avilableBonuses,
 		AdvancedInfo: &dto.AdvancedInfo{
-			Description: recipient.AdvancedInfo.Description,
-			PhotoURLs:   h.storage.BuildPhotoURLs(recipient.AdvancedInfo.PhotoURLs, now),
+			Description: recipientData.Recipient.AdvancedInfo.Description,
+			PhotoURLs:   h.storage.BuildPhotoURLs(recipientData.Recipient.AdvancedInfo.PhotoURLs, now),
 		},
 	}
 

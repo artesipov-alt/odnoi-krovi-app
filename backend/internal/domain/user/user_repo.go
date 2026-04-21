@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"time"
 
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
@@ -68,6 +69,15 @@ type Repository interface {
 
 	// AddPhotoURLs добавляет новые пути к фотографиям пользователя
 	AddPhotoURLs(ctx context.Context, id string, paths []string) error
+
+	// SetLastDonation устанавливает дату последней донации пользователя
+	SetLastDonation(ctx context.Context, id string, donationDate time.Time) error
+
+	// AddPrioritySearch добавляет 1 к счетчику приоритетных поисков пользователя
+	AddPrioritySearch(ctx context.Context, id string) error
+
+	// SubtractPrioritySearch вычитает 1 из счетчика приоритетных поисков пользователя
+	SubtractPrioritySearch(ctx context.Context, id string) error
 }
 
 type UserPreloadOptions struct {

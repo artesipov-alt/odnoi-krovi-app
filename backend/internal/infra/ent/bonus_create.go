@@ -110,6 +110,20 @@ func (_c *BonusCreate) SetCategory(v bonus.Category) *BonusCreate {
 	return _c
 }
 
+// SetSubcategory sets the "subcategory" field.
+func (_c *BonusCreate) SetSubcategory(v string) *BonusCreate {
+	_c.mutation.SetSubcategory(v)
+	return _c
+}
+
+// SetNillableSubcategory sets the "subcategory" field if the given value is not nil.
+func (_c *BonusCreate) SetNillableSubcategory(v *string) *BonusCreate {
+	if v != nil {
+		_c.SetSubcategory(*v)
+	}
+	return _c
+}
+
 // SetPromoCode sets the "promo_code" field.
 func (_c *BonusCreate) SetPromoCode(v string) *BonusCreate {
 	_c.mutation.SetPromoCode(v)
@@ -346,6 +360,10 @@ func (_c *BonusCreate) createSpec() (*Bonus, *sqlgraph.CreateSpec) {
 		_spec.SetField(bonus.FieldCategory, field.TypeEnum, value)
 		_node.Category = value
 	}
+	if value, ok := _c.mutation.Subcategory(); ok {
+		_spec.SetField(bonus.FieldSubcategory, field.TypeString, value)
+		_node.Subcategory = value
+	}
 	if value, ok := _c.mutation.PromoCode(); ok {
 		_spec.SetField(bonus.FieldPromoCode, field.TypeString, value)
 		_node.PromoCode = value
@@ -540,6 +558,24 @@ func (u *BonusUpsert) SetCategory(v bonus.Category) *BonusUpsert {
 // UpdateCategory sets the "category" field to the value that was provided on create.
 func (u *BonusUpsert) UpdateCategory() *BonusUpsert {
 	u.SetExcluded(bonus.FieldCategory)
+	return u
+}
+
+// SetSubcategory sets the "subcategory" field.
+func (u *BonusUpsert) SetSubcategory(v string) *BonusUpsert {
+	u.Set(bonus.FieldSubcategory, v)
+	return u
+}
+
+// UpdateSubcategory sets the "subcategory" field to the value that was provided on create.
+func (u *BonusUpsert) UpdateSubcategory() *BonusUpsert {
+	u.SetExcluded(bonus.FieldSubcategory)
+	return u
+}
+
+// ClearSubcategory clears the value of the "subcategory" field.
+func (u *BonusUpsert) ClearSubcategory() *BonusUpsert {
+	u.SetNull(bonus.FieldSubcategory)
 	return u
 }
 
@@ -783,6 +819,27 @@ func (u *BonusUpsertOne) SetCategory(v bonus.Category) *BonusUpsertOne {
 func (u *BonusUpsertOne) UpdateCategory() *BonusUpsertOne {
 	return u.Update(func(s *BonusUpsert) {
 		s.UpdateCategory()
+	})
+}
+
+// SetSubcategory sets the "subcategory" field.
+func (u *BonusUpsertOne) SetSubcategory(v string) *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.SetSubcategory(v)
+	})
+}
+
+// UpdateSubcategory sets the "subcategory" field to the value that was provided on create.
+func (u *BonusUpsertOne) UpdateSubcategory() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.UpdateSubcategory()
+	})
+}
+
+// ClearSubcategory clears the value of the "subcategory" field.
+func (u *BonusUpsertOne) ClearSubcategory() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearSubcategory()
 	})
 }
 
@@ -1204,6 +1261,27 @@ func (u *BonusUpsertBulk) SetCategory(v bonus.Category) *BonusUpsertBulk {
 func (u *BonusUpsertBulk) UpdateCategory() *BonusUpsertBulk {
 	return u.Update(func(s *BonusUpsert) {
 		s.UpdateCategory()
+	})
+}
+
+// SetSubcategory sets the "subcategory" field.
+func (u *BonusUpsertBulk) SetSubcategory(v string) *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.SetSubcategory(v)
+	})
+}
+
+// UpdateSubcategory sets the "subcategory" field to the value that was provided on create.
+func (u *BonusUpsertBulk) UpdateSubcategory() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.UpdateSubcategory()
+	})
+}
+
+// ClearSubcategory clears the value of the "subcategory" field.
+func (u *BonusUpsertBulk) ClearSubcategory() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearSubcategory()
 	})
 }
 

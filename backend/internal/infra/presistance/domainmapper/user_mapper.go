@@ -15,20 +15,22 @@ func EntToModel(e *ent.User) *usermodel.User {
 	}
 
 	user := &usermodel.User{
-		ID:               e.ID,
-		FullName:         e.FullName,
-		Phone:            e.Phone,
-		Email:            e.Email,
-		PhotoURLs:        e.PhotoUrls,
-		OrganizationName: e.OrganizationName,
-		ConsentPd:        e.ConsentPd,
-		OnBoarding:       e.OnBoarding,
-		AllowGeo:         e.AllowGeo,
-		Role:             usermodel.UserRole(e.Role),
-		OriginSource:     e.OriginSource,
-		CreatedAt:        &e.CreatedAt,
-		UpdatedAt:        &e.UpdatedAt,
-		DeletedAt:        e.DeletedAt,
+		ID:                  e.ID,
+		FullName:            e.FullName,
+		Phone:               e.Phone,
+		Email:               e.Email,
+		PhotoURLs:           e.PhotoUrls,
+		OrganizationName:    e.OrganizationName,
+		ConsentPd:           e.ConsentPd,
+		OnBoarding:          e.OnBoarding,
+		AllowGeo:            e.AllowGeo,
+		Role:                usermodel.UserRole(e.Role),
+		OriginSource:        e.OriginSource,
+		PrioritySearchCount: e.PrioritySearchCount,
+		LastDonation:        e.LastDonation,
+		CreatedAt:           &e.CreatedAt,
+		UpdatedAt:           &e.UpdatedAt,
+		DeletedAt:           e.DeletedAt,
 	}
 
 	if e.LocationID != "" {

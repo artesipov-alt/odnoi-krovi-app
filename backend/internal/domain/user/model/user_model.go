@@ -20,25 +20,27 @@ const (
 
 // User представляет доменную модель пользователя
 type User struct {
-	ID               string
-	TelegramID       int64
-	FullName         string
-	Phone            string
-	Email            string
-	PhotoURLs        []string
-	OrganizationName string
-	ConsentPd        bool
-	OnBoarding       []string
-	AllowGeo         bool
-	LocationID       *string
-	Role             UserRole
-	OriginSource     string
-	Pets             []*petmodel.Pet
-	DonorPreference  *DonorPreference
-	Identities       []*authmodel.Identity
-	CreatedAt        *time.Time
-	UpdatedAt        *time.Time
-	DeletedAt        *time.Time
+	ID                  string
+	TelegramID          int64
+	FullName            string
+	Phone               string
+	Email               string
+	PhotoURLs           []string
+	OrganizationName    string
+	ConsentPd           bool
+	OnBoarding          []string
+	AllowGeo            bool
+	LocationID          *string
+	Role                UserRole
+	OriginSource        string
+	PrioritySearchCount int
+	LastDonation        *time.Time
+	Pets                []*petmodel.Pet
+	DonorPreference     *DonorPreference
+	Identities          []*authmodel.Identity
+	CreatedAt           *time.Time
+	UpdatedAt           *time.Time
+	DeletedAt           *time.Time
 }
 
 // NewUserParams holds the parameters for creating a new User

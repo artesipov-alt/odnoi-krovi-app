@@ -44,6 +44,10 @@ const (
 	FieldRole = "role"
 	// FieldOriginSource holds the string denoting the origin_source field in the database.
 	FieldOriginSource = "origin_source"
+	// FieldPrioritySearchCount holds the string denoting the priority_search_count field in the database.
+	FieldPrioritySearchCount = "priority_search_count"
+	// FieldLastDonation holds the string denoting the last_donation field in the database.
+	FieldLastDonation = "last_donation"
 	// EdgePets holds the string denoting the pets edge name in mutations.
 	EdgePets = "pets"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
@@ -119,6 +123,8 @@ var Columns = []string{
 	FieldPhotoUrls,
 	FieldRole,
 	FieldOriginSource,
+	FieldPrioritySearchCount,
+	FieldLastDonation,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -158,6 +164,8 @@ var (
 	DefaultAllowGeo bool
 	// OriginSourceValidator is a validator for the "origin_source" field. It is called by the builders before save.
 	OriginSourceValidator func(string) error
+	// DefaultPrioritySearchCount holds the default value on creation for the "priority_search_count" field.
+	DefaultPrioritySearchCount int
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -255,6 +263,16 @@ func ByRole(opts ...sql.OrderTermOption) OrderOption {
 // ByOriginSource orders the results by the origin_source field.
 func ByOriginSource(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOriginSource, opts...).ToFunc()
+}
+
+// ByPrioritySearchCount orders the results by the priority_search_count field.
+func ByPrioritySearchCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrioritySearchCount, opts...).ToFunc()
+}
+
+// ByLastDonation orders the results by the last_donation field.
+func ByLastDonation(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastDonation, opts...).ToFunc()
 }
 
 // ByPetsCount orders the results by pets count.

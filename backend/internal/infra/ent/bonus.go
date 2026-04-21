@@ -36,6 +36,8 @@ type Bonus struct {
 	Recipient bonus.Recipient `json:"recipient,omitempty"`
 	// Category holds the value of the "category" field.
 	Category bonus.Category `json:"category,omitempty"`
+	// Subcategory holds the value of the "subcategory" field.
+	Subcategory string `json:"subcategory,omitempty"`
 	// PromoCode holds the value of the "promo_code" field.
 	PromoCode string `json:"promo_code,omitempty"`
 	// ExpiresAt holds the value of the "expires_at" field.
@@ -79,7 +81,7 @@ func (*Bonus) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bonus.FieldIsActive:
 			values[i] = new(sql.NullBool)
-		case bonus.FieldID, bonus.FieldUserID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL:
+		case bonus.FieldID, bonus.FieldUserID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldSubcategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL:
 			values[i] = new(sql.NullString)
 		case bonus.FieldCreatedAt, bonus.FieldUpdatedAt, bonus.FieldDeletedAt, bonus.FieldExpiresAt:
 			values[i] = new(sql.NullTime)
@@ -158,6 +160,12 @@ func (_m *Bonus) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field category", values[i])
 			} else if value.Valid {
 				_m.Category = bonus.Category(value.String)
+			}
+		case bonus.FieldSubcategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field subcategory", values[i])
+			} else if value.Valid {
+				_m.Subcategory = value.String
 			}
 		case bonus.FieldPromoCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -258,6 +266,9 @@ func (_m *Bonus) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("category=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Category))
+	builder.WriteString(", ")
+	builder.WriteString("subcategory=")
+	builder.WriteString(_m.Subcategory)
 	builder.WriteString(", ")
 	builder.WriteString("promo_code=")
 	builder.WriteString(_m.PromoCode)

@@ -11,6 +11,7 @@ type Bonus struct {
 	Target       string
 	Recipient    string
 	Category     string
+	Subcategory  *string
 	PromoCode    string
 	ExpiresAt    time.Time
 	PlatformName string

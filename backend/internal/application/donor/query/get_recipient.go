@@ -7,12 +7,19 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 )
+
+type RecipientDetailReadModel struct {
+	Recipient       *bloodreqmodel.BloodRequestWithMatchingDonors
+	AvilableBonuses []*bonusmodel.Bonus
+}
 
 type RecipientDetailHandler struct {
 	donorRepo    donor.Repository
@@ -21,9 +28,10 @@ type RecipientDetailHandler struct {
 	userRepo     user.Repository
 	matchingSvc  bloodsearch.MatchingService
 	petService   *pet.PetService
+	bonusSvc     *bonus.BonusService
 }
 
-func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService) *RecipientDetailHandler {
+func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService, bonusSvc *bonus.BonusService) *RecipientDetailHandler {
 	return &RecipientDetailHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
@@ -31,10 +39,11 @@ func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repositor
 		userRepo:     userRepo,
 		matchingSvc:  matchingSvc,
 		petService:   petService,
+		bonusSvc:     bonusSvc,
 	}
 }
 
-func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, userID string) (*bloodreqmodel.BloodRequestWithMatchingDonors, error) {
+func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, userID string) (*RecipientDetailReadModel, error) {
 	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{
 		WithDonorPreference: true,
 	})
@@ -97,5 +106,13 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 
 	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)
 
-	return recipient, nil
+	arrears, err := h.bonusSvc.GetAggregatedBonuses(ctx, potentialDonors[0].Type, true, user.LastDonation)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get available bonuses")
+	}
+
+	return &RecipientDetailReadModel{
+		Recipient:       recipient,
+		AvilableBonuses: arrears,
+	}, nil
 }

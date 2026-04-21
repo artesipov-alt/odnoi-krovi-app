@@ -34,6 +34,8 @@ const (
 	FieldRecipient = "recipient"
 	// FieldCategory holds the string denoting the category field in the database.
 	FieldCategory = "category"
+	// FieldSubcategory holds the string denoting the subcategory field in the database.
+	FieldSubcategory = "subcategory"
 	// FieldPromoCode holds the string denoting the promo_code field in the database.
 	FieldPromoCode = "promo_code"
 	// FieldExpiresAt holds the string denoting the expires_at field in the database.
@@ -69,6 +71,7 @@ var Columns = []string{
 	FieldTarget,
 	FieldRecipient,
 	FieldCategory,
+	FieldSubcategory,
 	FieldPromoCode,
 	FieldExpiresAt,
 	FieldPlatformName,
@@ -228,6 +231,11 @@ func ByRecipient(opts ...sql.OrderTermOption) OrderOption {
 // ByCategory orders the results by the category field.
 func ByCategory(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCategory, opts...).ToFunc()
+}
+
+// BySubcategory orders the results by the subcategory field.
+func BySubcategory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubcategory, opts...).ToFunc()
 }
 
 // ByPromoCode orders the results by the promo_code field.

@@ -77,7 +77,7 @@ func init() {
 	// bonus.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	bonus.UpdateDefaultUpdatedAt = bonusDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bonusDescIsActive is the schema descriptor for is_active field.
-	bonusDescIsActive := bonusFields[10].Descriptor()
+	bonusDescIsActive := bonusFields[11].Descriptor()
 	// bonus.DefaultIsActive holds the default value on creation for the is_active field.
 	bonus.DefaultIsActive = bonusDescIsActive.Default.(bool)
 	// bonusDescID is the schema descriptor for id field.
@@ -336,6 +336,10 @@ func init() {
 	userDescOriginSource := userFields[10].Descriptor()
 	// user.OriginSourceValidator is a validator for the "origin_source" field. It is called by the builders before save.
 	user.OriginSourceValidator = userDescOriginSource.Validators[0].(func(string) error)
+	// userDescPrioritySearchCount is the schema descriptor for priority_search_count field.
+	userDescPrioritySearchCount := userFields[11].Descriptor()
+	// user.DefaultPrioritySearchCount holds the default value on creation for the priority_search_count field.
+	user.DefaultPrioritySearchCount = userDescPrioritySearchCount.Default.(int)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

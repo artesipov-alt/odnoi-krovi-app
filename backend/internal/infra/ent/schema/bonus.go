@@ -38,6 +38,10 @@ func (Bonus) Fields() []ent.Field {
 		field.Enum("category").
 			Values("food", "preparation", "other"),
 
+		// subcategory — Подкатегория (например, для кормов: сухой/влажный)
+		field.String("subcategory").
+			Optional(),
+
 		// promo_code — Промокод
 		field.String("promo_code").
 			Unique(),

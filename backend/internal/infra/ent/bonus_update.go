@@ -145,6 +145,26 @@ func (_u *BonusUpdate) SetNillableCategory(v *bonus.Category) *BonusUpdate {
 	return _u
 }
 
+// SetSubcategory sets the "subcategory" field.
+func (_u *BonusUpdate) SetSubcategory(v string) *BonusUpdate {
+	_u.mutation.SetSubcategory(v)
+	return _u
+}
+
+// SetNillableSubcategory sets the "subcategory" field if the given value is not nil.
+func (_u *BonusUpdate) SetNillableSubcategory(v *string) *BonusUpdate {
+	if v != nil {
+		_u.SetSubcategory(*v)
+	}
+	return _u
+}
+
+// ClearSubcategory clears the value of the "subcategory" field.
+func (_u *BonusUpdate) ClearSubcategory() *BonusUpdate {
+	_u.mutation.ClearSubcategory()
+	return _u
+}
+
 // SetPromoCode sets the "promo_code" field.
 func (_u *BonusUpdate) SetPromoCode(v string) *BonusUpdate {
 	_u.mutation.SetPromoCode(v)
@@ -329,6 +349,12 @@ func (_u *BonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Category(); ok {
 		_spec.SetField(bonus.FieldCategory, field.TypeEnum, value)
 	}
+	if value, ok := _u.mutation.Subcategory(); ok {
+		_spec.SetField(bonus.FieldSubcategory, field.TypeString, value)
+	}
+	if _u.mutation.SubcategoryCleared() {
+		_spec.ClearField(bonus.FieldSubcategory, field.TypeString)
+	}
 	if value, ok := _u.mutation.PromoCode(); ok {
 		_spec.SetField(bonus.FieldPromoCode, field.TypeString, value)
 	}
@@ -509,6 +535,26 @@ func (_u *BonusUpdateOne) SetNillableCategory(v *bonus.Category) *BonusUpdateOne
 	if v != nil {
 		_u.SetCategory(*v)
 	}
+	return _u
+}
+
+// SetSubcategory sets the "subcategory" field.
+func (_u *BonusUpdateOne) SetSubcategory(v string) *BonusUpdateOne {
+	_u.mutation.SetSubcategory(v)
+	return _u
+}
+
+// SetNillableSubcategory sets the "subcategory" field if the given value is not nil.
+func (_u *BonusUpdateOne) SetNillableSubcategory(v *string) *BonusUpdateOne {
+	if v != nil {
+		_u.SetSubcategory(*v)
+	}
+	return _u
+}
+
+// ClearSubcategory clears the value of the "subcategory" field.
+func (_u *BonusUpdateOne) ClearSubcategory() *BonusUpdateOne {
+	_u.mutation.ClearSubcategory()
 	return _u
 }
 
@@ -725,6 +771,12 @@ func (_u *BonusUpdateOne) sqlSave(ctx context.Context) (_node *Bonus, err error)
 	}
 	if value, ok := _u.mutation.Category(); ok {
 		_spec.SetField(bonus.FieldCategory, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Subcategory(); ok {
+		_spec.SetField(bonus.FieldSubcategory, field.TypeString, value)
+	}
+	if _u.mutation.SubcategoryCleared() {
+		_spec.ClearField(bonus.FieldSubcategory, field.TypeString)
 	}
 	if value, ok := _u.mutation.PromoCode(); ok {
 		_spec.SetField(bonus.FieldPromoCode, field.TypeString, value)

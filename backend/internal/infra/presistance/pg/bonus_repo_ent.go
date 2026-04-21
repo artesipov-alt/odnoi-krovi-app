@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	"entgo.io/ent/dialect/sql"
+	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	entbonus "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 )
@@ -22,7 +24,7 @@ func NewEntBonusRepository(client *ent.Client) *EntBonusRepository {
 }
 
 // CreateBatch creates multiple bonuses in a single transaction.
-func (r *EntBonusRepository) CreateBatch(ctx context.Context, bonuses []*bonus.Bonus) error {
+func (r *EntBonusRepository) CreateBatch(ctx context.Context, bonuses []*bonusmodel.Bonus) error {
 	if len(bonuses) == 0 {
 		return nil
 	}
@@ -75,6 +77,42 @@ func (r *EntBonusRepository) ExistsByPromoCodes(ctx context.Context, codes []str
 	result := make([]string, len(existingBonuses))
 	for i, b := range existingBonuses {
 		result[i] = b.PromoCode
+	}
+
+	return result, nil
+}
+
+// GetAvailableBonuses retrieves available (unassigned) bonuses filtered by petType and isActive.
+func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType common.PetType, isActive bool) ([]*bonusmodel.Bonus, error) {
+	query := r.client.Bonus.Query().
+		Where(entbonus.IsActive(isActive)).
+		Where(entbonus.UserIDIsNil()).
+		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
+		Order(entbonus.ByExpiresAt(sql.OrderDesc()))
+
+	bonuses, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query bonuses: %w", err)
+	}
+
+	result := make([]*bonusmodel.Bonus, len(bonuses))
+	for i, b := range bonuses {
+		result[i] = &bonusmodel.Bonus{
+			ID:          b.ID,
+			UserID:      &b.UserID,
+			PartnerName: b.PartnerName,
+			Description: b.Description,
+			Target:      b.Target.String(),
+			Recipient:   b.Recipient.String(),
+			Category:    b.Category.String(),
+			Subcategory: &b.Subcategory,
+			// Возвращаем без промокода.
+			// PromoCode:    b.PromoCode,
+			ExpiresAt:    b.ExpiresAt,
+			PlatformName: b.PlatformName,
+			PlatformURL:  &b.PlatformURL,
+			IsActive:     b.IsActive,
+		}
 	}
 
 	return result, nil

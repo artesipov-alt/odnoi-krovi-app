@@ -53,6 +53,7 @@ var (
 		{Name: "target", Type: field.TypeEnum, Enums: []string{"cat", "dog", "all"}},
 		{Name: "recipient", Type: field.TypeEnum, Enums: []string{"donor", "recipient", "all"}},
 		{Name: "category", Type: field.TypeEnum, Enums: []string{"food", "preparation", "other"}},
+		{Name: "subcategory", Type: field.TypeString, Nullable: true},
 		{Name: "promo_code", Type: field.TypeString, Unique: true},
 		{Name: "expires_at", Type: field.TypeTime},
 		{Name: "platform_name", Type: field.TypeString},
@@ -68,7 +69,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "bonuses_users_bonuses",
-				Columns:    []*schema.Column{BonusesColumns[14]},
+				Columns:    []*schema.Column{BonusesColumns[15]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -308,6 +309,8 @@ var (
 		{Name: "photo_urls", Type: field.TypeJSON, Nullable: true},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin", "clinic"}, Default: "user"},
 		{Name: "origin_source", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "priority_search_count", Type: field.TypeInt, Default: 0},
+		{Name: "last_donation", Type: field.TypeTime, Nullable: true},
 		{Name: "location_id", Type: field.TypeString, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -318,7 +321,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_ref_locations_users",
-				Columns:    []*schema.Column{UsersColumns[14]},
+				Columns:    []*schema.Column{UsersColumns[16]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

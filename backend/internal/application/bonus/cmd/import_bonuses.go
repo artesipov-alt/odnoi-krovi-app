@@ -9,17 +9,18 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	bonusrepo "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/xuri/excelize/v2"
 )
 
 // ImportBonusesHandler handles the business logic for importing bonuses from an Excel file.
 type ImportBonusesHandler struct {
-	repo bonus.Repository
+	repo bonusrepo.Repository
 }
 
 // NewImportBonusesHandler creates a new instance of ImportBonusesHandler.
-func NewImportBonusesHandler(repo bonus.Repository) *ImportBonusesHandler {
+func NewImportBonusesHandler(repo bonusrepo.Repository) *ImportBonusesHandler {
 	return &ImportBonusesHandler{
 		repo: repo,
 	}
@@ -74,7 +75,7 @@ func (h *ImportBonusesHandler) Handle(ctx context.Context, file io.Reader) (*Imp
 		existingMap[code] = struct{}{}
 	}
 
-	var bonusesToCreate []*bonus.Bonus
+	var bonusesToCreate []*bonusmodel.Bonus
 
 	// Skip header row
 	for i, row := range rows[1:] {
@@ -105,7 +106,7 @@ func (h *ImportBonusesHandler) Handle(ctx context.Context, file io.Reader) (*Imp
 }
 
 // parseRow parses a single row from the Excel file and returns a bonus domain model.
-func (h *ImportBonusesHandler) parseRow(row []string) (*bonus.Bonus, error) {
+func (h *ImportBonusesHandler) parseRow(row []string) (*bonusmodel.Bonus, error) {
 	// Expected columns:
 	// 0: ID (ignored)
 	// 1: Partner Name
@@ -170,7 +171,7 @@ func (h *ImportBonusesHandler) parseRow(row []string) (*bonus.Bonus, error) {
 		}
 	}
 
-	return &bonus.Bonus{
+	return &bonusmodel.Bonus{
 		PartnerName:  partnerName,
 		Description:  description,
 		Target:       target,

@@ -1531,6 +1531,7 @@ type BonusMutation struct {
 	target        *bonus.Target
 	recipient     *bonus.Recipient
 	category      *bonus.Category
+	subcategory   *string
 	promo_code    *string
 	expires_at    *time.Time
 	platform_name *string
@@ -1998,6 +1999,55 @@ func (m *BonusMutation) ResetCategory() {
 	m.category = nil
 }
 
+// SetSubcategory sets the "subcategory" field.
+func (m *BonusMutation) SetSubcategory(s string) {
+	m.subcategory = &s
+}
+
+// Subcategory returns the value of the "subcategory" field in the mutation.
+func (m *BonusMutation) Subcategory() (r string, exists bool) {
+	v := m.subcategory
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubcategory returns the old "subcategory" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldSubcategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubcategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubcategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubcategory: %w", err)
+	}
+	return oldValue.Subcategory, nil
+}
+
+// ClearSubcategory clears the value of the "subcategory" field.
+func (m *BonusMutation) ClearSubcategory() {
+	m.subcategory = nil
+	m.clearedFields[bonus.FieldSubcategory] = struct{}{}
+}
+
+// SubcategoryCleared returns if the "subcategory" field was cleared in this mutation.
+func (m *BonusMutation) SubcategoryCleared() bool {
+	_, ok := m.clearedFields[bonus.FieldSubcategory]
+	return ok
+}
+
+// ResetSubcategory resets all changes to the "subcategory" field.
+func (m *BonusMutation) ResetSubcategory() {
+	m.subcategory = nil
+	delete(m.clearedFields, bonus.FieldSubcategory)
+}
+
 // SetPromoCode sets the "promo_code" field.
 func (m *BonusMutation) SetPromoCode(s string) {
 	m.promo_code = &s
@@ -2252,7 +2302,7 @@ func (m *BonusMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BonusMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.created_at != nil {
 		fields = append(fields, bonus.FieldCreatedAt)
 	}
@@ -2279,6 +2329,9 @@ func (m *BonusMutation) Fields() []string {
 	}
 	if m.category != nil {
 		fields = append(fields, bonus.FieldCategory)
+	}
+	if m.subcategory != nil {
+		fields = append(fields, bonus.FieldSubcategory)
 	}
 	if m.promo_code != nil {
 		fields = append(fields, bonus.FieldPromoCode)
@@ -2321,6 +2374,8 @@ func (m *BonusMutation) Field(name string) (ent.Value, bool) {
 		return m.Recipient()
 	case bonus.FieldCategory:
 		return m.Category()
+	case bonus.FieldSubcategory:
+		return m.Subcategory()
 	case bonus.FieldPromoCode:
 		return m.PromoCode()
 	case bonus.FieldExpiresAt:
@@ -2358,6 +2413,8 @@ func (m *BonusMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldRecipient(ctx)
 	case bonus.FieldCategory:
 		return m.OldCategory(ctx)
+	case bonus.FieldSubcategory:
+		return m.OldSubcategory(ctx)
 	case bonus.FieldPromoCode:
 		return m.OldPromoCode(ctx)
 	case bonus.FieldExpiresAt:
@@ -2440,6 +2497,13 @@ func (m *BonusMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCategory(v)
 		return nil
+	case bonus.FieldSubcategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubcategory(v)
+		return nil
 	case bonus.FieldPromoCode:
 		v, ok := value.(string)
 		if !ok {
@@ -2511,6 +2575,9 @@ func (m *BonusMutation) ClearedFields() []string {
 	if m.FieldCleared(bonus.FieldUserID) {
 		fields = append(fields, bonus.FieldUserID)
 	}
+	if m.FieldCleared(bonus.FieldSubcategory) {
+		fields = append(fields, bonus.FieldSubcategory)
+	}
 	if m.FieldCleared(bonus.FieldPlatformURL) {
 		fields = append(fields, bonus.FieldPlatformURL)
 	}
@@ -2533,6 +2600,9 @@ func (m *BonusMutation) ClearField(name string) error {
 		return nil
 	case bonus.FieldUserID:
 		m.ClearUserID()
+		return nil
+	case bonus.FieldSubcategory:
+		m.ClearSubcategory()
 		return nil
 	case bonus.FieldPlatformURL:
 		m.ClearPlatformURL()
@@ -2571,6 +2641,9 @@ func (m *BonusMutation) ResetField(name string) error {
 		return nil
 	case bonus.FieldCategory:
 		m.ResetCategory()
+		return nil
+	case bonus.FieldSubcategory:
+		m.ResetSubcategory()
 		return nil
 	case bonus.FieldPromoCode:
 		m.ResetPromoCode()
@@ -11013,44 +11086,47 @@ func (m *PetTreatmentMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op                      Op
-	typ                     string
-	id                      *string
-	created_at              *time.Time
-	updated_at              *time.Time
-	deleted_at              *time.Time
-	full_name               *string
-	phone                   *string
-	email                   *string
-	organization_name       *string
-	consent_pd              *bool
-	on_boarding             *[]string
-	appendon_boarding       []string
-	allow_geo               *bool
-	photo_urls              *[]string
-	appendphoto_urls        []string
-	role                    *user.Role
-	origin_source           *string
-	clearedFields           map[string]struct{}
-	pets                    map[string]struct{}
-	removedpets             map[string]struct{}
-	clearedpets             bool
-	location                *string
-	clearedlocation         bool
-	donor_preference        *string
-	cleareddonor_preference bool
-	identities              map[string]struct{}
-	removedidentities       map[string]struct{}
-	clearedidentities       bool
-	utm_histories           map[string]struct{}
-	removedutm_histories    map[string]struct{}
-	clearedutm_histories    bool
-	bonuses                 map[string]struct{}
-	removedbonuses          map[string]struct{}
-	clearedbonuses          bool
-	done                    bool
-	oldValue                func(context.Context) (*User, error)
-	predicates              []predicate.User
+	op                       Op
+	typ                      string
+	id                       *string
+	created_at               *time.Time
+	updated_at               *time.Time
+	deleted_at               *time.Time
+	full_name                *string
+	phone                    *string
+	email                    *string
+	organization_name        *string
+	consent_pd               *bool
+	on_boarding              *[]string
+	appendon_boarding        []string
+	allow_geo                *bool
+	photo_urls               *[]string
+	appendphoto_urls         []string
+	role                     *user.Role
+	origin_source            *string
+	priority_search_count    *int
+	addpriority_search_count *int
+	last_donation            *time.Time
+	clearedFields            map[string]struct{}
+	pets                     map[string]struct{}
+	removedpets              map[string]struct{}
+	clearedpets              bool
+	location                 *string
+	clearedlocation          bool
+	donor_preference         *string
+	cleareddonor_preference  bool
+	identities               map[string]struct{}
+	removedidentities        map[string]struct{}
+	clearedidentities        bool
+	utm_histories            map[string]struct{}
+	removedutm_histories     map[string]struct{}
+	clearedutm_histories     bool
+	bonuses                  map[string]struct{}
+	removedbonuses           map[string]struct{}
+	clearedbonuses           bool
+	done                     bool
+	oldValue                 func(context.Context) (*User, error)
+	predicates               []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -11810,6 +11886,111 @@ func (m *UserMutation) ResetOriginSource() {
 	delete(m.clearedFields, user.FieldOriginSource)
 }
 
+// SetPrioritySearchCount sets the "priority_search_count" field.
+func (m *UserMutation) SetPrioritySearchCount(i int) {
+	m.priority_search_count = &i
+	m.addpriority_search_count = nil
+}
+
+// PrioritySearchCount returns the value of the "priority_search_count" field in the mutation.
+func (m *UserMutation) PrioritySearchCount() (r int, exists bool) {
+	v := m.priority_search_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrioritySearchCount returns the old "priority_search_count" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldPrioritySearchCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrioritySearchCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrioritySearchCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrioritySearchCount: %w", err)
+	}
+	return oldValue.PrioritySearchCount, nil
+}
+
+// AddPrioritySearchCount adds i to the "priority_search_count" field.
+func (m *UserMutation) AddPrioritySearchCount(i int) {
+	if m.addpriority_search_count != nil {
+		*m.addpriority_search_count += i
+	} else {
+		m.addpriority_search_count = &i
+	}
+}
+
+// AddedPrioritySearchCount returns the value that was added to the "priority_search_count" field in this mutation.
+func (m *UserMutation) AddedPrioritySearchCount() (r int, exists bool) {
+	v := m.addpriority_search_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPrioritySearchCount resets all changes to the "priority_search_count" field.
+func (m *UserMutation) ResetPrioritySearchCount() {
+	m.priority_search_count = nil
+	m.addpriority_search_count = nil
+}
+
+// SetLastDonation sets the "last_donation" field.
+func (m *UserMutation) SetLastDonation(t time.Time) {
+	m.last_donation = &t
+}
+
+// LastDonation returns the value of the "last_donation" field in the mutation.
+func (m *UserMutation) LastDonation() (r time.Time, exists bool) {
+	v := m.last_donation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastDonation returns the old "last_donation" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldLastDonation(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastDonation is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastDonation requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastDonation: %w", err)
+	}
+	return oldValue.LastDonation, nil
+}
+
+// ClearLastDonation clears the value of the "last_donation" field.
+func (m *UserMutation) ClearLastDonation() {
+	m.last_donation = nil
+	m.clearedFields[user.FieldLastDonation] = struct{}{}
+}
+
+// LastDonationCleared returns if the "last_donation" field was cleared in this mutation.
+func (m *UserMutation) LastDonationCleared() bool {
+	_, ok := m.clearedFields[user.FieldLastDonation]
+	return ok
+}
+
+// ResetLastDonation resets all changes to the "last_donation" field.
+func (m *UserMutation) ResetLastDonation() {
+	m.last_donation = nil
+	delete(m.clearedFields, user.FieldLastDonation)
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by ids.
 func (m *UserMutation) AddPetIDs(ids ...string) {
 	if m.pets == nil {
@@ -12126,7 +12307,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 16)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -12169,6 +12350,12 @@ func (m *UserMutation) Fields() []string {
 	if m.origin_source != nil {
 		fields = append(fields, user.FieldOriginSource)
 	}
+	if m.priority_search_count != nil {
+		fields = append(fields, user.FieldPrioritySearchCount)
+	}
+	if m.last_donation != nil {
+		fields = append(fields, user.FieldLastDonation)
+	}
 	return fields
 }
 
@@ -12205,6 +12392,10 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Role()
 	case user.FieldOriginSource:
 		return m.OriginSource()
+	case user.FieldPrioritySearchCount:
+		return m.PrioritySearchCount()
+	case user.FieldLastDonation:
+		return m.LastDonation()
 	}
 	return nil, false
 }
@@ -12242,6 +12433,10 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldRole(ctx)
 	case user.FieldOriginSource:
 		return m.OldOriginSource(ctx)
+	case user.FieldPrioritySearchCount:
+		return m.OldPrioritySearchCount(ctx)
+	case user.FieldLastDonation:
+		return m.OldLastDonation(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -12349,6 +12544,20 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOriginSource(v)
 		return nil
+	case user.FieldPrioritySearchCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrioritySearchCount(v)
+		return nil
+	case user.FieldLastDonation:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastDonation(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -12356,13 +12565,21 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addpriority_search_count != nil {
+		fields = append(fields, user.FieldPrioritySearchCount)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case user.FieldPrioritySearchCount:
+		return m.AddedPrioritySearchCount()
+	}
 	return nil, false
 }
 
@@ -12371,6 +12588,13 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case user.FieldPrioritySearchCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPrioritySearchCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -12405,6 +12629,9 @@ func (m *UserMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(user.FieldOriginSource) {
 		fields = append(fields, user.FieldOriginSource)
+	}
+	if m.FieldCleared(user.FieldLastDonation) {
+		fields = append(fields, user.FieldLastDonation)
 	}
 	return fields
 }
@@ -12446,6 +12673,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldOriginSource:
 		m.ClearOriginSource()
+		return nil
+	case user.FieldLastDonation:
+		m.ClearLastDonation()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -12496,6 +12726,12 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldOriginSource:
 		m.ResetOriginSource()
+		return nil
+	case user.FieldPrioritySearchCount:
+		m.ResetPrioritySearchCount()
+		return nil
+	case user.FieldLastDonation:
+		m.ResetLastDonation()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
