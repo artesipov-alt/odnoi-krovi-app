@@ -19,6 +19,7 @@ type GetByUserResult struct {
 	TotalPets               int
 	TotalPlannedDonations   int
 	TotalCompletedDonations int
+	TotalPrioritySearch     int
 }
 
 type GetByUserHandler struct {
@@ -127,5 +128,6 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		TotalPets:               len(activePets),
 		TotalPlannedDonations:   len(plannedDonations),
 		TotalCompletedDonations: totalCompletedDonations,
+		TotalPrioritySearch:     owner.PrioritySearchCount,
 	}, nil
 }

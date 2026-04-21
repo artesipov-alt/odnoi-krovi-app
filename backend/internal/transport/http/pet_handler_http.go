@@ -189,6 +189,7 @@ func (h *PetHandler) GetUserPets(ctx context.Context, input *dto.GetPetsByUserIn
 			TotalPets:               result.TotalPets,
 			TotalPlannedDonations:   result.TotalPlannedDonations,
 			TotalCompletedDonations: result.TotalCompletedDonations,
+			TotalPrioritySearch:     result.TotalPrioritySearch,
 		},
 	}, nil
 }
