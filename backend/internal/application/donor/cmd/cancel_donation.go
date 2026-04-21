@@ -7,6 +7,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -24,6 +25,7 @@ type CancelDonationHandler struct {
 	eventPublisher ports.EventPublisher
 	petRepo        pet.PetReadRepository
 	userRepo       user.Repository
+	bonusSvc       *bonus.BonusService
 }
 
 func NewCancelDonationHandler(
@@ -33,6 +35,7 @@ func NewCancelDonationHandler(
 	eventPublisher ports.EventPublisher,
 	petRepo pet.PetReadRepository,
 	userRepo user.Repository,
+	bonusSvc *bonus.BonusService,
 ) *CancelDonationHandler {
 	return &CancelDonationHandler{
 		donorRepo:      donorRepo,
@@ -41,6 +44,7 @@ func NewCancelDonationHandler(
 		eventPublisher: eventPublisher,
 		petRepo:        petRepo,
 		userRepo:       userRepo,
+		bonusSvc:       bonusSvc,
 	}
 }
 
@@ -66,6 +70,12 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 		return apperrors.BadRequest("donor response status is invalid").WithMessage("cannot cancel a completed donation")
 	}
 
+	// Получаем данные донора
+	donorPet, err := h.petRepo.GetByID(ctx, donorResponse.DonorID, pet.PetPreloadOptions{})
+	if err != nil {
+		return apperrors.Internal(err, "failed to get donor pet")
+	}
+
 	// Donor name and blood group from response
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
@@ -82,6 +92,11 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
 			return apperrors.Internal(err, "failed to update blood request status after cancel")
+		}
+
+		// Снимаем бонусы с пользователя
+		if err := h.bonusSvc.UnassignBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+			return err
 		}
 
 		return nil

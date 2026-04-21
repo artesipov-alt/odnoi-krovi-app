@@ -16,7 +16,7 @@ type Bonus struct {
 	ExpiresAt    time.Time
 	PlatformName string
 	PlatformURL  *string
-	IsActive     bool
+	Stage        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    *time.Time

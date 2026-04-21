@@ -56,9 +56,10 @@ func (Bonus) Fields() []ent.Field {
 		field.String("platform_url").
 			Optional(),
 
-		// is_active — Флаг активности бонуса
-		field.Bool("is_active").
-			Default(true),
+		// stage — Статус бонуса
+		field.Enum("stage").
+			Values("stage", "used", "unused", "reserved").
+			Default("unused"),
 	}
 }
 

@@ -159,12 +159,12 @@ func main() {
 		petService := pet.NewPetService()
 
 		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, petService, userRepo)
-		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, txManager)
+		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusSvc, publisher, txManager)
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService, bonusSvc)
 		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
 		donorGetCompletedDonationsHandler := donorquery.NewCompletedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo)
 		completeDonationHandler := donorcmd.NewCompleteDonationHandler(donorResponseRepo, bloodRequestRepo, petRepo, userRepo, publisher)
-		cancelDonationHandler := donorcmd.NewCancelDonationHandler(donorResponseRepo, bloodRequestRepo, txManager, publisher, petRepo, userRepo)
+		cancelDonationHandler := donorcmd.NewCancelDonationHandler(donorResponseRepo, bloodRequestRepo, txManager, publisher, petRepo, userRepo, bonusSvc)
 
 		// Инициализация pet handlers
 		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
@@ -184,9 +184,9 @@ func main() {
 		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo, bloodRequestRepo, petService)
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, bloodRequestRepo, petService)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
-		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher)
+		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher)
-		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher)
+		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)

@@ -156,16 +156,16 @@ func (_c *BonusCreate) SetNillablePlatformURL(v *string) *BonusCreate {
 	return _c
 }
 
-// SetIsActive sets the "is_active" field.
-func (_c *BonusCreate) SetIsActive(v bool) *BonusCreate {
-	_c.mutation.SetIsActive(v)
+// SetStage sets the "stage" field.
+func (_c *BonusCreate) SetStage(v bonus.Stage) *BonusCreate {
+	_c.mutation.SetStage(v)
 	return _c
 }
 
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (_c *BonusCreate) SetNillableIsActive(v *bool) *BonusCreate {
+// SetNillableStage sets the "stage" field if the given value is not nil.
+func (_c *BonusCreate) SetNillableStage(v *bonus.Stage) *BonusCreate {
 	if v != nil {
-		_c.SetIsActive(*v)
+		_c.SetStage(*v)
 	}
 	return _c
 }
@@ -232,9 +232,9 @@ func (_c *BonusCreate) defaults() {
 		v := bonus.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := _c.mutation.IsActive(); !ok {
-		v := bonus.DefaultIsActive
-		_c.mutation.SetIsActive(v)
+	if _, ok := _c.mutation.Stage(); !ok {
+		v := bonus.DefaultStage
+		_c.mutation.SetStage(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := bonus.DefaultID()
@@ -289,8 +289,13 @@ func (_c *BonusCreate) check() error {
 	if _, ok := _c.mutation.PlatformName(); !ok {
 		return &ValidationError{Name: "platform_name", err: errors.New(`ent: missing required field "Bonus.platform_name"`)}
 	}
-	if _, ok := _c.mutation.IsActive(); !ok {
-		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "Bonus.is_active"`)}
+	if _, ok := _c.mutation.Stage(); !ok {
+		return &ValidationError{Name: "stage", err: errors.New(`ent: missing required field "Bonus.stage"`)}
+	}
+	if v, ok := _c.mutation.Stage(); ok {
+		if err := bonus.StageValidator(v); err != nil {
+			return &ValidationError{Name: "stage", err: fmt.Errorf(`ent: validator failed for field "Bonus.stage": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -380,9 +385,9 @@ func (_c *BonusCreate) createSpec() (*Bonus, *sqlgraph.CreateSpec) {
 		_spec.SetField(bonus.FieldPlatformURL, field.TypeString, value)
 		_node.PlatformURL = value
 	}
-	if value, ok := _c.mutation.IsActive(); ok {
-		_spec.SetField(bonus.FieldIsActive, field.TypeBool, value)
-		_node.IsActive = value
+	if value, ok := _c.mutation.Stage(); ok {
+		_spec.SetField(bonus.FieldStage, field.TypeEnum, value)
+		_node.Stage = value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -633,15 +638,15 @@ func (u *BonusUpsert) ClearPlatformURL() *BonusUpsert {
 	return u
 }
 
-// SetIsActive sets the "is_active" field.
-func (u *BonusUpsert) SetIsActive(v bool) *BonusUpsert {
-	u.Set(bonus.FieldIsActive, v)
+// SetStage sets the "stage" field.
+func (u *BonusUpsert) SetStage(v bonus.Stage) *BonusUpsert {
+	u.Set(bonus.FieldStage, v)
 	return u
 }
 
-// UpdateIsActive sets the "is_active" field to the value that was provided on create.
-func (u *BonusUpsert) UpdateIsActive() *BonusUpsert {
-	u.SetExcluded(bonus.FieldIsActive)
+// UpdateStage sets the "stage" field to the value that was provided on create.
+func (u *BonusUpsert) UpdateStage() *BonusUpsert {
+	u.SetExcluded(bonus.FieldStage)
 	return u
 }
 
@@ -906,17 +911,17 @@ func (u *BonusUpsertOne) ClearPlatformURL() *BonusUpsertOne {
 	})
 }
 
-// SetIsActive sets the "is_active" field.
-func (u *BonusUpsertOne) SetIsActive(v bool) *BonusUpsertOne {
+// SetStage sets the "stage" field.
+func (u *BonusUpsertOne) SetStage(v bonus.Stage) *BonusUpsertOne {
 	return u.Update(func(s *BonusUpsert) {
-		s.SetIsActive(v)
+		s.SetStage(v)
 	})
 }
 
-// UpdateIsActive sets the "is_active" field to the value that was provided on create.
-func (u *BonusUpsertOne) UpdateIsActive() *BonusUpsertOne {
+// UpdateStage sets the "stage" field to the value that was provided on create.
+func (u *BonusUpsertOne) UpdateStage() *BonusUpsertOne {
 	return u.Update(func(s *BonusUpsert) {
-		s.UpdateIsActive()
+		s.UpdateStage()
 	})
 }
 
@@ -1348,17 +1353,17 @@ func (u *BonusUpsertBulk) ClearPlatformURL() *BonusUpsertBulk {
 	})
 }
 
-// SetIsActive sets the "is_active" field.
-func (u *BonusUpsertBulk) SetIsActive(v bool) *BonusUpsertBulk {
+// SetStage sets the "stage" field.
+func (u *BonusUpsertBulk) SetStage(v bonus.Stage) *BonusUpsertBulk {
 	return u.Update(func(s *BonusUpsert) {
-		s.SetIsActive(v)
+		s.SetStage(v)
 	})
 }
 
-// UpdateIsActive sets the "is_active" field to the value that was provided on create.
-func (u *BonusUpsertBulk) UpdateIsActive() *BonusUpsertBulk {
+// UpdateStage sets the "stage" field to the value that was provided on create.
+func (u *BonusUpsertBulk) UpdateStage() *BonusUpsertBulk {
 	return u.Update(func(s *BonusUpsert) {
-		s.UpdateIsActive()
+		s.UpdateStage()
 	})
 }
 

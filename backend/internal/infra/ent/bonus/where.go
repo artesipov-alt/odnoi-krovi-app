@@ -120,11 +120,6 @@ func PlatformURL(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldPlatformURL, v))
 }
 
-// IsActive applies equality check predicate on the "is_active" field. It's identical to IsActiveEQ.
-func IsActive(v bool) predicate.Bonus {
-	return predicate.Bonus(sql.FieldEQ(FieldIsActive, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldCreatedAt, v))
@@ -840,14 +835,24 @@ func PlatformURLContainsFold(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldContainsFold(FieldPlatformURL, v))
 }
 
-// IsActiveEQ applies the EQ predicate on the "is_active" field.
-func IsActiveEQ(v bool) predicate.Bonus {
-	return predicate.Bonus(sql.FieldEQ(FieldIsActive, v))
+// StageEQ applies the EQ predicate on the "stage" field.
+func StageEQ(v Stage) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldStage, v))
 }
 
-// IsActiveNEQ applies the NEQ predicate on the "is_active" field.
-func IsActiveNEQ(v bool) predicate.Bonus {
-	return predicate.Bonus(sql.FieldNEQ(FieldIsActive, v))
+// StageNEQ applies the NEQ predicate on the "stage" field.
+func StageNEQ(v Stage) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNEQ(FieldStage, v))
+}
+
+// StageIn applies the In predicate on the "stage" field.
+func StageIn(vs ...Stage) predicate.Bonus {
+	return predicate.Bonus(sql.FieldIn(FieldStage, vs...))
+}
+
+// StageNotIn applies the NotIn predicate on the "stage" field.
+func StageNotIn(vs ...Stage) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotIn(FieldStage, vs...))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

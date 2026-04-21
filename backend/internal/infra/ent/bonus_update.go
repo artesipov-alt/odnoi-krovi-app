@@ -227,16 +227,16 @@ func (_u *BonusUpdate) ClearPlatformURL() *BonusUpdate {
 	return _u
 }
 
-// SetIsActive sets the "is_active" field.
-func (_u *BonusUpdate) SetIsActive(v bool) *BonusUpdate {
-	_u.mutation.SetIsActive(v)
+// SetStage sets the "stage" field.
+func (_u *BonusUpdate) SetStage(v bonus.Stage) *BonusUpdate {
+	_u.mutation.SetStage(v)
 	return _u
 }
 
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (_u *BonusUpdate) SetNillableIsActive(v *bool) *BonusUpdate {
+// SetNillableStage sets the "stage" field if the given value is not nil.
+func (_u *BonusUpdate) SetNillableStage(v *bonus.Stage) *BonusUpdate {
 	if v != nil {
-		_u.SetIsActive(*v)
+		_u.SetStage(*v)
 	}
 	return _u
 }
@@ -310,6 +310,11 @@ func (_u *BonusUpdate) check() error {
 			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Bonus.category": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Stage(); ok {
+		if err := bonus.StageValidator(v); err != nil {
+			return &ValidationError{Name: "stage", err: fmt.Errorf(`ent: validator failed for field "Bonus.stage": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -370,8 +375,8 @@ func (_u *BonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.PlatformURLCleared() {
 		_spec.ClearField(bonus.FieldPlatformURL, field.TypeString)
 	}
-	if value, ok := _u.mutation.IsActive(); ok {
-		_spec.SetField(bonus.FieldIsActive, field.TypeBool, value)
+	if value, ok := _u.mutation.Stage(); ok {
+		_spec.SetField(bonus.FieldStage, field.TypeEnum, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -620,16 +625,16 @@ func (_u *BonusUpdateOne) ClearPlatformURL() *BonusUpdateOne {
 	return _u
 }
 
-// SetIsActive sets the "is_active" field.
-func (_u *BonusUpdateOne) SetIsActive(v bool) *BonusUpdateOne {
-	_u.mutation.SetIsActive(v)
+// SetStage sets the "stage" field.
+func (_u *BonusUpdateOne) SetStage(v bonus.Stage) *BonusUpdateOne {
+	_u.mutation.SetStage(v)
 	return _u
 }
 
-// SetNillableIsActive sets the "is_active" field if the given value is not nil.
-func (_u *BonusUpdateOne) SetNillableIsActive(v *bool) *BonusUpdateOne {
+// SetNillableStage sets the "stage" field if the given value is not nil.
+func (_u *BonusUpdateOne) SetNillableStage(v *bonus.Stage) *BonusUpdateOne {
 	if v != nil {
-		_u.SetIsActive(*v)
+		_u.SetStage(*v)
 	}
 	return _u
 }
@@ -716,6 +721,11 @@ func (_u *BonusUpdateOne) check() error {
 			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Bonus.category": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Stage(); ok {
+		if err := bonus.StageValidator(v); err != nil {
+			return &ValidationError{Name: "stage", err: fmt.Errorf(`ent: validator failed for field "Bonus.stage": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -793,8 +803,8 @@ func (_u *BonusUpdateOne) sqlSave(ctx context.Context) (_node *Bonus, err error)
 	if _u.mutation.PlatformURLCleared() {
 		_spec.ClearField(bonus.FieldPlatformURL, field.TypeString)
 	}
-	if value, ok := _u.mutation.IsActive(); ok {
-		_spec.SetField(bonus.FieldIsActive, field.TypeBool, value)
+	if value, ok := _u.mutation.Stage(); ok {
+		_spec.SetField(bonus.FieldStage, field.TypeEnum, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

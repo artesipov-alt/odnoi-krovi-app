@@ -1536,7 +1536,7 @@ type BonusMutation struct {
 	expires_at    *time.Time
 	platform_name *string
 	platform_url  *string
-	is_active     *bool
+	stage         *bonus.Stage
 	clearedFields map[string]struct{}
 	user          *string
 	cleareduser   bool
@@ -2205,40 +2205,40 @@ func (m *BonusMutation) ResetPlatformURL() {
 	delete(m.clearedFields, bonus.FieldPlatformURL)
 }
 
-// SetIsActive sets the "is_active" field.
-func (m *BonusMutation) SetIsActive(b bool) {
-	m.is_active = &b
+// SetStage sets the "stage" field.
+func (m *BonusMutation) SetStage(b bonus.Stage) {
+	m.stage = &b
 }
 
-// IsActive returns the value of the "is_active" field in the mutation.
-func (m *BonusMutation) IsActive() (r bool, exists bool) {
-	v := m.is_active
+// Stage returns the value of the "stage" field in the mutation.
+func (m *BonusMutation) Stage() (r bonus.Stage, exists bool) {
+	v := m.stage
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldIsActive returns the old "is_active" field's value of the Bonus entity.
+// OldStage returns the old "stage" field's value of the Bonus entity.
 // If the Bonus object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BonusMutation) OldIsActive(ctx context.Context) (v bool, err error) {
+func (m *BonusMutation) OldStage(ctx context.Context) (v bonus.Stage, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
+		return v, errors.New("OldStage is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIsActive requires an ID field in the mutation")
+		return v, errors.New("OldStage requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
+		return v, fmt.Errorf("querying old value for OldStage: %w", err)
 	}
-	return oldValue.IsActive, nil
+	return oldValue.Stage, nil
 }
 
-// ResetIsActive resets all changes to the "is_active" field.
-func (m *BonusMutation) ResetIsActive() {
-	m.is_active = nil
+// ResetStage resets all changes to the "stage" field.
+func (m *BonusMutation) ResetStage() {
+	m.stage = nil
 }
 
 // ClearUser clears the "user" edge to the User entity.
@@ -2345,8 +2345,8 @@ func (m *BonusMutation) Fields() []string {
 	if m.platform_url != nil {
 		fields = append(fields, bonus.FieldPlatformURL)
 	}
-	if m.is_active != nil {
-		fields = append(fields, bonus.FieldIsActive)
+	if m.stage != nil {
+		fields = append(fields, bonus.FieldStage)
 	}
 	return fields
 }
@@ -2384,8 +2384,8 @@ func (m *BonusMutation) Field(name string) (ent.Value, bool) {
 		return m.PlatformName()
 	case bonus.FieldPlatformURL:
 		return m.PlatformURL()
-	case bonus.FieldIsActive:
-		return m.IsActive()
+	case bonus.FieldStage:
+		return m.Stage()
 	}
 	return nil, false
 }
@@ -2423,8 +2423,8 @@ func (m *BonusMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPlatformName(ctx)
 	case bonus.FieldPlatformURL:
 		return m.OldPlatformURL(ctx)
-	case bonus.FieldIsActive:
-		return m.OldIsActive(ctx)
+	case bonus.FieldStage:
+		return m.OldStage(ctx)
 	}
 	return nil, fmt.Errorf("unknown Bonus field %s", name)
 }
@@ -2532,12 +2532,12 @@ func (m *BonusMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPlatformURL(v)
 		return nil
-	case bonus.FieldIsActive:
-		v, ok := value.(bool)
+	case bonus.FieldStage:
+		v, ok := value.(bonus.Stage)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetIsActive(v)
+		m.SetStage(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Bonus field %s", name)
@@ -2657,8 +2657,8 @@ func (m *BonusMutation) ResetField(name string) error {
 	case bonus.FieldPlatformURL:
 		m.ResetPlatformURL()
 		return nil
-	case bonus.FieldIsActive:
-		m.ResetIsActive()
+	case bonus.FieldStage:
+		m.ResetStage()
 		return nil
 	}
 	return fmt.Errorf("unknown Bonus field %s", name)

@@ -76,10 +76,6 @@ func init() {
 	bonus.DefaultUpdatedAt = bonusDescUpdatedAt.Default.(func() time.Time)
 	// bonus.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	bonus.UpdateDefaultUpdatedAt = bonusDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// bonusDescIsActive is the schema descriptor for is_active field.
-	bonusDescIsActive := bonusFields[11].Descriptor()
-	// bonus.DefaultIsActive holds the default value on creation for the is_active field.
-	bonus.DefaultIsActive = bonusDescIsActive.Default.(bool)
 	// bonusDescID is the schema descriptor for id field.
 	bonusDescID := bonusMixinFields0[0].Descriptor()
 	// bonus.DefaultID holds the default value on creation for the id field.

@@ -44,8 +44,8 @@ const (
 	FieldPlatformName = "platform_name"
 	// FieldPlatformURL holds the string denoting the platform_url field in the database.
 	FieldPlatformURL = "platform_url"
-	// FieldIsActive holds the string denoting the is_active field in the database.
-	FieldIsActive = "is_active"
+	// FieldStage holds the string denoting the stage field in the database.
+	FieldStage = "stage"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the bonus in the database.
@@ -76,7 +76,7 @@ var Columns = []string{
 	FieldExpiresAt,
 	FieldPlatformName,
 	FieldPlatformURL,
-	FieldIsActive,
+	FieldStage,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -102,8 +102,6 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultIsActive holds the default value on creation for the "is_active" field.
-	DefaultIsActive bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -177,6 +175,34 @@ func CategoryValidator(c Category) error {
 		return nil
 	default:
 		return fmt.Errorf("bonus: invalid enum value for category field: %q", c)
+	}
+}
+
+// Stage defines the type for the "stage" enum field.
+type Stage string
+
+// StageUnused is the default value of the Stage enum.
+const DefaultStage = StageUnused
+
+// Stage values.
+const (
+	StageStage    Stage = "stage"
+	StageUsed     Stage = "used"
+	StageUnused   Stage = "unused"
+	StageReserved Stage = "reserved"
+)
+
+func (s Stage) String() string {
+	return string(s)
+}
+
+// StageValidator is a validator for the "stage" field enum values. It is called by the builders before save.
+func StageValidator(s Stage) error {
+	switch s {
+	case StageStage, StageUsed, StageUnused, StageReserved:
+		return nil
+	default:
+		return fmt.Errorf("bonus: invalid enum value for stage field: %q", s)
 	}
 }
 
@@ -258,9 +284,9 @@ func ByPlatformURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPlatformURL, opts...).ToFunc()
 }
 
-// ByIsActive orders the results by the is_active field.
-func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
+// ByStage orders the results by the stage field.
+func ByStage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStage, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

@@ -181,7 +181,7 @@ func (h *ImportBonusesHandler) parseRow(row []string) (*bonusmodel.Bonus, error)
 		ExpiresAt:    expiresAt,
 		PlatformName: platformName,
 		PlatformURL:  platformURL,
-		IsActive:     true,
+		Stage:        "stage",
 	}, nil
 }
 

@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
@@ -21,6 +23,7 @@ type RejectDonationHandler struct {
 	userRepo  user.Repository
 	txManager *presistance.TxManager
 	publisher ports.EventPublisher
+	bonusSvc  *bonus.BonusService
 }
 
 func NewRejectDonationHandler(
@@ -30,6 +33,7 @@ func NewRejectDonationHandler(
 	userRepo user.Repository,
 	txManager *presistance.TxManager,
 	publisher ports.EventPublisher,
+	bonusSvc *bonus.BonusService,
 ) *RejectDonationHandler {
 	return &RejectDonationHandler{
 		bloodRepo: bloodRepo,
@@ -38,6 +42,7 @@ func NewRejectDonationHandler(
 		userRepo:  userRepo,
 		txManager: txManager,
 		publisher: publisher,
+		bonusSvc:  bonusSvc,
 	}
 }
 
@@ -51,6 +56,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
+	var donorPet *petmodel.Pet
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
 		if err := h.donorRepo.Reject(txCtx, application); err != nil {
 			return err
@@ -63,6 +69,15 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
 			return err
+		}
+		donorPet, err = h.petRepo.GetByID(txCtx, application.DonorID, pet.PetPreloadOptions{})
+		if err != nil {
+			return err
+		}
+		if application.Status == donormodel.DonorResponseStatusRejected {
+			if err := h.bonusSvc.UnassignBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -78,11 +93,6 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 	}
 
 	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
-	if err != nil {
-		return err
-	}
-
-	donorPet, err := h.petRepo.GetByID(ctx, application.DonorID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}

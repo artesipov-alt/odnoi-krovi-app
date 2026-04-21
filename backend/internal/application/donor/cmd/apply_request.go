@@ -7,6 +7,7 @@ import (
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -22,6 +23,7 @@ type ApplyForRequestHandler struct {
 	petRepo   pet.Repository
 	donorRepo donor.Repository
 	userRepo  user.Repository
+	bonusSvc  *bonus.BonusService
 	publisher ports.EventPublisher
 	txManager *presistance.TxManager
 }
@@ -31,6 +33,7 @@ func NewApplyForRequestHandler(
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
 	userRepo user.Repository,
+	bonusSvc *bonus.BonusService,
 	publisher ports.EventPublisher,
 	txManager *presistance.TxManager,
 ) *ApplyForRequestHandler {
@@ -39,6 +42,7 @@ func NewApplyForRequestHandler(
 		petRepo:   petRepo,
 		donorRepo: donorRepo,
 		userRepo:  userRepo,
+		bonusSvc:  bonusSvc,
 		publisher: publisher,
 		txManager: txManager,
 	}
@@ -58,6 +62,14 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	donorPet, err := h.petRepo.GetByID(ctx, donorID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to check donor existence")
+	}
+
+	// Получаем данные пользователя донора
+	donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+		WithDonorPreference: true,
+	})
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get donor user")
 	}
 
 	// Создаём новый отклик донора
@@ -88,6 +100,11 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	err = h.txManager.WithTx(ctx, func(ctx context.Context) error {
 		donorResponse, err = h.donorRepo.CreateDonorResponse(ctx, donorResponse)
 		if err != nil {
+			return err
+		}
+
+		// Закрепляем бонусы за пользователем
+		if err := h.bonusSvc.AssignBonuses(ctx, donorPet.OwnerID, donorPet.Type, donorUser.LastDonation); err != nil {
 			return err
 		}
 

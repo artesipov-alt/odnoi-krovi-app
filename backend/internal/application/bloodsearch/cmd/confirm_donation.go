@@ -7,6 +7,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -22,6 +23,7 @@ type ConfirmDonationHandler struct {
 	userRepo  user.Repository
 	txManager *presistance.TxManager
 	publisher ports.EventPublisher
+	bonusSvc  *bonus.BonusService
 }
 
 func NewConfirmDonationHandler(
@@ -31,6 +33,7 @@ func NewConfirmDonationHandler(
 	userRepo user.Repository,
 	txManager *presistance.TxManager,
 	publisher ports.EventPublisher,
+	bonusSvc *bonus.BonusService,
 ) *ConfirmDonationHandler {
 	return &ConfirmDonationHandler{
 		bloodRepo: bloodRepo,
@@ -39,6 +42,7 @@ func NewConfirmDonationHandler(
 		userRepo:  userRepo,
 		txManager: txManager,
 		publisher: publisher,
+		bonusSvc:  bonusSvc,
 	}
 }
 
@@ -95,6 +99,15 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 
 		now := time.Now()
 		if err := h.petRepo.SetLastDonation(txCtx, application.DonorID, &now); err != nil {
+			return err
+		}
+
+		// Confirm reserved bonuses for the donor
+		donorPet, err := h.petRepo.GetByID(txCtx, application.DonorID, pet.PetPreloadOptions{})
+		if err != nil {
+			return err
+		}
+		if err := h.bonusSvc.ConfirmBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
 			return err
 		}
 

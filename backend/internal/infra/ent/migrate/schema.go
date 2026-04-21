@@ -58,7 +58,7 @@ var (
 		{Name: "expires_at", Type: field.TypeTime},
 		{Name: "platform_name", Type: field.TypeString},
 		{Name: "platform_url", Type: field.TypeString, Nullable: true},
-		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "stage", Type: field.TypeEnum, Enums: []string{"stage", "used", "unused", "reserved"}, Default: "unused"},
 		{Name: "user_id", Type: field.TypeString, Nullable: true},
 	}
 	// BonusesTable holds the schema information for the "bonuses" table.

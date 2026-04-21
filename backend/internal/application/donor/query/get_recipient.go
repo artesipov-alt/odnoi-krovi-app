@@ -106,7 +106,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 
 	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)
 
-	arrears, err := h.bonusSvc.GetAggregatedBonuses(ctx, potentialDonors[0].Type, true, user.LastDonation)
+	arrears, err := h.bonusSvc.GetAggregatedBonuses(ctx, potentialDonors[0].Type, user.LastDonation)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get available bonuses")
 	}

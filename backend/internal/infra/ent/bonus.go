@@ -46,8 +46,8 @@ type Bonus struct {
 	PlatformName string `json:"platform_name,omitempty"`
 	// PlatformURL holds the value of the "platform_url" field.
 	PlatformURL string `json:"platform_url,omitempty"`
-	// IsActive holds the value of the "is_active" field.
-	IsActive bool `json:"is_active,omitempty"`
+	// Stage holds the value of the "stage" field.
+	Stage bonus.Stage `json:"stage,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BonusQuery when eager-loading is set.
 	Edges        BonusEdges `json:"edges"`
@@ -79,9 +79,7 @@ func (*Bonus) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bonus.FieldIsActive:
-			values[i] = new(sql.NullBool)
-		case bonus.FieldID, bonus.FieldUserID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldSubcategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL:
+		case bonus.FieldID, bonus.FieldUserID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldSubcategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL, bonus.FieldStage:
 			values[i] = new(sql.NullString)
 		case bonus.FieldCreatedAt, bonus.FieldUpdatedAt, bonus.FieldDeletedAt, bonus.FieldExpiresAt:
 			values[i] = new(sql.NullTime)
@@ -191,11 +189,11 @@ func (_m *Bonus) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.PlatformURL = value.String
 			}
-		case bonus.FieldIsActive:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field is_active", values[i])
+		case bonus.FieldStage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field stage", values[i])
 			} else if value.Valid {
-				_m.IsActive = value.Bool
+				_m.Stage = bonus.Stage(value.String)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -282,8 +280,8 @@ func (_m *Bonus) String() string {
 	builder.WriteString("platform_url=")
 	builder.WriteString(_m.PlatformURL)
 	builder.WriteString(", ")
-	builder.WriteString("is_active=")
-	builder.WriteString(fmt.Sprintf("%v", _m.IsActive))
+	builder.WriteString("stage=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Stage))
 	builder.WriteByte(')')
 	return builder.String()
 }
