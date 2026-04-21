@@ -64,14 +64,6 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Internal(err, "failed to check donor existence")
 	}
 
-	// Получаем данные пользователя донора
-	donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
-		WithDonorPreference: true,
-	})
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get donor user")
-	}
-
 	// Создаём новый отклик донора
 	donorResponse, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
 	if err != nil {
@@ -104,7 +96,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		}
 
 		// Закрепляем бонусы за пользователем
-		if err := h.bonusSvc.AssignBonuses(ctx, donorPet.OwnerID, donorPet.Type, donorUser.LastDonation); err != nil {
+		if err := h.bonusSvc.AssignBonuses(ctx, donorPet.OwnerID, donorPet.Type); err != nil {
 			return err
 		}
 

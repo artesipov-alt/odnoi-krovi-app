@@ -18,17 +18,23 @@ type Repository interface {
 	// GetAvailableBonuses retrieves available (unassigned) bonuses based on filters (petType: common.PetType; stage: unused).
 	GetAvailableBonuses(ctx context.Context, petType common.PetType) ([]*bonusmodel.Bonus, error)
 
+	// GetLastDonation gets the last donation date for a user
+	GetLastDonation(ctx context.Context, userID string) (*time.Time, error)
+
 	// UnassignBonuses unassigns bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
 	UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error
 
 	// AssignBonuses assigns bonuses to a user by updating their UserID and setting stage to reserved.
 	AssignBonuses(ctx context.Context, bonusIDs []string, userID string) error
 
-	// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID and sets the last donation date.
-	ConfirmBonuses(ctx context.Context, userID string, petType common.PetType, donationDate time.Time) error
+	// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID.
+	ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error
 
 	// MarkBonusesAsUsed marks reserved bonuses for a user as used by setting stage to used.
 	MarkBonusesAsUsed(ctx context.Context, userID string, petType common.PetType) error
+
+	// SetLastDonation sets the last donation date for a user
+	SetLastDonation(ctx context.Context, userID string, donationDate time.Time) error
 
 	// AddPrioritySearch increments the priority search count for a user by 1
 	AddPrioritySearch(ctx context.Context, id string) error

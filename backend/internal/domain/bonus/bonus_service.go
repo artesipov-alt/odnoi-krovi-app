@@ -66,7 +66,13 @@ func (s *BonusService) GetAggregatedBonuses(ctx context.Context, petType common.
 }
 
 // AssignBonuses assigns available bonuses for a pet type to a user.
-func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType common.PetType, lastDonation *time.Time) error {
+func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType common.PetType) error {
+	// Get last donation
+	lastDonation, err := s.repo.GetLastDonation(ctx, userID)
+	if err != nil {
+		return err
+	}
+
 	// Get available bonuses
 	bonuses, err := s.GetAggregatedBonuses(ctx, petType, lastDonation)
 	if err != nil {
@@ -88,17 +94,37 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 	}
 
 	// Assign them
-	return s.repo.AssignBonuses(ctx, bonusIDs, userID)
+	err = s.repo.AssignBonuses(ctx, bonusIDs, userID)
+	if err != nil {
+		return err
+	}
+
+	// Set last donation if bonuses were assigned
+	if len(bonusIDs) > 0 {
+		return s.repo.SetLastDonation(ctx, userID, time.Now())
+	}
+
+	return nil
 }
 
 // UnassignBonuses unassigns bonuses from a user for a specific pet type.
 func (s *BonusService) UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error {
-	return s.repo.UnassignBonuses(ctx, userID, petType)
+	err := s.repo.UnassignBonuses(ctx, userID, petType)
+	if err != nil {
+		return err
+	}
+
+	// Reset last donation when bonuses are unassigned
+	return s.repo.SetLastDonation(ctx, userID, time.Time{})
 }
 
-// ConfirmBonuses confirms bonuses for a user by setting stage to unused and sets the last donation date.
-func (s *BonusService) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType, donationDate time.Time) error {
-	return s.repo.ConfirmBonuses(ctx, userID, petType, donationDate)
+// ConfirmBonuses confirms bonuses for a user by setting stage to unused and adds priority search.
+func (s *BonusService) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error {
+	err := s.repo.ConfirmBonuses(ctx, userID, petType)
+	if err != nil {
+		return err
+	}
+	return s.repo.AddPrioritySearch(ctx, userID)
 }
 
 // MarkBonusesAsUsed marks reserved bonuses for a user as used.
