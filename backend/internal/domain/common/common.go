@@ -1,5 +1,12 @@
 package common
 
+// Bonus represents a bonus DTO for API responses.
+type Bonus struct {
+	Partner     string `json:"partner,omitempty" doc:"Партнер"`
+	Description string `json:"description,omitempty" doc:"Описание бонуса"`
+	Type        string `json:"type,omitempty" doc:"Тип бонуса" enum:"medication,food,other,lock"`
+}
+
 // CompensationType represents donor's compensation preference
 type CompensationType string
 

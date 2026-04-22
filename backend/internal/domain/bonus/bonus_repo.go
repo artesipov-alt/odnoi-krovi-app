@@ -41,4 +41,7 @@ type Repository interface {
 
 	// SubtractPrioritySearch decrements the priority search count for a user by 1
 	SubtractPrioritySearch(ctx context.Context, id string) error
+
+	// GetBonusesByDonorResponseID retrieves bonuses associated with a specific donor response.
+	GetBonusesByDonorResponseID(ctx context.Context, donorResponseID string) ([]*bonusmodel.Bonus, error)
 }

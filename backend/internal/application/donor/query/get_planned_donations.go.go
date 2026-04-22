@@ -7,6 +7,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -19,6 +21,7 @@ type GetPlannedDonationsResult struct {
 	DonorPetData     petmodel.Pet
 	BloodSearchData  bloodreqmodel.BloodRequestWithApplications
 	RecipientPetData petmodel.Pet
+	Bonuses          []*bonusmodel.Bonus
 }
 
 type PlannedDonationsHandler struct {
@@ -26,14 +29,16 @@ type PlannedDonationsHandler struct {
 	petRepo      pet.Repository
 	bloodReqRepo bloodsearch.BloodRequestRepository
 	userRepo     user.Repository
+	bonusRepo    bonus.Repository
 }
 
-func NewPlannedDonationsHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository) *PlannedDonationsHandler {
+func NewPlannedDonationsHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, bonusRepo bonus.Repository) *PlannedDonationsHandler {
 	return &PlannedDonationsHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
 		bloodReqRepo: bloodReqRepo,
 		userRepo:     userRepo,
+		bonusRepo:    bonusRepo,
 	}
 }
 
@@ -80,11 +85,16 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get pet")
 			}
+			bonuses, err := h.bonusRepo.GetBonusesByDonorResponseID(ctx, application.ID)
+			if err != nil {
+				return nil, apperrors.Internal(err, "failed to get bonuses")
+			}
 			result = append(result, &GetPlannedDonationsResult{
 				ApplicationData:  *application,
 				BloodSearchData:  *request,
 				RecipientPetData: *recipientPet,
 				DonorPetData:     *dPet,
+				Bonuses:          bonuses,
 			})
 		}
 	}

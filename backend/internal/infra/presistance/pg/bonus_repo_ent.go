@@ -271,3 +271,34 @@ func (r *EntBonusRepository) SubtractPrioritySearch(ctx context.Context, id stri
 
 	return nil
 }
+
+// GetBonusesByDonorResponseID retrieves bonuses associated with a specific donor response.
+func (r *EntBonusRepository) GetBonusesByDonorResponseID(ctx context.Context, donorResponseID string) ([]*bonusmodel.Bonus, error) {
+	bonuses, err := r.client(ctx).Bonus.Query().
+		Where(entbonus.DonorResponseID(donorResponseID)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get bonuses by donor response ID: %w", err)
+	}
+
+	result := make([]*bonusmodel.Bonus, len(bonuses))
+	for i, b := range bonuses {
+		result[i] = &bonusmodel.Bonus{
+			ID:           b.ID,
+			UserID:       &b.UserID,
+			PartnerName:  b.PartnerName,
+			Description:  b.Description,
+			Target:       b.Target.String(),
+			Recipient:    b.Recipient.String(),
+			Category:     b.Category.String(),
+			Subcategory:  &b.Subcategory,
+			PromoCode:    b.PromoCode,
+			ExpiresAt:    b.ExpiresAt,
+			PlatformName: b.PlatformName,
+			PlatformURL:  &b.PlatformURL,
+			Stage:        string(b.Stage),
+		}
+	}
+
+	return result, nil
+}

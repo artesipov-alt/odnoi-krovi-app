@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
@@ -265,6 +266,14 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 	for _, res := range results {
 		// В планируемой донации не должно возвращаться отмененный статус донором и отмененный репертипиентом и прошедшие
 		if res.ApplicationData.Status != model.DonorResponseStatusCancelled && res.ApplicationData.Status != model.DonorResponseStatusRejected && res.ApplicationData.IsConfirmed != true {
+			bonusDTOs := make([]common.Bonus, len(res.Bonuses))
+			for i, b := range res.Bonuses {
+				bonusDTOs[i] = common.Bonus{
+					Partner:     b.PartnerName,
+					Description: b.Description,
+					Type:        string(b.Category),
+				}
+			}
 			application := dto.ApplicationShort{
 				ID:               res.ApplicationData.ID,
 				PetName:          res.DonorPetData.Name,
@@ -273,7 +282,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				CompensationType: res.ApplicationData.CompensationType,
 				TaxiCompensation: res.ApplicationData.TaxiCompensation,
 				IsConfirmed:      res.ApplicationData.IsConfirmed,
-				Bonuses:          []string{},
+				Bonuses:          bonusDTOs,
 				RejectedReason:   res.ApplicationData.RejectedReason,
 				Status:           string(res.ApplicationData.Status),
 			}
@@ -344,6 +353,14 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 	var totalDonatedVolume float64
 	var totalCompletedDonations int
 	for _, res := range results {
+		bonusDTOs := make([]common.Bonus, len(res.Bonuses))
+		for i, b := range res.Bonuses {
+			bonusDTOs[i] = common.Bonus{
+				Partner:     b.PartnerName,
+				Description: b.Description,
+				Type:        string(b.Category),
+			}
+		}
 		application := dto.ApplicationShort{
 			ID:               res.ApplicationData.ID,
 			PetName:          res.DonorPetData.Name,
@@ -352,7 +369,7 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 			CompensationType: res.ApplicationData.CompensationType,
 			TaxiCompensation: res.ApplicationData.TaxiCompensation,
 			IsConfirmed:      res.ApplicationData.IsConfirmed,
-			Bonuses:          []string{},
+			Bonuses:          bonusDTOs,
 			RejectedReason:   res.ApplicationData.RejectedReason,
 			Status:           string(res.ApplicationData.Status),
 			CreatedAt:        res.ApplicationData.CreatedAt,

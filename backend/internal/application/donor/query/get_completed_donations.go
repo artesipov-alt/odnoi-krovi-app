@@ -7,6 +7,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -19,6 +21,7 @@ type GetCompletedDonationsResult struct {
 	DonorPetData     petmodel.Pet
 	BloodSearchData  bloodreqmodel.BloodRequestWithApplications
 	RecipientPetData petmodel.Pet
+	Bonuses          []*bonusmodel.Bonus
 }
 
 type CompletedDonationsHandler struct {
@@ -26,14 +29,16 @@ type CompletedDonationsHandler struct {
 	petRepo      pet.Repository
 	bloodReqRepo bloodsearch.BloodRequestRepository
 	userRepo     user.Repository
+	bonusRepo    bonus.Repository
 }
 
-func NewCompletedDonationsHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository) *CompletedDonationsHandler {
+func NewCompletedDonationsHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, bonusRepo bonus.Repository) *CompletedDonationsHandler {
 	return &CompletedDonationsHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
 		bloodReqRepo: bloodReqRepo,
 		userRepo:     userRepo,
+		bonusRepo:    bonusRepo,
 	}
 }
 
@@ -76,11 +81,16 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 				if err != nil {
 					return nil, apperrors.Internal(err, "failed to get pet")
 				}
+				bonuses, err := h.bonusRepo.GetBonusesByDonorResponseID(ctx, app.ID)
+				if err != nil {
+					return nil, apperrors.Internal(err, "failed to get bonuses")
+				}
 				result = append(result, &GetCompletedDonationsResult{
 					ApplicationData:  *app,
 					BloodSearchData:  *request,
 					RecipientPetData: *recipientPet,
 					DonorPetData:     *dPet,
+					Bonuses:          bonuses,
 				})
 			}
 		}
