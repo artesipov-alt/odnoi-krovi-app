@@ -191,9 +191,9 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto
 		}
 	}
 	// Собираем подходящие бонусы в ДТО.
-	avilableBonuses := make([]dto.Bonus, len(recipientData.AvilableBonuses))
+	avilableBonuses := make([]common.Bonus, len(recipientData.AvilableBonuses))
 	for i, bns := range recipientData.AvilableBonuses {
-		avilableBonuses[i] = dto.Bonus{
+		avilableBonuses[i] = common.Bonus{
 			Partner:     bns.PartnerName,
 			Description: bns.Description,
 			Type:        bns.Category,
