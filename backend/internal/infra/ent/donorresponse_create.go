@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 )
@@ -177,6 +178,21 @@ func (_c *DonorResponseCreate) SetDonorID(id string) *DonorResponseCreate {
 // SetDonor sets the "donor" edge to the Pet entity.
 func (_c *DonorResponseCreate) SetDonor(v *Pet) *DonorResponseCreate {
 	return _c.SetDonorID(v.ID)
+}
+
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by IDs.
+func (_c *DonorResponseCreate) AddBonuseIDs(ids ...string) *DonorResponseCreate {
+	_c.mutation.AddBonuseIDs(ids...)
+	return _c
+}
+
+// AddBonuses adds the "bonuses" edges to the Bonus entity.
+func (_c *DonorResponseCreate) AddBonuses(v ...*Bonus) *DonorResponseCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddBonuseIDs(ids...)
 }
 
 // Mutation returns the DonorResponseMutation object of the builder.
@@ -363,6 +379,22 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.donor_response_donor = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.BonusesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

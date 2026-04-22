@@ -38,6 +38,8 @@ const (
 	EdgeRequest = "request"
 	// EdgeDonor holds the string denoting the donor edge name in mutations.
 	EdgeDonor = "donor"
+	// EdgeBonuses holds the string denoting the bonuses edge name in mutations.
+	EdgeBonuses = "bonuses"
 	// Table holds the table name of the donorresponse in the database.
 	Table = "donor_responses"
 	// RequestTable is the table that holds the request relation/edge.
@@ -54,6 +56,13 @@ const (
 	DonorInverseTable = "pets"
 	// DonorColumn is the table column denoting the donor relation/edge.
 	DonorColumn = "donor_response_donor"
+	// BonusesTable is the table that holds the bonuses relation/edge.
+	BonusesTable = "bonuses"
+	// BonusesInverseTable is the table name for the Bonus entity.
+	// It exists in this package in order to avoid circular dependency with the "bonus" package.
+	BonusesInverseTable = "bonuses"
+	// BonusesColumn is the table column denoting the bonuses relation/edge.
+	BonusesColumn = "donor_response_id"
 )
 
 // Columns holds all SQL columns for donorresponse fields.
@@ -228,6 +237,20 @@ func ByDonorField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDonorStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByBonusesCount orders the results by bonuses count.
+func ByBonusesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newBonusesStep(), opts...)
+	}
+}
+
+// ByBonuses orders the results by bonuses terms.
+func ByBonuses(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBonusesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRequestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -240,5 +263,12 @@ func newDonorStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DonorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, false, DonorTable, DonorColumn),
+	)
+}
+func newBonusesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BonusesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, BonusesTable, BonusesColumn),
 	)
 }

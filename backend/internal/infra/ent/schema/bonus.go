@@ -20,6 +20,10 @@ func (Bonus) Fields() []ent.Field {
 		field.String("user_id").
 			Optional(),
 
+		// donor_response_id — Идентификатор отклика донора, из-за которого получен бонус
+		field.String("donor_response_id").
+			Optional(),
+
 		// partner_name — Наименование партнера (юрлицо / бренд)
 		field.String("partner_name"),
 
@@ -70,6 +74,12 @@ func (Bonus) Edges() []ent.Edge {
 		edge.From("user", User.Type).
 			Ref("bonuses").
 			Field("user_id").
+			Unique(),
+
+		// donor_response — Связь с откликом донора
+		edge.From("donor_response", DonorResponse.Type).
+			Ref("bonuses").
+			Field("donor_response_id").
 			Unique(),
 	}
 }

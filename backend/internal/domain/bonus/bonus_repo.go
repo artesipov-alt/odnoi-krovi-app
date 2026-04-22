@@ -24,8 +24,8 @@ type Repository interface {
 	// UnassignBonuses unassigns bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
 	UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error
 
-	// AssignBonuses assigns bonuses to a user by updating their UserID and setting stage to reserved.
-	AssignBonuses(ctx context.Context, bonusIDs []string, userID string) error
+	// AssignBonuses assigns bonuses to a user by updating their UserID and DonorResponseID, and setting stage to reserved.
+	AssignBonuses(ctx context.Context, bonusIDs []string, userID string, donorResponseID string) error
 
 	// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID.
 	ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error

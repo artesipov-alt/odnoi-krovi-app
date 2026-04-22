@@ -24,6 +24,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldDonorResponseID holds the string denoting the donor_response_id field in the database.
+	FieldDonorResponseID = "donor_response_id"
 	// FieldPartnerName holds the string denoting the partner_name field in the database.
 	FieldPartnerName = "partner_name"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -48,6 +50,8 @@ const (
 	FieldStage = "stage"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeDonorResponse holds the string denoting the donor_response edge name in mutations.
+	EdgeDonorResponse = "donor_response"
 	// Table holds the table name of the bonus in the database.
 	Table = "bonuses"
 	// UserTable is the table that holds the user relation/edge.
@@ -57,6 +61,13 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
+	// DonorResponseTable is the table that holds the donor_response relation/edge.
+	DonorResponseTable = "bonuses"
+	// DonorResponseInverseTable is the table name for the DonorResponse entity.
+	// It exists in this package in order to avoid circular dependency with the "donorresponse" package.
+	DonorResponseInverseTable = "donor_responses"
+	// DonorResponseColumn is the table column denoting the donor_response relation/edge.
+	DonorResponseColumn = "donor_response_id"
 )
 
 // Columns holds all SQL columns for bonus fields.
@@ -66,6 +77,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldUserID,
+	FieldDonorResponseID,
 	FieldPartnerName,
 	FieldDescription,
 	FieldTarget,
@@ -234,6 +246,11 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
+// ByDonorResponseID orders the results by the donor_response_id field.
+func ByDonorResponseID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDonorResponseID, opts...).ToFunc()
+}
+
 // ByPartnerName orders the results by the partner_name field.
 func ByPartnerName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPartnerName, opts...).ToFunc()
@@ -295,10 +312,24 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByDonorResponseField orders the results by donor_response field.
+func ByDonorResponseField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDonorResponseStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newDonorResponseStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DonorResponseInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DonorResponseTable, DonorResponseColumn),
 	)
 }

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
@@ -199,6 +200,21 @@ func (_u *DonorResponseUpdate) SetDonor(v *Pet) *DonorResponseUpdate {
 	return _u.SetDonorID(v.ID)
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by IDs.
+func (_u *DonorResponseUpdate) AddBonuseIDs(ids ...string) *DonorResponseUpdate {
+	_u.mutation.AddBonuseIDs(ids...)
+	return _u
+}
+
+// AddBonuses adds the "bonuses" edges to the Bonus entity.
+func (_u *DonorResponseUpdate) AddBonuses(v ...*Bonus) *DonorResponseUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddBonuseIDs(ids...)
+}
+
 // Mutation returns the DonorResponseMutation object of the builder.
 func (_u *DonorResponseUpdate) Mutation() *DonorResponseMutation {
 	return _u.mutation
@@ -214,6 +230,27 @@ func (_u *DonorResponseUpdate) ClearRequest() *DonorResponseUpdate {
 func (_u *DonorResponseUpdate) ClearDonor() *DonorResponseUpdate {
 	_u.mutation.ClearDonor()
 	return _u
+}
+
+// ClearBonuses clears all "bonuses" edges to the Bonus entity.
+func (_u *DonorResponseUpdate) ClearBonuses() *DonorResponseUpdate {
+	_u.mutation.ClearBonuses()
+	return _u
+}
+
+// RemoveBonuseIDs removes the "bonuses" edge to Bonus entities by IDs.
+func (_u *DonorResponseUpdate) RemoveBonuseIDs(ids ...string) *DonorResponseUpdate {
+	_u.mutation.RemoveBonuseIDs(ids...)
+	return _u
+}
+
+// RemoveBonuses removes "bonuses" edges to Bonus entities.
+func (_u *DonorResponseUpdate) RemoveBonuses(v ...*Bonus) *DonorResponseUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveBonuseIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -381,6 +418,51 @@ func (_u *DonorResponseUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedBonusesIDs(); len(nodes) > 0 && !_u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BonusesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -577,6 +659,21 @@ func (_u *DonorResponseUpdateOne) SetDonor(v *Pet) *DonorResponseUpdateOne {
 	return _u.SetDonorID(v.ID)
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by IDs.
+func (_u *DonorResponseUpdateOne) AddBonuseIDs(ids ...string) *DonorResponseUpdateOne {
+	_u.mutation.AddBonuseIDs(ids...)
+	return _u
+}
+
+// AddBonuses adds the "bonuses" edges to the Bonus entity.
+func (_u *DonorResponseUpdateOne) AddBonuses(v ...*Bonus) *DonorResponseUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddBonuseIDs(ids...)
+}
+
 // Mutation returns the DonorResponseMutation object of the builder.
 func (_u *DonorResponseUpdateOne) Mutation() *DonorResponseMutation {
 	return _u.mutation
@@ -592,6 +689,27 @@ func (_u *DonorResponseUpdateOne) ClearRequest() *DonorResponseUpdateOne {
 func (_u *DonorResponseUpdateOne) ClearDonor() *DonorResponseUpdateOne {
 	_u.mutation.ClearDonor()
 	return _u
+}
+
+// ClearBonuses clears all "bonuses" edges to the Bonus entity.
+func (_u *DonorResponseUpdateOne) ClearBonuses() *DonorResponseUpdateOne {
+	_u.mutation.ClearBonuses()
+	return _u
+}
+
+// RemoveBonuseIDs removes the "bonuses" edge to Bonus entities by IDs.
+func (_u *DonorResponseUpdateOne) RemoveBonuseIDs(ids ...string) *DonorResponseUpdateOne {
+	_u.mutation.RemoveBonuseIDs(ids...)
+	return _u
+}
+
+// RemoveBonuses removes "bonuses" edges to Bonus entities.
+func (_u *DonorResponseUpdateOne) RemoveBonuses(v ...*Bonus) *DonorResponseUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveBonuseIDs(ids...)
 }
 
 // Where appends a list predicates to the DonorResponseUpdate builder.
@@ -789,6 +907,51 @@ func (_u *DonorResponseUpdateOne) sqlSave(ctx context.Context) (_node *DonorResp
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(pet.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedBonusesIDs(); len(nodes) > 0 && !_u.mutation.BonusesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BonusesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   donorresponse.BonusesTable,
+			Columns: []string{donorresponse.BonusesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bonus.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

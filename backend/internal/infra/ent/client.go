@@ -603,6 +603,22 @@ func (c *BonusClient) QueryUser(_m *Bonus) *UserQuery {
 	return query
 }
 
+// QueryDonorResponse queries the donor_response edge of a Bonus.
+func (c *BonusClient) QueryDonorResponse(_m *Bonus) *DonorResponseQuery {
+	query := (&DonorResponseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bonus.Table, bonus.FieldID, id),
+			sqlgraph.To(donorresponse.Table, donorresponse.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, bonus.DonorResponseTable, bonus.DonorResponseColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *BonusClient) Hooks() []Hook {
 	return c.hooks.Bonus
@@ -1061,6 +1077,22 @@ func (c *DonorResponseClient) QueryDonor(_m *DonorResponse) *PetQuery {
 			sqlgraph.From(donorresponse.Table, donorresponse.FieldID, id),
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, donorresponse.DonorTable, donorresponse.DonorColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBonuses queries the bonuses edge of a DonorResponse.
+func (c *DonorResponseClient) QueryBonuses(_m *DonorResponse) *BonusQuery {
+	query := (&BonusClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(donorresponse.Table, donorresponse.FieldID, id),
+			sqlgraph.To(bonus.Table, bonus.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, donorresponse.BonusesTable, donorresponse.BonusesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

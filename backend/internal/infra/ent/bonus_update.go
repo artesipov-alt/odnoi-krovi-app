@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
@@ -72,6 +73,26 @@ func (_u *BonusUpdate) SetNillableUserID(v *string) *BonusUpdate {
 // ClearUserID clears the value of the "user_id" field.
 func (_u *BonusUpdate) ClearUserID() *BonusUpdate {
 	_u.mutation.ClearUserID()
+	return _u
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (_u *BonusUpdate) SetDonorResponseID(v string) *BonusUpdate {
+	_u.mutation.SetDonorResponseID(v)
+	return _u
+}
+
+// SetNillableDonorResponseID sets the "donor_response_id" field if the given value is not nil.
+func (_u *BonusUpdate) SetNillableDonorResponseID(v *string) *BonusUpdate {
+	if v != nil {
+		_u.SetDonorResponseID(*v)
+	}
+	return _u
+}
+
+// ClearDonorResponseID clears the value of the "donor_response_id" field.
+func (_u *BonusUpdate) ClearDonorResponseID() *BonusUpdate {
+	_u.mutation.ClearDonorResponseID()
 	return _u
 }
 
@@ -246,6 +267,11 @@ func (_u *BonusUpdate) SetUser(v *User) *BonusUpdate {
 	return _u.SetUserID(v.ID)
 }
 
+// SetDonorResponse sets the "donor_response" edge to the DonorResponse entity.
+func (_u *BonusUpdate) SetDonorResponse(v *DonorResponse) *BonusUpdate {
+	return _u.SetDonorResponseID(v.ID)
+}
+
 // Mutation returns the BonusMutation object of the builder.
 func (_u *BonusUpdate) Mutation() *BonusMutation {
 	return _u.mutation
@@ -254,6 +280,12 @@ func (_u *BonusUpdate) Mutation() *BonusMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *BonusUpdate) ClearUser() *BonusUpdate {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearDonorResponse clears the "donor_response" edge to the DonorResponse entity.
+func (_u *BonusUpdate) ClearDonorResponse() *BonusUpdate {
+	_u.mutation.ClearDonorResponse()
 	return _u
 }
 
@@ -407,6 +439,35 @@ func (_u *BonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.DonorResponseCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   bonus.DonorResponseTable,
+			Columns: []string{bonus.DonorResponseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DonorResponseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   bonus.DonorResponseTable,
+			Columns: []string{bonus.DonorResponseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{bonus.Label}
@@ -470,6 +531,26 @@ func (_u *BonusUpdateOne) SetNillableUserID(v *string) *BonusUpdateOne {
 // ClearUserID clears the value of the "user_id" field.
 func (_u *BonusUpdateOne) ClearUserID() *BonusUpdateOne {
 	_u.mutation.ClearUserID()
+	return _u
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (_u *BonusUpdateOne) SetDonorResponseID(v string) *BonusUpdateOne {
+	_u.mutation.SetDonorResponseID(v)
+	return _u
+}
+
+// SetNillableDonorResponseID sets the "donor_response_id" field if the given value is not nil.
+func (_u *BonusUpdateOne) SetNillableDonorResponseID(v *string) *BonusUpdateOne {
+	if v != nil {
+		_u.SetDonorResponseID(*v)
+	}
+	return _u
+}
+
+// ClearDonorResponseID clears the value of the "donor_response_id" field.
+func (_u *BonusUpdateOne) ClearDonorResponseID() *BonusUpdateOne {
+	_u.mutation.ClearDonorResponseID()
 	return _u
 }
 
@@ -644,6 +725,11 @@ func (_u *BonusUpdateOne) SetUser(v *User) *BonusUpdateOne {
 	return _u.SetUserID(v.ID)
 }
 
+// SetDonorResponse sets the "donor_response" edge to the DonorResponse entity.
+func (_u *BonusUpdateOne) SetDonorResponse(v *DonorResponse) *BonusUpdateOne {
+	return _u.SetDonorResponseID(v.ID)
+}
+
 // Mutation returns the BonusMutation object of the builder.
 func (_u *BonusUpdateOne) Mutation() *BonusMutation {
 	return _u.mutation
@@ -652,6 +738,12 @@ func (_u *BonusUpdateOne) Mutation() *BonusMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *BonusUpdateOne) ClearUser() *BonusUpdateOne {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearDonorResponse clears the "donor_response" edge to the DonorResponse entity.
+func (_u *BonusUpdateOne) ClearDonorResponse() *BonusUpdateOne {
+	_u.mutation.ClearDonorResponse()
 	return _u
 }
 
@@ -828,6 +920,35 @@ func (_u *BonusUpdateOne) sqlSave(ctx context.Context) (_node *Bonus, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DonorResponseCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   bonus.DonorResponseTable,
+			Columns: []string{bonus.DonorResponseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DonorResponseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   bonus.DonorResponseTable,
+			Columns: []string{bonus.DonorResponseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

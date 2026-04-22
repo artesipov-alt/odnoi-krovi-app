@@ -66,7 +66,7 @@ func (s *BonusService) GetAggregatedBonuses(ctx context.Context, petType common.
 }
 
 // AssignBonuses assigns available bonuses for a pet type to a user.
-func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType common.PetType) error {
+func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType common.PetType, donorResponseID string) error {
 	// Get last donation
 	lastDonation, err := s.repo.GetLastDonation(ctx, userID)
 	if err != nil {
@@ -94,7 +94,7 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 	}
 
 	// Assign them
-	err = s.repo.AssignBonuses(ctx, bonusIDs, userID)
+	err = s.repo.AssignBonuses(ctx, bonusIDs, userID, donorResponseID)
 	if err != nil {
 		return err
 	}

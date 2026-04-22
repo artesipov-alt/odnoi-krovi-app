@@ -1520,29 +1520,31 @@ func (m *BloodSearchRequestMutation) ResetEdge(name string) error {
 // BonusMutation represents an operation that mutates the Bonus nodes in the graph.
 type BonusMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *string
-	created_at    *time.Time
-	updated_at    *time.Time
-	deleted_at    *time.Time
-	partner_name  *string
-	description   *string
-	target        *bonus.Target
-	recipient     *bonus.Recipient
-	category      *bonus.Category
-	subcategory   *string
-	promo_code    *string
-	expires_at    *time.Time
-	platform_name *string
-	platform_url  *string
-	stage         *bonus.Stage
-	clearedFields map[string]struct{}
-	user          *string
-	cleareduser   bool
-	done          bool
-	oldValue      func(context.Context) (*Bonus, error)
-	predicates    []predicate.Bonus
+	op                    Op
+	typ                   string
+	id                    *string
+	created_at            *time.Time
+	updated_at            *time.Time
+	deleted_at            *time.Time
+	partner_name          *string
+	description           *string
+	target                *bonus.Target
+	recipient             *bonus.Recipient
+	category              *bonus.Category
+	subcategory           *string
+	promo_code            *string
+	expires_at            *time.Time
+	platform_name         *string
+	platform_url          *string
+	stage                 *bonus.Stage
+	clearedFields         map[string]struct{}
+	user                  *string
+	cleareduser           bool
+	donor_response        *string
+	cleareddonor_response bool
+	done                  bool
+	oldValue              func(context.Context) (*Bonus, error)
+	predicates            []predicate.Bonus
 }
 
 var _ ent.Mutation = (*BonusMutation)(nil)
@@ -1817,6 +1819,55 @@ func (m *BonusMutation) UserIDCleared() bool {
 func (m *BonusMutation) ResetUserID() {
 	m.user = nil
 	delete(m.clearedFields, bonus.FieldUserID)
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (m *BonusMutation) SetDonorResponseID(s string) {
+	m.donor_response = &s
+}
+
+// DonorResponseID returns the value of the "donor_response_id" field in the mutation.
+func (m *BonusMutation) DonorResponseID() (r string, exists bool) {
+	v := m.donor_response
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDonorResponseID returns the old "donor_response_id" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldDonorResponseID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDonorResponseID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDonorResponseID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDonorResponseID: %w", err)
+	}
+	return oldValue.DonorResponseID, nil
+}
+
+// ClearDonorResponseID clears the value of the "donor_response_id" field.
+func (m *BonusMutation) ClearDonorResponseID() {
+	m.donor_response = nil
+	m.clearedFields[bonus.FieldDonorResponseID] = struct{}{}
+}
+
+// DonorResponseIDCleared returns if the "donor_response_id" field was cleared in this mutation.
+func (m *BonusMutation) DonorResponseIDCleared() bool {
+	_, ok := m.clearedFields[bonus.FieldDonorResponseID]
+	return ok
+}
+
+// ResetDonorResponseID resets all changes to the "donor_response_id" field.
+func (m *BonusMutation) ResetDonorResponseID() {
+	m.donor_response = nil
+	delete(m.clearedFields, bonus.FieldDonorResponseID)
 }
 
 // SetPartnerName sets the "partner_name" field.
@@ -2268,6 +2319,33 @@ func (m *BonusMutation) ResetUser() {
 	m.cleareduser = false
 }
 
+// ClearDonorResponse clears the "donor_response" edge to the DonorResponse entity.
+func (m *BonusMutation) ClearDonorResponse() {
+	m.cleareddonor_response = true
+	m.clearedFields[bonus.FieldDonorResponseID] = struct{}{}
+}
+
+// DonorResponseCleared reports if the "donor_response" edge to the DonorResponse entity was cleared.
+func (m *BonusMutation) DonorResponseCleared() bool {
+	return m.DonorResponseIDCleared() || m.cleareddonor_response
+}
+
+// DonorResponseIDs returns the "donor_response" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DonorResponseID instead. It exists only for internal usage by the builders.
+func (m *BonusMutation) DonorResponseIDs() (ids []string) {
+	if id := m.donor_response; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDonorResponse resets all changes to the "donor_response" edge.
+func (m *BonusMutation) ResetDonorResponse() {
+	m.donor_response = nil
+	m.cleareddonor_response = false
+}
+
 // Where appends a list predicates to the BonusMutation builder.
 func (m *BonusMutation) Where(ps ...predicate.Bonus) {
 	m.predicates = append(m.predicates, ps...)
@@ -2302,7 +2380,7 @@ func (m *BonusMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BonusMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.created_at != nil {
 		fields = append(fields, bonus.FieldCreatedAt)
 	}
@@ -2314,6 +2392,9 @@ func (m *BonusMutation) Fields() []string {
 	}
 	if m.user != nil {
 		fields = append(fields, bonus.FieldUserID)
+	}
+	if m.donor_response != nil {
+		fields = append(fields, bonus.FieldDonorResponseID)
 	}
 	if m.partner_name != nil {
 		fields = append(fields, bonus.FieldPartnerName)
@@ -2364,6 +2445,8 @@ func (m *BonusMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case bonus.FieldUserID:
 		return m.UserID()
+	case bonus.FieldDonorResponseID:
+		return m.DonorResponseID()
 	case bonus.FieldPartnerName:
 		return m.PartnerName()
 	case bonus.FieldDescription:
@@ -2403,6 +2486,8 @@ func (m *BonusMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDeletedAt(ctx)
 	case bonus.FieldUserID:
 		return m.OldUserID(ctx)
+	case bonus.FieldDonorResponseID:
+		return m.OldDonorResponseID(ctx)
 	case bonus.FieldPartnerName:
 		return m.OldPartnerName(ctx)
 	case bonus.FieldDescription:
@@ -2461,6 +2546,13 @@ func (m *BonusMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case bonus.FieldDonorResponseID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDonorResponseID(v)
 		return nil
 	case bonus.FieldPartnerName:
 		v, ok := value.(string)
@@ -2575,6 +2667,9 @@ func (m *BonusMutation) ClearedFields() []string {
 	if m.FieldCleared(bonus.FieldUserID) {
 		fields = append(fields, bonus.FieldUserID)
 	}
+	if m.FieldCleared(bonus.FieldDonorResponseID) {
+		fields = append(fields, bonus.FieldDonorResponseID)
+	}
 	if m.FieldCleared(bonus.FieldSubcategory) {
 		fields = append(fields, bonus.FieldSubcategory)
 	}
@@ -2601,6 +2696,9 @@ func (m *BonusMutation) ClearField(name string) error {
 	case bonus.FieldUserID:
 		m.ClearUserID()
 		return nil
+	case bonus.FieldDonorResponseID:
+		m.ClearDonorResponseID()
+		return nil
 	case bonus.FieldSubcategory:
 		m.ClearSubcategory()
 		return nil
@@ -2626,6 +2724,9 @@ func (m *BonusMutation) ResetField(name string) error {
 		return nil
 	case bonus.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case bonus.FieldDonorResponseID:
+		m.ResetDonorResponseID()
 		return nil
 	case bonus.FieldPartnerName:
 		m.ResetPartnerName()
@@ -2666,9 +2767,12 @@ func (m *BonusMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BonusMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.user != nil {
 		edges = append(edges, bonus.EdgeUser)
+	}
+	if m.donor_response != nil {
+		edges = append(edges, bonus.EdgeDonorResponse)
 	}
 	return edges
 }
@@ -2681,13 +2785,17 @@ func (m *BonusMutation) AddedIDs(name string) []ent.Value {
 		if id := m.user; id != nil {
 			return []ent.Value{*id}
 		}
+	case bonus.EdgeDonorResponse:
+		if id := m.donor_response; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BonusMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -2699,9 +2807,12 @@ func (m *BonusMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BonusMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.cleareduser {
 		edges = append(edges, bonus.EdgeUser)
+	}
+	if m.cleareddonor_response {
+		edges = append(edges, bonus.EdgeDonorResponse)
 	}
 	return edges
 }
@@ -2712,6 +2823,8 @@ func (m *BonusMutation) EdgeCleared(name string) bool {
 	switch name {
 	case bonus.EdgeUser:
 		return m.cleareduser
+	case bonus.EdgeDonorResponse:
+		return m.cleareddonor_response
 	}
 	return false
 }
@@ -2723,6 +2836,9 @@ func (m *BonusMutation) ClearEdge(name string) error {
 	case bonus.EdgeUser:
 		m.ClearUser()
 		return nil
+	case bonus.EdgeDonorResponse:
+		m.ClearDonorResponse()
+		return nil
 	}
 	return fmt.Errorf("unknown Bonus unique edge %s", name)
 }
@@ -2733,6 +2849,9 @@ func (m *BonusMutation) ResetEdge(name string) error {
 	switch name {
 	case bonus.EdgeUser:
 		m.ResetUser()
+		return nil
+	case bonus.EdgeDonorResponse:
+		m.ResetDonorResponse()
 		return nil
 	}
 	return fmt.Errorf("unknown Bonus edge %s", name)
@@ -4148,6 +4267,9 @@ type DonorResponseMutation struct {
 	clearedrequest    bool
 	donor             *string
 	cleareddonor      bool
+	bonuses           map[string]struct{}
+	removedbonuses    map[string]struct{}
+	clearedbonuses    bool
 	done              bool
 	oldValue          func(context.Context) (*DonorResponse, error)
 	predicates        []predicate.DonorResponse
@@ -4758,6 +4880,60 @@ func (m *DonorResponseMutation) ResetDonor() {
 	m.cleareddonor = false
 }
 
+// AddBonuseIDs adds the "bonuses" edge to the Bonus entity by ids.
+func (m *DonorResponseMutation) AddBonuseIDs(ids ...string) {
+	if m.bonuses == nil {
+		m.bonuses = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.bonuses[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBonuses clears the "bonuses" edge to the Bonus entity.
+func (m *DonorResponseMutation) ClearBonuses() {
+	m.clearedbonuses = true
+}
+
+// BonusesCleared reports if the "bonuses" edge to the Bonus entity was cleared.
+func (m *DonorResponseMutation) BonusesCleared() bool {
+	return m.clearedbonuses
+}
+
+// RemoveBonuseIDs removes the "bonuses" edge to the Bonus entity by IDs.
+func (m *DonorResponseMutation) RemoveBonuseIDs(ids ...string) {
+	if m.removedbonuses == nil {
+		m.removedbonuses = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.bonuses, ids[i])
+		m.removedbonuses[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBonuses returns the removed IDs of the "bonuses" edge to the Bonus entity.
+func (m *DonorResponseMutation) RemovedBonusesIDs() (ids []string) {
+	for id := range m.removedbonuses {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BonusesIDs returns the "bonuses" edge IDs in the mutation.
+func (m *DonorResponseMutation) BonusesIDs() (ids []string) {
+	for id := range m.bonuses {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBonuses resets all changes to the "bonuses" edge.
+func (m *DonorResponseMutation) ResetBonuses() {
+	m.bonuses = nil
+	m.clearedbonuses = false
+	m.removedbonuses = nil
+}
+
 // Where appends a list predicates to the DonorResponseMutation builder.
 func (m *DonorResponseMutation) Where(ps ...predicate.DonorResponse) {
 	m.predicates = append(m.predicates, ps...)
@@ -5081,12 +5257,15 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DonorResponseMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.request != nil {
 		edges = append(edges, donorresponse.EdgeRequest)
 	}
 	if m.donor != nil {
 		edges = append(edges, donorresponse.EdgeDonor)
+	}
+	if m.bonuses != nil {
+		edges = append(edges, donorresponse.EdgeBonuses)
 	}
 	return edges
 }
@@ -5103,30 +5282,50 @@ func (m *DonorResponseMutation) AddedIDs(name string) []ent.Value {
 		if id := m.donor; id != nil {
 			return []ent.Value{*id}
 		}
+	case donorresponse.EdgeBonuses:
+		ids := make([]ent.Value, 0, len(m.bonuses))
+		for id := range m.bonuses {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DonorResponseMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
+	if m.removedbonuses != nil {
+		edges = append(edges, donorresponse.EdgeBonuses)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *DonorResponseMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case donorresponse.EdgeBonuses:
+		ids := make([]ent.Value, 0, len(m.removedbonuses))
+		for id := range m.removedbonuses {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DonorResponseMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedrequest {
 		edges = append(edges, donorresponse.EdgeRequest)
 	}
 	if m.cleareddonor {
 		edges = append(edges, donorresponse.EdgeDonor)
+	}
+	if m.clearedbonuses {
+		edges = append(edges, donorresponse.EdgeBonuses)
 	}
 	return edges
 }
@@ -5139,6 +5338,8 @@ func (m *DonorResponseMutation) EdgeCleared(name string) bool {
 		return m.clearedrequest
 	case donorresponse.EdgeDonor:
 		return m.cleareddonor
+	case donorresponse.EdgeBonuses:
+		return m.clearedbonuses
 	}
 	return false
 }
@@ -5166,6 +5367,9 @@ func (m *DonorResponseMutation) ResetEdge(name string) error {
 		return nil
 	case donorresponse.EdgeDonor:
 		m.ResetDonor()
+		return nil
+	case donorresponse.EdgeBonuses:
+		m.ResetBonuses()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorResponse edge %s", name)

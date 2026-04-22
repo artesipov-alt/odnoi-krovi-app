@@ -59,6 +59,7 @@ var (
 		{Name: "platform_name", Type: field.TypeString},
 		{Name: "platform_url", Type: field.TypeString, Nullable: true},
 		{Name: "stage", Type: field.TypeEnum, Enums: []string{"stage", "used", "unused", "reserved"}, Default: "unused"},
+		{Name: "donor_response_id", Type: field.TypeString, Nullable: true},
 		{Name: "user_id", Type: field.TypeString, Nullable: true},
 	}
 	// BonusesTable holds the schema information for the "bonuses" table.
@@ -68,8 +69,14 @@ var (
 		PrimaryKey: []*schema.Column{BonusesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "bonuses_users_bonuses",
+				Symbol:     "bonuses_donor_responses_bonuses",
 				Columns:    []*schema.Column{BonusesColumns[15]},
+				RefColumns: []*schema.Column{DonorResponsesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "bonuses_users_bonuses",
+				Columns:    []*schema.Column{BonusesColumns[16]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -424,7 +431,8 @@ func init() {
 	BloodRequestsTable.Annotation = &entsql.Annotation{
 		Table: "blood_requests",
 	}
-	BonusesTable.ForeignKeys[0].RefTable = UsersTable
+	BonusesTable.ForeignKeys[0].RefTable = DonorResponsesTable
+	BonusesTable.ForeignKeys[1].RefTable = UsersTable
 	BonusesTable.Annotation = &entsql.Annotation{
 		Table: "bonuses",
 	}

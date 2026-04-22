@@ -93,8 +93,8 @@ func (r *EntBonusRepository) ExistsByPromoCodes(ctx context.Context, codes []str
 	return result, nil
 }
 
-// AssignBonuses assigns bonuses to a user by updating their UserID and setting stage to reserved.
-func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []string, userID string) error {
+// AssignBonuses assigns bonuses to a user by updating their UserID and DonorResponseID, and setting stage to reserved.
+func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []string, userID string, donorResponseID string) error {
 	if len(bonusIDs) == 0 {
 		return nil
 	}
@@ -102,6 +102,7 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.IDIn(bonusIDs...)).
 		SetUserID(userID).
+		SetDonorResponseID(donorResponseID).
 		SetStage(entbonus.StageReserved).
 		Save(ctx)
 	if err != nil {
@@ -111,13 +112,14 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 	return nil
 }
 
-// UnassignBonuses unassigns reserved bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
+// UnassignBonuses unassigns reserved bonuses from a user for a specific pet type by setting UserID and DonorResponseID to nil and stage to unused.
 func (r *EntBonusRepository) UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error {
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
 		Where(entbonus.StageEQ(entbonus.StageReserved)).
 		ClearUserID().
+		ClearDonorResponseID().
 		SetStage(entbonus.StageUnused).
 		Save(ctx)
 	if err != nil {
@@ -208,6 +210,26 @@ func (r *EntBonusRepository) GetLastDonation(ctx context.Context, userID string)
 	return user.LastDonation, nil
 }
 
+// SetLastDonation sets the last donation date for a user
+func (r *EntBonusRepository) SetLastDonation(ctx context.Context, userID string, donationDate time.Time) error {
+	if userID == "" {
+		return errors.New("invalid user ID")
+	}
+
+	err := r.client(ctx).User.UpdateOneID(userID).
+		SetLastDonation(donationDate).
+		Exec(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("user with id %s not found", userID)
+		}
+		return fmt.Errorf("failed to set last donation: %w", err)
+	}
+
+	return nil
+}
+
 // AddPrioritySearch increments the priority search count for a user by 1
 func (r *EntBonusRepository) AddPrioritySearch(ctx context.Context, id string) error {
 	if id == "" {
@@ -245,26 +267,6 @@ func (r *EntBonusRepository) SubtractPrioritySearch(ctx context.Context, id stri
 			return fmt.Errorf("user with id %s not found", id)
 		}
 		return fmt.Errorf("failed to subtract priority search: %w", err)
-	}
-
-	return nil
-}
-
-// SetLastDonation sets the last donation date for a user
-func (r *EntBonusRepository) SetLastDonation(ctx context.Context, userID string, donationDate time.Time) error {
-	if userID == "" {
-		return errors.New("invalid user ID")
-	}
-
-	err := r.client(ctx).User.UpdateOneID(userID).
-		SetLastDonation(donationDate).
-		Exec(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("user with id %s not found", userID)
-		}
-		return fmt.Errorf("failed to set last donation: %w", err)
 	}
 
 	return nil

@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
@@ -76,6 +77,20 @@ func (_c *BonusCreate) SetUserID(v string) *BonusCreate {
 func (_c *BonusCreate) SetNillableUserID(v *string) *BonusCreate {
 	if v != nil {
 		_c.SetUserID(*v)
+	}
+	return _c
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (_c *BonusCreate) SetDonorResponseID(v string) *BonusCreate {
+	_c.mutation.SetDonorResponseID(v)
+	return _c
+}
+
+// SetNillableDonorResponseID sets the "donor_response_id" field if the given value is not nil.
+func (_c *BonusCreate) SetNillableDonorResponseID(v *string) *BonusCreate {
+	if v != nil {
+		_c.SetDonorResponseID(*v)
 	}
 	return _c
 }
@@ -187,6 +202,11 @@ func (_c *BonusCreate) SetNillableID(v *string) *BonusCreate {
 // SetUser sets the "user" edge to the User entity.
 func (_c *BonusCreate) SetUser(v *User) *BonusCreate {
 	return _c.SetUserID(v.ID)
+}
+
+// SetDonorResponse sets the "donor_response" edge to the DonorResponse entity.
+func (_c *BonusCreate) SetDonorResponse(v *DonorResponse) *BonusCreate {
+	return _c.SetDonorResponseID(v.ID)
 }
 
 // Mutation returns the BonusMutation object of the builder.
@@ -406,6 +426,23 @@ func (_c *BonusCreate) createSpec() (*Bonus, *sqlgraph.CreateSpec) {
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := _c.mutation.DonorResponseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   bonus.DonorResponseTable,
+			Columns: []string{bonus.DonorResponseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(donorresponse.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DonorResponseID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -503,6 +540,24 @@ func (u *BonusUpsert) UpdateUserID() *BonusUpsert {
 // ClearUserID clears the value of the "user_id" field.
 func (u *BonusUpsert) ClearUserID() *BonusUpsert {
 	u.SetNull(bonus.FieldUserID)
+	return u
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (u *BonusUpsert) SetDonorResponseID(v string) *BonusUpsert {
+	u.Set(bonus.FieldDonorResponseID, v)
+	return u
+}
+
+// UpdateDonorResponseID sets the "donor_response_id" field to the value that was provided on create.
+func (u *BonusUpsert) UpdateDonorResponseID() *BonusUpsert {
+	u.SetExcluded(bonus.FieldDonorResponseID)
+	return u
+}
+
+// ClearDonorResponseID clears the value of the "donor_response_id" field.
+func (u *BonusUpsert) ClearDonorResponseID() *BonusUpsert {
+	u.SetNull(bonus.FieldDonorResponseID)
 	return u
 }
 
@@ -754,6 +809,27 @@ func (u *BonusUpsertOne) UpdateUserID() *BonusUpsertOne {
 func (u *BonusUpsertOne) ClearUserID() *BonusUpsertOne {
 	return u.Update(func(s *BonusUpsert) {
 		s.ClearUserID()
+	})
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (u *BonusUpsertOne) SetDonorResponseID(v string) *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.SetDonorResponseID(v)
+	})
+}
+
+// UpdateDonorResponseID sets the "donor_response_id" field to the value that was provided on create.
+func (u *BonusUpsertOne) UpdateDonorResponseID() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.UpdateDonorResponseID()
+	})
+}
+
+// ClearDonorResponseID clears the value of the "donor_response_id" field.
+func (u *BonusUpsertOne) ClearDonorResponseID() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearDonorResponseID()
 	})
 }
 
@@ -1196,6 +1272,27 @@ func (u *BonusUpsertBulk) UpdateUserID() *BonusUpsertBulk {
 func (u *BonusUpsertBulk) ClearUserID() *BonusUpsertBulk {
 	return u.Update(func(s *BonusUpsert) {
 		s.ClearUserID()
+	})
+}
+
+// SetDonorResponseID sets the "donor_response_id" field.
+func (u *BonusUpsertBulk) SetDonorResponseID(v string) *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.SetDonorResponseID(v)
+	})
+}
+
+// UpdateDonorResponseID sets the "donor_response_id" field to the value that was provided on create.
+func (u *BonusUpsertBulk) UpdateDonorResponseID() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.UpdateDonorResponseID()
+	})
+}
+
+// ClearDonorResponseID clears the value of the "donor_response_id" field.
+func (u *BonusUpsertBulk) ClearDonorResponseID() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearDonorResponseID()
 	})
 }
 

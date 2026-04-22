@@ -491,6 +491,29 @@ func HasDonorWith(preds ...predicate.Pet) predicate.DonorResponse {
 	})
 }
 
+// HasBonuses applies the HasEdge predicate on the "bonuses" edge.
+func HasBonuses() predicate.DonorResponse {
+	return predicate.DonorResponse(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, BonusesTable, BonusesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBonusesWith applies the HasEdge predicate on the "bonuses" edge with a given conditions (other predicates).
+func HasBonusesWith(preds ...predicate.Bonus) predicate.DonorResponse {
+	return predicate.DonorResponse(func(s *sql.Selector) {
+		step := newBonusesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.DonorResponse) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.AndPredicates(predicates...))

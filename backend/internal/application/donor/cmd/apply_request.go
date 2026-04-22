@@ -96,7 +96,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		}
 
 		// Закрепляем бонусы за пользователем
-		if err := h.bonusSvc.AssignBonuses(ctx, donorPet.OwnerID, donorPet.Type); err != nil {
+		if err := h.bonusSvc.AssignBonuses(ctx, donorPet.OwnerID, donorPet.Type, donorResponse.ID); err != nil {
 			return err
 		}
 

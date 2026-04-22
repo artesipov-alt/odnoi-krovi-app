@@ -29,6 +29,7 @@ func (DonorResponse) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("request", BloodSearchRequest.Type).Ref("responses").Unique().Required(),
 		edge.To("donor", Pet.Type).Unique().Required(),
+		edge.To("bonuses", Bonus.Type),
 	}
 }
 

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
@@ -19,11 +20,12 @@ import (
 // BonusQuery is the builder for querying Bonus entities.
 type BonusQuery struct {
 	config
-	ctx        *QueryContext
-	order      []bonus.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Bonus
-	withUser   *UserQuery
+	ctx               *QueryContext
+	order             []bonus.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.Bonus
+	withUser          *UserQuery
+	withDonorResponse *DonorResponseQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,6 +77,28 @@ func (_q *BonusQuery) QueryUser() *UserQuery {
 			sqlgraph.From(bonus.Table, bonus.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, bonus.UserTable, bonus.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDonorResponse chains the current query on the "donor_response" edge.
+func (_q *BonusQuery) QueryDonorResponse() *DonorResponseQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bonus.Table, bonus.FieldID, selector),
+			sqlgraph.To(donorresponse.Table, donorresponse.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, bonus.DonorResponseTable, bonus.DonorResponseColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -269,12 +293,13 @@ func (_q *BonusQuery) Clone() *BonusQuery {
 		return nil
 	}
 	return &BonusQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]bonus.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Bonus{}, _q.predicates...),
-		withUser:   _q.withUser.Clone(),
+		config:            _q.config,
+		ctx:               _q.ctx.Clone(),
+		order:             append([]bonus.OrderOption{}, _q.order...),
+		inters:            append([]Interceptor{}, _q.inters...),
+		predicates:        append([]predicate.Bonus{}, _q.predicates...),
+		withUser:          _q.withUser.Clone(),
+		withDonorResponse: _q.withDonorResponse.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -289,6 +314,17 @@ func (_q *BonusQuery) WithUser(opts ...func(*UserQuery)) *BonusQuery {
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithDonorResponse tells the query-builder to eager-load the nodes that are connected to
+// the "donor_response" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *BonusQuery) WithDonorResponse(opts ...func(*DonorResponseQuery)) *BonusQuery {
+	query := (&DonorResponseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDonorResponse = query
 	return _q
 }
 
@@ -370,8 +406,9 @@ func (_q *BonusQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Bonus,
 	var (
 		nodes       = []*Bonus{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withUser != nil,
+			_q.withDonorResponse != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -395,6 +432,12 @@ func (_q *BonusQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Bonus,
 	if query := _q.withUser; query != nil {
 		if err := _q.loadUser(ctx, query, nodes, nil,
 			func(n *Bonus, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDonorResponse; query != nil {
+		if err := _q.loadDonorResponse(ctx, query, nodes, nil,
+			func(n *Bonus, e *DonorResponse) { n.Edges.DonorResponse = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -430,6 +473,35 @@ func (_q *BonusQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*B
 	}
 	return nil
 }
+func (_q *BonusQuery) loadDonorResponse(ctx context.Context, query *DonorResponseQuery, nodes []*Bonus, init func(*Bonus), assign func(*Bonus, *DonorResponse)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Bonus)
+	for i := range nodes {
+		fk := nodes[i].DonorResponseID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(donorresponse.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "donor_response_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *BonusQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -458,6 +530,9 @@ func (_q *BonusQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(bonus.FieldUserID)
+		}
+		if _q.withDonorResponse != nil {
+			_spec.Node.AddColumnOnce(bonus.FieldDonorResponseID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

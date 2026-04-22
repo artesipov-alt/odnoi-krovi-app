@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
@@ -26,6 +27,8 @@ type Bonus struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"user_id,omitempty"`
+	// DonorResponseID holds the value of the "donor_response_id" field.
+	DonorResponseID string `json:"donor_response_id,omitempty"`
 	// PartnerName holds the value of the "partner_name" field.
 	PartnerName string `json:"partner_name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -58,9 +61,11 @@ type Bonus struct {
 type BonusEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// DonorResponse holds the value of the donor_response edge.
+	DonorResponse *DonorResponse `json:"donor_response,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -74,12 +79,23 @@ func (e BonusEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
+// DonorResponseOrErr returns the DonorResponse value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BonusEdges) DonorResponseOrErr() (*DonorResponse, error) {
+	if e.DonorResponse != nil {
+		return e.DonorResponse, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: donorresponse.Label}
+	}
+	return nil, &NotLoadedError{edge: "donor_response"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Bonus) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bonus.FieldID, bonus.FieldUserID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldSubcategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL, bonus.FieldStage:
+		case bonus.FieldID, bonus.FieldUserID, bonus.FieldDonorResponseID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldSubcategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL, bonus.FieldStage:
 			values[i] = new(sql.NullString)
 		case bonus.FieldCreatedAt, bonus.FieldUpdatedAt, bonus.FieldDeletedAt, bonus.FieldExpiresAt:
 			values[i] = new(sql.NullTime)
@@ -128,6 +144,12 @@ func (_m *Bonus) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
 				_m.UserID = value.String
+			}
+		case bonus.FieldDonorResponseID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field donor_response_id", values[i])
+			} else if value.Valid {
+				_m.DonorResponseID = value.String
 			}
 		case bonus.FieldPartnerName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -213,6 +235,11 @@ func (_m *Bonus) QueryUser() *UserQuery {
 	return NewBonusClient(_m.config).QueryUser(_m)
 }
 
+// QueryDonorResponse queries the "donor_response" edge of the Bonus entity.
+func (_m *Bonus) QueryDonorResponse() *DonorResponseQuery {
+	return NewBonusClient(_m.config).QueryDonorResponse(_m)
+}
+
 // Update returns a builder for updating this Bonus.
 // Note that you need to call Bonus.Unwrap() before calling this method if this Bonus
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -249,6 +276,9 @@ func (_m *Bonus) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(_m.UserID)
+	builder.WriteString(", ")
+	builder.WriteString("donor_response_id=")
+	builder.WriteString(_m.DonorResponseID)
 	builder.WriteString(", ")
 	builder.WriteString("partner_name=")
 	builder.WriteString(_m.PartnerName)

@@ -51,9 +51,11 @@ type DonorResponseEdges struct {
 	Request *BloodSearchRequest `json:"request,omitempty"`
 	// Donor holds the value of the donor edge.
 	Donor *Pet `json:"donor,omitempty"`
+	// Bonuses holds the value of the bonuses edge.
+	Bonuses []*Bonus `json:"bonuses,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // RequestOrErr returns the Request value or an error if the edge
@@ -76,6 +78,15 @@ func (e DonorResponseEdges) DonorOrErr() (*Pet, error) {
 		return nil, &NotFoundError{label: pet.Label}
 	}
 	return nil, &NotLoadedError{edge: "donor"}
+}
+
+// BonusesOrErr returns the Bonuses value or an error if the edge
+// was not loaded in eager-loading.
+func (e DonorResponseEdges) BonusesOrErr() ([]*Bonus, error) {
+	if e.loadedTypes[2] {
+		return e.Bonuses, nil
+	}
+	return nil, &NotLoadedError{edge: "bonuses"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -206,6 +217,11 @@ func (_m *DonorResponse) QueryRequest() *BloodSearchRequestQuery {
 // QueryDonor queries the "donor" edge of the DonorResponse entity.
 func (_m *DonorResponse) QueryDonor() *PetQuery {
 	return NewDonorResponseClient(_m.config).QueryDonor(_m)
+}
+
+// QueryBonuses queries the "bonuses" edge of the DonorResponse entity.
+func (_m *DonorResponse) QueryBonuses() *BonusQuery {
+	return NewDonorResponseClient(_m.config).QueryBonuses(_m)
 }
 
 // Update returns a builder for updating this DonorResponse.

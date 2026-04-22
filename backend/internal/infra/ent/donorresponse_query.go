@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bloodsearchrequest"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/predicate"
@@ -26,6 +28,7 @@ type DonorResponseQuery struct {
 	predicates  []predicate.DonorResponse
 	withRequest *BloodSearchRequestQuery
 	withDonor   *PetQuery
+	withBonuses *BonusQuery
 	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -100,6 +103,28 @@ func (_q *DonorResponseQuery) QueryDonor() *PetQuery {
 			sqlgraph.From(donorresponse.Table, donorresponse.FieldID, selector),
 			sqlgraph.To(pet.Table, pet.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, donorresponse.DonorTable, donorresponse.DonorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryBonuses chains the current query on the "bonuses" edge.
+func (_q *DonorResponseQuery) QueryBonuses() *BonusQuery {
+	query := (&BonusClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(donorresponse.Table, donorresponse.FieldID, selector),
+			sqlgraph.To(bonus.Table, bonus.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, donorresponse.BonusesTable, donorresponse.BonusesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -301,6 +326,7 @@ func (_q *DonorResponseQuery) Clone() *DonorResponseQuery {
 		predicates:  append([]predicate.DonorResponse{}, _q.predicates...),
 		withRequest: _q.withRequest.Clone(),
 		withDonor:   _q.withDonor.Clone(),
+		withBonuses: _q.withBonuses.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -326,6 +352,17 @@ func (_q *DonorResponseQuery) WithDonor(opts ...func(*PetQuery)) *DonorResponseQ
 		opt(query)
 	}
 	_q.withDonor = query
+	return _q
+}
+
+// WithBonuses tells the query-builder to eager-load the nodes that are connected to
+// the "bonuses" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DonorResponseQuery) WithBonuses(opts ...func(*BonusQuery)) *DonorResponseQuery {
+	query := (&BonusClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withBonuses = query
 	return _q
 }
 
@@ -408,9 +445,10 @@ func (_q *DonorResponseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		nodes       = []*DonorResponse{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withRequest != nil,
 			_q.withDonor != nil,
+			_q.withBonuses != nil,
 		}
 	)
 	if _q.withRequest != nil || _q.withDonor != nil {
@@ -446,6 +484,13 @@ func (_q *DonorResponseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	if query := _q.withDonor; query != nil {
 		if err := _q.loadDonor(ctx, query, nodes, nil,
 			func(n *DonorResponse, e *Pet) { n.Edges.Donor = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withBonuses; query != nil {
+		if err := _q.loadBonuses(ctx, query, nodes,
+			func(n *DonorResponse) { n.Edges.Bonuses = []*Bonus{} },
+			func(n *DonorResponse, e *Bonus) { n.Edges.Bonuses = append(n.Edges.Bonuses, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -513,6 +558,36 @@ func (_q *DonorResponseQuery) loadDonor(ctx context.Context, query *PetQuery, no
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (_q *DonorResponseQuery) loadBonuses(ctx context.Context, query *BonusQuery, nodes []*DonorResponse, init func(*DonorResponse), assign func(*DonorResponse, *Bonus)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*DonorResponse)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(bonus.FieldDonorResponseID)
+	}
+	query.Where(predicate.Bonus(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(donorresponse.BonusesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.DonorResponseID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "donor_response_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

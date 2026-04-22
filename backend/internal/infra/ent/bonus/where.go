@@ -85,6 +85,11 @@ func UserID(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldUserID, v))
 }
 
+// DonorResponseID applies equality check predicate on the "donor_response_id" field. It's identical to DonorResponseIDEQ.
+func DonorResponseID(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldDonorResponseID, v))
+}
+
 // PartnerName applies equality check predicate on the "partner_name" field. It's identical to PartnerNameEQ.
 func PartnerName(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldPartnerName, v))
@@ -323,6 +328,81 @@ func UserIDEqualFold(v string) predicate.Bonus {
 // UserIDContainsFold applies the ContainsFold predicate on the "user_id" field.
 func UserIDContainsFold(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldContainsFold(FieldUserID, v))
+}
+
+// DonorResponseIDEQ applies the EQ predicate on the "donor_response_id" field.
+func DonorResponseIDEQ(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDNEQ applies the NEQ predicate on the "donor_response_id" field.
+func DonorResponseIDNEQ(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNEQ(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDIn applies the In predicate on the "donor_response_id" field.
+func DonorResponseIDIn(vs ...string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldIn(FieldDonorResponseID, vs...))
+}
+
+// DonorResponseIDNotIn applies the NotIn predicate on the "donor_response_id" field.
+func DonorResponseIDNotIn(vs ...string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotIn(FieldDonorResponseID, vs...))
+}
+
+// DonorResponseIDGT applies the GT predicate on the "donor_response_id" field.
+func DonorResponseIDGT(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldGT(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDGTE applies the GTE predicate on the "donor_response_id" field.
+func DonorResponseIDGTE(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldGTE(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDLT applies the LT predicate on the "donor_response_id" field.
+func DonorResponseIDLT(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldLT(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDLTE applies the LTE predicate on the "donor_response_id" field.
+func DonorResponseIDLTE(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldLTE(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDContains applies the Contains predicate on the "donor_response_id" field.
+func DonorResponseIDContains(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldContains(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDHasPrefix applies the HasPrefix predicate on the "donor_response_id" field.
+func DonorResponseIDHasPrefix(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldHasPrefix(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDHasSuffix applies the HasSuffix predicate on the "donor_response_id" field.
+func DonorResponseIDHasSuffix(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldHasSuffix(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDIsNil applies the IsNil predicate on the "donor_response_id" field.
+func DonorResponseIDIsNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldIsNull(FieldDonorResponseID))
+}
+
+// DonorResponseIDNotNil applies the NotNil predicate on the "donor_response_id" field.
+func DonorResponseIDNotNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotNull(FieldDonorResponseID))
+}
+
+// DonorResponseIDEqualFold applies the EqualFold predicate on the "donor_response_id" field.
+func DonorResponseIDEqualFold(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEqualFold(FieldDonorResponseID, v))
+}
+
+// DonorResponseIDContainsFold applies the ContainsFold predicate on the "donor_response_id" field.
+func DonorResponseIDContainsFold(v string) predicate.Bonus {
+	return predicate.Bonus(sql.FieldContainsFold(FieldDonorResponseID, v))
 }
 
 // PartnerNameEQ applies the EQ predicate on the "partner_name" field.
@@ -870,6 +950,29 @@ func HasUser() predicate.Bonus {
 func HasUserWith(preds ...predicate.User) predicate.Bonus {
 	return predicate.Bonus(func(s *sql.Selector) {
 		step := newUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDonorResponse applies the HasEdge predicate on the "donor_response" edge.
+func HasDonorResponse() predicate.Bonus {
+	return predicate.Bonus(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, DonorResponseTable, DonorResponseColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDonorResponseWith applies the HasEdge predicate on the "donor_response" edge with a given conditions (other predicates).
+func HasDonorResponseWith(preds ...predicate.DonorResponse) predicate.Bonus {
+	return predicate.Bonus(func(s *sql.Selector) {
+		step := newDonorResponseStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
