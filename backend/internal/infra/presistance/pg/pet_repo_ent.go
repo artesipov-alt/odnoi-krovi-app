@@ -53,8 +53,7 @@ func (r *EntPetRepository) Create(ctx context.Context, petDomain *model.Pet) (*m
 		SetName(petDomain.Name).
 		SetType(string(petDomain.Type)).
 		SetWeightKg(petDomain.WeightKg).
-		SetUserID(petDomain.OwnerID).
-		SetBonuses(petDomain.Bonuses)
+		SetUserID(petDomain.OwnerID)
 
 	if petDomain.Gender != "" {
 		builder.SetGender(string(petDomain.Gender))

@@ -48,7 +48,6 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 		Gender:               string(petmodel.Gender),
 		Type:                 string(petmodel.Type),
 		ReproductiveStatus:   string(petmodel.ReproductiveStatus),
-		Bonuses:              petmodel.Bonuses,
 		CreatedAt:            petmodel.CreatedAt,
 		UpdatedAt:            petmodel.UpdatedAt,
 		DeletedAt:            petmodel.DeletedAt,
@@ -308,9 +307,6 @@ func (m *PetMapper) ToUpdateModel(petDto dto.UpdatePetBody) *model.Pet {
 	}
 	if petDto.ReproductiveStatus != nil {
 		petUpdate.ReproductiveStatus = model.ReproductiveStatus(*petDto.ReproductiveStatus)
-	}
-	if petDto.Bonuses != nil {
-		petUpdate.Bonuses = *petDto.Bonuses
 	}
 	if petDto.AgeMonths != nil || petDto.AgeYears != nil {
 		petUpdate.BirthDate = calculateBirthDateFromAge(petDto.AgeYears, petDto.AgeMonths)

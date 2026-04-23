@@ -26,21 +26,20 @@ type ImportBonusesResult struct {
 	Errors    []string `json:"errors,omitempty" doc:"Список сообщений об ошибках для пропущенных строк"`
 }
 
-// AssignedBonusItem представляет элемент присвоенного бонуса.
 type AssignedBonusItem struct {
 	ID           string     `json:"id" doc:"Уникальный идентификатор присвоенного бонуса"`
 	UserID       *string    `json:"userId,omitempty" doc:"ID пользователя, связанного с присвоенным бонусом"`
 	PartnerName  string     `json:"partnerName" doc:"Название партнера, предоставляющего присвоенный бонус"`
 	Description  string     `json:"description" doc:"Описание присвоенного бонуса"`
-	Target       string     `json:"target" doc:"Целевая аудитория для присвоенного бонуса"`
+	Target       string     `json:"target" doc:"Целевая аудитория для присвоенного бонуса" enum:"dog,cat,all"`
 	Recipient    string     `json:"recipient" doc:"Получатель присвоенного бонуса"`
-	Category     string     `json:"category" doc:"Категория присвоенного бонуса"`
+	Category     string     `json:"category" doc:"Категория присвоенного бонуса" enum:"food,preparation,other,lock"`
 	Subcategory  *string    `json:"subcategory,omitempty" doc:"Подкатегория присвоенного бонуса"`
 	PromoCode    string     `json:"promoCode" doc:"Промокод для присвоенного бонуса"`
 	ExpiresAt    time.Time  `json:"expiresAt" doc:"Дата и время истечения срока присвоенного бонуса"`
 	PlatformName string     `json:"platformName" doc:"Название платформы, где можно использовать присвоенный бонус"`
 	PlatformURL  *string    `json:"platformUrl,omitempty" doc:"URL платформы для присвоенного бонуса"`
-	Stage        string     `json:"stage" doc:"Текущая стадия присвоенного бонуса (например, unused, used)"`
+	Stage        string     `json:"stage" doc:"Текущая стадия присвоенного бонуса" enum:"unused,used"`
 	CreatedAt    *time.Time `json:"createdAt,omitempty" doc:"Временная метка создания присвоенного бонуса"`
 	UpdatedAt    *time.Time `json:"updatedAt,omitempty" doc:"Временная метка последнего обновления присвоенного бонуса"`
 	AssignedAt   *time.Time `json:"assignedAt,omitempty" doc:"Временная метка, когда бонус был присвоен"`

@@ -45,7 +45,7 @@ func (h *AssignedBonusesHandler) Handle(ctx context.Context, userID string) (*Ge
 	var food []*bonusmodel.Bonus
 	var preparation []*bonusmodel.Bonus
 	var other []*bonusmodel.Bonus
-
+	// TODO Истекшие 5 дней после
 	for _, b := range bonuses {
 		switch b.Category {
 		case bonusmodel.CategoryFood:

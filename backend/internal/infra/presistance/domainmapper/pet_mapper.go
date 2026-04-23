@@ -27,7 +27,6 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		OwnerID:            e.UserID,
 		OwnerName:          e.Edges.Owner.FullName,
 		BreedRefID:         e.BreedID,
-		Bonuses:            e.Bonuses,
 		CreatedAt:          &e.CreatedAt,
 		UpdatedAt:          &e.UpdatedAt,
 		DeletedAt:          e.DeletedAt,

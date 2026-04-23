@@ -75,7 +75,7 @@ type Pet struct {
 	BloodGroupName     string
 	StopFactors        []string
 	WarnFactors        []string
-	Bonuses            []string
+	Privilegy          string
 	RecoveryDays       *int
 	Health             *PetHealth
 	Treatments         *PetTreatment
@@ -163,10 +163,10 @@ func NewPet(
 		Health:             health,
 		Treatments:         treatments,
 		Analyses:           analyses,
-		Bonuses:            bonuses,
-		PhotoURLs:          []string{},
-		StopFactors:        []string{},
-		WarnFactors:        []string{},
+
+		PhotoURLs:   []string{},
+		StopFactors: []string{},
+		WarnFactors: []string{},
 	}
 
 	return pet, nil
@@ -693,9 +693,6 @@ func (p *Pet) UpdateFrom(other *Pet) error {
 	// Обновляем срезы (полностью заменяем)
 	if other.PhotoURLs != nil {
 		p.PhotoURLs = other.PhotoURLs
-	}
-	if other.Bonuses != nil {
-		p.Bonuses = other.Bonuses
 	}
 	if other.StopFactors != nil {
 		p.StopFactors = other.StopFactors
