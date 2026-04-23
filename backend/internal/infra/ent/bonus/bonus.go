@@ -48,6 +48,8 @@ const (
 	FieldPlatformURL = "platform_url"
 	// FieldStage holds the string denoting the stage field in the database.
 	FieldStage = "stage"
+	// FieldAssignedAt holds the string denoting the assigned_at field in the database.
+	FieldAssignedAt = "assigned_at"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeDonorResponse holds the string denoting the donor_response edge name in mutations.
@@ -89,6 +91,7 @@ var Columns = []string{
 	FieldPlatformName,
 	FieldPlatformURL,
 	FieldStage,
+	FieldAssignedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -304,6 +307,11 @@ func ByPlatformURL(opts ...sql.OrderTermOption) OrderOption {
 // ByStage orders the results by the stage field.
 func ByStage(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStage, opts...).ToFunc()
+}
+
+// ByAssignedAt orders the results by the assigned_at field.
+func ByAssignedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAssignedAt, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

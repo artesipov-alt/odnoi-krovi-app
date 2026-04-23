@@ -59,6 +59,7 @@ var (
 		{Name: "platform_name", Type: field.TypeString},
 		{Name: "platform_url", Type: field.TypeString, Nullable: true},
 		{Name: "stage", Type: field.TypeEnum, Enums: []string{"stage", "used", "unused", "reserved"}, Default: "unused"},
+		{Name: "assigned_at", Type: field.TypeTime, Nullable: true},
 		{Name: "donor_response_id", Type: field.TypeString, Nullable: true},
 		{Name: "user_id", Type: field.TypeString, Nullable: true},
 	}
@@ -70,13 +71,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "bonuses_donor_responses_bonuses",
-				Columns:    []*schema.Column{BonusesColumns[15]},
+				Columns:    []*schema.Column{BonusesColumns[16]},
 				RefColumns: []*schema.Column{DonorResponsesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "bonuses_users_bonuses",
-				Columns:    []*schema.Column{BonusesColumns[16]},
+				Columns:    []*schema.Column{BonusesColumns[17]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

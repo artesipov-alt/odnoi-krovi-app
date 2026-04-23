@@ -185,6 +185,20 @@ func (_c *BonusCreate) SetNillableStage(v *bonus.Stage) *BonusCreate {
 	return _c
 }
 
+// SetAssignedAt sets the "assigned_at" field.
+func (_c *BonusCreate) SetAssignedAt(v time.Time) *BonusCreate {
+	_c.mutation.SetAssignedAt(v)
+	return _c
+}
+
+// SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
+func (_c *BonusCreate) SetNillableAssignedAt(v *time.Time) *BonusCreate {
+	if v != nil {
+		_c.SetAssignedAt(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *BonusCreate) SetID(v string) *BonusCreate {
 	_c.mutation.SetID(v)
@@ -408,6 +422,10 @@ func (_c *BonusCreate) createSpec() (*Bonus, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Stage(); ok {
 		_spec.SetField(bonus.FieldStage, field.TypeEnum, value)
 		_node.Stage = value
+	}
+	if value, ok := _c.mutation.AssignedAt(); ok {
+		_spec.SetField(bonus.FieldAssignedAt, field.TypeTime, value)
+		_node.AssignedAt = &value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -705,6 +723,24 @@ func (u *BonusUpsert) UpdateStage() *BonusUpsert {
 	return u
 }
 
+// SetAssignedAt sets the "assigned_at" field.
+func (u *BonusUpsert) SetAssignedAt(v time.Time) *BonusUpsert {
+	u.Set(bonus.FieldAssignedAt, v)
+	return u
+}
+
+// UpdateAssignedAt sets the "assigned_at" field to the value that was provided on create.
+func (u *BonusUpsert) UpdateAssignedAt() *BonusUpsert {
+	u.SetExcluded(bonus.FieldAssignedAt)
+	return u
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (u *BonusUpsert) ClearAssignedAt() *BonusUpsert {
+	u.SetNull(bonus.FieldAssignedAt)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -998,6 +1034,27 @@ func (u *BonusUpsertOne) SetStage(v bonus.Stage) *BonusUpsertOne {
 func (u *BonusUpsertOne) UpdateStage() *BonusUpsertOne {
 	return u.Update(func(s *BonusUpsert) {
 		s.UpdateStage()
+	})
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (u *BonusUpsertOne) SetAssignedAt(v time.Time) *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.SetAssignedAt(v)
+	})
+}
+
+// UpdateAssignedAt sets the "assigned_at" field to the value that was provided on create.
+func (u *BonusUpsertOne) UpdateAssignedAt() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.UpdateAssignedAt()
+	})
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (u *BonusUpsertOne) ClearAssignedAt() *BonusUpsertOne {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearAssignedAt()
 	})
 }
 
@@ -1461,6 +1518,27 @@ func (u *BonusUpsertBulk) SetStage(v bonus.Stage) *BonusUpsertBulk {
 func (u *BonusUpsertBulk) UpdateStage() *BonusUpsertBulk {
 	return u.Update(func(s *BonusUpsert) {
 		s.UpdateStage()
+	})
+}
+
+// SetAssignedAt sets the "assigned_at" field.
+func (u *BonusUpsertBulk) SetAssignedAt(v time.Time) *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.SetAssignedAt(v)
+	})
+}
+
+// UpdateAssignedAt sets the "assigned_at" field to the value that was provided on create.
+func (u *BonusUpsertBulk) UpdateAssignedAt() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.UpdateAssignedAt()
+	})
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (u *BonusUpsertBulk) ClearAssignedAt() *BonusUpsertBulk {
+	return u.Update(func(s *BonusUpsert) {
+		s.ClearAssignedAt()
 	})
 }
 

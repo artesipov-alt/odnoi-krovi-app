@@ -19,6 +19,7 @@ type Bonus struct {
 	Stage        string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	AssignedAt   *time.Time
 	DeletedAt    *time.Time
 }
 

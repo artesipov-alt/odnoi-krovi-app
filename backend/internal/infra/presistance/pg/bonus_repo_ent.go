@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
@@ -13,13 +14,13 @@ import (
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 )
 
-// EntBonusRepository implements bonus.Repository using ENT
+// EntBonusRepository реализует bonus.Repository с использованием ENT
 type EntBonusRepository struct {
 	db *ent.Client
 }
 
-// client returns the ent.Client from the context if a transaction is active,
-// otherwise returns the default client
+// client возвращает ent.Client из контекста, если активна транзакция,
+// иначе возвращает клиента по умолчанию
 func (r *EntBonusRepository) client(ctx context.Context) *ent.Client {
 	if tx := ent.TxFromContext(ctx); tx != nil {
 		return tx.Client()
@@ -27,14 +28,14 @@ func (r *EntBonusRepository) client(ctx context.Context) *ent.Client {
 	return r.db
 }
 
-// NewEntBonusRepository creates a new ENT bonus repository
+// NewEntBonusRepository создает новый репозиторий бонусов ENT
 func NewEntBonusRepository(client *ent.Client) *EntBonusRepository {
 	return &EntBonusRepository{
 		db: client,
 	}
 }
 
-// CreateBatch creates multiple bonuses in a single transaction.
+// CreateBatch создает несколько бонусов в одной транзакции.
 func (r *EntBonusRepository) CreateBatch(ctx context.Context, bonuses []*bonusmodel.Bonus) error {
 	if len(bonuses) == 0 {
 		return nil
@@ -71,7 +72,7 @@ func (r *EntBonusRepository) CreateBatch(ctx context.Context, bonuses []*bonusmo
 	return nil
 }
 
-// ExistsByPromoCodes returns a list of promo codes that already exist in the database.
+// ExistsByPromoCodes возвращает список промокодов, которые уже существуют в базе данных.
 func (r *EntBonusRepository) ExistsByPromoCodes(ctx context.Context, codes []string) ([]string, error) {
 	if len(codes) == 0 {
 		return nil, nil
@@ -92,7 +93,7 @@ func (r *EntBonusRepository) ExistsByPromoCodes(ctx context.Context, codes []str
 	return result, nil
 }
 
-// AssignBonuses assigns bonuses to a user by updating their UserID and DonorResponseID, and setting stage to reserved.
+// AssignBonuses присваивает бонусы пользователю, обновляя их UserID и DonorResponseID, и устанавливая статус на reserved.
 func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []string, userID string, donorResponseID string) error {
 	if len(bonusIDs) == 0 {
 		return nil
@@ -111,7 +112,7 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 	return nil
 }
 
-// UnassignBonuses unassigns reserved bonuses from a user for a specific pet type by setting UserID and DonorResponseID to nil and stage to unused.
+// UnassignBonuses отменяет присвоение зарезервированных бонусов от пользователя для определенного типа питомца, устанавливая UserID и DonorResponseID в nil и статус на unused.
 func (r *EntBonusRepository) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error {
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
@@ -128,13 +129,14 @@ func (r *EntBonusRepository) UnassignReservedBonuses(ctx context.Context, userID
 	return nil
 }
 
-// ConfirmBonuses confirms bonuses for a user by setting stage to unused without clearing UserID.
+// ConfirmBonuses подтверждает бонусы для пользователя, устанавливая статус на unused без очистки UserID.
 func (r *EntBonusRepository) ConfirmBonuses(ctx context.Context, userID string, petType common.PetType) error {
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
 		Where(entbonus.StageEQ(entbonus.StageReserved)).
 		SetStage(entbonus.StageUnused).
+		SetAssignedAt(time.Now()).
 		Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to unreserve bonuses: %w", err)
@@ -143,7 +145,7 @@ func (r *EntBonusRepository) ConfirmBonuses(ctx context.Context, userID string, 
 	return nil
 }
 
-// MarkBonusesAsUsed marks reserved bonuses for a user as used by setting stage to used.
+// MarkBonusesAsUsed помечает зарезервированные бонусы для пользователя как использованные, устанавливая статус на used.
 func (r *EntBonusRepository) MarkBonusesAsUsed(ctx context.Context, userID string, petType common.PetType) error {
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
@@ -158,7 +160,7 @@ func (r *EntBonusRepository) MarkBonusesAsUsed(ctx context.Context, userID strin
 	return nil
 }
 
-// GetAvailableBonuses retrieves available (unassigned) bonuses filtered by petType.
+// GetAvailableBonuses получает доступные (неприсвоенные) бонусы, отфильтрованные по petType.
 func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType common.PetType) ([]*bonusmodel.Bonus, error) {
 	query := r.client(ctx).Bonus.Query().
 		Where(entbonus.StageEQ(entbonus.StageUnused)).
@@ -187,17 +189,27 @@ func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType co
 			PlatformName: b.PlatformName,
 			PlatformURL:  &b.PlatformURL,
 			Stage:        string(b.Stage),
+			CreatedAt:    b.CreatedAt,
+			UpdatedAt:    b.UpdatedAt,
+			AssignedAt:   b.AssignedAt,
+			DeletedAt:    b.DeletedAt,
 		}
 	}
 
 	return result, nil
 }
 
-// GetLastBonus gets the most recent bonus for a user by UpdatedAt
+// GetLastBonus получает самый свежий бонус для пользователя по AssignedAt
+//
+// Примечание: AssignedAt устанавливается при подтверждении бонуса (ConfirmBonuses),
+// что отражает время окончательного получения бонуса пользователем.
+// Это обеспечивает корректную логику блокировки: если последний подтвержденный бонус
+// был менее 2 месяцев назад, пользователь блокируется для новых бонусов.
 func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*bonusmodel.Bonus, error) {
 	bonus, err := r.client(ctx).Bonus.Query().
 		Where(entbonus.UserID(userID)).
-		Order(entbonus.ByUpdatedAt(sql.OrderDesc())).
+		Where(entbonus.AssignedAtNotNil()).
+		Order(entbonus.ByAssignedAt(sql.OrderDesc())).
 		First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -222,11 +234,12 @@ func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*
 		Stage:        string(bonus.Stage),
 		CreatedAt:    bonus.CreatedAt,
 		UpdatedAt:    bonus.UpdatedAt,
+		AssignedAt:   bonus.AssignedAt,
 		DeletedAt:    bonus.DeletedAt,
 	}, nil
 }
 
-// AddPrioritySearch increments the priority search count for a user by 1
+// AddPrioritySearch увеличивает счетчик приоритетного поиска для пользователя на 1
 func (r *EntBonusRepository) AddPrioritySearch(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("invalid user ID")
@@ -247,7 +260,7 @@ func (r *EntBonusRepository) AddPrioritySearch(ctx context.Context, id string) e
 	return nil
 }
 
-// SubtractPrioritySearch decrements the priority search count for a user by 1
+// SubtractPrioritySearch уменьшает счетчик приоритетного поиска для пользователя на 1
 func (r *EntBonusRepository) SubtractPrioritySearch(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("invalid user ID")
@@ -268,7 +281,7 @@ func (r *EntBonusRepository) SubtractPrioritySearch(ctx context.Context, id stri
 	return nil
 }
 
-// GetBonusesByDonorResponseID retrieves bonuses associated with a specific donor response.
+// GetBonusesByDonorResponseID получает бонусы, связанные с конкретным откликом донора.
 func (r *EntBonusRepository) GetBonusesByDonorResponseID(ctx context.Context, donorResponseID string) ([]*bonusmodel.Bonus, error) {
 	bonuses, err := r.client(ctx).Bonus.Query().
 		Where(entbonus.DonorResponseID(donorResponseID)).
@@ -293,6 +306,10 @@ func (r *EntBonusRepository) GetBonusesByDonorResponseID(ctx context.Context, do
 			PlatformName: b.PlatformName,
 			PlatformURL:  &b.PlatformURL,
 			Stage:        string(b.Stage),
+			CreatedAt:    b.CreatedAt,
+			UpdatedAt:    b.UpdatedAt,
+			AssignedAt:   b.AssignedAt,
+			DeletedAt:    b.DeletedAt,
 		}
 	}
 

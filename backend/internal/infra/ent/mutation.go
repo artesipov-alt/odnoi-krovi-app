@@ -1537,6 +1537,7 @@ type BonusMutation struct {
 	platform_name         *string
 	platform_url          *string
 	stage                 *bonus.Stage
+	assigned_at           *time.Time
 	clearedFields         map[string]struct{}
 	user                  *string
 	cleareduser           bool
@@ -2292,6 +2293,55 @@ func (m *BonusMutation) ResetStage() {
 	m.stage = nil
 }
 
+// SetAssignedAt sets the "assigned_at" field.
+func (m *BonusMutation) SetAssignedAt(t time.Time) {
+	m.assigned_at = &t
+}
+
+// AssignedAt returns the value of the "assigned_at" field in the mutation.
+func (m *BonusMutation) AssignedAt() (r time.Time, exists bool) {
+	v := m.assigned_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssignedAt returns the old "assigned_at" field's value of the Bonus entity.
+// If the Bonus object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BonusMutation) OldAssignedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssignedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssignedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssignedAt: %w", err)
+	}
+	return oldValue.AssignedAt, nil
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (m *BonusMutation) ClearAssignedAt() {
+	m.assigned_at = nil
+	m.clearedFields[bonus.FieldAssignedAt] = struct{}{}
+}
+
+// AssignedAtCleared returns if the "assigned_at" field was cleared in this mutation.
+func (m *BonusMutation) AssignedAtCleared() bool {
+	_, ok := m.clearedFields[bonus.FieldAssignedAt]
+	return ok
+}
+
+// ResetAssignedAt resets all changes to the "assigned_at" field.
+func (m *BonusMutation) ResetAssignedAt() {
+	m.assigned_at = nil
+	delete(m.clearedFields, bonus.FieldAssignedAt)
+}
+
 // ClearUser clears the "user" edge to the User entity.
 func (m *BonusMutation) ClearUser() {
 	m.cleareduser = true
@@ -2380,7 +2430,7 @@ func (m *BonusMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BonusMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 17)
 	if m.created_at != nil {
 		fields = append(fields, bonus.FieldCreatedAt)
 	}
@@ -2429,6 +2479,9 @@ func (m *BonusMutation) Fields() []string {
 	if m.stage != nil {
 		fields = append(fields, bonus.FieldStage)
 	}
+	if m.assigned_at != nil {
+		fields = append(fields, bonus.FieldAssignedAt)
+	}
 	return fields
 }
 
@@ -2469,6 +2522,8 @@ func (m *BonusMutation) Field(name string) (ent.Value, bool) {
 		return m.PlatformURL()
 	case bonus.FieldStage:
 		return m.Stage()
+	case bonus.FieldAssignedAt:
+		return m.AssignedAt()
 	}
 	return nil, false
 }
@@ -2510,6 +2565,8 @@ func (m *BonusMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPlatformURL(ctx)
 	case bonus.FieldStage:
 		return m.OldStage(ctx)
+	case bonus.FieldAssignedAt:
+		return m.OldAssignedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Bonus field %s", name)
 }
@@ -2631,6 +2688,13 @@ func (m *BonusMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStage(v)
 		return nil
+	case bonus.FieldAssignedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssignedAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Bonus field %s", name)
 }
@@ -2676,6 +2740,9 @@ func (m *BonusMutation) ClearedFields() []string {
 	if m.FieldCleared(bonus.FieldPlatformURL) {
 		fields = append(fields, bonus.FieldPlatformURL)
 	}
+	if m.FieldCleared(bonus.FieldAssignedAt) {
+		fields = append(fields, bonus.FieldAssignedAt)
+	}
 	return fields
 }
 
@@ -2704,6 +2771,9 @@ func (m *BonusMutation) ClearField(name string) error {
 		return nil
 	case bonus.FieldPlatformURL:
 		m.ClearPlatformURL()
+		return nil
+	case bonus.FieldAssignedAt:
+		m.ClearAssignedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Bonus nullable field %s", name)
@@ -2760,6 +2830,9 @@ func (m *BonusMutation) ResetField(name string) error {
 		return nil
 	case bonus.FieldStage:
 		m.ResetStage()
+		return nil
+	case bonus.FieldAssignedAt:
+		m.ResetAssignedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Bonus field %s", name)

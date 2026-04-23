@@ -262,6 +262,26 @@ func (_u *BonusUpdate) SetNillableStage(v *bonus.Stage) *BonusUpdate {
 	return _u
 }
 
+// SetAssignedAt sets the "assigned_at" field.
+func (_u *BonusUpdate) SetAssignedAt(v time.Time) *BonusUpdate {
+	_u.mutation.SetAssignedAt(v)
+	return _u
+}
+
+// SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
+func (_u *BonusUpdate) SetNillableAssignedAt(v *time.Time) *BonusUpdate {
+	if v != nil {
+		_u.SetAssignedAt(*v)
+	}
+	return _u
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (_u *BonusUpdate) ClearAssignedAt() *BonusUpdate {
+	_u.mutation.ClearAssignedAt()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *BonusUpdate) SetUser(v *User) *BonusUpdate {
 	return _u.SetUserID(v.ID)
@@ -409,6 +429,12 @@ func (_u *BonusUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Stage(); ok {
 		_spec.SetField(bonus.FieldStage, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.AssignedAt(); ok {
+		_spec.SetField(bonus.FieldAssignedAt, field.TypeTime, value)
+	}
+	if _u.mutation.AssignedAtCleared() {
+		_spec.ClearField(bonus.FieldAssignedAt, field.TypeTime)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -720,6 +746,26 @@ func (_u *BonusUpdateOne) SetNillableStage(v *bonus.Stage) *BonusUpdateOne {
 	return _u
 }
 
+// SetAssignedAt sets the "assigned_at" field.
+func (_u *BonusUpdateOne) SetAssignedAt(v time.Time) *BonusUpdateOne {
+	_u.mutation.SetAssignedAt(v)
+	return _u
+}
+
+// SetNillableAssignedAt sets the "assigned_at" field if the given value is not nil.
+func (_u *BonusUpdateOne) SetNillableAssignedAt(v *time.Time) *BonusUpdateOne {
+	if v != nil {
+		_u.SetAssignedAt(*v)
+	}
+	return _u
+}
+
+// ClearAssignedAt clears the value of the "assigned_at" field.
+func (_u *BonusUpdateOne) ClearAssignedAt() *BonusUpdateOne {
+	_u.mutation.ClearAssignedAt()
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *BonusUpdateOne) SetUser(v *User) *BonusUpdateOne {
 	return _u.SetUserID(v.ID)
@@ -897,6 +943,12 @@ func (_u *BonusUpdateOne) sqlSave(ctx context.Context) (_node *Bonus, err error)
 	}
 	if value, ok := _u.mutation.Stage(); ok {
 		_spec.SetField(bonus.FieldStage, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.AssignedAt(); ok {
+		_spec.SetField(bonus.FieldAssignedAt, field.TypeTime, value)
+	}
+	if _u.mutation.AssignedAtCleared() {
+		_spec.ClearField(bonus.FieldAssignedAt, field.TypeTime)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

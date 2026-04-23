@@ -51,6 +51,8 @@ type Bonus struct {
 	PlatformURL string `json:"platform_url,omitempty"`
 	// Stage holds the value of the "stage" field.
 	Stage bonus.Stage `json:"stage,omitempty"`
+	// AssignedAt holds the value of the "assigned_at" field.
+	AssignedAt *time.Time `json:"assigned_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BonusQuery when eager-loading is set.
 	Edges        BonusEdges `json:"edges"`
@@ -97,7 +99,7 @@ func (*Bonus) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bonus.FieldID, bonus.FieldUserID, bonus.FieldDonorResponseID, bonus.FieldPartnerName, bonus.FieldDescription, bonus.FieldTarget, bonus.FieldRecipient, bonus.FieldCategory, bonus.FieldSubcategory, bonus.FieldPromoCode, bonus.FieldPlatformName, bonus.FieldPlatformURL, bonus.FieldStage:
 			values[i] = new(sql.NullString)
-		case bonus.FieldCreatedAt, bonus.FieldUpdatedAt, bonus.FieldDeletedAt, bonus.FieldExpiresAt:
+		case bonus.FieldCreatedAt, bonus.FieldUpdatedAt, bonus.FieldDeletedAt, bonus.FieldExpiresAt, bonus.FieldAssignedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -217,6 +219,13 @@ func (_m *Bonus) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Stage = bonus.Stage(value.String)
 			}
+		case bonus.FieldAssignedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field assigned_at", values[i])
+			} else if value.Valid {
+				_m.AssignedAt = new(time.Time)
+				*_m.AssignedAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -312,6 +321,11 @@ func (_m *Bonus) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("stage=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Stage))
+	builder.WriteString(", ")
+	if v := _m.AssignedAt; v != nil {
+		builder.WriteString("assigned_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

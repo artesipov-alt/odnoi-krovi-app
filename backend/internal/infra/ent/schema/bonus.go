@@ -64,6 +64,11 @@ func (Bonus) Fields() []ent.Field {
 		field.Enum("stage").
 			Values("stage", "used", "unused", "reserved").
 			Default("unused"),
+
+		// assigned_at — Дата и время присвоения бонуса пользователю (устанавливается при подтверждении)
+		field.Time("assigned_at").
+			Optional().
+			Nillable(),
 	}
 }
 

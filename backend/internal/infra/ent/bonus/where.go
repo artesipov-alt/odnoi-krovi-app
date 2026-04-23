@@ -125,6 +125,11 @@ func PlatformURL(v string) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldPlatformURL, v))
 }
 
+// AssignedAt applies equality check predicate on the "assigned_at" field. It's identical to AssignedAtEQ.
+func AssignedAt(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldAssignedAt, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Bonus {
 	return predicate.Bonus(sql.FieldEQ(FieldCreatedAt, v))
@@ -933,6 +938,56 @@ func StageIn(vs ...Stage) predicate.Bonus {
 // StageNotIn applies the NotIn predicate on the "stage" field.
 func StageNotIn(vs ...Stage) predicate.Bonus {
 	return predicate.Bonus(sql.FieldNotIn(FieldStage, vs...))
+}
+
+// AssignedAtEQ applies the EQ predicate on the "assigned_at" field.
+func AssignedAtEQ(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldEQ(FieldAssignedAt, v))
+}
+
+// AssignedAtNEQ applies the NEQ predicate on the "assigned_at" field.
+func AssignedAtNEQ(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNEQ(FieldAssignedAt, v))
+}
+
+// AssignedAtIn applies the In predicate on the "assigned_at" field.
+func AssignedAtIn(vs ...time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldIn(FieldAssignedAt, vs...))
+}
+
+// AssignedAtNotIn applies the NotIn predicate on the "assigned_at" field.
+func AssignedAtNotIn(vs ...time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotIn(FieldAssignedAt, vs...))
+}
+
+// AssignedAtGT applies the GT predicate on the "assigned_at" field.
+func AssignedAtGT(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldGT(FieldAssignedAt, v))
+}
+
+// AssignedAtGTE applies the GTE predicate on the "assigned_at" field.
+func AssignedAtGTE(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldGTE(FieldAssignedAt, v))
+}
+
+// AssignedAtLT applies the LT predicate on the "assigned_at" field.
+func AssignedAtLT(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldLT(FieldAssignedAt, v))
+}
+
+// AssignedAtLTE applies the LTE predicate on the "assigned_at" field.
+func AssignedAtLTE(v time.Time) predicate.Bonus {
+	return predicate.Bonus(sql.FieldLTE(FieldAssignedAt, v))
+}
+
+// AssignedAtIsNil applies the IsNil predicate on the "assigned_at" field.
+func AssignedAtIsNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldIsNull(FieldAssignedAt))
+}
+
+// AssignedAtNotNil applies the NotNil predicate on the "assigned_at" field.
+func AssignedAtNotNil() predicate.Bonus {
+	return predicate.Bonus(sql.FieldNotNull(FieldAssignedAt))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.
