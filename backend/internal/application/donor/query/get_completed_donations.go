@@ -43,6 +43,11 @@ func NewCompletedDonationsHandler(donorRepo donor.Repository, petRepo pet.Reposi
 }
 
 func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) ([]*GetCompletedDonationsResult, error) {
+	user, err := h.userRepo.GetByID(ctx, userID, user.UserPreloadOptions{})
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get user")
+	}
+
 	donorPets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
 		WithAll:          true,
 		IgnoreSoftDelete: true,
@@ -85,6 +90,12 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 				if err != nil {
 					return nil, apperrors.Internal(err, "failed to get bonuses")
 				}
+
+				// Check if user has donated within the last 2 months, if so, return only lock bonus
+				if user.IsLockedForBonuses() {
+					bonuses = []*bonusmodel.Bonus{bonusmodel.NewLockBonus()}
+				}
+
 				result = append(result, &GetCompletedDonationsResult{
 					ApplicationData:  *app,
 					BloodSearchData:  *request,

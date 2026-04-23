@@ -43,6 +43,14 @@ type User struct {
 	DeletedAt           *time.Time
 }
 
+// IsLockedForBonuses checks if the user is locked from receiving bonuses due to recent donation
+func (u *User) IsLockedForBonuses() bool {
+	if u.LastDonation == nil {
+		return false
+	}
+	return time.Since(*u.LastDonation) < 2*30*24*time.Hour
+}
+
 // NewUserParams holds the parameters for creating a new User
 type NewUserParams struct {
 	FullName   string

@@ -19,18 +19,10 @@ func NewBonusService(repo Repository) *BonusService {
 }
 
 // GetAggregatedBonuses retrieves and aggregates bonuses: one per subcategory per partner, prioritized by expiration date.
-func (s *BonusService) GetAggregatedBonuses(ctx context.Context, petType common.PetType, lastDonation *time.Time) ([]*bonusmodel.Bonus, error) {
+func (s *BonusService) GetAggregatedBonuses(ctx context.Context, petType common.PetType, isLocked bool) ([]*bonusmodel.Bonus, error) {
 	// Check if user has donated within the last 2 months, if so, return only lock bonus
-	if lastDonation != nil && time.Since(*lastDonation) < 2*30*24*time.Hour {
-		lockBonus := &bonusmodel.Bonus{
-			PartnerName: "Портал",
-			Description: "Пользователь уже получал свои бонусы в течение двух месяцев.",
-			Category:    "lock",
-			Target:      "all",
-			Recipient:   "all",
-			Stage:       "unused",
-		}
-		return []*bonusmodel.Bonus{lockBonus}, nil
+	if isLocked {
+		return []*bonusmodel.Bonus{bonusmodel.NewLockBonus()}, nil
 	}
 
 	bonuses, err := s.repo.GetAvailableBonuses(ctx, petType)
@@ -73,8 +65,10 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 		return err
 	}
 
+	isLocked := lastDonation != nil && time.Since(*lastDonation) < 2*30*24*time.Hour
+
 	// Get available bonuses
-	bonuses, err := s.GetAggregatedBonuses(ctx, petType, lastDonation)
+	bonuses, err := s.GetAggregatedBonuses(ctx, petType, isLocked)
 	if err != nil {
 		return err
 	}

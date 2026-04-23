@@ -21,3 +21,15 @@ type Bonus struct {
 	UpdatedAt    time.Time
 	DeletedAt    *time.Time
 }
+
+// NewLockBonus creates a new lock bonus for users who donated recently
+func NewLockBonus() *Bonus {
+	return &Bonus{
+		PartnerName: "Портал",
+		Description: "Пользователь уже получал свои бонусы в течение двух месяцев.",
+		Category:    "lock",
+		Target:      "all",
+		Recipient:   "all",
+		Stage:       "unused",
+	}
+}
