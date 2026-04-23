@@ -215,8 +215,9 @@ type GetPetsByUserResult struct {
 	Pets                    []PetDetail `json:"pets" doc:"Список питомцев"`
 	TotalPets               int         `json:"totalPets" doc:"Общее количество питомцев у пользователя" example:"5"`
 	TotalPlannedDonations   int         `json:"totalPlannedDonations,omitempty" doc:"Общее количество планируемых донаций питомцев пользователя" example:"12"`
-	TotalCompletedDonations int         `json:"totalCompletedDonations,omitempty" doc:"Общее количество завершенных донаций питомцев пользователя" example:"10"`
-	TotalPrioritySearch     int         `json:"totalPrioritySearch,omitempty" doc:"Общее количество приоритетных поисков пользователя" example:"3"`
+	TotalCompletedDonations int         `json:"totalCompletedDonations" doc:"Общее количество завершенных донаций питомцев пользователя" example:"10"`
+	TotalPrioritySearch     int         `json:"totalPrioritySearch" doc:"Общее количество приоритетных поисков пользователя" example:"3"`
+	TotalBonuses            int         `json:"totalBonuses" doc:"Общее количество бонусов пользователя" example:"7"`
 }
 
 // ============================================

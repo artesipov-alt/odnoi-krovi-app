@@ -6,6 +6,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -20,6 +21,7 @@ type GetByUserResult struct {
 	TotalPlannedDonations   int
 	TotalCompletedDonations int
 	TotalPrioritySearch     int
+	TotalBonuses            int
 }
 
 type GetByUserHandler struct {
@@ -27,6 +29,7 @@ type GetByUserHandler struct {
 	userRepo      user.Repository
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.BloodRequestRepository
+	bonusRepo     bonus.Repository
 	petService    *pet.PetService
 }
 
@@ -35,6 +38,7 @@ func NewGetByUserHandler(
 	userRepo user.Repository,
 	donorRespRepo donor.Repository,
 	bloodReqRepo bloodsearch.BloodRequestRepository,
+	bonusRepo bonus.Repository,
 	petService *pet.PetService,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
@@ -42,6 +46,7 @@ func NewGetByUserHandler(
 		userRepo:      userRepo,
 		bloodReqRepo:  bloodReqRepo,
 		donorRespRepo: donorRespRepo,
+		bonusRepo:     bonusRepo,
 		petService:    petService,
 	}
 }
@@ -123,11 +128,17 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		pet.RecoveryDays = h.petService.CalculateRecoveryDays(pet, recoveryPeriodMonths, time.Now())
 	}
 
+	assignedBonuses, err := h.bonusRepo.GetAssignedBonuses(ctx, userID)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get assigned bonuses")
+	}
+
 	return &GetByUserResult{
 		Pets:                    activePets,
 		TotalPets:               len(activePets),
 		TotalPlannedDonations:   len(plannedDonations),
 		TotalCompletedDonations: totalCompletedDonations,
 		TotalPrioritySearch:     owner.PrioritySearchCount,
+		TotalBonuses:            len(assignedBonuses),
 	}, nil
 }
