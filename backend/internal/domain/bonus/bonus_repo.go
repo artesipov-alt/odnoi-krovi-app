@@ -21,6 +21,9 @@ type Repository interface {
 	// GetLastDonation gets the last donation date for a user
 	GetLastDonation(ctx context.Context, userID string) (*time.Time, error)
 
+	// GetLastBonus gets the most recent bonus for a user by UpdatedAt
+	GetLastBonus(ctx context.Context, userID string) (*bonusmodel.Bonus, error)
+
 	// UnassignBonuses unassigns bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
 	UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error
 

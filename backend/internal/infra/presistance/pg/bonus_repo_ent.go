@@ -210,6 +210,39 @@ func (r *EntBonusRepository) GetLastDonation(ctx context.Context, userID string)
 	return user.LastDonation, nil
 }
 
+// GetLastBonus gets the most recent bonus for a user by UpdatedAt
+func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*bonusmodel.Bonus, error) {
+	bonus, err := r.client(ctx).Bonus.Query().
+		Where(entbonus.UserID(userID)).
+		Order(entbonus.ByUpdatedAt(sql.OrderDesc())).
+		First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get last bonus: %w", err)
+	}
+
+	return &bonusmodel.Bonus{
+		ID:           bonus.ID,
+		UserID:       &bonus.UserID,
+		PartnerName:  bonus.PartnerName,
+		Description:  bonus.Description,
+		Target:       bonus.Target.String(),
+		Recipient:    bonus.Recipient.String(),
+		Category:     bonus.Category.String(),
+		Subcategory:  &bonus.Subcategory,
+		PromoCode:    bonus.PromoCode,
+		ExpiresAt:    bonus.ExpiresAt,
+		PlatformName: bonus.PlatformName,
+		PlatformURL:  &bonus.PlatformURL,
+		Stage:        string(bonus.Stage),
+		CreatedAt:    bonus.CreatedAt,
+		UpdatedAt:    bonus.UpdatedAt,
+		DeletedAt:    bonus.DeletedAt,
+	}, nil
+}
+
 // SetLastDonation sets the last donation date for a user
 func (r *EntBonusRepository) SetLastDonation(ctx context.Context, userID string, donationDate time.Time) error {
 	if userID == "" {
