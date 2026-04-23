@@ -23,10 +23,10 @@ type CreateBloodRequestInput struct {
 type CreateBloodRequestBody struct {
 	PetID                    string   `json:"petId" doc:"ID питомца" minLength:"1" example:"PET-ABCDEABCDE"`
 	BloodVolumeNeeded        float64  `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" minimum:"1" example:"100"`
-	Regions                  []string `json:"regions" doc:"Список ID регионов" example:"[\"MOSCOW\", \"SPB\"]"`
+	Regions                  []string `json:"regions" doc:"Список ID регионов" example:"[\"MSK\", \"MO\"]"`
 	SmallPetsNotifyAllowed   bool     `json:"smallPetsNotifyAllowed" doc:"Разрешить уведомления для мелких питомцев"`
 	Description              string   `json:"description,omitempty" doc:"Дополнительное описание" maxLength:"1000"`
-	BloodGroupNames          []string `json:"bloodGroupNames" doc:"Список групп крови" enum:"DEA 1+,DEA 1-,A,B,AB" example:"[\"DEA 1+\", \"A\"]"`
+	BloodGroupNames          []string `json:"bloodGroupNames" doc:"Список групп крови" enum:"DEA 1+,DEA 1-,A,B,AB"`
 	BloodComponentIDs        []string `json:"bloodComponentIds" doc:"Список ID компонентов крови"`
 	PrioritySearch           bool     `json:"prioritySearch" doc:"Приоритетный поиск"`
 	IncludeUnknownBloodGroup bool     `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
