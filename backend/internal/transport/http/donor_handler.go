@@ -440,15 +440,6 @@ func (h *DonorHandler) GetAssignedBonuses(ctx context.Context, input *commondto.
 	}
 
 	mapBonusToItem := func(b *bonusmodel.Bonus) dto.AssignedBonusItem {
-		var assignedAt, deletedAt *string
-		if b.AssignedAt != nil {
-			s := b.AssignedAt.Format(time.RFC3339)
-			assignedAt = &s
-		}
-		if b.DeletedAt != nil {
-			s := b.DeletedAt.Format(time.RFC3339)
-			deletedAt = &s
-		}
 		return dto.AssignedBonusItem{
 			ID:           b.ID,
 			UserID:       b.UserID,
@@ -459,14 +450,14 @@ func (h *DonorHandler) GetAssignedBonuses(ctx context.Context, input *commondto.
 			Category:     string(b.Category),
 			Subcategory:  b.Subcategory,
 			PromoCode:    b.PromoCode,
-			ExpiresAt:    b.ExpiresAt.Format(time.RFC3339),
+			ExpiresAt:    b.ExpiresAt,
 			PlatformName: b.PlatformName,
 			PlatformURL:  b.PlatformURL,
 			Stage:        b.Stage,
-			CreatedAt:    b.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:    b.UpdatedAt.Format(time.RFC3339),
-			AssignedAt:   assignedAt,
-			DeletedAt:    deletedAt,
+			CreatedAt:    b.CreatedAt,
+			UpdatedAt:    b.UpdatedAt,
+			AssignedAt:   b.AssignedAt,
+			DeletedAt:    b.DeletedAt,
 		}
 	}
 

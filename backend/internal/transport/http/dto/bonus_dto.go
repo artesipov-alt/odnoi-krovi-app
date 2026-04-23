@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -26,23 +28,23 @@ type ImportBonusesResult struct {
 
 // AssignedBonusItem представляет элемент присвоенного бонуса.
 type AssignedBonusItem struct {
-	ID           string  `json:"id" doc:"Уникальный идентификатор присвоенного бонуса"`
-	UserID       *string `json:"userId,omitempty" doc:"ID пользователя, связанного с присвоенным бонусом"`
-	PartnerName  string  `json:"partnerName" doc:"Название партнера, предоставляющего присвоенный бонус"`
-	Description  string  `json:"description" doc:"Описание присвоенного бонуса"`
-	Target       string  `json:"target" doc:"Целевая аудитория для присвоенного бонуса"`
-	Recipient    string  `json:"recipient" doc:"Получатель присвоенного бонуса"`
-	Category     string  `json:"category" doc:"Категория присвоенного бонуса"`
-	Subcategory  *string `json:"subcategory,omitempty" doc:"Подкатегория присвоенного бонуса"`
-	PromoCode    string  `json:"promoCode" doc:"Промокод для присвоенного бонуса"`
-	ExpiresAt    string  `json:"expiresAt" doc:"Дата и время истечения срока присвоенного бонуса в формате RFC3339"`
-	PlatformName string  `json:"platformName" doc:"Название платформы, где можно использовать присвоенный бонус"`
-	PlatformURL  *string `json:"platformUrl,omitempty" doc:"URL платформы для присвоенного бонуса"`
-	Stage        string  `json:"stage" doc:"Текущая стадия присвоенного бонуса (например, unused, used)"`
-	CreatedAt    string  `json:"createdAt" doc:"Временная метка создания присвоенного бонуса в формате RFC3339"`
-	UpdatedAt    string  `json:"updatedAt" doc:"Временная метка последнего обновления присвоенного бонуса в формате RFC3339"`
-	AssignedAt   *string `json:"assignedAt,omitempty" doc:"Временная метка, когда бонус был присвоен, в формате RFC3339"`
-	DeletedAt    *string `json:"deletedAt,omitempty" doc:"Временная метка удаления присвоенного бонуса в формате RFC3339, если мягко удалено"`
+	ID           string     `json:"id" doc:"Уникальный идентификатор присвоенного бонуса"`
+	UserID       *string    `json:"userId,omitempty" doc:"ID пользователя, связанного с присвоенным бонусом"`
+	PartnerName  string     `json:"partnerName" doc:"Название партнера, предоставляющего присвоенный бонус"`
+	Description  string     `json:"description" doc:"Описание присвоенного бонуса"`
+	Target       string     `json:"target" doc:"Целевая аудитория для присвоенного бонуса"`
+	Recipient    string     `json:"recipient" doc:"Получатель присвоенного бонуса"`
+	Category     string     `json:"category" doc:"Категория присвоенного бонуса"`
+	Subcategory  *string    `json:"subcategory,omitempty" doc:"Подкатегория присвоенного бонуса"`
+	PromoCode    string     `json:"promoCode" doc:"Промокод для присвоенного бонуса"`
+	ExpiresAt    time.Time  `json:"expiresAt" doc:"Дата и время истечения срока присвоенного бонуса"`
+	PlatformName string     `json:"platformName" doc:"Название платформы, где можно использовать присвоенный бонус"`
+	PlatformURL  *string    `json:"platformUrl,omitempty" doc:"URL платформы для присвоенного бонуса"`
+	Stage        string     `json:"stage" doc:"Текущая стадия присвоенного бонуса (например, unused, used)"`
+	CreatedAt    time.Time  `json:"createdAt" doc:"Временная метка создания присвоенного бонуса"`
+	UpdatedAt    time.Time  `json:"updatedAt" doc:"Временная метка последнего обновления присвоенного бонуса"`
+	AssignedAt   *time.Time `json:"assignedAt,omitempty" doc:"Временная метка, когда бонус был присвоен"`
+	DeletedAt    *time.Time `json:"deletedAt,omitempty" doc:"Временная метка удаления присвоенного бонуса, если мягко удалено"`
 }
 
 // AssignedBonus представляет присвоенные бонусы, распределенные по категориям.
