@@ -243,7 +243,6 @@ func (r *EntBonusRepository) GetAssignedBonuses(ctx context.Context, userID stri
 	bonuses, err := r.client(ctx).Bonus.Query().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.AssignedAtNotNil()).
-		Where(entbonus.StageEQ(entbonus.StageUnused)).
 		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get assigned bonuses: %w", err)
