@@ -48,7 +48,7 @@ type RecipientDetail struct {
 	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
 	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	AdvancedInfo             *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
-	AvailableBonuses         []common.Bonus     `json:"availableBonuses" doc:"Доступные бонусы"`
+	AvailableBonuses         []common.Bonus     `json:"availableBonuses,omitempty" doc:"Доступные бонусы"`
 	MatchingDonors           []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
 	DefaultDonorPrefs        *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
 }
