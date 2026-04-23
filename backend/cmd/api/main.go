@@ -190,6 +190,7 @@ func main() {
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
+		bonusImportHandler := bonuscmd.NewImportBonusesHandler(bonusRepo)
 
 		// Инициализация handlers
 		authHandler := transport.NewAuthHandler(
@@ -251,10 +252,8 @@ func main() {
 		fileHandler := transport.NewFileHandler(
 			fileGetPresignedHandler,
 			fileConfirmUploadHandler,
+			bonusImportHandler,
 		)
-
-		bonusImportHandler := bonuscmd.NewImportBonusesHandler(bonusRepo)
-		bonusHandler := transport.NewBonusHandler(bonusImportHandler)
 
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
@@ -270,7 +269,6 @@ func main() {
 		bloodRequestHandler.Register(humapi)
 		fileHandler.Register(humapi)
 		referenceHandler.Register(humapi)
-		bonusHandler.Register(humapi)
 
 		if portStr := os.Getenv("SERVER_PORT"); portStr != "" {
 			if port, err := strconv.Atoi(portStr); err == nil {

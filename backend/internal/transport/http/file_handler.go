@@ -1,11 +1,14 @@
 package http
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"strings"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	bonuscmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bonus/cmd"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/danielgtaylor/huma/v2"
@@ -15,16 +18,19 @@ import (
 type FileHandler struct {
 	getPresignedHandler  *filecmd.GetPresignedURLsHandler
 	confirmUploadHandler *filecmd.ConfirmUploadHandler
+	importHandler        *bonuscmd.ImportBonusesHandler
 }
 
 // NewFileHandler создает новый обработчик файлов
 func NewFileHandler(
 	getPresignedHandler *filecmd.GetPresignedURLsHandler,
 	confirmUploadHandler *filecmd.ConfirmUploadHandler,
+	importHandler *bonuscmd.ImportBonusesHandler,
 ) *FileHandler {
 	return &FileHandler{
 		getPresignedHandler:  getPresignedHandler,
 		confirmUploadHandler: confirmUploadHandler,
+		importHandler:        importHandler,
 	}
 }
 
@@ -49,6 +55,15 @@ func (h *FileHandler) Register(api huma.API) {
 		Description: "Подтверждает загрузку массива фотографий, делает их публичными и обновляет сущность",
 		Tags:        []string{"pets-v1", "users-v1", "blood-request-v1"},
 	}, h.ConfirmUpload)
+
+	huma.Register(api, huma.Operation{
+		OperationID: "import-bonuses",
+		Method:      http.MethodPost,
+		Path:        "/v1/admin/bonuses/import",
+		Summary:     "Импорт бонусов из Excel",
+		Description: "Загружает бонусы из Excel файла. Требуются права администратора.",
+		Tags:        []string{"admin-v1"},
+	}, h.ImportBonuses)
 }
 
 func (h *FileHandler) GetPresignURL(ctx context.Context, input *dto.GetUploadURLsInput) (*dto.GetUploadURLsOutput, error) {
@@ -140,4 +155,27 @@ func (h *FileHandler) ConfirmUpload(ctx context.Context, input *dto.ConfirmUploa
 			},
 		},
 		nil
+}
+
+func (h *FileHandler) ImportBonuses(ctx context.Context, input *dto.ImportBonusesInput) (*dto.ImportBonusesOutput, error) {
+	formData := input.RawBody.Data()
+
+	fileContent, err := io.ReadAll(formData.File)
+	if err != nil {
+		return nil, huma.Error400BadRequest("Не удалось прочитать файл")
+	}
+
+	result, err := h.importHandler.Handle(ctx, bytes.NewReader(fileContent))
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.ImportBonusesOutput{
+		Body: dto.ImportBonusesResult{
+			TotalRows: result.TotalRows,
+			Imported:  result.Imported,
+			Skipped:   result.Skipped,
+			Errors:    result.Errors,
+		},
+	}, nil
 }
