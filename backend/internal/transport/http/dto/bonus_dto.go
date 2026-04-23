@@ -41,8 +41,8 @@ type AssignedBonusItem struct {
 	PlatformName string     `json:"platformName" doc:"Название платформы, где можно использовать присвоенный бонус"`
 	PlatformURL  *string    `json:"platformUrl,omitempty" doc:"URL платформы для присвоенного бонуса"`
 	Stage        string     `json:"stage" doc:"Текущая стадия присвоенного бонуса (например, unused, used)"`
-	CreatedAt    time.Time  `json:"createdAt" doc:"Временная метка создания присвоенного бонуса"`
-	UpdatedAt    time.Time  `json:"updatedAt" doc:"Временная метка последнего обновления присвоенного бонуса"`
+	CreatedAt    *time.Time `json:"createdAt,omitempty" doc:"Временная метка создания присвоенного бонуса"`
+	UpdatedAt    *time.Time `json:"updatedAt,omitempty" doc:"Временная метка последнего обновления присвоенного бонуса"`
 	AssignedAt   *time.Time `json:"assignedAt,omitempty" doc:"Временная метка, когда бонус был присвоен"`
 	DeletedAt    *time.Time `json:"deletedAt,omitempty" doc:"Временная метка удаления присвоенного бонуса, если мягко удалено"`
 }

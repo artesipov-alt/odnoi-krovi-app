@@ -454,8 +454,8 @@ func (h *DonorHandler) GetAssignedBonuses(ctx context.Context, input *commondto.
 			PlatformName: b.PlatformName,
 			PlatformURL:  b.PlatformURL,
 			Stage:        b.Stage,
-			CreatedAt:    b.CreatedAt,
-			UpdatedAt:    b.UpdatedAt,
+			CreatedAt:    &b.CreatedAt,
+			UpdatedAt:    &b.UpdatedAt,
 			AssignedAt:   b.AssignedAt,
 			DeletedAt:    b.DeletedAt,
 		}
