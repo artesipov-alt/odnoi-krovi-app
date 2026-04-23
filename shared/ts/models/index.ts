@@ -5,6 +5,8 @@ export * from './AdvancedInfoDTO';
 export * from './AppError';
 export * from './ApplicationShort';
 export * from './ApplyForBloodRequestBody';
+export * from './AssignedBonus';
+export * from './AssignedBonusItem';
 export * from './BloodComponentsList';
 export * from './BloodGroupsList';
 export * from './BloodRequestDetail';

@@ -211,14 +211,14 @@ func mapRecipient(val string) (string, error) {
 	}
 }
 
-func mapCategory(val string) (string, error) {
+func mapCategory(val string) (bonusmodel.Category, error) {
 	switch strings.ToLower(val) {
 	case "корма", "food":
-		return "food", nil
+		return bonusmodel.CategoryFood, nil
 	case "препараты", "preparation":
-		return "preparation", nil
+		return bonusmodel.CategoryPreparation, nil
 	case "другое", "other":
-		return "other", nil
+		return bonusmodel.CategoryOther, nil
 	default:
 		return "", fmt.Errorf("неизвестное значение '%s', допустимые: Корма, Препараты, Другое", val)
 	}

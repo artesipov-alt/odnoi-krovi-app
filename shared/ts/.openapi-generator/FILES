@@ -13,6 +13,8 @@ models/AdvancedInfoDTO.ts
 models/AppError.ts
 models/ApplicationShort.ts
 models/ApplyForBloodRequestBody.ts
+models/AssignedBonus.ts
+models/AssignedBonusItem.ts
 models/BloodComponentsList.ts
 models/BloodGroupsList.ts
 models/BloodRequestDetail.ts

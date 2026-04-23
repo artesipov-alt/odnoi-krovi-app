@@ -2,6 +2,17 @@ package bonus
 
 import "time"
 
+// Category represents the category of a bonus.
+type Category string
+
+// Category constants for bonus categories.
+const (
+	CategoryFood        Category = "food"
+	CategoryPreparation Category = "preparation"
+	CategoryOther       Category = "other"
+	CategoryLock        Category = "lock"
+)
+
 // Bonus represents a bonus entity in the domain.
 type Bonus struct {
 	ID           string
@@ -10,7 +21,7 @@ type Bonus struct {
 	Description  string
 	Target       string
 	Recipient    string
-	Category     string
+	Category     Category
 	Subcategory  *string
 	PromoCode    string
 	ExpiresAt    time.Time
@@ -28,7 +39,7 @@ func NewLockBonus() *Bonus {
 	return &Bonus{
 		PartnerName: "Портал",
 		Description: "Пользователь уже получал свои бонусы в течение двух месяцев.",
-		Category:    "lock",
+		Category:    CategoryLock,
 		Target:      "all",
 		Recipient:   "all",
 		Stage:       "unused",

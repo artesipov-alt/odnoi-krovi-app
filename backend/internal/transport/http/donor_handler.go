@@ -8,6 +8,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
+	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
@@ -26,6 +27,7 @@ type DonorHandler struct {
 	completedDonationsHandler *query.CompletedDonationsHandler
 	completeDonationHandler   *cmd.CompleteDonationHandler
 	cancelDonationHandler     *cmd.CancelDonationHandler
+	assignedBonusesHandler    *query.AssignedBonusesHandler
 	storage                   filestorage.Repository
 }
 
@@ -38,6 +40,7 @@ func NewDonorHandler(
 	completedDonationsHandler *query.CompletedDonationsHandler,
 	completeDonationHandler *cmd.CompleteDonationHandler,
 	cancelDonationHandler *cmd.CancelDonationHandler,
+	assignedBonusesHandler *query.AssignedBonusesHandler,
 	storage filestorage.Repository,
 ) *DonorHandler {
 	return &DonorHandler{
@@ -48,6 +51,7 @@ func NewDonorHandler(
 		completedDonationsHandler: completedDonationsHandler,
 		completeDonationHandler:   completeDonationHandler,
 		cancelDonationHandler:     cancelDonationHandler,
+		assignedBonusesHandler:    assignedBonusesHandler,
 		storage:                   storage,
 	}
 }
@@ -125,6 +129,16 @@ func (h *DonorHandler) Register(api huma.API) {
 		Tags:        []string{"donor-v1"},
 	}, h.CancelDonation)
 
+	// Получить назначенные бонусы
+	huma.Register(api, huma.Operation{
+		OperationID: "get-assigned-bonuses",
+		Method:      http.MethodGet,
+		Path:        "/v1/donor/bonuses/{user_id}",
+		Summary:     "Получить назначенные бонусы",
+		Description: "Возвращает назначенные бонусы для пользователя",
+		Tags:        []string{"donor-v1"},
+	}, h.GetAssignedBonuses)
+
 }
 
 func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetRecipientsListInput) (*dto.ListRecipientsOutput, error) {
@@ -196,7 +210,7 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto
 		avilableBonuses[i] = common.Bonus{
 			Partner:     bns.PartnerName,
 			Description: bns.Description,
-			Type:        bns.Category,
+			Type:        string(bns.Category),
 		}
 	}
 
@@ -415,6 +429,68 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 			Total:                   len(donationCards),
 			TotalCompletedDonations: totalCompletedDonations,
 			TotalDonatedVolume:      totalDonatedVolume,
+		},
+	}, nil
+}
+
+func (h *DonorHandler) GetAssignedBonuses(ctx context.Context, input *commondto.UserIDPath) (*dto.AssignedBonusOutput, error) {
+	result, err := h.assignedBonusesHandler.Handle(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	mapBonusToItem := func(b *bonusmodel.Bonus) dto.AssignedBonusItem {
+		var assignedAt, deletedAt *string
+		if b.AssignedAt != nil {
+			s := b.AssignedAt.Format(time.RFC3339)
+			assignedAt = &s
+		}
+		if b.DeletedAt != nil {
+			s := b.DeletedAt.Format(time.RFC3339)
+			deletedAt = &s
+		}
+		return dto.AssignedBonusItem{
+			ID:           b.ID,
+			UserID:       b.UserID,
+			PartnerName:  b.PartnerName,
+			Description:  b.Description,
+			Target:       b.Target,
+			Recipient:    b.Recipient,
+			Category:     string(b.Category),
+			Subcategory:  b.Subcategory,
+			PromoCode:    b.PromoCode,
+			ExpiresAt:    b.ExpiresAt.Format(time.RFC3339),
+			PlatformName: b.PlatformName,
+			PlatformURL:  b.PlatformURL,
+			Stage:        b.Stage,
+			CreatedAt:    b.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:    b.UpdatedAt.Format(time.RFC3339),
+			AssignedAt:   assignedAt,
+			DeletedAt:    deletedAt,
+		}
+	}
+
+	food := make([]dto.AssignedBonusItem, len(result.Food))
+	for i, b := range result.Food {
+		food[i] = mapBonusToItem(b)
+	}
+
+	preparation := make([]dto.AssignedBonusItem, len(result.Preparation))
+	for i, b := range result.Preparation {
+		preparation[i] = mapBonusToItem(b)
+	}
+
+	other := make([]dto.AssignedBonusItem, len(result.Other))
+	for i, b := range result.Other {
+		other[i] = mapBonusToItem(b)
+	}
+
+	return &dto.AssignedBonusOutput{
+		Body: dto.AssignedBonus{
+			TotalPriority: result.TotalPriority,
+			Food:          food,
+			Preparation:   preparation,
+			Other:         other,
 		},
 	}, nil
 }

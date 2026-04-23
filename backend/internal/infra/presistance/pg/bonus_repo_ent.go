@@ -182,7 +182,7 @@ func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType co
 			Description: b.Description,
 			Target:      b.Target.String(),
 			Recipient:   b.Recipient.String(),
-			Category:    b.Category.String(),
+			Category:    bonusmodel.Category(b.Category.String()),
 			Subcategory: &b.Subcategory,
 			// Возвращаем без промокода.
 			ExpiresAt:    b.ExpiresAt,
@@ -225,7 +225,7 @@ func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*
 		Description:  bonus.Description,
 		Target:       bonus.Target.String(),
 		Recipient:    bonus.Recipient.String(),
-		Category:     bonus.Category.String(),
+		Category:     bonusmodel.Category(bonus.Category.String()),
 		Subcategory:  &bonus.Subcategory,
 		PromoCode:    bonus.PromoCode,
 		ExpiresAt:    bonus.ExpiresAt,
@@ -237,6 +237,41 @@ func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*
 		AssignedAt:   bonus.AssignedAt,
 		DeletedAt:    bonus.DeletedAt,
 	}, nil
+}
+
+func (r *EntBonusRepository) GetAssignedBonuses(ctx context.Context, userID string) ([]*bonusmodel.Bonus, error) {
+	bonuses, err := r.client(ctx).Bonus.Query().
+		Where(entbonus.UserID(userID)).
+		Where(entbonus.AssignedAtNotNil()).
+		Where(entbonus.StageEQ(entbonus.StageUnused)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get assigned bonuses: %w", err)
+	}
+
+	result := make([]*bonusmodel.Bonus, len(bonuses))
+	for i, b := range bonuses {
+		result[i] = &bonusmodel.Bonus{
+			ID:           b.ID,
+			UserID:       &b.UserID,
+			PartnerName:  b.PartnerName,
+			Description:  b.Description,
+			Target:       b.Target.String(),
+			Recipient:    b.Recipient.String(),
+			Category:     bonusmodel.Category(b.Category.String()),
+			Subcategory:  &b.Subcategory,
+			PromoCode:    b.PromoCode,
+			ExpiresAt:    b.ExpiresAt,
+			PlatformName: b.PlatformName,
+			PlatformURL:  &b.PlatformURL,
+			Stage:        string(b.Stage),
+			CreatedAt:    b.CreatedAt,
+			UpdatedAt:    b.UpdatedAt,
+			AssignedAt:   b.AssignedAt,
+			DeletedAt:    b.DeletedAt,
+		}
+	}
+	return result, nil
 }
 
 // AddPrioritySearch увеличивает счетчик приоритетного поиска для пользователя на 1
@@ -299,7 +334,7 @@ func (r *EntBonusRepository) GetBonusesByDonorResponseID(ctx context.Context, do
 			Description:  b.Description,
 			Target:       b.Target.String(),
 			Recipient:    b.Recipient.String(),
-			Category:     b.Category.String(),
+			Category:     bonusmodel.Category(b.Category.String()),
 			Subcategory:  &b.Subcategory,
 			PromoCode:    b.PromoCode,
 			ExpiresAt:    b.ExpiresAt,

@@ -20,6 +20,9 @@ type Repository interface {
 	// GetLastBonus gets the most recent bonus for a user by UpdatedAt
 	GetLastBonus(ctx context.Context, userID string) (*bonusmodel.Bonus, error)
 
+	// GetAssignedBonuses retrieves assigned bonuses for a user.
+	GetAssignedBonuses(ctx context.Context, userID string) ([]*bonusmodel.Bonus, error)
+
 	// UnassignReservedBonuses unassigns bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
 	UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error
 

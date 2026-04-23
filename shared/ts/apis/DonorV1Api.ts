@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   AppError,
   ApplyForBloodRequestBody,
+  AssignedBonus,
   CompleteDonationBody,
   CompletedDonationsList,
   DonorApplicationResult,
@@ -30,6 +31,8 @@ import {
     AppErrorToJSON,
     ApplyForBloodRequestBodyFromJSON,
     ApplyForBloodRequestBodyToJSON,
+    AssignedBonusFromJSON,
+    AssignedBonusToJSON,
     CompleteDonationBodyFromJSON,
     CompleteDonationBodyToJSON,
     CompletedDonationsListFromJSON,
@@ -58,6 +61,10 @@ export interface CancelDonationRequest {
 export interface CompleteDonationRequest {
     resId: string;
     completeDonationBody: Omit<CompleteDonationBody, '$schema'>;
+}
+
+export interface GetAssignedBonusesRequest {
+    userId: string;
 }
 
 export interface GetCompletedDonationsRequest {
@@ -218,6 +225,45 @@ export class DonorV1Api extends runtime.BaseAPI {
      */
     async completeDonation(requestParameters: CompleteDonationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResultMessage> {
         const response = await this.completeDonationRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Возвращает назначенные бонусы для пользователя
+     * Получить назначенные бонусы
+     */
+    async getAssignedBonusesRaw(requestParameters: GetAssignedBonusesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AssignedBonus>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getAssignedBonuses().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/v1/donor/bonuses/{user_id}`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AssignedBonusFromJSON(jsonValue));
+    }
+
+    /**
+     * Возвращает назначенные бонусы для пользователя
+     * Получить назначенные бонусы
+     */
+    async getAssignedBonuses(requestParameters: GetAssignedBonusesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AssignedBonus> {
+        const response = await this.getAssignedBonusesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

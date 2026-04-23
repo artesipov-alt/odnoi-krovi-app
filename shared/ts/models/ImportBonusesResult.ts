@@ -26,25 +26,25 @@ export interface ImportBonusesResult {
      */
     readonly $schema?: string;
     /**
-     * List of error messages for skipped rows
+     * Список сообщений об ошибках для пропущенных строк
      * @type {Array<string>}
      * @memberof ImportBonusesResult
      */
     errors?: Array<string> | null;
     /**
-     * Number of bonuses successfully imported
+     * Количество успешно импортированных бонусов
      * @type {number}
      * @memberof ImportBonusesResult
      */
     imported: number;
     /**
-     * Number of rows skipped (duplicates or errors)
+     * Количество пропущенных строк (дубликаты или ошибки)
      * @type {number}
      * @memberof ImportBonusesResult
      */
     skipped: number;
     /**
-     * Total number of data rows processed
+     * Общее количество обработанных строк данных
      * @type {number}
      * @memberof ImportBonusesResult
      */
