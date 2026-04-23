@@ -125,11 +125,6 @@ func PrioritySearchCount(v int) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPrioritySearchCount, v))
 }
 
-// LastDonation applies equality check predicate on the "last_donation" field. It's identical to LastDonationEQ.
-func LastDonation(v time.Time) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldLastDonation, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -808,56 +803,6 @@ func PrioritySearchCountLT(v int) predicate.User {
 // PrioritySearchCountLTE applies the LTE predicate on the "priority_search_count" field.
 func PrioritySearchCountLTE(v int) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldPrioritySearchCount, v))
-}
-
-// LastDonationEQ applies the EQ predicate on the "last_donation" field.
-func LastDonationEQ(v time.Time) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldLastDonation, v))
-}
-
-// LastDonationNEQ applies the NEQ predicate on the "last_donation" field.
-func LastDonationNEQ(v time.Time) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldLastDonation, v))
-}
-
-// LastDonationIn applies the In predicate on the "last_donation" field.
-func LastDonationIn(vs ...time.Time) predicate.User {
-	return predicate.User(sql.FieldIn(FieldLastDonation, vs...))
-}
-
-// LastDonationNotIn applies the NotIn predicate on the "last_donation" field.
-func LastDonationNotIn(vs ...time.Time) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldLastDonation, vs...))
-}
-
-// LastDonationGT applies the GT predicate on the "last_donation" field.
-func LastDonationGT(v time.Time) predicate.User {
-	return predicate.User(sql.FieldGT(FieldLastDonation, v))
-}
-
-// LastDonationGTE applies the GTE predicate on the "last_donation" field.
-func LastDonationGTE(v time.Time) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldLastDonation, v))
-}
-
-// LastDonationLT applies the LT predicate on the "last_donation" field.
-func LastDonationLT(v time.Time) predicate.User {
-	return predicate.User(sql.FieldLT(FieldLastDonation, v))
-}
-
-// LastDonationLTE applies the LTE predicate on the "last_donation" field.
-func LastDonationLTE(v time.Time) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldLastDonation, v))
-}
-
-// LastDonationIsNil applies the IsNil predicate on the "last_donation" field.
-func LastDonationIsNil() predicate.User {
-	return predicate.User(sql.FieldIsNull(FieldLastDonation))
-}
-
-// LastDonationNotNil applies the NotNil predicate on the "last_donation" field.
-func LastDonationNotNil() predicate.User {
-	return predicate.User(sql.FieldNotNull(FieldLastDonation))
 }
 
 // HasPets applies the HasEdge predicate on the "pets" edge.

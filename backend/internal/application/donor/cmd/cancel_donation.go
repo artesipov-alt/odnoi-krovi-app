@@ -95,7 +95,7 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 		}
 
 		// Снимаем бонусы с пользователя
-		if err := h.bonusSvc.UnassignBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+		if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
 			return err
 		}
 

@@ -27,7 +27,6 @@ func EntToModel(e *ent.User) *usermodel.User {
 		Role:                usermodel.UserRole(e.Role),
 		OriginSource:        e.OriginSource,
 		PrioritySearchCount: e.PrioritySearchCount,
-		LastDonation:        e.LastDonation,
 		CreatedAt:           &e.CreatedAt,
 		UpdatedAt:           &e.UpdatedAt,
 		DeletedAt:           e.DeletedAt,

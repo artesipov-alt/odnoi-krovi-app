@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
@@ -113,7 +112,7 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 }
 
 // UnassignBonuses unassigns reserved bonuses from a user for a specific pet type by setting UserID and DonorResponseID to nil and stage to unused.
-func (r *EntBonusRepository) UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error {
+func (r *EntBonusRepository) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error {
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
@@ -194,22 +193,6 @@ func (r *EntBonusRepository) GetAvailableBonuses(ctx context.Context, petType co
 	return result, nil
 }
 
-// GetLastDonation gets the last donation date for a user
-func (r *EntBonusRepository) GetLastDonation(ctx context.Context, userID string) (*time.Time, error) {
-	user, err := r.client(ctx).User.Get(ctx, userID)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, fmt.Errorf("user with id %s not found", userID)
-		}
-		return nil, fmt.Errorf("failed to get user: %w", err)
-	}
-
-	if user.LastDonation == nil || user.LastDonation.IsZero() {
-		return nil, nil
-	}
-	return user.LastDonation, nil
-}
-
 // GetLastBonus gets the most recent bonus for a user by UpdatedAt
 func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*bonusmodel.Bonus, error) {
 	bonus, err := r.client(ctx).Bonus.Query().
@@ -241,26 +224,6 @@ func (r *EntBonusRepository) GetLastBonus(ctx context.Context, userID string) (*
 		UpdatedAt:    bonus.UpdatedAt,
 		DeletedAt:    bonus.DeletedAt,
 	}, nil
-}
-
-// SetLastDonation sets the last donation date for a user
-func (r *EntBonusRepository) SetLastDonation(ctx context.Context, userID string, donationDate time.Time) error {
-	if userID == "" {
-		return errors.New("invalid user ID")
-	}
-
-	err := r.client(ctx).User.UpdateOneID(userID).
-		SetLastDonation(donationDate).
-		Exec(ctx)
-
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("user with id %s not found", userID)
-		}
-		return fmt.Errorf("failed to set last donation: %w", err)
-	}
-
-	return nil
 }
 
 // AddPrioritySearch increments the priority search count for a user by 1

@@ -280,26 +280,6 @@ func (_u *UserUpdate) AddPrioritySearchCount(v int) *UserUpdate {
 	return _u
 }
 
-// SetLastDonation sets the "last_donation" field.
-func (_u *UserUpdate) SetLastDonation(v time.Time) *UserUpdate {
-	_u.mutation.SetLastDonation(v)
-	return _u
-}
-
-// SetNillableLastDonation sets the "last_donation" field if the given value is not nil.
-func (_u *UserUpdate) SetNillableLastDonation(v *time.Time) *UserUpdate {
-	if v != nil {
-		_u.SetLastDonation(*v)
-	}
-	return _u
-}
-
-// ClearLastDonation clears the value of the "last_donation" field.
-func (_u *UserUpdate) ClearLastDonation() *UserUpdate {
-	_u.mutation.ClearLastDonation()
-	return _u
-}
-
 // AddPetIDs adds the "pets" edge to the Pet entity by IDs.
 func (_u *UserUpdate) AddPetIDs(ids ...string) *UserUpdate {
 	_u.mutation.AddPetIDs(ids...)
@@ -643,12 +623,6 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedPrioritySearchCount(); ok {
 		_spec.AddField(user.FieldPrioritySearchCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.LastDonation(); ok {
-		_spec.SetField(user.FieldLastDonation, field.TypeTime, value)
-	}
-	if _u.mutation.LastDonationCleared() {
-		_spec.ClearField(user.FieldLastDonation, field.TypeTime)
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1153,26 +1127,6 @@ func (_u *UserUpdateOne) AddPrioritySearchCount(v int) *UserUpdateOne {
 	return _u
 }
 
-// SetLastDonation sets the "last_donation" field.
-func (_u *UserUpdateOne) SetLastDonation(v time.Time) *UserUpdateOne {
-	_u.mutation.SetLastDonation(v)
-	return _u
-}
-
-// SetNillableLastDonation sets the "last_donation" field if the given value is not nil.
-func (_u *UserUpdateOne) SetNillableLastDonation(v *time.Time) *UserUpdateOne {
-	if v != nil {
-		_u.SetLastDonation(*v)
-	}
-	return _u
-}
-
-// ClearLastDonation clears the value of the "last_donation" field.
-func (_u *UserUpdateOne) ClearLastDonation() *UserUpdateOne {
-	_u.mutation.ClearLastDonation()
-	return _u
-}
-
 // AddPetIDs adds the "pets" edge to the Pet entity by IDs.
 func (_u *UserUpdateOne) AddPetIDs(ids ...string) *UserUpdateOne {
 	_u.mutation.AddPetIDs(ids...)
@@ -1546,12 +1500,6 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.AddedPrioritySearchCount(); ok {
 		_spec.AddField(user.FieldPrioritySearchCount, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.LastDonation(); ok {
-		_spec.SetField(user.FieldLastDonation, field.TypeTime, value)
-	}
-	if _u.mutation.LastDonationCleared() {
-		_spec.ClearField(user.FieldLastDonation, field.TypeTime)
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{

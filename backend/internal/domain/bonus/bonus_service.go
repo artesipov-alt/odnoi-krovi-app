@@ -71,18 +71,13 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 	if err != nil {
 		return err
 	}
-
-	// Filter out lock bonuses, as they cannot be assigned
-	var assignableBonuses []*bonusmodel.Bonus
-	for _, b := range bonuses {
-		if b.Category != "lock" {
-			assignableBonuses = append(assignableBonuses, b)
-		}
+	if bonuses[0].Category == "lock" {
+		return nil
 	}
 
 	// Collect IDs
-	bonusIDs := make([]string, len(assignableBonuses))
-	for i, b := range assignableBonuses {
+	bonusIDs := make([]string, len(bonuses))
+	for i, b := range bonuses {
 		bonusIDs[i] = b.ID
 	}
 
@@ -92,22 +87,12 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 		return err
 	}
 
-	// Set last donation if bonuses were assigned
-	if len(bonusIDs) > 0 {
-		return s.repo.SetLastDonation(ctx, userID, time.Now())
-	}
-
 	return nil
 }
 
 // UnassignBonuses unassigns bonuses from a user for a specific pet type.
-func (s *BonusService) UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error {
-	err := s.repo.UnassignBonuses(ctx, userID, petType)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (s *BonusService) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error {
+	return s.repo.UnassignReservedBonuses(ctx, userID, petType)
 }
 
 // ConfirmBonuses confirms bonuses for a user by setting stage to unused and adds priority search.

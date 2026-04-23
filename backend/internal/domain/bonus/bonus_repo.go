@@ -2,7 +2,6 @@ package bonus
 
 import (
 	"context"
-	"time"
 
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -18,14 +17,11 @@ type Repository interface {
 	// GetAvailableBonuses retrieves available (unassigned) bonuses based on filters (petType: common.PetType; stage: unused).
 	GetAvailableBonuses(ctx context.Context, petType common.PetType) ([]*bonusmodel.Bonus, error)
 
-	// GetLastDonation gets the last donation date for a user
-	GetLastDonation(ctx context.Context, userID string) (*time.Time, error)
-
 	// GetLastBonus gets the most recent bonus for a user by UpdatedAt
 	GetLastBonus(ctx context.Context, userID string) (*bonusmodel.Bonus, error)
 
-	// UnassignBonuses unassigns bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
-	UnassignBonuses(ctx context.Context, userID string, petType common.PetType) error
+	// UnassignReservedBonuses unassigns bonuses from a user for a specific pet type by setting UserID to nil and stage to unused.
+	UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error
 
 	// AssignBonuses assigns bonuses to a user by updating their UserID and DonorResponseID, and setting stage to reserved.
 	AssignBonuses(ctx context.Context, bonusIDs []string, userID string, donorResponseID string) error
@@ -35,9 +31,6 @@ type Repository interface {
 
 	// MarkBonusesAsUsed marks reserved bonuses for a user as used by setting stage to used.
 	MarkBonusesAsUsed(ctx context.Context, userID string, petType common.PetType) error
-
-	// SetLastDonation sets the last donation date for a user
-	SetLastDonation(ctx context.Context, userID string, donationDate time.Time) error
 
 	// AddPrioritySearch increments the priority search count for a user by 1
 	AddPrioritySearch(ctx context.Context, id string) error

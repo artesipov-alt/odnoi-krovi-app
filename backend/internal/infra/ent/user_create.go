@@ -223,20 +223,6 @@ func (_c *UserCreate) SetNillablePrioritySearchCount(v *int) *UserCreate {
 	return _c
 }
 
-// SetLastDonation sets the "last_donation" field.
-func (_c *UserCreate) SetLastDonation(v time.Time) *UserCreate {
-	_c.mutation.SetLastDonation(v)
-	return _c
-}
-
-// SetNillableLastDonation sets the "last_donation" field if the given value is not nil.
-func (_c *UserCreate) SetNillableLastDonation(v *time.Time) *UserCreate {
-	if v != nil {
-		_c.SetLastDonation(*v)
-	}
-	return _c
-}
-
 // SetID sets the "id" field.
 func (_c *UserCreate) SetID(v string) *UserCreate {
 	_c.mutation.SetID(v)
@@ -541,10 +527,6 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.PrioritySearchCount(); ok {
 		_spec.SetField(user.FieldPrioritySearchCount, field.TypeInt, value)
 		_node.PrioritySearchCount = value
-	}
-	if value, ok := _c.mutation.LastDonation(); ok {
-		_spec.SetField(user.FieldLastDonation, field.TypeTime, value)
-		_node.LastDonation = &value
 	}
 	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -923,24 +905,6 @@ func (u *UserUpsert) AddPrioritySearchCount(v int) *UserUpsert {
 	return u
 }
 
-// SetLastDonation sets the "last_donation" field.
-func (u *UserUpsert) SetLastDonation(v time.Time) *UserUpsert {
-	u.Set(user.FieldLastDonation, v)
-	return u
-}
-
-// UpdateLastDonation sets the "last_donation" field to the value that was provided on create.
-func (u *UserUpsert) UpdateLastDonation() *UserUpsert {
-	u.SetExcluded(user.FieldLastDonation)
-	return u
-}
-
-// ClearLastDonation clears the value of the "last_donation" field.
-func (u *UserUpsert) ClearLastDonation() *UserUpsert {
-	u.SetNull(user.FieldLastDonation)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1255,27 +1219,6 @@ func (u *UserUpsertOne) AddPrioritySearchCount(v int) *UserUpsertOne {
 func (u *UserUpsertOne) UpdatePrioritySearchCount() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdatePrioritySearchCount()
-	})
-}
-
-// SetLastDonation sets the "last_donation" field.
-func (u *UserUpsertOne) SetLastDonation(v time.Time) *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.SetLastDonation(v)
-	})
-}
-
-// UpdateLastDonation sets the "last_donation" field to the value that was provided on create.
-func (u *UserUpsertOne) UpdateLastDonation() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateLastDonation()
-	})
-}
-
-// ClearLastDonation clears the value of the "last_donation" field.
-func (u *UserUpsertOne) ClearLastDonation() *UserUpsertOne {
-	return u.Update(func(s *UserUpsert) {
-		s.ClearLastDonation()
 	})
 }
 
@@ -1760,27 +1703,6 @@ func (u *UserUpsertBulk) AddPrioritySearchCount(v int) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdatePrioritySearchCount() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdatePrioritySearchCount()
-	})
-}
-
-// SetLastDonation sets the "last_donation" field.
-func (u *UserUpsertBulk) SetLastDonation(v time.Time) *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.SetLastDonation(v)
-	})
-}
-
-// UpdateLastDonation sets the "last_donation" field to the value that was provided on create.
-func (u *UserUpsertBulk) UpdateLastDonation() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.UpdateLastDonation()
-	})
-}
-
-// ClearLastDonation clears the value of the "last_donation" field.
-func (u *UserUpsertBulk) ClearLastDonation() *UserUpsertBulk {
-	return u.Update(func(s *UserUpsert) {
-		s.ClearLastDonation()
 	})
 }
 

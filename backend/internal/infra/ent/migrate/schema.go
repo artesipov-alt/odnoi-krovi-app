@@ -317,7 +317,6 @@ var (
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin", "clinic"}, Default: "user"},
 		{Name: "origin_source", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "priority_search_count", Type: field.TypeInt, Default: 0},
-		{Name: "last_donation", Type: field.TypeTime, Nullable: true},
 		{Name: "location_id", Type: field.TypeString, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -328,7 +327,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_ref_locations_users",
-				Columns:    []*schema.Column{UsersColumns[16]},
+				Columns:    []*schema.Column{UsersColumns[15]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

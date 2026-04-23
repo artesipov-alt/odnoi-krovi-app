@@ -34,21 +34,12 @@ type User struct {
 	Role                UserRole
 	OriginSource        string
 	PrioritySearchCount int
-	LastDonation        *time.Time
 	Pets                []*petmodel.Pet
 	DonorPreference     *DonorPreference
 	Identities          []*authmodel.Identity
 	CreatedAt           *time.Time
 	UpdatedAt           *time.Time
 	DeletedAt           *time.Time
-}
-
-// IsLockedForBonuses checks if the user is locked from receiving bonuses due to recent donation
-func (u *User) IsLockedForBonuses() bool {
-	if u.LastDonation == nil {
-		return false
-	}
-	return time.Since(*u.LastDonation) < 2*30*24*time.Hour
 }
 
 // NewUserParams holds the parameters for creating a new User

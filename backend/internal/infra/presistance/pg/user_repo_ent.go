@@ -82,9 +82,6 @@ func (r *EntUserRepository) CreateUser(ctx context.Context, inputuser *usermodel
 		builder.SetOriginSource(inputuser.OriginSource)
 	}
 	builder.SetPrioritySearchCount(inputuser.PrioritySearchCount)
-	if inputuser.LastDonation != nil {
-		builder.SetLastDonation(*inputuser.LastDonation)
-	}
 
 	newUser, err := builder.Save(ctx)
 	if err != nil {
@@ -263,9 +260,6 @@ func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, inp
 		builder.SetPhone(input.Phone)
 	}
 	builder.SetPrioritySearchCount(input.PrioritySearchCount)
-	if input.LastDonation != nil {
-		builder.SetLastDonation(*input.LastDonation)
-	}
 
 	_, err := builder.Save(ctx)
 	if err != nil {
