@@ -113,6 +113,10 @@ func (r *EntDonorResponseRepository) GetRecipient(ctx context.Context, id string
 		},
 	}
 
+	if blreq.Edges.Pet.Privilege != nil {
+		recipient.RecipientData.Privilege = common.Privilege(*blreq.Edges.Pet.Privilege)
+	}
+
 	return recipient, nil
 }
 
