@@ -7,6 +7,7 @@ import (
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // PetService provides business logic for pets
@@ -84,6 +85,11 @@ func (s *PetService) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, 
 	isRecipient := s.hasActiveBloodRequest(bloodReq)
 	pet.RecalculateFactors(now, isRecipient)
 	s.CalculateAndSetStatus(pet, application, bloodReq)
+
+	if bloodReq.PrioritySearch && pet.Privilege == "" {
+		pet.Privilege = petmodel.PrivilegePrioritySearch
+	}
+
 }
 
 // CalculateRecoveryDays calculates remaining recovery days after donation (date-only comparison)
