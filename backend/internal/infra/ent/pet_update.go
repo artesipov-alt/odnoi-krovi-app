@@ -335,21 +335,23 @@ func (_u *PetUpdate) ClearBloodGroup() *PetUpdate {
 	return _u
 }
 
-// SetBonuses sets the "bonuses" field.
-func (_u *PetUpdate) SetBonuses(v []string) *PetUpdate {
-	_u.mutation.SetBonuses(v)
+// SetPrivilege sets the "privilege" field.
+func (_u *PetUpdate) SetPrivilege(v pet.Privilege) *PetUpdate {
+	_u.mutation.SetPrivilege(v)
 	return _u
 }
 
-// AppendBonuses appends value to the "bonuses" field.
-func (_u *PetUpdate) AppendBonuses(v []string) *PetUpdate {
-	_u.mutation.AppendBonuses(v)
+// SetNillablePrivilege sets the "privilege" field if the given value is not nil.
+func (_u *PetUpdate) SetNillablePrivilege(v *pet.Privilege) *PetUpdate {
+	if v != nil {
+		_u.SetPrivilege(*v)
+	}
 	return _u
 }
 
-// ClearBonuses clears the value of the "bonuses" field.
-func (_u *PetUpdate) ClearBonuses() *PetUpdate {
-	_u.mutation.ClearBonuses()
+// ClearPrivilege clears the value of the "privilege" field.
+func (_u *PetUpdate) ClearPrivilege() *PetUpdate {
+	_u.mutation.ClearPrivilege()
 	return _u
 }
 
@@ -600,6 +602,11 @@ func (_u *PetUpdate) check() error {
 			return &ValidationError{Name: "blood_group", err: fmt.Errorf(`ent: validator failed for field "Pet.blood_group": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Privilege(); ok {
+		if err := pet.PrivilegeValidator(v); err != nil {
+			return &ValidationError{Name: "privilege", err: fmt.Errorf(`ent: validator failed for field "Pet.privilege": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -686,16 +693,11 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.BloodGroupCleared() {
 		_spec.ClearField(pet.FieldBloodGroup, field.TypeString)
 	}
-	if value, ok := _u.mutation.Bonuses(); ok {
-		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
+	if value, ok := _u.mutation.Privilege(); ok {
+		_spec.SetField(pet.FieldPrivilege, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.AppendedBonuses(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldBonuses, value)
-		})
-	}
-	if _u.mutation.BonusesCleared() {
-		_spec.ClearField(pet.FieldBonuses, field.TypeJSON)
+	if _u.mutation.PrivilegeCleared() {
+		_spec.ClearField(pet.FieldPrivilege, field.TypeEnum)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1267,21 +1269,23 @@ func (_u *PetUpdateOne) ClearBloodGroup() *PetUpdateOne {
 	return _u
 }
 
-// SetBonuses sets the "bonuses" field.
-func (_u *PetUpdateOne) SetBonuses(v []string) *PetUpdateOne {
-	_u.mutation.SetBonuses(v)
+// SetPrivilege sets the "privilege" field.
+func (_u *PetUpdateOne) SetPrivilege(v pet.Privilege) *PetUpdateOne {
+	_u.mutation.SetPrivilege(v)
 	return _u
 }
 
-// AppendBonuses appends value to the "bonuses" field.
-func (_u *PetUpdateOne) AppendBonuses(v []string) *PetUpdateOne {
-	_u.mutation.AppendBonuses(v)
+// SetNillablePrivilege sets the "privilege" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillablePrivilege(v *pet.Privilege) *PetUpdateOne {
+	if v != nil {
+		_u.SetPrivilege(*v)
+	}
 	return _u
 }
 
-// ClearBonuses clears the value of the "bonuses" field.
-func (_u *PetUpdateOne) ClearBonuses() *PetUpdateOne {
-	_u.mutation.ClearBonuses()
+// ClearPrivilege clears the value of the "privilege" field.
+func (_u *PetUpdateOne) ClearPrivilege() *PetUpdateOne {
+	_u.mutation.ClearPrivilege()
 	return _u
 }
 
@@ -1545,6 +1549,11 @@ func (_u *PetUpdateOne) check() error {
 			return &ValidationError{Name: "blood_group", err: fmt.Errorf(`ent: validator failed for field "Pet.blood_group": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Privilege(); ok {
+		if err := pet.PrivilegeValidator(v); err != nil {
+			return &ValidationError{Name: "privilege", err: fmt.Errorf(`ent: validator failed for field "Pet.privilege": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1648,16 +1657,11 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	if _u.mutation.BloodGroupCleared() {
 		_spec.ClearField(pet.FieldBloodGroup, field.TypeString)
 	}
-	if value, ok := _u.mutation.Bonuses(); ok {
-		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
+	if value, ok := _u.mutation.Privilege(); ok {
+		_spec.SetField(pet.FieldPrivilege, field.TypeEnum, value)
 	}
-	if value, ok := _u.mutation.AppendedBonuses(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, pet.FieldBonuses, value)
-		})
-	}
-	if _u.mutation.BonusesCleared() {
-		_spec.ClearField(pet.FieldBonuses, field.TypeJSON)
+	if _u.mutation.PrivilegeCleared() {
+		_spec.ClearField(pet.FieldPrivilege, field.TypeEnum)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

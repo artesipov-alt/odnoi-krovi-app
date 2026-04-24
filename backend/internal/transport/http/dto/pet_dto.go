@@ -181,6 +181,7 @@ type PetDetail struct {
 	PhotoURLs            []string           `json:"photoUrls,omitempty" doc:"URLs фотографий" example:"https://example.com/photo.jpg"`
 	LivingCondition      string             `json:"livingCondition,omitempty" doc:"Условия проживания" enum:"indoor,leash_walking,self_outdoor" example:"indoor"`
 	ReproductiveStatus   string             `json:"reproductiveStatus,omitempty" doc:"Репродуктивный статус" enum:"pregnancy,lactation,estrus,none"`
+	Privilege            string             `json:"privilege,omitempty" doc:"Привилегия питомца" enum:"artist,therapist,former_donor,guide_dog,priority_search"`
 	BreedID              string             `json:"breedId,omitempty" doc:"ID породы" example:"MIX"`
 	BloodGroup           string             `json:"bloodGroup,omitempty" doc:"Группа крови" enum:"DEA 1+,DEA 1-,A,B,AB,UNKNOWN" example:"DEA 1+"`
 	PetStatus            string             `json:"petStatus" doc:"Статус питомца" enum:"none,donor,recipient,blood_found,recovering,planned_donation" example:"donor"`

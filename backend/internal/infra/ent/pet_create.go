@@ -244,9 +244,17 @@ func (_c *PetCreate) SetNillableBloodGroup(v *string) *PetCreate {
 	return _c
 }
 
-// SetBonuses sets the "bonuses" field.
-func (_c *PetCreate) SetBonuses(v []string) *PetCreate {
-	_c.mutation.SetBonuses(v)
+// SetPrivilege sets the "privilege" field.
+func (_c *PetCreate) SetPrivilege(v pet.Privilege) *PetCreate {
+	_c.mutation.SetPrivilege(v)
+	return _c
+}
+
+// SetNillablePrivilege sets the "privilege" field if the given value is not nil.
+func (_c *PetCreate) SetNillablePrivilege(v *pet.Privilege) *PetCreate {
+	if v != nil {
+		_c.SetPrivilege(*v)
+	}
 	return _c
 }
 
@@ -444,6 +452,11 @@ func (_c *PetCreate) check() error {
 			return &ValidationError{Name: "blood_group", err: fmt.Errorf(`ent: validator failed for field "Pet.blood_group": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.Privilege(); ok {
+		if err := pet.PrivilegeValidator(v); err != nil {
+			return &ValidationError{Name: "privilege", err: fmt.Errorf(`ent: validator failed for field "Pet.privilege": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -532,9 +545,9 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		_spec.SetField(pet.FieldBloodGroup, field.TypeString, value)
 		_node.BloodGroup = value
 	}
-	if value, ok := _c.mutation.Bonuses(); ok {
-		_spec.SetField(pet.FieldBonuses, field.TypeJSON, value)
-		_node.Bonuses = value
+	if value, ok := _c.mutation.Privilege(); ok {
+		_spec.SetField(pet.FieldPrivilege, field.TypeEnum, value)
+		_node.Privilege = &value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -980,21 +993,21 @@ func (u *PetUpsert) ClearBloodGroup() *PetUpsert {
 	return u
 }
 
-// SetBonuses sets the "bonuses" field.
-func (u *PetUpsert) SetBonuses(v []string) *PetUpsert {
-	u.Set(pet.FieldBonuses, v)
+// SetPrivilege sets the "privilege" field.
+func (u *PetUpsert) SetPrivilege(v pet.Privilege) *PetUpsert {
+	u.Set(pet.FieldPrivilege, v)
 	return u
 }
 
-// UpdateBonuses sets the "bonuses" field to the value that was provided on create.
-func (u *PetUpsert) UpdateBonuses() *PetUpsert {
-	u.SetExcluded(pet.FieldBonuses)
+// UpdatePrivilege sets the "privilege" field to the value that was provided on create.
+func (u *PetUpsert) UpdatePrivilege() *PetUpsert {
+	u.SetExcluded(pet.FieldPrivilege)
 	return u
 }
 
-// ClearBonuses clears the value of the "bonuses" field.
-func (u *PetUpsert) ClearBonuses() *PetUpsert {
-	u.SetNull(pet.FieldBonuses)
+// ClearPrivilege clears the value of the "privilege" field.
+func (u *PetUpsert) ClearPrivilege() *PetUpsert {
+	u.SetNull(pet.FieldPrivilege)
 	return u
 }
 
@@ -1371,24 +1384,24 @@ func (u *PetUpsertOne) ClearBloodGroup() *PetUpsertOne {
 	})
 }
 
-// SetBonuses sets the "bonuses" field.
-func (u *PetUpsertOne) SetBonuses(v []string) *PetUpsertOne {
+// SetPrivilege sets the "privilege" field.
+func (u *PetUpsertOne) SetPrivilege(v pet.Privilege) *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
-		s.SetBonuses(v)
+		s.SetPrivilege(v)
 	})
 }
 
-// UpdateBonuses sets the "bonuses" field to the value that was provided on create.
-func (u *PetUpsertOne) UpdateBonuses() *PetUpsertOne {
+// UpdatePrivilege sets the "privilege" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdatePrivilege() *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
-		s.UpdateBonuses()
+		s.UpdatePrivilege()
 	})
 }
 
-// ClearBonuses clears the value of the "bonuses" field.
-func (u *PetUpsertOne) ClearBonuses() *PetUpsertOne {
+// ClearPrivilege clears the value of the "privilege" field.
+func (u *PetUpsertOne) ClearPrivilege() *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
-		s.ClearBonuses()
+		s.ClearPrivilege()
 	})
 }
 
@@ -1932,24 +1945,24 @@ func (u *PetUpsertBulk) ClearBloodGroup() *PetUpsertBulk {
 	})
 }
 
-// SetBonuses sets the "bonuses" field.
-func (u *PetUpsertBulk) SetBonuses(v []string) *PetUpsertBulk {
+// SetPrivilege sets the "privilege" field.
+func (u *PetUpsertBulk) SetPrivilege(v pet.Privilege) *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
-		s.SetBonuses(v)
+		s.SetPrivilege(v)
 	})
 }
 
-// UpdateBonuses sets the "bonuses" field to the value that was provided on create.
-func (u *PetUpsertBulk) UpdateBonuses() *PetUpsertBulk {
+// UpdatePrivilege sets the "privilege" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdatePrivilege() *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
-		s.UpdateBonuses()
+		s.UpdatePrivilege()
 	})
 }
 
-// ClearBonuses clears the value of the "bonuses" field.
-func (u *PetUpsertBulk) ClearBonuses() *PetUpsertBulk {
+// ClearPrivilege clears the value of the "privilege" field.
+func (u *PetUpsertBulk) ClearPrivilege() *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
-		s.ClearBonuses()
+		s.ClearPrivilege()
 	})
 }
 

@@ -1190,14 +1190,34 @@ func BloodGroupContainsFold(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldContainsFold(FieldBloodGroup, v))
 }
 
-// BonusesIsNil applies the IsNil predicate on the "bonuses" field.
-func BonusesIsNil() predicate.Pet {
-	return predicate.Pet(sql.FieldIsNull(FieldBonuses))
+// PrivilegeEQ applies the EQ predicate on the "privilege" field.
+func PrivilegeEQ(v Privilege) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldPrivilege, v))
 }
 
-// BonusesNotNil applies the NotNil predicate on the "bonuses" field.
-func BonusesNotNil() predicate.Pet {
-	return predicate.Pet(sql.FieldNotNull(FieldBonuses))
+// PrivilegeNEQ applies the NEQ predicate on the "privilege" field.
+func PrivilegeNEQ(v Privilege) predicate.Pet {
+	return predicate.Pet(sql.FieldNEQ(FieldPrivilege, v))
+}
+
+// PrivilegeIn applies the In predicate on the "privilege" field.
+func PrivilegeIn(vs ...Privilege) predicate.Pet {
+	return predicate.Pet(sql.FieldIn(FieldPrivilege, vs...))
+}
+
+// PrivilegeNotIn applies the NotIn predicate on the "privilege" field.
+func PrivilegeNotIn(vs ...Privilege) predicate.Pet {
+	return predicate.Pet(sql.FieldNotIn(FieldPrivilege, vs...))
+}
+
+// PrivilegeIsNil applies the IsNil predicate on the "privilege" field.
+func PrivilegeIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldPrivilege))
+}
+
+// PrivilegeNotNil applies the NotNil predicate on the "privilege" field.
+func PrivilegeNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldPrivilege))
 }
 
 // HasOwner applies the HasEdge predicate on the "owner" edge.

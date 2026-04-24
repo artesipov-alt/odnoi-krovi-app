@@ -203,7 +203,7 @@ var (
 		{Name: "living_condition", Type: field.TypeString, Nullable: true},
 		{Name: "reproductive_status", Type: field.TypeString, Nullable: true},
 		{Name: "blood_group", Type: field.TypeString, Nullable: true, Size: 50},
-		{Name: "bonuses", Type: field.TypeJSON, Nullable: true},
+		{Name: "privilege", Type: field.TypeEnum, Nullable: true, Enums: []string{"artist", "therapist", "former_donor", "guide_dog", "priority_search"}},
 		{Name: "breed_id", Type: field.TypeString, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "treatment_id", Type: field.TypeString, Unique: true, Nullable: true},

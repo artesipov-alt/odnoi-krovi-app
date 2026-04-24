@@ -38,7 +38,7 @@ func (Pet) Fields() []ent.Field {
 		field.String("living_condition").Optional(),
 		field.String("reproductive_status").Optional(),
 		field.String("blood_group").Optional().MaxLen(50),
-		field.JSON("bonuses", []string{}).Optional(),
+		field.Enum("privilege").Values("artist", "therapist", "former_donor", "guide_dog", "priority_search").Optional().Nillable(),
 	}
 }
 

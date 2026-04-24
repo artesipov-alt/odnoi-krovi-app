@@ -3,6 +3,7 @@
 package pet
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
@@ -49,8 +50,8 @@ const (
 	FieldReproductiveStatus = "reproductive_status"
 	// FieldBloodGroup holds the string denoting the blood_group field in the database.
 	FieldBloodGroup = "blood_group"
-	// FieldBonuses holds the string denoting the bonuses field in the database.
-	FieldBonuses = "bonuses"
+	// FieldPrivilege holds the string denoting the privilege field in the database.
+	FieldPrivilege = "privilege"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeHealth holds the string denoting the health edge name in mutations.
@@ -138,7 +139,7 @@ var Columns = []string{
 	FieldLivingCondition,
 	FieldReproductiveStatus,
 	FieldBloodGroup,
-	FieldBonuses,
+	FieldPrivilege,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -171,6 +172,32 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
+
+// Privilege defines the type for the "privilege" enum field.
+type Privilege string
+
+// Privilege values.
+const (
+	PrivilegeArtist         Privilege = "artist"
+	PrivilegeTherapist      Privilege = "therapist"
+	PrivilegeFormerDonor    Privilege = "former_donor"
+	PrivilegeGuideDog       Privilege = "guide_dog"
+	PrivilegePrioritySearch Privilege = "priority_search"
+)
+
+func (pr Privilege) String() string {
+	return string(pr)
+}
+
+// PrivilegeValidator is a validator for the "privilege" field enum values. It is called by the builders before save.
+func PrivilegeValidator(pr Privilege) error {
+	switch pr {
+	case PrivilegeArtist, PrivilegeTherapist, PrivilegeFormerDonor, PrivilegeGuideDog, PrivilegePrioritySearch:
+		return nil
+	default:
+		return fmt.Errorf("pet: invalid enum value for privilege field: %q", pr)
+	}
+}
 
 // OrderOption defines the ordering options for the Pet queries.
 type OrderOption func(*sql.Selector)
@@ -258,6 +285,11 @@ func ByReproductiveStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByBloodGroup orders the results by the blood_group field.
 func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBloodGroup, opts...).ToFunc()
+}
+
+// ByPrivilege orders the results by the privilege field.
+func ByPrivilege(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrivilege, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

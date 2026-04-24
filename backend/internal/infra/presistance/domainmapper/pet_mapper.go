@@ -32,6 +32,10 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		DeletedAt:          e.DeletedAt,
 	}
 
+	if e.Privilege != nil {
+		pet.Privilege = model.Privilege(*e.Privilege)
+	}
+
 	// Map BloodGroupName directly from field
 	pet.BloodGroupName = e.BloodGroup
 

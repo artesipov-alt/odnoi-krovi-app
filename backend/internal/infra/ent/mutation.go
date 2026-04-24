@@ -6811,8 +6811,7 @@ type PetMutation struct {
 	living_condition            *string
 	reproductive_status         *string
 	blood_group                 *string
-	bonuses                     *[]string
-	appendbonuses               []string
+	privilege                   *pet.Privilege
 	clearedFields               map[string]struct{}
 	owner                       *string
 	clearedowner                bool
@@ -7758,69 +7757,53 @@ func (m *PetMutation) ResetBloodGroup() {
 	delete(m.clearedFields, pet.FieldBloodGroup)
 }
 
-// SetBonuses sets the "bonuses" field.
-func (m *PetMutation) SetBonuses(s []string) {
-	m.bonuses = &s
-	m.appendbonuses = nil
+// SetPrivilege sets the "privilege" field.
+func (m *PetMutation) SetPrivilege(pe pet.Privilege) {
+	m.privilege = &pe
 }
 
-// Bonuses returns the value of the "bonuses" field in the mutation.
-func (m *PetMutation) Bonuses() (r []string, exists bool) {
-	v := m.bonuses
+// Privilege returns the value of the "privilege" field in the mutation.
+func (m *PetMutation) Privilege() (r pet.Privilege, exists bool) {
+	v := m.privilege
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldBonuses returns the old "bonuses" field's value of the Pet entity.
+// OldPrivilege returns the old "privilege" field's value of the Pet entity.
 // If the Pet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PetMutation) OldBonuses(ctx context.Context) (v []string, err error) {
+func (m *PetMutation) OldPrivilege(ctx context.Context) (v *pet.Privilege, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBonuses is only allowed on UpdateOne operations")
+		return v, errors.New("OldPrivilege is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBonuses requires an ID field in the mutation")
+		return v, errors.New("OldPrivilege requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBonuses: %w", err)
+		return v, fmt.Errorf("querying old value for OldPrivilege: %w", err)
 	}
-	return oldValue.Bonuses, nil
+	return oldValue.Privilege, nil
 }
 
-// AppendBonuses adds s to the "bonuses" field.
-func (m *PetMutation) AppendBonuses(s []string) {
-	m.appendbonuses = append(m.appendbonuses, s...)
+// ClearPrivilege clears the value of the "privilege" field.
+func (m *PetMutation) ClearPrivilege() {
+	m.privilege = nil
+	m.clearedFields[pet.FieldPrivilege] = struct{}{}
 }
 
-// AppendedBonuses returns the list of values that were appended to the "bonuses" field in this mutation.
-func (m *PetMutation) AppendedBonuses() ([]string, bool) {
-	if len(m.appendbonuses) == 0 {
-		return nil, false
-	}
-	return m.appendbonuses, true
-}
-
-// ClearBonuses clears the value of the "bonuses" field.
-func (m *PetMutation) ClearBonuses() {
-	m.bonuses = nil
-	m.appendbonuses = nil
-	m.clearedFields[pet.FieldBonuses] = struct{}{}
-}
-
-// BonusesCleared returns if the "bonuses" field was cleared in this mutation.
-func (m *PetMutation) BonusesCleared() bool {
-	_, ok := m.clearedFields[pet.FieldBonuses]
+// PrivilegeCleared returns if the "privilege" field was cleared in this mutation.
+func (m *PetMutation) PrivilegeCleared() bool {
+	_, ok := m.clearedFields[pet.FieldPrivilege]
 	return ok
 }
 
-// ResetBonuses resets all changes to the "bonuses" field.
-func (m *PetMutation) ResetBonuses() {
-	m.bonuses = nil
-	m.appendbonuses = nil
-	delete(m.clearedFields, pet.FieldBonuses)
+// ResetPrivilege resets all changes to the "privilege" field.
+func (m *PetMutation) ResetPrivilege() {
+	m.privilege = nil
+	delete(m.clearedFields, pet.FieldPrivilege)
 }
 
 // SetOwnerID sets the "owner" edge to the User entity by id.
@@ -8218,8 +8201,8 @@ func (m *PetMutation) Fields() []string {
 	if m.blood_group != nil {
 		fields = append(fields, pet.FieldBloodGroup)
 	}
-	if m.bonuses != nil {
-		fields = append(fields, pet.FieldBonuses)
+	if m.privilege != nil {
+		fields = append(fields, pet.FieldPrivilege)
 	}
 	return fields
 }
@@ -8263,8 +8246,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.ReproductiveStatus()
 	case pet.FieldBloodGroup:
 		return m.BloodGroup()
-	case pet.FieldBonuses:
-		return m.Bonuses()
+	case pet.FieldPrivilege:
+		return m.Privilege()
 	}
 	return nil, false
 }
@@ -8308,8 +8291,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldReproductiveStatus(ctx)
 	case pet.FieldBloodGroup:
 		return m.OldBloodGroup(ctx)
-	case pet.FieldBonuses:
-		return m.OldBonuses(ctx)
+	case pet.FieldPrivilege:
+		return m.OldPrivilege(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
@@ -8438,12 +8421,12 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBloodGroup(v)
 		return nil
-	case pet.FieldBonuses:
-		v, ok := value.([]string)
+	case pet.FieldPrivilege:
+		v, ok := value.(pet.Privilege)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBonuses(v)
+		m.SetPrivilege(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
@@ -8529,8 +8512,8 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldBloodGroup) {
 		fields = append(fields, pet.FieldBloodGroup)
 	}
-	if m.FieldCleared(pet.FieldBonuses) {
-		fields = append(fields, pet.FieldBonuses)
+	if m.FieldCleared(pet.FieldPrivilege) {
+		fields = append(fields, pet.FieldPrivilege)
 	}
 	return fields
 }
@@ -8585,8 +8568,8 @@ func (m *PetMutation) ClearField(name string) error {
 	case pet.FieldBloodGroup:
 		m.ClearBloodGroup()
 		return nil
-	case pet.FieldBonuses:
-		m.ClearBonuses()
+	case pet.FieldPrivilege:
+		m.ClearPrivilege()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet nullable field %s", name)
@@ -8647,8 +8630,8 @@ func (m *PetMutation) ResetField(name string) error {
 	case pet.FieldBloodGroup:
 		m.ResetBloodGroup()
 		return nil
-	case pet.FieldBonuses:
-		m.ResetBonuses()
+	case pet.FieldPrivilege:
+		m.ResetPrivilege()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)

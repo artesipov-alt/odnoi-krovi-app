@@ -56,8 +56,8 @@ type Pet struct {
 	ReproductiveStatus string `json:"reproductive_status,omitempty"`
 	// BloodGroup holds the value of the "blood_group" field.
 	BloodGroup string `json:"blood_group,omitempty"`
-	// Bonuses holds the value of the "bonuses" field.
-	Bonuses []string `json:"bonuses,omitempty"`
+	// Privilege holds the value of the "privilege" field.
+	Privilege *pet.Privilege `json:"privilege,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
 	Edges        PetEdges `json:"edges"`
@@ -161,11 +161,11 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case pet.FieldPhotoUrls, pet.FieldBonuses:
+		case pet.FieldPhotoUrls:
 			values[i] = new([]byte)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
-		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroup:
+		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroup, pet.FieldPrivilege:
 			values[i] = new(sql.NullString)
 		case pet.FieldCreatedAt, pet.FieldUpdatedAt, pet.FieldDeletedAt, pet.FieldBirthDate:
 			values[i] = new(sql.NullTime)
@@ -297,13 +297,12 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.BloodGroup = value.String
 			}
-		case pet.FieldBonuses:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field bonuses", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Bonuses); err != nil {
-					return fmt.Errorf("unmarshal field bonuses: %w", err)
-				}
+		case pet.FieldPrivilege:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field privilege", values[i])
+			} else if value.Valid {
+				_m.Privilege = new(pet.Privilege)
+				*_m.Privilege = pet.Privilege(value.String)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -433,8 +432,10 @@ func (_m *Pet) String() string {
 	builder.WriteString("blood_group=")
 	builder.WriteString(_m.BloodGroup)
 	builder.WriteString(", ")
-	builder.WriteString("bonuses=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Bonuses))
+	if v := _m.Privilege; v != nil {
+		builder.WriteString("privilege=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -48,6 +48,7 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 		Gender:               string(petmodel.Gender),
 		Type:                 string(petmodel.Type),
 		ReproductiveStatus:   string(petmodel.ReproductiveStatus),
+		Privilege:            string(petmodel.Privilege),
 		CreatedAt:            petmodel.CreatedAt,
 		UpdatedAt:            petmodel.UpdatedAt,
 		DeletedAt:            petmodel.DeletedAt,
