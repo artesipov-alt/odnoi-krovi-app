@@ -33,3 +33,10 @@ export const getCorrectDeclension = (type: Variants, number: number): string => 
 };
 
 export const getDateFormat = (date: Date) => format(date, 'dd.MM.yyyy', { locale: ru });
+
+export const isExpiredDate = (expiresAt: string): boolean => {
+    const expirationTime = new Date(expiresAt).getTime();
+    const currentTime = Date.now();
+
+    return currentTime > expirationTime;
+};

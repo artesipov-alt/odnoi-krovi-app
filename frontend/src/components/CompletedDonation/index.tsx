@@ -6,23 +6,23 @@ import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import Blood from 'imgs/svg/blood';
 import BloodVolume from 'imgs/svg/bloodVolume';
 import Bone from 'imgs/svg/bone';
-import Certificates from 'imgs/svg/certificates';
 import Location from 'imgs/svg/location';
 import MiniSinglePaw from 'imgs/svg/miniSinglePaw';
 import Pin from 'imgs/svg/pin';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Taxi from 'imgs/svg/taxi';
 import Accordion from 'pages/adding/common/Accordion';
-import { FC, useCallback, useEffect } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getDateFormat } from 'utils/utils';
 
-import { PlannedDonation } from 'api/donor';
+import { BonusType, PlannedDonation } from 'api/donor';
 import { PetType } from 'api/types';
 import { CompensationType } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
 import Layout from 'components/Layout';
 
+import Bonuses from '../Bonuses';
 import styles from './CompletedDonation.module.less';
 
 type Props = {
@@ -31,6 +31,8 @@ type Props = {
 };
 
 const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
+    const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
+
     const { data: locationsDict = [], isError: isErrorLocations } = useLocationsQuery();
 
     const showToast = useCallback(
@@ -44,11 +46,19 @@ const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
         [onClose],
     );
 
+    const onBonusesClickToggle = () => {
+        setIsBonusesPageOpen((prevState) => !prevState);
+    };
+
     useEffect(() => {
         if (isErrorLocations) {
             showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
         }
     }, [isErrorLocations, showToast]);
+
+    if (isBonusesPageOpen) {
+        return <Bonuses isReceivedBonuses onClose={onBonusesClickToggle} items={donation.applicationData.bonuses} />;
+    }
 
     return (
         <Layout className={styles.wrapper}>
@@ -195,7 +205,7 @@ const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
                 </Accordion>
             )}
             <div className={styles.settings}>
-                <div className={styles.setting}>
+                <div className={styles.setting} onClick={onBonusesClickToggle}>
                     <p className={styles.text}>
                         Бонусы
                         <br />
@@ -205,9 +215,13 @@ const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
                         <div className={styles.bonusIcon}>
                             <PrioritySearch />
                         </div>
-                        <div className={styles.bonusIcon}>
-                            <Certificates />
-                        </div>
+                        {!!donation.applicationData.bonuses?.length &&
+                            donation.applicationData.bonuses[0].type !== BonusType.LOCK && (
+                                <div className={styles.bonusesCount}>
+                                    <p className={styles.countPlus}>+ </p>
+                                    <div>{donation.applicationData.bonuses?.length}</div>
+                                </div>
+                            )}
                     </div>
                 </div>
                 <div className={styles.setting}>

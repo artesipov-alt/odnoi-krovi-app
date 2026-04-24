@@ -10,6 +10,7 @@ import Bonus from 'imgs/svg/bonus';
 import DonorButton from 'imgs/svg/donorButton';
 import Pause from 'imgs/svg/pause';
 import Paw from 'imgs/svg/paw';
+import PrioritySearch from 'imgs/svg/prioritySearch';
 import RecipientButton from 'imgs/svg/recipientButton';
 import RoundCancel from 'imgs/svg/roundCancel';
 import RoundQuestion from 'imgs/svg/roundQuestion';
@@ -26,6 +27,7 @@ import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 import PetProfile from 'components/Profiles/Pet';
 
+import Curtain from '../../components/Curtain';
 import DonationDetails from './DonationDetails';
 import DonorPreference, { View as DonorPreferenceView } from './DonorPreference';
 import RecipientOnboarding from './Onboardings/Recipient';
@@ -65,6 +67,7 @@ const Owner: FC<Props> = ({ userId }) => {
     const [donorStatus, setDonorStatus] = useState<DonorStatus>({ isOpen: false });
     const [isPetProfileOpen, setIsPetProfileOpen] = useState<boolean>(false);
     const [isDonorPreferenceOpen, setIsDonorPreferenceOpen] = useState<boolean>(false);
+    const [isPriorityCurtainOpen, setIsPriorityCurtainOpen] = useState<boolean>(false);
     const [donationDetails, setDonationDetails] = useState<DonationDetailsType>({ isOpen: false });
     const [isDonorPreferenceOnboardingWasShown, setIsDonorPreferenceOnboardingWasShown] = useState<boolean>(false);
 
@@ -245,6 +248,29 @@ const Owner: FC<Props> = ({ userId }) => {
     const onDonationDetailsCloseHandler = () => {
         setDonationDetails({ isOpen: false });
     };
+
+    const onPriorityToggle = () => {
+        setIsPriorityCurtainOpen((prevState) => !prevState);
+    };
+
+    const getCurtainTitle = () => (
+        <div className={styles.curtainHeader}>
+            <div className={styles.curtainIcon}>
+                <PrioritySearch />
+            </div>
+            <p className={styles.curtainTitle}>Приоритетный поиск!</p>
+        </div>
+    );
+
+    const getCurtainSubtitle = () => (
+        <p className={styles.curtainSubtitle}>
+            Начисляется за проведенные донации,
+            <br />
+            помогает найти помощь
+            <br />
+            одним из первых
+        </p>
+    );
 
     const renderDonorLabel = (petData: Pet, donorRestrictions?: DonorRestrictions) => {
         switch (true) {
@@ -499,7 +525,8 @@ const Owner: FC<Props> = ({ userId }) => {
 
     if (
         (view === Role.RECIPIENT || view === Role.BLOOD_FOUND) &&
-        (!userData?.onBoarding || !userData?.onBoarding?.includes(Onboarding.FIND_BLOOD))
+        (!userData?.onBoarding || !userData?.onBoarding?.includes(Onboarding.FIND_BLOOD)) &&
+        !pets?.pets.length
     ) {
         return (
             <RecipientOnboarding
@@ -542,9 +569,23 @@ const Owner: FC<Props> = ({ userId }) => {
                                 <span className={styles.counterIcon}>
                                     <Bonus />
                                 </span>
-                                <span className={styles.bonusCounterValue}>0</span>
+                                <span className={styles.bonusCounterValue}>{pets?.totalBonuses || 0}</span>
                             </button>
                         </>
+                    )}
+                    {view === 'recipient' && !isLoading && (
+                        <button
+                            type='button'
+                            onClick={onPriorityToggle}
+                            className={cn(styles.counter, { [styles.priority]: true })}
+                        >
+                            <span className={cn(styles.counterIcon, { [styles.priority]: true })}>
+                                <PrioritySearch />
+                            </span>
+                            <span className={cn(styles.bonusCounterValue, { [styles.priority]: true })}>
+                                {pets?.totalPrioritySearch || 0}
+                            </span>
+                        </button>
                     )}
                 </div>
                 {(isLoading || isUserDataLoading) && (
@@ -594,8 +635,15 @@ const Owner: FC<Props> = ({ userId }) => {
                                             {!!pet.photoUrls?.[0] && (
                                                 <img className={styles.img} src={pet.photoUrls?.[0]} alt={pet.name} />
                                             )}
-                                            <div className={styles.bloodGroup}>
-                                                {pet.bloodGroup !== 'UNKNOWN' ? pet.bloodGroup : '?'}
+                                            <div className={styles.info}>
+                                                <div className={styles.bloodGroup}>
+                                                    {pet.bloodGroup !== 'UNKNOWN' ? pet.bloodGroup : '?'}
+                                                </div>
+                                                {!!pet.privilege && view === 'recipient' && (
+                                                    <div className={styles.prioritySearch}>
+                                                        <PrioritySearch />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className={styles.photoFooter}>
                                                 <p className={styles.name}>{pet.name.toUpperCase()}</p>
@@ -636,6 +684,21 @@ const Owner: FC<Props> = ({ userId }) => {
                     </>
                 )}
             </div>
+            {isPriorityCurtainOpen && (
+                <Curtain
+                    noRednerButtons
+                    shouldCloseByWrapperClick
+                    title={getCurtainTitle()}
+                    onClose={onPriorityToggle}
+                    subTitle={getCurtainSubtitle()}
+                >
+                    <div className={styles.buttonWrapper}>
+                        <Button onClick={onPriorityToggle} className={styles.priorityButton}>
+                            Понятно, спасибо
+                        </Button>
+                    </div>
+                </Curtain>
+            )}
         </Layout>
     );
 };

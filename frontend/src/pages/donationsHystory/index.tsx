@@ -114,96 +114,106 @@ const DonationsHistory: FC<Props> = ({ id }) => {
     }
 
     return (
-        <Layout>
-            <div className={styles.header}>
-                <div className={styles.back} onClick={onCloseClickHandler}>
-                    <BackAngularArrow />
-                </div>
-                <h2 className={styles.title}>История донаций</h2>
-            </div>
-            <div className={styles.tiles}>
-                {tiles.map((tile, i) => (
-                    <div className={styles.tile} key={tile}>
-                        <div className={styles.tileInfo}>
-                            <div className={styles.tileIcon}>{i === 0 ? <Blood /> : <BloodVolume />}</div>
-                            <p className={styles.tileValue}>
-                                {i === 0
-                                    ? history?.totalCompletedDonations || 0
-                                    : history?.totalDonatedVolume.toString().replace('.', ',')}
-                            </p>
-                            {i === 1 && <p className={styles.tileUnit}>мл</p>}
-                        </div>
-                        <p className={styles.tileDescr}>{tile}</p>
+        <Layout className={styles.wrapper}>
+            <div className={styles.innerWrapper}>
+                <div className={styles.header}>
+                    <div className={styles.back} onClick={onCloseClickHandler}>
+                        <BackAngularArrow />
                     </div>
-                ))}
-            </div>
-            {!history?.items.length ? (
-                <div className={styles.noItems}>
-                    <h2 className={styles.noItemsTitle}>
-                        У Вас пока
-                        <br />
-                        не было донаций
-                    </h2>
+                    <h2 className={styles.title}>История донаций</h2>
                 </div>
-            ) : (
-                <div className={styles.list}>
-                    {sortDonationsByStatusAndDate(history.items).map((donation) => {
-                        const isCanceled =
-                            donation.applicationData.status === DonorStatus.CANCELLED ||
-                            donation.applicationData.status === DonorStatus.REJECTED;
-
-                        return (
-                            <div
-                                className={styles.donationTile}
-                                key={donation.applicationData.id}
-                                onClick={isCanceled ? undefined : onDonationClickHandler(donation)}
-                            >
-                                <div className={styles.avatars}>
-                                    <div className={styles.pet}>
-                                        <img
-                                            className={styles.photo}
-                                            alt={donation.applicationData.petName}
-                                            src={donation.applicationData.photoUrls[0]}
-                                        />
-                                        <p className={styles.name}>{donation.applicationData.petName.toUpperCase()}</p>
-                                    </div>
-                                    <div className={cn(styles.pet, { [styles.recipient]: true })}>
-                                        <img
-                                            alt={donation.recipientData.petName}
-                                            src={
-                                                donation.recipientData.photoUrls?.[0]
-                                                    ? donation.recipientData.photoUrls[0]
-                                                    : getDefaultPhoto(donation.recipientData.petType)
-                                            }
-                                            className={cn(styles.photo, { [styles.isRecipient]: true })}
-                                        />
-                                        <p className={styles.name}>{donation.recipientData.petName.toUpperCase()}</p>
-                                    </div>
-                                </div>
-                                <div className={styles.info}>
-                                    <p className={styles.infoTitle}>
-                                        Донация от {getDateFormat(new Date(donation.applicationData.updatedAt))}
-                                    </p>
-                                    <div className={cn(styles.status, { [styles.isCanceled]: isCanceled })}>
-                                        <div className={cn(styles.statusIcon, { [styles.isCanceled]: isCanceled })}>
-                                            {isCanceled ? <BloodNo /> : <BloodOk />}
-                                        </div>
-                                        <p className={styles.statusText}>{isCanceled ? 'отменилась' : 'состоялась'}</p>
-                                    </div>
-                                </div>
-                                {!isCanceled && (
-                                    <div className={styles.bloodVolume}>
-                                        <p className={styles.bloodVolumeNumber}>
-                                            {donation.applicationData.amount.toString().replace('.', ',')}
-                                        </p>
-                                        <p className={styles.bloodVolumeDescr}>мл</p>
-                                    </div>
-                                )}
+                <div className={styles.tiles}>
+                    {tiles.map((tile, i) => (
+                        <div className={styles.tile} key={tile}>
+                            <div className={styles.tileInfo}>
+                                <div className={styles.tileIcon}>{i === 0 ? <Blood /> : <BloodVolume />}</div>
+                                <p className={styles.tileValue}>
+                                    {i === 0
+                                        ? history?.totalCompletedDonations || 0
+                                        : history?.totalDonatedVolume.toString().replace('.', ',')}
+                                </p>
+                                {i === 1 && <p className={styles.tileUnit}>мл</p>}
                             </div>
-                        );
-                    })}
+                            <p className={styles.tileDescr}>{tile}</p>
+                        </div>
+                    ))}
                 </div>
-            )}
+            </div>
+            <div className={styles.content}>
+                {!history?.items.length ? (
+                    <div className={styles.noItems}>
+                        <h2 className={styles.noItemsTitle}>
+                            У Вас пока
+                            <br />
+                            не было донаций
+                        </h2>
+                    </div>
+                ) : (
+                    <div className={styles.list}>
+                        {sortDonationsByStatusAndDate(history.items).map((donation) => {
+                            const isCanceled =
+                                donation.applicationData.status === DonorStatus.CANCELLED ||
+                                donation.applicationData.status === DonorStatus.REJECTED;
+
+                            return (
+                                <div
+                                    className={styles.donationTile}
+                                    key={donation.applicationData.id}
+                                    onClick={isCanceled ? undefined : onDonationClickHandler(donation)}
+                                >
+                                    <div className={styles.avatars}>
+                                        <div className={styles.pet}>
+                                            <img
+                                                className={styles.photo}
+                                                alt={donation.applicationData.petName}
+                                                src={donation.applicationData.photoUrls[0]}
+                                            />
+                                            <p className={styles.name}>
+                                                {donation.applicationData.petName.toUpperCase()}
+                                            </p>
+                                        </div>
+                                        <div className={cn(styles.pet, { [styles.recipient]: true })}>
+                                            <img
+                                                alt={donation.recipientData.petName}
+                                                src={
+                                                    donation.recipientData.photoUrls?.[0]
+                                                        ? donation.recipientData.photoUrls[0]
+                                                        : getDefaultPhoto(donation.recipientData.petType)
+                                                }
+                                                className={cn(styles.photo, { [styles.isRecipient]: true })}
+                                            />
+                                            <p className={styles.name}>
+                                                {donation.recipientData.petName.toUpperCase()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className={styles.info}>
+                                        <p className={styles.infoTitle}>
+                                            Донация от {getDateFormat(new Date(donation.applicationData.updatedAt))}
+                                        </p>
+                                        <div className={cn(styles.status, { [styles.isCanceled]: isCanceled })}>
+                                            <div className={cn(styles.statusIcon, { [styles.isCanceled]: isCanceled })}>
+                                                {isCanceled ? <BloodNo /> : <BloodOk />}
+                                            </div>
+                                            <p className={styles.statusText}>
+                                                {isCanceled ? 'отменилась' : 'состоялась'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {!isCanceled && (
+                                        <div className={styles.bloodVolume}>
+                                            <p className={styles.bloodVolumeNumber}>
+                                                {donation.applicationData.amount.toString().replace('.', ',')}
+                                            </p>
+                                            <p className={styles.bloodVolumeDescr}>мл</p>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </Layout>
     );
 };

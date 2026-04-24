@@ -70,6 +70,7 @@ export type Pet = {
     birthDate?: Date;
     bonuses?: Bonuses;
     ageYears?: number;
+    privilege?: string;
     gender?: PetGender;
     ageMonths?: number;
     bloodGroup: string;
@@ -86,6 +87,8 @@ export type Pet = {
 export type GetPetsResponse = {
     pets: Pet[];
     totalPets: number;
+    totalBonuses?: number;
+    totalPrioritySearch?: number;
     totalPlannedDonations?: number;
     totalCompletedDonations?: number;
 };

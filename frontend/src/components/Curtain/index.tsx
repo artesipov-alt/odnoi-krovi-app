@@ -65,7 +65,7 @@ const Curtain: FC<Props> = ({
     return (
         <div className={styles.wrapper} onClick={onWrapperClickHandler}>
             <div className={styles.content} style={contentStyle}>
-                {!!title && <h1 className={styles.title}>{title}</h1>}
+                {!!title && <div className={styles.title}>{title}</div>}
                 {subTitle && <div className={cn(styles.subTitle, subTitleClassName)}>{subTitle}</div>}
                 {children}
                 {!noRednerButtons && (

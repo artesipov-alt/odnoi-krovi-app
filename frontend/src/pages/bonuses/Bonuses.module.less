@@ -1,5 +1,17 @@
 @import 'styles/colors';
 
+.wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.innerWrapper {
+    flex-shrink: 0;
+    padding-bottom: 21px;
+}
+
 .page {
     min-height: 100vh;
     background-repeat: no-repeat;
@@ -9,6 +21,7 @@
     padding: 18px 0 24px;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 .header {
@@ -29,7 +42,6 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
 
     :global(svg) {
         fill: @red1;
@@ -93,7 +105,10 @@
         Proxima Nova,
         sans-serif;
     text-align: center;
-    cursor: pointer;
+
+    &.isFirst {
+        pointer-events: none;
+    }
 }
 
 .tabTop {
@@ -116,7 +131,7 @@
 }
 
 .list {
-    margin-top: 12px;
+    margin-top: 6px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -124,77 +139,57 @@
 }
 
 .card {
-    border-radius: 12px;
-    border: 0;
+    border-radius: 10px;
     background: @white;
-    padding: 10px 10px 10px 94px;
-    position: relative;
-    height: max-content;
+    padding: 10px;
     margin: 0 10px;
     box-shadow: -6px 11px 26.9px 0 rgba(72, 72, 72, 0.09);
-    overflow: hidden;
+
+    &.isExpired {
+        opacity: 0.4;
+    }
 }
 
-.card_withImage {
-    min-height: 82px;
-}
-
-.card_noImage {
-    padding-left: 10px;
-    min-height: 0;
-}
-
-.card_disabled {
-    opacity: 0.52;
-}
-
-.cardImage {
-    position: absolute;
-    left: 12px;
-    top: 10px;
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .cardTitle {
+    margin: 0;
     color: @textColor2;
-    
+    font-family: Marmelad, sans-serif;
     font-size: 14px;
+    font-weight: 400;
     line-height: 16px;
-    padding-right: 120px;
 }
 
-.cardSubtitle {
-    color: @textColor1;
-    font-family:
-        Proxima Nova,
-        sans-serif;
-    font-size: 12px;
-    line-height: 15px;
-    margin-top: 8px;
-}
-
-.cardChip {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    min-width: 70px;
-    border-radius: 999px;
-    background: @orange5;
-    color: @white;
-    font-family:
-        Proxima Nova,
-        sans-serif;
+.expirationDate {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0 6px;
+    font-family: Proxima Nova, sans-serif;
     font-size: 11px;
+    font-weight: 400;
     line-height: 14px;
-    text-align: center;
-    padding: 0px 6px;
+    color: @white;
+    border-radius: 8px;
+    background: @orange5;
+
+    &.isExpired {
+        background: @grayBg27;
+    }
 }
 
-.cardChip_disabled {
-    background: @grayBg27;
-    color: @white;
+.cardDescr {
+    margin: 0;
+    color: @textColor1;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
 }
 
 .emptyBlock {
@@ -240,7 +235,12 @@
     line-height: 18px;
     letter-spacing: 0;
     text-align: center;
-    cursor: pointer;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Плавность на iOS */
 }
 
 .emptyImage {
@@ -252,5 +252,161 @@
 .bottomAction {
     display: flex;
     justify-content: center;
-    padding: 0px 12px;
+    padding: 0 12px;
+}
+
+.loading {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    z-index: 10000;
+}
+
+.popupShell {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+}
+
+.popupCard {
+    width: 100%;
+    position: relative;
+    max-width: 341px;
+    border-radius: 10px;
+    background: @white;
+    padding: 50px 20px 0px;
+    text-align: center;
+    margin: 0 auto;
+    overflow: hidden;
+    @media (max-width: 420px) {
+        padding: 50px 0px 0px;
+    }
+}
+
+.popupTitle {
+    margin: 0;
+    color: @common-red;
+    font-family: Marmelad, sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 24px;
+}
+
+.popupText {
+    margin: 10px 0 0;
+    padding: 0 20px;
+    color: @textColor2;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.popupDivider {
+    position: relative;
+    width: calc(100% + 24px);
+    margin: 30px -12px 0;
+    border-top: 2px dashed @border6;
+    &::after {
+        content: '';
+        position: absolute;
+        display: block;
+        height: 59px;
+        width: 59px;
+        background: linear-gradient(180deg, #ffd9df 0%, #ffd6dd 100%);
+        top: -30px;
+        left: -60px;
+        border-radius: 36px;
+        @media (max-width: 420px) {
+            left: -40px;
+        }
+    }
+    &::before {
+        content: '';
+        position: absolute;
+        display: block;
+        height: 59px;
+        width: 59px;
+        background-color: @red19;
+        top: -30px;
+        right: -60px;
+        border-radius: 36px;
+        @media (max-width: 420px) {
+            right: -40px;
+        }
+    }
+}
+
+.promoText {
+    margin: 30px 0 13px;
+    color: @textColor8;
+    text-align: center;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+}
+
+.promo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+    width: 225px;
+    margin: 0 auto;
+    padding: 15px;
+    border-radius: 25px;
+    background: @white-bg;
+    box-sizing: border-box;
+}
+
+.promoCode {
+    margin: 0;
+    color: @textColor4;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.copiedIcon {
+    width: 20px;
+    height: 20px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: none;
+    }
+}
+
+.toShop {
+    height: 60px;
+    min-width: 224px !important;
+    margin: 30px 0 10px !important;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    color: @textColor3 !important;
+    text-transform: none !important;
+
+    &.isIcon {
+        padding-left: 50px;
+    }
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    margin-left: 20px;
 }

@@ -46,6 +46,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
     const [description, setDescription] = useState<string>('');
     const [bloodComponents, setBloodComponents] = useState<string[]>([]);
     const [desiredBloodGroups, setDesiredBloodGroups] = useState<string[]>([]);
+    const [usePrioritySearch, setUsePrioritySearch] = useState(false);
     const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
     const [includeUnknownBloodGroup, setIncludeUnknownBloodGroup] = useState(false);
@@ -120,6 +121,10 @@ const Search: FC<Props> = ({ petId, userId }) => {
         setBloodRequestPhoto(newPhoto);
     }, []);
 
+    const onChangeUsingPriorityHandler = (isChecked: boolean) => {
+        setUsePrioritySearch(isChecked);
+    };
+
     const fetchCreateRecipient = async (confirmedStep: number) => {
         setIsLoading(true);
 
@@ -135,8 +140,8 @@ const Search: FC<Props> = ({ petId, userId }) => {
             bloodGroup: bloodGroupDict[selectedPet?.type || ''].find((item) => item.value === bloodGroup)?.label,
             poolInfo: {
                 description,
-                prioritySearch: false,
                 includeUnknownBloodGroup,
+                prioritySearch: usePrioritySearch,
                 regions: locations as unknown as number[],
                 smallPetsNotifyAllowed: notifyOfSmallDonors,
                 bloodComponentIds: bloodComponents as unknown as number[],
@@ -235,11 +240,13 @@ const Search: FC<Props> = ({ petId, userId }) => {
                     <div className={styles.form}>
                         {step === 1 && (
                             <Second
+                                userId={userId}
                                 locations={locations}
                                 bloodVolume={bloodVolume}
                                 locationsDict={locationsDict}
                                 bloodComponents={bloodComponents}
                                 petType={selectedPet?.type || ''}
+                                usePrioritySearch={usePrioritySearch}
                                 desiredBloodGroups={desiredBloodGroups}
                                 weight={`${selectedPet?.weightKg}` || ''}
                                 notifyOfSmallDonors={notifyOfSmallDonors}
@@ -248,6 +255,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
                                 onChangeBloodVolume={onChangeBloodVolumeHandler}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
                                 includeUnknownBloodGroup={includeUnknownBloodGroup}
+                                onChangeUsingPriority={onChangeUsingPriorityHandler}
                                 onChangeBloodComponents={onChangeBloodComponentsHandler}
                                 onChangeNotifyOfSmallDonors={onChangeNotifyOfSmallDonors}
                                 bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}
@@ -300,7 +308,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
                 />
             )}
             {step === 4 && <Final fromSearch onBackToStart={onCancelClickHandler} />}
-            {!selectedPet?.bloodGroup && (
+            {selectedPet?.bloodGroup === 'UNKNOWN' && (
                 <Curtain
                     columnOfButtons
                     cancelButtonTitle='Далее'
@@ -324,15 +332,17 @@ const Search: FC<Props> = ({ petId, userId }) => {
                                     [styles.dogGroup]: selectedPet.type === PetType.DOG,
                                 })}
                             >
-                                {bloodGroupDict[selectedPet.type]?.map(({ label, value }) => (
-                                    <div
-                                        key={value}
-                                        onClick={onChangeBloodGroupHandler(label)}
-                                        className={cn(styles.bloodItem, { [styles.checked]: bloodGroup === label })}
-                                    >
-                                        {label !== 'UNKNOWN' ? label : 'Не знаю'}
-                                    </div>
-                                ))}
+                                {bloodGroupDict[selectedPet.type]
+                                    ?.filter((item) => item.value !== 'UNKNOWN')
+                                    .map(({ label, value }) => (
+                                        <div
+                                            key={value}
+                                            onClick={onChangeBloodGroupHandler(label)}
+                                            className={cn(styles.bloodItem, { [styles.checked]: bloodGroup === label })}
+                                        >
+                                            {label}
+                                        </div>
+                                    ))}
                             </div>
                             {selectedPet.type === PetType.DOG && (
                                 <Alert

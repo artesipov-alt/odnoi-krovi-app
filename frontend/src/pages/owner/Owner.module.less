@@ -33,7 +33,6 @@
 }
 
 .counter {
-    -webkit-appearance: button;
     height: 32px;
     min-width: 62px;
     padding: 5px 7px 5px 7px;
@@ -44,7 +43,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 6px;
-    cursor: pointer;
+
+    &.priority {
+        justify-content: start;
+        gap: 10px;
+        padding: 5px 7px 5px 3px;
+        background: @blue3;
+    }
 }
 
 .counterIcon {
@@ -64,6 +69,14 @@
         }
     }
 
+    &.priority {
+        svg {
+            width: 27px;
+            height: 27px;
+            //fill: @red2;
+        }
+    }
+
     svg {
         width: 18px;
         height: 18px;
@@ -77,6 +90,11 @@
     font-size: 14px;
     line-height: 16px;
     font-weight: 400;
+
+    &.priority {
+        color: @blue4;
+        line-height: 20px;
+    }
 }
 
 .avatar {
@@ -303,10 +321,14 @@
     text-overflow: ellipsis;
 }
 
-.bloodGroup {
+.info {
+    display: flex;
     position: absolute;
     top: 7px;
     left: 5px;
+}
+
+.bloodGroup {
     height: 32px;
     min-width: 32px;
     padding: 0 8px;
@@ -319,6 +341,17 @@
     border-radius: 25px;
     background: @red2;
     box-sizing: border-box;
+}
+
+.prioritySearch {
+    width: 32px;
+    height: 32px;
+    margin-left: -5px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
 }
 
 .gradient {
@@ -636,7 +669,7 @@
 }
 
 .notCandidatsTitle {
-    margin: 32px 0 9px;
+    margin: 20% 0 9px;
     color: @white-bg;
     font-family: Marmelad, sans-serif;
     font-size: 15px;
@@ -720,4 +753,49 @@
             fill: inherit;
         }
     }
+}
+
+.curtainHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.curtainIcon {
+    width: 62px;
+    height: 62px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        display: flex;
+    }
+}
+
+.curtainTitle {
+    margin: 16px 0 10px;
+}
+
+.curtainSubtitle {
+    margin: 0;
+    color: @red1;
+}
+
+.buttonWrapper {
+    width: 100%;
+    margin-top: 18px;
+    text-align: center;
+}
+
+.priorityButton {
+        width: 258px;
+        height: 60px;
+        border-radius: 10px !important;
+        background: @common-red !important;
+        font-family: Marmelad, sans-serif !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 18px !important;
+        color: @textColor3 !important;
+        text-transform: none !important;
 }

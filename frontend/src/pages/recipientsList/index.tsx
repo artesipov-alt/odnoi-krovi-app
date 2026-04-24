@@ -7,6 +7,7 @@ import noDonorBg from 'imgs/noDonorBg.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import CrossedEye from 'imgs/svg/crossedEye';
 import Eye from 'imgs/svg/eye';
+import PrioritySearch from 'imgs/svg/prioritySearch';
 import { FC, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -172,7 +173,14 @@ const RecipientsList: FC<Props> = ({ userId }) => {
                                             className={cn(styles.img, { [styles.blured]: isBlur })}
                                         />
                                     )}
-                                    <div className={styles.bloodGroup}>{pet.bloodGroupName}</div>
+                                    <div className={styles.info}>
+                                        <div className={styles.bloodGroup}>{pet.bloodGroupName}</div>
+                                        {!!pet.prioritySearch && (
+                                            <div className={styles.prioritySearch}>
+                                                <PrioritySearch />
+                                            </div>
+                                        )}
+                                    </div>
                                     <div className={styles.bloodVolume}>
                                         <p className={styles.bloodVolumeNumber}>{pet.bloodVolumeRemaining}</p>
                                         <p className={styles.bloodVolumeDescr}>мл</p>

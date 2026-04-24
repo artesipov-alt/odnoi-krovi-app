@@ -30,8 +30,13 @@
     }
 }
 
-.name {
+.nameWrapper {
+    display: flex;
+    justify-content: start;
     flex-grow: 1;
+}
+
+.name {
     padding: 0 11px;
     font-family: Marmelad, sans-serif;
     font-size: 22px;
@@ -41,6 +46,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.prioritySearch {
+    width: 24px;
+    height: 24px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
 }
 
 .blurIconWrapper {
@@ -303,10 +318,6 @@
         font-weight: 400;
         line-height: 16px;
     }
-
-    &:first-child {
-        opacity: .4;
-    }
 }
 
 .icons {
@@ -322,10 +333,54 @@
         transform: translateX(-5px);
     }
 
+    &.lock {
+        display: flex;
+        width: 34px;
+        height: 34px;
+        border-radius: 25px;
+        border: 1.5px solid @grayBg33;
+        background: linear-gradient(180deg, #D4D4D4 0%, #ACACAC 100%);
+        box-sizing: border-box;
+
+        svg {
+            width: 12px;
+            height: 14px;
+            margin: auto;
+            fill: @white;
+        }
+    }
+
     svg {
         width: inherit;
         height: inherit;
     }
+}
+
+.bonusesCount {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: @orangeBg1;
+    border-radius: 25px;
+    transform: translate(-5px, -1px);
+    color: @textColor9;
+}
+
+.countPlus {
+    margin: 0;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 15px;
+}
+
+.countNumber {
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
 }
 
 .rewardTitle {

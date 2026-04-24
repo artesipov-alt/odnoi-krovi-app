@@ -42,8 +42,9 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const [bloodVolume, setBloodVolume] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [bloodComponents, setBloodComponents] = useState<string[]>([]);
-    const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [desiredBloodGroups, setDesiredBloodGroups] = useState<string[]>([]);
+    const [usePrioritySearch, setUsePrioritySearch] = useState(false);
+    const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
     const [includeUnknownBloodGroup, setIncludeUnknownBloodGroup] = useState(false);
 
@@ -81,8 +82,8 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
             bloodGroup: bloodGroupDict[petType].find((item) => item.value === bloodGroup)?.label,
             poolInfo: {
                 description,
-                prioritySearch: false,
                 includeUnknownBloodGroup,
+                prioritySearch: usePrioritySearch,
                 regions: locations as unknown as number[],
                 smallPetsNotifyAllowed: notifyOfSmallDonors,
                 bloodComponentIds: bloodComponents as unknown as number[],
@@ -166,6 +167,10 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         setNotifyOfSmallDonors(isChecked);
     };
 
+    const onChangeUsingPriorityHandler = (isChecked: boolean) => {
+        setUsePrioritySearch(isChecked);
+    };
+
     const onChangeIncludeUnknownBloodGroupHandler = (isChecked: boolean) => {
         setIncludeUnknownBloodGroup(isChecked);
     };
@@ -236,6 +241,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                         )}
                         {step === 2 && (
                             <Second
+                                userId={userId}
                                 weight={weight}
                                 petType={petType}
                                 locations={locations}
@@ -243,6 +249,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                                 bloodVolume={bloodVolume}
                                 locationsDict={locationsDict}
                                 bloodComponents={bloodComponents}
+                                usePrioritySearch={usePrioritySearch}
                                 desiredBloodGroups={desiredBloodGroups}
                                 notifyOfSmallDonors={notifyOfSmallDonors}
                                 bloodComponentsDict={bloodComponentsDict}
@@ -250,6 +257,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                                 onChangeBloodVolume={onChangeBloodVolumeHandler}
                                 onConfirmButtonClick={onConfirmButtonClickHandler}
                                 includeUnknownBloodGroup={includeUnknownBloodGroup}
+                                onChangeUsingPriority={onChangeUsingPriorityHandler}
                                 onChangeBloodComponents={onChangeBloodComponentsHandler}
                                 onChangeNotifyOfSmallDonors={onChangeNotifyOfSmallDonors}
                                 bloodGroupDict={bloodGroupDict as BloodAndBreedGroupsDict}

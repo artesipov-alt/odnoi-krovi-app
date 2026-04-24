@@ -20,6 +20,20 @@ export enum DonorStatus {
     COMPLETED = 'completed',
 }
 
+export enum BonusType {
+    LOCK = 'lock',
+    FOOD = 'food',
+    OTHER = 'other',
+    PREPARATION = 'preparation',
+}
+
+export enum PlatformName {
+    WB = 'wb',
+    OZON = 'озон',
+    FOUR_PAWS = 'четыре лапы',
+    TAILY_PLATFORM = 'taily platform',
+}
+
 export type MatchingDonors = {
     petId: string;
     petName: string;
@@ -35,7 +49,7 @@ export type RecipientItem = {
     photoUrls?: string[];
     bloodGroupName: string;
     status: RecipientStatus;
-    prioritySearch: boolean;
+    prioritySearch?: boolean;
     bloodVolumeRemaining: number;
     matchingDonors?: MatchingDonors[];
 };
@@ -64,6 +78,12 @@ export type MatchingDonor = {
     donorBloodGroup: string;
 };
 
+export type Bonus = {
+    type: BonusType;
+    partner: string;
+    description: string;
+};
+
 export type GetRecipientDetailsResponse = {
     id: string;
     petId: string;
@@ -74,8 +94,9 @@ export type GetRecipientDetailsResponse = {
     photoUrls?: string[];
     bloodGroupName: string;
     status: RecipientStatus;
-    prioritySearch: boolean;
+    prioritySearch?: boolean;
     bloodVolumeNeeded: number;
+    availableBonuses?: Bonus[];
     advancedInfo?: AdvancedInfo;
     defaultPrefs?: DefaultPrefs;
     bloodVolumeReserved: number;
@@ -104,8 +125,8 @@ export type PlannedDonationDonorInfo = {
     id: string;
     amount: number;
     petName: string;
-    bonuses: string[];
     createdAt: string;
+    bonuses?: Bonus[];
     updatedAt: string;
     photoUrls: string[];
     status: DonorStatus;
@@ -158,6 +179,33 @@ export type GetCompletedDonationsResponse = {
     totalCompletedDonations: number;
 };
 
+export type BonusCategory = {
+    id: string;
+    stage: string;
+    target: string;
+    userId: string;
+    expiresAt: string;
+    deletedAt: string;
+    updatedAt: string;
+    createdAt: string;
+    recipient: string;
+    promoCode: string;
+    assignedAt: string;
+    platformUrl: string;
+    category: BonusType;
+    description: string;
+    partnerName: string;
+    subcategory: string;
+    platformName: string;
+};
+
+export type GetAllBonusesResponse = {
+    priority: number;
+    [BonusType.FOOD]: BonusCategory[];
+    [BonusType.OTHER]: BonusCategory[];
+    [BonusType.PREPARATION]: BonusCategory[];
+};
+
 export interface IDonorApi {
     getRecipientsList(id: string, status?: RecipientStatus): AxiosPromise<GetRecipientsListResponse>;
     getRecipientDetails(id: string): AxiosPromise<GetRecipientDetailsResponse>;
@@ -166,6 +214,7 @@ export interface IDonorApi {
     cancelDonation(id: string): AxiosPromise<void>;
     completeDonation(params: CompleteDonationRequest): AxiosPromise<void>;
     getCompletedDonations(id: string): AxiosPromise<GetCompletedDonationsResponse>;
+    getAllBonuses(id: string): AxiosPromise<GetAllBonusesResponse>;
 }
 
 export const DONOR_URL = '/v1/donor';
@@ -191,5 +240,8 @@ export const donorApi = (): IDonorApi => ({
     },
     getCompletedDonations(id) {
         return instance.get(`${DONOR_URL}/completed-donations/${id}`);
+    },
+    getAllBonuses(id) {
+        return instance.get(`${DONOR_URL}/bonuses/${id}`);
     },
 });
