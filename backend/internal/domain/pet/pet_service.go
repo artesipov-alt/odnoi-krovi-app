@@ -86,7 +86,7 @@ func (s *PetService) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, 
 	pet.RecalculateFactors(now, isRecipient)
 	s.CalculateAndSetStatus(pet, application, bloodReq)
 
-	if bloodReq.PrioritySearch && pet.Privilege == "" {
+	if bloodReq != nil && bloodReq.PrioritySearch && pet.Privilege == "" {
 		pet.Privilege = common.PrivilegePrioritySearch
 	}
 
