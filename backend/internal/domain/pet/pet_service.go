@@ -5,9 +5,9 @@ import (
 	"time"
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
-	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // PetService provides business logic for pets
@@ -87,7 +87,7 @@ func (s *PetService) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, 
 	s.CalculateAndSetStatus(pet, application, bloodReq)
 
 	if bloodReq.PrioritySearch && pet.Privilege == "" {
-		pet.Privilege = petmodel.PrivilegePrioritySearch
+		pet.Privilege = common.PrivilegePrioritySearch
 	}
 
 }

@@ -33,7 +33,7 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 	}
 
 	if e.Privilege != nil {
-		pet.Privilege = model.Privilege(*e.Privilege)
+		pet.Privilege = common.Privilege(*e.Privilege)
 	}
 
 	// Map BloodGroupName directly from field

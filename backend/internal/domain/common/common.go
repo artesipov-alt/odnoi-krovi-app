@@ -24,6 +24,17 @@ const (
 	PetTypeCat PetType = "cat"
 )
 
+// Privilege представляет привилегию питомца
+type Privilege string
+
+const (
+	PrivilegeArtist         Privilege = "artist"
+	PrivilegeTherapist      Privilege = "therapist"
+	PrivilegeFormerDonor    Privilege = "former_donor"
+	PrivilegeGuideDog       Privilege = "guide_dog"
+	PrivilegePrioritySearch Privilege = "priority_search"
+)
+
 // Blood groups
 // BloodComponent represents a blood component
 type BloodComponent struct {

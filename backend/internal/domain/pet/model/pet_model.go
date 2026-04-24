@@ -56,17 +56,6 @@ const (
 	HealthStatusUnknown HealthStatus = "unknown"
 )
 
-// Privilege представляет привилегию питомца
-type Privilege string
-
-const (
-	PrivilegeArtist         Privilege = "artist"
-	PrivilegeTherapist      Privilege = "therapist"
-	PrivilegeFormerDonor    Privilege = "former_donor"
-	PrivilegeGuideDog       Privilege = "guide_dog"
-	PrivilegePrioritySearch Privilege = "priority_search"
-)
-
 // Pet представляет доменную модель питомца
 type Pet struct {
 	ID                 string
@@ -86,7 +75,7 @@ type Pet struct {
 	BloodGroupName     string
 	StopFactors        []string
 	WarnFactors        []string
-	Privilege          Privilege
+	Privilege          common.Privilege
 	RecoveryDays       *int
 	Health             *PetHealth
 	Treatments         *PetTreatment

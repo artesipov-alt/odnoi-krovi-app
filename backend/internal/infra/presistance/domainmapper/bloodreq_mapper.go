@@ -35,6 +35,9 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 		recipient.RecipientData.PetType = common.PetType(req.Edges.Pet.Type)
 		recipient.RecipientData.PhotoURLs = req.Edges.Pet.PhotoUrls
 		recipient.RecipientData.BloodGroupName = req.Edges.Pet.BloodGroup
+		if req.Edges.Pet.Privilege != nil {
+			recipient.RecipientData.Privilege = common.Privilege(*req.Edges.Pet.Privilege)
+		}
 	}
 
 	return recipient

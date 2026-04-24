@@ -93,6 +93,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 	// Find matching donors
 	for _, recipient := range allRequests {
+		recipient.SyncPrivilegeAndPriority()
 		for _, donor := range potentialDonors {
 			h.matchingSvc.MatchDonor(recipient, donor, preferredLocations, userID)
 		}
