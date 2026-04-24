@@ -48,6 +48,7 @@ type RecipientDetail struct {
 	IncludeUnknownBloodGroup bool               `json:"includeUnknownBloodGroup" doc:"Включить неизвестную группу крови"`
 	Status                   string             `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	AdvancedInfo             *AdvancedInfo      `json:"advancedInfo,omitempty" doc:"Дополнительная информация"`
+	Privilege                string             `json:"privilege,omitempty" doc:"Привилегия питомца" enum:"artist,therapist,former_donor,guide_dog,priority_search"`
 	AvailableBonuses         []common.Bonus     `json:"availableBonuses,omitempty" doc:"Доступные бонусы"`
 	MatchingDonors           []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
 	DefaultDonorPrefs        *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
@@ -55,9 +56,8 @@ type RecipientDetail struct {
 
 // DefaultPrefsпредставляет предпочтения реципиента по умолчанию
 type DefaultDonorPrefs struct {
-	CompensationType string   `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
-	Bonuses          []string `json:"bonuses" doc:"Бонусы за донорство"`
-	TaxiCompensation bool     `json:"taxiCompensation" doc:"Компенсация такси"`
+	CompensationType string `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
+	TaxiCompensation bool   `json:"taxiCompensation" doc:"Компенсация такси"`
 }
 
 // AdvancedInfo представляет дополнительную информацию

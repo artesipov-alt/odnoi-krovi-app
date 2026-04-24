@@ -185,10 +185,9 @@ func (r *BloodRequestWithMatchingDonors) SetDefaultPrefs(compensationType common
 
 // SyncPrivilegeAndPriority synchronizes privilege and priority search based on business rules
 func (r *BloodRequestWithMatchingDonors) SyncPrivilegeAndPriority() {
-	if r.PrioritySearch {
-		r.RecipientData.Privilege = common.PrivilegePrioritySearch
-	}
 	if r.RecipientData.Privilege != "" {
 		r.PrioritySearch = true
+	} else if r.PrioritySearch {
+		r.RecipientData.Privilege = common.PrivilegePrioritySearch
 	}
 }

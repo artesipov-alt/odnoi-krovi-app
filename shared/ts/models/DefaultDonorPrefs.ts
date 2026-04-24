@@ -20,12 +20,6 @@ import { mapValues } from '../runtime';
  */
 export interface DefaultDonorPrefs {
     /**
-     * Бонусы за донорство
-     * @type {Array<string>}
-     * @memberof DefaultDonorPrefs
-     */
-    bonuses: Array<string> | null;
-    /**
      * Тип компенсации
      * @type {string}
      * @memberof DefaultDonorPrefs
@@ -55,7 +49,6 @@ export type DefaultDonorPrefsCompensationTypeEnum = typeof DefaultDonorPrefsComp
  * Check if a given object implements the DefaultDonorPrefs interface.
  */
 export function instanceOfDefaultDonorPrefs(value: object): value is DefaultDonorPrefs {
-    if (!('bonuses' in value) || value['bonuses'] === undefined) return false;
     if (!('compensationType' in value) || value['compensationType'] === undefined) return false;
     if (!('taxiCompensation' in value) || value['taxiCompensation'] === undefined) return false;
     return true;
@@ -71,7 +64,6 @@ export function DefaultDonorPrefsFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'bonuses': json['bonuses'] == null ? null : json['bonuses'],
         'compensationType': json['compensationType'],
         'taxiCompensation': json['taxiCompensation'],
     };
@@ -88,7 +80,6 @@ export function DefaultDonorPrefsToJSONTyped(value?: DefaultDonorPrefs | null, i
 
     return {
         
-        'bonuses': value['bonuses'],
         'compensationType': value['compensationType'],
         'taxiCompensation': value['taxiCompensation'],
     };

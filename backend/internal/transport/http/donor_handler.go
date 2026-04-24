@@ -174,6 +174,7 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			PhotoURLs:                h.storage.BuildPhotoURLs(r.RecipientData.PhotoURLs, now),
 			BloodGroupName:           r.RecipientData.BloodGroupName,
 			PrioritySearch:           r.PrioritySearch,
+			Privilege:                string(r.RecipientData.Privilege),
 			Status:                   string(r.Status),
 			MatchingDonors:           matching,
 		}
@@ -219,7 +220,6 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto
 	if recipientData.Recipient.DefaultDonorPrefs != nil {
 		defaultPrefs = &dto.DefaultDonorPrefs{
 			CompensationType: string(recipientData.Recipient.DefaultDonorPrefs.CompensationType),
-			Bonuses:          recipientData.Recipient.DefaultDonorPrefs.Bonuses,
 			TaxiCompensation: recipientData.Recipient.DefaultDonorPrefs.TaxiCompensation,
 		}
 	}
@@ -239,6 +239,7 @@ func (h *DonorHandler) GetRecipientDetails(ctx context.Context, input *commondto
 		PhotoURLs:                h.storage.BuildPhotoURLs(recipientData.Recipient.RecipientData.PhotoURLs, now),
 		BloodGroupName:           recipientData.Recipient.RecipientData.BloodGroupName,
 		PrioritySearch:           recipientData.Recipient.PrioritySearch,
+		Privilege:                string(recipientData.Recipient.RecipientData.Privilege),
 		Status:                   string(recipientData.Recipient.Status),
 		MatchingDonors:           matchingDonors,
 		DefaultDonorPrefs:        defaultPrefs,

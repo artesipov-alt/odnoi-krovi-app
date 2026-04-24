@@ -151,6 +151,12 @@ export interface RecipientDetail {
      */
     prioritySearch?: boolean;
     /**
+     * Привилегия питомца
+     * @type {string}
+     * @memberof RecipientDetail
+     */
+    privilege?: RecipientDetailPrivilegeEnum;
+    /**
      * Список регионов
      * @type {Array<string>}
      * @memberof RecipientDetail
@@ -185,6 +191,18 @@ export const RecipientDetailPetTypeEnum = {
     Cat: 'cat'
 } as const;
 export type RecipientDetailPetTypeEnum = typeof RecipientDetailPetTypeEnum[keyof typeof RecipientDetailPetTypeEnum];
+
+/**
+ * @export
+ */
+export const RecipientDetailPrivilegeEnum = {
+    Artist: 'artist',
+    Therapist: 'therapist',
+    FormerDonor: 'former_donor',
+    GuideDog: 'guide_dog',
+    PrioritySearch: 'priority_search'
+} as const;
+export type RecipientDetailPrivilegeEnum = typeof RecipientDetailPrivilegeEnum[keyof typeof RecipientDetailPrivilegeEnum];
 
 /**
  * @export
@@ -241,6 +259,7 @@ export function RecipientDetailFromJSONTyped(json: any, ignoreDiscriminator: boo
         'petType': json['petType'],
         'photoUrls': json['photoUrls'] == null ? undefined : json['photoUrls'],
         'prioritySearch': json['prioritySearch'] == null ? undefined : json['prioritySearch'],
+        'privilege': json['privilege'] == null ? undefined : json['privilege'],
         'regions': json['regions'] == null ? undefined : json['regions'],
         'searchingBloodNames': json['searchingBloodNames'] == null ? undefined : json['searchingBloodNames'],
         'smallPetsNotifyAllowed': json['smallPetsNotifyAllowed'],
@@ -275,6 +294,7 @@ export function RecipientDetailToJSONTyped(value?: Omit<RecipientDetail, '$schem
         'petType': value['petType'],
         'photoUrls': value['photoUrls'],
         'prioritySearch': value['prioritySearch'],
+        'privilege': value['privilege'],
         'regions': value['regions'],
         'searchingBloodNames': value['searchingBloodNames'],
         'smallPetsNotifyAllowed': value['smallPetsNotifyAllowed'],
