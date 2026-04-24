@@ -2,7 +2,9 @@ import { Button } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import cn from 'classnames';
 import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
+import { usePetsQuery } from 'hooks/usePetsQuery';
 import Lock from 'imgs/svg/lock';
+import PrioritySearch from 'imgs/svg/prioritySearch';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { regexReal } from 'utils/regexps';
@@ -17,6 +19,7 @@ import TextField from 'components/TextField';
 import styles from './Second.module.less';
 
 type Props = {
+    userId: string;
     weight: string;
     petType: string;
     bloodGroup: string;
@@ -24,6 +27,7 @@ type Props = {
     bloodVolume: string;
     locationsDict: Dict[];
     bloodComponents: string[];
+    usePrioritySearch: boolean;
     bloodComponentsDict: Dict[];
     desiredBloodGroups: string[];
     notifyOfSmallDonors: boolean;
@@ -32,6 +36,7 @@ type Props = {
     onConfirmButtonClick: (step: number) => void;
     onChangeBloodVolume: (volume: string) => void;
     onChangeLocations: (locations: string[]) => void;
+    onChangeUsingPriority: (isChecked: boolean) => void;
     onChangeNotifyOfSmallDonors: (isChecked: boolean) => void;
     onChangeDesiredBloodGroups: (bloodGroups: string[]) => void;
     onChangeBloodComponents: (bloodComponents: string[]) => void;
@@ -39,6 +44,7 @@ type Props = {
 };
 
 const Second: FC<Props> = ({
+    userId,
     weight,
     petType,
     locations,
@@ -47,12 +53,14 @@ const Second: FC<Props> = ({
     locationsDict,
     bloodGroupDict,
     bloodComponents,
+    usePrioritySearch,
     onChangeLocations,
     desiredBloodGroups,
     notifyOfSmallDonors,
     bloodComponentsDict,
     onChangeBloodVolume,
     onConfirmButtonClick,
+    onChangeUsingPriority,
     onChangeBloodComponents,
     includeUnknownBloodGroup,
     onChangeDesiredBloodGroups,
@@ -60,6 +68,8 @@ const Second: FC<Props> = ({
     onChangeIncludeUnknownBloodGroup,
 }) => {
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(false);
+
+    const { data: pets } = usePetsQuery(userId);
 
     const onChangeDesiredBloodGroupHandler = (newBloodGroup: string) => () => {
         if (newBloodGroup === bloodGroup) {
@@ -139,6 +149,10 @@ const Second: FC<Props> = ({
         onChangeNotifyOfSmallDonors(isChecked);
     };
 
+    const onChangeUsingPriorityHandler = (_, isChecked) => {
+        onChangeUsingPriority(isChecked);
+    };
+
     const onChangeUnknownBloodGroupSwitcher = (_, isChecked) => {
         onChangeIncludeUnknownBloodGroup(isChecked);
     };
@@ -153,6 +167,23 @@ const Second: FC<Props> = ({
 
     return (
         <>
+            <div className={styles.formItem}>
+                <div
+                    className={cn(styles.labelWrapper, {
+                        [styles.noMargin]: true,
+                        [styles.disabled]: !pets?.totalPrioritySearch,
+                    })}
+                >
+                    <div className={styles.priorityTitle}>
+                        <div className={styles.priorityIcon}>
+                            <PrioritySearch />
+                        </div>
+                        <p className={cn(styles.label, { [styles.noMargin]: true })}>Применить приоритетный поиск</p>
+                    </div>
+                    <Switch checked={usePrioritySearch} onChange={onChangeUsingPriorityHandler} />
+                </div>
+                <p className={styles.donorDescr}>Помогает найти помощь одним из первых</p>
+            </div>
             <FormItem title='Какую группу ищете?'>
                 <div>
                     <div className={styles.bloodGroups}>

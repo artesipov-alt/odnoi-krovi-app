@@ -6,10 +6,10 @@ import dogRoundStub from 'imgs/dogRoundStub.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import Blood from 'imgs/svg/blood';
 import Bone from 'imgs/svg/bone';
-import Certificates from 'imgs/svg/certificates';
 import CrossedEye from 'imgs/svg/crossedEye';
 import Eye from 'imgs/svg/eye';
 import Location from 'imgs/svg/location';
+import Lock from 'imgs/svg/lock';
 import Pin from 'imgs/svg/pin';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Taxi from 'imgs/svg/taxi';
@@ -20,10 +20,11 @@ import { toast } from 'react-toastify';
 
 import { bloodSearchApply } from 'api/apiServices/bloodSearchApply';
 import { getRecipientDetail } from 'api/apiServices/getRecipientDetail';
-import { GetRecipientDetailsResponse } from 'api/donor';
+import { BonusType, GetRecipientDetailsResponse } from 'api/donor';
 import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType } from 'api/user';
+import Bonuses from 'components/Bonuses';
 import { CircularProgress } from 'components/CircularProgress';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
@@ -47,9 +48,10 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
     const [isTaxi, setIsTaxi] = useState<boolean | null>(null);
     const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
     const [isConditionsOpen, setIsConditionsOpen] = useState(false);
-    const [isConfirmCurtainOpen, setIsConfirmCurtainOpen] = useState(false);
     const [reward, setReward] = useState<CompensationType | null>(null);
     const [checkedDonor, setCheckedDonor] = useState<string | null>(null);
+    const [isConfirmCurtainOpen, setIsConfirmCurtainOpen] = useState(false);
+    const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
     const [recipient, setRecipient] = useState<GetRecipientDetailsResponse | null>(null);
 
     const { data: locationsDict = [] } = useLocationsQuery();
@@ -144,6 +146,10 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
         navigate('/owner#donorDonations');
     };
 
+    const onBonusesClickToggle = () => {
+        setIsBonusesPageOpen((prevState) => !prevState);
+    };
+
     useEffect(() => {
         fetchDetails();
     }, [fetchDetails]);
@@ -160,13 +166,24 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
         return null;
     }
 
+    if (isBonusesPageOpen) {
+        return <Bonuses onClose={onBonusesClickToggle} items={recipient.availableBonuses} />;
+    }
+
     return (
         <Layout className={styles.wrapper}>
             <div className={styles.header}>
                 <div className={styles.back} onClick={onClose}>
                     <BackAngularArrow />
                 </div>
-                <h2 className={styles.name}>{recipient.petName.toUpperCase()}</h2>
+                <div className={styles.nameWrapper}>
+                    <h2 className={styles.name}>{recipient.petName.toUpperCase()}</h2>
+                    {!!recipient.prioritySearch && (
+                        <div className={styles.prioritySearch}>
+                            <PrioritySearch />
+                        </div>
+                    )}
+                </div>
                 {recipient.photoUrls?.[0] && (
                     <div onClick={isBlurToggle} className={styles.blurIconWrapper}>
                         <div className={cn(styles.blurIcon, { [styles.isBlur]: isBlur })}>
@@ -260,7 +277,7 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                 </Accordion>
             )}
             <div className={styles.settings}>
-                <div className={styles.setting}>
+                <div className={styles.setting} onClick={onBonusesClickToggle}>
                     <p className={styles.text}>
                         Бонусы
                         <br />
@@ -270,9 +287,19 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                         <div className={styles.bonusIcon}>
                             <PrioritySearch />
                         </div>
-                        <div className={styles.bonusIcon}>
-                            <Certificates />
-                        </div>
+                        {!!recipient.availableBonuses?.length &&
+                            recipient.availableBonuses[0].type === BonusType.LOCK && (
+                                <div className={cn(styles.bonusIcon, { [styles.lock]: true })}>
+                                    <Lock />
+                                </div>
+                            )}
+                        {!!recipient.availableBonuses?.length &&
+                            recipient.availableBonuses[0].type !== BonusType.LOCK && (
+                                <div className={styles.bonusesCount}>
+                                    <p className={styles.countPlus}>+ </p>
+                                    <div>{recipient.availableBonuses?.length}</div>
+                                </div>
+                            )}
                     </div>
                 </div>
                 <div className={styles.setting} onClick={onConditionsToggle}>
@@ -334,7 +361,9 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                                         </div>
                                     </div>
                                     <div
-                                        className={cn(styles.checkItem, { [styles.checked]: checkedDonor === petId })}
+                                        className={cn(styles.checkItem, {
+                                            [styles.checked]: checkedDonor === petId,
+                                        })}
                                     />
                                     <div className={styles.photoFooter}>
                                         <p className={styles.domorName}>{petName.toUpperCase()}</p>

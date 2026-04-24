@@ -40,7 +40,7 @@ const App: FC = () => {
                 <Route path='/about/history' element={<AboutHistory />} />
                 <Route path='/about/thanks' element={<AboutThanks />} />
                 <Route path='/about/tech' element={<AboutTech />} />
-                <Route path='/bonuses' element={<Bonuses />} />
+                <Route path='/bonuses' element={<Bonuses userId={user.id} />} />
                 <Route path='/donationsHistory' element={<DonationsHistory id={user.id} />} />
                 <Route
                     path='/registration'

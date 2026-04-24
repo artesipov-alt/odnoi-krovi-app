@@ -8,10 +8,10 @@ import Blood from 'imgs/svg/blood';
 import BloodVolume from 'imgs/svg/bloodVolume';
 import Bone from 'imgs/svg/bone';
 import Cancel from 'imgs/svg/cancel';
-import Certificates from 'imgs/svg/certificates';
 import Chat from 'imgs/svg/chat';
 import Exclamation from 'imgs/svg/exclamation';
 import Location from 'imgs/svg/location';
+import Lock from 'imgs/svg/lock';
 import Max from 'imgs/svg/max';
 import MiniSinglePaw from 'imgs/svg/miniSinglePaw';
 import Pin from 'imgs/svg/pin';
@@ -26,11 +26,12 @@ import { regexReal } from 'utils/regexps';
 import { cancelDonation } from 'api/apiServices/cancelDonation';
 import { completeDonation } from 'api/apiServices/completeDonation';
 import { getUserContacts } from 'api/apiServices/getUserContacts';
-import { DonorStatus, PlannedDonation } from 'api/donor';
+import { BonusType, DonorStatus, PlannedDonation } from 'api/donor';
 import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType, Identities } from 'api/user';
 import Alert from 'components/Alert';
+import Bonuses from 'components/Bonuses';
 import { CircularProgress } from 'components/CircularProgress';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
@@ -59,6 +60,7 @@ const curtainList = [
 const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) => {
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
+    const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
 
     const { data: locationsDict = [], isError: isErrorLocations } = useLocationsQuery();
@@ -173,11 +175,19 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         setDonatedBloodVolume(newValue);
     };
 
+    const onBonusesClickToggle = () => {
+        setIsBonusesPageOpen((prevState) => !prevState);
+    };
+
     useEffect(() => {
         if (isErrorLocations) {
             showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
         }
     }, [isErrorLocations, showToast]);
+
+    if (isBonusesPageOpen) {
+        return <Bonuses fromDonationDetails onClose={onBonusesClickToggle} items={donation.applicationData.bonuses} />;
+    }
 
     return (
         <Layout className={styles.wrapper}>
@@ -358,7 +368,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                 </Accordion>
             )}
             <div className={styles.settings}>
-                <div className={styles.setting}>
+                <div className={styles.setting} onClick={onBonusesClickToggle}>
                     <p className={styles.text}>
                         Бонусы
                         <br />
@@ -368,9 +378,19 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         <div className={styles.bonusIcon}>
                             <PrioritySearch />
                         </div>
-                        <div className={styles.bonusIcon}>
-                            <Certificates />
-                        </div>
+                        {!!donation.applicationData.bonuses?.length &&
+                            donation.applicationData.bonuses[0].type === BonusType.LOCK && (
+                                <div className={cn(styles.bonusIcon, { [styles.lock]: true })}>
+                                    <Lock />
+                                </div>
+                            )}
+                        {!!donation.applicationData.bonuses?.length &&
+                            donation.applicationData.bonuses[0].type !== BonusType.LOCK && (
+                                <div className={styles.bonusesCount}>
+                                    <p className={styles.countPlus}>+ </p>
+                                    <div>{donation.applicationData.bonuses?.length}</div>
+                                </div>
+                            )}
                     </div>
                 </div>
                 <div className={styles.setting}>

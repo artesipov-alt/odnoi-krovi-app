@@ -29,7 +29,7 @@ export const createRecipient = async ({ petId, photo, poolInfo, bloodRequestPhot
 
         poolRequestId = data.id;
     } catch (e) {
-        return { success: false, error: 'Профиль питомца создано, но не удалось создать заявку поиск крови' };
+        return { success: false, error: 'Профиль питомца создан, но не удалось создать заявку поиск крови' };
     }
 
     if (!petId) {

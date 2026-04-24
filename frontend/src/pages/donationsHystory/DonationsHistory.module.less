@@ -1,5 +1,17 @@
 @import 'styles/colors';
 
+.wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.innerWrapper {
+    flex-shrink: 0;
+    padding-bottom: 21px;
+}
+
 .header {
     display: flex;
     align-items: center;
@@ -97,6 +109,12 @@
     text-align: center;
 }
 
+.content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Плавность на iOS */
+}
+
 .noItems {
     min-height: 375px;
     height: calc(100vh - 157px);
@@ -119,7 +137,6 @@
 }
 
 .list {
-    margin-top: 21px;
     padding: 0 12px;
 }
 

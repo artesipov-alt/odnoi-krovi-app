@@ -165,7 +165,6 @@
     &.short {
         height: calc(100vh - 10px - 50px);
         background: url('imgs/noRecListBg.png') no-repeat bottom;
-        //background-size: contain;
         background-origin: border-box;
         box-sizing: border-box;
     }
@@ -221,7 +220,7 @@
     gap: 18px;
     grid-template-columns: repeat(2, minmax(100px, 2fr));
     align-content: flex-start;
-    padding: 0 12px;
+    padding: 0 12px 16px;
 }
 
 .pet {
@@ -285,10 +284,14 @@
     text-overflow: ellipsis;
 }
 
-.bloodGroup {
+.info {
+    display: flex;
     position: absolute;
     top: 7px;
     left: 5px;
+}
+
+.bloodGroup {
     height: 32px;
     min-width: 32px;
     padding: 0 8px;
@@ -301,6 +304,17 @@
     border-radius: 25px;
     background: @red2;
     box-sizing: border-box;
+}
+
+.prioritySearch {
+    width: 32px;
+    height: 32px;
+    margin-left: -5px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
 }
 
 .bloodVolume {
