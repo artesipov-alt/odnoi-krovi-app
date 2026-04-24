@@ -108,6 +108,11 @@ func (b *BloodRequest) IsActive() bool {
 	return b.Status == BloodRequestStatusActive
 }
 
+// IsActive checks if the request is active
+func (b *BloodRequest) IsClosed() bool {
+	return b.Status == BloodRequestStatusClosed
+}
+
 // Close marks the request as closed
 func (b *BloodRequest) Close() {
 	b.Status = BloodRequestStatusClosed
