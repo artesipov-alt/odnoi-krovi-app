@@ -61,8 +61,6 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		return nil, apperrors.Internal(err, "failed to get recipient")
 	}
 
-	recipient.SyncPrivilegeAndPriority()
-
 	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
 		WithAll: true,
 	})
@@ -107,6 +105,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	}
 
 	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)
+	recipient.SyncPrivilegeAndPriority()
 
 	arrears, err := h.bonusSvc.GetAggregatedBonuses(ctx, potentialDonors[0].Type, user.ID)
 	if err != nil {
