@@ -294,21 +294,36 @@ func (r *EntBonusRepository) AddPrioritySearch(ctx context.Context, id string) e
 	return nil
 }
 
-// SubtractPrioritySearch уменьшает счетчик приоритетного поиска для пользователя на 1
+// SubtractPrioritySearch уменьшает счетчик приоритетного поиска для пользователя на 1.
+// Не позволяет счетчику опускаться ниже нуля.
 func (r *EntBonusRepository) SubtractPrioritySearch(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("invalid user ID")
 	}
 
-	err := r.client(ctx).User.Update().
-		Where(entuser.ID(id)).
-		AddPrioritySearchCount(-1).
-		Exec(ctx)
-
+	// Получаем текущее значение счетчика PrioritySearchCount
+	user, err := r.client(ctx).User.Query().Where(entuser.ID(id)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return fmt.Errorf("user with id %s not found", id)
 		}
+		return fmt.Errorf("failed to query user: %w", err)
+	}
+
+	currentCount := user.PrioritySearchCount
+
+	// Если счетчик уже ноль, ничего не делаем
+	if currentCount == 0 {
+		return nil
+	}
+
+	// Вычитаем 1 из счетчика
+	err = r.client(ctx).User.Update().
+		Where(entuser.ID(id)).
+		SetPrioritySearchCount(currentCount - 1).
+		Exec(ctx)
+
+	if err != nil {
 		return fmt.Errorf("failed to subtract priority search: %w", err)
 	}
 

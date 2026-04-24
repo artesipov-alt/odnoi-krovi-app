@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -12,6 +13,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -173,8 +175,12 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 // Handlers
 
 func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, input *dto.CreateBloodRequestInput) (*dto.CreateBloodRequestOutput, error) {
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
 	bloodReq := h.bloodRequestMapper.FromCreate(input.Body)
-
+	bloodReq.OwnerID = userID
 	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
 		return nil, err

@@ -177,7 +177,7 @@ func main() {
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo, petService)
 
 		// Инициализация bloodsearch handlers
-		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, publisher, petService)
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusRepo, publisher, petService, txManager)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, petRepo)

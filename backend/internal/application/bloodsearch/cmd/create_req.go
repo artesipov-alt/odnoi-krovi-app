@@ -10,12 +10,14 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
 type CreateRequestHandler struct {
@@ -23,8 +25,10 @@ type CreateRequestHandler struct {
 	petRepo    pet.Repository
 	donorRepo  donor.Repository
 	userRepo   user.Repository
+	bonusRepo  bonus.Repository
 	publisher  ports.EventPublisher
 	petService *pet.PetService
+	txManager  *presistance.TxManager
 }
 
 func NewCreateRequestHandler(
@@ -32,27 +36,28 @@ func NewCreateRequestHandler(
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
 	userRepo user.Repository,
+	bonusRepo bonus.Repository,
 	publisher ports.EventPublisher,
 	petService *pet.PetService,
+	txManager *presistance.TxManager,
 ) *CreateRequestHandler {
 	return &CreateRequestHandler{
 		bloodRepo:  bloodRepo,
 		petRepo:    petRepo,
 		donorRepo:  donorRepo,
 		userRepo:   userRepo,
+		bonusRepo:  bonusRepo,
 		publisher:  publisher,
 		petService: petService,
+		txManager:  txManager,
 	}
 }
 
 func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodRequest) (*model.BloodRequestWithApplications, error) {
 	// Проверяем существование питомца
-	exists, err := h.petRepo.ExistsByID(ctx, req.PetID)
+	petRecipient, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to check pet existence")
-	}
-	if !exists {
-		return nil, apperrors.ErrPetNotFound
+		return nil, apperrors.Internal(err, "Ошибка поиска питомца")
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
@@ -64,9 +69,24 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		return nil, apperrors.ErrBloodRequestAlreadyExists
 	}
 
-	newReq, err := h.bloodRepo.Create(ctx, req)
+	var newReq *model.BloodRequestWithApplications
+	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		var err error
+		if req.PrioritySearch && petRecipient.Privilege == "" {
+			err = h.bonusRepo.SubtractPrioritySearch(txCtx, req.OwnerID)
+			if err != nil {
+				return apperrors.Internal(err, "failed to subtract priority search")
+			}
+		}
+		newReq, err = h.bloodRepo.Create(txCtx, req)
+		if err != nil {
+			return apperrors.Internal(err, "failed to create blood request")
+		}
+
+		return nil
+	})
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to create blood request")
+		return nil, err
 	}
 
 	pets, err := h.petRepo.GetPetsByBloodGroupAndRegion(ctx, req.BloodGroupNames, req.Regions)
@@ -105,49 +125,52 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		donorBloodReq := bloodReqsMap[pet.ID]
 		h.petService.RecalculateFactorsAndStatus(pet, timeNow, donorApplication, donorBloodReq)
 	}
-
-	var avilableDonors []petmodel.Pet
-	for _, pet := range pets {
-		if pet.PetStatus == petmodel.PetStatusDonor {
-			avilableDonors = append(avilableDonors, *pet)
+	// Логика события
+	// TODO: Вынести отдельно.
+	{
+		var avilableDonors []petmodel.Pet
+		for _, pet := range pets {
+			if pet.PetStatus == petmodel.PetStatusDonor {
+				avilableDonors = append(avilableDonors, *pet)
+			}
 		}
-	}
 
-	// Get peers for available donors
-	peersMap := make(map[string]events.Peers)
-	for _, donorPet := range avilableDonors {
-		donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
-			WithIdentities: true,
-		})
-		if err != nil {
-			slog.Error("failed to get donor user", "err", err, "petID", donorPet.ID)
-			continue
-		}
-		maxID, telegramID := extractProviderIDs(donorUser)
-		if maxID != "" || telegramID != "" {
-			key := fmt.Sprintf("%s|%s", maxID, telegramID)
-			if _, exists := peersMap[key]; !exists {
-				peersMap[key] = events.Peers{
-					MaxID:      maxID,
-					TelegramID: telegramID,
+		// Get peers for available donors
+		peersMap := make(map[string]events.Peers)
+		for _, donorPet := range avilableDonors {
+			donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+				WithIdentities: true,
+			})
+			if err != nil {
+				slog.Error("failed to get donor user", "err", err, "petID", donorPet.ID)
+				continue
+			}
+			maxID, telegramID := extractProviderIDs(donorUser)
+			if maxID != "" || telegramID != "" {
+				key := fmt.Sprintf("%s|%s", maxID, telegramID)
+				if _, exists := peersMap[key]; !exists {
+					peersMap[key] = events.Peers{
+						MaxID:      maxID,
+						TelegramID: telegramID,
+					}
 				}
 			}
 		}
-	}
-	peers := make([]events.Peers, 0, len(peersMap))
-	for _, p := range peersMap {
-		peers = append(peers, p)
-	}
+		peers := make([]events.Peers, 0, len(peersMap))
+		for _, p := range peersMap {
+			peers = append(peers, p)
+		}
 
-	if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
-		RequestID:      newReq.ID,
-		BloodTypes:     req.BloodGroupNames,
-		Regions:        req.Regions,
-		AvilableDonors: peers,
-		CreatedAt:      *newReq.CreatedAt,
-	}); err != nil {
-		slog.Error("failed to publish blood request created event", "err", err)
-		return newReq, nil
+		if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
+			RequestID:      newReq.ID,
+			BloodTypes:     req.BloodGroupNames,
+			Regions:        req.Regions,
+			AvilableDonors: peers,
+			CreatedAt:      *newReq.CreatedAt,
+		}); err != nil {
+			slog.Error("failed to publish blood request created event", "err", err)
+			return newReq, nil
+		}
 	}
 
 	return newReq, nil
