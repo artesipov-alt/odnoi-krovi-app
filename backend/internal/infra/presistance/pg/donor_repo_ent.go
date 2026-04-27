@@ -65,7 +65,7 @@ func (r *EntDonorResponseRepository) GetDonorResponseByID(ctx context.Context, i
 	entResp, err := r.client(ctx).DonorResponse.Query().
 		Where(donorresponse.ID(id)).
 		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
-		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID, pet.FieldName, pet.FieldBloodGroup, pet.FieldPhotoUrls) }).
 		Only(ctx)
 	if err != nil {
 		return nil, err
