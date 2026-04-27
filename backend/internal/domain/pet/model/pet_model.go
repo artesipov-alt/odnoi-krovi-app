@@ -199,6 +199,7 @@ const (
 	StopFactorDonationTooRecent       FactorCode = "STOP_DONATION_TOO_RECENT"       // Последняя донация была слишком недавно (меньше 2 месяцев)
 	StopFactorTransfused              FactorCode = "STOP_TRANSFUSED"                // Питомец получал переливание крови
 	StopFactorCurrentlyRecipient      FactorCode = "STOP_CURRENTLY_RECIPIENT"       // Питомец в данный момент является реципиентом
+	StopFactorPlannedDonation         FactorCode = "STOP_PLANNED_DONATION"          // У питомца запланирована донация
 	StopFactorHasDiseases             FactorCode = "STOP_HAS_DISEASES"              // Наличие заболеваний
 
 	WarnFactorTakingMedications            FactorCode = "WARN_TAKING_MEDICATIONS"             // Питомец принимает медикаменты
@@ -297,6 +298,10 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 		Description:    "Питомцу сейчас ищут кровь",
 		SubDescription: "",
 	},
+	StopFactorPlannedDonation: {
+		Description:    "У питомца запланирована донация",
+		SubDescription: "Питомец уже имеет активную заявку на донацию",
+	},
 	WarnFactorTakingMedications: {
 		Description:    "Идет прием препаратов",
 		SubDescription: "Прием препаратов может говорить о проблемах со здоровьем",
@@ -370,6 +375,9 @@ func (p *Pet) GetStopFactors(now time.Time, isPlaningDonation, isRecipient bool)
 	}
 	if isRecipient {
 		factors = append(factors, StopFactorCurrentlyRecipient)
+	}
+	if isPlaningDonation {
+		factors = append(factors, StopFactorPlannedDonation)
 	}
 	return factors
 }
