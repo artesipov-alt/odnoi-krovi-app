@@ -115,6 +115,9 @@ func (d *DonorResponse) Confirm(amount float64) error {
 
 // IsActiveForDonation checks if the donor response is active for donation purposes
 func (d *DonorResponse) IsActiveForDonation() bool {
+	if d == nil {
+		return false
+	}
 	return d.Status == DonorResponseStatusAccepted ||
 		d.Status == DonorResponseStatusPending ||
 		(d.Status == DonorResponseStatusCompleted && !d.IsConfirmed)
