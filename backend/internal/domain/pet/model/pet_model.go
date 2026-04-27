@@ -199,6 +199,7 @@ const (
 	StopFactorDonationTooRecent       FactorCode = "STOP_DONATION_TOO_RECENT"       // Последняя донация была слишком недавно (меньше 2 месяцев)
 	StopFactorTransfused              FactorCode = "STOP_TRANSFUSED"                // Питомец получал переливание крови
 	StopFactorCurrentlyRecipient      FactorCode = "STOP_CURRENTLY_RECIPIENT"       // Питомец в данный момент является реципиентом
+	StopFactorHasDiseases             FactorCode = "STOP_HAS_DISEASES"              // Наличие заболеваний
 
 	WarnFactorTakingMedications            FactorCode = "WARN_TAKING_MEDICATIONS"             // Питомец принимает медикаменты
 	WarnFactorSurgicalIntervention         FactorCode = "WARN_SURGICAL_INTERVENTION"          // Было хирургическое вмешательство
@@ -209,7 +210,6 @@ const (
 	WarnFactorVaccinationExpired           FactorCode = "WARN_VACCINATION_EXPIRED"            // Срок вакцинации истек (больше года)
 	WarnFactorDewormingExpired             FactorCode = "WARN_DEWORMING_EXPIRED"              // Срок дегельминтизации истек (больше 3 месяцев)
 	WarnFactorEctoparasiteTreatmentExpired FactorCode = "WARN_ECTOPARASITE_TREATMENT_EXPIRED" // Срок обработки от эктопаразитов истек (больше 3 месяцев)
-	WarnFactorHasDiseases                  FactorCode = "WARN_HAS_DISEASES"                   // Наличие заболеваний
 	WarnFactorUnknownHealth                FactorCode = "WARN_UNKNOWN_HEALTH"                 // Необходимо проверить состояние здоровья
 )
 
@@ -239,7 +239,7 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 	},
 	WarnFactorVaccinationExpired: {
 		Description:    "Прошло больше года после вакцинации",
-		SubDescription: "",
+		SubDescription: "Рекомендуется обновить вакцинацию перед донацией",
 	},
 	StopFactorVaccinationTooRecent: {
 		Description:    "Прошло меньше месяца после вакцинации",
@@ -247,15 +247,15 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 	},
 	WarnFactorEctoparasiteTreatmentExpired: {
 		Description:    "Прошло больше 3 месяцев после обработки от эктопаразитов",
-		SubDescription: "",
+		SubDescription: "Рекомендуется обновить обработку перед донацией",
 	},
-	WarnFactorHasDiseases: {
+	StopFactorHasDiseases: {
 		Description:    "Есть заболевания",
 		SubDescription: "",
 	},
 	WarnFactorUnknownHealth: {
 		Description:    "Необходимо проверить состояние здоровья",
-		SubDescription: "",
+		SubDescription: "Донор должен быть клинически здоров, не иметь инфекций и хронических заболеваний",
 	},
 	StopFactorNoDeworming: {
 		Description:    "Не проведена дегельминтизация",
@@ -267,7 +267,7 @@ var factorDescriptions = map[FactorCode]FactorDescription{
 	},
 	WarnFactorDewormingExpired: {
 		Description:    "Прошло больше 3 месяцев после дегельминтизации",
-		SubDescription: "",
+		SubDescription: "Рекомендуется обновить дегельминтизацию перед донацией",
 	},
 	StopFactorTooYoung: {
 		Description:    "Возраст меньше года",
@@ -515,7 +515,8 @@ func (p *Pet) checkWarnAge(now time.Time) FactorCode {
 	if p.BirthDate == nil {
 		return ""
 	}
-	if p.BirthDate.Before(now.AddDate(-7, 0, 0)) && !p.BirthDate.Before(now.AddDate(-8, 0, 0)) {
+	// За 3 месяца до 8 лет (от 7 лет 9 месяцев до 8 лет)
+	if p.BirthDate.Before(now.AddDate(-7, -3, 0)) && !p.BirthDate.Before(now.AddDate(-8, 0, 0)) {
 		return WarnFactorApproaching8Years
 	}
 	return ""
@@ -539,6 +540,10 @@ func (p *Pet) checkStopHealth() FactorCode {
 	if p.Health == nil {
 		return ""
 	}
+	// Заболевания - это стоп-фактор
+	if p.Health.HealthStatus == HealthStatusIll {
+		return StopFactorHasDiseases
+	}
 	if p.Health.Transfused != nil && *p.Health.Transfused {
 		return StopFactorTransfused
 	}
@@ -551,9 +556,7 @@ func (p *Pet) checkWarnHealth() []FactorCode {
 	if p.Health == nil {
 		return codes
 	}
-	if p.Health.HealthStatus == HealthStatusIll {
-		codes = append(codes, WarnFactorHasDiseases)
-	}
+	// Заболевания теперь в stop-факторах
 	if p.Health.HealthStatus == HealthStatusUnknown {
 		codes = append(codes, WarnFactorUnknownHealth)
 	}
