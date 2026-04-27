@@ -2,23 +2,9 @@ import type { Context } from "@maxhub/max-bot-api";
 import { Keyboard } from "@maxhub/max-bot-api";
 import { Templates } from "../config/templates";
 import { usersApi, pinologger } from "../instances";
+import { getMainKeyboard } from "../keyboards";
 
 // ============ Keyboard Builders ============
-
-const getMainKeyboard = () => {
-  return Keyboard.inlineKeyboard([
-    [
-      Keyboard.button.link(
-        "🩸 Открыть приложение",
-        "https://max.ru/id3200014662_2_bot?startapp",
-      ),
-    ],
-    [
-      Keyboard.button.callback("❓ Помощь", "help"),
-      Keyboard.button.callback("👤 Профиль", "profile"),
-    ],
-  ]);
-};
 
 const getBackKeyboard = () => {
   return Keyboard.inlineKeyboard([

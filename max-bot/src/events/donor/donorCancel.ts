@@ -16,6 +16,9 @@ export const handleDonorCancel = async (event: DonorCancelEvent) => {
     RecipientPetName,
   } = event;
 
+  const donorBloodGroup =
+    DonorBloodGroup === "UNKNOWN" ? "не определена" : DonorBloodGroup;
+
   if (!RecipientProviderMaxID || RecipientProviderMaxID.trim() === "") {
     pinologger.warn(
       { donorName: DonorName },
@@ -25,7 +28,7 @@ export const handleDonorCancel = async (event: DonorCancelEvent) => {
   }
 
   try {
-    const message = `Донор (${DonorName}, группа ${DonorBloodGroup}) отказался от донации. Можете найти нового донора на Портале.`;
+    const message = `Донор (${DonorName}, группа ${donorBloodGroup}) отказался от донации. Можете найти нового донора на Портале.`;
 
     await bot.api.sendMessageToUser(Number(RecipientProviderMaxID), message);
 

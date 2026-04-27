@@ -1,4 +1,5 @@
 import { bot, pinologger } from "../../instances";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 interface BloodRequestCreatedEvent {
   RequestID: string;
@@ -32,9 +33,13 @@ export const handleBloodRequestCreated = async (
     }
 
     try {
-      const message = `Питомцам нужна ваша помощь!\n\nЗайдите на Портал, чтобы узнать детали.`;
+      const message = `Питомцам нужна ваша помощь!\n\nНажмите "Стать донором" в приложении, чтобы узнать детали.`;
 
-      await bot.api.sendMessageToUser(Number(targetId), message);
+      const keyboard = getAppOpenKeyboard();
+
+      await bot.api.sendMessageToUser(Number(targetId), message, {
+        attachments: [keyboard],
+      });
 
       pinologger.info(
         {

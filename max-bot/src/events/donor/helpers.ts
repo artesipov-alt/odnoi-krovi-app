@@ -8,7 +8,7 @@ export const generateMessage = (params: {
   const donorName = params.donorName?.trim() || "Анонимный донор";
   const donorBloodGroup =
     params.donorBloodGroup === "UNKNOWN"
-      ? "неизвестна"
+      ? "не определена"
       : params.donorBloodGroup;
 
   return `На Ваш поиск (${params.recipientPetName}, ${params.recipientPetNeededVolume} мл, группа ${params.recipientPetSearchingBloodGroup.join(", ")}) откликнулся донор ${donorName} (группа ${donorBloodGroup}).
