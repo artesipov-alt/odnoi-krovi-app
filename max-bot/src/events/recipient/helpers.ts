@@ -2,7 +2,13 @@ export const generateRecipientMessage = (params: {
   donorName: string;
   donorBloodGroup: string;
 }): string => {
-  return `\nКонтакты хозяина донора - ${params.donorName} (${params.donorBloodGroup})\n\nНаправляем контакты хозяина донора - обсудите возможность донации.\nБудьте вежливы и доброжелательны в общении!\nЕсли не получится договориться о донации, можете продолжить поиск в приложении.\n`;
+  const donorName = params.donorName?.trim() || "Анонимный донор";
+  const donorBloodGroup =
+    params.donorBloodGroup === "UNKNOWN"
+      ? "неизвестна"
+      : params.donorBloodGroup;
+
+  return `\nКонтакты хозяина донора - ${donorName} (группа ${donorBloodGroup})\n\nНаправляем контакты хозяина донора - обсудите возможность донации.\nБудьте вежливы и доброжелательны в общении!\nЕсли не получится договориться о донации, можете продолжить поиск в приложении.\n`;
 };
 
 export const generateDonorMessage = (params: {
@@ -10,7 +16,12 @@ export const generateDonorMessage = (params: {
   recipientBloodGroup: string;
   recipientVolume: number;
 }): string => {
-  return `На ваше предложение откликнулся реципиент - ${params.recipientName} (${params.recipientVolume} мл, группа ${params.recipientBloodGroup})\n\nХозяин реципиента получил Ваши контакты. Дождитесь, пока с Вами свяжутся, или напишите хозяину реципиента`;
+  const recipientBloodGroup =
+    params.recipientBloodGroup === "UNKNOWN"
+      ? "неизвестна"
+      : params.recipientBloodGroup;
+
+  return `На ваше предложение откликнулся реципиент - ${params.recipientName} (${params.recipientVolume} мл, группа ${recipientBloodGroup})\n\nХозяин реципиента получил Ваши контакты. Дождитесь, пока с Вами свяжутся, или напишите хозяину реципиента`;
 };
 
 export const generateDonationMessage = (params: {
@@ -18,7 +29,12 @@ export const generateDonationMessage = (params: {
   recipientPetName: string;
   recipientBloodGroup: string;
 }): string => {
-  return `Донация подтверждена (реципиент ${params.recipientPetName}, группа ${params.recipientBloodGroup}). Спасибо за Вашу помощь! Вам начислены бонусы – посмотрите их на Портале.`;
+  const recipientBloodGroup =
+    params.recipientBloodGroup === "UNKNOWN"
+      ? "неизвестна"
+      : params.recipientBloodGroup;
+
+  return `Донация подтверждена (реципиент ${params.recipientPetName}, группа ${recipientBloodGroup}). Спасибо за Вашу помощь! Вам начислены бонусы – посмотрите их на Портале.`;
 };
 
 export const generateVCF = (name: string, phone: string): string => {
