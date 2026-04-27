@@ -68,7 +68,7 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 			}
 			if resp.Edges.Donor != nil {
 				fullDonor := PetToDomain(resp.Edges.Donor)
-				fullDonor.RecalculateFactors(now, false)
+				fullDonor.RecalculateFactors(now, false, false)
 				app.DonorID = resp.Edges.Donor.ID
 				app.DonorName = resp.Edges.Donor.Name
 				app.DonorPhotos = resp.Edges.Donor.PhotoUrls

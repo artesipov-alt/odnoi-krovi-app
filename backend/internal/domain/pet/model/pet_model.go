@@ -334,7 +334,7 @@ func GetAllFactors() map[FactorCode]FactorDescription {
 }
 
 // GetStopFactors возвращает список стоп-факторов для питомца на основе текущего времени
-func (p *Pet) GetStopFactors(now time.Time, isRecipient bool) []FactorCode {
+func (p *Pet) GetStopFactors(now time.Time, isPlaningDonation, isRecipient bool) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkPhoto(); code != "" {
 		factors = append(factors, code)
@@ -641,8 +641,8 @@ func (p *Pet) checkWarnBloodGroup() FactorCode {
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
 // Этот метод инкапсулирует логику обновления факторов внутри агрегата
 // RecalculateFactors пересчитывает стоп-факторы и факторы-предупреждения
-func (p *Pet) RecalculateFactors(now time.Time, isRecipient bool) {
-	stopFactors := p.GetStopFactors(now, isRecipient)
+func (p *Pet) RecalculateFactors(now time.Time, isPlaningDonation, isRecipient bool) {
+	stopFactors := p.GetStopFactors(now, isRecipient, isPlaningDonation)
 	p.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {
 		p.StopFactors[i] = string(f)
