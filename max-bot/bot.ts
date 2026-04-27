@@ -12,7 +12,6 @@ import { handleDonorReject } from "./src/events/donor/donorReject";
 import { handleDonorNotConfirmed } from "./src/events/donor/donorNotConfirmed";
 import { handleDonorCompleted } from "./src/events/donor/donorCompleted";
 import { handleBloodRequestCreated } from "./src/events/recipient/handleBloodRequestCreated";
-import { handleNewRecipients } from "./src/events/recipient/newRecipients";
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 import { handleUserContact } from "./src/events/user/handleUserContact";
 
@@ -29,7 +28,6 @@ const eventHandlers: Record<string, (event: any) => Promise<void>> = {
   donor_not_confirmed: handleDonorNotConfirmed,
   donor_completed: handleDonorCompleted,
   blood_request_created: handleBloodRequestCreated,
-  new_recipients: handleNewRecipients,
   donation_confirmed: handleDonationConfirmed,
   user_contact: handleUserContact,
 };
