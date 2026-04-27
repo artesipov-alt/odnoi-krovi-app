@@ -2,6 +2,8 @@
 package mapper
 
 import (
+	"math"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
@@ -117,21 +119,26 @@ func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequestWithAppli
 	return dtos
 }
 
-// FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model using the constructor.
-func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.BloodRequest {
-	req := model.NewBloodRequest(
-		body.PetID,
-		body.BloodVolumeNeeded,
-		body.Regions,
-	)
-
-	// Set additional fields from DTO
-	req.SmallPetsNotifyAllowed = body.SmallPetsNotifyAllowed
-	req.AdvancedInfo.Description = body.Description
-	req.BloodGroupNames = body.BloodGroupNames
-	req.BloodComponentIDs = body.BloodComponentIDs
-	req.PrioritySearch = body.PrioritySearch
-	req.IncludeUnknownBloodGroup = body.IncludeUnknownBloodGroup
+// FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model.
+func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody, ownerID string) *model.BloodRequest {
+	req := &model.BloodRequest{
+		PetID:                    body.PetID,
+		OwnerID:                  ownerID,
+		BloodVolumeNeeded:        math.Round(body.BloodVolumeNeeded*10) / 10,
+		BloodVolumeReserved:      0,
+		Regions:                  body.Regions,
+		SmallPetsNotifyAllowed:   body.SmallPetsNotifyAllowed,
+		Status:                   model.BloodRequestStatusActive,
+		BloodGroupNames:          body.BloodGroupNames,
+		BloodComponentIDs:        body.BloodComponentIDs,
+		OnBoarding:               []string{},
+		PrioritySearch:           body.PrioritySearch,
+		IncludeUnknownBloodGroup: body.IncludeUnknownBloodGroup,
+		AdvancedInfo: model.AdvancedInfo{
+			Description: body.Description,
+			PhotoURLs:   []string{},
+		},
+	}
 
 	return req
 }

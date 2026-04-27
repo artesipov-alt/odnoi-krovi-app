@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
@@ -561,7 +562,7 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 	return nil
 }
 
-func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, bloodGroups, regions []string) ([]*model.Pet, error) {
+func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, petType commonmodel.PetType, bloodGroups, regions []string) ([]*model.Pet, error) {
 	query := r.client.Pet.Query().
 		WithOwner(func(uq *ent.UserQuery) {
 			uq.Select(entuser.FieldFullName)
@@ -571,7 +572,7 @@ func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, blo
 		WithTreatments().
 		WithAnalyses().
 		Where(
-			entpet.BloodGroupIn(bloodGroups...),
+			entpet.BloodGroupIn(bloodGroups...), entpet.Type(string(petType)),
 		)
 	if len(regions) > 0 {
 		// Build predicates: any region contained in JSON array OR array length zero (including null)

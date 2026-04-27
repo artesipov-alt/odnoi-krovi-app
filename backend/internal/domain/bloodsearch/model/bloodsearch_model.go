@@ -86,23 +86,6 @@ type MatchingDonorReadModel struct {
 	PhotoURLs       []string
 }
 
-// NewBloodRequest creates a new blood request with default values
-func NewBloodRequest(petID string, bloodVolumeNeeded float64, regions []string) *BloodRequest {
-	return &BloodRequest{
-		PetID:                    petID,
-		BloodVolumeNeeded:        math.Round(bloodVolumeNeeded*10) / 10,
-		BloodVolumeReserved:      0,
-		Regions:                  regions,
-		SmallPetsNotifyAllowed:   true,
-		Status:                   BloodRequestStatusActive,
-		BloodGroupNames:          []string{},
-		BloodComponentIDs:        []string{},
-		OnBoarding:               []string{},
-		PrioritySearch:           false,
-		IncludeUnknownBloodGroup: false,
-	}
-}
-
 // IsActive checks if the request is active
 func (b *BloodRequest) IsActive() bool {
 	return b.Status == BloodRequestStatusActive
@@ -195,4 +178,13 @@ func (r *BloodRequestWithMatchingDonors) SyncPrivilegeAndPriority() {
 	} else if r.PrioritySearch {
 		r.RecipientData.Privilege = common.PrivilegePrioritySearch
 	}
+}
+
+func (r *BloodRequestWithApplications) SearchingBloodGroupNames() []string {
+	var searchingBloodGroupNames []string
+	searchingBloodGroupNames = append(searchingBloodGroupNames, r.BloodGroupNames...)
+	if r.IncludeUnknownBloodGroup {
+		searchingBloodGroupNames = append(searchingBloodGroupNames, "UNKNOWN")
+	}
+	return searchingBloodGroupNames
 }

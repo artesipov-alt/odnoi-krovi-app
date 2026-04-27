@@ -89,7 +89,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		return nil, err
 	}
 
-	pets, err := h.petRepo.GetPetsByBloodGroupAndRegion(ctx, req.BloodGroupNames, req.Regions)
+	pets, err := h.petRepo.GetPetsByBloodGroupAndRegion(ctx, petRecipient.Type, newReq.SearchingBloodGroupNames(), req.Regions)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}

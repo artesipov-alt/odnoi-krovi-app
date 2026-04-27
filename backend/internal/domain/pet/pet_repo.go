@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
@@ -23,7 +24,7 @@ type PetReadRepository interface {
 	ExistsByID(ctx context.Context, id string) (bool, error)
 
 	//Для уведомлений
-	GetPetsByBloodGroupAndRegion(ctx context.Context, bloodGroups, regions []string) ([]*model.Pet, error)
+	GetPetsByBloodGroupAndRegion(ctx context.Context, petType commonmodel.PetType, bloodGroups, regions []string) ([]*model.Pet, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев
