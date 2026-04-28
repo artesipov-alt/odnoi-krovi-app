@@ -79,6 +79,7 @@ export type Pet = {
     photoUrls?: string[];
     recoveryDays?: number;
     treatments?: Treatments;
+    isProfileLock?: boolean;
     livingCondition?: string;
     reproductiveStatus?: string;
     donorRestrictions?: DonorRestrictions;

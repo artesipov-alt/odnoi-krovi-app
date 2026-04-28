@@ -22,6 +22,7 @@ type Props = {
     transfused?: boolean;
     medications?: string;
     healthStatus?: string;
+    isProfileLock?: boolean;
     onErrorUpdate?: () => void;
     onSuccessUpdate?: () => void;
     surgicalInterventions?: string;
@@ -38,6 +39,7 @@ const HealthStep: FC<Props> = ({
     medications,
     healthStatus,
     onErrorUpdate,
+    isProfileLock,
     onSuccessUpdate,
     healthStatusesDict,
     surgicalInterventions,
@@ -153,7 +155,7 @@ const HealthStep: FC<Props> = ({
                 </div>
             </FormItem>
             <FormItem className={styles.formItem} title='Питомцу проводили переливания?'>
-                <div className={styles.buttonsRow}>
+                <div className={cn(styles.buttonsRow, { [styles.isLock]: isProfileLock })}>
                     <Button
                         onClick={onWasBloodTransfusionClickHandler(true)}
                         className={cn(styles.buttonsRowItem, {
