@@ -294,6 +294,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				PetName:          res.DonorPetData.Name,
 				Amount:           res.ApplicationData.Amount,
 				DonorBloodGroup:  res.DonorPetData.BloodGroupName,
+				DonorPetID:       res.DonorPetData.ID,
 				PhotoURLs:        h.storage.BuildPhotoURLs(res.DonorPetData.PhotoURLs, *res.ApplicationData.UpdatedAt),
 				CompensationType: res.ApplicationData.CompensationType,
 				TaxiCompensation: res.ApplicationData.TaxiCompensation,

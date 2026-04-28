@@ -17,7 +17,9 @@ type DonationCardForDonor struct {
 
 type ApplicationShort struct {
 	ID               string         `json:"id" doc:"ID отклика" example:"RES-ABCDEABCDE"`
+	DonorPetID       string         `json:"donorPetID" doc:"ID питомца донора" example:"PET-aBcDeF1234"`
 	PetName          string         `json:"petName" doc:"Имя питомца" example:"Шарик"`
+	DonorBloodGroup  string         `json:"donorBloodGroup" doc:"Группа крови донора"`
 	Amount           float64        `json:"amount" doc:"Объем крови в мл" example:"450"`
 	PhotoURLs        []string       `json:"photoUrls,omitempty" doc:"Список URL фотографий"`
 	CompensationType string         `json:"compensationType" doc:"Условия донации" enum:"free,paid,food"`
@@ -26,7 +28,6 @@ type ApplicationShort struct {
 	IsConfirmed      bool           `json:"isConfirmed" doc:"Подтверждение отклика от реципиента" example:"false"`
 	RejectedReason   string         `json:"rejectedReason,omitempty" doc:"Причина отказа от донации реципиентом"`
 	Status           string         `json:"status" doc:"Статус отклика" enum:"pending,accepted,rejected,cancelled,completed,failed"`
-	DonorBloodGroup  string         `json:"donorBloodGroup" doc:"Группа крови донора"`
 	CreatedAt        *time.Time     `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time     `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
