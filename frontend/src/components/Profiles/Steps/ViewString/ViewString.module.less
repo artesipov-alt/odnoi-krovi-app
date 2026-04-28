@@ -26,6 +26,10 @@
     gap: 12px;
     width: 40%;
     flex-shrink: 0;
+
+    &.withLock {
+        width: 50%;
+    }
 }
 
 .name {
@@ -50,6 +54,18 @@
     svg {
         width: inherit;
         height: inherit;
+    }
+}
+
+.lockIcon {
+    width: 12px;
+    height: 14px;
+    padding: 0 2px 0 10px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: @textColor4;
     }
 }
 

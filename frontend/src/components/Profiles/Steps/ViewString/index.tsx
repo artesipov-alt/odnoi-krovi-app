@@ -1,5 +1,6 @@
 import cn from 'classnames';
 import Info from 'imgs/svg/info';
+import Lock from 'imgs/svg/lock';
 import { FC, useEffect, useState } from 'react';
 
 import styles from './ViewString.module.less';
@@ -9,10 +10,11 @@ type Props = {
     value: string;
     descr?: string;
     tooltip?: string;
+    withLock?: boolean;
     noAlignCanter?: boolean;
 };
 
-const ViewString: FC<Props> = ({ name, value, noAlignCanter, tooltip, descr }) => {
+const ViewString: FC<Props> = ({ name, value, noAlignCanter, tooltip, descr, withLock }) => {
     const [isOpenTooltip, setIsOpenTooltip] = useState(false);
 
     const toggleTooltip = (e: React.MouseEvent) => {
@@ -36,7 +38,12 @@ const ViewString: FC<Props> = ({ name, value, noAlignCanter, tooltip, descr }) =
     return (
         <>
             <div className={cn(styles.container, { [styles.noAlignCanter]: noAlignCanter, [styles.isDescr]: !!descr })}>
-                <div className={styles.nameWrapper}>
+                <div className={cn(styles.nameWrapper, { [styles.withLock]: withLock })}>
+                    {withLock && (
+                        <div className={styles.lockIcon}>
+                            <Lock />
+                        </div>
+                    )}
                     <div className={styles.name}>{name}</div>
                     {!!tooltip && (
                         <div onClick={toggleTooltip} className={styles.infoIcon}>

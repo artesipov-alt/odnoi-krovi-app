@@ -101,10 +101,11 @@ const PetProfile: FC<Props> = ({
     photoUrls,
     birthDate,
     petStatus,
-    updatePets,
     bloodGroup,
+    updatePets,
     chipNumber,
     recoveryDays,
+    isProfileLock,
     treatments = {},
     livingCondition,
     donorRestrictions,
@@ -458,6 +459,7 @@ const PetProfile: FC<Props> = ({
                 petGenders={petGendersDict}
                 onClose={onTileBackHandler}
                 onSuccessUpdate={updatePets}
+                isProfileLock={isProfileLock}
                 livingCondition={livingCondition}
                 onErrorUpdate={onErrorUpdateHandler}
                 reproductiveStatus={reproductiveStatus}
@@ -476,6 +478,7 @@ const PetProfile: FC<Props> = ({
                 isEditMode={isEditMode}
                 onClose={onTileBackHandler}
                 onSuccessUpdate={updatePets}
+                isProfileLock={isProfileLock}
                 transfused={health?.transfused}
                 medications={health?.medications}
                 healthStatus={health?.healthStatus}

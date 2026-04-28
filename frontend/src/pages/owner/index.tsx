@@ -381,10 +381,7 @@ const Owner: FC<Props> = ({ userId }) => {
                     </>
                 )}
             {userData?.donorPreference &&
-                pets?.pets.some(
-                    ({ donorRestrictions, petStatus }) =>
-                        !donorRestrictions?.stopFactors?.length || petStatus === Role.PLANNED_DONATION,
-                ) && (
+                pets?.pets.some(({ donorRestrictions }) => !donorRestrictions?.stopFactors?.length) && (
                     <>
                         <div
                             className={cn(styles.notCandidatsButton, { [styles.isCandidats]: true })}

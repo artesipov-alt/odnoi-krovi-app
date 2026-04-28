@@ -37,6 +37,7 @@ type Props = {
     chipNumber?: string;
     isEditMode: boolean;
     petTypes: PetTypeDict[];
+    isProfileLock?: boolean;
     livingCondition?: string;
     onErrorUpdate?: () => void;
     reproductiveStatus?: string;
@@ -88,6 +89,7 @@ const ParamsStep: FC<Props> = ({
     petGenders,
     chipNumber,
     isEditMode,
+    isProfileLock,
     onErrorUpdate,
     bloodGroupDict,
     onSuccessUpdate,
@@ -330,157 +332,196 @@ const ParamsStep: FC<Props> = ({
 
     const renderEditView = () => (
         <>
-            <FormItem title='Кличка'>
-                <TextField
-                    name='name'
-                    value={newName}
-                    onChange={onChangeNameHandler}
-                    placeholder='Как зовут питомца?'
-                />
-            </FormItem>
-            {!!petTypes.length && (
-                <FormItem title='Вид'>
-                    <div className={styles.buttonsRow}>
-                        {petTypes.map(({ label, value }) => (
-                            <Button
-                                key={value}
-                                onClick={onPetTypeChangeHandler(value)}
-                                className={cn(styles.buttonsRowItem, { [styles.checked]: newPetType === value })}
-                            >
-                                {label}
-                            </Button>
-                        ))}
-                    </div>
+            {isProfileLock && name ? (
+                <ViewString withLock name='Кличка' value={newName.toUpperCase()} />
+            ) : (
+                <FormItem title='Кличка'>
+                    <TextField
+                        name='name'
+                        value={newName}
+                        onChange={onChangeNameHandler}
+                        placeholder='Как зовут питомца?'
+                    />
                 </FormItem>
             )}
-            {!!petGenders.length && (
-                <FormItem title='Пол'>
-                    <div className={styles.buttonsRow}>
-                        {petGenders.map(({ label, value }) => {
-                            const isMale = value === PetGender.MALE;
-                            const isChecked = newGender === value;
-
-                            return (
+            {isProfileLock && type ? (
+                <ViewString withLock name='Вид' value={petTypes.filter(({ value }) => value === type)[0]?.label} />
+            ) : (
+                !!petTypes.length && (
+                    <FormItem title='Вид'>
+                        <div className={styles.buttonsRow}>
+                            {petTypes.map(({ label, value }) => (
                                 <Button
                                     key={value}
-                                    startIcon={
-                                        <div
-                                            className={cn(styles.buttonIcon, {
-                                                [styles.female]: !isMale,
-                                                [styles.isChecked]: isChecked,
-                                            })}
-                                        >
-                                            {isMale ? <MaleIcon /> : <FemaleIcon />}
-                                        </div>
-                                    }
-                                    onClick={onPetGenderChangeHandler(value)}
-                                    className={cn(styles.buttonsRowItem, { [styles.checked]: isChecked })}
+                                    onClick={onPetTypeChangeHandler(value)}
+                                    className={cn(styles.buttonsRowItem, { [styles.checked]: newPetType === value })}
                                 >
                                     {label}
                                 </Button>
-                            );
-                        })}
+                            ))}
+                        </div>
+                    </FormItem>
+                )
+            )}
+            {isProfileLock && gender ? (
+                <ViewString withLock name='Пол' value={petGenders.filter(({ value }) => value === gender)[0]?.label} />
+            ) : (
+                !!petGenders.length && (
+                    <FormItem title='Пол'>
+                        <div className={styles.buttonsRow}>
+                            {petGenders.map(({ label, value }) => {
+                                const isMale = value === PetGender.MALE;
+                                const isChecked = newGender === value;
+
+                                return (
+                                    <Button
+                                        key={value}
+                                        startIcon={
+                                            <div
+                                                className={cn(styles.buttonIcon, {
+                                                    [styles.female]: !isMale,
+                                                    [styles.isChecked]: isChecked,
+                                                })}
+                                            >
+                                                {isMale ? <MaleIcon /> : <FemaleIcon />}
+                                            </div>
+                                        }
+                                        onClick={onPetGenderChangeHandler(value)}
+                                        className={cn(styles.buttonsRowItem, { [styles.checked]: isChecked })}
+                                    >
+                                        {label}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+                    </FormItem>
+                )
+            )}
+            {isProfileLock && chipNumber !== 'none' ? (
+                <ViewString
+                    withLock
+                    name='Чип'
+                    value={chipNumber === 'none' ? 'Отсутствует' : (chipNumber as string)}
+                />
+            ) : (
+                <FormItem title='Чип'>
+                    <div className={cn(styles.buttonsRow, { [styles.chip]: true })}>
+                        <div className={styles.chipField}>
+                            <TextField
+                                name='chip'
+                                placeholder='Укажите № чипа'
+                                onChange={onChangeChipNumberHandler}
+                                value={newChipNumber === 'none' ? '' : newChipNumber || ''}
+                                inputClass={newChipNumber === 'none' ? styles.input : undefined}
+                            />
+                        </div>
+                        <Button
+                            onClick={onNoChipClickHandler}
+                            className={cn(styles.buttonsRowItem, { [styles.checked]: newChipNumber === 'none' })}
+                        >
+                            Отсутствует
+                        </Button>
                     </div>
                 </FormItem>
             )}
-            <FormItem title='Чип'>
-                <div className={cn(styles.buttonsRow, { [styles.chip]: true })}>
-                    <div className={styles.chipField}>
-                        <TextField
-                            name='chip'
-                            placeholder='Укажите № чипа'
-                            onChange={onChangeChipNumberHandler}
-                            value={newChipNumber === 'none' ? '' : newChipNumber || ''}
-                            inputClass={newChipNumber === 'none' ? styles.input : undefined}
-                        />
+            {isProfileLock && birthDate ? (
+                <ViewString withLock name='Возраст' value={calculateAge(birthDate)} />
+            ) : (
+                <FormItem title='Дата рождения'>
+                    <div className={styles.buttonsRow}>
+                        <Button
+                            onClick={onBirthDateTypeClickHandler(BirthDate.EXACT_DATE)}
+                            className={cn(styles.buttonsRowItem, {
+                                [styles.checked]: birthDateType === BirthDate.EXACT_DATE,
+                            })}
+                        >
+                            Точная дата
+                        </Button>
+                        <Button
+                            onClick={onBirthDateTypeClickHandler(BirthDate.APPROXIMATE_DATE)}
+                            className={cn(styles.buttonsRowItem, {
+                                [styles.checked]: birthDateType === BirthDate.APPROXIMATE_DATE,
+                            })}
+                        >
+                            Примерный возраст
+                        </Button>
                     </div>
-                    <Button
-                        onClick={onNoChipClickHandler}
-                        className={cn(styles.buttonsRowItem, { [styles.checked]: newChipNumber === 'none' })}
-                    >
-                        Отсутствует
-                    </Button>
-                </div>
-            </FormItem>
-            <FormItem title='Дата рождения'>
-                <div className={styles.buttonsRow}>
-                    <Button
-                        onClick={onBirthDateTypeClickHandler(BirthDate.EXACT_DATE)}
-                        className={cn(styles.buttonsRowItem, {
-                            [styles.checked]: birthDateType === BirthDate.EXACT_DATE,
-                        })}
-                    >
-                        Точная дата
-                    </Button>
-                    <Button
-                        onClick={onBirthDateTypeClickHandler(BirthDate.APPROXIMATE_DATE)}
-                        className={cn(styles.buttonsRowItem, {
-                            [styles.checked]: birthDateType === BirthDate.APPROXIMATE_DATE,
-                        })}
-                    >
-                        Примерный возраст
-                    </Button>
-                </div>
-                {birthDateType === BirthDate.EXACT_DATE && (
-                    <div className={styles.picker}>
-                        <DatePicker
-                            onChange={onChangeExactDateHandler}
-                            value={newExactDate ? new Date(newExactDate) : newExactDate}
-                        />
-                    </div>
-                )}
-                {birthDateType === BirthDate.APPROXIMATE_DATE && (
-                    <>
-                        <div className={styles.buttonsRow}>
-                            <FormItem className={styles.ageItem} title='Полных лет'>
-                                <TextField
-                                    name='year'
-                                    isDigitInput
-                                    placeholder='0'
-                                    value={approximateDateYear}
-                                    onChange={onChangeApproximateDateHandler('year')}
-                                />
-                            </FormItem>
-                            <FormItem className={styles.ageItem} title='Полных месяцев'>
-                                <TextField
-                                    name='months'
-                                    isDigitInput
-                                    placeholder='0'
-                                    value={approximateDateMonth}
-                                    onChange={onChangeApproximateDateHandler('months')}
-                                />
-                            </FormItem>
+                    {birthDateType === BirthDate.EXACT_DATE && (
+                        <div className={styles.picker}>
+                            <DatePicker
+                                onChange={onChangeExactDateHandler}
+                                value={newExactDate ? new Date(newExactDate) : newExactDate}
+                            />
                         </div>
-                        <Alert text='Должно быть заполнено хотя бы одно поле' />
-                    </>
-                )}
-            </FormItem>
-            <FormItem title='Группа крови'>
-                <>
-                    <div className={cn(styles.buttonsRow, { [styles.dogGroup]: newPetType === PetType.DOG })}>
-                        {bloodGroupDict[newPetType].map(({ label, value }) => (
-                            <Button
-                                key={value}
-                                onClick={onChangeBloodGroupHandler(label)}
-                                className={cn(styles.buttonsRowItem, { [styles.checked]: newBloodGroup === label })}
-                            >
-                                {label !== 'UNKNOWN' ? label : 'Не знаю'}
-                            </Button>
-                        ))}
-                    </div>
-                    {newPetType === PetType.DOG && (
-                        <Alert
-                            text={
-                                <>
-                                    Сведения вносятся по системе DEA.
-                                    <br />
-                                    Не используйте данные из других систем (KAI, DAL)
-                                </>
-                            }
-                        />
                     )}
-                </>
-            </FormItem>
+                    {birthDateType === BirthDate.APPROXIMATE_DATE && (
+                        <>
+                            <div className={styles.buttonsRow}>
+                                <FormItem className={styles.ageItem} title='Полных лет'>
+                                    <TextField
+                                        name='year'
+                                        isDigitInput
+                                        placeholder='0'
+                                        value={approximateDateYear}
+                                        onChange={onChangeApproximateDateHandler('year')}
+                                    />
+                                </FormItem>
+                                <FormItem className={styles.ageItem} title='Полных месяцев'>
+                                    <TextField
+                                        name='months'
+                                        isDigitInput
+                                        placeholder='0'
+                                        value={approximateDateMonth}
+                                        onChange={onChangeApproximateDateHandler('months')}
+                                    />
+                                </FormItem>
+                            </div>
+                            <Alert text='Должно быть заполнено хотя бы одно поле' />
+                        </>
+                    )}
+                </FormItem>
+            )}
+            {isProfileLock && bloodGroup ? (
+                <ViewString
+                    withLock
+                    name='Группа крови'
+                    value={bloodGroup === 'UNKNOWN' ? 'Не определена' : bloodGroup}
+                />
+            ) : (
+                <FormItem title='Группа крови'>
+                    <>
+                        <div className={cn(styles.buttonsRow, { [styles.dogGroup]: newPetType === PetType.DOG })}>
+                            {bloodGroupDict[newPetType].map(({ label, value }) => (
+                                <Button
+                                    key={value}
+                                    onClick={onChangeBloodGroupHandler(label)}
+                                    className={cn(styles.buttonsRowItem, { [styles.checked]: newBloodGroup === label })}
+                                >
+                                    {label !== 'UNKNOWN' ? label : 'Не знаю'}
+                                </Button>
+                            ))}
+                        </div>
+                        {newPetType === PetType.DOG && (
+                            <Alert
+                                text={
+                                    <>
+                                        Сведения вносятся по системе DEA.
+                                        <br />
+                                        Не используйте данные из других систем (KAI, DAL)
+                                    </>
+                                }
+                            />
+                        )}
+                    </>
+                </FormItem>
+            )}
+            {isProfileLock && breedId && (
+                <ViewString
+                    withLock
+                    name='Порода'
+                    value={(breedsDict[type] || []).filter(({ value }) => value === breedId)[0]?.label}
+                />
+            )}
             <FormItem
                 title='Вес'
                 /* eslint-disable-next-line no-nested-ternary */
@@ -496,34 +537,36 @@ const ParamsStep: FC<Props> = ({
                     endAdornment={<div className={styles.endAdornment}>кг</div>}
                 />
             </FormItem>
-            <FormItem title='Порода'>
-                <Autocomplete
-                    id='breed'
-                    value={newBreed}
-                    options={breedsDict[newPetType]}
-                    inputValue={autocompleteInputValue}
-                    onChange={onAutocompleteChangeHandler}
-                    noOptionsText='Нет подходящих вариантов'
-                    onInputChange={onAutocompleteInputChangeHandler}
-                    renderInput={(params) => <MuiTextField {...params} placeholder='Выберите из списка' />}
-                    sx={{
-                        '& .MuiOutlinedInput-root': {
-                            backgroundColor: 'white',
-                            height: '50px',
-                            padding: '0 9px',
-                            borderRadius: '16px',
-                            color: newBreed && '#8B7069',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
+            {!isProfileLock && (
+                <FormItem title='Порода'>
+                    <Autocomplete
+                        id='breed'
+                        value={newBreed}
+                        options={breedsDict[newPetType]}
+                        inputValue={autocompleteInputValue}
+                        onChange={onAutocompleteChangeHandler}
+                        noOptionsText='Нет подходящих вариантов'
+                        onInputChange={onAutocompleteInputChangeHandler}
+                        renderInput={(params) => <MuiTextField {...params} placeholder='Выберите из списка' />}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: 'white',
+                                height: '50px',
+                                padding: '0 9px',
+                                borderRadius: '16px',
+                                color: newBreed && '#8B7069',
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#dee2e9',
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#dee2e9',
+                                    borderWidth: '1px',
+                                },
                             },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#dee2e9',
-                                borderWidth: '1px',
-                            },
-                        },
-                    }}
-                />
-            </FormItem>
+                        }}
+                    />
+                </FormItem>
+            )}
             <FormItem title='Условия содержания'>
                 <div className={styles.buttonsRow}>
                     {livingConditionsDict.map(({ label, value }) => (
