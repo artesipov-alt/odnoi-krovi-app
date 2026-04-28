@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"math"
 	"net/http"
 	"time"
 
@@ -431,7 +432,7 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 			Items:                   donationCards,
 			Total:                   len(donationCards),
 			TotalCompletedDonations: totalCompletedDonations,
-			TotalDonatedVolume:      totalDonatedVolume,
+			TotalDonatedVolume:      math.Round(totalDonatedVolume*10) / 10,
 		},
 	}, nil
 }
