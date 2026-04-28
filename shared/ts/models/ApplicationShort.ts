@@ -52,6 +52,12 @@ export interface ApplicationShort {
      */
     readonly createdAt?: Date;
     /**
+     * Группа крови донора
+     * @type {string}
+     * @memberof ApplicationShort
+     */
+    donorBloodGroup: string;
+    /**
      * ID отклика
      * @type {string}
      * @memberof ApplicationShort
@@ -133,6 +139,7 @@ export function instanceOfApplicationShort(value: object): value is ApplicationS
     if (!('amount' in value) || value['amount'] === undefined) return false;
     if (!('bonuses' in value) || value['bonuses'] === undefined) return false;
     if (!('compensationType' in value) || value['compensationType'] === undefined) return false;
+    if (!('donorBloodGroup' in value) || value['donorBloodGroup'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('isConfirmed' in value) || value['isConfirmed'] === undefined) return false;
     if (!('petName' in value) || value['petName'] === undefined) return false;
@@ -155,6 +162,7 @@ export function ApplicationShortFromJSONTyped(json: any, ignoreDiscriminator: bo
         'bonuses': (json['bonuses'] == null ? null : (json['bonuses'] as Array<any>).map(BonusFromJSON)),
         'compensationType': json['compensationType'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
+        'donorBloodGroup': json['donorBloodGroup'],
         'id': json['id'],
         'isConfirmed': json['isConfirmed'],
         'petName': json['petName'],
@@ -180,6 +188,7 @@ export function ApplicationShortToJSONTyped(value?: Omit<ApplicationShort, 'crea
         'amount': value['amount'],
         'bonuses': (value['bonuses'] == null ? null : (value['bonuses'] as Array<any>).map(BonusToJSON)),
         'compensationType': value['compensationType'],
+        'donorBloodGroup': value['donorBloodGroup'],
         'id': value['id'],
         'isConfirmed': value['isConfirmed'],
         'petName': value['petName'],

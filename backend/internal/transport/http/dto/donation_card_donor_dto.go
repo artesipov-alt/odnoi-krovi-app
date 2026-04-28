@@ -26,6 +26,7 @@ type ApplicationShort struct {
 	IsConfirmed      bool           `json:"isConfirmed" doc:"Подтверждение отклика от реципиента" example:"false"`
 	RejectedReason   string         `json:"rejectedReason,omitempty" doc:"Причина отказа от донации реципиентом"`
 	Status           string         `json:"status" doc:"Статус отклика" enum:"pending,accepted,rejected,cancelled,completed,failed"`
+	DonorBloodGroup  string         `json:"donorBloodGroup" doc:"Группа крови донора"`
 	CreatedAt        *time.Time     `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time     `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }

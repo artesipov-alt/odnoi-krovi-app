@@ -28,6 +28,7 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 		OwnerName:          e.Edges.Owner.FullName,
 		BreedRefID:         e.BreedID,
 		IsProfileLock:      e.IsProfileLock,
+		BloodGroupName:     e.BloodGroup,
 		CreatedAt:          &e.CreatedAt,
 		UpdatedAt:          &e.UpdatedAt,
 		DeletedAt:          e.DeletedAt,
@@ -36,9 +37,6 @@ func PetToDomain(e *ent.Pet) *model.Pet {
 	if e.Privilege != nil {
 		pet.Privilege = common.Privilege(*e.Privilege)
 	}
-
-	// Map BloodGroupName directly from field
-	pet.BloodGroupName = e.BloodGroup
 
 	// Map BreedRefID from edge if available
 	if e.Edges.BreedRef != nil {
