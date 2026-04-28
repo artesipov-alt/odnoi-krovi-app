@@ -258,6 +258,20 @@ func (_c *PetCreate) SetNillablePrivilege(v *pet.Privilege) *PetCreate {
 	return _c
 }
 
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (_c *PetCreate) SetIsProfileLock(v bool) *PetCreate {
+	_c.mutation.SetIsProfileLock(v)
+	return _c
+}
+
+// SetNillableIsProfileLock sets the "is_profile_lock" field if the given value is not nil.
+func (_c *PetCreate) SetNillableIsProfileLock(v *bool) *PetCreate {
+	if v != nil {
+		_c.SetIsProfileLock(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PetCreate) SetID(v string) *PetCreate {
 	_c.mutation.SetID(v)
@@ -422,6 +436,10 @@ func (_c *PetCreate) defaults() {
 		v := pet.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.IsProfileLock(); !ok {
+		v := pet.DefaultIsProfileLock
+		_c.mutation.SetIsProfileLock(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := pet.DefaultID()
 		_c.mutation.SetID(v)
@@ -548,6 +566,10 @@ func (_c *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Privilege(); ok {
 		_spec.SetField(pet.FieldPrivilege, field.TypeEnum, value)
 		_node.Privilege = &value
+	}
+	if value, ok := _c.mutation.IsProfileLock(); ok {
+		_spec.SetField(pet.FieldIsProfileLock, field.TypeBool, value)
+		_node.IsProfileLock = value
 	}
 	if nodes := _c.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1011,6 +1033,24 @@ func (u *PetUpsert) ClearPrivilege() *PetUpsert {
 	return u
 }
 
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (u *PetUpsert) SetIsProfileLock(v bool) *PetUpsert {
+	u.Set(pet.FieldIsProfileLock, v)
+	return u
+}
+
+// UpdateIsProfileLock sets the "is_profile_lock" field to the value that was provided on create.
+func (u *PetUpsert) UpdateIsProfileLock() *PetUpsert {
+	u.SetExcluded(pet.FieldIsProfileLock)
+	return u
+}
+
+// ClearIsProfileLock clears the value of the "is_profile_lock" field.
+func (u *PetUpsert) ClearIsProfileLock() *PetUpsert {
+	u.SetNull(pet.FieldIsProfileLock)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1402,6 +1442,27 @@ func (u *PetUpsertOne) UpdatePrivilege() *PetUpsertOne {
 func (u *PetUpsertOne) ClearPrivilege() *PetUpsertOne {
 	return u.Update(func(s *PetUpsert) {
 		s.ClearPrivilege()
+	})
+}
+
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (u *PetUpsertOne) SetIsProfileLock(v bool) *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.SetIsProfileLock(v)
+	})
+}
+
+// UpdateIsProfileLock sets the "is_profile_lock" field to the value that was provided on create.
+func (u *PetUpsertOne) UpdateIsProfileLock() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateIsProfileLock()
+	})
+}
+
+// ClearIsProfileLock clears the value of the "is_profile_lock" field.
+func (u *PetUpsertOne) ClearIsProfileLock() *PetUpsertOne {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearIsProfileLock()
 	})
 }
 
@@ -1963,6 +2024,27 @@ func (u *PetUpsertBulk) UpdatePrivilege() *PetUpsertBulk {
 func (u *PetUpsertBulk) ClearPrivilege() *PetUpsertBulk {
 	return u.Update(func(s *PetUpsert) {
 		s.ClearPrivilege()
+	})
+}
+
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (u *PetUpsertBulk) SetIsProfileLock(v bool) *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.SetIsProfileLock(v)
+	})
+}
+
+// UpdateIsProfileLock sets the "is_profile_lock" field to the value that was provided on create.
+func (u *PetUpsertBulk) UpdateIsProfileLock() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.UpdateIsProfileLock()
+	})
+}
+
+// ClearIsProfileLock clears the value of the "is_profile_lock" field.
+func (u *PetUpsertBulk) ClearIsProfileLock() *PetUpsertBulk {
+	return u.Update(func(s *PetUpsert) {
+		s.ClearIsProfileLock()
 	})
 }
 

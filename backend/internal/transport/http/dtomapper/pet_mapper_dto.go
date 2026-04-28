@@ -49,6 +49,7 @@ func (m *PetMapper) ToResponse(petmodel model.Pet) dto.PetDetail {
 		Type:                 string(petmodel.Type),
 		ReproductiveStatus:   string(petmodel.ReproductiveStatus),
 		Privilege:            string(petmodel.Privilege),
+		IsProfileLock:        petmodel.IsProfileLock,
 		CreatedAt:            petmodel.CreatedAt,
 		UpdatedAt:            petmodel.UpdatedAt,
 		DeletedAt:            petmodel.DeletedAt,

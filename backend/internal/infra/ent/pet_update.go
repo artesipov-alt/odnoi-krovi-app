@@ -355,6 +355,26 @@ func (_u *PetUpdate) ClearPrivilege() *PetUpdate {
 	return _u
 }
 
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (_u *PetUpdate) SetIsProfileLock(v bool) *PetUpdate {
+	_u.mutation.SetIsProfileLock(v)
+	return _u
+}
+
+// SetNillableIsProfileLock sets the "is_profile_lock" field if the given value is not nil.
+func (_u *PetUpdate) SetNillableIsProfileLock(v *bool) *PetUpdate {
+	if v != nil {
+		_u.SetIsProfileLock(*v)
+	}
+	return _u
+}
+
+// ClearIsProfileLock clears the value of the "is_profile_lock" field.
+func (_u *PetUpdate) ClearIsProfileLock() *PetUpdate {
+	_u.mutation.ClearIsProfileLock()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdate) SetOwnerID(id string) *PetUpdate {
 	_u.mutation.SetOwnerID(id)
@@ -698,6 +718,12 @@ func (_u *PetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.PrivilegeCleared() {
 		_spec.ClearField(pet.FieldPrivilege, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.IsProfileLock(); ok {
+		_spec.SetField(pet.FieldIsProfileLock, field.TypeBool, value)
+	}
+	if _u.mutation.IsProfileLockCleared() {
+		_spec.ClearField(pet.FieldIsProfileLock, field.TypeBool)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1289,6 +1315,26 @@ func (_u *PetUpdateOne) ClearPrivilege() *PetUpdateOne {
 	return _u
 }
 
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (_u *PetUpdateOne) SetIsProfileLock(v bool) *PetUpdateOne {
+	_u.mutation.SetIsProfileLock(v)
+	return _u
+}
+
+// SetNillableIsProfileLock sets the "is_profile_lock" field if the given value is not nil.
+func (_u *PetUpdateOne) SetNillableIsProfileLock(v *bool) *PetUpdateOne {
+	if v != nil {
+		_u.SetIsProfileLock(*v)
+	}
+	return _u
+}
+
+// ClearIsProfileLock clears the value of the "is_profile_lock" field.
+func (_u *PetUpdateOne) ClearIsProfileLock() *PetUpdateOne {
+	_u.mutation.ClearIsProfileLock()
+	return _u
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by ID.
 func (_u *PetUpdateOne) SetOwnerID(id string) *PetUpdateOne {
 	_u.mutation.SetOwnerID(id)
@@ -1662,6 +1708,12 @@ func (_u *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	if _u.mutation.PrivilegeCleared() {
 		_spec.ClearField(pet.FieldPrivilege, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.IsProfileLock(); ok {
+		_spec.SetField(pet.FieldIsProfileLock, field.TypeBool, value)
+	}
+	if _u.mutation.IsProfileLockCleared() {
+		_spec.ClearField(pet.FieldIsProfileLock, field.TypeBool)
 	}
 	if _u.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{

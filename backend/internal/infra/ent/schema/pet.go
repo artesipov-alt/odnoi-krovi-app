@@ -39,6 +39,7 @@ func (Pet) Fields() []ent.Field {
 		field.String("reproductive_status").Optional(),
 		field.String("blood_group").Optional().MaxLen(50),
 		field.Enum("privilege").Values("artist", "therapist", "former_donor", "guide_dog", "priority_search").Optional().Nillable(),
+		field.Bool("is_profile_lock").Optional().Default(false),
 	}
 }
 

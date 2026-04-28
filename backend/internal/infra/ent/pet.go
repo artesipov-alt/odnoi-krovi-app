@@ -58,6 +58,8 @@ type Pet struct {
 	BloodGroup string `json:"blood_group,omitempty"`
 	// Privilege holds the value of the "privilege" field.
 	Privilege *pet.Privilege `json:"privilege,omitempty"`
+	// IsProfileLock holds the value of the "is_profile_lock" field.
+	IsProfileLock bool `json:"is_profile_lock,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
 	Edges        PetEdges `json:"edges"`
@@ -163,6 +165,8 @@ func (*Pet) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case pet.FieldPhotoUrls:
 			values[i] = new([]byte)
+		case pet.FieldIsProfileLock:
+			values[i] = new(sql.NullBool)
 		case pet.FieldWeightKg:
 			values[i] = new(sql.NullFloat64)
 		case pet.FieldID, pet.FieldName, pet.FieldType, pet.FieldGender, pet.FieldChipNumber, pet.FieldBreedID, pet.FieldUserID, pet.FieldHealthID, pet.FieldTreatmentID, pet.FieldLivingCondition, pet.FieldReproductiveStatus, pet.FieldBloodGroup, pet.FieldPrivilege:
@@ -304,6 +308,12 @@ func (_m *Pet) assignValues(columns []string, values []any) error {
 				_m.Privilege = new(pet.Privilege)
 				*_m.Privilege = pet.Privilege(value.String)
 			}
+		case pet.FieldIsProfileLock:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_profile_lock", values[i])
+			} else if value.Valid {
+				_m.IsProfileLock = value.Bool
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -436,6 +446,9 @@ func (_m *Pet) String() string {
 		builder.WriteString("privilege=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("is_profile_lock=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsProfileLock))
 	builder.WriteByte(')')
 	return builder.String()
 }

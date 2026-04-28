@@ -220,6 +220,10 @@ func init() {
 	petDescBloodGroup := petFields[13].Descriptor()
 	// pet.BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
 	pet.BloodGroupValidator = petDescBloodGroup.Validators[0].(func(string) error)
+	// petDescIsProfileLock is the schema descriptor for is_profile_lock field.
+	petDescIsProfileLock := petFields[15].Descriptor()
+	// pet.DefaultIsProfileLock holds the default value on creation for the is_profile_lock field.
+	pet.DefaultIsProfileLock = petDescIsProfileLock.Default.(bool)
 	// petDescID is the schema descriptor for id field.
 	petDescID := petMixinFields0[0].Descriptor()
 	// pet.DefaultID holds the default value on creation for the id field.

@@ -192,6 +192,7 @@ type PetDetail struct {
 	Treatments           *PetTreatment      `json:"treatments,omitempty" doc:"Информация о лечении"`
 	Analyses             *PetAnalysisGroup  `json:"analyses,omitempty" doc:"Группированные анализы"`
 	Bonuses              []string           `json:"bonuses,omitempty" doc:"Дополнительная информация"`
+	IsProfileLock        bool               `json:"isProfileLock" doc:"Блокировка профиля питомца" example:"false"`
 	CreatedAt            *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt            *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt            *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`

@@ -52,6 +52,8 @@ const (
 	FieldBloodGroup = "blood_group"
 	// FieldPrivilege holds the string denoting the privilege field in the database.
 	FieldPrivilege = "privilege"
+	// FieldIsProfileLock holds the string denoting the is_profile_lock field in the database.
+	FieldIsProfileLock = "is_profile_lock"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
 	// EdgeHealth holds the string denoting the health edge name in mutations.
@@ -140,6 +142,7 @@ var Columns = []string{
 	FieldReproductiveStatus,
 	FieldBloodGroup,
 	FieldPrivilege,
+	FieldIsProfileLock,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -169,6 +172,8 @@ var (
 	ChipNumberValidator func(string) error
 	// BloodGroupValidator is a validator for the "blood_group" field. It is called by the builders before save.
 	BloodGroupValidator func(string) error
+	// DefaultIsProfileLock holds the default value on creation for the "is_profile_lock" field.
+	DefaultIsProfileLock bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -290,6 +295,11 @@ func ByBloodGroup(opts ...sql.OrderTermOption) OrderOption {
 // ByPrivilege orders the results by the privilege field.
 func ByPrivilege(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPrivilege, opts...).ToFunc()
+}
+
+// ByIsProfileLock orders the results by the is_profile_lock field.
+func ByIsProfileLock(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsProfileLock, opts...).ToFunc()
 }
 
 // ByOwnerField orders the results by owner field.

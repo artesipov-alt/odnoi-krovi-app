@@ -80,6 +80,7 @@ type Pet struct {
 	Health             *PetHealth
 	Treatments         *PetTreatment
 	Analyses           []*PetAnalysis
+	IsProfileLock      bool
 	CreatedAt          *time.Time
 	UpdatedAt          *time.Time
 	DeletedAt          *time.Time

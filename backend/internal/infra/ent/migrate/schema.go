@@ -204,6 +204,7 @@ var (
 		{Name: "reproductive_status", Type: field.TypeString, Nullable: true},
 		{Name: "blood_group", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "privilege", Type: field.TypeEnum, Nullable: true, Enums: []string{"artist", "therapist", "former_donor", "guide_dog", "priority_search"}},
+		{Name: "is_profile_lock", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "breed_id", Type: field.TypeString, Nullable: true},
 		{Name: "health_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "treatment_id", Type: field.TypeString, Unique: true, Nullable: true},
@@ -217,25 +218,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "pets_ref_breeds_pets",
-				Columns:    []*schema.Column{PetsColumns[15]},
+				Columns:    []*schema.Column{PetsColumns[16]},
 				RefColumns: []*schema.Column{RefBreedsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_healths_owner",
-				Columns:    []*schema.Column{PetsColumns[16]},
+				Columns:    []*schema.Column{PetsColumns[17]},
 				RefColumns: []*schema.Column{PetHealthsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_pet_treatments_owner",
-				Columns:    []*schema.Column{PetsColumns[17]},
+				Columns:    []*schema.Column{PetsColumns[18]},
 				RefColumns: []*schema.Column{PetTreatmentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "pets_users_pets",
-				Columns:    []*schema.Column{PetsColumns[18]},
+				Columns:    []*schema.Column{PetsColumns[19]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

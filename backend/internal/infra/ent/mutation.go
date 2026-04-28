@@ -6812,6 +6812,7 @@ type PetMutation struct {
 	reproductive_status         *string
 	blood_group                 *string
 	privilege                   *pet.Privilege
+	is_profile_lock             *bool
 	clearedFields               map[string]struct{}
 	owner                       *string
 	clearedowner                bool
@@ -7806,6 +7807,55 @@ func (m *PetMutation) ResetPrivilege() {
 	delete(m.clearedFields, pet.FieldPrivilege)
 }
 
+// SetIsProfileLock sets the "is_profile_lock" field.
+func (m *PetMutation) SetIsProfileLock(b bool) {
+	m.is_profile_lock = &b
+}
+
+// IsProfileLock returns the value of the "is_profile_lock" field in the mutation.
+func (m *PetMutation) IsProfileLock() (r bool, exists bool) {
+	v := m.is_profile_lock
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsProfileLock returns the old "is_profile_lock" field's value of the Pet entity.
+// If the Pet object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PetMutation) OldIsProfileLock(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsProfileLock is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsProfileLock requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsProfileLock: %w", err)
+	}
+	return oldValue.IsProfileLock, nil
+}
+
+// ClearIsProfileLock clears the value of the "is_profile_lock" field.
+func (m *PetMutation) ClearIsProfileLock() {
+	m.is_profile_lock = nil
+	m.clearedFields[pet.FieldIsProfileLock] = struct{}{}
+}
+
+// IsProfileLockCleared returns if the "is_profile_lock" field was cleared in this mutation.
+func (m *PetMutation) IsProfileLockCleared() bool {
+	_, ok := m.clearedFields[pet.FieldIsProfileLock]
+	return ok
+}
+
+// ResetIsProfileLock resets all changes to the "is_profile_lock" field.
+func (m *PetMutation) ResetIsProfileLock() {
+	m.is_profile_lock = nil
+	delete(m.clearedFields, pet.FieldIsProfileLock)
+}
+
 // SetOwnerID sets the "owner" edge to the User entity by id.
 func (m *PetMutation) SetOwnerID(id string) {
 	m.owner = &id
@@ -8149,7 +8199,7 @@ func (m *PetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PetMutation) Fields() []string {
-	fields := make([]string, 0, 18)
+	fields := make([]string, 0, 19)
 	if m.created_at != nil {
 		fields = append(fields, pet.FieldCreatedAt)
 	}
@@ -8204,6 +8254,9 @@ func (m *PetMutation) Fields() []string {
 	if m.privilege != nil {
 		fields = append(fields, pet.FieldPrivilege)
 	}
+	if m.is_profile_lock != nil {
+		fields = append(fields, pet.FieldIsProfileLock)
+	}
 	return fields
 }
 
@@ -8248,6 +8301,8 @@ func (m *PetMutation) Field(name string) (ent.Value, bool) {
 		return m.BloodGroup()
 	case pet.FieldPrivilege:
 		return m.Privilege()
+	case pet.FieldIsProfileLock:
+		return m.IsProfileLock()
 	}
 	return nil, false
 }
@@ -8293,6 +8348,8 @@ func (m *PetMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldBloodGroup(ctx)
 	case pet.FieldPrivilege:
 		return m.OldPrivilege(ctx)
+	case pet.FieldIsProfileLock:
+		return m.OldIsProfileLock(ctx)
 	}
 	return nil, fmt.Errorf("unknown Pet field %s", name)
 }
@@ -8428,6 +8485,13 @@ func (m *PetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPrivilege(v)
 		return nil
+	case pet.FieldIsProfileLock:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsProfileLock(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)
 }
@@ -8515,6 +8579,9 @@ func (m *PetMutation) ClearedFields() []string {
 	if m.FieldCleared(pet.FieldPrivilege) {
 		fields = append(fields, pet.FieldPrivilege)
 	}
+	if m.FieldCleared(pet.FieldIsProfileLock) {
+		fields = append(fields, pet.FieldIsProfileLock)
+	}
 	return fields
 }
 
@@ -8570,6 +8637,9 @@ func (m *PetMutation) ClearField(name string) error {
 		return nil
 	case pet.FieldPrivilege:
 		m.ClearPrivilege()
+		return nil
+	case pet.FieldIsProfileLock:
+		m.ClearIsProfileLock()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet nullable field %s", name)
@@ -8632,6 +8702,9 @@ func (m *PetMutation) ResetField(name string) error {
 		return nil
 	case pet.FieldPrivilege:
 		m.ResetPrivilege()
+		return nil
+	case pet.FieldIsProfileLock:
+		m.ResetIsProfileLock()
 		return nil
 	}
 	return fmt.Errorf("unknown Pet field %s", name)

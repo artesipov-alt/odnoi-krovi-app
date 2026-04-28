@@ -145,6 +145,11 @@ func BloodGroup(v string) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldBloodGroup, v))
 }
 
+// IsProfileLock applies equality check predicate on the "is_profile_lock" field. It's identical to IsProfileLockEQ.
+func IsProfileLock(v bool) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldIsProfileLock, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Pet {
 	return predicate.Pet(sql.FieldEQ(FieldCreatedAt, v))
@@ -1218,6 +1223,26 @@ func PrivilegeIsNil() predicate.Pet {
 // PrivilegeNotNil applies the NotNil predicate on the "privilege" field.
 func PrivilegeNotNil() predicate.Pet {
 	return predicate.Pet(sql.FieldNotNull(FieldPrivilege))
+}
+
+// IsProfileLockEQ applies the EQ predicate on the "is_profile_lock" field.
+func IsProfileLockEQ(v bool) predicate.Pet {
+	return predicate.Pet(sql.FieldEQ(FieldIsProfileLock, v))
+}
+
+// IsProfileLockNEQ applies the NEQ predicate on the "is_profile_lock" field.
+func IsProfileLockNEQ(v bool) predicate.Pet {
+	return predicate.Pet(sql.FieldNEQ(FieldIsProfileLock, v))
+}
+
+// IsProfileLockIsNil applies the IsNil predicate on the "is_profile_lock" field.
+func IsProfileLockIsNil() predicate.Pet {
+	return predicate.Pet(sql.FieldIsNull(FieldIsProfileLock))
+}
+
+// IsProfileLockNotNil applies the NotNil predicate on the "is_profile_lock" field.
+func IsProfileLockNotNil() predicate.Pet {
+	return predicate.Pet(sql.FieldNotNull(FieldIsProfileLock))
 }
 
 // HasOwner applies the HasEdge predicate on the "owner" edge.

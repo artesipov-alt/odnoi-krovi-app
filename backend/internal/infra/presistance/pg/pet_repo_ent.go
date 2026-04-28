@@ -642,6 +642,15 @@ func (r *EntPetRepository) SetLastDonation(ctx context.Context, petID string, la
 		return fmt.Errorf("не удалось обновить дату последнего донорства питомца: %w", err)
 	}
 
+	// Также заблокировать профиль питомца
+	petUpdater := r.client.Pet.UpdateOneID(petID)
+	petUpdater.SetIsProfileLock(true)
+
+	_, err = petUpdater.Save(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось заблокировать профиль питомца: %w", err)
+	}
+
 	return nil
 }
 
@@ -658,6 +667,15 @@ func (r *EntPetRepository) SetTransfused(ctx context.Context, petID string, tran
 	_, err := updater.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("не удалось обновить флаг переливания питомца: %w", err)
+	}
+
+	// Также заблокировать профиль питомца
+	petUpdater := r.client.Pet.UpdateOneID(petID)
+	petUpdater.SetIsProfileLock(true)
+
+	_, err = petUpdater.Save(ctx)
+	if err != nil {
+		return fmt.Errorf("не удалось заблокировать профиль питомца: %w", err)
 	}
 
 	return nil
