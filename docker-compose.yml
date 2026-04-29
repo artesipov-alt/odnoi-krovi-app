@@ -32,21 +32,21 @@ services:
       timeout: 10s
       retries: 3
 
-  tg-bot:
-    image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:latest
-    environment:
-      TG_BOT_TOKEN: ${TG_BOT_TOKEN}
-      INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
-      MINIAPP_DOMAIN: https://1krovi.app
-      API_BASE_URL: https://1krovi.app/api
-    networks:
-      - odnoi_net
-    restart: unless-stopped
+  # tg-bot:
+  #   image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:latest
+  #   environment:
+  #     TG_BOT_TOKEN: ${TG_BOT_TOKEN}
+  #     INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
+  #     MINIAPP_DOMAIN: https://1krovi.app
+  #     API_BASE_URL: https://1krovi.app/api
+  #   networks:
+  #     - odnoi_net
+  #   restart: unless-stopped
 
   max-bot:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:latest
     environment:
-      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
       MINIAPP_DOMAIN: https://1krovi.app
       API_BASE_URL: https://1krovi.app/api

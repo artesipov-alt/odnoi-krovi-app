@@ -3,7 +3,7 @@ name: Deploy Odnoikrovi
 on:
   push:
     branches:
-      - dev
+      - main
 
 env:
   IMAGE_PREFIX: ghcr.io/artesipov-alt/odnoi-krovi-app
@@ -53,16 +53,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push tg-bot
-        if: steps.changed-files.outputs.tg-bot_any_changed == 'true'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: tg-bot/Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_PREFIX }}/tg-bot:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build and push tg-bot
+      #   if: steps.changed-files.outputs.tg-bot_any_changed == 'true'
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: tg-bot/Dockerfile
+      #     push: true
+      #     tags: ${{ env.IMAGE_PREFIX }}/tg-bot:latest
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       - name: Build and push max-bot
         if: steps.changed-files.outputs.max-bot_any_changed == 'true'
@@ -82,6 +82,8 @@ jobs:
       - name: Build frontend
         if: steps.changed-files.outputs.frontend_any_changed == 'true'
         working-directory: ./frontend
+        env:
+          VITE_API_BASE_URL: http://backend:3000/api
         run: |
           bun install
           bun run build
