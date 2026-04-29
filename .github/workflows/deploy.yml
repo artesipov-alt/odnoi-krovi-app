@@ -108,7 +108,7 @@ jobs:
           envs: GITHUB_ACTOR,CR_PAT
           script: |
             cd ./odnoi-krovi-app
-            git pull origin dev
+            git pull origin main
 
             echo "$CR_PAT" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
