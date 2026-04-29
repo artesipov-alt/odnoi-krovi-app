@@ -25,7 +25,6 @@ type Input = {
     isError?: boolean;
 };
 
-const docsLink = 'https://однойкрови.рф/docs';
 const emailRegexp = /^\w+([+.-]?\w+)*@\w+([.-]?\w+)*(\.\w+)+$/i;
 
 const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
@@ -195,11 +194,21 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
                 <div className={styles.links}>
                     <p className={styles.agreementLabel}>
                         Продолжая, Вы принимаете{' '}
-                        <a className={styles.agreementLabelLink} href={docsLink} target='_blank' rel='noreferrer'>
+                        <a
+                            className={styles.agreementLabelLink}
+                            href='https://однойкрови.рф/docs#n-a9dea2ae-b2a2-4bc6-b0ea-1eca71588ab0'
+                            target='_blank'
+                            rel='noreferrer'
+                        >
                             Пользовательское соглашение
                         </a>{' '}
                         и{' '}
-                        <a className={styles.agreementLabelLink} href={docsLink} target='_blank' rel='noreferrer'>
+                        <a
+                            className={styles.agreementLabelLink}
+                            href='https://однойкрови.рф/docs#n-80ae6549-954a-4c8c-bc54-357a93ec3dee'
+                            target='_blank'
+                            rel='noreferrer'
+                        >
                             Политику конфиденциальности
                         </a>
                     </p>
