@@ -7,7 +7,7 @@ services:
       DB_PORT: 5432
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      DB_NAME: ${DB_NAME_PROD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       DB_SSLMODE: disable
       SERVER_PORT: 3000
@@ -19,8 +19,8 @@ services:
       MINIAPP_DOMAIN: https://1krovi.app
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       S3_REGION: ${S3_REGION:-ru-central1}
-      TG_BOT_TOKEN: ${TG_BOT_TOKEN}
-      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN}
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN_PROD}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
     ports:
       - "3000:3000"
     networks:
