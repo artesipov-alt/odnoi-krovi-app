@@ -1,6 +1,6 @@
 import { Keyboard } from "@maxhub/max-bot-api";
 
-const BOT_ID = "id3200014662_2";
+const BOT_ID = "id3200014662";
 
 export const getMainKeyboard = () => {
   return Keyboard.inlineKeyboard([
@@ -10,10 +10,10 @@ export const getMainKeyboard = () => {
         `https://max.ru/${BOT_ID}_bot?startapp`,
       ),
     ],
-    [
-      Keyboard.button.callback("❓ Помощь", "help"),
-      Keyboard.button.callback("👤 Профиль", "profile"),
-    ],
+    // [
+    //   Keyboard.button.callback("❓ Помощь", "help"),
+    //   Keyboard.button.callback("👤 Профиль", "profile"),
+    // ],
   ]);
 };
 

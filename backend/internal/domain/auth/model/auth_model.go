@@ -15,7 +15,7 @@ const (
 
 const (
 	TelegramBotURL = "https://t.me/Odnakrovbot?start="
-	MaxBotURL      = "https://max.ru/id3200014662_2_bot?start="
+	MaxBotURL      = "https://max.ru/id3200014662_bot?start="
 )
 
 // Identity представляет доменную модель пользователя
