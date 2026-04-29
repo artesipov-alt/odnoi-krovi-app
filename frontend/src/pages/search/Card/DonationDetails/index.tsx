@@ -33,7 +33,9 @@ import { confirmDonation } from 'api/apiServices/confirmDonation';
 import { getDonationForRecipientById } from 'api/apiServices/getDonationForRecipientById';
 import { getUserContacts } from 'api/apiServices/getUserContacts';
 import { rejectDonation } from 'api/apiServices/rejectDonation';
+import { updatePet } from 'api/apiServices/updatePet';
 import { GetDonationForRecipientByIdResponse, RespondingDonorStatus } from 'api/bloodRequest';
+import { Pet } from 'api/pets';
 import { PetType } from 'api/types';
 import { CompensationType, Identities } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
@@ -107,6 +109,8 @@ const DonationDetails: FC<Props> = ({
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
     const [isRecipientConfirmationCurtainOpen, setIsRecipientConfirmationCurtainOpen] = useState(false);
 
+    const [donorBloodGroup, setDonorBloodGroup] = useState<string | null>(null);
+
     // dicts
     const { data: petGendersDict = [], isError: isErrorGenders } = useGendersQuery();
     const { data: healthStatusesDict = [], isError: isErrorHealthStatuses } = useHealthStatusesQuery();
@@ -119,6 +123,8 @@ const DonationDetails: FC<Props> = ({
     } = usePetTypesAndBloodGroupsQuery();
 
     const { data: userData } = useGetUserById(userId);
+
+    const isDonorUnknownBloodGroup = donation?.donorData.bloodGroup === 'UNKNOWN';
 
     const showToast = useCallback(
         (text: string, type = 'warn') => {
@@ -169,6 +175,7 @@ const DonationDetails: FC<Props> = ({
                 : `${donation.donorData.availableBloodAmount}`.replace('.', ','),
         );
         setIsRecipientConfirmationCurtainOpen((prevState) => !prevState);
+        setDonorBloodGroup(null);
     };
 
     const onDonorConfirmDonationToggle = () => {
@@ -211,7 +218,7 @@ const DonationDetails: FC<Props> = ({
     const onBlurDonatedBloodVolumeHandler = ({
         target: { value },
     }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        if (Number(value) < 10) {
+        if (Number(value.replace(',', '.')) < 10) {
             setDonatedBloodVolume('10');
         }
     };
@@ -247,6 +254,14 @@ const DonationDetails: FC<Props> = ({
                 return;
             }
 
+            if (donorBloodGroup) {
+                const { success } = await updatePet({ id: donation.donorData.id, bloodGroup: donorBloodGroup } as Pet);
+
+                if (!success) {
+                    showToast('Не удалось сохранить выбранную группу крови, для донора');
+                }
+            }
+
             const response = await confirmDonation({
                 id: donationId,
                 amount: fromRecipient
@@ -272,6 +287,10 @@ const DonationDetails: FC<Props> = ({
                 onDonationComplete(donated);
             }
         };
+
+    const onChangeBloodGroupHandler = (newBloodGroup: string) => () => {
+        setDonorBloodGroup(newBloodGroup);
+    };
 
     useEffect(() => {
         fetchDetails();
@@ -545,7 +564,7 @@ const DonationDetails: FC<Props> = ({
                     cancelButtonTitle='Потвердить'
                     title={
                         <>
-                            Укажите объем
+                            Укажите параметры
                             <br />
                             проведенной донации
                         </>
@@ -553,8 +572,13 @@ const DonationDetails: FC<Props> = ({
                     onClose={onConfirmDonationToggle}
                     onConfirm={onConfirmDonationToggle}
                     onCancel={onConfirmDonationClickHandler()}
-                    isDisableCancelButton={!donatedBloodVolume || Number(donatedBloodVolume) < 10}
+                    isDisableCancelButton={
+                        !donatedBloodVolume ||
+                        Number(donatedBloodVolume) < 10 ||
+                        (isDonorUnknownBloodGroup && !donorBloodGroup)
+                    }
                 >
+                    <p className={styles.confirmParamDescr}>Объем</p>
                     <TextField
                         name='volume'
                         isDigitInput
@@ -566,6 +590,30 @@ const DonationDetails: FC<Props> = ({
                         onChange={onChangeDonatedBloodVolumeHandler}
                         endAdornment={<div className={styles.endAdornment}>мл</div>}
                     />
+                    {isDonorUnknownBloodGroup && !!bloodGroupDict && (
+                        <div className={styles.blood}>
+                            <p className={styles.confirmParamDescr}>Группа крови донора</p>
+                            <div
+                                className={cn(styles.bloodGroups, {
+                                    [styles.dogGroup]: donation.recipientData.petType === PetType.DOG,
+                                })}
+                            >
+                                {bloodGroupDict[donation.recipientData.petType]
+                                    ?.filter((item) => item.value !== 'UNKNOWN')
+                                    .map(({ label, value }) => (
+                                        <div
+                                            key={value}
+                                            onClick={onChangeBloodGroupHandler(label)}
+                                            className={cn(styles.bloodItem, {
+                                                [styles.checked]: donorBloodGroup === label,
+                                            })}
+                                        >
+                                            {label}
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                    )}
                 </Curtain>
             )}
             {isDonorConfirmationCurtainOpen && (

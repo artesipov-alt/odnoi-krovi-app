@@ -163,7 +163,7 @@ const Bonuses: FC<Props> = ({ userId }) => {
                                 className={cn(styles.card, { [styles.isExpired]: isExpired })}
                             >
                                 <div className={styles.cardHeader}>
-                                    <p className={styles.cardTitle}>&#34;{item.partnerName}&#34;</p>
+                                    <p className={styles.cardTitle}>{item.partnerName}</p>
                                     <p className={cn(styles.expirationDate, { [styles.isExpired]: isExpired })}>
                                         {isExpired ? 'истек' : 'до'} {getDateFormat(item.expiresAt)}
                                     </p>

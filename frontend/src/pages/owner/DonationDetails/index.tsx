@@ -1,6 +1,6 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
-import { useLocationsQuery } from 'hooks/useDicts';
+import { useLocationsQuery, usePetTypesAndBloodGroupsQuery } from 'hooks/useDicts';
 import catRoundStub from 'imgs/catRoundStub.png';
 import dogRoundStub from 'imgs/dogRoundStub.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
@@ -26,7 +26,9 @@ import { regexReal } from 'utils/regexps';
 import { cancelDonation } from 'api/apiServices/cancelDonation';
 import { completeDonation } from 'api/apiServices/completeDonation';
 import { getUserContacts } from 'api/apiServices/getUserContacts';
+import { updatePet } from 'api/apiServices/updatePet';
 import { BonusType, DonorStatus, PlannedDonation } from 'api/donor';
+import { Pet } from 'api/pets';
 import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType, Identities } from 'api/user';
@@ -63,7 +65,13 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
 
+    const [bloodGroup, setBloodGroup] = useState<string | null>(null);
+
     const { data: locationsDict = [], isError: isErrorLocations } = useLocationsQuery();
+    const { data: { bloodGroupDict = {} } = {}, isError: isErrorPetTypesAndBloodGroups } =
+        usePetTypesAndBloodGroupsQuery();
+
+    const isDonorUnknownBloodGroup = donation.applicationData.donorBloodGroup === 'UNKNOWN';
 
     const showToast = useCallback((text: string, type = 'warn') => {
         if (type === 'success') {
@@ -106,6 +114,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                 : `${donation.applicationData.amount}`.replace('.', ','),
         );
         setIsDonorConfirmationCurtainOpen((prevState) => !prevState);
+        setBloodGroup(null);
     };
 
     const onChatOpenHandler = () => {
@@ -113,6 +122,14 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     };
 
     const onConfirmDonationClickHandler = async () => {
+        if (bloodGroup) {
+            const { success } = await updatePet({ id: donation.applicationData.donorPetID, bloodGroup } as Pet);
+
+            if (!success) {
+                showToast('Не удалось сохранить выбранную группу крови, для донора');
+            }
+        }
+
         const response = await completeDonation({
             id: donation.applicationData.id,
             amount: Number(donatedBloodVolume.replace(',', '.')),
@@ -148,7 +165,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     const onBlurDonatedBloodVolumeHandler = ({
         target: { value },
     }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        if (Number(value) < 10) {
+        if (Number(value.replace(',', '.')) < 10) {
             setDonatedBloodVolume('10');
         }
     };
@@ -179,11 +196,21 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         setIsBonusesPageOpen((prevState) => !prevState);
     };
 
+    const onChangeBloodGroupHandler = (newBloodGroup: string) => () => {
+        setBloodGroup(newBloodGroup);
+    };
+
     useEffect(() => {
         if (isErrorLocations) {
             showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
         }
     }, [isErrorLocations, showToast]);
+
+    useEffect(() => {
+        if (isErrorPetTypesAndBloodGroups) {
+            showToast('Не удалось загрузить словарь типов животных и групп крови, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorPetTypesAndBloodGroups, showToast]);
 
     if (isBonusesPageOpen) {
         return <Bonuses fromDonationDetails onClose={onBonusesClickToggle} items={donation.applicationData.bonuses} />;
@@ -443,7 +470,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                     cancelButtonTitle='Потвердить'
                     title={
                         <>
-                            Укажите объем
+                            Укажите параметры
                             <br />
                             проведенной донации
                         </>
@@ -451,8 +478,13 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                     onClose={onConfirmDonationToggle}
                     onConfirm={onConfirmDonationToggle}
                     onCancel={onConfirmDonationClickHandler}
-                    isDisableCancelButton={!donatedBloodVolume || Number(donatedBloodVolume) < 10}
+                    isDisableCancelButton={
+                        !donatedBloodVolume ||
+                        Number(donatedBloodVolume) < 10 ||
+                        (isDonorUnknownBloodGroup && !bloodGroup)
+                    }
                 >
+                    <p className={styles.confirmParamDescr}>Объем</p>
                     <TextField
                         name='volume'
                         isDigitInput
@@ -464,6 +496,28 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         onChange={onChangeDonatedBloodVolumeHandler}
                         endAdornment={<div className={styles.endAdornment}>мл</div>}
                     />
+                    {isDonorUnknownBloodGroup && !!bloodGroupDict && (
+                        <div className={styles.blood}>
+                            <p className={styles.confirmParamDescr}>Группа крови донора</p>
+                            <div
+                                className={cn(styles.bloodGroups, {
+                                    [styles.dogGroup]: donation.recipientData.petType === PetType.DOG,
+                                })}
+                            >
+                                {bloodGroupDict[donation.recipientData.petType]
+                                    ?.filter((item) => item.value !== 'UNKNOWN')
+                                    .map(({ label, value }) => (
+                                        <div
+                                            key={value}
+                                            onClick={onChangeBloodGroupHandler(label)}
+                                            className={cn(styles.bloodItem, { [styles.checked]: bloodGroup === label })}
+                                        >
+                                            {label}
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                    )}
                 </Curtain>
             )}
             {chatCurtain.isOpen && (
