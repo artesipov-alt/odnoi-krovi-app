@@ -66,6 +66,12 @@ func (_c *DonorPreferenceCreate) SetNillableDeletedAt(v *time.Time) *DonorPrefer
 	return _c
 }
 
+// SetUserID sets the "user_id" field.
+func (_c *DonorPreferenceCreate) SetUserID(v string) *DonorPreferenceCreate {
+	_c.mutation.SetUserID(v)
+	return _c
+}
+
 // SetPreferredLocationIds sets the "preferred_location_ids" field.
 func (_c *DonorPreferenceCreate) SetPreferredLocationIds(v []string) *DonorPreferenceCreate {
 	_c.mutation.SetPreferredLocationIds(v)
@@ -142,12 +148,6 @@ func (_c *DonorPreferenceCreate) SetNillableID(v *string) *DonorPreferenceCreate
 	return _c
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (_c *DonorPreferenceCreate) SetUserID(id string) *DonorPreferenceCreate {
-	_c.mutation.SetUserID(id)
-	return _c
-}
-
 // SetUser sets the "user" edge to the User entity.
 func (_c *DonorPreferenceCreate) SetUser(v *User) *DonorPreferenceCreate {
 	return _c.SetUserID(v.ID)
@@ -221,6 +221,9 @@ func (_c *DonorPreferenceCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DonorPreference.updated_at"`)}
+	}
+	if _, ok := _c.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "DonorPreference.user_id"`)}
 	}
 	if v, ok := _c.mutation.CompensationType(); ok {
 		if err := donorpreference.CompensationTypeValidator(v); err != nil {
@@ -323,7 +326,7 @@ func (_c *DonorPreferenceCreate) createSpec() (*DonorPreference, *sqlgraph.Creat
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_donor_preference = &nodes[0]
+		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -405,6 +408,18 @@ func (u *DonorPreferenceUpsert) UpdateDeletedAt() *DonorPreferenceUpsert {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (u *DonorPreferenceUpsert) ClearDeletedAt() *DonorPreferenceUpsert {
 	u.SetNull(donorpreference.FieldDeletedAt)
+	return u
+}
+
+// SetUserID sets the "user_id" field.
+func (u *DonorPreferenceUpsert) SetUserID(v string) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldUserID, v)
+	return u
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateUserID() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldUserID)
 	return u
 }
 
@@ -575,6 +590,20 @@ func (u *DonorPreferenceUpsertOne) UpdateDeletedAt() *DonorPreferenceUpsertOne {
 func (u *DonorPreferenceUpsertOne) ClearDeletedAt() *DonorPreferenceUpsertOne {
 	return u.Update(func(s *DonorPreferenceUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *DonorPreferenceUpsertOne) SetUserID(v string) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateUserID() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateUserID()
 	})
 }
 
@@ -926,6 +955,20 @@ func (u *DonorPreferenceUpsertBulk) UpdateDeletedAt() *DonorPreferenceUpsertBulk
 func (u *DonorPreferenceUpsertBulk) ClearDeletedAt() *DonorPreferenceUpsertBulk {
 	return u.Update(func(s *DonorPreferenceUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetUserID sets the "user_id" field.
+func (u *DonorPreferenceUpsertBulk) SetUserID(v string) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetUserID(v)
+	})
+}
+
+// UpdateUserID sets the "user_id" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateUserID() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateUserID()
 	})
 }
 

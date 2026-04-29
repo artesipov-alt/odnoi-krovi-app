@@ -22,6 +22,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// FieldPreferredLocationIds holds the string denoting the preferred_location_ids field in the database.
 	FieldPreferredLocationIds = "preferred_location_ids"
 	// FieldRecoveryPeriodMonths holds the string denoting the recovery_period_months field in the database.
@@ -42,7 +44,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_donor_preference"
+	UserColumn = "user_id"
 )
 
 // Columns holds all SQL columns for donorpreference fields.
@@ -51,6 +53,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldUserID,
 	FieldPreferredLocationIds,
 	FieldRecoveryPeriodMonths,
 	FieldCompensationType,
@@ -58,21 +61,10 @@ var Columns = []string{
 	FieldNotificationFrequency,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "donor_preferences"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"user_donor_preference",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -173,6 +165,11 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByRecoveryPeriodMonths orders the results by the recovery_period_months field.

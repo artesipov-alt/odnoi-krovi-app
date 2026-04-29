@@ -80,6 +80,11 @@ func DeletedAt(v time.Time) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldEQ(FieldUserID, v))
+}
+
 // RecoveryPeriodMonths applies equality check predicate on the "recovery_period_months" field. It's identical to RecoveryPeriodMonthsEQ.
 func RecoveryPeriodMonths(v int) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldEQ(FieldRecoveryPeriodMonths, v))
@@ -218,6 +223,71 @@ func DeletedAtIsNil() predicate.DonorPreference {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// UserIDGT applies the GT predicate on the "user_id" field.
+func UserIDGT(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldGT(FieldUserID, v))
+}
+
+// UserIDGTE applies the GTE predicate on the "user_id" field.
+func UserIDGTE(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldGTE(FieldUserID, v))
+}
+
+// UserIDLT applies the LT predicate on the "user_id" field.
+func UserIDLT(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldLT(FieldUserID, v))
+}
+
+// UserIDLTE applies the LTE predicate on the "user_id" field.
+func UserIDLTE(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldLTE(FieldUserID, v))
+}
+
+// UserIDContains applies the Contains predicate on the "user_id" field.
+func UserIDContains(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldContains(FieldUserID, v))
+}
+
+// UserIDHasPrefix applies the HasPrefix predicate on the "user_id" field.
+func UserIDHasPrefix(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldHasPrefix(FieldUserID, v))
+}
+
+// UserIDHasSuffix applies the HasSuffix predicate on the "user_id" field.
+func UserIDHasSuffix(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldHasSuffix(FieldUserID, v))
+}
+
+// UserIDEqualFold applies the EqualFold predicate on the "user_id" field.
+func UserIDEqualFold(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldEqualFold(FieldUserID, v))
+}
+
+// UserIDContainsFold applies the ContainsFold predicate on the "user_id" field.
+func UserIDContainsFold(v string) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldContainsFold(FieldUserID, v))
 }
 
 // PreferredLocationIdsIsNil applies the IsNil predicate on the "preferred_location_ids" field.

@@ -485,7 +485,9 @@ func (_q *BloodSearchRequestQuery) loadResponses(ctx context.Context, query *Don
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(donorresponse.FieldRequestID)
+	}
 	query.Where(predicate.DonorResponse(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(bloodsearchrequest.ResponsesColumn), fks...))
 	}))
@@ -494,13 +496,10 @@ func (_q *BloodSearchRequestQuery) loadResponses(ctx context.Context, query *Don
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.blood_search_request_responses
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "blood_search_request_responses" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.RequestID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "blood_search_request_responses" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "request_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -106,7 +106,7 @@ var (
 		{Name: "compensation_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"free", "paid", "food"}},
 		{Name: "taxi_compensation", Type: field.TypeBool, Default: false},
 		{Name: "notification_frequency", Type: field.TypeEnum, Enums: []string{"immediately", "daily", "weekly", "never"}, Default: "immediately"},
-		{Name: "user_donor_preference", Type: field.TypeString, Unique: true},
+		{Name: "user_id", Type: field.TypeString, Unique: true},
 	}
 	// DonorPreferencesTable holds the schema information for the "donor_preferences" table.
 	DonorPreferencesTable = &schema.Table{
@@ -134,8 +134,8 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "accepted", "rejected", "cancelled", "completed", "failed"}},
 		{Name: "is_confirmed", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "rejected_reason", Type: field.TypeString, Nullable: true},
-		{Name: "blood_search_request_responses", Type: field.TypeString},
-		{Name: "donor_response_donor", Type: field.TypeString},
+		{Name: "request_id", Type: field.TypeString},
+		{Name: "donor_id", Type: field.TypeString},
 	}
 	// DonorResponsesTable holds the schema information for the "donor_responses" table.
 	DonorResponsesTable = &schema.Table{

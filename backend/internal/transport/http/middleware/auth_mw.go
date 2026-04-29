@@ -159,6 +159,29 @@ func RequireRole(requiredRole string) func(http.Handler) http.Handler {
 	}
 }
 
+// BasicAuthMiddleware создает middleware для базовой аутентификации указанных путей.
+// includedPaths — список путей, которые требуют базовой аутентификации.
+// Использует hardcoded credentials: admin/secret.
+func BasicAuthMiddleware(includedPaths ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			path := r.URL.Path
+			for _, included := range includedPaths {
+				if strings.HasPrefix(path, included) {
+					user, pass, ok := r.BasicAuth()
+					if !ok || user != "admin" || pass != "secret" {
+						w.Header().Set("WWW-Authenticate", `Basic realm="Docs"`)
+						http.Error(w, "Unauthorized", http.StatusUnauthorized)
+						return
+					}
+					break // Если совпадает, проверяем и выходим из цикла
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 // RequireAnyRole создает middleware, который проверяет наличие у пользователя одной из указанных ролей.
 // Если роль не совпадает ни с одной из требуемых, возвращается 403 Forbidden.
 func RequireAnyRole(roles ...string) func(http.Handler) http.Handler {

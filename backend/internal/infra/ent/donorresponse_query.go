@@ -29,7 +29,6 @@ type DonorResponseQuery struct {
 	withRequest *BloodSearchRequestQuery
 	withDonor   *PetQuery
 	withBonuses *BonusQuery
-	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -443,7 +442,6 @@ func (_q *DonorResponseQuery) prepareQuery(ctx context.Context) error {
 func (_q *DonorResponseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DonorResponse, error) {
 	var (
 		nodes       = []*DonorResponse{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [3]bool{
 			_q.withRequest != nil,
@@ -451,12 +449,6 @@ func (_q *DonorResponseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 			_q.withBonuses != nil,
 		}
 	)
-	if _q.withRequest != nil || _q.withDonor != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, donorresponse.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DonorResponse).scanValues(nil, columns)
 	}
@@ -501,10 +493,7 @@ func (_q *DonorResponseQuery) loadRequest(ctx context.Context, query *BloodSearc
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*DonorResponse)
 	for i := range nodes {
-		if nodes[i].blood_search_request_responses == nil {
-			continue
-		}
-		fk := *nodes[i].blood_search_request_responses
+		fk := nodes[i].RequestID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -521,7 +510,7 @@ func (_q *DonorResponseQuery) loadRequest(ctx context.Context, query *BloodSearc
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "blood_search_request_responses" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "request_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -533,10 +522,7 @@ func (_q *DonorResponseQuery) loadDonor(ctx context.Context, query *PetQuery, no
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*DonorResponse)
 	for i := range nodes {
-		if nodes[i].donor_response_donor == nil {
-			continue
-		}
-		fk := *nodes[i].donor_response_donor
+		fk := nodes[i].DonorID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -553,7 +539,7 @@ func (_q *DonorResponseQuery) loadDonor(ctx context.Context, query *PetQuery, no
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "donor_response_donor" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "donor_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -616,6 +602,12 @@ func (_q *DonorResponseQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != donorresponse.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withRequest != nil {
+			_spec.Node.AddColumnOnce(donorresponse.FieldRequestID)
+		}
+		if _q.withDonor != nil {
+			_spec.Node.AddColumnOnce(donorresponse.FieldDonorID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

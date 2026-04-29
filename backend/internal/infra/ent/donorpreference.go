@@ -25,6 +25,8 @@ type DonorPreference struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
+	// UserID holds the value of the "user_id" field.
+	UserID string `json:"user_id,omitempty"`
 	// PreferredLocationIds holds the value of the "preferred_location_ids" field.
 	PreferredLocationIds []string `json:"preferred_location_ids,omitempty"`
 	// RecoveryPeriodMonths holds the value of the "recovery_period_months" field.
@@ -37,9 +39,8 @@ type DonorPreference struct {
 	NotificationFrequency donorpreference.NotificationFrequency `json:"notification_frequency,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorPreferenceQuery when eager-loading is set.
-	Edges                 DonorPreferenceEdges `json:"edges"`
-	user_donor_preference *string
-	selectValues          sql.SelectValues
+	Edges        DonorPreferenceEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // DonorPreferenceEdges holds the relations/edges for other nodes in the graph.
@@ -73,12 +74,10 @@ func (*DonorPreference) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case donorpreference.FieldRecoveryPeriodMonths:
 			values[i] = new(sql.NullInt64)
-		case donorpreference.FieldID, donorpreference.FieldCompensationType, donorpreference.FieldNotificationFrequency:
+		case donorpreference.FieldID, donorpreference.FieldUserID, donorpreference.FieldCompensationType, donorpreference.FieldNotificationFrequency:
 			values[i] = new(sql.NullString)
 		case donorpreference.FieldCreatedAt, donorpreference.FieldUpdatedAt, donorpreference.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case donorpreference.ForeignKeys[0]: // user_donor_preference
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -119,6 +118,12 @@ func (_m *DonorPreference) assignValues(columns []string, values []any) error {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
+		case donorpreference.FieldUserID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+			} else if value.Valid {
+				_m.UserID = value.String
+			}
 		case donorpreference.FieldPreferredLocationIds:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field preferred_location_ids", values[i])
@@ -150,13 +155,6 @@ func (_m *DonorPreference) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field notification_frequency", values[i])
 			} else if value.Valid {
 				_m.NotificationFrequency = donorpreference.NotificationFrequency(value.String)
-			}
-		case donorpreference.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user_donor_preference", values[i])
-			} else if value.Valid {
-				_m.user_donor_preference = new(string)
-				*_m.user_donor_preference = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -209,6 +207,9 @@ func (_m *DonorPreference) String() string {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(_m.UserID)
 	builder.WriteString(", ")
 	builder.WriteString("preferred_location_ids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PreferredLocationIds))

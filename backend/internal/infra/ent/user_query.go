@@ -687,7 +687,9 @@ func (_q *UserQuery) loadDonorPreference(ctx context.Context, query *DonorPrefer
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(donorpreference.FieldUserID)
+	}
 	query.Where(predicate.DonorPreference(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.DonorPreferenceColumn), fks...))
 	}))
@@ -696,13 +698,10 @@ func (_q *UserQuery) loadDonorPreference(ctx context.Context, query *DonorPrefer
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_donor_preference
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_donor_preference" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.UserID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_donor_preference" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

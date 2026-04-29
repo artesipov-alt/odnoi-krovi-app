@@ -80,7 +80,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "donorpreference" package.
 	DonorPreferenceInverseTable = "donor_preferences"
 	// DonorPreferenceColumn is the table column denoting the donor_preference relation/edge.
-	DonorPreferenceColumn = "user_donor_preference"
+	DonorPreferenceColumn = "user_id"
 	// IdentitiesTable is the table that holds the identities relation/edge.
 	IdentitiesTable = "user_identities"
 	// IdentitiesInverseTable is the table name for the UserIdentity entity.

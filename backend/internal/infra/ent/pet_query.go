@@ -824,7 +824,9 @@ func (_q *PetQuery) loadDonations(ctx context.Context, query *DonorResponseQuery
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(donorresponse.FieldDonorID)
+	}
 	query.Where(predicate.DonorResponse(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(pet.DonationsColumn), fks...))
 	}))
@@ -833,13 +835,10 @@ func (_q *PetQuery) loadDonations(ctx context.Context, query *DonorResponseQuery
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.donor_response_donor
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "donor_response_donor" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.DonorID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "donor_response_donor" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "donor_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

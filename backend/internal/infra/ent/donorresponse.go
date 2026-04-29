@@ -25,6 +25,10 @@ type DonorResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
+	// RequestID holds the value of the "request_id" field.
+	RequestID string `json:"request_id,omitempty"`
+	// DonorID holds the value of the "donor_id" field.
+	DonorID string `json:"donor_id,omitempty"`
 	// Amount holds the value of the "amount" field.
 	Amount float64 `json:"amount,omitempty"`
 	// CompensationType holds the value of the "compensation_type" field.
@@ -39,10 +43,8 @@ type DonorResponse struct {
 	RejectedReason string `json:"rejected_reason,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorResponseQuery when eager-loading is set.
-	Edges                          DonorResponseEdges `json:"edges"`
-	blood_search_request_responses *string
-	donor_response_donor           *string
-	selectValues                   sql.SelectValues
+	Edges        DonorResponseEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // DonorResponseEdges holds the relations/edges for other nodes in the graph.
@@ -98,14 +100,10 @@ func (*DonorResponse) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case donorresponse.FieldAmount:
 			values[i] = new(sql.NullFloat64)
-		case donorresponse.FieldID, donorresponse.FieldCompensationType, donorresponse.FieldStatus, donorresponse.FieldRejectedReason:
+		case donorresponse.FieldID, donorresponse.FieldRequestID, donorresponse.FieldDonorID, donorresponse.FieldCompensationType, donorresponse.FieldStatus, donorresponse.FieldRejectedReason:
 			values[i] = new(sql.NullString)
 		case donorresponse.FieldCreatedAt, donorresponse.FieldUpdatedAt, donorresponse.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case donorresponse.ForeignKeys[0]: // blood_search_request_responses
-			values[i] = new(sql.NullString)
-		case donorresponse.ForeignKeys[1]: // donor_response_donor
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -146,6 +144,18 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
 			}
+		case donorresponse.FieldRequestID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field request_id", values[i])
+			} else if value.Valid {
+				_m.RequestID = value.String
+			}
+		case donorresponse.FieldDonorID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field donor_id", values[i])
+			} else if value.Valid {
+				_m.DonorID = value.String
+			}
 		case donorresponse.FieldAmount:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field amount", values[i])
@@ -181,20 +191,6 @@ func (_m *DonorResponse) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field rejected_reason", values[i])
 			} else if value.Valid {
 				_m.RejectedReason = value.String
-			}
-		case donorresponse.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field blood_search_request_responses", values[i])
-			} else if value.Valid {
-				_m.blood_search_request_responses = new(string)
-				*_m.blood_search_request_responses = value.String
-			}
-		case donorresponse.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field donor_response_donor", values[i])
-			} else if value.Valid {
-				_m.donor_response_donor = new(string)
-				*_m.donor_response_donor = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -257,6 +253,12 @@ func (_m *DonorResponse) String() string {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("request_id=")
+	builder.WriteString(_m.RequestID)
+	builder.WriteString(", ")
+	builder.WriteString("donor_id=")
+	builder.WriteString(_m.DonorID)
 	builder.WriteString(", ")
 	builder.WriteString("amount=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Amount))

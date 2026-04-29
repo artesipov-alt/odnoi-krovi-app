@@ -118,11 +118,11 @@ func init() {
 	// donorpreference.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	donorpreference.UpdateDefaultUpdatedAt = donorpreferenceDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// donorpreferenceDescRecoveryPeriodMonths is the schema descriptor for recovery_period_months field.
-	donorpreferenceDescRecoveryPeriodMonths := donorpreferenceFields[1].Descriptor()
+	donorpreferenceDescRecoveryPeriodMonths := donorpreferenceFields[2].Descriptor()
 	// donorpreference.DefaultRecoveryPeriodMonths holds the default value on creation for the recovery_period_months field.
 	donorpreference.DefaultRecoveryPeriodMonths = donorpreferenceDescRecoveryPeriodMonths.Default.(int)
 	// donorpreferenceDescTaxiCompensation is the schema descriptor for taxi_compensation field.
-	donorpreferenceDescTaxiCompensation := donorpreferenceFields[3].Descriptor()
+	donorpreferenceDescTaxiCompensation := donorpreferenceFields[4].Descriptor()
 	// donorpreference.DefaultTaxiCompensation holds the default value on creation for the taxi_compensation field.
 	donorpreference.DefaultTaxiCompensation = donorpreferenceDescTaxiCompensation.Default.(bool)
 	// donorpreferenceDescID is the schema descriptor for id field.
@@ -147,7 +147,7 @@ func init() {
 	// donorresponse.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	donorresponse.UpdateDefaultUpdatedAt = donorresponseDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// donorresponseDescIsConfirmed is the schema descriptor for is_confirmed field.
-	donorresponseDescIsConfirmed := donorresponseFields[4].Descriptor()
+	donorresponseDescIsConfirmed := donorresponseFields[6].Descriptor()
 	// donorresponse.DefaultIsConfirmed holds the default value on creation for the is_confirmed field.
 	donorresponse.DefaultIsConfirmed = donorresponseDescIsConfirmed.Default.(bool)
 	// donorresponseDescID is the schema descriptor for id field.

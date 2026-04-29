@@ -57,6 +57,34 @@ func (_u *DonorResponseUpdate) ClearDeletedAt() *DonorResponseUpdate {
 	return _u
 }
 
+// SetRequestID sets the "request_id" field.
+func (_u *DonorResponseUpdate) SetRequestID(v string) *DonorResponseUpdate {
+	_u.mutation.SetRequestID(v)
+	return _u
+}
+
+// SetNillableRequestID sets the "request_id" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableRequestID(v *string) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetRequestID(*v)
+	}
+	return _u
+}
+
+// SetDonorID sets the "donor_id" field.
+func (_u *DonorResponseUpdate) SetDonorID(v string) *DonorResponseUpdate {
+	_u.mutation.SetDonorID(v)
+	return _u
+}
+
+// SetNillableDonorID sets the "donor_id" field if the given value is not nil.
+func (_u *DonorResponseUpdate) SetNillableDonorID(v *string) *DonorResponseUpdate {
+	if v != nil {
+		_u.SetDonorID(*v)
+	}
+	return _u
+}
+
 // SetAmount sets the "amount" field.
 func (_u *DonorResponseUpdate) SetAmount(v float64) *DonorResponseUpdate {
 	_u.mutation.ResetAmount()
@@ -178,21 +206,9 @@ func (_u *DonorResponseUpdate) ClearRejectedReason() *DonorResponseUpdate {
 	return _u
 }
 
-// SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
-func (_u *DonorResponseUpdate) SetRequestID(id string) *DonorResponseUpdate {
-	_u.mutation.SetRequestID(id)
-	return _u
-}
-
 // SetRequest sets the "request" edge to the BloodSearchRequest entity.
 func (_u *DonorResponseUpdate) SetRequest(v *BloodSearchRequest) *DonorResponseUpdate {
 	return _u.SetRequestID(v.ID)
-}
-
-// SetDonorID sets the "donor" edge to the Pet entity by ID.
-func (_u *DonorResponseUpdate) SetDonorID(id string) *DonorResponseUpdate {
-	_u.mutation.SetDonorID(id)
-	return _u
 }
 
 // SetDonor sets the "donor" edge to the Pet entity.
@@ -516,6 +532,34 @@ func (_u *DonorResponseUpdateOne) ClearDeletedAt() *DonorResponseUpdateOne {
 	return _u
 }
 
+// SetRequestID sets the "request_id" field.
+func (_u *DonorResponseUpdateOne) SetRequestID(v string) *DonorResponseUpdateOne {
+	_u.mutation.SetRequestID(v)
+	return _u
+}
+
+// SetNillableRequestID sets the "request_id" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableRequestID(v *string) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetRequestID(*v)
+	}
+	return _u
+}
+
+// SetDonorID sets the "donor_id" field.
+func (_u *DonorResponseUpdateOne) SetDonorID(v string) *DonorResponseUpdateOne {
+	_u.mutation.SetDonorID(v)
+	return _u
+}
+
+// SetNillableDonorID sets the "donor_id" field if the given value is not nil.
+func (_u *DonorResponseUpdateOne) SetNillableDonorID(v *string) *DonorResponseUpdateOne {
+	if v != nil {
+		_u.SetDonorID(*v)
+	}
+	return _u
+}
+
 // SetAmount sets the "amount" field.
 func (_u *DonorResponseUpdateOne) SetAmount(v float64) *DonorResponseUpdateOne {
 	_u.mutation.ResetAmount()
@@ -637,21 +681,9 @@ func (_u *DonorResponseUpdateOne) ClearRejectedReason() *DonorResponseUpdateOne 
 	return _u
 }
 
-// SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
-func (_u *DonorResponseUpdateOne) SetRequestID(id string) *DonorResponseUpdateOne {
-	_u.mutation.SetRequestID(id)
-	return _u
-}
-
 // SetRequest sets the "request" edge to the BloodSearchRequest entity.
 func (_u *DonorResponseUpdateOne) SetRequest(v *BloodSearchRequest) *DonorResponseUpdateOne {
 	return _u.SetRequestID(v.ID)
-}
-
-// SetDonorID sets the "donor" edge to the Pet entity by ID.
-func (_u *DonorResponseUpdateOne) SetDonorID(id string) *DonorResponseUpdateOne {
-	_u.mutation.SetDonorID(id)
-	return _u
 }
 
 // SetDonor sets the "donor" edge to the Pet entity.

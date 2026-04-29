@@ -22,6 +22,10 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldRequestID holds the string denoting the request_id field in the database.
+	FieldRequestID = "request_id"
+	// FieldDonorID holds the string denoting the donor_id field in the database.
+	FieldDonorID = "donor_id"
 	// FieldAmount holds the string denoting the amount field in the database.
 	FieldAmount = "amount"
 	// FieldCompensationType holds the string denoting the compensation_type field in the database.
@@ -48,14 +52,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "bloodsearchrequest" package.
 	RequestInverseTable = "blood_requests"
 	// RequestColumn is the table column denoting the request relation/edge.
-	RequestColumn = "blood_search_request_responses"
+	RequestColumn = "request_id"
 	// DonorTable is the table that holds the donor relation/edge.
 	DonorTable = "donor_responses"
 	// DonorInverseTable is the table name for the Pet entity.
 	// It exists in this package in order to avoid circular dependency with the "pet" package.
 	DonorInverseTable = "pets"
 	// DonorColumn is the table column denoting the donor relation/edge.
-	DonorColumn = "donor_response_donor"
+	DonorColumn = "donor_id"
 	// BonusesTable is the table that holds the bonuses relation/edge.
 	BonusesTable = "bonuses"
 	// BonusesInverseTable is the table name for the Bonus entity.
@@ -71,6 +75,8 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldRequestID,
+	FieldDonorID,
 	FieldAmount,
 	FieldCompensationType,
 	FieldTaxiCompensation,
@@ -79,22 +85,10 @@ var Columns = []string{
 	FieldRejectedReason,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "donor_responses"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"blood_search_request_responses",
-	"donor_response_donor",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -192,6 +186,16 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByRequestID orders the results by the request_id field.
+func ByRequestID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRequestID, opts...).ToFunc()
+}
+
+// ByDonorID orders the results by the donor_id field.
+func ByDonorID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDonorID, opts...).ToFunc()
 }
 
 // ByAmount orders the results by the amount field.

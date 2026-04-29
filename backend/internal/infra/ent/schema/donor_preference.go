@@ -17,6 +17,8 @@ type DonorPreference struct {
 // Поля DonorPreference.
 func (DonorPreference) Fields() []ent.Field {
 	return []ent.Field{
+		// user_id - внешний ключ к пользователю
+		field.String("user_id"),
 		// preferred_location_ids - список ID локаций, где донор хочет помочь
 		field.JSON("preferred_location_ids", []string{}).
 			Optional(),
@@ -45,7 +47,8 @@ func (DonorPreference) Edges() []ent.Edge {
 		edge.From("user", User.Type).
 			Ref("donor_preference").
 			Unique().
-			Required(),
+			Required().
+			Field("user_id"),
 	}
 }
 

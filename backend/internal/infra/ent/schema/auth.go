@@ -18,17 +18,17 @@ type UserIdentity struct {
 // Fields of the UserIdentity.
 func (UserIdentity) Fields() []ent.Field {
 	return []ent.Field{
-		// user_id is the foreign key to the user.
+		// user_id - внешний ключ к пользователю.
 		field.String("user_id"),
-		// partner_id is the foreign key to the partner.
+		// partner_id - внешний ключ к партнеру.
 		field.String("partner_id").
 			Optional(),
-		// provider is the identity provider (telegram_bot, telegram_webapp, google, etc.).
+		// provider - поставщик идентификационных данных (telegram_bot, telegram_webapp, google и т.д.).
 		field.Enum("provider").
 			Values("telegram_bot", "max_bot", "service"),
-		// provider_user_id is the unique identifier from the provider (e.g., Telegram ID).
+		// provider_user_id - уникальный идентификатор от поставщика (например, Telegram ID).
 		field.String("provider_user_id"),
-		// metadata is JSONB for storing additional provider data (username, photo_url, etc.).
+		// metadata - JSONB для хранения дополнительных данных поставщика (имя пользователя, photo_url и т.д.).
 		field.JSON("metadata", map[string]any{}).
 			Optional(),
 	}
@@ -37,7 +37,6 @@ func (UserIdentity) Fields() []ent.Field {
 // Edges of the UserIdentity.
 func (UserIdentity) Edges() []ent.Edge {
 	return []ent.Edge{
-		// user is the edge to the user.
 		edge.From("user", User.Type).
 			Ref("identities").
 			Field("user_id").

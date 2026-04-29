@@ -56,6 +56,20 @@ func (_u *DonorPreferenceUpdate) ClearDeletedAt() *DonorPreferenceUpdate {
 	return _u
 }
 
+// SetUserID sets the "user_id" field.
+func (_u *DonorPreferenceUpdate) SetUserID(v string) *DonorPreferenceUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *DonorPreferenceUpdate) SetNillableUserID(v *string) *DonorPreferenceUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
+	}
+	return _u
+}
+
 // SetPreferredLocationIds sets the "preferred_location_ids" field.
 func (_u *DonorPreferenceUpdate) SetPreferredLocationIds(v []string) *DonorPreferenceUpdate {
 	_u.mutation.SetPreferredLocationIds(v)
@@ -146,12 +160,6 @@ func (_u *DonorPreferenceUpdate) SetNillableNotificationFrequency(v *donorprefer
 	if v != nil {
 		_u.SetNotificationFrequency(*v)
 	}
-	return _u
-}
-
-// SetUserID sets the "user" edge to the User entity by ID.
-func (_u *DonorPreferenceUpdate) SetUserID(id string) *DonorPreferenceUpdate {
-	_u.mutation.SetUserID(id)
 	return _u
 }
 
@@ -353,6 +361,20 @@ func (_u *DonorPreferenceUpdateOne) ClearDeletedAt() *DonorPreferenceUpdateOne {
 	return _u
 }
 
+// SetUserID sets the "user_id" field.
+func (_u *DonorPreferenceUpdateOne) SetUserID(v string) *DonorPreferenceUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *DonorPreferenceUpdateOne) SetNillableUserID(v *string) *DonorPreferenceUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
+	}
+	return _u
+}
+
 // SetPreferredLocationIds sets the "preferred_location_ids" field.
 func (_u *DonorPreferenceUpdateOne) SetPreferredLocationIds(v []string) *DonorPreferenceUpdateOne {
 	_u.mutation.SetPreferredLocationIds(v)
@@ -443,12 +465,6 @@ func (_u *DonorPreferenceUpdateOne) SetNillableNotificationFrequency(v *donorpre
 	if v != nil {
 		_u.SetNotificationFrequency(*v)
 	}
-	return _u
-}
-
-// SetUserID sets the "user" edge to the User entity by ID.
-func (_u *DonorPreferenceUpdateOne) SetUserID(id string) *DonorPreferenceUpdateOne {
-	_u.mutation.SetUserID(id)
 	return _u
 }
 

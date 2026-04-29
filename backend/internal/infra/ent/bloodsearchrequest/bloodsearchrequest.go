@@ -65,7 +65,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "donorresponse" package.
 	ResponsesInverseTable = "donor_responses"
 	// ResponsesColumn is the table column denoting the responses relation/edge.
-	ResponsesColumn = "blood_search_request_responses"
+	ResponsesColumn = "request_id"
 )
 
 // Columns holds all SQL columns for bloodsearchrequest fields.

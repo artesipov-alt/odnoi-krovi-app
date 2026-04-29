@@ -80,6 +80,16 @@ func DeletedAt(v time.Time) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// RequestID applies equality check predicate on the "request_id" field. It's identical to RequestIDEQ.
+func RequestID(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldRequestID, v))
+}
+
+// DonorID applies equality check predicate on the "donor_id" field. It's identical to DonorIDEQ.
+func DonorID(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldDonorID, v))
+}
+
 // Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
 func Amount(v float64) predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldEQ(FieldAmount, v))
@@ -228,6 +238,136 @@ func DeletedAtIsNil() predicate.DonorResponse {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.DonorResponse {
 	return predicate.DonorResponse(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// RequestIDEQ applies the EQ predicate on the "request_id" field.
+func RequestIDEQ(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldRequestID, v))
+}
+
+// RequestIDNEQ applies the NEQ predicate on the "request_id" field.
+func RequestIDNEQ(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldRequestID, v))
+}
+
+// RequestIDIn applies the In predicate on the "request_id" field.
+func RequestIDIn(vs ...string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIn(FieldRequestID, vs...))
+}
+
+// RequestIDNotIn applies the NotIn predicate on the "request_id" field.
+func RequestIDNotIn(vs ...string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotIn(FieldRequestID, vs...))
+}
+
+// RequestIDGT applies the GT predicate on the "request_id" field.
+func RequestIDGT(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGT(FieldRequestID, v))
+}
+
+// RequestIDGTE applies the GTE predicate on the "request_id" field.
+func RequestIDGTE(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGTE(FieldRequestID, v))
+}
+
+// RequestIDLT applies the LT predicate on the "request_id" field.
+func RequestIDLT(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLT(FieldRequestID, v))
+}
+
+// RequestIDLTE applies the LTE predicate on the "request_id" field.
+func RequestIDLTE(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLTE(FieldRequestID, v))
+}
+
+// RequestIDContains applies the Contains predicate on the "request_id" field.
+func RequestIDContains(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldContains(FieldRequestID, v))
+}
+
+// RequestIDHasPrefix applies the HasPrefix predicate on the "request_id" field.
+func RequestIDHasPrefix(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldHasPrefix(FieldRequestID, v))
+}
+
+// RequestIDHasSuffix applies the HasSuffix predicate on the "request_id" field.
+func RequestIDHasSuffix(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldHasSuffix(FieldRequestID, v))
+}
+
+// RequestIDEqualFold applies the EqualFold predicate on the "request_id" field.
+func RequestIDEqualFold(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEqualFold(FieldRequestID, v))
+}
+
+// RequestIDContainsFold applies the ContainsFold predicate on the "request_id" field.
+func RequestIDContainsFold(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldContainsFold(FieldRequestID, v))
+}
+
+// DonorIDEQ applies the EQ predicate on the "donor_id" field.
+func DonorIDEQ(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEQ(FieldDonorID, v))
+}
+
+// DonorIDNEQ applies the NEQ predicate on the "donor_id" field.
+func DonorIDNEQ(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNEQ(FieldDonorID, v))
+}
+
+// DonorIDIn applies the In predicate on the "donor_id" field.
+func DonorIDIn(vs ...string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldIn(FieldDonorID, vs...))
+}
+
+// DonorIDNotIn applies the NotIn predicate on the "donor_id" field.
+func DonorIDNotIn(vs ...string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldNotIn(FieldDonorID, vs...))
+}
+
+// DonorIDGT applies the GT predicate on the "donor_id" field.
+func DonorIDGT(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGT(FieldDonorID, v))
+}
+
+// DonorIDGTE applies the GTE predicate on the "donor_id" field.
+func DonorIDGTE(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldGTE(FieldDonorID, v))
+}
+
+// DonorIDLT applies the LT predicate on the "donor_id" field.
+func DonorIDLT(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLT(FieldDonorID, v))
+}
+
+// DonorIDLTE applies the LTE predicate on the "donor_id" field.
+func DonorIDLTE(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldLTE(FieldDonorID, v))
+}
+
+// DonorIDContains applies the Contains predicate on the "donor_id" field.
+func DonorIDContains(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldContains(FieldDonorID, v))
+}
+
+// DonorIDHasPrefix applies the HasPrefix predicate on the "donor_id" field.
+func DonorIDHasPrefix(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldHasPrefix(FieldDonorID, v))
+}
+
+// DonorIDHasSuffix applies the HasSuffix predicate on the "donor_id" field.
+func DonorIDHasSuffix(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldHasSuffix(FieldDonorID, v))
+}
+
+// DonorIDEqualFold applies the EqualFold predicate on the "donor_id" field.
+func DonorIDEqualFold(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldEqualFold(FieldDonorID, v))
+}
+
+// DonorIDContainsFold applies the ContainsFold predicate on the "donor_id" field.
+func DonorIDContainsFold(v string) predicate.DonorResponse {
+	return predicate.DonorResponse(sql.FieldContainsFold(FieldDonorID, v))
 }
 
 // AmountEQ applies the EQ predicate on the "amount" field.

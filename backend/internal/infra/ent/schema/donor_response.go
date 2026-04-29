@@ -15,6 +15,8 @@ type DonorResponse struct {
 // Fields of the BloodSearchRequest.
 func (DonorResponse) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("request_id"),
+		field.String("donor_id"),
 		field.Float("amount").Optional(),
 		field.Enum("compensation_type").Values("free", "paid", "food").Optional(),
 		field.Bool("taxi_compensation").Optional(),
@@ -27,8 +29,8 @@ func (DonorResponse) Fields() []ent.Field {
 // Edges of the BloodSearchRequest.
 func (DonorResponse) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("request", BloodSearchRequest.Type).Ref("responses").Unique().Required(),
-		edge.To("donor", Pet.Type).Unique().Required(),
+		edge.From("request", BloodSearchRequest.Type).Ref("responses").Unique().Required().Field("request_id"),
+		edge.To("donor", Pet.Type).Unique().Required().Field("donor_id"),
 		edge.To("bonuses", Bonus.Type),
 	}
 }

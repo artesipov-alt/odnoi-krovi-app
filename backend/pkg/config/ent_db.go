@@ -31,14 +31,27 @@ type EntConfig struct {
 }
 
 // NewEntConfig создает конфигурацию из переменных окружения
-func NewEntConfig() *EntConfig {
+func NewEntConfig(env string) *EntConfig {
+	var dbname string
+	switch env {
+	case "PROD", "prod", "production":
+		dbname = os.Getenv("DB_NAME_PROD")
+	default:
+		dbname = os.Getenv("DB_NAME_DEV")
+	}
+
+	if dbname == "" {
+		slog.Error("Не указано название базы данных в окружении env")
+		os.Exit(1)
+	}
+
 	return &EntConfig{
-		Host:     GetEnv("DB_HOST", "localhost"),
-		Port:     GetEnv("DB_PORT", "5432"),
-		User:     GetEnv("DB_USER", "postgres"),
-		Password: GetEnv("DB_PASSWORD", "postgres"),
-		DBName:   GetEnv("DB_NAME", "odnoi_krovi"),
-		SSLMode:  GetEnv("DB_SSLMODE", "disable"),
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   dbname,
+		SSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 }
 
@@ -52,13 +65,6 @@ func NewLocalConfig() *EntConfig {
 		DBName:   "local_odnoi_krovi",
 		SSLMode:  "disable",
 	}
-}
-
-func NewENVConfig() *EntConfig {
-	if os.Getenv("ENV") != "development" {
-		return NewEntConfig()
-	}
-	return NewLocalConfig()
 }
 
 // GetDSN возвращает строку подключения для PostgreSQL

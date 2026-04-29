@@ -68,6 +68,18 @@ func (_c *DonorResponseCreate) SetNillableDeletedAt(v *time.Time) *DonorResponse
 	return _c
 }
 
+// SetRequestID sets the "request_id" field.
+func (_c *DonorResponseCreate) SetRequestID(v string) *DonorResponseCreate {
+	_c.mutation.SetRequestID(v)
+	return _c
+}
+
+// SetDonorID sets the "donor_id" field.
+func (_c *DonorResponseCreate) SetDonorID(v string) *DonorResponseCreate {
+	_c.mutation.SetDonorID(v)
+	return _c
+}
+
 // SetAmount sets the "amount" field.
 func (_c *DonorResponseCreate) SetAmount(v float64) *DonorResponseCreate {
 	_c.mutation.SetAmount(v)
@@ -158,21 +170,9 @@ func (_c *DonorResponseCreate) SetNillableID(v *string) *DonorResponseCreate {
 	return _c
 }
 
-// SetRequestID sets the "request" edge to the BloodSearchRequest entity by ID.
-func (_c *DonorResponseCreate) SetRequestID(id string) *DonorResponseCreate {
-	_c.mutation.SetRequestID(id)
-	return _c
-}
-
 // SetRequest sets the "request" edge to the BloodSearchRequest entity.
 func (_c *DonorResponseCreate) SetRequest(v *BloodSearchRequest) *DonorResponseCreate {
 	return _c.SetRequestID(v.ID)
-}
-
-// SetDonorID sets the "donor" edge to the Pet entity by ID.
-func (_c *DonorResponseCreate) SetDonorID(id string) *DonorResponseCreate {
-	_c.mutation.SetDonorID(id)
-	return _c
 }
 
 // SetDonor sets the "donor" edge to the Pet entity.
@@ -255,6 +255,12 @@ func (_c *DonorResponseCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "DonorResponse.updated_at"`)}
+	}
+	if _, ok := _c.mutation.RequestID(); !ok {
+		return &ValidationError{Name: "request_id", err: errors.New(`ent: missing required field "DonorResponse.request_id"`)}
+	}
+	if _, ok := _c.mutation.DonorID(); !ok {
+		return &ValidationError{Name: "donor_id", err: errors.New(`ent: missing required field "DonorResponse.donor_id"`)}
 	}
 	if v, ok := _c.mutation.CompensationType(); ok {
 		if err := donorresponse.CompensationTypeValidator(v); err != nil {
@@ -361,7 +367,7 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.blood_search_request_responses = &nodes[0]
+		_node.RequestID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.DonorIDs(); len(nodes) > 0 {
@@ -378,7 +384,7 @@ func (_c *DonorResponseCreate) createSpec() (*DonorResponse, *sqlgraph.CreateSpe
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.donor_response_donor = &nodes[0]
+		_node.DonorID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.BonusesIDs(); len(nodes) > 0 {
@@ -476,6 +482,30 @@ func (u *DonorResponseUpsert) UpdateDeletedAt() *DonorResponseUpsert {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (u *DonorResponseUpsert) ClearDeletedAt() *DonorResponseUpsert {
 	u.SetNull(donorresponse.FieldDeletedAt)
+	return u
+}
+
+// SetRequestID sets the "request_id" field.
+func (u *DonorResponseUpsert) SetRequestID(v string) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldRequestID, v)
+	return u
+}
+
+// UpdateRequestID sets the "request_id" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateRequestID() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldRequestID)
+	return u
+}
+
+// SetDonorID sets the "donor_id" field.
+func (u *DonorResponseUpsert) SetDonorID(v string) *DonorResponseUpsert {
+	u.Set(donorresponse.FieldDonorID, v)
+	return u
+}
+
+// UpdateDonorID sets the "donor_id" field to the value that was provided on create.
+func (u *DonorResponseUpsert) UpdateDonorID() *DonorResponseUpsert {
+	u.SetExcluded(donorresponse.FieldDonorID)
 	return u
 }
 
@@ -670,6 +700,34 @@ func (u *DonorResponseUpsertOne) UpdateDeletedAt() *DonorResponseUpsertOne {
 func (u *DonorResponseUpsertOne) ClearDeletedAt() *DonorResponseUpsertOne {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetRequestID sets the "request_id" field.
+func (u *DonorResponseUpsertOne) SetRequestID(v string) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetRequestID(v)
+	})
+}
+
+// UpdateRequestID sets the "request_id" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateRequestID() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateRequestID()
+	})
+}
+
+// SetDonorID sets the "donor_id" field.
+func (u *DonorResponseUpsertOne) SetDonorID(v string) *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetDonorID(v)
+	})
+}
+
+// UpdateDonorID sets the "donor_id" field to the value that was provided on create.
+func (u *DonorResponseUpsertOne) UpdateDonorID() *DonorResponseUpsertOne {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateDonorID()
 	})
 }
 
@@ -1049,6 +1107,34 @@ func (u *DonorResponseUpsertBulk) UpdateDeletedAt() *DonorResponseUpsertBulk {
 func (u *DonorResponseUpsertBulk) ClearDeletedAt() *DonorResponseUpsertBulk {
 	return u.Update(func(s *DonorResponseUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetRequestID sets the "request_id" field.
+func (u *DonorResponseUpsertBulk) SetRequestID(v string) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetRequestID(v)
+	})
+}
+
+// UpdateRequestID sets the "request_id" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateRequestID() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateRequestID()
+	})
+}
+
+// SetDonorID sets the "donor_id" field.
+func (u *DonorResponseUpsertBulk) SetDonorID(v string) *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.SetDonorID(v)
+	})
+}
+
+// UpdateDonorID sets the "donor_id" field to the value that was provided on create.
+func (u *DonorResponseUpsertBulk) UpdateDonorID() *DonorResponseUpsertBulk {
+	return u.Update(func(s *DonorResponseUpsert) {
+		s.UpdateDonorID()
 	})
 }
 

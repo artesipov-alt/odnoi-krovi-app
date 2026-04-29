@@ -111,7 +111,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "donorresponse" package.
 	DonationsInverseTable = "donor_responses"
 	// DonationsColumn is the table column denoting the donations relation/edge.
-	DonationsColumn = "donor_response_donor"
+	DonationsColumn = "donor_id"
 	// BloodSearchRequestTable is the table that holds the blood_search_request relation/edge.
 	BloodSearchRequestTable = "blood_requests"
 	// BloodSearchRequestInverseTable is the table name for the BloodSearchRequest entity.

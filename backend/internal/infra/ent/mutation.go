@@ -3658,6 +3658,42 @@ func (m *DonorPreferenceMutation) ResetDeletedAt() {
 	delete(m.clearedFields, donorpreference.FieldDeletedAt)
 }
 
+// SetUserID sets the "user_id" field.
+func (m *DonorPreferenceMutation) SetUserID(s string) {
+	m.user = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *DonorPreferenceMutation) UserID() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the DonorPreference entity.
+// If the DonorPreference object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorPreferenceMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *DonorPreferenceMutation) ResetUserID() {
+	m.user = nil
+}
+
 // SetPreferredLocationIds sets the "preferred_location_ids" field.
 func (m *DonorPreferenceMutation) SetPreferredLocationIds(s []string) {
 	m.preferred_location_ids = &s
@@ -3914,27 +3950,15 @@ func (m *DonorPreferenceMutation) ResetNotificationFrequency() {
 	m.notification_frequency = nil
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *DonorPreferenceMutation) SetUserID(id string) {
-	m.user = &id
-}
-
 // ClearUser clears the "user" edge to the User entity.
 func (m *DonorPreferenceMutation) ClearUser() {
 	m.cleareduser = true
+	m.clearedFields[donorpreference.FieldUserID] = struct{}{}
 }
 
 // UserCleared reports if the "user" edge to the User entity was cleared.
 func (m *DonorPreferenceMutation) UserCleared() bool {
 	return m.cleareduser
-}
-
-// UserID returns the "user" edge ID in the mutation.
-func (m *DonorPreferenceMutation) UserID() (id string, exists bool) {
-	if m.user != nil {
-		return *m.user, true
-	}
-	return
 }
 
 // UserIDs returns the "user" edge IDs in the mutation.
@@ -3987,7 +4011,7 @@ func (m *DonorPreferenceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorPreferenceMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, donorpreference.FieldCreatedAt)
 	}
@@ -3996,6 +4020,9 @@ func (m *DonorPreferenceMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, donorpreference.FieldDeletedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, donorpreference.FieldUserID)
 	}
 	if m.preferred_location_ids != nil {
 		fields = append(fields, donorpreference.FieldPreferredLocationIds)
@@ -4026,6 +4053,8 @@ func (m *DonorPreferenceMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case donorpreference.FieldDeletedAt:
 		return m.DeletedAt()
+	case donorpreference.FieldUserID:
+		return m.UserID()
 	case donorpreference.FieldPreferredLocationIds:
 		return m.PreferredLocationIds()
 	case donorpreference.FieldRecoveryPeriodMonths:
@@ -4051,6 +4080,8 @@ func (m *DonorPreferenceMutation) OldField(ctx context.Context, name string) (en
 		return m.OldUpdatedAt(ctx)
 	case donorpreference.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case donorpreference.FieldUserID:
+		return m.OldUserID(ctx)
 	case donorpreference.FieldPreferredLocationIds:
 		return m.OldPreferredLocationIds(ctx)
 	case donorpreference.FieldRecoveryPeriodMonths:
@@ -4090,6 +4121,13 @@ func (m *DonorPreferenceMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case donorpreference.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
 		return nil
 	case donorpreference.FieldPreferredLocationIds:
 		v, ok := value.([]string)
@@ -4225,6 +4263,9 @@ func (m *DonorPreferenceMutation) ResetField(name string) error {
 		return nil
 	case donorpreference.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case donorpreference.FieldUserID:
+		m.ResetUserID()
 		return nil
 	case donorpreference.FieldPreferredLocationIds:
 		m.ResetPreferredLocationIds()
@@ -4573,6 +4614,78 @@ func (m *DonorResponseMutation) ResetDeletedAt() {
 	delete(m.clearedFields, donorresponse.FieldDeletedAt)
 }
 
+// SetRequestID sets the "request_id" field.
+func (m *DonorResponseMutation) SetRequestID(s string) {
+	m.request = &s
+}
+
+// RequestID returns the value of the "request_id" field in the mutation.
+func (m *DonorResponseMutation) RequestID() (r string, exists bool) {
+	v := m.request
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestID returns the old "request_id" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldRequestID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestID: %w", err)
+	}
+	return oldValue.RequestID, nil
+}
+
+// ResetRequestID resets all changes to the "request_id" field.
+func (m *DonorResponseMutation) ResetRequestID() {
+	m.request = nil
+}
+
+// SetDonorID sets the "donor_id" field.
+func (m *DonorResponseMutation) SetDonorID(s string) {
+	m.donor = &s
+}
+
+// DonorID returns the value of the "donor_id" field in the mutation.
+func (m *DonorResponseMutation) DonorID() (r string, exists bool) {
+	v := m.donor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDonorID returns the old "donor_id" field's value of the DonorResponse entity.
+// If the DonorResponse object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorResponseMutation) OldDonorID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDonorID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDonorID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDonorID: %w", err)
+	}
+	return oldValue.DonorID, nil
+}
+
+// ResetDonorID resets all changes to the "donor_id" field.
+func (m *DonorResponseMutation) ResetDonorID() {
+	m.donor = nil
+}
+
 // SetAmount sets the "amount" field.
 func (m *DonorResponseMutation) SetAmount(f float64) {
 	m.amount = &f
@@ -4875,27 +4988,15 @@ func (m *DonorResponseMutation) ResetRejectedReason() {
 	delete(m.clearedFields, donorresponse.FieldRejectedReason)
 }
 
-// SetRequestID sets the "request" edge to the BloodSearchRequest entity by id.
-func (m *DonorResponseMutation) SetRequestID(id string) {
-	m.request = &id
-}
-
 // ClearRequest clears the "request" edge to the BloodSearchRequest entity.
 func (m *DonorResponseMutation) ClearRequest() {
 	m.clearedrequest = true
+	m.clearedFields[donorresponse.FieldRequestID] = struct{}{}
 }
 
 // RequestCleared reports if the "request" edge to the BloodSearchRequest entity was cleared.
 func (m *DonorResponseMutation) RequestCleared() bool {
 	return m.clearedrequest
-}
-
-// RequestID returns the "request" edge ID in the mutation.
-func (m *DonorResponseMutation) RequestID() (id string, exists bool) {
-	if m.request != nil {
-		return *m.request, true
-	}
-	return
 }
 
 // RequestIDs returns the "request" edge IDs in the mutation.
@@ -4914,27 +5015,15 @@ func (m *DonorResponseMutation) ResetRequest() {
 	m.clearedrequest = false
 }
 
-// SetDonorID sets the "donor" edge to the Pet entity by id.
-func (m *DonorResponseMutation) SetDonorID(id string) {
-	m.donor = &id
-}
-
 // ClearDonor clears the "donor" edge to the Pet entity.
 func (m *DonorResponseMutation) ClearDonor() {
 	m.cleareddonor = true
+	m.clearedFields[donorresponse.FieldDonorID] = struct{}{}
 }
 
 // DonorCleared reports if the "donor" edge to the Pet entity was cleared.
 func (m *DonorResponseMutation) DonorCleared() bool {
 	return m.cleareddonor
-}
-
-// DonorID returns the "donor" edge ID in the mutation.
-func (m *DonorResponseMutation) DonorID() (id string, exists bool) {
-	if m.donor != nil {
-		return *m.donor, true
-	}
-	return
 }
 
 // DonorIDs returns the "donor" edge IDs in the mutation.
@@ -5041,7 +5130,7 @@ func (m *DonorResponseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorResponseMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, donorresponse.FieldCreatedAt)
 	}
@@ -5050,6 +5139,12 @@ func (m *DonorResponseMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, donorresponse.FieldDeletedAt)
+	}
+	if m.request != nil {
+		fields = append(fields, donorresponse.FieldRequestID)
+	}
+	if m.donor != nil {
+		fields = append(fields, donorresponse.FieldDonorID)
 	}
 	if m.amount != nil {
 		fields = append(fields, donorresponse.FieldAmount)
@@ -5083,6 +5178,10 @@ func (m *DonorResponseMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case donorresponse.FieldDeletedAt:
 		return m.DeletedAt()
+	case donorresponse.FieldRequestID:
+		return m.RequestID()
+	case donorresponse.FieldDonorID:
+		return m.DonorID()
 	case donorresponse.FieldAmount:
 		return m.Amount()
 	case donorresponse.FieldCompensationType:
@@ -5110,6 +5209,10 @@ func (m *DonorResponseMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case donorresponse.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case donorresponse.FieldRequestID:
+		return m.OldRequestID(ctx)
+	case donorresponse.FieldDonorID:
+		return m.OldDonorID(ctx)
 	case donorresponse.FieldAmount:
 		return m.OldAmount(ctx)
 	case donorresponse.FieldCompensationType:
@@ -5151,6 +5254,20 @@ func (m *DonorResponseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case donorresponse.FieldRequestID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestID(v)
+		return nil
+	case donorresponse.FieldDonorID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDonorID(v)
 		return nil
 	case donorresponse.FieldAmount:
 		v, ok := value.(float64)
@@ -5305,6 +5422,12 @@ func (m *DonorResponseMutation) ResetField(name string) error {
 		return nil
 	case donorresponse.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case donorresponse.FieldRequestID:
+		m.ResetRequestID()
+		return nil
+	case donorresponse.FieldDonorID:
+		m.ResetDonorID()
 		return nil
 	case donorresponse.FieldAmount:
 		m.ResetAmount()

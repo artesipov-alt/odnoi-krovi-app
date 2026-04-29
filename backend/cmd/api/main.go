@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -94,7 +95,7 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, rawDB, err := config.ConnectEnt(config.NewENVConfig())
+		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
@@ -284,18 +285,19 @@ func main() {
 		server := config.NewServer(options.Port, rootMux)
 
 		// Применяем middleware с использованием метода Use
-		// Порядок: Recovery -> CORS -> Auth -> Logging -> Mux
+		// Порядок: Recovery -> CORS -> BasicAuth -> Auth -> Logging -> Mux
 		server.Use(
 			sloghttp.Recovery,
 			config.DefaultCorsHandler(env, miniappDomain),
+			middleware.BasicAuthMiddleware("/api/docs", "/api/openapi.json"),
 			middleware.AuthMiddleware(tokenGenerator, env, "/api/v1/auth", "/api/docs", "/api/openapi.json", "/health"),
-			sloghttp.New(slog.Default()),
+			sloghttp.NewWithConfig(slog.Default(), sloghttp.Config{WithResponseBody: true, WithRequestID: true, Filters: []sloghttp.Filter{sloghttp.AcceptStatusGreaterThanOrEqual(400)}}),
 			middleware.TraceIDResponseMiddleware,
 		)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
-			slog.Info("Сервер запускается", "port", options.Port)
+			slog.Info("✅ Сервер Запустился", "url", fmt.Sprintf("http://localhost:%d/api/docs", options.Port))
 			server.ListenAndServe()
 		})
 
