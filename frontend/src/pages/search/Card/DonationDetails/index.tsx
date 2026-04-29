@@ -694,7 +694,7 @@ const DonationDetails: FC<Props> = ({
             {isConditionsOpen && (
                 <Curtain
                     noRednerButtons
-                    title='Ваши условия'
+                    title='Условия донора'
                     shouldCloseByWrapperClick
                     onClose={onConditionsClickToggle}
                 >
