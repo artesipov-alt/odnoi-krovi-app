@@ -173,7 +173,7 @@ const ImgEditor: FC<Props> = ({
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}
-                accept={`.${acceptableFormats.join(',.')}`}
+                accept={`image/*',.${acceptableFormats.join(',.')}`}
             />
         </>
     );
