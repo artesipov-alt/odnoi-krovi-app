@@ -537,7 +537,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
             {isConditionsOpen && (
                 <Curtain
                     noRednerButtons
-                    title='Ваши условия'
+                    title='Условия донора'
                     shouldCloseByWrapperClick
                     onClose={onConditionsClickToggle}
                 >
