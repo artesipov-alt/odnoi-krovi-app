@@ -641,7 +641,7 @@ func (p *Pet) getRequiredAnalyses() []string {
 }
 
 func (p *Pet) checkWarnBloodGroup() FactorCode {
-	if p.BloodGroupName == "" {
+	if p.BloodGroupName == "" || p.BloodGroupName == "UNKNOWN" {
 		return WarnFactorUnknownBloodGroup
 	}
 	return ""
