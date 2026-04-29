@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import mainAboutBg from 'imgs/mainAboutBg.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import { FC } from 'react';
@@ -40,6 +41,27 @@ const AboutTech: FC = () => {
                             счастливые моменты, а значит все было не зря.
                             <br />
                             Надеемся, что Портал поможет хозяевам спасать своих любимых друзей
+                        </div>
+                        <div className={cn(aboutStyles.sectionText, { [aboutStyles.marginTop]: true })}>
+                            Версия: 1.0.
+                            <br />
+                            <a
+                                target='_blank'
+                                rel='noreferrer'
+                                className={aboutStyles.link}
+                                href='https://однойкрови.рф/docs#n-80ae6549-954a-4c8c-bc54-357a93ec3dee'
+                            >
+                                Пользовательское соглашение
+                            </a>
+                            <a
+                                target='_blank'
+                                rel='noreferrer'
+                                className={aboutStyles.link}
+                                href='https://однойкрови.рф/docs#n-a9dea2ae-b2a2-4bc6-b0ea-1eca71588ab0'
+                            >
+                                Политика конфиденциальности
+                            </a>
+                            <br />© 2026. Одной Крови. Все права защищены.
                         </div>
                     </div>
                 </div>

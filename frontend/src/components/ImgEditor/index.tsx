@@ -21,7 +21,7 @@ type Props = {
     onLoad?: (photo: File | null) => void;
 };
 
-const acceptableFormats = ['png', 'jpg', 'jpeg', 'jpe', 'webp', 'heic', 'raw'];
+// const acceptableFormats = ['png', 'jpg', 'jpeg', 'jpe', 'webp', 'heic', 'raw'];
 
 const ImgEditor: FC<Props> = ({
     src,
@@ -54,10 +54,10 @@ const ImgEditor: FC<Props> = ({
             return;
         }
 
-        if (!acceptableFormats.includes(newFile.type.split('/')[1])) {
-            // не тот формат
-            return;
-        }
+        // if (!acceptableFormats.includes(newFile.type.split('/')[1])) {
+        //     // не тот формат
+        //     return;
+        // }
 
         setFile(newFile);
         setIsLoadImageError(false);
@@ -170,10 +170,10 @@ const ImgEditor: FC<Props> = ({
             <input
                 type='file'
                 id='imageInput'
+                accept='image/*'
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}
-                accept={`image/*',.${acceptableFormats.join(',.')}`}
             />
         </>
     );

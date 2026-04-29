@@ -23,6 +23,7 @@ import { CircularProgress } from 'components/CircularProgress';
 import Layout from 'components/Layout';
 
 import Bonuses from '../Bonuses';
+import Curtain from '../Curtain';
 import styles from './CompletedDonation.module.less';
 
 type Props = {
@@ -31,6 +32,7 @@ type Props = {
 };
 
 const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
+    const [isConditionsOpen, setIsConditionsOpen] = useState(false);
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
 
     const { data: locationsDict = [], isError: isErrorLocations } = useLocationsQuery();
@@ -48,6 +50,10 @@ const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
 
     const onBonusesClickToggle = () => {
         setIsBonusesPageOpen((prevState) => !prevState);
+    };
+
+    const onConditionsClickToggle = () => {
+        setIsConditionsOpen((prevState) => !prevState);
     };
 
     useEffect(() => {
@@ -224,7 +230,7 @@ const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
                             )}
                     </div>
                 </div>
-                <div className={styles.setting}>
+                <div className={styles.setting} onClick={onConditionsClickToggle}>
                     <p className={styles.text}>
                         Ваши
                         <br />
@@ -259,6 +265,68 @@ const CompletedDonation: FC<Props> = ({ onClose, donation }) => {
                     </div>
                 </div>
             </div>
+            {isConditionsOpen && (
+                <Curtain
+                    noRednerButtons
+                    title='Ваши условия'
+                    shouldCloseByWrapperClick
+                    onClose={onConditionsClickToggle}
+                >
+                    <div
+                        className={cn(styles.conditions, {
+                            [styles.isTaxi]: donation.applicationData.taxiCompensation,
+                        })}
+                    >
+                        <div
+                            className={cn(styles.conditionTile, {
+                                [styles.isTaxi]: donation.applicationData.taxiCompensation,
+                            })}
+                        >
+                            {donation.applicationData.compensationType === CompensationType.FOOD && (
+                                <>
+                                    <div className={styles.rewardFeedIcon}>
+                                        <div className={styles.icon}>
+                                            <Bone />
+                                        </div>
+                                    </div>
+                                    <p className={styles.conditionDescr}>Готов помочь за корм</p>
+                                </>
+                            )}
+                            {donation.applicationData.compensationType === CompensationType.FREE && (
+                                <>
+                                    <div className={styles.rewardFreeIcon}>
+                                        <p className={styles.sum}>0</p>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.conditionDescr}>Готов помочь безвозмездно</p>
+                                </>
+                            )}
+                            {donation.applicationData.compensationType === CompensationType.PAID && (
+                                <>
+                                    <div className={styles.rewardNotFreeIcon}>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.conditionDescr}>Не готов помочь безвозмездно</p>
+                                </>
+                            )}
+                        </div>
+                        {donation.applicationData.taxiCompensation && (
+                            <div
+                                className={cn(styles.conditionTile, {
+                                    [styles.isTaxi]: donation.applicationData.taxiCompensation,
+                                })}
+                            >
+                                <div className={styles.taxiIcon}>
+                                    <div className={styles.icon}>
+                                        <Taxi />
+                                    </div>
+                                </div>
+                                <p className={styles.conditionDescr}>Нужно компенсировать такси до клиники и обратно</p>
+                            </div>
+                        )}
+                    </div>
+                </Curtain>
+            )}
         </Layout>
     );
 };

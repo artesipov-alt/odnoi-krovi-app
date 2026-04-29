@@ -69,6 +69,7 @@ export type GetPoolRequestResponse = {
     photoUrls?: string[];
     description?: string;
     suitableDonors: number;
+    prioritySearch?: boolean;
     bloodGroupNames: string[];
     bloodVolumeNeeded: number;
     bloodVolumeDonated: number;

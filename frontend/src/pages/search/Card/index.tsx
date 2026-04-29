@@ -31,6 +31,7 @@ import DonationDetails from './DonationDetails';
 import PlaningDonations from './PlaningDonations';
 import styles from './SearchCard.module.less';
 import SearchFinish from './SearchFinish';
+import PrioritySearch from '../../../imgs/svg/prioritySearch';
 
 type SelectedDonation = {
     id: string;
@@ -80,6 +81,7 @@ const SearchCard: FC<Props> = ({
     bloodGroup,
     onBoarding,
     description,
+    prioritySearch,
     acceptedDonors,
     defaultOpenTab = 0,
     bloodGroupNames,
@@ -218,7 +220,14 @@ const SearchCard: FC<Props> = ({
                     >
                         <BackAngularArrow />
                     </div>
-                    <h2 className={styles.name}>Поиск от {getDateFormat(new Date(createdAt))}</h2>
+                    <div className={styles.nameWrapper}>
+                        <h2 className={styles.name}>Поиск от {getDateFormat(new Date(createdAt))}</h2>
+                        {!!prioritySearch && (
+                            <div className={styles.prioritySearch}>
+                                <PrioritySearch />
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className={styles.tabs}>
                     {(status !== PoolRequestStatus.CLOSED ? tabs : [tabs[0], tabs[2]]).map(({ title, id: tabId }) => (
@@ -328,6 +337,7 @@ const SearchCard: FC<Props> = ({
                                             showDot
                                             size={180}
                                             strokeWidth={15}
+                                            showWhiteBackStroke
                                             total={bloodVolumeNeeded}
                                             color='var(--red10, #FF2727)'
                                             current={
@@ -339,7 +349,11 @@ const SearchCard: FC<Props> = ({
                                                     : bloodVolumeReserved || 0
                                             }
                                         />
-                                        <div className={styles.neededVolume}>
+                                        <div
+                                            className={cn(styles.neededVolume, {
+                                                [styles.siClosed]: status === PoolRequestStatus.CLOSED,
+                                            })}
+                                        >
                                             {bloodVolumeNeeded}
                                             <span>мл</span>
                                         </div>

@@ -24,8 +24,13 @@
     }
 }
 
-.name {
+.nameWrapper {
+    display: flex;
+    justify-content: start;
     flex-grow: 1;
+}
+
+.name {
     padding: 0 11px;
     font-size: 22px;
     font-weight: 400;
@@ -34,6 +39,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.prioritySearch {
+    width: 24px;
+    height: 24px;
+
+    svg {
+        width: inherit;
+        height: inherit;
+    }
 }
 
 .tabs {
@@ -265,6 +280,11 @@
     padding-top: 8px;
     box-sizing: border-box;
 
+    &.siClosed {
+        color: @white;
+        background: @red11;
+    }
+
     span {
         display: block;
         font-size: 9px;
@@ -344,7 +364,7 @@
     text-transform: none !important;
 
     &.disabled {
-        opacity: 0.5;
+        display: none;
     }
 }
 

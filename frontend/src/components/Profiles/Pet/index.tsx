@@ -81,8 +81,8 @@ const tiles = [
     { name: TileName.HEALTH, title: 'Здоровье', icon: <Health /> },
     { name: TileName.TREATMENTS, title: 'Обработки', icon: <Processing /> },
     { name: TileName.ANALYSES, title: 'Анализы', icon: <Analizes /> },
-    { name: TileName.DONATIONS, title: 'История донаций', icon: <DonorButton /> },
-    { name: TileName.SEARCH, title: 'История поисков', icon: <RecipientButton /> },
+    // { name: TileName.DONATIONS, title: 'История донаций', icon: <DonorButton /> },
+    // { name: TileName.SEARCH, title: 'История поисков', icon: <RecipientButton /> },
 ];
 
 const dogAnalizesCount = 6;
@@ -577,7 +577,8 @@ const PetProfile: FC<Props> = ({
                                     </div>
                                     {isOpenTooltip && (
                                         <div className={styles.tooltip}>
-                                            До 20% объема циркулирующей крови - не более 17,6 мл/кг
+                                            До 20% объема циркулирующей крови - не более{' '}
+                                            {type === PetType.DOG ? 17.6 : 13.2} мл/кг
                                         </div>
                                     )}
                                 </div>

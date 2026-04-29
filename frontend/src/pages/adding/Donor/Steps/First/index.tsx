@@ -84,7 +84,7 @@ const First: FC<Props> = ({
     const onChangeChipNumberHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const newValue = value.trim();
 
-        if (value && !newValue.match(regexInt)) {
+        if ((value && !newValue.match(regexInt)) || newValue.length > 15) {
             return;
         }
 
@@ -212,7 +212,7 @@ const First: FC<Props> = ({
                     </div>
                 </FormItem>
             )}
-            <FormItem title='Чип'>
+            <FormItem title='Чип' subtitle='Содержит 15 символов'>
                 <div className={cn(styles.buttonsRow, { [styles.chip]: true })}>
                     <div className={styles.chipField}>
                         <TextField

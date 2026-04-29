@@ -3,8 +3,8 @@ import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import { useGetUserById } from 'hooks/useGetUserById';
 import bonusBg from 'imgs/bonusBg.png';
-// import profileBonus from 'imgs/profileBonus.png';
-import profilePhoto from 'imgs/profilePhoto.png';
+import profileBonus from 'imgs/profileBonus.png';
+// import profilePhoto from 'imgs/profilePhoto.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import ChatBubble from 'imgs/svg/chatBubble';
 import Edit from 'imgs/svg/edit';
@@ -260,9 +260,9 @@ const Profile: FC<Props> = ({ userId }) => {
     const maxValue = identitiesByType.max ? getMaxValue(identitiesByType.max) : null;
 
     const socialRows: SocialRow[] = [
-        telegramValue
-            ? { title: 'Telegram', value: telegramValue, type: 'telegram' }
-            : { title: 'Telegram', value: 'Привязать', type: 'telegram', isAction: true },
+        // telegramValue
+        //     ? { title: 'Telegram', value: telegramValue, type: 'telegram' }
+        //     : { title: 'Telegram', value: 'Привязать', type: 'telegram', isAction: true },
         maxValue
             ? { title: 'MAX', value: maxValue, type: 'max' }
             : { title: 'MAX', value: 'Привязать', type: 'max', isAction: true },
@@ -447,6 +447,10 @@ const Profile: FC<Props> = ({ userId }) => {
         window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
+    const onChatClickHandler = () => {
+        window.open('https://max.ru/id3200014662_1_bot', '_blank', 'noopener,noreferrer');
+    };
+
     const headerAvatarUrl = avatarUrl && failedAvatarUrl !== avatarUrl ? avatarUrl : null;
     const isPendingAvatarFailed = !!pendingAvatarPreviewUrl && failedAvatarUrl === pendingAvatarPreviewUrl;
     const editAvatarUrl = pendingAvatarPreviewUrl && !isPendingAvatarFailed ? pendingAvatarPreviewUrl : headerAvatarUrl;
@@ -497,22 +501,22 @@ const Profile: FC<Props> = ({ userId }) => {
                         </button>
                     </div>
 
-                    <div className={styles.bonusCard}>
-                        <div className={styles.bonusText}>
-                            Пригласи друзей
-                            <br />и получи бонус
-                        </div>
-                        <Button
-                            variant='contained'
-                            className={styles.detailsButton}
-                            onClick={() => openInvitePopup('default')}
-                        >
-                            Подробнее
-                        </Button>
-                        <img src={profilePhoto} alt='Питомцы' className={styles.bonusImage} />
-                    </div>
+                    {/* <div className={styles.bonusCard}> */}
+                    {/*    <div className={styles.bonusText}> */}
+                    {/*        Пригласи друзей */}
+                    {/*        <br />и получи бонус */}
+                    {/*    </div> */}
+                    {/*    <Button */}
+                    {/*        variant='contained' */}
+                    {/*        className={styles.detailsButton} */}
+                    {/*        onClick={() => openInvitePopup('default')} */}
+                    {/*    > */}
+                    {/*        Подробнее */}
+                    {/*    </Button> */}
+                    {/*    <img src={profilePhoto} alt='Питомцы' className={styles.bonusImage} /> */}
+                    {/* </div> */}
 
-                    {/* <div className={styles.bonusCardNew}>
+                    <div className={styles.bonusCardNew}>
                         <div className={styles.bonusCardNewTitle}>
                             Спасайте жизни
                             <br />
@@ -526,12 +530,12 @@ const Profile: FC<Props> = ({ userId }) => {
                             Пригласить друга
                         </Button>
                         <img src={profileBonus} alt='Питомцы-доноры' className={styles.bonusCardNewImage} />
-                    </div> */}
+                    </div>
 
                     {/* <PromoSlider /> */}
 
                     <div className={styles.infoButtons}>
-                        <button type='button' className={cn(styles.infoButton, styles.infoButton_disabled)}>
+                        <button onClick={onChatClickHandler} type='button' className={styles.infoButton}>
                             <span className={styles.infoIcon}>
                                 <ChatBubble />
                             </span>
@@ -591,30 +595,24 @@ const Profile: FC<Props> = ({ userId }) => {
                             <h3 className={styles.popupTitle}>Помогайте вместе!</h3>
                             <p className={styles.popupText}>
                                 {invitePopupVariant === 'bonusReceived'
-                                    ? 'Бонус уже получен, но можете пригласить больше\u00A0друзей\u00A0и\u00A0вместе спасать жизни'
+                                    ? 'Можете пригласить больше друзей и\u00A0вместе\u00A0спасать\u00A0жизни'
                                     : 'Пригласите друга в приложение - когда он проведет донацию, вы оба получите приоритетный поиск'}
                             </p>
                             <div className={styles.popupDivider} />
-                            <button
-                                type='button'
-                                className={styles.popupShareButton}
-                                onClick={() => {
-                                    onShareInviteClickHandler('telegram');
-                                }}
-                            >
+                            <button type='button' className={styles.popupShareButton}>
                                 Поделиться
                             </button>
                             <div className={styles.popupSocials}>
-                                <button
-                                    type='button'
-                                    className={styles.popupSocialButton}
-                                    aria-label='Telegram'
-                                    onClick={() => {
-                                        onShareInviteClickHandler('telegram');
-                                    }}
-                                >
-                                    <Tg />
-                                </button>
+                                {/* <button */}
+                                {/*    type='button' */}
+                                {/*    className={styles.popupSocialButton} */}
+                                {/*    aria-label='Telegram' */}
+                                {/*    onClick={() => { */}
+                                {/*        onShareInviteClickHandler('telegram'); */}
+                                {/*    }} */}
+                                {/* > */}
+                                {/*    <Tg /> */}
+                                {/* </button> */}
                                 <button
                                     type='button'
                                     className={styles.popupSocialButton}
