@@ -14,31 +14,24 @@ export const useAuth = (): UserAuth => {
     const [userId, setUserId] = useState<string>('');
 
     const initialize = useCallback(async () => {
-        let isWebAppNotFind = false;
         let signinData: null | { data: SigninResponse } = null;
 
-        if (!window.Telegram?.WebApp?.initData) {
-            isWebAppNotFind = true;
-        } else {
+        // Для локальной разработки используем signinExtServ
+        if (window.location.hostname === 'localhost') {
+            const arturID = '11111111';
+            const ruslanID = '2222222';
+            signinData = await signinExtServ({ providerId: ruslanID, providerName: 'service' }); // Или другой тестовый ID
+        } else if (window.WebApp?.initData) {
+            signinData = await signinMax({ appInitData: window.WebApp.initData });
+        } else if (window.Telegram?.WebApp?.initData) {
             signinData = await signinTg({ appInitData: window.Telegram.WebApp.initData });
         }
 
-        if (!window.WebApp?.initData) {
-            isWebAppNotFind = true;
-        } else {
-            signinData = await signinMax({ appInitData: window.WebApp.initData });
-        }
-
-        // signinData = await signinExtServ({ providerId: '248185030', providerName: 'telegram_bot' });
-        // signinData = await signinExtServ({ providerId: '995757392', providerName: 'telegram_bot' });
-
-        if (!signinData && isWebAppNotFind) {
+        if (!signinData) {
             throw new Error('WebApp SDK не найден');
         }
 
-        if (signinData) {
-            setUserId(signinData.data.userId);
-        }
+        setUserId(signinData.data.userId);
     }, []);
 
     useEffect(() => {

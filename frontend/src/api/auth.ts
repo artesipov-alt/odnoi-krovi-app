@@ -35,7 +35,7 @@ export const authApi = (): IAuthApi => ({
     },
     externalService(params) {
         return instance.post(`${AUTH_URL}/service`, params, {
-            headers: { 'X-Internal-Key': 'api-frimdsj764nsmksnj8x77dsjdns' },
+            headers: { 'X-Internal-Key': 'usvc_eebbbdaac43ddb3883ccdbd33d6e912547ed8e20dbdc44f3' },
         });
     },
 });
