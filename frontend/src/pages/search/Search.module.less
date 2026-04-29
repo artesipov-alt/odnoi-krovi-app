@@ -24,6 +24,7 @@
 }
 
 .main {
+    max-width: calc(100vw - 54px);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -31,6 +32,7 @@
     padding: 10px 12px;
     background: @white;
     border-radius: 12px;
+    box-sizing: border-box;
 }
 
 .avatarWrapper {
@@ -41,9 +43,14 @@
     width: 45px;
     height: 45px;
     margin-right: 8px;
+    object-fit: cover;
     border: 3px solid @white-bg;
     border-radius: 25px;
     box-sizing: border-box;
+}
+
+.info {
+    min-width: 0;
 }
 
 .name {
@@ -52,6 +59,8 @@
     font-size: 15px;
     font-weight: 400;
     line-height: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .searchResult {
@@ -63,6 +72,7 @@
 }
 
 .searchDetails {
+    flex-shrink: 0;
     position: relative;
     padding: 11px 22px 11px 11px;
     margin-left: auto;

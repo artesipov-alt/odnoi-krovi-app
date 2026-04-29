@@ -128,10 +128,12 @@ export type PlannedDonationDonorInfo = {
     createdAt: string;
     bonuses?: Bonus[];
     updatedAt: string;
+    donorPetID: string;
     photoUrls: string[];
     status: DonorStatus;
     isConfirmed: boolean;
     rejectedReason: string;
+    donorBloodGroup: string;
     taxiCompensation: boolean;
     compensationType: CompensationType;
 };

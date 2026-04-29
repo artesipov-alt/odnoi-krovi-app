@@ -21,7 +21,7 @@ type Props = {
     onLoad?: (photo: File | null) => void;
 };
 
-const acceptableFormats = ['png', 'jpg', 'jpeg', 'jpe'];
+const acceptableFormats = ['png', 'jpg', 'jpeg', 'jpe', 'webp'];
 
 const ImgEditor: FC<Props> = ({
     src,

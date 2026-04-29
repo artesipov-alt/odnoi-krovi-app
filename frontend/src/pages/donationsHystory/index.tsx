@@ -31,26 +31,11 @@ type Props = {
 
 const tiles = ['количество донаций', 'объем донаций'];
 
-const sortDonationsByStatusAndDate = (items: PlannedDonation[]) => {
-    return items.sort((a, b) => {
-        const statusA = a.applicationData.status;
-        const statusB = b.applicationData.status;
-
-        const isCancelledOrRejectedA = statusA === DonorStatus.CANCELLED || statusA === DonorStatus.REJECTED;
-        const isCancelledOrRejectedB = statusB === DonorStatus.CANCELLED || statusB === DonorStatus.REJECTED;
-
-        // Если один из статусов — отменён/отклонён, а другой — нет, сортируем по приоритету: активные вперед
-        if (isCancelledOrRejectedA !== isCancelledOrRejectedB) {
-            return isCancelledOrRejectedA ? 1 : -1;
-        }
-
-        // Если оба статуса одинаковы (оба отменены или оба нет), сортируем по дате updated_at (свежие — первыми)
-        const dateA = new Date(a.applicationData.updatedAt).getTime();
-        const dateB = new Date(b.applicationData.updatedAt).getTime();
-
-        return dateB - dateA; // Свежие даты в начало
-    });
-};
+const sortDonationsByStatusAndDate = (items: PlannedDonation[]) =>
+    items.sort(
+        (a, b) =>
+            new Date(b.applicationData.updatedAt).getTime() - new Date(a.applicationData.updatedAt).getTime(),
+    );
 
 const getDefaultPhoto = (petType: PetType) => (petType === PetType.DOG ? dogRoundStub : catRoundStub);
 

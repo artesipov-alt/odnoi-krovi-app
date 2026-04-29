@@ -51,6 +51,7 @@
     width: 156px;
     height: 156px;
     border-radius: 50%;
+    object-fit: cover;
     border: 12px solid @white;
     box-sizing: border-box;
 }
@@ -381,7 +382,7 @@
 .volumeInput {
     height: 60px;
     width: 135px !important;
-    margin: 21px auto 0;
+    margin: 0 auto;
 }
 
 .volumeHtmlInput {
@@ -573,6 +574,48 @@
     margin: 0;
     font-size: 22px;
     line-height: 26px;
+}
+
+.confirmParamDescr {
+    margin: 21px auto 8px;
+    text-align: center;
+    color: @textColor6;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.blood {
+    margin: 0 auto;
+    width: 90%;
+}
+
+.bloodGroups {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+
+    &.dogGroup {
+        margin-bottom: 8px;
+    }
+}
+
+.bloodItem {
+    flex-grow: 1;
+    height: 50px;
+    background: @white;
+    border-radius: 30px;
+    text-align: center;
+    line-height: 50px;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 14px;
+    color: @textColor4;
+
+    &.checked {
+        color: @textColor3;
+        background: @common-red;
+    }
 }
 
 .loading {
