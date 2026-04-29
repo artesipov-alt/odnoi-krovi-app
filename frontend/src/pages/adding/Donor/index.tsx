@@ -485,27 +485,28 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     };
 
     const getAnalizesToRequest = () => {
-        const result =
+        const result = (
             petType === PetType.DOG
                 ? [babesiosis, dirofilaria, hemoplasmosis, bartonellosis, ehrlichiosis, anaplasmosis]
-                : [leukemia, immunodeficiency, hemoplasmosis, bartonellosis].reduce((acc, analiz) => {
-                      acc[analiz.type] = analiz.items.reduce(
-                          (res, item) => {
-                              if (item.value) {
-                                  res.push({
-                                      analysisDate: item.value,
-                                      analysisName: analiz.type,
-                                      analysisType: AnalysesMapping[item.name],
-                                  });
-                              }
+                : [leukemia, immunodeficiency, hemoplasmosis, bartonellosis]
+        ).reduce((acc, analiz) => {
+            acc[analiz.type] = analiz.items.reduce(
+                (res, item) => {
+                    if (item.value) {
+                        res.push({
+                            analysisDate: item.value,
+                            analysisName: analiz.type,
+                            analysisType: AnalysesMapping[item.name],
+                        });
+                    }
 
-                              return res;
-                          },
-                          [] as unknown as AnalysesItem[],
-                      );
+                    return res;
+                },
+                [] as unknown as AnalysesItem[],
+            );
 
-                      return acc;
-                  }, {} as Analyses);
+            return acc;
+        }, {} as Analyses);
 
         const filteredResult = Object.keys(result).reduce((res, key) => {
             if (result[key].length) {
