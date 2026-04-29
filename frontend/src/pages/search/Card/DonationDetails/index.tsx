@@ -218,7 +218,7 @@ const DonationDetails: FC<Props> = ({
     const onBlurDonatedBloodVolumeHandler = ({
         target: { value },
     }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        if (Number(value) < 10) {
+        if (Number(value.replace(',', '.')) < 10) {
             setDonatedBloodVolume('10');
         }
     };
