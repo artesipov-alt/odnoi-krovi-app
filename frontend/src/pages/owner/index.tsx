@@ -523,7 +523,7 @@ const Owner: FC<Props> = ({ userId }) => {
     if (
         (view === Role.RECIPIENT || view === Role.BLOOD_FOUND) &&
         (!userData?.onBoarding || !userData?.onBoarding?.includes(Onboarding.FIND_BLOOD)) &&
-        !pets?.pets.length
+        !!pets?.pets.length
     ) {
         return (
             <RecipientOnboarding
