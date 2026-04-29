@@ -41,13 +41,26 @@ export const handleDonorNotConfirmed = async (
     try {
       const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
 
-      await bot.api.sendMessageToUser(Number(DonorProviderMaxID), donorMessage);
-
-      // Send contact as VCF
-      if (RecipientUserData.Phone) {
-        const vcf = generateVCF(RecipientUserData.Name, RecipientUserData.Phone);
-        await bot.api.sendMessageToUser(Number(DonorProviderMaxID), vcf);
-      }
+      await bot.api.sendMessageToUser(
+        Number(DonorProviderMaxID),
+        donorMessage,
+        {
+          attachments: [
+            {
+              type: "contact",
+              payload: {
+                name: RecipientUserData.Name,
+                contact_id: Number(RecipientUserData.ProviderMaxID),
+                vcf_phone: RecipientUserData.Phone,
+                vcf_info: generateVCF(
+                  RecipientUserData.Name,
+                  RecipientUserData.Phone,
+                ),
+              },
+            },
+          ],
+        },
+      );
 
       pinologger.info(
         {
@@ -65,17 +78,30 @@ export const handleDonorNotConfirmed = async (
   }
 
   // Notify recipient
-  if (RecipientUserData.ProviderMaxID && RecipientUserData.ProviderMaxID.trim() !== "") {
+  if (
+    RecipientUserData.ProviderMaxID &&
+    RecipientUserData.ProviderMaxID.trim() !== ""
+  ) {
     try {
       const recipientMessage = `Вы не подтвердили донацию (${DonorPetName}, группа ${DonorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
 
-      await bot.api.sendMessageToUser(Number(RecipientUserData.ProviderMaxID), recipientMessage);
-
-      // Send contact as VCF
-      if (DonorUserData.Phone) {
-        const vcf = generateVCF(DonorUserData.Name, DonorUserData.Phone);
-        await bot.api.sendMessageToUser(Number(RecipientUserData.ProviderMaxID), vcf);
-      }
+      await bot.api.sendMessageToUser(
+        Number(RecipientUserData.ProviderMaxID),
+        recipientMessage,
+        {
+          attachments: [
+            {
+              type: "contact",
+              payload: {
+                name: DonorUserData.Name,
+                contact_id: Number(DonorProviderMaxID),
+                vcf_phone: DonorUserData.Phone,
+                vcf_info: generateVCF(DonorUserData.Name, DonorUserData.Phone),
+              },
+            },
+          ],
+        },
+      );
 
       pinologger.info(
         {
