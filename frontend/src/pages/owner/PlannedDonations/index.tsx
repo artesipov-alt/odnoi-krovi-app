@@ -94,7 +94,11 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
                             </div>
                         </div>
                         <div className={styles.bloodVolume}>
-                            <p className={styles.bloodVolumeNumber}>{donation.recipientData.bloodVolumeNeeded}</p>
+                            <p className={styles.bloodVolumeNumber}>
+                                {donation.applicationData.amount > donation.recipientData.bloodVolumeNeeded
+                                    ? donation.recipientData.bloodVolumeNeeded
+                                    : donation.applicationData.amount}
+                            </p>
                             <p className={styles.bloodVolumeDescr}>мл</p>
                         </div>
                     </div>

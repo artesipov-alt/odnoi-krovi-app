@@ -60,6 +60,7 @@ const curtainList = [
 ];
 
 const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) => {
+    const [isConditionsOpen, setIsConditionsOpen] = useState(false);
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
@@ -194,6 +195,10 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
 
     const onBonusesClickToggle = () => {
         setIsBonusesPageOpen((prevState) => !prevState);
+    };
+
+    const onConditionsClickToggle = () => {
+        setIsConditionsOpen((prevState) => !prevState);
     };
 
     const onChangeBloodGroupHandler = (newBloodGroup: string) => () => {
@@ -420,7 +425,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             )}
                     </div>
                 </div>
-                <div className={styles.setting}>
+                <div className={styles.setting} onClick={onConditionsClickToggle}>
                     <p className={styles.text}>
                         Ваши
                         <br />
@@ -543,8 +548,8 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
                             <div
                                 key={providerId}
-                                className={styles.identity}
                                 onClick={onMessengerClickHandler(providerName)}
+                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
                             >
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>
@@ -553,6 +558,68 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                     <p className={styles.backLink} onClick={onCloseChatCurtainClickHandler}>
                         Вернуться
                     </p>
+                </Curtain>
+            )}
+            {isConditionsOpen && (
+                <Curtain
+                    noRednerButtons
+                    title='Ваши условия'
+                    shouldCloseByWrapperClick
+                    onClose={onConditionsClickToggle}
+                >
+                    <div
+                        className={cn(styles.conditions, {
+                            [styles.isTaxi]: donation.applicationData.taxiCompensation,
+                        })}
+                    >
+                        <div
+                            className={cn(styles.conditionTile, {
+                                [styles.isTaxi]: donation.applicationData.taxiCompensation,
+                            })}
+                        >
+                            {donation.applicationData.compensationType === CompensationType.FOOD && (
+                                <>
+                                    <div className={styles.rewardFeedIcon}>
+                                        <div className={styles.icon}>
+                                            <Bone />
+                                        </div>
+                                    </div>
+                                    <p className={styles.conditionDescr}>Готов помочь за корм</p>
+                                </>
+                            )}
+                            {donation.applicationData.compensationType === CompensationType.FREE && (
+                                <>
+                                    <div className={styles.rewardFreeIcon}>
+                                        <p className={styles.sum}>0</p>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.conditionDescr}>Готов помочь безвозмездно</p>
+                                </>
+                            )}
+                            {donation.applicationData.compensationType === CompensationType.PAID && (
+                                <>
+                                    <div className={styles.rewardNotFreeIcon}>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.conditionDescr}>Не готов помочь безвозмездно</p>
+                                </>
+                            )}
+                        </div>
+                        {donation.applicationData.taxiCompensation && (
+                            <div
+                                className={cn(styles.conditionTile, {
+                                    [styles.isTaxi]: donation.applicationData.taxiCompensation,
+                                })}
+                            >
+                                <div className={styles.taxiIcon}>
+                                    <div className={styles.icon}>
+                                        <Taxi />
+                                    </div>
+                                </div>
+                                <p className={styles.conditionDescr}>Нужно компенсировать такси до клиники и обратно</p>
+                            </div>
+                        )}
+                    </div>
                 </Curtain>
             )}
         </Layout>

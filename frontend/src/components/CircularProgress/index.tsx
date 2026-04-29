@@ -11,6 +11,7 @@ type Props = {
     showDot?: boolean;
     className?: string;
     strokeWidth?: number;
+    showWhiteBackStroke?: boolean;
 };
 
 export const CircularProgress: FC<Props> = ({
@@ -18,6 +19,7 @@ export const CircularProgress: FC<Props> = ({
     strokeWidth = 5,
     current,
     total,
+    showWhiteBackStroke,
     color = '#ff4d4f',
     showDot = false,
     className,
@@ -67,7 +69,7 @@ export const CircularProgress: FC<Props> = ({
                 cy={center}
                 r={radius}
                 fill='none'
-                stroke='#e6e6e6'
+                stroke={showWhiteBackStroke ? '#ffffff' : '#e6e6e6'}
                 strokeWidth={strokeWidth}
                 strokeLinecap='round'
             />

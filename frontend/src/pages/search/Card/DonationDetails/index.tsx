@@ -102,6 +102,7 @@ const DonationDetails: FC<Props> = ({
     onDonationComplete,
 }) => {
     const [isLoading, setIsLoading] = useState(true);
+    const [isConditionsOpen, setIsConditionsOpen] = useState(false);
     const [activeTile, setaActiveTile] = useState<TileName | null>(null);
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
@@ -156,8 +157,16 @@ const DonationDetails: FC<Props> = ({
         setDonation(response.data);
     }, [donationId, showToast]);
 
+    const onConditionsClickToggle = () => {
+        setIsConditionsOpen((prevState) => !prevState);
+    };
+
     const onTileClickHandler = (tileName: TileName) => () => {
         setaActiveTile(tileName);
+
+        if (tileName === TileName.CONDITIONS) {
+            onConditionsClickToggle();
+        }
     };
 
     const onTileBackHandler = () => {
@@ -494,6 +503,7 @@ const DonationDetails: FC<Props> = ({
                         key={tileName}
                         onClick={onTileClickHandler(tileName)}
                         className={cn(styles.tile, {
+                            [styles.hide]: tileName === TileName.DONATIONS,
                             [styles.conditionTile]: tileName === TileName.CONDITIONS,
                             [styles.noActive]:
                                 tileName === TileName.DONATIONS ||
@@ -669,8 +679,8 @@ const DonationDetails: FC<Props> = ({
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
                             <div
                                 key={providerId}
-                                className={styles.identity}
                                 onClick={onMessengerClickHandler(providerName)}
+                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
                             >
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>
@@ -679,6 +689,70 @@ const DonationDetails: FC<Props> = ({
                     <p className={styles.backLink} onClick={onCloseChatCurtainClickHandler}>
                         Вернуться
                     </p>
+                </Curtain>
+            )}
+            {isConditionsOpen && (
+                <Curtain
+                    noRednerButtons
+                    title='Ваши условия'
+                    shouldCloseByWrapperClick
+                    onClose={onConditionsClickToggle}
+                >
+                    <div
+                        className={cn(styles.donorConditions, {
+                            [styles.isTaxi]: donation.donorData.application.taxiCompensation,
+                        })}
+                    >
+                        <div
+                            className={cn(styles.donorConditionTile, {
+                                [styles.isTaxi]: donation.donorData.application.taxiCompensation,
+                            })}
+                        >
+                            {donation.donorData.application.compensationType === CompensationType.FOOD && (
+                                <>
+                                    <div className={styles.rewardFeedIcon}>
+                                        <div className={styles.icon}>
+                                            <Bone />
+                                        </div>
+                                    </div>
+                                    <p className={styles.donorConditionDescr}>Готов помочь за корм</p>
+                                </>
+                            )}
+                            {donation.donorData.application.compensationType === CompensationType.FREE && (
+                                <>
+                                    <div className={styles.rewardFreeIcon}>
+                                        <p className={styles.sum}>0</p>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.donorConditionDescr}>Готов помочь безвозмездно</p>
+                                </>
+                            )}
+                            {donation.donorData.application.compensationType === CompensationType.PAID && (
+                                <>
+                                    <div className={styles.rewardNotFreeIcon}>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.donorConditionDescr}>Не готов помочь безвозмездно</p>
+                                </>
+                            )}
+                        </div>
+                        {donation.donorData.application.taxiCompensation && (
+                            <div
+                                className={cn(styles.donorConditionTile, {
+                                    [styles.isTaxi]: donation.donorData.application.taxiCompensation,
+                                })}
+                            >
+                                <div className={styles.taxiIcon}>
+                                    <div className={styles.icon}>
+                                        <Taxi />
+                                    </div>
+                                </div>
+                                <p className={styles.donorConditionDescr}>
+                                    Нужно компенсировать такси до клиники и обратно
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </Curtain>
             )}
         </Layout>

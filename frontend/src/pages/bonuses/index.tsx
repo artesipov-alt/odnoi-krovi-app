@@ -5,6 +5,7 @@ import bonusBg from 'imgs/bonusBg.png';
 import emptyBg from 'imgs/emptyBg.png';
 import fourPaws from 'imgs/fourPaws.png';
 import ozon from 'imgs/ozon.png';
+import profilePhoto from 'imgs/profilePhoto.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import Copied from 'imgs/svg/copied';
 import Drugs from 'imgs/svg/drugs';
@@ -122,20 +123,20 @@ const Bonuses: FC<Props> = ({ userId }) => {
     };
 
     const renderContent = () => {
-        // if (activeTab === 'priority') {
-        //     return (
-        //         <div className={styles.emptyBlock}>
-        //             <div className={styles.emptyTitle}>Приоритетный поиск!</div>
-        //             <div className={styles.emptyText}>
-        //                 Начисляется за донации и&nbsp;помогает&nbsp;быстрее найти кровь
-        //             </div>
-        //             <button type='button' className={styles.primaryButton}>
-        //                 Запланировать донацию
-        //             </button>
-        //             <img src={profilePhoto} alt='Питомцы' className={styles.emptyImage} />
-        //         </div>
-        //     );
-        // }
+        if (activeTab === 'priority') {
+            return (
+                <div className={styles.emptyBlock}>
+                    <div className={styles.emptyTitle}>Приоритетный поиск!</div>
+                    <div className={styles.emptyText}>
+                        Начисляется за донации и&nbsp;помогает&nbsp;быстрее найти кровь
+                    </div>
+                    <button onClick={goToBackClickHandler} type='button' className={styles.primaryButton}>
+                        Запланировать донацию
+                    </button>
+                    <img src={profilePhoto} alt='Питомцы' className={styles.emptyImage} />
+                </div>
+            );
+        }
 
         if (!bonuses?.[activeTab].length) {
             return (
@@ -155,6 +156,7 @@ const Bonuses: FC<Props> = ({ userId }) => {
                     .sort((a, b) => new Date(b.expiresAt).getTime() - new Date(a.expiresAt).getTime())
                     .map((item) => {
                         const isExpired = isExpiredDate(item.expiresAt);
+                        const isIndefinite = new Date(item.expiresAt).getFullYear() === 2099;
 
                         return (
                             <div
@@ -164,9 +166,13 @@ const Bonuses: FC<Props> = ({ userId }) => {
                             >
                                 <div className={styles.cardHeader}>
                                     <p className={styles.cardTitle}>{item.partnerName}</p>
-                                    <p className={cn(styles.expirationDate, { [styles.isExpired]: isExpired })}>
-                                        {isExpired ? 'истек' : 'до'} {getDateFormat(item.expiresAt)}
-                                    </p>
+                                    {isIndefinite ? (
+                                        <p className={styles.expirationDate}>бессрочно</p>
+                                    ) : (
+                                        <p className={cn(styles.expirationDate, { [styles.isExpired]: isExpired })}>
+                                            {isExpired ? 'истек' : 'до'} {getDateFormat(item.expiresAt)}
+                                        </p>
+                                    )}
                                 </div>
                                 <p className={styles.cardDescr}>{item.description}</p>
                             </div>
@@ -205,7 +211,6 @@ const Bonuses: FC<Props> = ({ userId }) => {
                                     key={key}
                                     type='button'
                                     className={cn(styles.tab, {
-                                        [styles.isFirst]: i === 0,
                                         [styles.tab_active]: activeTab === key,
                                     })}
                                     onClick={() => setActiveTab(key as BonusTab)}

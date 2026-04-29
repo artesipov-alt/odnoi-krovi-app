@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from 'components/Layout';
 
 import aboutStyles from '../About.module.less';
+import cn from 'classnames';
 
 const AboutThanks: FC = () => {
     const navigate = useNavigate();
@@ -65,12 +66,11 @@ const AboutThanks: FC = () => {
                                 <div>Национальная</div>
                                 <div>Раденис</div>
                                 <div>Ветеринарная Палата</div>
-                                <div>Dr Pets</div>
                                 <div>Белый Клык</div>
                                 <div>Биоконтроль</div>
                                 <div>Шанс Био</div>
                                 <div>ВЕТГЕМ</div>
-                                <div>Дуо Кор</div>
+                                <div>Duo Cor</div>
                             </div>
                         </div>
 
@@ -84,7 +84,7 @@ const AboutThanks: FC = () => {
                             <div className={aboutStyles.thanksList}>
                                 <div>Журнал «Питомцы»</div>
                                 <div>Издание «Ветеринария и Жизнь»</div>
-                                <div>Добро.media</div>
+                                <div>Добро.Медиа</div>
                             </div>
                         </div>
 
@@ -97,18 +97,31 @@ const AboutThanks: FC = () => {
                             </div>
 
                             <div className={aboutStyles.thanksDevText}>
-                                <div>Члены команды – Артем, Руслана, Сандра, Олег</div>
-                                <div>Front-end – Артур</div>
-                                <div>Back-end – Руслан</div>
-                                <div>Дизайн приложения – Дарья</div>
+                                <div>Члены команды – Артем, Руслана, Сандра, Антон, Олег</div>
+                                <div>Front-end – Артур (@bashmakoff)</div>
+                                <div>Back-end – Руслан (@rmay1er)</div>
+                                <div>Дизайн приложения – Дарья (@superdaschale)</div>
                                 <div>Дизайн информационных материалов - Елена</div>
                             </div>
 
                             <div className={aboutStyles.thanksDevSubtitle}>Тестирование:</div>
                             <div className={aboutStyles.thanksQaList}>
-                                <span>Артур</span>
-                                <span>Руслан</span>
-                                <span>Дарья</span>
+                                <span>Catzoo</span>
+                                <span>tt-de</span>
+                                <span>lagottoassociation</span>
+                                <span>k.kuzmenko.84</span>
+                                <span>eugenia.balabaeva</span>
+                                <span>Kseniawong</span>
+                                <span>elvis.and.frank.lover</span>
+                                <span>natalia.hedlund</span>
+                                <span>1a_antipov</span>
+                                <span>a-rozhkova</span>
+                                <span>gallianogirl</span>
+                                <span>super.daschale</span>
+                                <span>bashmakoff</span>
+                            </div>
+                            <div className={cn(aboutStyles.thanksDevText, { [aboutStyles.marginTop]: true })}>
+                                <div>Отдельная благодарность - Стася kotostrofa_kotoklizm и Джереми Эльфо</div>
                             </div>
                         </div>
                     </div>

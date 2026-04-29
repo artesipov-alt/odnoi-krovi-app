@@ -35,7 +35,7 @@ import { getUserIdentities } from 'api/apiServices/getUserIdentities';
 import { GetDonorInfoResponse } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
 import { queryClient } from 'api/queryClient';
-import { PetGender, PetType } from 'api/types';
+import { PetType } from 'api/types';
 import { CompensationType, Identities, Role } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
 import Curtain from 'components/Curtain';
@@ -97,6 +97,7 @@ const curtainList = [
 const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, onBackToSearch }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isGlobalLoading, setIsGlobalLoading] = useState(true);
+    const [isConditionsOpen, setIsConditionsOpen] = useState(false);
     const [isWarnFactorsOpen, setIsWarnFactorsOpen] = useState(false);
     const [info, setInfo] = useState<GetDonorInfoResponse | null>(null);
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
@@ -152,6 +153,10 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
         setChatCurtain({ isOpen: true, identities: response.data.identities });
     };
 
+    const onConditionsClickToggle = () => {
+        setIsConditionsOpen((prevState) => !prevState);
+    };
+
     const checkIsTrueDonor = async () => {
         setIsLoading(true);
 
@@ -174,6 +179,10 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
 
     const onTileClickHandler = (tileName: TileName) => () => {
         setaActiveTile(tileName);
+
+        if (tileName === TileName.CONDITIONS) {
+            onConditionsClickToggle();
+        }
     };
 
     const onTileBackHandler = () => {
@@ -422,6 +431,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                         key={tileName}
                         onClick={onTileClickHandler(tileName)}
                         className={cn(styles.tile, {
+                            [styles.hide]: tileName === TileName.DONATIONS,
                             [styles.conditionTile]: tileName === TileName.CONDITIONS,
                             [styles.noActive]:
                                 tileName === TileName.DONATIONS || (tileName === TileName.ANALYSES && !info.analyses),
@@ -510,7 +520,11 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                     <p className={styles.linkDescr}>Пришлем контакт донора в мессенджер</p>
                     <div className={styles.messengers}>
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
-                            <div onClick={onMessengerClickHandler} key={providerId} className={styles.identity}>
+                            <div
+                                key={providerId}
+                                onClick={onMessengerClickHandler}
+                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
+                            >
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>
                         ))}
@@ -518,6 +532,70 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                     <p className={styles.backLink} onClick={onCloseChatCurtainClickHandler}>
                         Вернуться
                     </p>
+                </Curtain>
+            )}
+            {isConditionsOpen && (
+                <Curtain
+                    noRednerButtons
+                    title='Ваши условия'
+                    shouldCloseByWrapperClick
+                    onClose={onConditionsClickToggle}
+                >
+                    <div
+                        className={cn(styles.donorConditions, {
+                            [styles.isTaxi]: info.taxi,
+                        })}
+                    >
+                        <div
+                            className={cn(styles.donorConditionTile, {
+                                [styles.isTaxi]: info.taxi,
+                            })}
+                        >
+                            {info.compensationType === CompensationType.FOOD && (
+                                <>
+                                    <div className={styles.rewardFeedIcon}>
+                                        <div className={styles.icon}>
+                                            <Bone />
+                                        </div>
+                                    </div>
+                                    <p className={styles.donorConditionDescr}>Готов помочь за корм</p>
+                                </>
+                            )}
+                            {info.compensationType === CompensationType.FREE && (
+                                <>
+                                    <div className={styles.rewardFreeIcon}>
+                                        <p className={styles.sum}>0</p>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.donorConditionDescr}>Готов помочь безвозмездно</p>
+                                </>
+                            )}
+                            {info.compensationType === CompensationType.PAID && (
+                                <>
+                                    <div className={styles.rewardNotFreeIcon}>
+                                        <p className={styles.descr}>₽</p>
+                                    </div>
+                                    <p className={styles.donorConditionDescr}>Не готов помочь безвозмездно</p>
+                                </>
+                            )}
+                        </div>
+                        {info.taxi && (
+                            <div
+                                className={cn(styles.donorConditionTile, {
+                                    [styles.isTaxi]: info.taxi,
+                                })}
+                            >
+                                <div className={styles.taxiIcon}>
+                                    <div className={styles.icon}>
+                                        <Taxi />
+                                    </div>
+                                </div>
+                                <p className={styles.donorConditionDescr}>
+                                    Нужно компенсировать такси до клиники и обратно
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </Curtain>
             )}
         </Layout>

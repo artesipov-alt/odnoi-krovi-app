@@ -209,7 +209,7 @@
 .historyDivider {
     width: 80px;
     border-top: 1px solid @textColor4;
-    margin: 0px 0 20px 0;
+    margin: 0 0 20px 0;
 }
 
 .historyFooter {
@@ -222,7 +222,7 @@
 }
 
 .techCard {
-    padding: 0px 40px;
+    padding: 0 40px;
 }
 
 .sectionTitle {
@@ -240,6 +240,10 @@
     font-size: 12px;
     line-height: 15px;
     color: @textColor1;
+
+    &.marginTop {
+        margin-top: 20px;
+    }
 }
 
 .thanksContent {
@@ -344,6 +348,10 @@
     font-size: 12px;
     line-height: 22px;
     color: @textColor6;
+
+    &.marginTop {
+        margin-top: 12px;
+    }
 }
 
 .thanksDevSubtitle {
@@ -364,7 +372,15 @@
     line-height: 22px;
     color: @textColor6;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 5px 50px;
     padding: 0 20px;
+}
+
+.link {
+    display: inline-block;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    line-height: 15px;
+    color: #8B7069;
 }

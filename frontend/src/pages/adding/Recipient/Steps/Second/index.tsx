@@ -221,7 +221,7 @@ const Second: FC<Props> = ({
                 {((petType === PetType.CAT && (desiredBloodGroups.length > 1 || includeUnknownBloodGroup)) ||
                     (petType === PetType.DOG &&
                         (desiredBloodGroups.length > 1 || includeUnknownBloodGroup) &&
-                        `${bloodGroup}` === 'BLG-2')) && (
+                        `${bloodGroup}` === 'DEA 1-')) && (
                     <Alert
                         className={cn(styles.alert, { [styles.isTopMargin]: true })}
                         text='Переливание неподходящей группы крови может быть ОПАСНО! Проконсультируйтесь с врачом!'
@@ -229,7 +229,7 @@ const Second: FC<Props> = ({
                 )}
                 {petType === PetType.DOG &&
                     (desiredBloodGroups.length > 1 || includeUnknownBloodGroup) &&
-                    `${bloodGroup}` === 'BLG-1' && (
+                    `${bloodGroup}` === 'DEA 1+' && (
                         <Alert
                             className={cn(styles.alert, { [styles.isTopMargin]: true })}
                             text='Питомцу подходят обе группы крови.&nbsp;При поиске рекомендуем выбирать родную группу (DEA 1 +), чтобы не создавать дефицит для других собак.'
@@ -246,7 +246,8 @@ const Second: FC<Props> = ({
             <FormItem
                 title='Какой объем требуется?'
                 // subtitle={`до ${petType === PetType.CAT ? Big(Number(weight)).times(0.07).times(1000) : Big(Number(weight)).times(0.1).times(1000)} мл`}
-                subtitle={`до ${Number((Number(weight.replace(',', '.')) * (petType === PetType.DOG ? 88 : 66)).toFixed(2))} мл`}
+                // subtitle={`до ${Number((Number(weight.replace(',', '.')) * (petType === PetType.DOG ? 88 : 66)).toFixed(2))} мл`}
+                subtitle='от 10 мл'
             >
                 <TextField
                     name='volume'
@@ -261,7 +262,7 @@ const Second: FC<Props> = ({
                     className={cn(styles.alert, { [styles.firstOfFew]: true })}
                     text='Чем меньше объем - тем выше шансы найти кровь'
                 />
-                <Alert className={styles.alert} text='Могут быть показаны предложения меньшего объема' />
+                {/* <Alert className={styles.alert} text='Могут быть показаны предложения меньшего объема' /> */}
             </FormItem>
             <FormItem title='В каком регионе искать?'>
                 <Multiselect dict={locationsDict} selectValue={locations} onChange={onChangeLocationsHandler} />

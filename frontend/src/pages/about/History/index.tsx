@@ -33,7 +33,7 @@ const AboutHistory: FC = () => {
                                 <Quotes />
                             </div>
                             <img className={aboutStyles.historyAvatar} src={historyAvatar} alt='avatar' />
-                            <div className={aboutStyles.historyMeta}>Основатель проекта, Ростислав Акадлович</div>
+                            <div className={aboutStyles.historyMeta}>Основатель проекта, Ростислав Акалович</div>
                             <div className={aboutStyles.historyLead}>
                                 “Идея данного приложения родилась, когда мне пришлось искать кровь для своей кошки Рыси.
                                 У Рыси была крупноклеточная лимфома, ей пророчили жить полгода, но мы боролись почти 2.

@@ -137,7 +137,7 @@ const ParamsStep: FC<Props> = ({
     const onChangeChipNumberHandler = ({ target: { value } }: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const newValue = value.trim();
 
-        if (value && !newValue.match(regexInt)) {
+        if ((value && !newValue.match(regexInt)) || newValue.length > 15) {
             return;
         }
 
@@ -404,7 +404,7 @@ const ParamsStep: FC<Props> = ({
                     value={chipNumber === 'none' ? 'Отсутствует' : (chipNumber as string)}
                 />
             ) : (
-                <FormItem title='Чип'>
+                <FormItem title='Чип' subtitle='Содержит 15 символов'>
                     <div className={cn(styles.buttonsRow, { [styles.chip]: true })}>
                         <div className={styles.chipField}>
                             <TextField
