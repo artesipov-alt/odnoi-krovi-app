@@ -1,4 +1,5 @@
 import { bot, pinologger } from "../../instances";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 import { generateDonationMessage } from "./helpers";
 
@@ -44,7 +45,9 @@ export const handleDonationConfirmed = async (
       recipientBloodGroup: RecipientData.BloodGroup,
     });
 
-    await bot.api.sendMessageToUser(Number(targetId), message);
+    await bot.api.sendMessageToUser(Number(targetId), message, {
+      attachments: [getAppOpenKeyboard()],
+    });
 
     pinologger.info(
       {
