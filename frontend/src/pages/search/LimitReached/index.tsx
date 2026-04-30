@@ -40,7 +40,7 @@ const LimitReached: FC<Props> = ({ onBackToSearch, avatar, type, bloodVolumeNeed
             </div>
             <h2 className={styles.title}>Вы достигли лимита</h2>
             <p className={styles.descr}>
-                Ваш поиск приостановлен. Договоритесь о переливании или скройте выбранные предложения, чтобы продолжить
+                Ваш поиск приостановлен. Договоритесь о переливании или скройте найденные предложения, чтобы продолжить
                 поиск.
             </p>
             <Button fullWidth onClick={onBackToSearch} className={styles.button} variant='contained'>

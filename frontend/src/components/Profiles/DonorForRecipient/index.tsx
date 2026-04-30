@@ -167,6 +167,8 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
 
             if (recoveringPets.length) {
                 setCheckOtherDonors({ isOpen: true, pets: recoveringPets });
+
+                return;
             }
 
             await getOwnerIdentities();
