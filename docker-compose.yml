@@ -9,7 +9,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME_PROD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      DB_SSLMODE: disable
+      DB_SSLMODE: ${DB_SSLMODE}
       SERVER_PORT: 3000
       REDIS_HOST: 10.0.0.73
       REDIS_PORT: 6379
