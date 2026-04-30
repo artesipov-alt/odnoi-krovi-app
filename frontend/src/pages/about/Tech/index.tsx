@@ -49,7 +49,7 @@ const AboutTech: FC = () => {
                                 target='_blank'
                                 rel='noreferrer'
                                 className={aboutStyles.link}
-                                href='https://однойкрови.рф/docs#n-80ae6549-954a-4c8c-bc54-357a93ec3dee'
+                                href='https://однойкрови.рф/docs#n-a9dea2ae-b2a2-4bc6-b0ea-1eca71588ab0'
                             >
                                 Пользовательское соглашение
                             </a>
@@ -57,7 +57,7 @@ const AboutTech: FC = () => {
                                 target='_blank'
                                 rel='noreferrer'
                                 className={aboutStyles.link}
-                                href='https://однойкрови.рф/docs#n-a9dea2ae-b2a2-4bc6-b0ea-1eca71588ab0'
+                                href='https://однойкрови.рф/docs#n-80ae6549-954a-4c8c-bc54-357a93ec3dee'
                             >
                                 Политика конфиденциальности
                             </a>

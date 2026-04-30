@@ -45,7 +45,7 @@ const Bonuses: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [activeTab, setActiveTab] = useState<BonusTab>(BonusType.PREPARATION);
+    const [activeTab, setActiveTab] = useState<BonusTab>('priority');
     const [isCurtainOPen, setIsCurtainOpen] = useState<boolean>(false);
     const [isCopiedPromo, setIsCopiedPromo] = useState<boolean>(false);
     const [selectedBonus, setSelectedBonus] = useState<BonusCategory | null>(null);

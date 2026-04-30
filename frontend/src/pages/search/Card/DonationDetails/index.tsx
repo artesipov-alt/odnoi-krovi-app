@@ -571,7 +571,7 @@ const DonationDetails: FC<Props> = ({
                 <Curtain
                     columnOfButtons
                     shouldCloseByWrapperClick
-                    cancelButtonTitle='Потвердить'
+                    cancelButtonTitle='Подтвердить'
                     title={
                         <>
                             Укажите параметры

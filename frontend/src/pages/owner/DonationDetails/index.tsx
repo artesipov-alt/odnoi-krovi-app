@@ -54,9 +54,9 @@ type Props = {
 };
 
 const curtainList = [
-    'Не передавайте вознаграждение до проведения донации',
     'Не переходите по подозрительным ссылкам',
     'Не передавайте свои паспортные данные',
+    'Вы получите бонусы только после подтверждения хозяином реципиента донации на Портале',
 ];
 
 const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) => {
@@ -472,7 +472,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                 <Curtain
                     columnOfButtons
                     shouldCloseByWrapperClick
-                    cancelButtonTitle='Потвердить'
+                    cancelButtonTitle='Подтвердить'
                     title={
                         <>
                             Укажите параметры
@@ -531,10 +531,6 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         <Exclamation />
                     </div>
                     <h3 className={styles.curtainTitle}>Будьте внимательны!</h3>
-                    <p className={styles.curtainDecr}>
-                        Обсудите условия и встретьтесь в клинике для получения помощи. Если не договоритесь - отмените
-                        донацию, чтобы освободить лимит поиска.
-                    </p>
                     <div className={styles.curtainList}>
                         {curtainList.map((item, i) => (
                             <div key={item} className={styles.curtainListItem}>
@@ -543,7 +539,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             </div>
                         ))}
                     </div>
-                    <p className={styles.linkDescr}>Пришлем контакт донора в мессенджер</p>
+                    <p className={styles.linkDescr}>Пришлем контакт реципиента в мессенджер</p>
                     <div className={styles.messengers}>
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
                             <div
