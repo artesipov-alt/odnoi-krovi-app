@@ -89,20 +89,20 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		}
 	}
 
-	err = h.txManager.WithTx(ctx, func(ctx context.Context) error {
-		donorResponse, err = h.donorRepo.CreateDonorResponse(ctx, donorResponse)
+	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		donorResponse, err = h.donorRepo.CreateDonorResponse(txCtx, donorResponse)
 		if err != nil {
 			return err
 		}
 
 		// Закрепляем бонусы за пользователем
-		if err := h.bonusSvc.AssignBonuses(ctx, donorPet.OwnerID, donorPet.Type, donorResponse.ID); err != nil {
+		if err := h.bonusSvc.AssignBonuses(txCtx, donorPet.OwnerID, donorPet.Type, donorResponse.ID); err != nil {
 			return err
 		}
 
 		donorBloodGroup := donorPet.BloodGroupName
 
-		if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
+		if err := h.publisher.PublishRecipientApply(txCtx, donorevent.RecipientApply{
 			DonorName:                       donorPet.Name,
 			DonorBloodGroup:                 donorBloodGroup,
 			RecipientProviderMaxID:          recipientProviderMaxID,
