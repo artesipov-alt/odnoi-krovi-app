@@ -16,14 +16,15 @@ export const pinologger = pino({
   },
 });
 
-export const redis = new Redis(
-  `redis://${Bun.env.REDIS_HOST}:${Bun.env.REDIS_PORT} || "redis://localhost:6379"`,
-  {
-    connectTimeout: 5000, // 5 seconds timeout to prevent hanging
-    lazyConnect: true, // Connect on first command
-    db: 0, // Explicitly set database to 0 to override any URL db
-  },
-);
+const redisUrl =
+  `redis://${Bun.env.REDIS_HOST}:${Bun.env.REDIS_PORT}` ||
+  "redis://localhost:6379";
+
+export const redis = new Redis(redisUrl, {
+  connectTimeout: 5000,
+  lazyConnect: true,
+  db: 0,
+});
 
 // API Configuration
 const apiConfig = new Configuration({

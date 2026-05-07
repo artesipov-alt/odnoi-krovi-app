@@ -24,3 +24,7 @@
         format console
     }
 }
+
+dev.1krovi.app {
+    reverse_proxy 10.0.0.73:80
+}
