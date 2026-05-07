@@ -36,6 +36,7 @@ services:
   max-bot:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:dev # тег :dev
     environment:
+      ENV: development # поменял
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_DEV} # dev токен
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
       MINIAPP_DOMAIN: https://dev.1krovi.app # поменял
