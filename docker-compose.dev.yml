@@ -11,7 +11,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       DB_SSLMODE: ${DB_SSLMODE}
       SERVER_PORT: 3000
-      REDIS_HOST: localhost # Redis на этом же сервере
+      REDIS_HOST: redis_prod # Redis на этом же сервере
       REDIS_PORT: 6379
       S3_ENDPOINT: hb.ru-msk.vkcloud-storage.ru
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
@@ -25,6 +25,7 @@ services:
       - "3000:3000"
     networks:
       - odnoi_net
+      - redis_default
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -43,6 +44,7 @@ services:
       REDIS_PORT: 6379
     networks:
       - odnoi_net
+      - redis_default
     restart: unless-stopped
 
   frontend:
@@ -50,7 +52,7 @@ services:
     ports:
       - "80:80" # только 80, без 443
     volumes:
-      - ./Caddyfile.dev:/etc/caddy/Caddyfile # Путь к dev
+      - ./frontend/Caddyfile.dev:/etc/caddy/Caddyfile # Путь к dev
       - caddy_data:/data
       - caddy_config:/config
     networks:
@@ -64,3 +66,5 @@ volumes:
 networks:
   odnoi_net:
     driver: bridge
+  redis_default:
+    external: true
