@@ -71,7 +71,7 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 	if err != nil {
 		return err
 	}
-	if bonuses[0].Category == "lock" {
+	if len(bonuses) == 0 || bonuses[0].Category == "lock" {
 		return nil
 	}
 
