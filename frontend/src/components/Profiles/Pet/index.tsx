@@ -14,7 +14,7 @@ import Basket from 'imgs/svg/basket';
 import Blood from 'imgs/svg/blood';
 import BloodFound from 'imgs/svg/bloodFound';
 import BloodSearch from 'imgs/svg/bloodSearch';
-import DonorButton from 'imgs/svg/donorButton';
+// import DonorButton from 'imgs/svg/donorButton';
 import Edit from 'imgs/svg/edit';
 import Health from 'imgs/svg/health';
 import Info from 'imgs/svg/info';
@@ -22,7 +22,7 @@ import Lock from 'imgs/svg/lock';
 import Params from 'imgs/svg/params';
 import Pause from 'imgs/svg/pause';
 import Processing from 'imgs/svg/processing';
-import RecipientButton from 'imgs/svg/recipientButton';
+// import RecipientButton from 'imgs/svg/recipientButton';
 import RoundCancel from 'imgs/svg/roundCancel';
 import RoundQuestion from 'imgs/svg/roundQuestion';
 import DonationQuestions from 'pages/owner/Statuses/DonationQuestions';
@@ -198,9 +198,6 @@ const PetProfile: FC<Props> = ({
             case TileName.TREATMENTS: {
                 return !Object.keys(treatments || {}).length;
             }
-            case TileName.ANALYSES: {
-                return !Object.keys(analyses || {}).length;
-            }
             default: {
                 return false;
             }
@@ -256,6 +253,14 @@ const PetProfile: FC<Props> = ({
         }
     };
 
+    const onRecipientLabelClickHandler = () => {
+        navigate(`/search/${id}#fromPetProfile`);
+    };
+
+    const onFindBloodLabelClickHandler = () => {
+        navigate(`/search/${id}?bloodFound=true#fromPetProfile`);
+    };
+
     const onErrorUpdateHandler = () => {
         showToast('Не удалось обновить параметры, попробуйте еще раз');
     };
@@ -294,7 +299,10 @@ const PetProfile: FC<Props> = ({
             case petStatus === Role.RECIPIENT: {
                 return (
                     <>
-                        <div className={cn(styles.label, { [styles.activeSearch]: true })}>
+                        <div
+                            onClick={onRecipientLabelClickHandler}
+                            className={cn(styles.label, { [styles.activeSearch]: true })}
+                        >
                             <div className={styles.statusLabelIcon}>
                                 <BloodSearch />
                             </div>
@@ -310,7 +318,10 @@ const PetProfile: FC<Props> = ({
             case petStatus === Role.BLOOD_FOUND: {
                 return (
                     <>
-                        <div className={cn(styles.label, { [styles.bloodFound]: true })}>
+                        <div
+                            onClick={onFindBloodLabelClickHandler}
+                            className={cn(styles.label, { [styles.bloodFound]: true })}
+                        >
                             <div className={styles.statusLabelIcon}>
                                 <BloodFound />
                             </div>

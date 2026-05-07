@@ -69,8 +69,8 @@ const Search: FC<Props> = ({ userId }) => {
     const isLoading = petsIsLoading || poolRequestIsLoading;
 
     const goToOwner = useCallback(() => {
-        navigate('/owner');
-    }, [navigate]);
+        navigate(window.location.hash === '#fromPetProfile' ? `/owner#petId=${id}` : '/owner');
+    }, [id, navigate]);
 
     const showToast = useCallback(
         (text: string) => {

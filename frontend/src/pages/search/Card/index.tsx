@@ -11,6 +11,7 @@ import Location from 'imgs/svg/location';
 import MiniPaw from 'imgs/svg/miniPaw';
 import MiniSinglePaw from 'imgs/svg/miniSinglePaw';
 import Pin from 'imgs/svg/pin';
+import PrioritySearch from 'imgs/svg/prioritySearch';
 import Accordion from 'pages/adding/common/Accordion';
 import { FC, useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -21,6 +22,7 @@ import { GetPoolRequestResponse, Onboardings, PoolRequestStatus, RespondingDonor
 import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CircularProgress } from 'components/CircularProgress';
+import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
@@ -31,7 +33,6 @@ import DonationDetails from './DonationDetails';
 import PlaningDonations from './PlaningDonations';
 import styles from './SearchCard.module.less';
 import SearchFinish from './SearchFinish';
-import PrioritySearch from '../../../imgs/svg/prioritySearch';
 
 type SelectedDonation = {
     id: string;
@@ -100,6 +101,7 @@ const SearchCard: FC<Props> = ({
     const [isSearchFinishPageOpen, setIsSearchFinishPageOpen] = useState<boolean>(false);
     const [selectedDonation, setSelectedDonation] = useState<SelectedDonation | null>(null);
     const [donationCompletePage, setDonationCompletePage] = useState<DonationCompletePage>({ isOpen: false });
+    const [isCloseSearchConfirmationOpen, setIsCloseSearchConfirmationOpen] = useState<boolean>(false);
 
     const { data: locationsDict = [] } = useLocationsQuery();
     const { data: bloodComponentsDict = [] } = useBloodComponentsQuery();
@@ -138,6 +140,10 @@ const SearchCard: FC<Props> = ({
         setIsSearchFinishPageOpen(true);
     };
 
+    const onCloseSearchConfirmationToggle = () => {
+        setIsCloseSearchConfirmationOpen((prevState) => !prevState);
+    };
+
     const onCloseSearchClickHandler = async () => {
         const response = await closeSearch(id);
 
@@ -147,6 +153,7 @@ const SearchCard: FC<Props> = ({
 
         setTab(0);
         setDonationCompletePage({ isOpen: false });
+        setIsCloseSearchConfirmationOpen(false);
 
         await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
 
@@ -190,8 +197,8 @@ const SearchCard: FC<Props> = ({
                 type={type}
                 avatar={avatar}
                 bloodVolumeNeeded={bloodVolumeNeeded}
-                onEndSearch={onCloseSearchClickHandler}
                 onBackToSearch={onBackToSearchClickHandler}
+                onEndSearch={onCloseSearchConfirmationToggle}
                 bloodVolumeDonated={donationCompletePage.volume || 44}
             />
         );
@@ -417,7 +424,7 @@ const SearchCard: FC<Props> = ({
                                     fullWidth
                                     startIcon={<Cancel />}
                                     className={styles.cancel}
-                                    onClick={onCloseSearchClickHandler}
+                                    onClick={onCloseSearchConfirmationToggle}
                                 >
                                     {!!completedDonations?.length || !!acceptedDonors?.length
                                         ? 'Завершить поиск'
@@ -450,6 +457,27 @@ const SearchCard: FC<Props> = ({
                     <div className={styles.loading}>
                         <Loading size={90} thickness={4} />
                     </div>
+                )}
+                {isCloseSearchConfirmationOpen && (
+                    <Curtain
+                        cancelButtonTitle='Нет'
+                        confirmButtonTitle='Да'
+                        shouldCloseByWrapperClick
+                        onConfirm={onCloseSearchClickHandler}
+                        onClose={onCloseSearchConfirmationToggle}
+                        onCancel={onCloseSearchConfirmationToggle}
+                        className={styles.closeSearchConfirmation}
+                        title={
+                            <>
+                                Вы уверены,
+                                <br />
+                                что хотите{' '}
+                                {!!completedDonations?.length || !!acceptedDonors?.length ? 'завершить' : 'отменить'}
+                                <br />
+                                поиск?
+                            </>
+                        }
+                    />
                 )}
             </div>
         </Layout>

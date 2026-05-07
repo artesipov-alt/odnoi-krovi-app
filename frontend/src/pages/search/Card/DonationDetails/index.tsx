@@ -36,6 +36,7 @@ import { rejectDonation } from 'api/apiServices/rejectDonation';
 import { updatePet } from 'api/apiServices/updatePet';
 import { GetDonationForRecipientByIdResponse, RespondingDonorStatus } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
+import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType, Identities } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
@@ -196,6 +197,8 @@ const DonationDetails: FC<Props> = ({
 
         if (!response) {
             showToast('Не удалось отменить донацию');
+        } else {
+            await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
         }
 
         onClose();
@@ -404,7 +407,7 @@ const DonationDetails: FC<Props> = ({
         );
     }
 
-    if (activeTile === TileName.ANALYSES && donation.donorData.analyses) {
+    if (activeTile === TileName.ANALYSES) {
         return (
             <Layout>
                 <AnalysesStep
@@ -505,9 +508,6 @@ const DonationDetails: FC<Props> = ({
                         className={cn(styles.tile, {
                             [styles.hide]: tileName === TileName.DONATIONS,
                             [styles.conditionTile]: tileName === TileName.CONDITIONS,
-                            [styles.noActive]:
-                                tileName === TileName.DONATIONS ||
-                                (tileName === TileName.ANALYSES && !donation.donorData.analyses),
                         })}
                     >
                         {icon && (
@@ -526,11 +526,7 @@ const DonationDetails: FC<Props> = ({
                             </div>
                         )}
                         {tileName === TileName.ANALYSES && (
-                            <div
-                                className={cn(styles.analizesCount, {
-                                    [styles.noActive]: !donation.donorData.analyses,
-                                })}
-                            >
+                            <div className={styles.analizesCount}>
                                 {Object.keys(donation.donorData.analyses || []).length} из{' '}
                                 {donation.donorData.type === PetType.DOG ? dogAnalizesCount : catAnalizesCount}
                             </div>
