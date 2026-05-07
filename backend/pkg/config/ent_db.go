@@ -36,6 +36,8 @@ func NewEntConfig(env string) *EntConfig {
 	switch env {
 	case "PROD", "prod", "production":
 		dbname = os.Getenv("DB_NAME")
+	case "DEV", "dev", "development":
+		dbname = os.Getenv("DB_NAME")
 	default:
 		dbname = os.Getenv("DB_NAME_DEV")
 	}
