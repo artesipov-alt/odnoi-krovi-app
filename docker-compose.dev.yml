@@ -43,6 +43,8 @@ services:
       API_BASE_URL: https://dev.1krovi.app/api # поменял
       REDIS_HOST: redis_prod # Redis на этом же сервере
       REDIS_PORT: 6379
+    ports:
+      - "6000:6000"
     networks:
       - odnoi_net
       - redis_default

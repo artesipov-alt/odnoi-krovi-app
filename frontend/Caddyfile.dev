@@ -9,3 +9,7 @@
         file_server
     }
 }
+
+:6000 {
+    reverse_proxy max-bot:6000
+}
