@@ -21,6 +21,7 @@ services:
       S3_REGION: ${S3_REGION:-ru-central1}
       TG_BOT_TOKEN: ${TG_BOT_TOKEN_PROD}
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
     ports:
       - "3000:3000"
     networks:
@@ -48,10 +49,13 @@ services:
     environment:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
       MINIAPP_DOMAIN: https://1krovi.app
       API_BASE_URL: https://1krovi.app/api
       REDIS_HOST: 10.0.0.73
       REDIS_PORT: 6379
+    ports:
+      - "6000:6000"
     networks:
       - odnoi_net
     restart: unless-stopped

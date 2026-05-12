@@ -95,7 +95,7 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, _, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
@@ -109,11 +109,11 @@ func main() {
 			publisher = events.NewEventPublisher(redisClient)
 		}
 
-		// Запуск миграций
-		if err := config.RunMigrations(db, rawDB); err != nil {
-			slog.Error("Ошибка выполнения миграций", "error", err)
-			os.Exit(1)
-		}
+		// Запуск миграций закомментирован, так как они больше не нужны.
+		// if err := config.RunMigrations(db, rawDB); err != nil {
+		// 	slog.Error("Ошибка выполнения миграций", "error", err)
+		// 	os.Exit(1)
+		// }
 
 		//Миграции
 		ctx := context.Background()
@@ -187,7 +187,7 @@ func main() {
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, bloodRequestRepo, petService)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
-		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher)
+		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher, petRepo, bonusSvc)
 		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)

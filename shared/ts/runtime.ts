@@ -13,7 +13,7 @@
  */
 
 
-export const BASE_PATH = "https://1krovi.app/api".replace(/\/+$/, "");
+export const BASE_PATH = "https://dev.1krovi.app/api".replace(/\/+$/, "");
 
 export interface ConfigurationParameters {
     basePath?: string; // override base path

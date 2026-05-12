@@ -21,6 +21,7 @@ services:
       S3_REGION: ${S3_REGION:-ru-central1}
       TG_BOT_TOKEN: ${TG_BOT_TOKEN_DEV} # dev токен
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_DEV} # dev токен
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
     ports:
       - "3000:3000"
     networks:
@@ -36,12 +37,16 @@ services:
   max-bot:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:dev # тег :dev
     environment:
+      ENV: development # поменял
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_DEV} # dev токен
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
       MINIAPP_DOMAIN: https://dev.1krovi.app # поменял
       API_BASE_URL: https://dev.1krovi.app/api # поменял
-      REDIS_HOST: localhost # Redis на этом же сервере
+      REDIS_HOST: redis_prod # Redis на этом же сервере
       REDIS_PORT: 6379
+    ports:
+      - "6000:6000"
     networks:
       - odnoi_net
       - redis_default

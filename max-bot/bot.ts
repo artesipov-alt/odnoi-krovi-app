@@ -18,8 +18,9 @@ import { handleUserContact } from "./src/events/user/handleUserContact";
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
+import { startServer } from "./src/server";
 
-// Event handlers map
+// Event handlers map для Redis
 const eventHandlers: Record<string, (event: any) => Promise<void>> = {
   donor_response_apply: handleDonorApply,
   recipient_response_apply: handleRecipientApply,
@@ -53,33 +54,23 @@ redis.on("connect", () => {
 });
 
 async function main() {
-  //Плагины бота
+  // Плагины бота
   bot.use(logger);
 
   // Установка команд бота
   await bot.api.setMyCommands([
     { name: "start", description: "Запустить бота" },
-    { name: "profile", description: "Профиль пользователя" },
-    { name: "help", description: "Помощь" },
   ]);
 
+  // Команды и действия бота
   bot.on(`bot_started`, startHandler);
-
-  //Команды бота
   bot.command("start", startHandler);
-  bot.command("help", helpHandler);
-  bot.command("profile", profileHandler);
   bot.command("err", errCommandTest);
   bot.command("api", apiTestHandler);
-
-  //Колбэки (нажатия на кнопки)
-  bot.action("profile", profileHandler);
-  bot.action("help", helpHandler);
   bot.action("back", startHandler);
 
   const { name, username, user_id } = await bot.api.getMyInfo();
-
-  pinologger.info(`Бот ${name || username} ${user_id} запущен`);
+  pinologger.info(`Бот ${name || username} ${user_id} инициализирован`);
 
   // Redis subscriptions for events
   Object.keys(eventHandlers).forEach(subscribeToChannel);
@@ -100,12 +91,22 @@ async function main() {
     }
   });
 
-  pinologger.info("Initiating bot polling");
-  bot.start();
-  pinologger.info("Bot polling initiated");
+  // Запуск HTTP сервера для вебхуков
+  const server = startServer(bot);
 
-  //Обработка ошибок
+  // Обработка ошибок
   bot.catch(errorHandler);
+
+  // Graceful shutdown
+  const shutdown = () => {
+    pinologger.info("Shutting down...");
+    server.stop();
+    redis.quit();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 main();

@@ -127,50 +127,49 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	}
 	// Логика события
 	// TODO: Вынести отдельно.
-	{
-		var avilableDonors []petmodel.Pet
-		for _, pet := range pets {
-			if pet.PetStatus == petmodel.PetStatusDonor {
-				avilableDonors = append(avilableDonors, *pet)
-			}
-		}
 
-		// Get peers for available donors
-		peersMap := make(map[string]events.Peers)
-		for _, donorPet := range avilableDonors {
-			donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
-				WithIdentities: true,
-			})
-			if err != nil {
-				slog.Error("failed to get donor user", "err", err, "petID", donorPet.ID)
-				continue
-			}
-			maxID, telegramID := extractProviderIDs(donorUser)
-			if maxID != "" || telegramID != "" {
-				key := fmt.Sprintf("%s|%s", maxID, telegramID)
-				if _, exists := peersMap[key]; !exists {
-					peersMap[key] = events.Peers{
-						MaxID:      maxID,
-						TelegramID: telegramID,
-					}
+	var avilableDonors []petmodel.Pet
+	for _, pet := range pets {
+		if pet.PetStatus == petmodel.PetStatusDonor {
+			avilableDonors = append(avilableDonors, *pet)
+		}
+	}
+
+	// Get peers for available donors
+	peersMap := make(map[string]events.Peers)
+	for _, donorPet := range avilableDonors {
+		donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+			WithIdentities: true,
+		})
+		if err != nil {
+			slog.Error("failed to get donor user", "err", err, "petID", donorPet.ID)
+			continue
+		}
+		maxID, telegramID := extractProviderIDs(donorUser)
+		if maxID != "" || telegramID != "" {
+			key := fmt.Sprintf("%s|%s", maxID, telegramID)
+			if _, exists := peersMap[key]; !exists {
+				peersMap[key] = events.Peers{
+					MaxID:      maxID,
+					TelegramID: telegramID,
 				}
 			}
 		}
-		peers := make([]events.Peers, 0, len(peersMap))
-		for _, p := range peersMap {
-			peers = append(peers, p)
-		}
+	}
+	peers := make([]events.Peers, 0, len(peersMap))
+	for _, p := range peersMap {
+		peers = append(peers, p)
+	}
 
-		if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
-			RequestID:      newReq.ID,
-			BloodTypes:     req.BloodGroupNames,
-			Regions:        req.Regions,
-			AvilableDonors: peers,
-			CreatedAt:      *newReq.CreatedAt,
-		}); err != nil {
-			slog.Error("failed to publish blood request created event", "err", err)
-			return newReq, nil
-		}
+	if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
+		RequestID:      newReq.ID,
+		BloodTypes:     req.BloodGroupNames,
+		Regions:        req.Regions,
+		AvilableDonors: peers,
+		CreatedAt:      *newReq.CreatedAt,
+	}); err != nil {
+		slog.Error("failed to publish blood request created event", "err", err)
+		return newReq, nil
 	}
 
 	return newReq, nil
