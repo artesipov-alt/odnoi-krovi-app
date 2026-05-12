@@ -95,7 +95,7 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, _, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
@@ -109,11 +109,11 @@ func main() {
 			publisher = events.NewEventPublisher(redisClient)
 		}
 
-		// Запуск миграций
-		if err := config.RunMigrations(db, rawDB); err != nil {
-			slog.Error("Ошибка выполнения миграций", "error", err)
-			os.Exit(1)
-		}
+		// Запуск миграций закомментирован, так как они больше не нужны.
+		// if err := config.RunMigrations(db, rawDB); err != nil {
+		// 	slog.Error("Ошибка выполнения миграций", "error", err)
+		// 	os.Exit(1)
+		// }
 
 		//Миграции
 		ctx := context.Background()
