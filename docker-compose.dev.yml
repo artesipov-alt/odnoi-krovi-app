@@ -56,6 +56,7 @@ services:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:dev # тег :dev
     environment:
       TG_BOT_TOKEN: ${TG_BOT_TOKEN_DEV}
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN}
       INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
       MINIAPP_DOMAIN: https://dev.1krovi.app # поменял
       API_BASE_URL: https://dev.1krovi.app/api # поменял
