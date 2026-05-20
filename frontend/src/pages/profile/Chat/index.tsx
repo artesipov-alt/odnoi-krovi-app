@@ -29,7 +29,7 @@ const Chat: FC<Props> = ({ onClose }) => {
                     host: hostRef.current,
                     injectStyles: `
       [data-id=chat-host] {
-      visibility: hidden;
+      // visibility: hidden;
         // bottom: 8px;
         // right: 8px;
         // align-items: end;

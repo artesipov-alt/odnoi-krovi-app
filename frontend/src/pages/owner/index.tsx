@@ -89,6 +89,8 @@ const Owner: FC<Props> = ({ userId }) => {
         if (newView === Role.DONOR && !userData?.donorPreference) {
             setIsDonorPreferenceOnboardingWasShown(false);
         }
+
+        localStorage.setItem('view', JSON.stringify(newView));
     };
 
     const onPetProfileToggleHandler = (petData: Pet | null) => () => {
@@ -435,6 +437,18 @@ const Owner: FC<Props> = ({ userId }) => {
 
             setIsPetProfileOpen(true);
             setSelectedPet(pets?.pets.find((pet) => pet.id === id) || null);
+        }
+
+        if (!window.location.hash) {
+            const lastView = localStorage.getItem('view');
+
+            setView((JSON.parse(lastView || '') as View) || Role.RECIPIENT);
+
+            if (lastView) {
+                window.location.hash = `#${JSON.parse(lastView)}`;
+            }
+
+            return;
         }
 
         window.location.hash = '#recipient';

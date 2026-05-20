@@ -2,8 +2,6 @@ import { Button } from '@mui/material';
 import cn from 'classnames';
 import { useGetRecipientsList } from 'hooks/useGetRecipientsList';
 import { useGetUserById } from 'hooks/useGetUserById';
-import clinicsBg from 'imgs/clinicsBg.png';
-import noDonorBg from 'imgs/noDonorBg.png';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import CrossedEye from 'imgs/svg/crossedEye';
 import Eye from 'imgs/svg/eye';
@@ -135,14 +133,13 @@ const RecipientsList: FC<Props> = ({ userId }) => {
                 })}
             >
                 {tab === 0 && !list?.items.length && (
-                    <div>
+                    <div className={styles.noDonors}>
                         <h1 className={styles.noListTitle}>Пока нет подходящих реципиентов</h1>
                         <p className={styles.noListDescr}>Когда найдем - направим уведомление</p>
-                        <img className={styles.noListImg} src={noDonorBg} alt='no-recipients' />
                     </div>
                 )}
                 {tab === 1 && (
-                    <div>
+                    <div className={styles.clinicsTab}>
                         <h1 className={cn(styles.noListTitle, { [styles.isClinics]: true })}>Скоро будет доступно!</h1>
                         <p className={cn(styles.noListDescr, { [styles.isClinics]: true })}>
                             Функционал пока в разработке.
@@ -154,13 +151,11 @@ const RecipientsList: FC<Props> = ({ userId }) => {
                                 Искать реципиентов
                             </Button>
                         </div>
-                        <img className={styles.clinkcsImg} src={clinicsBg} alt='no-recipients' />
                     </div>
                 )}
-                <div className={styles.showcase}>
-                    {tab === 0 &&
-                        !!list?.items.length &&
-                        list.items.map((pet) => (
+                {tab === 0 && !!list?.items.length && (
+                    <div className={styles.showcase}>
+                        {list.items.map((pet) => (
                             <div
                                 key={`${pet.petId}`}
                                 className={cn(styles.pet, { [styles[pet.petType]]: !pet?.photoUrls?.[0] })}
@@ -195,7 +190,8 @@ const RecipientsList: FC<Props> = ({ userId }) => {
                                 </div>
                             </div>
                         ))}
-                </div>
+                    </div>
+                )}
             </div>
         </Layout>
     );

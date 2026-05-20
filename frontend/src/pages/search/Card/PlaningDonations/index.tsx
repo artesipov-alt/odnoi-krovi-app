@@ -3,16 +3,23 @@ import cn from 'classnames';
 import Exclamation from 'imgs/svg/exclamation';
 import Info from 'imgs/svg/info';
 import Message from 'imgs/svg/message';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
+import { toast } from 'react-toastify';
+import { isWithinHours } from 'utils/utils';
 
+import { confirmDonation } from 'api/apiServices/confirmDonation';
 import { RespondingDonor, RespondingDonorStatus } from 'api/bloodRequest';
+import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
+import Timer from 'components/Timer';
 
 import styles from './PlaningDonations.module.less';
 
 type Props = {
+    userId: string;
+    poolRequestRefetch: () => void;
     donorResponses: RespondingDonor[];
-    onDonationClick: (id: string, status: RespondingDonorStatus) => void;
+    onDonationClick: (id: string, status: RespondingDonorStatus, updatedAt: string) => void;
 };
 
 const getSortedDonations = (donations: RespondingDonor[]) =>
@@ -30,15 +37,34 @@ const getSortedDonations = (donations: RespondingDonor[]) =>
         return 0;
     });
 
-const PlaningDonations: FC<Props> = ({ donorResponses, onDonationClick }) => {
+const PlaningDonations: FC<Props> = ({ userId, donorResponses, onDonationClick, poolRequestRefetch }) => {
     const [isInfoCurtainOpen, setIsInfoCurtainOpen] = useState(false);
+
+    const showToast = useCallback((text: string) => {
+        toast.warn(text);
+    }, []);
 
     const onCurtainOpenToggle = () => {
         setIsInfoCurtainOpen((prevState) => !prevState);
     };
 
-    const onDonationClickHandler = (id: string, status: RespondingDonorStatus) => () => {
-        onDonationClick(id, status);
+    const onDonationClickHandler = (id: string, status: RespondingDonorStatus, updatedAt: string) => () => {
+        onDonationClick(id, status, updatedAt);
+    };
+
+    const onEndTimerClickHandler = (id: string, amount: number) => async () => {
+        const response = await confirmDonation({
+            id,
+            amount,
+        });
+
+        if (!response) {
+            showToast('Не удалось подтвердить донацию');
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+
+        poolRequestRefetch();
     };
 
     return (
@@ -54,10 +80,10 @@ const PlaningDonations: FC<Props> = ({ donorResponses, onDonationClick }) => {
             </div>
             <div className={styles.list}>
                 {getSortedDonations(donorResponses).map(
-                    ({ id, status, donorName, donorBloodGroup, donorPhotos, amount }) => (
+                    ({ id, status, donorName, donorBloodGroup, donorPhotos, amount, updatedAt }) => (
                         <div
                             key={id}
-                            onClick={onDonationClickHandler(id, status)}
+                            onClick={onDonationClickHandler(id, status, updatedAt)}
                             className={cn(styles.listItem, {
                                 [styles.notActive]:
                                     status === RespondingDonorStatus.REJECTED ||
@@ -76,7 +102,20 @@ const PlaningDonations: FC<Props> = ({ donorResponses, onDonationClick }) => {
                                     {status === RespondingDonorStatus.ACCEPTED && (
                                         <p className={styles.acceptedText}>Донация состоялась?</p>
                                     )}
-                                    {status === RespondingDonorStatus.COMPLETED && (
+                                    {status === RespondingDonorStatus.COMPLETED && isWithinHours(updatedAt, 48) && (
+                                        <div className={styles.count}>
+                                            <Timer
+                                                hoursToAdd={48}
+                                                updatedAt={updatedAt}
+                                                className={styles.countTimer}
+                                                digitClassName={styles.countDigits}
+                                                separatorClassName={styles.countSeparator}
+                                                onTimeEnd={onEndTimerClickHandler(id, amount)}
+                                            />
+                                            <p className={styles.timerText}>до подтверждения донации</p>
+                                        </div>
+                                    )}
+                                    {status === RespondingDonorStatus.COMPLETED && !isWithinHours(updatedAt, 48) && (
                                         <p className={styles.acceptedText}>Хозяин донора сообщил о донации</p>
                                     )}
                                     {status === RespondingDonorStatus.REJECTED && (

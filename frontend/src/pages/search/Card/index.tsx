@@ -36,6 +36,7 @@ import SearchFinish from './SearchFinish';
 
 type SelectedDonation = {
     id: string;
+    updatedAt: string;
     status: RespondingDonorStatus;
 };
 
@@ -118,8 +119,12 @@ const SearchCard: FC<Props> = ({
         setTab(tabId);
     };
 
-    const onDonationClickHandler = (openDonationId: string, donationStatus: RespondingDonorStatus) => {
-        setSelectedDonation({ id: openDonationId, status: donationStatus });
+    const onDonationClickHandler = (
+        openDonationId: string,
+        donationStatus: RespondingDonorStatus,
+        updatedAt: string,
+    ) => {
+        setSelectedDonation({ id: openDonationId, status: donationStatus, updatedAt });
     };
 
     const onCloseDonationHandler = () => {
@@ -181,6 +186,7 @@ const SearchCard: FC<Props> = ({
                 donationId={selectedDonation.id}
                 status={selectedDonation.status}
                 onClose={onCloseDonationHandler}
+                updatedAt={selectedDonation.updatedAt}
                 onIsSearchFinish={onIsSearchFinishHandler}
                 onDonationComplete={onDonationCompleteHandler}
             />
@@ -445,7 +451,12 @@ const SearchCard: FC<Props> = ({
                 )}
                 {tab === 1 && !!acceptedDonors?.length && (
                     <div className={styles.selected}>
-                        <PlaningDonations donorResponses={acceptedDonors} onDonationClick={onDonationClickHandler} />
+                        <PlaningDonations
+                            userId={userId}
+                            donorResponses={acceptedDonors}
+                            poolRequestRefetch={poolRequestRefetch}
+                            onDonationClick={onDonationClickHandler}
+                        />
                     </div>
                 )}
                 {tab === 2 && !!completedDonations?.length && (

@@ -1,5 +1,7 @@
 import Button from '@mui/material/Button';
+import cn from 'classnames';
 import Exclamation from 'imgs/svg/exclamation';
+import Pause from 'imgs/svg/pause';
 import { FC } from 'react';
 import { getCorrectDeclension, Variants } from 'utils/utils';
 
@@ -8,8 +10,6 @@ import { Role } from 'api/user';
 import Layout from 'components/Layout';
 
 import styles from './CheckOtherDonors.module.less';
-import cn from 'classnames';
-import Pause from '../../../../imgs/svg/pause';
 
 type Props = {
     pets: Pet[];

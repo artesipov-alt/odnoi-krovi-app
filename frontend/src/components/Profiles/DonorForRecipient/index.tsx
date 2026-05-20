@@ -164,7 +164,9 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
             const { pets } = await getPets(info?.ownerId!);
 
             const recoveringPets = pets.filter(
-                (pet) => pet.petStatus === Role.RECOVERING || pet.petStatus === Role.PLANNED_DONATION,
+                (pet) =>
+                    pet.id !== info?.id &&
+                    (pet.petStatus === Role.RECOVERING || pet.petStatus === Role.PLANNED_DONATION),
             );
 
             if (recoveringPets.length) {

@@ -1,9 +1,5 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
-import searchCardOnboarding1 from 'imgs/searchCardOnboarding1.png';
-import searchCardOnboarding2 from 'imgs/searchCardOnboarding2.png';
-import searchOnboarding1 from 'imgs/searchOnboarding1.png';
-import searchOnboarding2 from 'imgs/searchOnboarding2.png';
 import { FC, useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -58,8 +54,8 @@ const SearchOnboarding: FC<Props> = ({ view, id, onBoarding, onSucess }) => {
     };
 
     return (
-        <Layout>
-            <div className={styles.wrapper}>
+        <Layout className={cn(styles.wrapper, { [styles[view]]: view, [styles.second]: step === 2 })}>
+            <div>
                 <div className={styles.header}>
                     <div className={cn(styles.tab, { [styles.checked]: true })} />
                     <div className={cn(styles.tab, { [styles.checked]: step === 2 })} />
@@ -79,30 +75,16 @@ const SearchOnboarding: FC<Props> = ({ view, id, onBoarding, onSucess }) => {
                         </h1>
                         {step === 2 && (
                             <div className={styles.description}>
-                                Здесь можно посмотреть выбранные
-                                <br /> параметры и расширить поиск.
+                                Получите найденные предложения или отмените их для
+                                <br />
+                                продолжения поиска.
                             </div>
                         )}
-                        <img
-                            alt='search1'
-                            src={step === 1 ? searchOnboarding1 : searchOnboarding2}
-                            className={cn(styles.img, { [styles.second]: step === 2 })}
-                        />
-                        {step === 2 && (
-                            <div className={styles.footerDescr}>
-                                Получите выбранные предложения или отмените их для продолжения поиска.
-                            </div>
-                        )}
-                        <div className={styles.button}>
-                            <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
-                                Далее
-                            </Button>
-                        </div>
                     </>
                 )}
                 {view === View.CARD && (
                     <>
-                        <h1 className={cn(styles.title, { [styles.card]: true, [styles.second]: step === 2 })}>
+                        <h1 className={cn(styles.title, { [styles.card]: true })}>
                             {step === 1 ? (
                                 <>
                                     Ищите кровь
@@ -116,20 +98,15 @@ const SearchOnboarding: FC<Props> = ({ view, id, onBoarding, onSucess }) => {
                         <div className={cn(styles.description, { [styles.card]: true })}>
                             {step === 1
                                 ? 'Отмените неподходящие донации, чтобы освободить шкалу и найти больше предложений'
-                                : 'Чаты с донорами будут в "Выбранном". Если не договоритесь - отмените предложение и продолжайте поиск.'}
-                        </div>
-                        <img
-                            alt='search2'
-                            src={step === 1 ? searchCardOnboarding1 : searchCardOnboarding2}
-                            className={cn(styles.img, { [styles.card]: true, [styles.second]: step === 2 })}
-                        />
-                        <div className={cn(styles.button, { [styles.card]: true, [styles.second]: step === 2 })}>
-                            <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
-                                Далее
-                            </Button>
+                                : 'Чаты с донорами будут в "Найденном". Если не договоритесь - отмените предложение и продолжайте поиск.'}
                         </div>
                     </>
                 )}
+            </div>
+            <div className={styles.button}>
+                <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
+                    Далее
+                </Button>
             </div>
         </Layout>
     );
