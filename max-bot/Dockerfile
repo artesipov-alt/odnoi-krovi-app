@@ -1,5 +1,5 @@
 # Use Bun alpine image for building
-FROM oven/bun:1-alpine AS builder
+FROM oven/bun:1.3.13-alpine AS builder
 
 # Use /app as project root in the container
 WORKDIR /app
@@ -21,7 +21,7 @@ RUN bun install --no-cache
 RUN bun run build
 
 # Runtime image
-FROM oven/bun:1-alpine
+FROM oven/bun:1.3.13-alpine
 
 # Keep same workdir layout as during build so runtime imports still resolve
 WORKDIR /app/max-bot
