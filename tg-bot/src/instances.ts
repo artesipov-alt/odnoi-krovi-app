@@ -7,14 +7,13 @@ import pino from "pino";
 export const bot = new Bot<Context>(Bun.env.TG_BOT_TOKEN!, {
   client: {
     apiRoot: "https://bridge.1krovi.app",
-    baseFetchConfig: {
-      headers: {
-        // Обязательно передаем секрет, иначе мост сбросит соединение
-        "X-Proxy-Secret": Bun.env.TG_BOT_TOKEN!,
-      },
+    buildUrl: (root, token, method) => {
+      // Собираем стандартный URL, но докидываем в конец наш секрет
+      return `${root}/bot${token}/${method}?secret=${Bun.env.BRIDGE_TOKEN}`;
     },
   },
 });
+
 export const pinologger = pino({
   level: "debug",
   transport: {
