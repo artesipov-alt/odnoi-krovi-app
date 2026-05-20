@@ -6,11 +6,13 @@
         reverse_proxy backend:3000
     }
 
-    # Проксируем скрипты Telegram Mini App через зарубежный мост
+    # Проксирование скрипта Telegram Mini App
     handle_path /tg-js/* {
+        # Дописываем секрет к запросу перед отправкой на мост
+        rewrite * {uri}?secret="{$BRIDGE_TOKEN}"
+
         reverse_proxy https://bridge.1krovi.app {
             header_up Host bridge.1krovi.app
-            header_up X-Proxy-Secret "{$BRIDGE_TOKEN}"
         }
     }
 
