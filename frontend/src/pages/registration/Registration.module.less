@@ -1,5 +1,9 @@
 @import 'styles/colors';
 
+.wrapper {
+    height: 100vh;
+}
+
 .header {
     height: 120px;
     background: url('imgs/regHeader.png') no-repeat bottom;
@@ -24,7 +28,11 @@
 }
 
 .form {
-    padding: 218px 40px 20px;
+    padding: 0 40px 20px;
+    height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .textField {
@@ -68,7 +76,7 @@
 
 .button {
     height: 62px;
-    margin: 133px 0 16px !important;
+    margin-top: 16px !important;
     border-radius: 21px !important;
     background: @common-red !important;
     font-family: Marmelad, sans-serif !important;
@@ -94,7 +102,7 @@
 }
 
 .links {
-    margin-top: 16px;
+    margin-top: 133px;
     text-align: center;
 }
 

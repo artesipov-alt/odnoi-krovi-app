@@ -22,9 +22,11 @@ import Accordion from 'pages/adding/common/Accordion';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
+import { isWithinHours } from 'utils/utils';
 
 import { cancelDonation } from 'api/apiServices/cancelDonation';
 import { completeDonation } from 'api/apiServices/completeDonation';
+import { confirmDonation } from 'api/apiServices/confirmDonation';
 import { getUserContacts } from 'api/apiServices/getUserContacts';
 import { updatePet } from 'api/apiServices/updatePet';
 import { BonusType, DonorStatus, PlannedDonation } from 'api/donor';
@@ -38,6 +40,7 @@ import { CircularProgress } from 'components/CircularProgress';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 import TextField from 'components/TextField';
+import Timer from 'components/Timer';
 
 import styles from './DonationDetails.module.less';
 
@@ -64,6 +67,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
+    const [isPendingTimerExpired, setIsPendingTimerExpired] = useState<boolean>(false);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
 
     const [bloodGroup, setBloodGroup] = useState<string | null>(null);
@@ -205,6 +209,28 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         setBloodGroup(newBloodGroup);
     };
 
+    const onPendingTimerExpired = () => {
+        setIsPendingTimerExpired(true);
+    };
+
+    const onCompleteTimerExpired = async () => {
+        const response = await confirmDonation({
+            id: donation.applicationData.id,
+            amount: donation.applicationData.amount,
+        });
+
+        if (!response) {
+            showToast('Не удалось подтвердить донацию');
+
+            return;
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+        await queryClient.invalidateQueries({ queryKey: ['plannedDonations', userId] });
+
+        onClose();
+    };
+
     useEffect(() => {
         if (isErrorLocations) {
             showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
@@ -301,10 +327,39 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         <div onClick={onChatOpenHandler} className={styles.chatIcon}>
                             <Chat />
                         </div>
-                        <div className={styles.recipientConfirmation}>Ожидается подтверждение реципиента</div>
+                        {isWithinHours(donation.recipientData.updatedAt, 48) ? (
+                            <div className={cn(styles.count, { [styles.completed]: true })}>
+                                <Timer
+                                    hoursToAdd={48}
+                                    className={styles.countTimer}
+                                    onTimeEnd={onCompleteTimerExpired}
+                                    digitClassName={styles.countDigits}
+                                    separatorClassName={styles.countSeparator}
+                                    updatedAt={donation.recipientData.updatedAt}
+                                />
+                                <p className={styles.timerText}>до подтверждения донации</p>
+                            </div>
+                        ) : (
+                            <div className={styles.recipientConfirmation}>Ожидается подтверждение реципиента</div>
+                        )}
                     </>
                 )}
             </div>
+            {donation.applicationData.status === DonorStatus.PENDING &&
+                isWithinHours(donation.recipientData.updatedAt, 1) &&
+                !isPendingTimerExpired && (
+                    <div className={styles.count}>
+                        <Timer
+                            hoursToAdd={1}
+                            className={styles.countTimer}
+                            onTimeEnd={onPendingTimerExpired}
+                            digitClassName={styles.countDigits}
+                            separatorClassName={styles.countSeparator}
+                            updatedAt={donation.recipientData.updatedAt}
+                        />
+                        <p className={styles.timerText}>до того, как сможете отказаться</p>
+                    </div>
+                )}
             <div className={styles.recipientInfo}>
                 <div className={styles.infoTitle}>
                     <div className={styles.infoTitleIcon}>
@@ -460,14 +515,15 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                     </div>
                 </div>
             </div>
-            {donation.applicationData.status === DonorStatus.PENDING && (
-                <div className={styles.cancel} onClick={onCancelClickHandler}>
-                    <div className={styles.cancelIcon}>
-                        <Cancel />
+            {donation.applicationData.status === DonorStatus.PENDING &&
+                (!isWithinHours(donation.recipientData.updatedAt, 1) || isPendingTimerExpired) && (
+                    <div className={styles.cancel} onClick={onCancelClickHandler}>
+                        <div className={styles.cancelIcon}>
+                            <Cancel />
+                        </div>
+                        <p className={styles.cancelDescr}>Отказаться от донации</p>
                     </div>
-                    <p className={styles.cancelDescr}>Отказаться от донации</p>
-                </div>
-            )}
+                )}
             {isDonorConfirmationCurtainOpen && (
                 <Curtain
                     columnOfButtons

@@ -2,7 +2,24 @@
 
 .wrapper {
     position: relative;
-    padding: 10px 12px 30px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.innerWrapper {
+    padding: 10px 12px 21px;
+    flex-shrink: 0;
+}
+
+.content {
+    flex: 1;
+    -webkit-overflow-scrolling: touch; /* Плавность на iOS */
+
+    @media (orientation: landscape) {
+        overflow-y: auto;
+    }
 }
 
 .header {

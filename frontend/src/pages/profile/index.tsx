@@ -28,6 +28,7 @@ import Layout from 'components/Layout';
 
 // import PromoSlider from 'components/PromoSlider';
 import styles from './Profile.module.less';
+import Chat from './Chat';
 
 type Props = {
     userId: string;
@@ -151,6 +152,22 @@ const normalizePhone = (value: string) => {
     return hasPlus ? `+${digits}` : digits;
 };
 
+// <script>
+//     appChatClient(
+//     {
+//         chatId: 'd0cbe3ec-06ab-495c-98f4-f686858b8f39',
+//     }, {
+//     host: document.getElementById('chat-client'),
+//     injectStyles: `
+//                   [data-id=chat-host] {
+//                     bottom: 8px;
+//                     right: 8px;
+//                     align-items: end;
+//                   }`,
+// }
+//     )
+// </script>
+
 const Profile: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
     const { data: userData, isLoading } = useGetUserById(userId);
@@ -171,6 +188,8 @@ const Profile: FC<Props> = ({ userId }) => {
     const [isEditFullNameFocused, setIsEditFullNameFocused] = useState(false);
     const [isEditEmailFocused, setIsEditEmailFocused] = useState(false);
     const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
+
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     useBodyScrollLock(isInvitePopupOpen || isEditCurtainOpen);
 
@@ -420,12 +439,12 @@ const Profile: FC<Props> = ({ userId }) => {
             return;
         }
 
-        const shareText = `Присоединяйся к Одной Крови: ${shareUrl}`;
+        const shareText = `Спасайте жизни питомцев вместе с друзьями!\n\nСсылка - ${shareUrl}`;
 
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Приглашение в Одной Крови',
+                    title: 'Вас приглашают на Портал донорской помощи животным "Одной Крови"',
                     text: shareText,
                 });
 
@@ -447,9 +466,13 @@ const Profile: FC<Props> = ({ userId }) => {
         window.open(shareUrl, '_blank', 'noopener,noreferrer');
     };
 
-    const onChatClickHandler = () => {
-        window.open('https://max.ru/id3200014662_1_bot', '_blank', 'noopener,noreferrer');
+    const onChatOpenToggle = () => {
+        setIsChatOpen((prevState) => !prevState);
     };
+
+    if (isChatOpen) {
+        return <Chat onClose={onChatOpenToggle} />;
+    }
 
     const headerAvatarUrl = avatarUrl && failedAvatarUrl !== avatarUrl ? avatarUrl : null;
     const isPendingAvatarFailed = !!pendingAvatarPreviewUrl && failedAvatarUrl === pendingAvatarPreviewUrl;
@@ -535,7 +558,7 @@ const Profile: FC<Props> = ({ userId }) => {
                     {/* <PromoSlider /> */}
 
                     <div className={styles.infoButtons}>
-                        <button onClick={onChatClickHandler} type='button' className={styles.infoButton}>
+                        <button onClick={onChatOpenToggle} type='button' className={styles.infoButton}>
                             <span className={styles.infoIcon}>
                                 <ChatBubble />
                             </span>

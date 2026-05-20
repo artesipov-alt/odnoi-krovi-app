@@ -28,6 +28,7 @@ import Telegram from 'imgs/svg/telegram';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
+import { isWithinHours } from 'utils/utils';
 
 import { confirmDonation } from 'api/apiServices/confirmDonation';
 import { getDonationForRecipientById } from 'api/apiServices/getDonationForRecipientById';
@@ -36,6 +37,7 @@ import { rejectDonation } from 'api/apiServices/rejectDonation';
 import { updatePet } from 'api/apiServices/updatePet';
 import { GetDonationForRecipientByIdResponse, RespondingDonorStatus } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
+import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
 import { CompensationType, Identities } from 'api/user';
 import { CircularProgress } from 'components/CircularProgress';
@@ -47,6 +49,7 @@ import HealthStep from 'components/Profiles/Steps/Health';
 import ParamsStep from 'components/Profiles/Steps/Params';
 import TreatmentsStep from 'components/Profiles/Steps/Treatments';
 import TextField from 'components/TextField';
+import Timer from 'components/Timer';
 
 import styles from './DonationDetails.module.less';
 
@@ -66,6 +69,7 @@ type ChatCurtain = {
 
 type Props = {
     userId: string;
+    updatedAt: string;
     donationId: string;
     onClose: () => void;
     onReject: () => void;
@@ -97,6 +101,7 @@ const DonationDetails: FC<Props> = ({
     status,
     onClose,
     onReject,
+    updatedAt,
     donationId,
     onIsSearchFinish,
     onDonationComplete,
@@ -196,6 +201,8 @@ const DonationDetails: FC<Props> = ({
 
         if (!response) {
             showToast('Не удалось отменить донацию');
+        } else {
+            await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
         }
 
         onClose();
@@ -254,6 +261,29 @@ const DonationDetails: FC<Props> = ({
 
     const onChatOpenHandler = () => {
         setChatCurtain({ isOpen: true, identities: userData?.identities });
+    };
+
+    const onEndTimerClickHandler = async () => {
+        if (!donation) {
+            return;
+        }
+
+        const response = await confirmDonation({
+            id: donationId,
+            amount: donation.donorData.application.amount,
+        });
+
+        if (!response) {
+            showToast('Не удалось подтвердить донацию');
+        }
+
+        const isFinish = donation.recipientData.bloodVolumeNeeded <= donation.donorData.application.amount;
+
+        if (isFinish) {
+            onIsSearchFinish();
+        } else {
+            onDonationComplete(donation.donorData.application.amount);
+        }
     };
 
     const onConfirmDonationClickHandler =
@@ -404,7 +434,7 @@ const DonationDetails: FC<Props> = ({
         );
     }
 
-    if (activeTile === TileName.ANALYSES && donation.donorData.analyses) {
+    if (activeTile === TileName.ANALYSES) {
         return (
             <Layout>
                 <AnalysesStep
@@ -487,7 +517,22 @@ const DonationDetails: FC<Props> = ({
                 )}
                 {status === RespondingDonorStatus.COMPLETED && (
                     <>
-                        <div className={styles.completedTile}>Хозяин донора сообщил о донации</div>
+                        {isWithinHours(updatedAt, 0.16) && (
+                            <div className={styles.count}>
+                                <p className={styles.timerText}>Хозяин донора сообщил о донации</p>
+                                <div className={styles.timerWrapper}>
+                                    <Timer
+                                        hoursToAdd={0.16}
+                                        updatedAt={updatedAt}
+                                        className={styles.countTimer}
+                                        onTimeEnd={onEndTimerClickHandler}
+                                        digitClassName={styles.countDigits}
+                                        separatorClassName={styles.countSeparator}
+                                    />
+                                    <p className={styles.timerCaption}>до автоматического подтверждения</p>
+                                </div>
+                            </div>
+                        )}
                         <div onClick={onChatOpenHandler} className={styles.chatIcon}>
                             <Chat />
                         </div>
@@ -505,9 +550,6 @@ const DonationDetails: FC<Props> = ({
                         className={cn(styles.tile, {
                             [styles.hide]: tileName === TileName.DONATIONS,
                             [styles.conditionTile]: tileName === TileName.CONDITIONS,
-                            [styles.noActive]:
-                                tileName === TileName.DONATIONS ||
-                                (tileName === TileName.ANALYSES && !donation.donorData.analyses),
                         })}
                     >
                         {icon && (
@@ -526,11 +568,7 @@ const DonationDetails: FC<Props> = ({
                             </div>
                         )}
                         {tileName === TileName.ANALYSES && (
-                            <div
-                                className={cn(styles.analizesCount, {
-                                    [styles.noActive]: !donation.donorData.analyses,
-                                })}
-                            >
+                            <div className={styles.analizesCount}>
                                 {Object.keys(donation.donorData.analyses || []).length} из{' '}
                                 {donation.donorData.type === PetType.DOG ? dogAnalizesCount : catAnalizesCount}
                             </div>

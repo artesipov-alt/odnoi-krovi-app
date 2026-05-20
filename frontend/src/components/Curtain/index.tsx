@@ -6,6 +6,7 @@ import styles from './Curtain.module.less';
 
 type Props = {
     title?: ReactNode;
+    className?: string;
     subTitle?: ReactNode;
     onClose?: () => void;
     onCancel?: () => void;
@@ -31,6 +32,7 @@ const Curtain: FC<Props> = ({
     onCancel,
     children,
     onConfirm,
+    className,
     backgroundImage,
     contentBorderRadius,
     contentOverflow,
@@ -64,7 +66,7 @@ const Curtain: FC<Props> = ({
 
     return (
         <div className={styles.wrapper} onClick={onWrapperClickHandler}>
-            <div className={styles.content} style={contentStyle}>
+            <div className={cn(styles.content, className)} style={contentStyle}>
                 {!!title && <div className={styles.title}>{title}</div>}
                 {subTitle && <div className={cn(styles.subTitle, subTitleClassName)}>{subTitle}</div>}
                 {children}

@@ -40,3 +40,12 @@ export const isExpiredDate = (expiresAt: string): boolean => {
 
     return currentTime > expirationTime;
 };
+
+export const isWithinHours = (startTime: string, hours: number): boolean => {
+    const updateDate = new Date(startTime).getTime();
+    const now = new Date().getTime();
+    const diffInMs = now - updateDate;
+    const thresholdInMs = hours * 60 * 60 * 1000;
+
+    return diffInMs < thresholdInMs;
+};

@@ -89,6 +89,8 @@ const Owner: FC<Props> = ({ userId }) => {
         if (newView === Role.DONOR && !userData?.donorPreference) {
             setIsDonorPreferenceOnboardingWasShown(false);
         }
+
+        localStorage.setItem('view', JSON.stringify(newView));
     };
 
     const onPetProfileToggleHandler = (petData: Pet | null) => () => {
@@ -430,8 +432,27 @@ const Owner: FC<Props> = ({ userId }) => {
             return;
         }
 
+        if (window.location.hash.startsWith('#petId=')) {
+            const id = window.location.hash.substring('#petId='.length);
+
+            setIsPetProfileOpen(true);
+            setSelectedPet(pets?.pets.find((pet) => pet.id === id) || null);
+        }
+
+        if (!window.location.hash) {
+            const lastView = localStorage.getItem('view');
+
+            setView((JSON.parse(lastView || '') as View) || Role.RECIPIENT);
+
+            if (lastView) {
+                window.location.hash = `#${JSON.parse(lastView)}`;
+            }
+
+            return;
+        }
+
         window.location.hash = '#recipient';
-    }, []);
+    }, [pets]);
 
     useEffect(() => {
         if (!pets) {
@@ -566,7 +587,9 @@ const Owner: FC<Props> = ({ userId }) => {
                                 <span className={styles.counterIcon}>
                                     <Bonus />
                                 </span>
-                                <span className={styles.bonusCounterValue}>{pets?.totalBonuses || 0}</span>
+                                <span className={styles.bonusCounterValue}>
+                                    {(pets?.totalBonuses || 0) + (pets?.totalPrioritySearch || 0) || 0}
+                                </span>
                             </button>
                         </>
                     )}

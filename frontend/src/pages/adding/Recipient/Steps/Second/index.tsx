@@ -167,11 +167,10 @@ const Second: FC<Props> = ({
 
     return (
         <>
-            <div className={styles.formItem}>
+            <div className={cn(styles.formItem, { [styles.hide]: !pets?.totalPrioritySearch })}>
                 <div
                     className={cn(styles.labelWrapper, {
                         [styles.noMargin]: true,
-                        [styles.disabled]: !pets?.totalPrioritySearch,
                     })}
                 >
                     <div className={styles.priorityTitle}>

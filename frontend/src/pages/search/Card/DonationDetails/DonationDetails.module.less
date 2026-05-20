@@ -112,33 +112,6 @@
     background: @white;
     box-sizing: border-box;
 
-    &.noActive {
-        opacity: 0.6;
-        pointer-events: none;
-
-        & .tileTitle {
-            color: @textColor4;
-        }
-
-        & .arrowTileIcon {
-            display: none;
-        }
-    }
-
-    &.disabled {
-        opacity: 0.6;
-        pointer-events: none;
-
-        & .tileTitle {
-            color: @textColor4;
-        }
-
-        & .arrowTileIcon
-        {
-            display: none;
-        }
-    }
-
     &.hide {
         visibility: hidden;
     }
@@ -521,18 +494,70 @@
     opacity: .6;
 }
 
-.completedTile {
+.count {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     width: 100%;
-    padding: 16px;
+    padding: 12px 12px 12px 16px;
+    border-radius: 10px;
+    color: @white-bg;
+    background: @textColor1;
+}
+
+.timerWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.countTimer {
+    display: flex;
+    align-items: center;
+}
+
+.countDigits {
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+.countSeparator {
+    padding: 0 3px;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.timerText {
+    margin: 0;
+    padding-right: 5px;
+    width: 41%;
     color: @white6;
-    text-align: center;
     font-family: Marmelad, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 16px;
-    border-radius: 10px;
-    background: @textColor1;
+    border-right: 1px solid @grayBg34;
 }
+
+.timerCaption {
+    margin: 0;
+    color: @grayBg35;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 9px;
+    opacity: .7;
+}
+
+//.countDivider {
+//    width: 1px;
+//    height: 100%;
+//    background: @grayBg34;
+//}
 
 .donorConfirmationSubTitle {
     margin-top: 16px;

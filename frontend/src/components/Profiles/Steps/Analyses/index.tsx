@@ -20,7 +20,7 @@ type Props = {
     petType?: string;
     isEditMode: boolean;
     onClose: () => void;
-    analyses: AnalysesType;
+    analyses?: AnalysesType;
     onErrorUpdate?: () => void;
     onSuccessUpdate?: () => void;
 };
