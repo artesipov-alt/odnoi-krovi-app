@@ -9,7 +9,7 @@
     # Проксирование скрипта Telegram Mini App
     handle_path /tg-js/* {
         # Дописываем секрет к запросу перед отправкой на мост
-        rewrite * {uri}?secret="{$BRIDGE_TOKEN}"
+        rewrite * {uri}?secret={$BRIDGE_TOKEN}
 
         reverse_proxy https://bridge.1krovi.app {
             header_up Host bridge.1krovi.app
