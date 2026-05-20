@@ -8,8 +8,8 @@
 
     # Проксируем скрипты Telegram Mini App через зарубежный мост
     handle_path /tg-js/* {
-        reverse_proxy https://tg-proxy.odnokrovi.app {
-            header_up Host tg-proxy.odnokrovi.app
+        reverse_proxy https://bridge.1krovi.app {
+            header_up Host bridge.1krovi.app
             header_up X-Proxy-Secret "{$BRIDGE_TOKEN}"
         }
     }
