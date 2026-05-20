@@ -52,6 +52,20 @@ services:
       - redis_default
     restart: unless-stopped
 
+  tg-bot:
+    image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:latest
+    environment:
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN_DEV}
+      INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
+      MINIAPP_DOMAIN: https://dev.1krovi.app # поменял
+      API_BASE_URL: https://dev.1krovi.app/api # поменял
+      REDIS_HOST: redis_prod # Redis на этом же сервере
+      REDIS_PORT: 6379
+    networks:
+      - odnoi_net
+      - redis_default
+    restart: unless-stopped
+
   frontend:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/frontend:dev # тег :dev
     ports:
