@@ -517,12 +517,12 @@ const DonationDetails: FC<Props> = ({
                 )}
                 {status === RespondingDonorStatus.COMPLETED && (
                     <>
-                        {isWithinHours(updatedAt, 0.16) && (
+                        {isWithinHours(updatedAt, 48) && (
                             <div className={styles.count}>
                                 <p className={styles.timerText}>Хозяин донора сообщил о донации</p>
                                 <div className={styles.timerWrapper}>
                                     <Timer
-                                        hoursToAdd={0.16}
+                                        hoursToAdd={48}
                                         updatedAt={updatedAt}
                                         className={styles.countTimer}
                                         onTimeEnd={onEndTimerClickHandler}
