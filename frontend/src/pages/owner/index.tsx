@@ -442,7 +442,7 @@ const Owner: FC<Props> = ({ userId }) => {
         if (!window.location.hash) {
             const lastView = localStorage.getItem('view');
 
-            setView((JSON.parse(lastView || '') as View) || Role.RECIPIENT);
+            setView(lastView ? (JSON.parse(lastView) as View) : Role.RECIPIENT);
 
             if (lastView) {
                 window.location.hash = `#${JSON.parse(lastView)}`;
