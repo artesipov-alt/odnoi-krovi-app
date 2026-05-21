@@ -23,7 +23,7 @@ const redisUrl =
 export const redis = new Redis(redisUrl, {
   connectTimeout: 5000,
   lazyConnect: true,
-  db: 0,
+  db: Bun.env.ENV === "development" ? 1 : 0,
 });
 
 // API Configuration
