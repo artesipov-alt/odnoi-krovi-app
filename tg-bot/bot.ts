@@ -18,8 +18,8 @@ async function main() {
   // Установка команд бота
   await bot.api.setMyCommands([
     { command: "start", description: "Запустить бота" },
-    { command: "profile", description: "Профиль пользователя" },
-    { command: "help", description: "Помощь" },
+    // { command: "profile", description: "Профиль пользователя" },
+    // { command: "help", description: "Помощь" },
   ]);
 
   bot.api.config.use();
@@ -32,9 +32,9 @@ async function main() {
   bot.command("api", apiTestHandler);
 
   //Колбэки (нажатия на кнопки)
-  bot.callbackQuery("profile", profileHandler);
-  bot.callbackQuery("help", helpHandler);
-  bot.callbackQuery("back", startHandler);
+  // bot.callbackQuery("profile", profileHandler);
+  // bot.callbackQuery("help", helpHandler);
+  // bot.callbackQuery("back", startHandler);
 
   const { first_name, last_name, id } = await bot.api.getMe();
 
