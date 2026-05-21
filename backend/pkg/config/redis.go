@@ -49,10 +49,15 @@ func NewRedisClientFromEnv() (*redis.Client, error) {
 	redisPort := getEnv("REDIS_PORT", "6379")
 	redisAddr := getEnv("REDIS_ADDR", redisHost+":"+redisPort)
 
+	db := getEnvAsInt("REDIS_DB", 0)
+	if os.Getenv("ENV") == "development" {
+		db = 1
+	}
+
 	config := Config{
 		RedisAddr:     redisAddr,
 		RedisPassword: getEnv("REDIS_PASSWORD", ""),
-		RedisDB:       getEnvAsInt("REDIS_DB", 0),
+		RedisDB:       db,
 	}
 
 	return NewRedisClient(config.RedisAddr, config.RedisPassword, config.RedisDB)
