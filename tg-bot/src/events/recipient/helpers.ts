@@ -36,7 +36,3 @@ export const generateDonationMessage = (params: {
 
   return `Донация подтверждена (реципиент ${params.recipientPetName}, группа ${recipientBloodGroup}). Спасибо за Вашу помощь! Вам начислены бонусы – посмотрите их на Портале.`;
 };
-
-export const generateVCF = (name: string, phone: string): string => {
-  return `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${name}\r\nTEL:${phone}\r\nEND:VCARD`;
-};

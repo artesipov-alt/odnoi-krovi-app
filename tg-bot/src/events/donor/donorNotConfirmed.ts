@@ -4,7 +4,6 @@ import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
 interface DonorNotConfirmedEvent {
   DonorPetName: string;
   DonorBloodGroup: string;
-  DonorProviderTelegramID: string;
   RecipientPetName: string;
   RecipientBloodGroup: string;
   RecipientUserData: {
@@ -26,7 +25,6 @@ export const handleDonorNotConfirmed = async (
   const {
     DonorPetName,
     DonorBloodGroup,
-    DonorProviderTelegramID,
     RecipientPetName,
     RecipientBloodGroup,
     RecipientUserData,
@@ -34,17 +32,20 @@ export const handleDonorNotConfirmed = async (
   } = event;
 
   // Notify donor
-  if (DonorProviderTelegramID && DonorProviderTelegramID.trim() !== "") {
+  if (
+    DonorUserData.ProviderTelegram &&
+    DonorUserData.ProviderTelegram.trim() !== ""
+  ) {
     try {
       const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
 
-      await sendTelegramMessage(DonorProviderTelegramID, donorMessage);
+      await sendTelegramMessage(DonorUserData.ProviderTelegram, donorMessage);
 
       // Отправляем контакт реципиента
       if (RecipientUserData.ProviderTelegram && RecipientUserData.Phone) {
         const nameParts = RecipientUserData.Name.split(" ");
         await sendTelegramContact(
-          DonorProviderTelegramID,
+          DonorUserData.ProviderTelegram,
           RecipientUserData.Phone,
           nameParts[0] || RecipientUserData.Name,
           { last_name: nameParts.slice(1).join(" ") || undefined },
@@ -53,14 +54,14 @@ export const handleDonorNotConfirmed = async (
 
       pinologger.info(
         {
-          donorId: DonorProviderTelegramID,
+          donorId: DonorUserData.ProviderTelegram,
           recipientPetName: RecipientPetName,
         },
         "Sent donor not confirmed notification to donor",
       );
     } catch (err) {
       pinologger.error(
-        { error: err, donorId: DonorProviderTelegramID },
+        { error: err, donorId: DonorUserData.ProviderTelegram },
         "Failed to send donor not confirmed notification to donor",
       );
     }
