@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 
 import {
   generateRecipientMessage,
@@ -53,37 +54,50 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
     return;
   }
 
+  // Отправляем уведомление реципиенту
   try {
     const recipientMessage = generateRecipientMessage({
       donorName: DonorData.PetName,
       donorBloodGroup: DonorData.BloodGroup,
     });
 
+    await sendMessageToUser(recipientProviderMaxID, recipientMessage, {
+      attachments: [
+        {
+          type: "contact",
+          payload: {
+            name: DonorData.UserName,
+            contact_id: Number(donorProviderMaxID),
+            vcf_phone: DonorData.Phone,
+            vcf_info: generateVCF(DonorData.UserName, DonorData.Phone),
+          },
+        },
+      ],
+    });
+
+    pinologger.info(
+      {
+        recipientId: recipientProviderMaxID,
+        donorName: DonorData.PetName,
+      },
+      "Sent donor apply notification to recipient",
+    );
+  } catch (err) {
+    pinologger.error(
+      { error: err, recipientId: recipientProviderMaxID },
+      "Failed to send donor apply notification to recipient",
+    );
+  }
+
+  // Отправляем уведомление донору (независимо от отправки реципиенту)
+  try {
     const donorMessage = generateDonorMessage({
       recipientName: RecipientData.PetName,
       recipientBloodGroup: RecipientData.BloodGroup,
       recipientVolume: RecipientData.Volume,
     });
 
-    await bot.api.sendMessageToUser(
-      Number(recipientProviderMaxID),
-      recipientMessage,
-      {
-        attachments: [
-          {
-            type: "contact",
-            payload: {
-              name: DonorData.UserName,
-              contact_id: Number(donorProviderMaxID),
-              vcf_phone: DonorData.Phone,
-              vcf_info: generateVCF(DonorData.UserName, DonorData.Phone),
-            },
-          },
-        ],
-      },
-    );
-
-    await bot.api.sendMessageToUser(Number(donorProviderMaxID), donorMessage, {
+    await sendMessageToUser(donorProviderMaxID, donorMessage, {
       attachments: [
         {
           type: "contact",
@@ -99,12 +113,15 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
     pinologger.info(
       {
-        recipientId: recipientProviderMaxID,
         donorId: donorProviderMaxID,
+        recipientPetName: RecipientData.PetName,
       },
-      "Sent donor apply notification and recipient contact",
+      "Sent donor apply notification to donor",
     );
   } catch (err) {
-    pinologger.error({ error: err }, "Failed to send message");
+    pinologger.error(
+      { error: err, donorId: donorProviderMaxID },
+      "Failed to send donor apply notification to donor",
+    );
   }
 };

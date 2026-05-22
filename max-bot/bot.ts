@@ -75,15 +75,15 @@ async function main() {
   // Redis subscriptions for events
   Object.keys(eventHandlers).forEach(subscribeToChannel);
 
-  redis.on("message", (channel, message) => {
+  redis.on("message", async (channel, message) => {
     const handler = eventHandlers[channel];
     if (handler) {
       try {
-        handler(JSON.parse(message));
+        await handler(JSON.parse(message));
       } catch (err) {
         pinologger.error(
-          { error: err },
-          `Failed to parse event for ${channel}`,
+          { error: err, channel },
+          `Failed to handle event for ${channel}`,
         );
       }
     } else {
@@ -98,10 +98,10 @@ async function main() {
   bot.catch(errorHandler);
 
   // Graceful shutdown
-  const shutdown = () => {
+  const shutdown = async () => {
     pinologger.info("Shutting down...");
     server.stop();
-    redis.quit();
+    await redis.quit();
     process.exit(0);
   };
 

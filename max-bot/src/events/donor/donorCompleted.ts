@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 
 interface DonorCompletedEvent {
   DonorPetName: string;
@@ -10,11 +11,7 @@ interface DonorCompletedEvent {
 }
 
 export const handleDonorCompleted = async (event: DonorCompletedEvent) => {
-  const {
-    DonorPetName,
-    DonorBloodGroup,
-    RecipientProviderMaxID,
-  } = event;
+  const { DonorPetName, DonorBloodGroup, RecipientProviderMaxID } = event;
 
   if (!RecipientProviderMaxID || RecipientProviderMaxID.trim() === "") {
     pinologger.warn(
@@ -30,7 +27,7 @@ export const handleDonorCompleted = async (event: DonorCompletedEvent) => {
 Через 3 дня донация будет подтверждена автоматически.
 Если донация еще не состоялась, можете отказаться и связаться с донором для уточнения деталей.`;
 
-    await bot.api.sendMessageToUser(Number(RecipientProviderMaxID), message);
+    await sendMessageToUser(RecipientProviderMaxID, message);
 
     pinologger.info(
       {

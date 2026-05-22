@@ -16,9 +16,9 @@ export const pinologger = pino({
   },
 });
 
-const redisUrl =
-  `redis://${Bun.env.REDIS_HOST}:${Bun.env.REDIS_PORT}` ||
-  "redis://localhost:6379";
+const redisHost = Bun.env.REDIS_HOST || "localhost";
+const redisPort = Bun.env.REDIS_PORT || "6379";
+const redisUrl = `redis://${redisHost}:${redisPort}`;
 
 export const redis = new Redis(redisUrl, {
   connectTimeout: 5000,

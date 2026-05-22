@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 
 import { generateVCF } from "../recipient/helpers";
 
@@ -41,26 +42,22 @@ export const handleDonorNotConfirmed = async (
     try {
       const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
 
-      await bot.api.sendMessageToUser(
-        Number(DonorProviderMaxID),
-        donorMessage,
-        {
-          attachments: [
-            {
-              type: "contact",
-              payload: {
-                name: RecipientUserData.Name,
-                contact_id: Number(RecipientUserData.ProviderMaxID),
-                vcf_phone: RecipientUserData.Phone,
-                vcf_info: generateVCF(
-                  RecipientUserData.Name,
-                  RecipientUserData.Phone,
-                ),
-              },
+      await sendMessageToUser(DonorProviderMaxID, donorMessage, {
+        attachments: [
+          {
+            type: "contact",
+            payload: {
+              name: RecipientUserData.Name,
+              contact_id: Number(RecipientUserData.ProviderMaxID),
+              vcf_phone: RecipientUserData.Phone,
+              vcf_info: generateVCF(
+                RecipientUserData.Name,
+                RecipientUserData.Phone,
+              ),
             },
-          ],
-        },
-      );
+          },
+        ],
+      });
 
       pinologger.info(
         {
@@ -85,8 +82,8 @@ export const handleDonorNotConfirmed = async (
     try {
       const recipientMessage = `Вы не подтвердили донацию (${DonorPetName}, группа ${DonorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
 
-      await bot.api.sendMessageToUser(
-        Number(RecipientUserData.ProviderMaxID),
+      await sendMessageToUser(
+        RecipientUserData.ProviderMaxID,
         recipientMessage,
         {
           attachments: [
