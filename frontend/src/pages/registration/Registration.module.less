@@ -2,13 +2,16 @@
 
 .wrapper {
     height: 100vh;
+    min-height: 600px;
 }
 
 .header {
+    position: relative;
     height: 120px;
     background: url('imgs/regHeader.png') no-repeat bottom;
     background-size: cover;
     text-align: center;
+    z-index: 1;
 }
 
 .title {
@@ -28,11 +31,14 @@
 }
 
 .form {
+    position: relative;
     padding: 0 40px 20px;
     height: calc(100vh - 140px);
+    min-height: 460px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    z-index: 0;
 }
 
 .textField {

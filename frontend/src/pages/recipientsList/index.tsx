@@ -155,41 +155,51 @@ const RecipientsList: FC<Props> = ({ userId }) => {
                 )}
                 {tab === 0 && !!list?.items.length && (
                     <div className={styles.showcase}>
-                        {list.items.map((pet) => (
-                            <div
-                                key={`${pet.petId}`}
-                                className={cn(styles.pet, { [styles[pet.petType]]: !pet?.photoUrls?.[0] })}
-                            >
-                                <div className={styles.photo} onClick={onPetClickHandler(pet.id)}>
-                                    {!!pet?.photoUrls?.[0] && (
-                                        <img
-                                            alt={pet.petName}
-                                            src={pet.photoUrls?.[0]}
-                                            className={cn(styles.img, { [styles.blured]: isBlur })}
-                                        />
-                                    )}
-                                    <div className={styles.info}>
-                                        <div className={styles.bloodGroup}>{pet.bloodGroupName}</div>
-                                        {!!pet.prioritySearch && (
-                                            <div className={styles.prioritySearch}>
-                                                <PrioritySearch />
-                                            </div>
+                        {[...list.items]
+                            .sort((a, b) => {
+                                if (a.prioritySearch && !b.prioritySearch) return -1;
+
+                                if (!a.prioritySearch && b.prioritySearch) return 1;
+
+                                return 0;
+                            })
+                            .map((pet) => (
+                                <div
+                                    key={`${pet.petId}`}
+                                    className={cn(styles.pet, { [styles[pet.petType]]: !pet?.photoUrls?.[0] })}
+                                >
+                                    <div className={styles.photo} onClick={onPetClickHandler(pet.id)}>
+                                        {!!pet?.photoUrls?.[0] && (
+                                            <img
+                                                alt={pet.petName}
+                                                src={pet.photoUrls?.[0]}
+                                                className={cn(styles.img, { [styles.blured]: isBlur })}
+                                            />
                                         )}
+                                        <div className={styles.info}>
+                                            <div className={styles.bloodGroup}>{pet.bloodGroupName}</div>
+                                            {!!pet.prioritySearch && (
+                                                <div className={styles.prioritySearch}>
+                                                    <PrioritySearch />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={styles.bloodVolume}>
+                                            <p className={styles.bloodVolumeNumber}>{pet.bloodVolumeRemaining}</p>
+                                            <p className={styles.bloodVolumeDescr}>мл</p>
+                                        </div>
+                                        <div className={styles.photoFooter}>
+                                            <p className={styles.name}>{pet.petName.toUpperCase()}</p>
+                                            {!!pet.matchingDonors?.length && (
+                                                <div className={styles.matchingDonors}>
+                                                    {pet?.matchingDonors?.length}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={styles.gradient} />
                                     </div>
-                                    <div className={styles.bloodVolume}>
-                                        <p className={styles.bloodVolumeNumber}>{pet.bloodVolumeRemaining}</p>
-                                        <p className={styles.bloodVolumeDescr}>мл</p>
-                                    </div>
-                                    <div className={styles.photoFooter}>
-                                        <p className={styles.name}>{pet.petName.toUpperCase()}</p>
-                                        {!!pet.matchingDonors?.length && (
-                                            <div className={styles.matchingDonors}>{pet?.matchingDonors?.length}</div>
-                                        )}
-                                    </div>
-                                    <div className={styles.gradient} />
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 )}
             </div>
