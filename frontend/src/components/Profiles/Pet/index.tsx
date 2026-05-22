@@ -650,6 +650,8 @@ const PetProfile: FC<Props> = ({
                                 </>
                             )
                         }
+                        shouldCloseByWrapperClick
+                        onClose={onCancelClickHandler}
                         onCancel={onCancelClickHandler}
                         onConfirm={onConfirmClickHandler}
                         confirmButtonTitle={curtain.step === CurtainSteps.CONFIRMATIONS ? 'Удалить' : 'Добавить нового'}

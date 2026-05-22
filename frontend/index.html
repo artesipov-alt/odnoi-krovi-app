@@ -5,11 +5,66 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="only light" />
         <title>Odnoi Krovi</title>
+
+        <!-- Встроенный стиль для прелоадера -->
+        <style>
+            #splash-screen {
+                position: fixed;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 768px;
+                width: 100vw;
+                height: 100vh;
+                background-image: url('./src/imgs/mainImg.png');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center bottom;
+                background-color: #000;
+                z-index: 9999999;
+                pointer-events: none;
+                transition: opacity 0.5s ease-out;
+            }
+        </style>
+
+        <!-- Подключение внешних скриптов Telegram и MAX -->
         <script src="https://st.max.ru/js/max-web-app.js"></script>
         <script src="/tg-js/js/telegram-web-app.js"></script>
     </head>
     <body>
+        <!-- Прелоадер -->
+        <div id="splash-screen"></div>
+
+        <!-- Основной контейнер приложения -->
         <div id="root"></div>
-        <script type="module" src="/src/main.tsx"></script>
+
+        <!-- Основной скрипт приложения -->
+        <script type="module">
+            const MIN_SPLASH_DURATION = 2000;  // минимум 3 секунды
+            const MAX_SPLASH_DURATION = 10000; // максимум 10 секунд
+            let startTime = Date.now();
+            let isHidden = false;
+
+            function hideSplash() {
+                if (isHidden) return;
+                isHidden = true;
+
+                const splash = document.getElementById('splash-screen');
+                if (!splash) return;
+
+                splash.style.opacity = '0';
+                setTimeout(() => splash.remove(), 500); // Удалить после анимации
+            }
+
+            // Скрыть по завершении загрузки основного модуля
+            import('/src/main.tsx').finally(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, MIN_SPLASH_DURATION - elapsed);
+                setTimeout(hideSplash, remaining);
+            });
+
+            // Гарантированное скрытие через 10 секунд, даже если что-то пошло не так
+            setTimeout(hideSplash, MAX_SPLASH_DURATION);
+        </script>
     </body>
 </html>
