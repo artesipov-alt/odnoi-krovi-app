@@ -106,7 +106,7 @@ func main() {
 			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
 			publisher = &events.NoOpEventPublisher{}
 		} else {
-			publisher = events.NewEventPublisher(redisClient)
+			publisher = events.NewEventPublisher(redisClient, env)
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.

@@ -22,11 +22,26 @@ const channelDonorCompleted = "donor_completed"
 const channelUserContact = "user_contact"
 
 type EventPublisher struct {
-	client *redis.Client
+	client    *redis.Client
+	envPrefix string
 }
 
-func NewEventPublisher(client *redis.Client) *EventPublisher {
-	return &EventPublisher{client: client}
+func NewEventPublisher(client *redis.Client, env string) *EventPublisher {
+	prefix := ""
+	if env == "development" || env == "dev" {
+		prefix = "dev:"
+	} else {
+		prefix = "prod:"
+	}
+
+	return &EventPublisher{
+		client:    client,
+		envPrefix: prefix,
+	}
+}
+
+func (p *EventPublisher) channel(name string) string {
+	return p.envPrefix + name
 }
 
 func (p *EventPublisher) PublishBloodRequestCreated(
@@ -38,7 +53,7 @@ func (p *EventPublisher) PublishBloodRequestCreated(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelBloodRequestCreated, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelBloodRequestCreated), payload).Err()
 }
 
 func (p *EventPublisher) PublishDonorApply(
@@ -50,7 +65,7 @@ func (p *EventPublisher) PublishDonorApply(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelDonorResponseApply, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelDonorResponseApply), payload).Err()
 }
 
 func (p *EventPublisher) PublishDonationConfirmed(
@@ -62,7 +77,7 @@ func (p *EventPublisher) PublishDonationConfirmed(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelDonationConfirmed, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelDonationConfirmed), payload).Err()
 }
 
 func (p *EventPublisher) PublishRecipientApply(
@@ -74,7 +89,7 @@ func (p *EventPublisher) PublishRecipientApply(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelRecipientResponseApply, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelRecipientResponseApply), payload).Err()
 }
 
 func (p *EventPublisher) PublishDonorCancel(
@@ -86,7 +101,7 @@ func (p *EventPublisher) PublishDonorCancel(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelDonorCancel, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelDonorCancel), payload).Err()
 }
 
 func (p *EventPublisher) PublishDonorReject(
@@ -98,7 +113,7 @@ func (p *EventPublisher) PublishDonorReject(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelDonorReject, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelDonorReject), payload).Err()
 }
 
 func (p *EventPublisher) PublishDonorNotConfirmed(
@@ -110,7 +125,7 @@ func (p *EventPublisher) PublishDonorNotConfirmed(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelDonorNotConfirmed, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelDonorNotConfirmed), payload).Err()
 }
 
 func (p *EventPublisher) PublishDonorCompleted(
@@ -122,7 +137,7 @@ func (p *EventPublisher) PublishDonorCompleted(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelDonorCompleted, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelDonorCompleted), payload).Err()
 }
 
 func (p *EventPublisher) PublishUserContact(
@@ -134,7 +149,7 @@ func (p *EventPublisher) PublishUserContact(
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return p.client.Publish(ctx, channelUserContact, payload).Err()
+	return p.client.Publish(ctx, p.channel(channelUserContact), payload).Err()
 }
 
 // NoOpEventPublisher is a no-operation event publisher that does nothing.
