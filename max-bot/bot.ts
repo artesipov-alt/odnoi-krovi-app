@@ -20,17 +20,21 @@ import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
 import { startServer } from "./src/server";
 
+const env = Bun.env.ENV || "production";
+const channelPrefix = env === "development" || env === "dev" ? "dev:" : "prod:";
+const channel = (name: string) => `${channelPrefix}${name}`;
+
 // Event handlers map для Redis
 const eventHandlers: Record<string, (event: any) => Promise<void>> = {
-  donor_response_apply: handleDonorApply,
-  recipient_response_apply: handleRecipientApply,
-  donor_cancel: handleDonorCancel,
-  donor_reject: handleDonorReject,
-  donor_not_confirmed: handleDonorNotConfirmed,
-  donor_completed: handleDonorCompleted,
-  blood_request_created: handleBloodRequestCreated,
-  donation_confirmed: handleDonationConfirmed,
-  user_contact: handleUserContact,
+  [channel("donor_response_apply")]: handleDonorApply,
+  [channel("recipient_response_apply")]: handleRecipientApply,
+  [channel("donor_cancel")]: handleDonorCancel,
+  [channel("donor_reject")]: handleDonorReject,
+  [channel("donor_not_confirmed")]: handleDonorNotConfirmed,
+  [channel("donor_completed")]: handleDonorCompleted,
+  [channel("blood_request_created")]: handleBloodRequestCreated,
+  [channel("donation_confirmed")]: handleDonationConfirmed,
+  [channel("user_contact")]: handleUserContact,
 };
 
 // Helper function for subscribing to channels
