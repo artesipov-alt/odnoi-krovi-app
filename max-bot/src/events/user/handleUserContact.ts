@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 import { generateVCF } from "../recipient/helpers";
 
 interface UserContactEvent {
@@ -17,14 +18,19 @@ interface UserContactEvent {
 export const handleUserContact = async (event: UserContactEvent) => {
   const { NotifyProvider, SendTo, UserData } = event;
 
-  if (
-    (NotifyProvider !== "telegram_bot" && NotifyProvider !== "max_bot") ||
-    !SendTo ||
-    SendTo.trim() === ""
-  ) {
+  // Обрабатываем только события, предназначенные для Max Bot
+  if (NotifyProvider !== "max_bot") {
     pinologger.warn(
-      { notifyProvider: NotifyProvider, sendTo: SendTo },
-      "Invalid provider or SendTo is empty, skipping notification",
+      { notifyProvider: NotifyProvider },
+      "NotifyProvider is not max_bot, skipping",
+    );
+    return;
+  }
+
+  if (!SendTo || SendTo.trim() === "") {
+    pinologger.warn(
+      { notifyProvider: NotifyProvider },
+      "SendTo is empty, skipping notification",
     );
     return;
   }
@@ -32,18 +38,13 @@ export const handleUserContact = async (event: UserContactEvent) => {
   try {
     const message = `Контакт пользователя`;
 
-    const contactId =
-      NotifyProvider === "max_bot"
-        ? Number(UserData.ProviderMaxID)
-        : Number(UserData.ProviderTelegram);
-
-    await bot.api.sendMessageToUser(Number(SendTo), message, {
+    await sendMessageToUser(SendTo, message, {
       attachments: [
         {
           type: "contact",
           payload: {
             name: UserData.Name,
-            contact_id: contactId,
+            contact_id: Number(UserData.ProviderMaxID),
             vcf_phone: UserData.Phone,
             vcf_info: generateVCF(UserData.Name, UserData.Phone),
           },

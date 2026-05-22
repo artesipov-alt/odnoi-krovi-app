@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 
 import { generateMessage } from "./helpers";
 
@@ -40,7 +41,7 @@ export const handleRecipientApply = async (event: RecipientApplyEvent) => {
       donorBloodGroup: DonorBloodGroup,
     });
 
-    await bot.api.sendMessageToUser(Number(RecipientProviderMaxID), message);
+    await sendMessageToUser(RecipientProviderMaxID, message);
 
     pinologger.info(
       {

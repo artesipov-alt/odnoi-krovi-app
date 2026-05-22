@@ -1,10 +1,10 @@
 import { pinologger } from "../../instances";
-import { sendMessageToUser } from "../../max";
+import { sendTelegramMessage } from "../../telegram";
 
 interface DonorCancelEvent {
   DonorName: string;
   DonorBloodGroup: string;
-  RecipientProviderMaxID: string;
+  RecipientProviderTelegramID: string;
   RecipientPetName: string;
   CreatedAt: string;
 }
@@ -13,17 +13,20 @@ export const handleDonorCancel = async (event: DonorCancelEvent) => {
   const {
     DonorName,
     DonorBloodGroup,
-    RecipientProviderMaxID,
+    RecipientProviderTelegramID,
     RecipientPetName,
   } = event;
 
   const donorBloodGroup =
     DonorBloodGroup === "UNKNOWN" ? "не определена" : DonorBloodGroup;
 
-  if (!RecipientProviderMaxID || RecipientProviderMaxID.trim() === "") {
+  if (
+    !RecipientProviderTelegramID ||
+    RecipientProviderTelegramID.trim() === ""
+  ) {
     pinologger.warn(
       { donorName: DonorName },
-      "RecipientProviderMaxID is empty, skipping notification",
+      "RecipientProviderTelegramID is empty, skipping notification",
     );
     return;
   }
@@ -31,18 +34,18 @@ export const handleDonorCancel = async (event: DonorCancelEvent) => {
   try {
     const message = `Донор (${DonorName}, группа ${donorBloodGroup}) отказался от донации. Можете найти нового донора на Портале.`;
 
-    await sendMessageToUser(RecipientProviderMaxID, message);
+    await sendTelegramMessage(RecipientProviderTelegramID, message);
 
     pinologger.info(
       {
-        recipientId: RecipientProviderMaxID,
+        recipientId: RecipientProviderTelegramID,
         donorName: DonorName,
       },
       "Sent donor cancel notification",
     );
   } catch (err) {
     pinologger.error(
-      { error: err },
+      { error: err, recipientId: RecipientProviderTelegramID },
       "Failed to send donor cancel notification",
     );
   }

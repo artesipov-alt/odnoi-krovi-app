@@ -1,15 +1,12 @@
 import { pinologger } from "../../instances";
-import { sendMessageToUser } from "../../max";
-import { getAppOpenKeyboard } from "../../keyboards";
-
-import { generateDonationMessage } from "./helpers";
+import { sendTelegramMessage } from "../../telegram";
+import { InlineKeyboard } from "grammy";
 
 // Уведомление о подтвержденной донации (от реципиента донору).
 interface DonationConfirmedEvent {
   DonorData: {
     UserName: string;
     PetName: string;
-    ProviderMaxID: string;
     ProviderTelegram: string;
     Phone: string;
     BloodGroup: string;
@@ -21,17 +18,30 @@ interface DonationConfirmedEvent {
   Volume: number; // Объем донации в мл
 }
 
+const generateDonationMessage = (params: {
+  volume: number;
+  recipientPetName: string;
+  recipientBloodGroup: string;
+}): string => {
+  const recipientBloodGroup =
+    params.recipientBloodGroup === "UNKNOWN"
+      ? "не определена"
+      : params.recipientBloodGroup;
+
+  return `Донация подтверждена (реципиент ${params.recipientPetName}, группа ${recipientBloodGroup}). Спасибо за Вашу помощь! Вам начислены бонусы – посмотрите их на Портале.`;
+};
+
 export const handleDonationConfirmed = async (
   event: DonationConfirmedEvent,
 ) => {
   const { DonorData, RecipientData, Volume } = event;
 
-  const targetId = DonorData.ProviderMaxID;
+  let targetId = DonorData.ProviderTelegram;
 
   if (!targetId || targetId.trim() === "") {
     pinologger.warn(
       { donorUserName: DonorData.UserName },
-      "Donor ProviderMaxID is empty, skipping notification",
+      "Donor ProviderTelegram is empty, skipping notification",
     );
     return;
   }
@@ -43,8 +53,14 @@ export const handleDonationConfirmed = async (
       recipientBloodGroup: RecipientData.BloodGroup,
     });
 
-    await sendMessageToUser(targetId, message, {
-      attachments: [getAppOpenKeyboard()],
+    // Клавиатура для открытия приложения
+    const keyboard = new InlineKeyboard().webApp(
+      "Открыть приложение",
+      Bun.env.WEB_APP_URL || "https://app.1krovi.app",
+    );
+
+    await sendTelegramMessage(targetId, message, {
+      reply_markup: keyboard,
     });
 
     pinologger.info(

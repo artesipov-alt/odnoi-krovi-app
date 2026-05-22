@@ -1,6 +1,6 @@
 import { pinologger } from "../../instances";
-import { sendMessageToUser } from "../../max";
-import { getAppOpenKeyboard } from "../../keyboards";
+import { sendTelegramMessage } from "../../telegram";
+import { InlineKeyboard } from "grammy";
 
 interface BloodRequestCreatedEvent {
   RequestID: string;
@@ -19,21 +19,28 @@ export const handleBloodRequestCreated = async (
   pinologger.info({ event }, "Received blood_request_created event");
   const { BloodTypes, Regions, AvilableDonors } = event;
 
+  // Создаем клавиатуру для открытия приложения
+  const keyboard = new InlineKeyboard().webApp(
+    "Стать донором",
+    Bun.env.WEB_APP_URL || "https://app.1krovi.app",
+  );
+
   for (const donor of AvilableDonors) {
-    const targetId = donor.MaxID;
+    const targetId = donor.TelegramID;
 
     if (!targetId || targetId.trim() === "") {
-      pinologger.warn({ donor }, "Donor MaxID is empty, skipping notification");
+      pinologger.warn(
+        { donor },
+        "Donor TelegramID is empty, skipping notification",
+      );
       continue;
     }
 
     try {
       const message = `Питомцам нужна ваша помощь!\n\nНажмите "Стать донором" в приложении, чтобы узнать детали.`;
 
-      const keyboard = getAppOpenKeyboard();
-
-      await sendMessageToUser(targetId, message, {
-        attachments: [keyboard],
+      await sendTelegramMessage(targetId, message, {
+        reply_markup: keyboard,
       });
 
       pinologger.info(

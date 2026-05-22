@@ -1,22 +1,25 @@
 import { pinologger } from "../../instances";
-import { sendMessageToUser } from "../../max";
+import { sendTelegramMessage } from "../../telegram";
 
 interface DonorCompletedEvent {
   DonorPetName: string;
   DonorBloodGroup: string;
-  RecipientProviderMaxID: string;
+  RecipientProviderTelegramID: string;
   RecipientPetName: string;
   Amount: number;
   CreatedAt: string;
 }
 
 export const handleDonorCompleted = async (event: DonorCompletedEvent) => {
-  const { DonorPetName, DonorBloodGroup, RecipientProviderMaxID } = event;
+  const { DonorPetName, DonorBloodGroup, RecipientProviderTelegramID } = event;
 
-  if (!RecipientProviderMaxID || RecipientProviderMaxID.trim() === "") {
+  if (
+    !RecipientProviderTelegramID ||
+    RecipientProviderTelegramID.trim() === ""
+  ) {
     pinologger.warn(
       { donorPetName: DonorPetName },
-      "RecipientProviderMaxID is empty, skipping notification",
+      "RecipientProviderTelegramID is empty, skipping notification",
     );
     return;
   }
@@ -27,18 +30,18 @@ export const handleDonorCompleted = async (event: DonorCompletedEvent) => {
 Через 3 дня донация будет подтверждена автоматически.
 Если донация еще не состоялась, можете отказаться и связаться с донором для уточнения деталей.`;
 
-    await sendMessageToUser(RecipientProviderMaxID, message);
+    await sendTelegramMessage(RecipientProviderTelegramID, message);
 
     pinologger.info(
       {
-        recipientId: RecipientProviderMaxID,
+        recipientId: RecipientProviderTelegramID,
         donorPetName: DonorPetName,
       },
       "Sent donor completed notification",
     );
   } catch (err) {
     pinologger.error(
-      { error: err },
+      { error: err, recipientId: RecipientProviderTelegramID },
       "Failed to send donor completed notification",
     );
   }
