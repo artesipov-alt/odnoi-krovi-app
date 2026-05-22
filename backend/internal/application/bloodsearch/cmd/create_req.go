@@ -89,6 +89,9 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		return nil, err
 	}
 
+	// Логика события
+	// TODO: Вынести отдельно.
+
 	pets, err := h.petRepo.GetPetsByBloodGroupAndRegion(ctx, petRecipient.Type, newReq.SearchingBloodGroupNames(), req.Regions)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
@@ -125,8 +128,6 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		donorBloodReq := bloodReqsMap[pet.ID]
 		h.petService.RecalculateFactorsAndStatus(pet, timeNow, donorApplication, donorBloodReq)
 	}
-	// Логика события
-	// TODO: Вынести отдельно.
 
 	var avilableDonors []petmodel.Pet
 	for _, pet := range pets {
