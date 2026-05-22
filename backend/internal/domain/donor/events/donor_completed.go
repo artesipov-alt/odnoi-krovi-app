@@ -3,12 +3,13 @@ package events
 import "time"
 
 type DonorCompleted struct {
-	DonorPetName        string
-	DonorBloodGroup     string
-	RecipientProviderMaxID string
-	RecipientPetName    string
-	Amount              float64
-	CreatedAt           time.Time
+	DonorPetName                string
+	DonorBloodGroup             string
+	RecipientProviderMaxID      string
+	RecipientProviderTelegramID string
+	RecipientPetName            string
+	Amount                      float64
+	CreatedAt                   time.Time
 }
 
 func (e DonorCompleted) EventName() string     { return "DonorCompleted" }

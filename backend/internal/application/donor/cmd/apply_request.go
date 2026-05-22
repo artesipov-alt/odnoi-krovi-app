@@ -82,10 +82,13 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		return nil, apperrors.Internal(err, "failed to get recipient user")
 	}
 	var recipientProviderMaxID string
+	var recipientProviderTelegramID string
 	for _, identity := range recipientUser.Identities {
 		if identity.ProviderName == authmodel.ProviderMax {
 			recipientProviderMaxID = identity.ProviderUserID
-			break
+		}
+		if identity.ProviderName == authmodel.ProviderTelegram {
+			recipientProviderTelegramID = identity.ProviderUserID
 		}
 	}
 
@@ -106,6 +109,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 			DonorName:                       donorPet.Name,
 			DonorBloodGroup:                 donorBloodGroup,
 			RecipientProviderMaxID:          recipientProviderMaxID,
+			RecipientProviderTelegramID:     recipientProviderTelegramID,
 			RecipientPetName:                recipientPet.Name,
 			RecipientPetSearchingBloodGroup: req.BloodGroupNames,
 			RecipientPetNeededVolume:        req.BloodVolumeNeeded,

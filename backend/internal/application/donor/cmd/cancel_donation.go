@@ -124,14 +124,15 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 		return apperrors.Internal(err, "failed to get recipient user")
 	}
 
-	recipientProviderMaxID, _ := extractProviderIDs(recipientUser)
+	recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
 
 	event := donorevent.DonorCancel{
-		DonorName:              donorResponse.DonorName,
-		DonorBloodGroup:        donorResponse.DonorBloodGroup,
-		RecipientProviderMaxID: recipientProviderMaxID,
-		RecipientPetName:       recipientPet.Name,
-		CreatedAt:              time.Now(),
+		DonorName:                   donorResponse.DonorName,
+		DonorBloodGroup:             donorResponse.DonorBloodGroup,
+		RecipientProviderMaxID:      recipientProviderMaxID,
+		RecipientProviderTelegramID: recipientProviderTelegramID,
+		RecipientPetName:            recipientPet.Name,
+		CreatedAt:                   time.Now(),
 	}
 
 	if err := h.eventPublisher.PublishDonorCancel(ctx, event); err != nil {
