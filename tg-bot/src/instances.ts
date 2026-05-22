@@ -3,6 +3,7 @@ import { Configuration, AuthV1Api } from "../../shared/ts/index";
 
 import type { Context } from "grammy";
 import pino from "pino";
+import Redis from "ioredis";
 
 export const bot = new Bot<Context>(Bun.env.TG_BOT_TOKEN!, {
   client: {
@@ -53,3 +54,13 @@ const apiConfig = new Configuration({
 
 // API Client Instances
 export const usersApi = new AuthV1Api(apiConfig);
+
+const redisHost = Bun.env.REDIS_HOST || "localhost";
+const redisPort = Bun.env.REDIS_PORT || "6379";
+const redisUrl = `redis://${redisHost}:${redisPort}`;
+
+export const redis = new Redis(redisUrl, {
+  connectTimeout: 5000,
+  lazyConnect: true,
+  db: Bun.env.ENV === "development" ? 1 : 0,
+});
