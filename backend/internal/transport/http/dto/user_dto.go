@@ -39,7 +39,7 @@ type CreateUserInput struct {
 type CreateUserBody struct {
 	ProviderID   int64              `json:"providerId" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1"`
 	ProviderName string             `json:"providerName" doc:"Название мессенджера" minLength:"1" maxLength:"50" enum:"telegram_bot,max_bot"`
-	FullName     string             `json:"fullName" doc:"Полное имя пользователя" minLength:"2" maxLength:"255" example:"Иван Иванов"`
+	FullName     string             `json:"fullName" doc:"Полное имя пользователя" minLength:"1" maxLength:"255" example:"Иван Иванов"`
 	MetaData     *map[string]string `json:"metaData,omitempty" doc:"Метаданные пользователя"`
 }
 
