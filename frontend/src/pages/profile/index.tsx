@@ -26,9 +26,9 @@ import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 
+import Chat from './Chat';
 // import PromoSlider from 'components/PromoSlider';
 import styles from './Profile.module.less';
-import Chat from './Chat';
 
 type Props = {
     userId: string;
@@ -151,22 +151,6 @@ const normalizePhone = (value: string) => {
 
     return hasPlus ? `+${digits}` : digits;
 };
-
-// <script>
-//     appChatClient(
-//     {
-//         chatId: 'd0cbe3ec-06ab-495c-98f4-f686858b8f39',
-//     }, {
-//     host: document.getElementById('chat-client'),
-//     injectStyles: `
-//                   [data-id=chat-host] {
-//                     bottom: 8px;
-//                     right: 8px;
-//                     align-items: end;
-//                   }`,
-// }
-//     )
-// </script>
 
 const Profile: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
