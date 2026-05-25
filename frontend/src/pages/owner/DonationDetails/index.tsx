@@ -327,7 +327,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         <div onClick={onChatOpenHandler} className={styles.chatIcon}>
                             <Chat />
                         </div>
-                        {isWithinHours(donation.recipientData.updatedAt, 48) ? (
+                        {isWithinHours(donation.applicationData.updatedAt, 48) ? (
                             <div className={cn(styles.count, { [styles.completed]: true })}>
                                 <Timer
                                     hoursToAdd={48}
@@ -335,7 +335,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                                     onTimeEnd={onCompleteTimerExpired}
                                     digitClassName={styles.countDigits}
                                     separatorClassName={styles.countSeparator}
-                                    updatedAt={donation.recipientData.updatedAt}
+                                    updatedAt={donation.applicationData.updatedAt}
                                 />
                                 <p className={styles.timerText}>до подтверждения донации</p>
                             </div>
@@ -346,7 +346,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                 )}
             </div>
             {donation.applicationData.status === DonorStatus.PENDING &&
-                isWithinHours(donation.recipientData.updatedAt, 1) &&
+                isWithinHours(donation.applicationData.updatedAt, 1) &&
                 !isPendingTimerExpired && (
                     <div className={styles.count}>
                         <Timer
@@ -355,7 +355,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             onTimeEnd={onPendingTimerExpired}
                             digitClassName={styles.countDigits}
                             separatorClassName={styles.countSeparator}
-                            updatedAt={donation.recipientData.updatedAt}
+                            updatedAt={donation.applicationData.updatedAt}
                         />
                         <p className={styles.timerText}>до того, как сможете отказаться</p>
                     </div>
