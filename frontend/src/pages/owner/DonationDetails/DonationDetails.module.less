@@ -96,6 +96,56 @@
     width: 40px;
 }
 
+.count {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    min-width: 145px;
+    padding: 14px 0;
+    margin-top: 20px;
+    border-radius: 10px;
+    color: @white-bg;
+    background: @textColor1;
+    box-sizing: border-box;
+
+    &.completed {
+        padding: 8px 0;
+        width: 100%;
+        margin-top: 0;
+        min-width: unset;
+    }
+}
+
+.countTimer {
+    display: flex;
+    align-items: inherit;
+}
+
+.countDigits {
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 22px;
+}
+
+.countSeparator {
+    padding: 0 3px;
+    font-family: Marmelad, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.timerText {
+    margin: 0;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 14px;
+    opacity: .7;
+}
+
 .recipientInfo {
     margin: 20px 0 8px;
     padding: 18px 18px 22px;
@@ -594,6 +644,7 @@
 
 .chatIcon {
     display: flex;
+    flex-shrink: 0;
     width: 50px;
     height: 50px;
     border-radius: 6px;
@@ -786,6 +837,7 @@
     width: 82px;
     height: 104px;
     margin-top: 14px;
+    object-fit: cover;
     border-radius: 10px;
 }
 

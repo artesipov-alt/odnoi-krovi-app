@@ -1,8 +1,5 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
-import recListOnboarding1 from 'imgs/recListOnboarding1.png';
-import recListOnboarding2 from 'imgs/recListOnboarding2.png';
-import MainLogo from 'imgs/svg/mainLogo';
 import { FC, useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -29,8 +26,6 @@ const RecipientsListOnboarding: FC<Props> = ({ id, refetch, onBoarding }) => {
         if (step === 1) {
             setStep(2);
 
-            window.scrollTo(0, 0);
-
             return;
         }
 
@@ -49,18 +44,13 @@ const RecipientsListOnboarding: FC<Props> = ({ id, refetch, onBoarding }) => {
     };
 
     return (
-        <Layout>
-            <div className={styles.wrapper}>
+        <Layout className={cn(styles.wrapper, { [styles.second]: step === 2 })}>
+            <div>
                 <div className={styles.header}>
                     <div className={cn(styles.tab, { [styles.checked]: true })} />
                     <div className={cn(styles.tab, { [styles.checked]: step === 2 })} />
                 </div>
                 <>
-                    {step === 2 && (
-                        <div className={styles.logo}>
-                            <MainLogo />
-                        </div>
-                    )}
                     <h1 className={cn(styles.title, { [styles.second]: step === 2 })}>
                         {step === 1 ? (
                             <>Выбирайте питомцев в беде или клиники, сдавайте кровь и спасайте жизни!</>
@@ -73,17 +63,12 @@ const RecipientsListOnboarding: FC<Props> = ({ id, refetch, onBoarding }) => {
                             Часто помощь нужна питомцам в критическом состоянии, поэтому все фото скрыты по умолчанию
                         </div>
                     )}
-                    <img
-                        alt='search1'
-                        src={step === 1 ? recListOnboarding1 : recListOnboarding2}
-                        className={cn(styles.img, { [styles.second]: step === 2 })}
-                    />
-                    <div className={styles.button}>
-                        <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
-                            Далее
-                        </Button>
-                    </div>
                 </>
+            </div>
+            <div className={styles.button}>
+                <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
+                    Далее
+                </Button>
             </div>
         </Layout>
     );

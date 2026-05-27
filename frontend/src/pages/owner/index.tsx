@@ -58,6 +58,35 @@ const tabs = [
     { title: 'Планируемые донации', ind: 1 },
 ];
 
+const getPriority = (pet: Pet) => {
+    if (pet.petStatus === Role.RECOVERING) return 4;
+
+    if (pet.petStatus === Role.PLANNED_DONATION) return 3;
+
+    if (pet.donorRestrictions?.stopFactors?.length) return 5;
+
+    if (pet.donorRestrictions?.warnFactors?.length) return 2;
+
+    return 1; // ни одно условие не подходит — высший приоритет
+};
+
+const sortPets = (pets: Pet[], view: View) => {
+    if (view === Role.RECIPIENT) {
+        const statusOrder: Record<string, number> = {
+            [Role.BLOOD_FOUND]: 0,
+            [Role.RECIPIENT]: 1,
+            [Role.NONE]: 2,
+            [Role.PLANNED_DONATION]: 3,
+            [Role.RECOVERING]: 4,
+            [Role.DONOR]: 4,
+        };
+
+        return [...pets].sort((a, b) => statusOrder[a.petStatus] - statusOrder[b.petStatus]);
+    }
+
+    return [...pets].sort((a, b) => getPriority(a) - getPriority(b));
+};
+
 const Owner: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
 
@@ -89,6 +118,8 @@ const Owner: FC<Props> = ({ userId }) => {
         if (newView === Role.DONOR && !userData?.donorPreference) {
             setIsDonorPreferenceOnboardingWasShown(false);
         }
+
+        localStorage.setItem('view', JSON.stringify(newView));
     };
 
     const onPetProfileToggleHandler = (petData: Pet | null) => () => {
@@ -430,8 +461,27 @@ const Owner: FC<Props> = ({ userId }) => {
             return;
         }
 
+        if (window.location.hash.startsWith('#petId=')) {
+            const id = window.location.hash.substring('#petId='.length);
+
+            setIsPetProfileOpen(true);
+            setSelectedPet(pets?.pets.find((pet) => pet.id === id) || null);
+        }
+
+        if (!window.location.hash) {
+            const lastView = localStorage.getItem('view');
+
+            setView(lastView ? (JSON.parse(lastView) as View) : Role.RECIPIENT);
+
+            if (lastView) {
+                window.location.hash = `#${JSON.parse(lastView)}`;
+            }
+
+            return;
+        }
+
         window.location.hash = '#recipient';
-    }, []);
+    }, [pets]);
 
     useEffect(() => {
         if (!pets) {
@@ -566,7 +616,9 @@ const Owner: FC<Props> = ({ userId }) => {
                                 <span className={styles.counterIcon}>
                                     <Bonus />
                                 </span>
-                                <span className={styles.bonusCounterValue}>{pets?.totalBonuses || 0}</span>
+                                <span className={styles.bonusCounterValue}>
+                                    {(pets?.totalBonuses || 0) + (pets?.totalPrioritySearch || 0) || 0}
+                                </span>
                             </button>
                         </>
                     )}
@@ -626,7 +678,7 @@ const Owner: FC<Props> = ({ userId }) => {
                         {tab === 0 && (
                             <div className={cn(styles.showcase, { [styles.donorView]: view === 'donor' })}>
                                 {view === 'donor' && renderSettingsTab()}
-                                {pets.pets.map((pet) => (
+                                {sortPets(pets.pets, view).map((pet) => (
                                     <div key={`${pet.id}`} className={cn(styles.pet, { [styles[pet.type]]: true })}>
                                         <div className={styles.photo} onClick={onPetProfileToggleHandler(pet)}>
                                             {!!pet.photoUrls?.[0] && (

@@ -1,6 +1,5 @@
 import { Button } from '@mui/material';
 import cn from 'classnames';
-import donorShowcaseStart from 'imgs/donorShowcaseStart.png';
 import BoneBig from 'imgs/svg/boneBig';
 import NotPaid from 'imgs/svg/notPaid';
 import Paid from 'imgs/svg/paid';
@@ -89,7 +88,6 @@ const DonorsShowcase: FC<Props> = ({
                 <div role='button' onClick={onCLoseSearchClickHandler} className={styles.cancelButton}>
                     Завершить поиск
                 </div>
-                <img className={styles.startViewImg} src={donorShowcaseStart} alt='donorShowcaseStart' />
             </div>
         );
     }

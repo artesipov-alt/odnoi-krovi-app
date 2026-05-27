@@ -1,5 +1,4 @@
 import { Button } from '@mui/material';
-import onboarding from 'imgs/recipientOnboarding.png';
 import { FC } from 'react';
 
 import { updateUser } from 'api/apiServices/updateUser';
@@ -25,18 +24,15 @@ const RecipientOnboarding: FC<Props> = ({ id, onboardings, onConfirmButtonClick 
     };
 
     return (
-        <Layout>
-            <div className={styles.wrapper}>
-                <h1 className={styles.title}>
-                    Ищите кровь и следите
-                    <br />
-                    за статусом поиска
-                </h1>
-                <img className={styles.photos} alt='map' src={onboarding} />
-                <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
-                    Далее
-                </Button>
-            </div>
+        <Layout className={styles.wrapper}>
+            <h1 className={styles.title}>
+                Ищите кровь и следите
+                <br />
+                за статусом поиска
+            </h1>
+            <Button fullWidth onClick={onConfirmButtonClickHandler} className={styles.confirm}>
+                Далее
+            </Button>
         </Layout>
     );
 };

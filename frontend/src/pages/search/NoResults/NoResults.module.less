@@ -1,8 +1,33 @@
 @import 'styles/colors';
 
+.wrapper {
+    height: 100%;
+    margin: 0 auto;
+    background: url('imgs/noDonorBg.png') no-repeat center 85%;
+    background-size: 100%;
+
+    @media (orientation: landscape) {
+        max-width: 450px;
+        min-height: 500px;
+        background: url('imgs/noDonorBg.png') no-repeat center center;
+        background-size: 100%;
+    }
+
+    &.clinicsTab {
+        background: url('imgs/clinicsBg1.png') no-repeat center bottom;
+        background-size: 100%;
+
+        @media (orientation: landscape) {
+            max-width: 550px;
+            min-height: 600px;
+        }
+    }
+}
+
 .title {
     width: 80%;
-    margin: 125px auto 14px;
+    margin: 0 auto 14px;
+    padding-top: 20px;
     color: @textColor2;
     text-align: center;
     font-family: Marmelad, sans-serif;
@@ -20,15 +45,4 @@
     font-weight: 400;
     line-height: 15px;
     opacity: .6;
-}
-
-.noPackets {
-    display: block;
-    width: 73%;
-    margin: 50px auto 0;
-
-    &.donorsTab {
-        width: 95%;
-        margin: 60px auto 0;
-    }
 }

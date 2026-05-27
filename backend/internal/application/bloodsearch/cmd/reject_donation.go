@@ -86,7 +86,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	// Publish DonorReject event
+	// Publish events
 	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, donorResponseID, false)
 	if err != nil {
 		return err
@@ -111,24 +111,25 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	donorProviderMaxID, _ := extractProviderIDs(donorUser)
+	donorProviderMaxID, donorProviderTelegramID := extractProviderIDs(donorUser)
 
 	switch application.Status {
 	case donormodel.DonorResponseStatusRejected:
 		event := donorevent.DonorReject{
-			RecipientPetName:    recipientPet.Name,
-			RecipientBloodGroup: recipientPet.BloodGroupName,
-			DonorProviderMaxID:  donorProviderMaxID,
-			DonorPetName:        donorPet.Name,
-			RejectedReason:      rejectedReason,
-			CreatedAt:           time.Now(),
+			RecipientPetName:        recipientPet.Name,
+			RecipientBloodGroup:     recipientPet.BloodGroupName,
+			DonorProviderMaxID:      donorProviderMaxID,
+			DonorProviderTelegramID: donorProviderTelegramID,
+			DonorPetName:            donorPet.Name,
+			RejectedReason:          rejectedReason,
+			CreatedAt:               time.Now(),
 		}
 
 		if err := h.publisher.PublishDonorReject(ctx, event); err != nil {
 			return err
 		}
 	case donormodel.DonorResponseStatusAccepted:
-		recipientProviderMaxID, _ := extractProviderIDs(recipientUser)
+		recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
 
 		notConfirmedEvent := donorevent.DonorNotConfirmed{
 			DonorPetName:        donorPet.Name,
@@ -139,13 +140,13 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			RecipientUserData: donorevent.ContactData{
 				Name:             recipientUser.FullName,
 				ProviderMaxID:    recipientProviderMaxID,
-				ProviderTelegram: "", // if needed
+				ProviderTelegram: recipientProviderTelegramID,
 				Phone:            recipientUser.Phone,
 			},
 			DonorUserData: donorevent.ContactData{
 				Name:             donorUser.FullName,
 				ProviderMaxID:    donorProviderMaxID,
-				ProviderTelegram: "", // if needed
+				ProviderTelegram: donorProviderTelegramID,
 				Phone:            donorUser.Phone,
 			},
 			CreatedAt: time.Now(),

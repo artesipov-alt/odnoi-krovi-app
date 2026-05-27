@@ -1,6 +1,4 @@
 import cn from 'classnames';
-import noDonorBg from 'imgs/noDonorBg.png';
-import noPacketsBg from 'imgs/noPacketsBg.png';
 import { FC } from 'react';
 
 import styles from './NoResults.module.less';
@@ -13,7 +11,7 @@ type Props = {
 const NoResults: FC<Props> = ({ tab, suitableDonors = 0 }) => {
     const renderTitle = () => {
         if (tab === 1) {
-            return 'Раздел в разработке, пока можете посмотреть доноров';
+            return 'Скоро будет доступно!';
         }
 
         return suitableDonors < 1
@@ -25,8 +23,9 @@ const NoResults: FC<Props> = ({ tab, suitableDonors = 0 }) => {
         if (tab === 1 || suitableDonors) {
             return (
                 <>
-                    {/*Как только найдем -<br />*/}
-                    {/*направим уведомление*/}
+                    Функционал пока в разработке.
+                    <br />
+                    Но Вы можете найти донора!
                 </>
             );
         }
@@ -40,15 +39,10 @@ const NoResults: FC<Props> = ({ tab, suitableDonors = 0 }) => {
     };
 
     return (
-        <>
+        <div className={cn(styles.wrapper, { [styles.clinicsTab]: tab === 1 })}>
             <h1 className={styles.title}>{renderTitle()}</h1>
             <h5 className={styles.subtitle}>{renderSubtitle()}</h5>
-            <img
-                alt='no results'
-                src={tab === 1 ? noPacketsBg : noDonorBg}
-                className={cn(styles.noPackets, { [styles.donorsTab]: tab === 0 })}
-            />
-        </>
+        </div>
     );
 };
 

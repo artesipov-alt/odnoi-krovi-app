@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 
 interface DonorCancelEvent {
   DonorName: string;
@@ -30,7 +31,7 @@ export const handleDonorCancel = async (event: DonorCancelEvent) => {
   try {
     const message = `Донор (${DonorName}, группа ${donorBloodGroup}) отказался от донации. Можете найти нового донора на Портале.`;
 
-    await bot.api.sendMessageToUser(Number(RecipientProviderMaxID), message);
+    await sendMessageToUser(RecipientProviderMaxID, message);
 
     pinologger.info(
       {

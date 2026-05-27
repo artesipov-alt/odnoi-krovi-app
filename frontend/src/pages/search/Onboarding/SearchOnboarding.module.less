@@ -1,7 +1,60 @@
 @import 'styles/colors';
 
 .wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: calc(100vh - 47px);
+    max-width: 500px;
     padding: 17px 0 30px;
+
+    &.search {
+        background: url('imgs/searchOnboarding1.png') no-repeat center 50%;
+        background-size: 100%;
+
+        @media (orientation: landscape) {
+            max-width: 450px;
+            min-height: 600px;
+            background: url('imgs/searchOnboarding1.png') no-repeat center 65%;
+            background-size: 100%;
+        }
+
+        &.second {
+            background: url('imgs/searchOnboarding2.png') no-repeat center 50%;
+            background-size: 90%;
+
+            @media (orientation: landscape) {
+                max-width: 450px;
+                min-height: 700px;
+                background: url('imgs/searchOnboarding2.png') no-repeat center 55%;
+                background-size: 100%;
+            }
+        }
+    }
+
+    &.card {
+        background: url('imgs/searchCardOnboarding1.png') no-repeat center 55%;
+        background-size: 100%;
+
+        @media (orientation: landscape) {
+            max-width: 450px;
+            min-height: 650px;
+            background: url('imgs/searchCardOnboarding1.png') no-repeat center 65%;
+            background-size: 100%;
+        }
+
+        &.second {
+            background: url('imgs/searchCardOnboarding2.png') no-repeat center 50%;
+            background-size: 75%;
+
+            @media (orientation: landscape) {
+                max-width: 450px;
+                min-height: 600px;
+                background: url('imgs/searchCardOnboarding2.png') no-repeat center 55%;
+                background-size: 75%;
+            }
+        }
+    }
 }
 
 .header {
@@ -32,11 +85,7 @@
 
     &.card {
         padding: 0 23px;
-        margin: 68px 0 10px;
-
-        &.second {
-            margin: 68px 0 10px;
-        }
+        margin: 39px 0 10px;
     }
 
     &.second {
@@ -46,7 +95,7 @@
 
 .description {
     margin-bottom: 30px;
-    color: @textColor6;
+    color: @red1;
     text-align: center;
     font-family: Proxima Nova, sans-serif;
     font-size: 12px;
@@ -56,24 +105,6 @@
     &.card {
         padding: 0 40px;
         margin-bottom: 16px;
-    }
-}
-
-.img {
-    display: block;
-    width: 100%;
-
-    &.card {
-        padding: 0 16px 0 0;
-
-        &.second {
-            padding: 0 26px;
-        }
-    }
-
-    &.second {
-        padding: 0 26px;
-        box-sizing: border-box;
     }
 }
 
@@ -89,21 +120,12 @@
 
 .button {
     padding: 0 26px;
-    margin: 0 0 16px;
-
-    &.card {
-        margin: 40px 0 10px;
-
-        &.second {
-            margin: 56px 0 10px;
-        }
-    }
 }
 
 .confirm {
     height: 60px;
     border-radius: 10px !important;
-    background: @common-red !important;
+    background: var(--87, conic-gradient(from -3deg at 100% -13%, #C34968 0deg, #800020 360deg)) !important;
     font-family: Marmelad, sans-serif !important;
     font-size: 15px !important;
     font-weight: 400 !important;

@@ -69,8 +69,8 @@ const Search: FC<Props> = ({ userId }) => {
     const isLoading = petsIsLoading || poolRequestIsLoading;
 
     const goToOwner = useCallback(() => {
-        navigate('/owner');
-    }, [navigate]);
+        navigate(window.location.hash === '#fromPetProfile' ? `/owner#petId=${id}` : '/owner');
+    }, [id, navigate]);
 
     const showToast = useCallback(
         (text: string) => {
@@ -221,8 +221,14 @@ const Search: FC<Props> = ({ userId }) => {
     }
 
     return (
-        <Layout>
-            <div className={styles.wrapper}>
+        <Layout
+            className={styles.wrapper}
+            // className={cn(styles.wrapper, {
+            //     [styles.noResults]:
+            //         (tab === 0 || tab === 1) && !isLoading && (!poolRequest?.responses || !isPacketsBloodFound),
+            // })}
+        >
+            <div className={styles.innerWrapper}>
                 <div className={styles.header}>
                     <div className={styles.back} onClick={goToOwner}>
                         <BackAngularArrow />
@@ -273,6 +279,8 @@ const Search: FC<Props> = ({ userId }) => {
                         </div>
                     ))}
                 </div>
+            </div>
+            <div className={styles.content}>
                 {tab === 0 && !isLoading && !poolRequest?.responses && (
                     <NoResults tab={tab} suitableDonors={poolRequest?.suitableDonors} />
                 )}
@@ -290,12 +298,12 @@ const Search: FC<Props> = ({ userId }) => {
                         setIsStartViewShown={setIsStartViewShownHandler}
                     />
                 )}
-                {isLoading && (
-                    <div className={styles.loading}>
-                        <Loading size={90} thickness={4} />
-                    </div>
-                )}
             </div>
+            {isLoading && (
+                <div className={styles.loading}>
+                    <Loading size={90} thickness={4} />
+                </div>
+            )}
         </Layout>
     );
 };

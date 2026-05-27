@@ -163,7 +163,11 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
         try {
             const { pets } = await getPets(info?.ownerId!);
 
-            const recoveringPets = pets.filter((pet) => pet.petStatus === Role.RECOVERING);
+            const recoveringPets = pets.filter(
+                (pet) =>
+                    pet.id !== info?.id &&
+                    (pet.petStatus === Role.RECOVERING || pet.petStatus === Role.PLANNED_DONATION),
+            );
 
             if (recoveringPets.length) {
                 setCheckOtherDonors({ isOpen: true, pets: recoveringPets });
@@ -333,7 +337,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
         );
     }
 
-    if (activeTile === TileName.ANALYSES && info && info.analyses) {
+    if (activeTile === TileName.ANALYSES && info) {
         return (
             <AnalysesStep
                 petId={info.id}
@@ -435,8 +439,6 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                         className={cn(styles.tile, {
                             [styles.hide]: tileName === TileName.DONATIONS,
                             [styles.conditionTile]: tileName === TileName.CONDITIONS,
-                            [styles.noActive]:
-                                tileName === TileName.DONATIONS || (tileName === TileName.ANALYSES && !info.analyses),
                         })}
                     >
                         {icon && (
@@ -455,11 +457,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                             </div>
                         )}
                         {tileName === TileName.ANALYSES && (
-                            <div
-                                className={cn(styles.analizesCount, {
-                                    [styles.noActive]: !info.analyses,
-                                })}
-                            >
+                            <div className={styles.analizesCount}>
                                 {Object.keys(info.analyses || []).length} из{' '}
                                 {info.type === PetType.DOG ? dogAnalizesCount : catAnalizesCount}
                             </div>

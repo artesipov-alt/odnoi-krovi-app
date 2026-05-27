@@ -33,16 +33,19 @@ services:
       timeout: 10s
       retries: 3
 
-  # tg-bot:
-  #   image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:latest
-  #   environment:
-  #     TG_BOT_TOKEN: ${TG_BOT_TOKEN}
-  #     INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
-  #     MINIAPP_DOMAIN: https://1krovi.app
-  #     API_BASE_URL: https://1krovi.app/api
-  #   networks:
-  #     - odnoi_net
-  #   restart: unless-stopped
+  tg-bot:
+    image: ghcr.io/artesipov-alt/odnoi-krovi-app/tg-bot:latest
+    environment:
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN_PROD}
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN}
+      INTERNAL_TG_BOT_SECRET: ${INTERNAL_TG_BOT_SECRET}
+      MINIAPP_DOMAIN: https://1krovi.app
+      API_BASE_URL: https://1krovi.app/api
+      REDIS_HOST: 10.0.0.73
+      REDIS_PORT: 6379
+    networks:
+      - odnoi_net
+    restart: unless-stopped
 
   max-bot:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:latest
@@ -62,6 +65,8 @@ services:
 
   frontend:
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/frontend:latest
+    environment:
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN}
     ports:
       - "80:80"
       - "443:443"

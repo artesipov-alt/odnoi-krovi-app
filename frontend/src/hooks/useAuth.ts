@@ -20,7 +20,7 @@ export const useAuth = (): UserAuth => {
         if (window.location.hostname === 'localhost') {
             const arturID = '11111111';
             const ruslanID = '2222222';
-            signinData = await signinExtServ({ providerId: ruslanID, providerName: 'service' }); // Или другой тестовый ID
+            signinData = await signinExtServ({ providerId: arturID, providerName: 'service' }); // Или другой тестовый ID
         } else if (window.WebApp?.initData) {
             signinData = await signinMax({ appInitData: window.WebApp.initData });
         } else if (window.Telegram?.WebApp?.initData) {

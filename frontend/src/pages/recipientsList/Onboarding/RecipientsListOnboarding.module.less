@@ -1,7 +1,33 @@
 @import 'styles/colors';
 
 .wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     padding: 17px 0 30px;
+    height: calc(100vh - 47px);
+    max-width: 500px;
+    background: url('imgs/recListOnboarding1.png') no-repeat center 50%;
+    background-size: 100%;
+
+    &.second {
+        background: url('imgs/recListOnboarding2.png') no-repeat center 43%;
+        background-size: 90%;
+
+        @media (orientation: landscape) {
+            max-width: 450px;
+            min-height: 600px;
+            background: url('imgs/recListOnboarding2.png') no-repeat center 55%;
+            background-size: 100%;
+        }
+    }
+
+    @media (orientation: landscape) {
+        max-width: 450px;
+        min-height: 600px;
+        background: url('imgs/recListOnboarding1.png') no-repeat center center;
+        background-size: 100%;
+    }
 }
 
 .header {
@@ -32,7 +58,7 @@
     line-height: 24px;
 
     &.second {
-        margin: 23px 0 10px;
+        margin: 54px 0 10px;
     }
 }
 
@@ -47,39 +73,14 @@
     line-height: 15px;
 }
 
-.img {
-    display: block;
-    width: 100%;
-
-    &.second {
-        padding: 0 10px;
-        margin-bottom: 90px;
-        box-sizing: border-box;
-    }
-}
-
-.logo {
-    width: 82px;
-    height: 82px;
-    margin: 81px auto 0;
-    fill: @textColor2;
-
-    svg {
-        width: inherit;
-        height: inherit;
-        fill: inherit;
-    }
-}
-
 .button {
     padding: 0 26px;
-    margin: 10px 0 16px;
 }
 
 .confirm {
     height: 60px;
     border-radius: 10px !important;
-    background: @common-red !important;
+    background: var(--87, conic-gradient(from -3deg at 100% -13%, #C34968 0deg, #800020 360deg)) !important;
     font-family: Marmelad, sans-serif !important;
     font-size: 15px !important;
     font-weight: 400 !important;

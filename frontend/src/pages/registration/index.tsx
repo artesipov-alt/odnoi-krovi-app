@@ -131,7 +131,7 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     };
 
     return (
-        <Layout>
+        <Layout className={styles.wrapper}>
             <div className={styles.header}>
                 <h2 className={styles.title}>Добро пожаловать,</h2>
                 <h4 className={styles.subTitle}>{fullName}</h4>
@@ -188,9 +188,6 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
                         },
                     }}
                 />
-                <Button fullWidth variant='contained' className={styles.button} onClick={onConfirmClickHandler}>
-                    Продолжить
-                </Button>
                 <div className={styles.links}>
                     <p className={styles.agreementLabel}>
                         Продолжая, Вы принимаете{' '}
@@ -213,6 +210,9 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
                         </a>
                     </p>
                 </div>
+                <Button fullWidth variant='contained' className={styles.button} onClick={onConfirmClickHandler}>
+                    Продолжить
+                </Button>
                 {isLoading && (
                     <div className={styles.loading}>
                         <Loading size={90} thickness={4} />

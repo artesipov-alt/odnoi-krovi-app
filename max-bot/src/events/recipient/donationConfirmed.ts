@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 import { getAppOpenKeyboard } from "../../keyboards";
 
 import { generateDonationMessage } from "./helpers";
@@ -25,15 +26,12 @@ export const handleDonationConfirmed = async (
 ) => {
   const { DonorData, RecipientData, Volume } = event;
 
-  let targetId = DonorData.ProviderMaxID;
-  if (!targetId || targetId.trim() === "") {
-    targetId = DonorData.ProviderTelegram;
-  }
+  const targetId = DonorData.ProviderMaxID;
 
   if (!targetId || targetId.trim() === "") {
     pinologger.warn(
       { donorUserName: DonorData.UserName },
-      "Donor ProviderMaxID and ProviderTelegram are empty, skipping notification",
+      "Donor ProviderMaxID is empty, skipping notification",
     );
     return;
   }
@@ -45,7 +43,7 @@ export const handleDonationConfirmed = async (
       recipientBloodGroup: RecipientData.BloodGroup,
     });
 
-    await bot.api.sendMessageToUser(Number(targetId), message, {
+    await sendMessageToUser(targetId, message, {
       attachments: [getAppOpenKeyboard()],
     });
 

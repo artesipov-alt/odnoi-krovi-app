@@ -1,9 +1,21 @@
 :80 {
     root * /srv
     encode gzip zstd
+
     handle /api/* {
         reverse_proxy backend:3000
     }
+
+    # Проксирование скрипта Telegram Mini App
+    handle_path /tg-js/* {
+        # Дописываем секрет к запросу перед отправкой на мост
+        rewrite * {uri}?secret={$BRIDGE_TOKEN}
+
+        reverse_proxy https://bridge.1krovi.app {
+            header_up Host bridge.1krovi.app
+        }
+    }
+
     handle {
         try_files {path} {path}/ /index.html
         file_server

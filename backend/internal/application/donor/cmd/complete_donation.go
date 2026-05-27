@@ -74,15 +74,16 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 		return apperrors.Internal(err, "failed to get recipient user")
 	}
 
-	recipientProviderMaxID, _ := extractProviderIDs(recipientUser)
+	recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
 
 	event := donorevent.DonorCompleted{
-		DonorPetName:           donorPet.Name,
-		DonorBloodGroup:        donorPet.BloodGroupName,
-		RecipientProviderMaxID: recipientProviderMaxID,
-		RecipientPetName:       recipientPet.Name,
-		Amount:                 amount,
-		CreatedAt:              time.Now(),
+		DonorPetName:                donorPet.Name,
+		DonorBloodGroup:             donorPet.BloodGroupName,
+		RecipientProviderMaxID:      recipientProviderMaxID,
+		RecipientProviderTelegramID: recipientProviderTelegramID,
+		RecipientPetName:            recipientPet.Name,
+		Amount:                      amount,
+		CreatedAt:                   time.Now(),
 	}
 
 	if err := h.publisher.PublishDonorCompleted(ctx, event); err != nil {

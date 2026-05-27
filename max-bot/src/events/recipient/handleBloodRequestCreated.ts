@@ -1,4 +1,5 @@
-import { bot, pinologger } from "../../instances";
+import { pinologger } from "../../instances";
+import { sendMessageToUser } from "../../max";
 import { getAppOpenKeyboard } from "../../keyboards";
 
 interface BloodRequestCreatedEvent {
@@ -19,16 +20,10 @@ export const handleBloodRequestCreated = async (
   const { BloodTypes, Regions, AvilableDonors } = event;
 
   for (const donor of AvilableDonors) {
-    let targetId = donor.MaxID;
-    if (!targetId || targetId.trim() === "") {
-      targetId = donor.TelegramID;
-    }
+    const targetId = donor.MaxID;
 
     if (!targetId || targetId.trim() === "") {
-      pinologger.warn(
-        { donor },
-        "Donor MaxID and TelegramID are empty, skipping notification",
-      );
+      pinologger.warn({ donor }, "Donor MaxID is empty, skipping notification");
       continue;
     }
 
@@ -37,7 +32,7 @@ export const handleBloodRequestCreated = async (
 
       const keyboard = getAppOpenKeyboard();
 
-      await bot.api.sendMessageToUser(Number(targetId), message, {
+      await sendMessageToUser(targetId, message, {
         attachments: [keyboard],
       });
 
