@@ -6,11 +6,13 @@ import { usersApi, pinologger } from "../instances";
 // ============ Keyboard Builders ============
 
 const getMainKeyboard = () => {
-  return new InlineKeyboard()
-    .webApp("🩸 Открыть приложение", Bun.env.MINIAPP_DOMAIN!)
-    .row()
-    .text("❓ Помощь", "help")
-    .text("👤 Профиль", "profile");
+  return new InlineKeyboard().webApp(
+    "🩸 Открыть приложение",
+    Bun.env.MINIAPP_DOMAIN!,
+  );
+  // .row()
+  // .text("❓ Помощь", "help")
+  // .text("👤 Профиль", "profile");
 };
 
 const getBackKeyboard = () => {
