@@ -84,6 +84,26 @@ func (h *UserHandler) Register(api huma.API) {
 		Tags:        []string{"users-v1"},
 	}, h.UpdateUser)
 
+	// Инициация изменения номера телефона пользователя.
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "change-phone",
+	// 	Method:      http.MethodPost,
+	// 	Path:        "/v1/user/{user_id}/phone",
+	// 	Summary:     "Изменение номера телефона пользователя",
+	// 	Description: "Обновляет номер телефона пользователя",
+	// 	Tags:        []string{"users-v1"},
+	// }, h.UpdateUse)
+
+	// Верификация номера телефона пользователя.
+	// huma.Register(api, huma.Operation{
+	// 	OperationID: "verify-phone",
+	// 	Method:      http.MethodPost,
+	// 	Path:        "/v1/user/{user_id}/phone/verify",
+	// 	Summary:     "Верификация номера телефона пользователя",
+	// 	Description: "Верифицирует номер телефона пользователя",
+	// 	Tags:        []string{"users-v1"},
+	// }, h.UpdateUse)
+
 	// Удаление пользователя по ID
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-user",

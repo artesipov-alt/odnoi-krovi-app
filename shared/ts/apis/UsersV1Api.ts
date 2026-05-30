@@ -46,6 +46,11 @@ import {
     UserDetailToJSON,
 } from '../models/index';
 
+export interface ChangePhoneRequest {
+    userId: string;
+    updateUserBody: Omit<UpdateUserBody, '$schema'>;
+}
+
 export interface ConfirmUploadRequest {
     confirmUploadBody: Omit<ConfirmUploadBody, '$schema'>;
 }
@@ -79,10 +84,64 @@ export interface UpdateUserRequest {
     updateUserBody: Omit<UpdateUserBody, '$schema'>;
 }
 
+export interface VerifyPhoneRequest {
+    userId: string;
+    updateUserBody: Omit<UpdateUserBody, '$schema'>;
+}
+
 /**
  * 
  */
 export class UsersV1Api extends runtime.BaseAPI {
+
+    /**
+     * Обновляет номер телефона пользователя
+     * Изменение номера телефона пользователя
+     */
+    async changePhoneRaw(requestParameters: ChangePhoneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateUserResult>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling changePhone().'
+            );
+        }
+
+        if (requestParameters['updateUserBody'] == null) {
+            throw new runtime.RequiredError(
+                'updateUserBody',
+                'Required parameter "updateUserBody" was null or undefined when calling changePhone().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/v1/user/{user_id}/phone/change`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateUserBodyToJSON(requestParameters['updateUserBody']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UpdateUserResultFromJSON(jsonValue));
+    }
+
+    /**
+     * Обновляет номер телефона пользователя
+     * Изменение номера телефона пользователя
+     */
+    async changePhone(requestParameters: ChangePhoneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateUserResult> {
+        const response = await this.changePhoneRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Подтверждает загрузку массива фотографий, делает их публичными и обновляет сущность
@@ -359,6 +418,55 @@ export class UsersV1Api extends runtime.BaseAPI {
      */
     async updateUser(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateUserResult> {
         const response = await this.updateUserRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Верифицирует номер телефона пользователя
+     * Верификация номера телефона пользователя
+     */
+    async verifyPhoneRaw(requestParameters: VerifyPhoneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UpdateUserResult>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling verifyPhone().'
+            );
+        }
+
+        if (requestParameters['updateUserBody'] == null) {
+            throw new runtime.RequiredError(
+                'updateUserBody',
+                'Required parameter "updateUserBody" was null or undefined when calling verifyPhone().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/v1/user/{user_id}/phone/verify`;
+        urlPath = urlPath.replace(`{${"user_id"}}`, encodeURIComponent(String(requestParameters['userId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateUserBodyToJSON(requestParameters['updateUserBody']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UpdateUserResultFromJSON(jsonValue));
+    }
+
+    /**
+     * Верифицирует номер телефона пользователя
+     * Верификация номера телефона пользователя
+     */
+    async verifyPhone(requestParameters: VerifyPhoneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UpdateUserResult> {
+        const response = await this.verifyPhoneRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

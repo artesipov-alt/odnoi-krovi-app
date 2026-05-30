@@ -45,7 +45,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/auth"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
 
 	sloghttp "github.com/samber/slog-http"
 )
@@ -116,9 +115,9 @@ func main() {
 		// }
 
 		//Миграции
-		ctx := context.Background()
-		seeds.SeedLocations(ctx, db)
-		seeds.SeedBreeds(ctx, db)
+		// ctx := context.Background()
+		// seeds.SeedLocations(ctx, db)
+		// seeds.SeedBreeds(ctx, db)
 
 		// Инициализация репозиториев
 		userRepo := pg.NewEntUserRepository(db)
