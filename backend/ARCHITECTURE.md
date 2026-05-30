@@ -1,127 +1,174 @@
-# Архитектура проекта "Одной крови"
+# Архитектура бэкенда Odnoi Krovi App
 
-## Общее описание
+## Общий обзор
 
-"Одной крови" — платформа для поиска доноров крови для домашних животных. Регистрация питомцев, создание заявок, отклики доноров, управление статусами.
+Go-монолит, реализованный в стилистике **DDD (Domain-Driven Design)** с элементами **CQRS** на уровне приложения. Веб-фреймворк — **Huma v2** (REST + OpenAPI 3.1). ORM — **Ent**. База — **PostgreSQL**. Кеш/события — **Redis**. Файлы — **S3**. Аутентификация — **JWT** + Telegram Mini App data validation.
 
-## Технологический стек
+---
 
-- **Go 1.21+**, **Huma v2** (HTTP), **ENT** (ORM), **PostgreSQL 15+**
-
-## Структура проекта (Clean Architecture)
+## Слои и организация пакетов
 
 ```
 backend/
+├── cmd/api/main.go          # Точка входа, DI-композиция (Wiring)
 ├── internal/
-│   ├── domain/              # Чистый домен, без зависимостей
-│   │   ├── pet/            # Агрегат Питомец
-│   │   ├── user/           # Агрегат Пользователь
-│   │   ├── bloodsearch/    # Агрегаты Заявка, Отклик
-│   │   └── reference/      # Справочники
-│   ├── application/        # Use Cases (CQRS)
-│   │   └── {domain}/
-│   │       ├── cmd/        # Команды (изменяют состояние)
-│   │       └── query/      # Запросы (только чтение)
-│   ├── transport/          # HTTP адаптеры (Huma)
-│   │   ├── dto/            # Input/Output структуры
-│   │   └── handlers/       # HTTP handlers
-│   └── infra/              # Инфраструктура
-│       └── presistance/pg/ # Реализация репозиториев
+│   ├── apperrors/           # Единая система ошибок (AppError) + интеграция с Huma
+│   ├── domain/              # DOMAIN LAYER — бизнес-логика и модели
+│   │   ├── common/          # Общие value objects (PetType, Компоненты крови, и т.д.)
+│   │   ├── ports/           # Порт-интерфейсы внешнего мира (EventPublisher)
+│   │   ├── {bounded-context}/
+│   │   │   ├── model/       # Aggregate root + value objects (чистые Go-структуры)
+│   │   │   ├── events/      # Domain events (структуры данных)
+│   │   │   ├── *repo.go     # Repository interface (порты для persistence)
+│   │   │   └── *_service.go # Stateless domain services
+│   ├── application/         # APPLICATION LAYER — CQRS обработчики
+│   │   ├── {bounded-context}/
+│   │   │   ├── cmd/         # Command handlers (изменяют состояние)
+│   │   │   └── query/       # Query handlers (только чтение)
+│   ├── infra/               # INFRASTRUCTURE LAYER — адаптеры
+│   │   ├── ent/             # Ent ORM: schema/ + generated code
+│   │   ├── presistance/
+│   │   │   ├── pg/          # PostgreSQL реализации репозиториев (Ent)
+│   │   │   ├── domainmapper/# Мапперы: Ent entity → Domain model
+│   │   │   ├── redis/       # Redis cache repository
+│   │   │   ├── cache/       # Cache interface + ключи
+│   │   │   ├── s3/          # S3 file storage repository
+│   │   │   └── tx_manager.go # Транзакционный менеджер (через context)
+│   │   └── events/redis/    # Event publisher (Redis Pub/Sub)
+│   └── transport/           # TRANSPORT LAYER — HTTP/GRPC адаптеры
+│       ├── http/
+│       │   ├── *handler.go    # Регистрация маршрутов Huma + делегирование Cmd/Query
+│       │   ├── dto/           # Request/Response DTO (Huma-аннотированные)
+│       │   ├── dtomapper/     # Мапперы: Domain model → DTO
+│       │   └── middleware/    # Auth, Recovery, CORS, Tracing
+│       └── grpc/              # (пока пусто)
+├── pkg/                    # SHARED KERNEL — переиспользуемые утилиты
+│   ├── auth/               # JWT генерация/валидация + Telegram InitData проверка
+│   ├── config/             # Server, DB (Ent), Redis, CORS конфигурация
+│   ├── enums/              # Сгенерированные Ent enum-константы
+│   ├── logger/             # Настройка slog + Charm Bracelet
+│   └── seeds/              # Сиды (локации, породы)
+├── docs/
+│   └── openapi.json        # Сгенерированная OpenAPI 3.1 спецификация
+└── docsui/                 # Scalar docs UI встраивание
 ```
 
-## Ключевые архитектурные принципы
+---
 
-### 1. Clean Architecture
+## Bounded Contexts (Domain)
 
-Зависимости направлены внутрь: `transport → application → domain → (ничего)`
+| Контекст | Модель | Репозиторий (интерфейс) | Domain Service | Команды | Запросы |
+|---|---|---|---|---|---|
+| **User** | User, DonorPreference | UserRepository | — | register, update, delete, reset, restore | get_by_id, get_contact, get_deleted |
+| **Auth** | Identity (value object) | — (через UserRepo) | AuthService | external_sign_in, mini_app_sign_in | — |
+| **Pet** | Pet, PetHealth, PetTreatment, PetAnalysis | PetReadRepository + PetWriteRepository | PetService | create, update, delete, revalidate_donor | get_by_id, get_by_user |
+| **BloodSearch** | BloodRequest | BloodRequestRepository | MatchingService | create, update, delete, accept_response, confirm_donation, reject_donation, close_request | get_by_id, get_by_pet_id, get_donor_by_id, get_donation |
+| **Donor** | DonorResponse | DonorResponseRepository | — | apply, complete_donation, cancel_donation | list_requests, get_recipient, get_planned, get_completed, get_bonuses |
+| **Bonus** | Bonus (value object) | BonusRepository | BonusService | import_bonuses | — |
+| **FileStorage** | — | FileRepository | FileService | get_presigned_urls, confirm_upload | — |
+| **Partner** | Partner | PartnerRepository | — | — | — |
+| **Reference** | Breed, Location | BreedRepository + LocationRepository | — | — | get_all_breeds, get_by_type, get_locations, get_blood_components, get_blood_groups |
 
-### 2. CQRS
+---
 
-- **Command** — изменяют состояние, возвращают минимум данных (ID, timestamps)
-- **Query** — только чтение, возвращают полные данные
+## DDD: как реализовано
 
-### 3. Агрегаты (Aggregates)
+- **Domain Model** (`internal/domain/{ctx}/model/`) — чистые Go-структуры без тегов ORM, с методами-конструкторами (`NewPet(...)`), методами поведения (`RecalculateFactors(...)`, `UpdateFrom(...)`).
+- **Repository Interface** (`internal/domain/{ctx}/*_repo.go`) — порты для persistence, разделены на write-only и read-only (см. PetWriteRepository / PetReadRepository).
+- **Domain Service** (`*_service.go`) — stateless, содержит логику, требующую координации нескольких aggregate (например, `PetService.CalculateAndSetStatus` оперирует Pet + DonorResponse + BloodRequest).
+- **Domain Events** (`internal/domain/{ctx}/events/`) — структуры данных событий (BloodRequestCreated, DonationConfirmed, DonorCompleted и т.д.).
+- **Ports** (`internal/domain/ports/`) — интерфейсы для внешних систем (EventPublisher).
 
-**Pet** — основной агрегат с Health/Treatments/Analyses (жизненный цикл связан).
+---
 
-**User**, **BloodRequest**, **DonorResponse** — отдельные агрегаты.
+## CQRS: как реализовано
 
-### 4. Repository Pattern
+**CQRS-lite** — разделены команды (изменяющие состояние) и запросы (только чтение) на уровне application layer.
 
-Интерфейсы в домене, реализация в инфраструктуре. Репозитории принимают и возвращают доменные модели.
+- **Command handlers** (`cmd/`) — принимают входные данные, валидируют, вызывают domain-логику, сохраняют через репозиторий, публикуют события.
+- **Query handlers** (`query/`) — только читают данные, возвращают DTO или domain models. Никаких side effects.
+- Каждый handler — это struct с единственным методом `Handle(ctx, ...)`.
+- Repository interface разделены на **write** и **read** (например, `pet.PetWriteRepository` vs `pet.PetReadRepository`), чтобы на уровне типов гарантировать, что query handler не может случайно вызвать метод записи.
 
-### 5. Конструкторы с валидацией
+---
 
-Каждый агрегат создаётся через конструктор (`NewPet`, `NewUser`, `NewBloodRequest`, `NewDonorResponse`), который валидирует инварианты.
+## Поток данных (пример: создание питомца)
 
-### 6. Маппинг DTO ↔ Domain
+```
+HTTP POST /api/v1/pets
+    → middleware: Auth → проверяет JWT, кладет user_id в context
+    → pet_handler_http.go:Parse DTO → petCommand := cmd.CreateHandler
+        → CreateHandler.Handle(ctx, userID, petModel)
+            → petRepo.Create(ctx, pet)   // EntPetRepository
+                → domainmapper.PetToDomain(entPet) // Ent → Domain
+            → domain events (при необходимости)
+        → dtomapper.PetToDTO(pet)  // Domain → HTTP DTO
+    → 201 JSON response
+```
 
-Только в `mapper/` пакете. Transport слой использует мапперы для конвертации DTO в доменные модели (через конструкторы).
+---
 
-## ⚠️ TODO
+## Ключевые технологии
 
-### 🔴 Высокий приоритет
+| Технология | Применение |
+|---|---|
+| **Go 1.26** | Язык |
+| **Huma v2** | REST API + OpenAPI 3.1 генерация |
+| **Ent** | ORM (code-first схемы, генерация типов) |
+| **PostgreSQL** | Основная база данных |
+| **Redis** | Кеш, Pub/Sub для событий |
+| **S3 (MinIO/Cloud)** | Хранение файлов (pre-signed URLs) |
+| **JWT (HS256)** | Аутентификация |
+| **Telegram Mini App** | Валидация init data |
+| **Scalar** | Swagger UI |
 
-1. **Update Pattern для User**
-   - Сейчас: partial update через поля в handler
-   - Нужно: `UpdateFrom()` метод в домене (как у Pet)
+---
 
-2. **Update Pattern для BloodRequest**
-   - Добавить `UpdateFrom()` в доменную модель
+## Аутентификация и middleware (порядок)
 
-3. **Update Pattern для DonorResponse**
-   - Добавить `UpdateFrom()` в доменную модель
+1. `Recovery` — восстановление после паники
+2. `CORS` — разрешение origin'ов
+3. `BasicAuth` — защита `/docs` и `/openapi.json`
+4. `Auth` — JWT-валидация (bearer token), пропускает исключённые пути
+5. `Logging` — slog-http (только статусы ≥400)
+6. `TraceID` — X-Trace-Id в ответ
 
-### 🟡 Средний приоритет
+---
 
-4. **Command Result структуры**
-   - Сейчас: `CreateHandler.Handle()` возвращает `*model.Pet`
-   - Нужно: Возвращать `CreatePetResult{ID, CreatedAt}` — минимум данных
+## Обработка ошибок
 
-5. **ReadModel/View для Query**
-   - Сейчас: Query возвращает доменную модель `*model.Pet`
-   - Нужно: Создать `PetView` с только нужными полями для чтения
+Единый тип `apperrors.AppError` реализует `huma.StatusError`. Все ошибки проходят через кастомный `huma.NewError`, что даёт консистентный JSON ответ:
 
-6. **Value Objects**
-   - Сейчас: `ChipNumber`, `Email`, `Phone` — простые строки
-   - Нужно: Отдельные типы с валидацией в конструкторе
+```json
+{
+  "Code": "NOT_FOUND",
+  "Message": "питомец не найден",
+  "Details": {"pet_id": "..."},
+  "HTTPStatus": 404
+}
+```
 
-### 🟢 Низкий приоритет
+---
 
-7. **Domain Events**
-   - `PetBecameDonorEvent`, `BloodRequestCreatedEvent`
+## Транзакции
 
-8. **Unit of Work**
-   - Для транзакций spanning multiple aggregates
+`presistance.TxManager` оборачивает бизнес-логику в транзакцию Ent. Транзакция передаётся через контекст, что позволяет прозрачно использовать один и тот же репозиторий внутри и вне транзакции.
 
-9. **Read Models для сложных запросов**
-   - Проекции для списков с фильтрацией
+---
 
-## Changelog
+## События (Domain Events → Redis)
 
-### [2024-XX-XX] Рефакторинг: Fat Services → CQRS + Clean Architecture
+- Domain events определяются в `internal/domain/{ctx}/events/` как plain structs.
+- `EventPublisher` (интерфейс в `ports/`) публикует их в Redis Pub/Sub.
+- Реализация: `internal/infra/events/redis/event_publisher.go`.
+- При недоступности Redis используется `NoOpEventPublisher`.
 
-#### ✅ Добавлено
-- Разделение на слои: domain → application → transport
-- CQRS: Command и Query handlers
-- Конструкторы с валидацией: `NewPet()`, `NewUser()`, `NewBloodRequest()`, `NewDonorResponse()`
-- Разделение стоп-факторов на статические и динамические
-- Метод `CalculateStatus()` для вычисления статуса питомца
-- Явный маппинг без `copier.Copy`
-- DTO Input/Output структуры для всех операций
+---
 
-#### ✅ Изменено
-- Репозиторий возвращает полный агрегат (не частичный)
-- `Create()` и `Update()` перечитывают созданный/обновлённый объект из БД
-- Application handlers принимают доменную модель, не Ent-структуры
-- Статус питомца вычисляется при каждом запросе, не хранится в БД
+## Важные решения
 
-#### ✅ Удалено
-- `copier.Copy` — полностью убрана зависимость
-- `PetService` — логика перенесена в Command/Query handlers
-- Анонимные структуры в хендлерах
-
-## Контакты
-
-Проект: "Одной крови"
-Архитектура: Clean Architecture + CQRS
+1. **Soft Delete** — реализован на уровне Ent interceptors, прозрачен для domain.
+2. **Domain Mapper** — ENT сущности маппятся в domain model через `domainmapper/*.go`. Domain model никогда не зависит от ORM.
+3. **DTO Mapper** — domain model маппится в HTTP DTO через `dtomapper/*.go` на транспортном уровне.
+4. **Preload опции** — query handlers принимают `PreloadOptions`, позволяя клиенту гибко запрашивать связанные данные.
+5. **Infra/events/redis** отделён от **infra/presistance/redis** — событийная шина и кеш путать не стоит.
