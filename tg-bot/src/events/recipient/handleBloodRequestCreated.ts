@@ -19,10 +19,18 @@ export const handleBloodRequestCreated = async (
   pinologger.info({ event }, "Received blood_request_created event");
   const { BloodTypes, Regions, AvilableDonors } = event;
 
+  // Определяем URL приложения в зависимости от среды
+  const getWebAppUrl = () => {
+    // Определяем среду по NODE_ENV или BUN_ENV
+    const env = Bun.env.ENV || "production";
+    const isDev = env === "development" || env === "dev";
+    return isDev ? "https://dev.1krovi.app" : "https://1krovi.app";
+  };
+
   // Создаем клавиатуру для открытия приложения
   const keyboard = new InlineKeyboard().webApp(
-    "Стать донором",
-    Bun.env.WEB_APP_URL || "https://app.1krovi.app",
+    "🩸 Открыть приложение",
+    getWebAppUrl(),
   );
 
   for (const donor of AvilableDonors) {
