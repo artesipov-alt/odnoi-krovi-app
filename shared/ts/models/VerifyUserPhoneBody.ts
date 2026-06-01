@@ -16,59 +16,51 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface RestrictionFactor
+ * @interface VerifyUserPhoneBody
  */
-export interface RestrictionFactor {
+export interface VerifyUserPhoneBody {
     /**
-     * Код фактора
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof RestrictionFactor
+     * @memberof VerifyUserPhoneBody
+     */
+    readonly $schema?: string;
+    /**
+     * Код подтверждения из SMS
+     * @type {string}
+     * @memberof VerifyUserPhoneBody
      */
     code: string;
-    /**
-     * Описание фактора
-     * @type {string}
-     * @memberof RestrictionFactor
-     */
-    description: string;
-    /**
-     * Дополнительное описание фактора
-     * @type {string}
-     * @memberof RestrictionFactor
-     */
-    subDescription?: string;
 }
 
 /**
- * Check if a given object implements the RestrictionFactor interface.
+ * Check if a given object implements the VerifyUserPhoneBody interface.
  */
-export function instanceOfRestrictionFactor(value: object): value is RestrictionFactor {
+export function instanceOfVerifyUserPhoneBody(value: object): value is VerifyUserPhoneBody {
     if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('description' in value) || value['description'] === undefined) return false;
     return true;
 }
 
-export function RestrictionFactorFromJSON(json: any): RestrictionFactor {
-    return RestrictionFactorFromJSONTyped(json, false);
+export function VerifyUserPhoneBodyFromJSON(json: any): VerifyUserPhoneBody {
+    return VerifyUserPhoneBodyFromJSONTyped(json, false);
 }
 
-export function RestrictionFactorFromJSONTyped(json: any, ignoreDiscriminator: boolean): RestrictionFactor {
+export function VerifyUserPhoneBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): VerifyUserPhoneBody {
     if (json == null) {
         return json;
     }
     return {
         
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'code': json['code'],
-        'description': json['description'],
-        'subDescription': json['subDescription'] == null ? undefined : json['subDescription'],
     };
 }
 
-export function RestrictionFactorToJSON(json: any): RestrictionFactor {
-    return RestrictionFactorToJSONTyped(json, false);
+export function VerifyUserPhoneBodyToJSON(json: any): VerifyUserPhoneBody {
+    return VerifyUserPhoneBodyToJSONTyped(json, false);
 }
 
-export function RestrictionFactorToJSONTyped(value?: RestrictionFactor | null, ignoreDiscriminator: boolean = false): any {
+export function VerifyUserPhoneBodyToJSONTyped(value?: Omit<VerifyUserPhoneBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -76,8 +68,6 @@ export function RestrictionFactorToJSONTyped(value?: RestrictionFactor | null, i
     return {
         
         'code': value['code'],
-        'description': value['description'],
-        'subDescription': value['subDescription'],
     };
 }
 

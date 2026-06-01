@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -12,26 +13,31 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 	mapper "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dtomapper"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 	"github.com/danielgtaylor/huma/v2"
 )
 
 // UserHandler обрабатывает HTTP запросы для операций с пользователями
 type UserHandler struct {
-	deleteHandler     *cmd.DeleteHandler
-	updateHandler     *cmd.UpdateHandler
-	resetHandler      *cmd.ResetHandler
-	restoreHandler    *cmd.RestoreHandler
-	getByIDHandler    *query.GetByIDHandler
-	getContactHandler *query.GetContactHandler
-	getDeletedHandler *query.GetDeletedUsersHandler
-	userMapper        *mapper.UserMapper
-	storage           filestorage.Repository
+	deleteHandler      *cmd.DeleteHandler
+	updateHandler      *cmd.UpdateHandler
+	changePhoneHandler *cmd.ChangePhoneHandler
+	verifyPhoneHandler *cmd.VerifyPhoneHandler
+	resetHandler       *cmd.ResetHandler
+	restoreHandler     *cmd.RestoreHandler
+	getByIDHandler     *query.GetByIDHandler
+	getContactHandler  *query.GetContactHandler
+	getDeletedHandler  *query.GetDeletedUsersHandler
+	userMapper         *mapper.UserMapper
+	storage            filestorage.Repository
 }
 
 // NewUserHandler создает новый обработчик пользователей
 func NewUserHandler(
 	deleteHandler *cmd.DeleteHandler,
 	updateHandler *cmd.UpdateHandler,
+	changePhoneHandler *cmd.ChangePhoneHandler,
+	verifyPhoneHandler *cmd.VerifyPhoneHandler,
 	resetHandler *cmd.ResetHandler,
 	restoreHandler *cmd.RestoreHandler,
 	getByIDHandler *query.GetByIDHandler,
@@ -40,15 +46,17 @@ func NewUserHandler(
 	storage filestorage.Repository,
 ) *UserHandler {
 	return &UserHandler{
-		deleteHandler:     deleteHandler,
-		updateHandler:     updateHandler,
-		resetHandler:      resetHandler,
-		restoreHandler:    restoreHandler,
-		getByIDHandler:    getByIDHandler,
-		getContactHandler: getContactHandler,
-		getDeletedHandler: getDeletedHandler,
-		userMapper:        mapper.NewUserMapper(mapper.NewPetMapper(storage), storage),
-		storage:           storage,
+		deleteHandler:      deleteHandler,
+		updateHandler:      updateHandler,
+		changePhoneHandler: changePhoneHandler,
+		verifyPhoneHandler: verifyPhoneHandler,
+		resetHandler:       resetHandler,
+		restoreHandler:     restoreHandler,
+		getByIDHandler:     getByIDHandler,
+		getContactHandler:  getContactHandler,
+		getDeletedHandler:  getDeletedHandler,
+		userMapper:         mapper.NewUserMapper(mapper.NewPetMapper(storage), storage),
+		storage:            storage,
 	}
 }
 
@@ -85,24 +93,26 @@ func (h *UserHandler) Register(api huma.API) {
 	}, h.UpdateUser)
 
 	// Инициация изменения номера телефона пользователя.
-	// huma.Register(api, huma.Operation{
-	// 	OperationID: "change-phone",
-	// 	Method:      http.MethodPost,
-	// 	Path:        "/v1/user/{user_id}/phone",
-	// 	Summary:     "Изменение номера телефона пользователя",
-	// 	Description: "Обновляет номер телефона пользователя",
-	// 	Tags:        []string{"users-v1"},
-	// }, h.UpdateUse)
+	huma.Register(api, huma.Operation{
+		OperationID:   "change-phone",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/{user_id}/phone",
+		Summary:       "Изменение номера телефона пользователя",
+		Description:   "Обновляет номер телефона пользователя",
+		Tags:          []string{"users-v1"},
+		DefaultStatus: 202,
+	}, h.ChangePhone)
 
 	// Верификация номера телефона пользователя.
-	// huma.Register(api, huma.Operation{
-	// 	OperationID: "verify-phone",
-	// 	Method:      http.MethodPost,
-	// 	Path:        "/v1/user/{user_id}/phone/verify",
-	// 	Summary:     "Верификация номера телефона пользователя",
-	// 	Description: "Верифицирует номер телефона пользователя",
-	// 	Tags:        []string{"users-v1"},
-	// }, h.UpdateUse)
+	huma.Register(api, huma.Operation{
+		OperationID:   "verify-phone",
+		Method:        http.MethodPost,
+		Path:          "/v1/user/{user_id}/phone/verify",
+		Summary:       "Верификация номера телефона пользователя",
+		Description:   "Верифицирует номер телефона по коду из SMS",
+		Tags:          []string{"users-v1"},
+		DefaultStatus: 200,
+	}, h.VerifyPhone)
 
 	// Удаление пользователя по ID
 	huma.Register(api, huma.Operation{
@@ -118,7 +128,7 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "reset-user",
 		Method:      http.MethodPost,
-		Path:        "/v1/user/reset-user/{user_id}",
+		Path:        "/v1/user/{user_id}/reset",
 		Summary:     "Сброс пользователя к начальным настройкам",
 		Description: "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
 		Tags:        []string{"dev"},
@@ -128,7 +138,7 @@ func (h *UserHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "restore-user",
 		Method:      http.MethodPost,
-		Path:        "/v1/user/restore-user/{user_id}",
+		Path:        "/v1/user/{user_id}/restore",
 		Summary:     "Восстановление удаленного пользователя",
 		Description: "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
 		Tags:        []string{"dev"},
@@ -216,6 +226,36 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 	return &dto.UpdateUserOutput{Body: dto.UpdateUserResult{
 		ID:        user.ID,
 		UpdatedAt: user.UpdatedAt,
+	}}, nil
+}
+
+func (h *UserHandler) ChangePhone(ctx context.Context, input *dto.ChangeUserPhoneInput) (*dto.SimpleMessageOutput, error) {
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
+
+	if err := h.changePhoneHandler.Handle(ctx, userID, input.Body.Phone); err != nil {
+		return nil, err
+	}
+
+	return &dto.SimpleMessageOutput{Body: dto.SimpleMessage{
+		Message: "Событие на изменение номера успешно отправлено",
+	}}, nil
+}
+
+func (h *UserHandler) VerifyPhone(ctx context.Context, input *dto.VerifyUserPhoneInput) (*dto.SimpleMessageOutput, error) {
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
+
+	if err := h.verifyPhoneHandler.Handle(ctx, userID, input.Body.Code); err != nil {
+		return nil, err
+	}
+
+	return &dto.SimpleMessageOutput{Body: dto.SimpleMessage{
+		Message: "Номер телефона успешно подтверждён",
 	}}, nil
 }
 

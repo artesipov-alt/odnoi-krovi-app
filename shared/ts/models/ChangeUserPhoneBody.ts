@@ -16,68 +16,58 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface RestrictionFactor
+ * @interface ChangeUserPhoneBody
  */
-export interface RestrictionFactor {
+export interface ChangeUserPhoneBody {
     /**
-     * Код фактора
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof RestrictionFactor
+     * @memberof ChangeUserPhoneBody
      */
-    code: string;
+    readonly $schema?: string;
     /**
-     * Описание фактора
+     * Номер телефона
      * @type {string}
-     * @memberof RestrictionFactor
+     * @memberof ChangeUserPhoneBody
      */
-    description: string;
-    /**
-     * Дополнительное описание фактора
-     * @type {string}
-     * @memberof RestrictionFactor
-     */
-    subDescription?: string;
+    phone: string;
 }
 
 /**
- * Check if a given object implements the RestrictionFactor interface.
+ * Check if a given object implements the ChangeUserPhoneBody interface.
  */
-export function instanceOfRestrictionFactor(value: object): value is RestrictionFactor {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('description' in value) || value['description'] === undefined) return false;
+export function instanceOfChangeUserPhoneBody(value: object): value is ChangeUserPhoneBody {
+    if (!('phone' in value) || value['phone'] === undefined) return false;
     return true;
 }
 
-export function RestrictionFactorFromJSON(json: any): RestrictionFactor {
-    return RestrictionFactorFromJSONTyped(json, false);
+export function ChangeUserPhoneBodyFromJSON(json: any): ChangeUserPhoneBody {
+    return ChangeUserPhoneBodyFromJSONTyped(json, false);
 }
 
-export function RestrictionFactorFromJSONTyped(json: any, ignoreDiscriminator: boolean): RestrictionFactor {
+export function ChangeUserPhoneBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ChangeUserPhoneBody {
     if (json == null) {
         return json;
     }
     return {
         
-        'code': json['code'],
-        'description': json['description'],
-        'subDescription': json['subDescription'] == null ? undefined : json['subDescription'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'phone': json['phone'],
     };
 }
 
-export function RestrictionFactorToJSON(json: any): RestrictionFactor {
-    return RestrictionFactorToJSONTyped(json, false);
+export function ChangeUserPhoneBodyToJSON(json: any): ChangeUserPhoneBody {
+    return ChangeUserPhoneBodyToJSONTyped(json, false);
 }
 
-export function RestrictionFactorToJSONTyped(value?: RestrictionFactor | null, ignoreDiscriminator: boolean = false): any {
+export function ChangeUserPhoneBodyToJSONTyped(value?: Omit<ChangeUserPhoneBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'code': value['code'],
-        'description': value['description'],
-        'subDescription': value['subDescription'],
+        'phone': value['phone'],
     };
 }
 

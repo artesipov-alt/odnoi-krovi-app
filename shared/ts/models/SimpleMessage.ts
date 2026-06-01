@@ -16,68 +16,58 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface RestrictionFactor
+ * @interface SimpleMessage
  */
-export interface RestrictionFactor {
+export interface SimpleMessage {
     /**
-     * Код фактора
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof RestrictionFactor
+     * @memberof SimpleMessage
      */
-    code: string;
+    readonly $schema?: string;
     /**
-     * Описание фактора
+     * Сообщение об успехе или ошибке
      * @type {string}
-     * @memberof RestrictionFactor
+     * @memberof SimpleMessage
      */
-    description: string;
-    /**
-     * Дополнительное описание фактора
-     * @type {string}
-     * @memberof RestrictionFactor
-     */
-    subDescription?: string;
+    message: string;
 }
 
 /**
- * Check if a given object implements the RestrictionFactor interface.
+ * Check if a given object implements the SimpleMessage interface.
  */
-export function instanceOfRestrictionFactor(value: object): value is RestrictionFactor {
-    if (!('code' in value) || value['code'] === undefined) return false;
-    if (!('description' in value) || value['description'] === undefined) return false;
+export function instanceOfSimpleMessage(value: object): value is SimpleMessage {
+    if (!('message' in value) || value['message'] === undefined) return false;
     return true;
 }
 
-export function RestrictionFactorFromJSON(json: any): RestrictionFactor {
-    return RestrictionFactorFromJSONTyped(json, false);
+export function SimpleMessageFromJSON(json: any): SimpleMessage {
+    return SimpleMessageFromJSONTyped(json, false);
 }
 
-export function RestrictionFactorFromJSONTyped(json: any, ignoreDiscriminator: boolean): RestrictionFactor {
+export function SimpleMessageFromJSONTyped(json: any, ignoreDiscriminator: boolean): SimpleMessage {
     if (json == null) {
         return json;
     }
     return {
         
-        'code': json['code'],
-        'description': json['description'],
-        'subDescription': json['subDescription'] == null ? undefined : json['subDescription'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'message': json['message'],
     };
 }
 
-export function RestrictionFactorToJSON(json: any): RestrictionFactor {
-    return RestrictionFactorToJSONTyped(json, false);
+export function SimpleMessageToJSON(json: any): SimpleMessage {
+    return SimpleMessageToJSONTyped(json, false);
 }
 
-export function RestrictionFactorToJSONTyped(value?: RestrictionFactor | null, ignoreDiscriminator: boolean = false): any {
+export function SimpleMessageToJSONTyped(value?: Omit<SimpleMessage, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'code': value['code'],
-        'description': value['description'],
-        'subDescription': value['subDescription'],
+        'message': value['message'],
     };
 }
 

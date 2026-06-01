@@ -222,7 +222,8 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 	return exists, nil
 }
 
-// UpdateUserFields updates user fields (simple update without transaction handling)
+// UpdateUserFields updates user fields (simple update without transaction handling).
+// Phone cannot be updated through this method — use UpdatePhone instead.
 func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error {
 	if input == nil {
 		return errors.New("user cannot be nil")
@@ -256,14 +257,32 @@ func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, inp
 	}
 	builder.SetConsentPd(input.ConsentPd)
 	builder.SetAllowGeo(input.AllowGeo)
-	if input.Phone != "" {
-		builder.SetPhone(input.Phone)
-	}
 	builder.SetPrioritySearchCount(input.PrioritySearchCount)
 
 	_, err := builder.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
+}
+
+// UpdatePhone updates the phone number for a user by ID.
+func (r *EntUserRepository) UpdatePhone(ctx context.Context, id string, phone string) error {
+	if id == "" {
+		return errors.New("invalid user ID")
+	}
+
+	c := r.client(ctx)
+
+	err := c.User.UpdateOneID(id).
+		SetPhone(phone).
+		Exec(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return errors.New("user not found")
+		}
+		return fmt.Errorf("failed to update phone: %w", err)
 	}
 
 	return nil
