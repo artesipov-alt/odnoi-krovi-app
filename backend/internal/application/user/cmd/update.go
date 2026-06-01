@@ -28,6 +28,9 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.
 			if ent.IsNotFound(err) {
 				return apperrors.ErrUserNotFound
 			}
+			if ent.IsConstraintError(err) {
+				return apperrors.Conflict("Пользователь с такой почтой уже существует, при подтверждении номера аккаунты будут связаны")
+			}
 			return apperrors.Internal(err, "failed to update user")
 		}
 
