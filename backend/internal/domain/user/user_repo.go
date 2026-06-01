@@ -22,8 +22,11 @@ type Repository interface {
 	// GetByProviderID возвращает идентификатор пользователя по ID провайдера
 	GetByProvider(ctx context.Context, providerID string, providerName authmodel.ProviderName) (*authmodel.Identity, error)
 
-	// UpdateUserFields обновляет поля пользователя (атомарная операция)
+	// UpdateUserFields обновляет поля пользователя (атомарная операция, не включает phone)
 	UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error
+
+	// UpdatePhone обновляет номер телефона пользователя по его ID
+	UpdatePhone(ctx context.Context, id string, phone string) error
 
 	// TransferUserIdentity переносит все identity от одного пользователя к другому
 	TransferUserIdentity(ctx context.Context, fromUserID, toUserID string) error

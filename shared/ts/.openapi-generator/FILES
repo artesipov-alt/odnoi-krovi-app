@@ -20,6 +20,7 @@ models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
 models/Bonus.ts
 models/BreedsList.ts
+models/ChangeUserPhoneBody.ts
 models/CompleteDonationBody.ts
 models/CompletedDonationsList.ts
 models/ConfirmData.ts
@@ -76,6 +77,7 @@ models/RestrictionFactor.ts
 models/ResultMessage.ts
 models/ServiceSignInBody.ts
 models/ServiceSignInResult.ts
+models/SimpleMessage.ts
 models/UpdateBloodRequestBody.ts
 models/UpdateBloodRequestResult.ts
 models/UpdatePetBody.ts
@@ -87,5 +89,6 @@ models/UploadURLsResult.ts
 models/UserDetail.ts
 models/UserRolesList.ts
 models/ValidateDonorResult.ts
+models/VerifyUserPhoneBody.ts
 models/index.ts
 runtime.ts

@@ -37,6 +37,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
+	redisRepository "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 
 	events "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/events/redis"
@@ -45,7 +46,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/auth"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
 
 	sloghttp "github.com/samber/slog-http"
 )
@@ -100,13 +100,16 @@ func main() {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
 		}
+		var otpRepo redisRepository.OTPRepository
 		var publisher ports.EventPublisher
 		redisClient, err := config.NewRedisClientFromEnv()
 		if err != nil {
 			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
 			publisher = &events.NoOpEventPublisher{}
+			otpRepo = redisRepository.NewNoOpOTPRepo()
 		} else {
 			publisher = events.NewEventPublisher(redisClient, env)
+			otpRepo = redisRepository.NewOTPRepo(redisClient)
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
@@ -116,9 +119,9 @@ func main() {
 		// }
 
 		//Миграции
-		ctx := context.Background()
-		seeds.SeedLocations(ctx, db)
-		seeds.SeedBreeds(ctx, db)
+		// ctx := context.Background()
+		// seeds.SeedLocations(ctx, db)
+		// seeds.SeedBreeds(ctx, db)
 
 		// Инициализация репозиториев
 		userRepo := pg.NewEntUserRepository(db)
@@ -150,6 +153,8 @@ func main() {
 
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, txManager)
+		userChangePhoneHandler := usercmd.NewChangePhoneHandler(userRepo, otpRepo)
+		userVerifyPhoneHandler := usercmd.NewVerifyPhoneHandler(userRepo, otpRepo, txManager)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
 		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)
 		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo)
@@ -210,6 +215,8 @@ func main() {
 		userHandler := transport.NewUserHandler(
 			userDeleteHandler,
 			userUpdateHandler,
+			userChangePhoneHandler,
+			userVerifyPhoneHandler,
 			userResetHandler,
 			userRestoreHandler,
 			userGetByIDHandler,
