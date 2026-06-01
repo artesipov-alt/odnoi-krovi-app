@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/)..
 
+## [3.16.0] - 2026-06-01
+
+### Добавлено
+- **Реализован процесс смены телефона на основе OTP с объединением аккаунтов:**
+  - Реализованы `ChangePhoneHandler` и `VerifyPhoneHandler` с верификацией по OTP.
+  - Добавлен репозиторий OTP Redis с поддержкой TTL и запасным вариантом NoOp.
+  - Добавлен порт `OTPSender` для интеграции SMS.
+  - Расширен репозиторий пользователей с помощью `UpdatePhone`, `TransferUserIdentity`, `TransferUTMHistory`, `DeleteDonorPreferenceByUserID`, `DeleteUserHard`.
+  - Устарело поле `phone` в `UpdateUserBody`; добавлены DTO `ChangeUserPhoneBody` и `VerifyUserPhoneBody`.
+  - Версия API увеличена до 3.16.0 и перегенерирован клиент TypeScript.
+
 ## [3.15.6] - 2026-04-29
 
 ### Добавлено
