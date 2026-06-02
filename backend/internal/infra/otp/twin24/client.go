@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,8 @@ type Client struct {
 }
 
 func NewClient(baseURL string) *Client {
+	// обрезаем завершающий слэш, чтобы избежать двойного слэша при конкатенации с path
+	baseURL = strings.TrimRight(baseURL, "/")
 	return &Client{
 		httpClient: &http.Client{
 			Timeout: time.Second * 10,
@@ -23,7 +26,7 @@ func NewClient(baseURL string) *Client {
 	}
 }
 
-func (c *Client) Do(ctx context.Context, method, path string, body any) (*http.Response, error) {
+func (c *Client) newRequest(ctx context.Context, method, path string, body any) (*http.Request, error) {
 	var buf bytes.Buffer
 	if body != nil {
 		if err := json.NewEncoder(&buf).Encode(body); err != nil {
@@ -37,5 +40,22 @@ func (c *Client) Do(ctx context.Context, method, path string, body any) (*http.R
 	}
 	req.Header.Set("Content-Type", "application/json")
 
+	return req, nil
+}
+
+func (c *Client) Do(ctx context.Context, method, path string, body any) (*http.Response, error) {
+	req, err := c.newRequest(ctx, method, path, body)
+	if err != nil {
+		return nil, err
+	}
+	return c.httpClient.Do(req)
+}
+
+func (c *Client) DoWithBearer(ctx context.Context, method, path string, body any, token string) (*http.Response, error) {
+	req, err := c.newRequest(ctx, method, path, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
 	return c.httpClient.Do(req)
 }
