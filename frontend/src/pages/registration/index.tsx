@@ -47,7 +47,7 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
 
     const updatedParams = useRef({ name: fullName, phone: '', email: '' });
 
-    useBodyScrollLock(isLoading);
+    useBodyScrollLock(isLoading || isConfirmCurtainOpen);
 
     const isValidEmail = () => email.value.match(emailRegexp);
 

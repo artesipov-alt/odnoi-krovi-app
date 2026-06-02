@@ -187,7 +187,7 @@ const Profile: FC<Props> = ({ userId }) => {
 
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    useBodyScrollLock(isInvitePopupOpen || isEditCurtainOpen);
+    useBodyScrollLock(isInvitePopupOpen || isEditCurtainOpen || isConfirmCurtainOpen);
 
     const userInitial = userData?.fullName?.charAt(0).toUpperCase() || '?';
     const avatarUrl = userData?.photoUrls?.[0];
