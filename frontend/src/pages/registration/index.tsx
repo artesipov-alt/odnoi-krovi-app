@@ -2,15 +2,19 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
-import { ChangeEvent, FC, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useRef, useState } from 'react';
 import InputMask from 'react-input-mask';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
+import { updatePhone } from 'api/apiServices/updatePhone';
 import { updateUser } from 'api/apiServices/updateUser';
+import { verifyPhone } from 'api/apiServices/verifyPhone';
 import { queryClient } from 'api/queryClient';
+import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
+import SMSInput from 'components/SmsInput';
 
 import styles from './Registration.module.less';
 
@@ -30,11 +34,18 @@ const emailRegexp = /^\w+([+.-]?\w+)*@\w+([.-]?\w+)*(\.\w+)+$/i;
 const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     const navigate = useNavigate();
 
+    const [code, setCode] = useState('');
     const [phone, setPhone] = useState<Input>({ value: '' });
     const [email, setEmail] = useState<Input>({ value: '' });
     const [name, setName] = useState<Input>({ value: fullName });
+    const [timeLeft, setTimeLeft] = useState<number>(0);
+    const [isCodeNotValid, setIsCodeNotValid] = useState<boolean>(false);
+    const [timeOfOpenCurtain, setTimeOfOpenCurtain] = useState<number>(0);
+    const [isConfirmCurtainOpen, setIsConfirmCurtainOpen] = useState<boolean>(false);
 
     const [isLoading, setIsLoading] = useState(false);
+
+    const updatedParams = useRef({ name: fullName, phone: '', email: '' });
 
     useBodyScrollLock(isLoading);
 
@@ -66,6 +77,10 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
 
             toast.warn('Неверный формат e-mail адреса');
         }
+    };
+
+    const onCloseConfirmCurtainHandler = () => {
+        setIsConfirmCurtainOpen(false);
     };
 
     const onConfirmClickHandler = async () => {
@@ -107,19 +122,49 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
             return;
         }
 
+        setTimeLeft(60);
+        setTimeOfOpenCurtain(Date.now());
+        setIsConfirmCurtainOpen(true);
+
+        if (updatedParams.current.name !== name.value || updatedParams.current.email !== email.value) {
+            const updateUserResponse = await updateUser({
+                id: userId,
+                email: email.value,
+                fullName: name.value,
+            });
+
+            updatedParams.current.name = name.value;
+            updatedParams.current.email = email.value;
+
+            if (updateUserResponse.error) {
+                toast.warn(updateUserResponse.error);
+            }
+        }
+
+        const updatePhoneResponse = await updatePhone({ id: userId, phone: phone.value });
+
+        if (updatePhoneResponse.error) {
+            toast.warn(updatePhoneResponse.error);
+
+            onCloseConfirmCurtainHandler();
+        }
+    };
+
+    const onFillCodeHandler = (confirmCode: string) => {
+        setCode(confirmCode);
+        setIsCodeNotValid(false);
+    };
+
+    const onConfirmCodeClickHandler = async () => {
         setIsLoading(true);
 
-        const { data, error } = await updateUser({
-            id: userId,
-            phone: phone.value,
-            email: email.value,
-            fullName: name.value,
-        });
+        const { error } = await verifyPhone({ id: userId, code });
 
-        if (!data || error) {
-            toast.warn(error); // TODO ?
-
+        if (error) {
             setIsLoading(false);
+            setIsCodeNotValid(true);
+
+            toast.warn(error);
 
             return;
         }
@@ -129,6 +174,42 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
 
         navigate('/owner');
     };
+
+    const onGetCodeClickHandler = () => {
+        onConfirmClickHandler();
+    };
+
+    const getNewCodeBlock = () => {
+        const timeNotExpired = timeLeft > 0;
+
+        return (
+            <div
+                onClick={timeNotExpired ? undefined : onGetCodeClickHandler}
+                className={cn(styles.newCode, { [styles.expired]: !timeNotExpired })}
+            >
+                {timeNotExpired ? `Запросить код заново через ${timeLeft} сек.` : 'Запросить код заново'}
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        if (timeOfOpenCurtain === 0) return;
+
+        const endTime = timeOfOpenCurtain + 60000; // +1 минута
+        const timer = setInterval(() => {
+            const now = Date.now();
+            const diff = Math.floor((endTime - now) / 1000);
+
+            if (diff <= 0) {
+                setTimeLeft(0);
+                clearInterval(timer);
+            } else {
+                setTimeLeft(diff);
+            }
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [timeOfOpenCurtain]);
 
     return (
         <Layout className={styles.wrapper}>
@@ -192,19 +273,19 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
                     <p className={styles.agreementLabel}>
                         Продолжая, Вы принимаете{' '}
                         <a
-                            className={styles.agreementLabelLink}
-                            href='https://однойкрови.рф/docs#n-a9dea2ae-b2a2-4bc6-b0ea-1eca71588ab0'
                             target='_blank'
                             rel='noreferrer'
+                            className={styles.agreementLabelLink}
+                            href='https://однойкрови.рф/docs#n-a9dea2ae-b2a2-4bc6-b0ea-1eca71588ab0'
                         >
                             Пользовательское соглашение
                         </a>{' '}
                         и{' '}
                         <a
-                            className={styles.agreementLabelLink}
-                            href='https://однойкрови.рф/docs#n-80ae6549-954a-4c8c-bc54-357a93ec3dee'
                             target='_blank'
                             rel='noreferrer'
+                            className={styles.agreementLabelLink}
+                            href='https://однойкрови.рф/docs#n-80ae6549-954a-4c8c-bc54-357a93ec3dee'
                         >
                             Политику конфиденциальности
                         </a>
@@ -217,6 +298,32 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
                     <div className={styles.loading}>
                         <Loading size={90} thickness={4} />
                     </div>
+                )}
+                {isConfirmCurtainOpen && (
+                    <Curtain
+                        noRednerButtons
+                        title='Код подтверждения'
+                        shouldCloseByWrapperClick
+                        onClose={onCloseConfirmCurtainHandler}
+                        subTitleClassName={styles.confirmSubtitle}
+                        subTitle={`Робот позвонит на номер ${phone.value} и назовёт код`}
+                    >
+                        <SMSInput
+                            onFill={onFillCodeHandler}
+                            className={styles.codeInput}
+                            isCodeNotValid={isCodeNotValid}
+                        />
+                        <div className={styles.buttons}>
+                            <Button
+                                fullWidth
+                                onClick={onConfirmCodeClickHandler}
+                                className={cn(styles.confirm, { [styles.enabled]: !!code && !isCodeNotValid })}
+                            >
+                                {isCodeNotValid ? 'Неверный код' : 'Подтвердить'}
+                            </Button>
+                            {getNewCodeBlock()}
+                        </div>
+                    </Curtain>
                 )}
             </div>
         </Layout>
