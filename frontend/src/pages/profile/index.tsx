@@ -21,10 +21,13 @@ import { toast } from 'react-toastify';
 
 import { addPhoto } from 'api/apiServices/addPhoto';
 import { getUserIdentities } from 'api/apiServices/getUserIdentities';
+import { updatePhone } from 'api/apiServices/updatePhone';
 import { updateUser } from 'api/apiServices/updateUser';
+import { verifyPhone } from 'api/apiServices/verifyPhone';
 import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
+import SMSInput from 'components/SmsInput';
 
 import Chat from './Chat';
 // import PromoSlider from 'components/PromoSlider';
@@ -154,15 +157,24 @@ const normalizePhone = (value: string) => {
 
 const Profile: FC<Props> = ({ userId }) => {
     const navigate = useNavigate();
+
     const { data: userData, isLoading } = useGetUserById(userId);
+
     const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
     const [invitePopupVariant, setInvitePopupVariant] = useState<InvitePopupVariant>('default');
-    const [isEditCurtainOpen, setIsEditCurtainOpen] = useState(false);
     const [isEditLoading, setIsEditLoading] = useState(false);
     const [isAvatarUploading, setIsAvatarUploading] = useState(false);
     const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
     const [pendingAvatarPreviewUrl, setPendingAvatarPreviewUrl] = useState<string | null>(null);
     const [inviteIdentities, setInviteIdentities] = useState<UserIdentity[]>([]);
+
+    const [code, setCode] = useState('');
+    const [timeLeft, setTimeLeft] = useState<number>(0);
+    const [isEditCurtainOpen, setIsEditCurtainOpen] = useState(false);
+    const [isCodeNotValid, setIsCodeNotValid] = useState<boolean>(false);
+    const [timeOfOpenCurtain, setTimeOfOpenCurtain] = useState<number>(0);
+    const [isConfirmCurtainOpen, setIsConfirmCurtainOpen] = useState<boolean>(false);
+
     const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
     const [editFullName, setEditFullName] = useState('');
@@ -241,9 +253,29 @@ const Profile: FC<Props> = ({ userId }) => {
         };
     }, [isInvitePopupOpen, userId, userData?.identities]);
 
+    useEffect(() => {
+        if (timeOfOpenCurtain === 0) return;
+
+        const endTime = timeOfOpenCurtain + 60000; // +1 минута
+        const timer = setInterval(() => {
+            const now = Date.now();
+            const diff = Math.floor((endTime - now) / 1000);
+
+            if (diff <= 0) {
+                setTimeLeft(0);
+                clearInterval(timer);
+            } else {
+                setTimeLeft(diff);
+            }
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [timeOfOpenCurtain]);
+
     if (isLoading || !userData) {
         return null;
     }
+
     const identitiesByType = (userData.identities || []).reduce<Partial<Record<SocialRow['type'], UserIdentity>>>(
         (acc, identity) => {
             const providerType = getProviderType(identity.providerName);
@@ -283,9 +315,10 @@ const Profile: FC<Props> = ({ userId }) => {
             return;
         }
 
+        const isPhoneChanged = normalizePhone(editPhone) !== normalizePhone(userData.phone || '');
         const hasProfileChanges =
+            isPhoneChanged ||
             editFullName.trim() !== (userData.fullName || '').trim() ||
-            normalizePhone(editPhone) !== normalizePhone(userData.phone || '') ||
             editEmail.trim() !== (userData.email || '').trim();
         const hasAvatarChanges = !!pendingAvatarFile;
 
@@ -302,14 +335,14 @@ const Profile: FC<Props> = ({ userId }) => {
             hasProfileChanges
                 ? updateUser({
                       id: userId,
-                      fullName: editFullName,
-                      phone: editPhone,
                       email: editEmail,
+                      fullName: editFullName,
                   })
                 : Promise.resolve(null),
             hasAvatarChanges && pendingAvatarFile
                 ? addPhoto({ id: userId, photo: pendingAvatarFile, isUserAvatar: true })
                 : Promise.resolve(null),
+            isPhoneChanged ? updatePhone({ id: userId, phone: editPhone }) : Promise.resolve(null),
         ]);
 
         if (updateResult?.error) {
@@ -323,7 +356,7 @@ const Profile: FC<Props> = ({ userId }) => {
         const hasUpdateSuccess = hasProfileChanges && !updateResult?.error;
         const hasPhotoSuccess = hasAvatarChanges && !!photoResult?.success;
 
-        if (hasUpdateSuccess || hasPhotoSuccess) {
+        if ((hasUpdateSuccess || hasPhotoSuccess) && !isPhoneChanged) {
             await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
         }
 
@@ -332,6 +365,12 @@ const Profile: FC<Props> = ({ userId }) => {
             setIsEditLoading(false);
 
             return;
+        }
+
+        if (isPhoneChanged) {
+            setTimeLeft(60);
+            setTimeOfOpenCurtain(Date.now());
+            setIsConfirmCurtainOpen(true);
         }
 
         setPendingAvatarFile(null);
@@ -454,6 +493,39 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsChatOpen((prevState) => !prevState);
     };
 
+    const onFillCodeHandler = (confirmCode: string) => {
+        setCode(confirmCode);
+        setIsCodeNotValid(false);
+    };
+
+    const onGetCodeClickHandler = () => {
+        onSaveProfileClickHandler();
+    };
+
+    const onCloseConfirmCurtainHandler = () => {
+        setIsConfirmCurtainOpen(false);
+    };
+
+    const onConfirmCodeClickHandler = async () => {
+        setIsEditLoading(true);
+
+        const { error } = await verifyPhone({ id: userId, code });
+
+        if (error) {
+            setIsEditLoading(false);
+            setIsCodeNotValid(true);
+
+            toast.warn(error);
+
+            return;
+        }
+
+        await queryClient.invalidateQueries({ queryKey: ['userById', userId] });
+
+        setIsEditLoading(false);
+        setIsConfirmCurtainOpen(false);
+    };
+
     if (isChatOpen) {
         return <Chat onClose={onChatOpenToggle} />;
     }
@@ -461,6 +533,19 @@ const Profile: FC<Props> = ({ userId }) => {
     const headerAvatarUrl = avatarUrl && failedAvatarUrl !== avatarUrl ? avatarUrl : null;
     const isPendingAvatarFailed = !!pendingAvatarPreviewUrl && failedAvatarUrl === pendingAvatarPreviewUrl;
     const editAvatarUrl = pendingAvatarPreviewUrl && !isPendingAvatarFailed ? pendingAvatarPreviewUrl : headerAvatarUrl;
+
+    const getNewCodeBlock = () => {
+        const timeNotExpired = timeLeft > 0;
+
+        return (
+            <div
+                onClick={timeNotExpired ? undefined : onGetCodeClickHandler}
+                className={cn(styles.newCode, { [styles.expired]: !timeNotExpired })}
+            >
+                {timeNotExpired ? `Запросить код заново через ${timeLeft} сек.` : 'Запросить код заново'}
+            </div>
+        );
+    };
 
     return (
         <Layout>
@@ -763,6 +848,28 @@ const Profile: FC<Props> = ({ userId }) => {
                                 )}
                             </button>
                         </form>
+                    </div>
+                </Curtain>
+            )}
+            {isConfirmCurtainOpen && (
+                <Curtain
+                    noRednerButtons
+                    title='Код подтверждения'
+                    shouldCloseByWrapperClick
+                    onClose={onCloseConfirmCurtainHandler}
+                    subTitleClassName={styles.confirmSubtitle}
+                    subTitle={`Робот позвонит на номер ${editPhone} и назовёт код`}
+                >
+                    <SMSInput onFill={onFillCodeHandler} className={styles.codeInput} isCodeNotValid={isCodeNotValid} />
+                    <div className={styles.buttons}>
+                        <Button
+                            fullWidth
+                            onClick={onConfirmCodeClickHandler}
+                            className={cn(styles.confirm, { [styles.enabled]: !!code && !isCodeNotValid })}
+                        >
+                            {isCodeNotValid ? 'Неверный код' : 'Подтвердить'}
+                        </Button>
+                        {getNewCodeBlock()}
                     </div>
                 </Curtain>
             )}

@@ -1,0 +1,32 @@
+@import 'styles/colors';
+
+.container {
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+}
+
+.input {
+    width: 44px;
+    height: 34px;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+    font-size: 22px;
+    line-height: 24px;
+    font-weight: 400;
+    color: @common-red;
+    border: none;
+    border-bottom: 2px solid @grayBg36;
+    outline: none;
+    background: transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &.fill {
+        border-bottom: 2px solid @common-red;
+    }
+
+    &.error {
+        color: @red25;
+        border-bottom: 2px solid @red25;
+    }
+}
