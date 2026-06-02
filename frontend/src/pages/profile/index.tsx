@@ -498,7 +498,9 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsCodeNotValid(false);
     };
 
-    const onGetCodeClickHandler = () => {};
+    const onGetCodeClickHandler = () => {
+        onSaveProfileClickHandler();
+    };
 
     const onCloseConfirmCurtainHandler = () => {
         setIsConfirmCurtainOpen(false);
