@@ -42,8 +42,10 @@ jobs:
           file: backend/Dockerfile
           push: true
           tags: ${{ env.IMAGE_PREFIX }}/backend:dev
+          provenance: false
+          sbom: false
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
       - name: Build and push max-bot
         if: steps.changed-files.outputs.max-bot_any_changed == 'true'
         uses: docker/build-push-action@v5
@@ -52,8 +54,10 @@ jobs:
           file: max-bot/Dockerfile
           push: true
           tags: ${{ env.IMAGE_PREFIX }}/max-bot:dev
+          provenance: false
+          sbom: false
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
       - name: Build and push tg-bot
         if: steps.changed-files.outputs.tg-bot_any_changed == 'true'
         uses: docker/build-push-action@v5
@@ -62,8 +66,10 @@ jobs:
           file: tg-bot/Dockerfile
           push: true
           tags: ${{ env.IMAGE_PREFIX }}/tg-bot:dev
+          provenance: false
+          sbom: false
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
       - name: Setup Bun
         if: steps.changed-files.outputs.frontend_any_changed == 'true'
         uses: oven-sh/setup-bun@v2
@@ -83,8 +89,10 @@ jobs:
           file: frontend/Dockerfile
           push: true
           tags: ${{ env.IMAGE_PREFIX }}/frontend:dev
+          provenance: false
+          sbom: false
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
       - name: Deploy to dev server
         uses: appleboy/ssh-action@master
         with:
