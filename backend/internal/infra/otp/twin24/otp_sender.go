@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -22,11 +26,27 @@ type OTPSender struct {
 	auth            *Auth
 }
 
-func NewOTPSender(apiBaseURL, defaultExecData, cidData string, authClient *Client, auth *Auth) *OTPSender {
+// NewOTPSenderFromEnv создает OTPSender, читая конфигурацию из переменных окружения.
+// Возвращает nil, если обязательные переменные не заданы.
+func NewOTPSenderFromEnv(redisClient *redis.Client) *OTPSender {
+	email := os.Getenv("TWIN24_EMAIL")
+	password := os.Getenv("TWIN24_PASSWORD")
+	baseURL := os.Getenv("TWIN24_BASE_URL")
+	botID := os.Getenv("TWIN24_BOT_SCENARIO_ID")
+	cid := os.Getenv("TWIN24_BOT_CID")
+
+	if email == "" || password == "" || baseURL == "" || botID == "" || cid == "" {
+		slog.Warn("⚠️ Twin24 credentials not configured, OTP calls disabled")
+		return nil
+	}
+
+	authClient := NewClient("https://iam.twin24.ai")
+	auth := NewAuth(authClient, *redisClient, email, password)
+
 	return &OTPSender{
-		defaultExecData: defaultExecData,
-		cidData:         cidData,
-		apiClient:       NewClient(apiBaseURL),
+		defaultExecData: botID,
+		cidData:         cid,
+		apiClient:       NewClient(baseURL),
 		authClient:      authClient,
 		auth:            auth,
 	}

@@ -36,10 +36,11 @@ func TestOTPSender_SendOTP(t *testing.T) {
 		t.Fatalf("redisClient is not connected: %v", err)
 	}
 
-	authClient := twin24.NewClient(iamBaseURL)
-	auth := twin24.NewAuth(authClient, *redisClient, os.Getenv("TWIN24_EMAIL"), os.Getenv("TWIN24_PASSWORD"))
-
-	sender := twin24.NewOTPSender(baseURL, os.Getenv("TWIN24_BOT_SCENARIO_ID"), os.Getenv("TWIN24_BOT_CID"), authClient, auth)
+	// Создаем OTP Sender используя переменные окружения
+	sender := twin24.NewOTPSenderFromEnv(redisClient)
+	if sender == nil {
+		t.Fatal("OTPSender is nil - check TWIN24_* env vars")
+	}
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
