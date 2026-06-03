@@ -406,7 +406,7 @@ func (s *OTPSender) SendOTP(ctx context.Context, phone, code string) error {
 	}
 
 	// ждём перед стартом (рекомендация Twin24)
-	time.Sleep(2 * time.Second)
+	time.Sleep(4 * time.Second)
 
 	// запускаем задание
 	if err := s.StartTask(ctx, taskID); err != nil {
