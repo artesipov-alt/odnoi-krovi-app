@@ -498,8 +498,18 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsCodeNotValid(false);
     };
 
-    const onGetCodeClickHandler = () => {
-        onSaveProfileClickHandler();
+    const onGetCodeClickHandler = async () => {
+        setCode('');
+        setTimeLeft(60);
+        setTimeOfOpenCurtain(Date.now());
+
+        await updatePhone({ id: userId, phone: editPhone });
+
+        // if (updateResult?.error) {
+        //     toast.warn(updateResult.error);
+        //
+        //     setTimeLeft(0);
+        // }
     };
 
     const onCloseConfirmCurtainHandler = () => {
