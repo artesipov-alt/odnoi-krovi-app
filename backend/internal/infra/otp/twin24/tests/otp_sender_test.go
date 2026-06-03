@@ -39,7 +39,7 @@ func TestOTPSender_SendOTP(t *testing.T) {
 	authClient := twin24.NewClient(iamBaseURL)
 	auth := twin24.NewAuth(authClient, *redisClient, os.Getenv("TWIN24_EMAIL"), os.Getenv("TWIN24_PASSWORD"))
 
-	sender := twin24.NewOTPSender(baseURL, authClient, auth)
+	sender := twin24.NewOTPSender(baseURL, os.Getenv("TWIN24_BOT_SCENARIO_ID"), os.Getenv("TWIN24_BOT_CID"), authClient, auth)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
