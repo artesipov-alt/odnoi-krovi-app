@@ -34,13 +34,22 @@ func NewOTPSenderFromEnv(redisClient *redis.Client) *OTPSender {
 	baseURL := os.Getenv("TWIN24_BASE_URL")
 	botID := os.Getenv("TWIN24_BOT_SCENARIO_ID")
 	cid := os.Getenv("TWIN24_BOT_CID")
+	iamURL := os.Getenv("TWIN24_IAM_URL")
 
-	if email == "" || password == "" || baseURL == "" || botID == "" || cid == "" {
+	// Значения по умолчанию
+	if baseURL == "" {
+		baseURL = "https://twin24.ai"
+	}
+	if iamURL == "" {
+		iamURL = "https://iam.twin24.ai"
+	}
+
+	if email == "" || password == "" || botID == "" || cid == "" {
 		slog.Warn("⚠️ Twin24 credentials not configured, OTP calls disabled")
 		return nil
 	}
 
-	authClient := NewClient("https://iam.twin24.ai")
+	authClient := NewClient(iamURL)
 	auth := NewAuth(authClient, *redisClient, email, password)
 
 	return &OTPSender{
