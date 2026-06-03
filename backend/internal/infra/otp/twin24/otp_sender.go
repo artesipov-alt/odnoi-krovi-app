@@ -24,6 +24,7 @@ type OTPSender struct {
 	apiClient       *Client
 	authClient      *Client
 	auth            *Auth
+	redisClient     *redis.Client
 }
 
 // NewOTPSenderFromEnv создает OTPSender, читая конфигурацию из переменных окружения.
@@ -58,6 +59,7 @@ func NewOTPSenderFromEnv(redisClient *redis.Client) *OTPSender {
 		apiClient:       NewClient(baseURL),
 		authClient:      authClient,
 		auth:            auth,
+		redisClient:     redisClient,
 	}
 }
 
@@ -257,6 +259,76 @@ type CandidateBatch struct {
 	AutoCallID string `json:"autoCallId"`
 }
 
+// getOrCreateDailyTask возвращает ID задания на сегодня.
+// Если задания нет или оно создано в другой день — создаёт новое.
+// Использует Redis для хранения состояния между перезапусками.
+func (s *OTPSender) getOrCreateDailyTask(ctx context.Context) (string, error) {
+	now := time.Now()
+	taskKey := fmt.Sprintf("twin24:daily_task:%s", now.Format("2006-01-02"))
+
+	// проверяем, есть ли задание на сегодня в Redis
+	taskID, err := s.redisClient.Get(ctx, taskKey).Result()
+	if err == nil && taskID != "" {
+		return taskID, nil
+	}
+
+	// создаём новое задание на сегодня
+	taskReq := CreateTaskRequest{
+		Name:            fmt.Sprintf("OTP %s", now.Format("2006-01-02")),
+		DefaultExec:     "robot",
+		DefaultExecData: s.defaultExecData,
+		SecondExec:      "end",
+		CidType:         "gornum",
+		CidData:         s.cidData,
+		StartType:       "manual",
+		CPS:             1.0,
+		WebhookUrls: []WebhookUrl{
+			{
+				URL: "https://n8n.rmay1er.ru/webhook/twin-webhook",
+				Events: map[string]EventConfig{
+					"CALL_ENDED":         {Name: "CALL_ENDED", Value: true},
+					"CANDIDATE_CHANGED":  {Name: "CANDIDATE_CHANGED", Value: true},
+					"CALL_REDIRECTED":    {Name: "CALL_REDIRECTED", Value: true},
+					"RECALL_SCHEDULED":   {Name: "RECALL_SCHEDULED", Value: true},
+					"EFFICIENCY_REACHED": {Name: "EFFICIENCY_REACHED", Value: true},
+				},
+			},
+		},
+		AdditionalOptions: AdditionalOptions{
+			FullListMethod: "reject",
+			FullListTime:   12,
+			RecordCall:     false,
+		},
+		RedialStrategyOptions: RedialStrategyOptions{
+			RedialStrategyEn: false,
+			Busy:             RedialRule{Redial: false},
+			NoAnswer:         RedialRule{Redial: false},
+			AnswerMash:       RedialRule{Redial: false},
+			Congestion:       RedialRule{Redial: false},
+			AnswerNoList:     RedialRule{Redial: false},
+		},
+		PhoneNormalization: "RU",
+		Lifetime:           300,
+	}
+
+	newTaskID, err := s.CreateTask(ctx, taskReq)
+	if err != nil {
+		return "", fmt.Errorf("create daily task: %w", err)
+	}
+
+	// сохраняем в Redis с TTL 48 часов (чтобы пережило день)
+	err = s.redisClient.Set(ctx, taskKey, newTaskID, 48*time.Hour).Err()
+	if err != nil {
+		slog.Warn("⚠️ failed to save task ID to Redis", "error", err)
+		// не критично, продолжаем работу
+	}
+
+	// ждём инициализации задания (рекомендация Twin24)
+	time.Sleep(5 * time.Second)
+
+	return newTaskID, nil
+}
+
 // AddCandidates добавляет кандидатов в задание на обзвон
 func (s *OTPSender) AddCandidates(ctx context.Context, req AddCandidatesRequest) error {
 	resp, err := s.doWithAuth(ctx, http.MethodPost, "/cis/api/v1/telephony/autoCallCandidate/batch", req)
@@ -338,52 +410,11 @@ func (s *OTPSender) HaltTask(ctx context.Context, taskID string) error {
 }
 
 func (s *OTPSender) SendOTP(ctx context.Context, phone, code string) error {
-
-	taskReq := CreateTaskRequest{
-		Name:            fmt.Sprintf("OTP %s", phone),
-		DefaultExec:     "robot",
-		DefaultExecData: s.defaultExecData,
-		SecondExec:      "end",
-		CidType:         "gornum",
-		CidData:         s.cidData,
-		StartType:       "manual",
-		CPS:             1.0,
-		WebhookUrls: []WebhookUrl{
-			{
-				URL: "https://n8n.rmay1er.ru/webhook/twin-webhook",
-				Events: map[string]EventConfig{
-					"CALL_ENDED":         {Name: "CALL_ENDED", Value: true},
-					"CANDIDATE_CHANGED":  {Name: "CANDIDATE_CHANGED", Value: true},
-					"CALL_REDIRECTED":    {Name: "CALL_REDIRECTED", Value: true},
-					"RECALL_SCHEDULED":   {Name: "RECALL_SCHEDULED", Value: true},
-					"EFFICIENCY_REACHED": {Name: "EFFICIENCY_REACHED", Value: true},
-				},
-			},
-		},
-		AdditionalOptions: AdditionalOptions{
-			FullListMethod: "reject",
-			FullListTime:   12, // успешный звонок через 12 секунд
-			RecordCall:     false,
-		},
-		RedialStrategyOptions: RedialStrategyOptions{
-			RedialStrategyEn: false, // перезвоны не нужны для OTP
-			Busy:             RedialRule{Redial: false},
-			NoAnswer:         RedialRule{Redial: false},
-			AnswerMash:       RedialRule{Redial: false},
-			Congestion:       RedialRule{Redial: false},
-			AnswerNoList:     RedialRule{Redial: false},
-		},
-		PhoneNormalization: "RU",
-		Lifetime:           300, // 5 минут
-	}
-
-	taskID, err := s.CreateTask(ctx, taskReq)
+	// получаем или создаём задание на сегодня
+	taskID, err := s.getOrCreateDailyTask(ctx)
 	if err != nil {
-		return fmt.Errorf("create task: %w", err)
+		return fmt.Errorf("get or create daily task: %w", err)
 	}
-
-	// ждём инициализации задания (рекомендация Twin24)
-	time.Sleep(5 * time.Second)
 
 	// подготавливаем переменные для бота
 	// VarTwinCode обязательна, другие переменные можно добавлять по мере необходимости
@@ -393,7 +424,7 @@ func (s *OTPSender) SendOTP(ctx context.Context, phone, code string) error {
 
 	// добавляем кандидата с OTP кодом
 	if err := s.AddCandidates(ctx, AddCandidatesRequest{
-		ForceStart: false,
+		ForceStart: true,
 		Batch: []CandidateBatch{
 			{
 				Phone:      []string{phone},
@@ -406,12 +437,12 @@ func (s *OTPSender) SendOTP(ctx context.Context, phone, code string) error {
 	}
 
 	// ждём перед стартом (рекомендация Twin24)
-	time.Sleep(4 * time.Second)
+	// time.Sleep(3 * time.Second)
 
 	// запускаем задание
-	if err := s.StartTask(ctx, taskID); err != nil {
-		return fmt.Errorf("start task: %w", err)
-	}
+	// if err := s.StartTask(ctx, taskID); err != nil {
+	// 	return fmt.Errorf("start task: %w", err)
+	// }
 
 	return nil
 }

@@ -20,7 +20,7 @@ func TestOTPSender_SendOTP(t *testing.T) {
 
 	baseURL := os.Getenv("TWIN24_BASE_URL")
 	if baseURL == "" {
-		t.Fatal("TWIN24_BASE_URL is not set in .env file")
+		baseURL = "https://twin24.ai"
 	}
 
 	iamBaseURL := os.Getenv("TWIN24_IAM_URL")
@@ -47,7 +47,7 @@ func TestOTPSender_SendOTP(t *testing.T) {
 
 	// SendOTP создаст задание, добавит кандидата и запустит
 	// Внимание: нужно заменить botScenarioID в коде на реальный
-	err := sender.SendOTP(ctx, "79263165800", "2026")
+	err := sender.SendOTP(ctx, "+79264187658", "2026")
 	if err != nil {
 		t.Fatalf("SendOTP failed: %v", err)
 	}
