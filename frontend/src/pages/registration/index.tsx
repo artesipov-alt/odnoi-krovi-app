@@ -176,6 +176,7 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     };
 
     const onGetCodeClickHandler = () => {
+        setCode('');
         onConfirmClickHandler();
     };
 
