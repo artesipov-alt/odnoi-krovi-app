@@ -16,8 +16,8 @@ func TestGetToken(t *testing.T) {
 		t.Fatalf("redisClient is not connected: %v", err)
 	}
 
-	client := twin24.NewClient("https://")
-	auth := twin24.NewAuth(client, *redisClient, "", "")
+	client := twin24.NewClient("https://iam.twin24.ai/")
+	auth := twin24.NewAuth(client, *redisClient, "Test02.06.2026@mail.ru", "f4f17fcd2715d4728dc4eca9674954e5")
 	token, err := auth.GetToken(t.Context())
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)

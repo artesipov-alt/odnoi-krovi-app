@@ -35,6 +35,7 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/otp/twin24"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	redisRepository "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
@@ -102,6 +103,7 @@ func main() {
 		}
 		var otpRepo redisRepository.OTPRepository
 		var publisher ports.EventPublisher
+		var otpSender *twin24.OTPSender
 		redisClient, err := config.NewRedisClientFromEnv()
 		if err != nil {
 			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
@@ -110,6 +112,7 @@ func main() {
 		} else {
 			publisher = events.NewEventPublisher(redisClient, env)
 			otpRepo = redisRepository.NewOTPRepo(redisClient)
+			otpSender = twin24.NewOTPSenderFromEnv(redisClient)
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
@@ -153,7 +156,7 @@ func main() {
 
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, txManager)
-		userChangePhoneHandler := usercmd.NewChangePhoneHandler(userRepo, otpRepo)
+		userChangePhoneHandler := usercmd.NewChangePhoneHandler(userRepo, otpRepo, otpSender)
 		userVerifyPhoneHandler := usercmd.NewVerifyPhoneHandler(userRepo, otpRepo, txManager)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
 		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)

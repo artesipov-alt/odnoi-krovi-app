@@ -22,6 +22,12 @@ services:
       TG_BOT_TOKEN: ${TG_BOT_TOKEN_PROD}
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      TWIN24_EMAIL: ${TWIN24_EMAIL}
+      TWIN24_PASSWORD: ${TWIN24_PASSWORD}
+      TWIN24_BASE_URL: https://twin24.ai
+      TWIN24_IAM_URL: https://iam.twin24.ai
+      TWIN24_BOT_SCENARIO_ID: ${TWIN24_BOT_SCENARIO_ID}
+      TWIN24_BOT_CID: ${TWIN24_BOT_CID}
     ports:
       - "3000:3000"
     networks:
