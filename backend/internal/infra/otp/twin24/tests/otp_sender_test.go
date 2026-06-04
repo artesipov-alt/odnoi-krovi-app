@@ -47,7 +47,7 @@ func TestOTPSender_SendOTP(t *testing.T) {
 
 	// SendOTP создаст задание, добавит кандидата и запустит
 	// Внимание: нужно заменить botScenarioID в коде на реальный
-	err := sender.SendOTP(ctx, "+79264187658", "2026")
+	err := sender.SendOTP(ctx, "+79264187658", "1111")
 	if err != nil {
 		t.Fatalf("SendOTP failed: %v", err)
 	}

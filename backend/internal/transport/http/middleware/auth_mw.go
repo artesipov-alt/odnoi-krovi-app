@@ -169,7 +169,7 @@ func BasicAuthMiddleware(includedPaths ...string) func(http.Handler) http.Handle
 			for _, included := range includedPaths {
 				if strings.HasPrefix(path, included) {
 					user, pass, ok := r.BasicAuth()
-					if !ok || user != "admin" || pass != "secret" {
+					if !ok || user != "odnoikrovi" || pass != "1krovdocpWd" {
 						w.Header().Set("WWW-Authenticate", `Basic realm="Docs"`)
 						http.Error(w, "Unauthorized", http.StatusUnauthorized)
 						return
