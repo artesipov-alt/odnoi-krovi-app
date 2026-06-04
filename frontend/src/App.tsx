@@ -49,7 +49,7 @@ const App: FC = () => {
                 <Route
                     path='/'
                     element={
-                        user.phone ? (
+                        user.phone && user.verified ? (
                             <Navigate to='/owner' />
                         ) : (
                             <Registration initialize={initialize} userId={user.id} fullName={user.fullName} />
