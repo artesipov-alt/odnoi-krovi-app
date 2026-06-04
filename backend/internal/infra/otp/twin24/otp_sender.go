@@ -105,7 +105,7 @@ func (s *OTPSender) getOrCreateDailyTask(ctx context.Context) (string, error) {
 				Count:  6,
 			},
 			Busy:         RedialRule{Redial: false},
-			NoAnswer:     RedialRule{Redial: true, Time: 26, Count: 2},
+			NoAnswer:     RedialRule{Redial: true, Time: 20, Count: 2},
 			AnswerMash:   RedialRule{Redial: false},
 			Congestion:   RedialRule{Redial: false},
 			AnswerNoList: RedialRule{Redial: false},
