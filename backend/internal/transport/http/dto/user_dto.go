@@ -211,6 +211,7 @@ type UserDetail struct {
 	TelegramID       int64            `json:"telegramId,omitempty" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1" deprecated:"true"`
 	FullName         string           `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
 	Phone            string           `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
+	Verified         bool             `json:"verified" doc:"Верифицирован ли пользователь"`
 	Email            string           `json:"email,omitempty" doc:"Email" example:"user@example.com"`
 	PhotoURLs        []string         `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
 	OrganizationName string           `json:"organizationName,omitempty" doc:"Название организации"`

@@ -310,6 +310,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "phone", Type: field.TypeString, Unique: true, Nullable: true, Size: 20},
+		{Name: "verified", Type: field.TypeBool, Default: false},
 		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true, Size: 255},
 		{Name: "organization_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "consent_pd", Type: field.TypeBool, Default: false},
@@ -329,7 +330,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_ref_locations_users",
-				Columns:    []*schema.Column{UsersColumns[15]},
+				Columns:    []*schema.Column{UsersColumns[16]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

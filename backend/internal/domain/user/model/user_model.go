@@ -24,6 +24,7 @@ type User struct {
 	TelegramID          int64
 	FullName            string
 	Phone               string
+	Verified            bool
 	Email               string
 	PhotoURLs           []string
 	OrganizationName    string

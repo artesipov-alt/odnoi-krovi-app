@@ -26,6 +26,8 @@ const (
 	FieldFullName = "full_name"
 	// FieldPhone holds the string denoting the phone field in the database.
 	FieldPhone = "phone"
+	// FieldVerified holds the string denoting the verified field in the database.
+	FieldVerified = "verified"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldOrganizationName holds the string denoting the organization_name field in the database.
@@ -112,6 +114,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldFullName,
 	FieldPhone,
+	FieldVerified,
 	FieldEmail,
 	FieldOrganizationName,
 	FieldConsentPd,
@@ -151,6 +154,8 @@ var (
 	FullNameValidator func(string) error
 	// PhoneValidator is a validator for the "phone" field. It is called by the builders before save.
 	PhoneValidator func(string) error
+	// DefaultVerified holds the default value on creation for the "verified" field.
+	DefaultVerified bool
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
 	// OrganizationNameValidator is a validator for the "organization_name" field. It is called by the builders before save.
@@ -225,6 +230,11 @@ func ByFullName(opts ...sql.OrderTermOption) OrderOption {
 // ByPhone orders the results by the phone field.
 func ByPhone(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPhone, opts...).ToFunc()
+}
+
+// ByVerified orders the results by the verified field.
+func ByVerified(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVerified, opts...).ToFunc()
 }
 
 // ByEmail orders the results by the email field.

@@ -99,6 +99,20 @@ func (_c *UserCreate) SetNillablePhone(v *string) *UserCreate {
 	return _c
 }
 
+// SetVerified sets the "verified" field.
+func (_c *UserCreate) SetVerified(v bool) *UserCreate {
+	_c.mutation.SetVerified(v)
+	return _c
+}
+
+// SetNillableVerified sets the "verified" field if the given value is not nil.
+func (_c *UserCreate) SetNillableVerified(v *bool) *UserCreate {
+	if v != nil {
+		_c.SetVerified(*v)
+	}
+	return _c
+}
+
 // SetEmail sets the "email" field.
 func (_c *UserCreate) SetEmail(v string) *UserCreate {
 	_c.mutation.SetEmail(v)
@@ -364,6 +378,10 @@ func (_c *UserCreate) defaults() {
 		v := user.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Verified(); !ok {
+		v := user.DefaultVerified
+		_c.mutation.SetVerified(v)
+	}
 	if _, ok := _c.mutation.ConsentPd(); !ok {
 		v := user.DefaultConsentPd
 		_c.mutation.SetConsentPd(v)
@@ -403,6 +421,9 @@ func (_c *UserCreate) check() error {
 		if err := user.PhoneValidator(v); err != nil {
 			return &ValidationError{Name: "phone", err: fmt.Errorf(`ent: validator failed for field "User.phone": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.Verified(); !ok {
+		return &ValidationError{Name: "verified", err: errors.New(`ent: missing required field "User.verified"`)}
 	}
 	if v, ok := _c.mutation.Email(); ok {
 		if err := user.EmailValidator(v); err != nil {
@@ -491,6 +512,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Phone(); ok {
 		_spec.SetField(user.FieldPhone, field.TypeString, value)
 		_node.Phone = value
+	}
+	if value, ok := _c.mutation.Verified(); ok {
+		_spec.SetField(user.FieldVerified, field.TypeBool, value)
+		_node.Verified = value
 	}
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
@@ -740,6 +765,18 @@ func (u *UserUpsert) UpdatePhone() *UserUpsert {
 // ClearPhone clears the value of the "phone" field.
 func (u *UserUpsert) ClearPhone() *UserUpsert {
 	u.SetNull(user.FieldPhone)
+	return u
+}
+
+// SetVerified sets the "verified" field.
+func (u *UserUpsert) SetVerified(v bool) *UserUpsert {
+	u.Set(user.FieldVerified, v)
+	return u
+}
+
+// UpdateVerified sets the "verified" field to the value that was provided on create.
+func (u *UserUpsert) UpdateVerified() *UserUpsert {
+	u.SetExcluded(user.FieldVerified)
 	return u
 }
 
@@ -1030,6 +1067,20 @@ func (u *UserUpsertOne) UpdatePhone() *UserUpsertOne {
 func (u *UserUpsertOne) ClearPhone() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearPhone()
+	})
+}
+
+// SetVerified sets the "verified" field.
+func (u *UserUpsertOne) SetVerified(v bool) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetVerified(v)
+	})
+}
+
+// UpdateVerified sets the "verified" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateVerified() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateVerified()
 	})
 }
 
@@ -1514,6 +1565,20 @@ func (u *UserUpsertBulk) UpdatePhone() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearPhone() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearPhone()
+	})
+}
+
+// SetVerified sets the "verified" field.
+func (u *UserUpsertBulk) SetVerified(v bool) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetVerified(v)
+	})
+}
+
+// UpdateVerified sets the "verified" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateVerified() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateVerified()
 	})
 }
 
