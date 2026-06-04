@@ -57,14 +57,15 @@ export type GetUserResponse = {
     role?: Role;
     phone?: string;
     email?: string;
-    photoUrls?: string[];
     message?: string;
     fullName: string;
+    verified: boolean;
     allowGeo?: boolean;
     createdAt?: string;
     consentPd?: boolean;
     locationId?: number;
     telegramId?: number;
+    photoUrls?: string[];
     identities: Identities[];
     onBoarding?: Onboarding[];
     organizationName?: string;
