@@ -18,6 +18,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 		ID:                  e.ID,
 		FullName:            e.FullName,
 		Phone:               e.Phone,
+		Verified:            e.Verified,
 		Email:               e.Email,
 		PhotoURLs:           e.PhotoUrls,
 		OrganizationName:    e.OrganizationName,

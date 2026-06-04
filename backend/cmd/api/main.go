@@ -96,11 +96,12 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, _, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
 		}
+
 		var otpRepo redisRepository.OTPRepository
 		var publisher ports.EventPublisher
 		var otpSender *twin24.OTPSender
@@ -116,10 +117,10 @@ func main() {
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
-		// if err := config.RunMigrations(db, rawDB); err != nil {
-		// 	slog.Error("Ошибка выполнения миграций", "error", err)
-		// 	os.Exit(1)
-		// }
+		if err := config.RunMigrations(db, rawDB); err != nil {
+			slog.Error("Ошибка выполнения миграций", "error", err)
+			os.Exit(1)
+		}
 
 		//Миграции
 		// ctx := context.Background()

@@ -30,6 +30,8 @@ type User struct {
 	FullName string `json:"full_name,omitempty"`
 	// Phone holds the value of the "phone" field.
 	Phone string `json:"phone,omitempty"`
+	// Verified holds the value of the "verified" field.
+	Verified bool `json:"verified,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// OrganizationName holds the value of the "organization_name" field.
@@ -140,7 +142,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldOnBoarding, user.FieldPhotoUrls:
 			values[i] = new([]byte)
-		case user.FieldConsentPd, user.FieldAllowGeo:
+		case user.FieldVerified, user.FieldConsentPd, user.FieldAllowGeo:
 			values[i] = new(sql.NullBool)
 		case user.FieldPrioritySearchCount:
 			values[i] = new(sql.NullInt64)
@@ -199,6 +201,12 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field phone", values[i])
 			} else if value.Valid {
 				_m.Phone = value.String
+			}
+		case user.FieldVerified:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field verified", values[i])
+			} else if value.Valid {
+				_m.Verified = value.Bool
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -346,6 +354,9 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("phone=")
 	builder.WriteString(_m.Phone)
+	builder.WriteString(", ")
+	builder.WriteString("verified=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Verified))
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)

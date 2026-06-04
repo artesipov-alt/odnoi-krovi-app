@@ -101,6 +101,20 @@ func (_u *UserUpdate) ClearPhone() *UserUpdate {
 	return _u
 }
 
+// SetVerified sets the "verified" field.
+func (_u *UserUpdate) SetVerified(v bool) *UserUpdate {
+	_u.mutation.SetVerified(v)
+	return _u
+}
+
+// SetNillableVerified sets the "verified" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableVerified(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetVerified(*v)
+	}
+	return _u
+}
+
 // SetEmail sets the "email" field.
 func (_u *UserUpdate) SetEmail(v string) *UserUpdate {
 	_u.mutation.SetEmail(v)
@@ -569,6 +583,9 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.PhoneCleared() {
 		_spec.ClearField(user.FieldPhone, field.TypeString)
 	}
+	if value, ok := _u.mutation.Verified(); ok {
+		_spec.SetField(user.FieldVerified, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
@@ -945,6 +962,20 @@ func (_u *UserUpdateOne) SetNillablePhone(v *string) *UserUpdateOne {
 // ClearPhone clears the value of the "phone" field.
 func (_u *UserUpdateOne) ClearPhone() *UserUpdateOne {
 	_u.mutation.ClearPhone()
+	return _u
+}
+
+// SetVerified sets the "verified" field.
+func (_u *UserUpdateOne) SetVerified(v bool) *UserUpdateOne {
+	_u.mutation.SetVerified(v)
+	return _u
+}
+
+// SetNillableVerified sets the "verified" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableVerified(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetVerified(*v)
+	}
 	return _u
 }
 
@@ -1445,6 +1476,9 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.PhoneCleared() {
 		_spec.ClearField(user.FieldPhone, field.TypeString)
+	}
+	if value, ok := _u.mutation.Verified(); ok {
+		_spec.SetField(user.FieldVerified, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)

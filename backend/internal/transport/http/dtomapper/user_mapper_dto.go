@@ -46,6 +46,7 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		TelegramID:       u.TelegramID,
 		FullName:         u.FullName,
 		Phone:            u.Phone,
+		Verified:         u.Verified,
 		Email:            u.Email,
 		PhotoURLs:        photoURLs,
 		OrganizationName: u.OrganizationName,

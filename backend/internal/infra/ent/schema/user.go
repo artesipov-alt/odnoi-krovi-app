@@ -26,6 +26,9 @@ func (User) Fields() []ent.Field {
 			Optional().
 			Unique().
 			MaxLen(20),
+		// verified - указывает, верифицирован ли пользователь.
+		field.Bool("verified").
+			Default(false),
 		// email - адрес электронной почты пользователя.
 		field.String("email").
 			Optional().
