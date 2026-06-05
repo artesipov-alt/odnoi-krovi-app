@@ -98,6 +98,7 @@ export type GetDonorInfoResponse = Pet & {
     taxi: boolean;
     ownerId: string;
     ownerName: string;
+    ownerPhone: string;
     availableBloodAmount: number;
     compensationType: CompensationType;
 };
@@ -133,6 +134,7 @@ export type DonationForRecipientDonorData = {
     bloodGroup: string;
     chipNumber: string;
     photoUrls: string[];
+    phoneNumber: string;
     analyses?: Analyses;
     treatments: Treatments;
     livingCondition: string;

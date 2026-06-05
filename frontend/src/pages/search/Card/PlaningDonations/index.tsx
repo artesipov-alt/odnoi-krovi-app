@@ -102,10 +102,10 @@ const PlaningDonations: FC<Props> = ({ userId, donorResponses, onDonationClick, 
                                     {status === RespondingDonorStatus.ACCEPTED && (
                                         <p className={styles.acceptedText}>Донация состоялась?</p>
                                     )}
-                                    {status === RespondingDonorStatus.COMPLETED && isWithinHours(updatedAt, 48) && (
+                                    {status === RespondingDonorStatus.COMPLETED && isWithinHours(updatedAt, 72) && (
                                         <div className={styles.count}>
                                             <Timer
-                                                hoursToAdd={48}
+                                                hoursToAdd={72}
                                                 updatedAt={updatedAt}
                                                 className={styles.countTimer}
                                                 digitClassName={styles.countDigits}

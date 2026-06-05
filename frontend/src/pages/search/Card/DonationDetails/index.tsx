@@ -22,6 +22,7 @@ import Exclamation from 'imgs/svg/exclamation';
 import Health from 'imgs/svg/health';
 import Max from 'imgs/svg/max';
 import Params from 'imgs/svg/params';
+import Phone from 'imgs/svg/phone';
 import Processing from 'imgs/svg/processing';
 import Taxi from 'imgs/svg/taxi';
 import Telegram from 'imgs/svg/telegram';
@@ -207,6 +208,10 @@ const DonationDetails: FC<Props> = ({
 
         onClose();
         onReject();
+    };
+
+    const onCallClickHandler = () => {
+        window.location.href = `tel:${donation?.donorData.phoneNumber}`;
     };
 
     const onChangeDonatedBloodVolumeHandler = ({
@@ -517,12 +522,12 @@ const DonationDetails: FC<Props> = ({
                 )}
                 {status === RespondingDonorStatus.COMPLETED && (
                     <>
-                        {isWithinHours(updatedAt, 48) && (
+                        {isWithinHours(updatedAt, 72) && (
                             <div className={styles.count}>
                                 <p className={styles.timerText}>Хозяин донора сообщил о донации</p>
                                 <div className={styles.timerWrapper}>
                                     <Timer
-                                        hoursToAdd={48}
+                                        hoursToAdd={72}
                                         updatedAt={updatedAt}
                                         className={styles.countTimer}
                                         onTimeEnd={onEndTimerClickHandler}
@@ -712,13 +717,26 @@ const DonationDetails: FC<Props> = ({
                             </div>
                         ))}
                     </div>
-                    <p className={styles.linkDescr}>Пришлем контакт донора в мессенджер</p>
+                    <p className={styles.linkDescr}>Связаться с хозяином реципиента</p>
+                    <div className={styles.callButtonWrapper}>
+                        <Button
+                            onClick={onCallClickHandler}
+                            className={styles.callButton}
+                            startIcon={
+                                <div className={styles.phoneIcon}>
+                                    <Phone />
+                                </div>
+                            }
+                        >
+                            Позвонить
+                        </Button>
+                    </div>
                     <div className={styles.messengers}>
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
                             <div
                                 key={providerId}
+                                className={styles.identity}
                                 onClick={onMessengerClickHandler(providerName)}
-                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
                             >
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>
