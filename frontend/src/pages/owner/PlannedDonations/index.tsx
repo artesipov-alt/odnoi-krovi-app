@@ -84,16 +84,16 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
                 donations.map((donation) => {
                     const showPendingTimer =
                         donation.applicationData.status === DonorStatus.PENDING &&
-                        isWithinHours(donation.applicationData.updatedAt, 1) &&
+                        isWithinHours(donation.applicationData.createdAt, 1) &&
                         !expiredPendingTimers.includes(donation.applicationData.id);
 
                     const showCompletedTimer =
                         donation.applicationData.status === DonorStatus.COMPLETED &&
-                        isWithinHours(donation.applicationData.updatedAt, 48);
+                        isWithinHours(donation.applicationData.updatedAt, 72);
 
                     const isPendingTimerExpired =
                         donation.applicationData.status === DonorStatus.PENDING &&
-                        (!isWithinHours(donation.applicationData.updatedAt, 1) ||
+                        (!isWithinHours(donation.applicationData.createdAt, 1) ||
                             expiredPendingTimers.includes(donation.applicationData.id));
 
                     return (
@@ -138,7 +138,7 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
                                                 className={styles.countTimer}
                                                 digitClassName={styles.countDigits}
                                                 separatorClassName={styles.countSeparator}
-                                                updatedAt={donation.applicationData.updatedAt}
+                                                updatedAt={donation.applicationData.createdAt}
                                                 onTimeEnd={onPendingTimerExpired(donation.applicationData.id)}
                                             />
                                             <div className={cn(styles.infoIcon, { [styles.inTimer]: true })}>
@@ -152,7 +152,7 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
                                         <p className={styles.timerText}>до подтверждения донации</p>
                                         <div className={styles.timer}>
                                             <Timer
-                                                hoursToAdd={48}
+                                                hoursToAdd={72}
                                                 className={styles.countTimer}
                                                 digitClassName={styles.countDigits}
                                                 separatorClassName={styles.countSeparator}
@@ -174,7 +174,7 @@ const PlannedDonations: FC<Props> = ({ id, onDonationClick }) => {
                                         !!donation.applicationData.rejectedReason &&
                                         'Хозяин реципиента не подтвердил донацию'}
                                     {donation.applicationData.status === DonorStatus.COMPLETED &&
-                                        !isWithinHours(donation.recipientData.updatedAt, 48) &&
+                                        !isWithinHours(donation.recipientData.updatedAt, 72) &&
                                         'Ожидается подтверждение реципиента'}
                                 </p>
                                 <div

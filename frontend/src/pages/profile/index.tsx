@@ -295,9 +295,9 @@ const Profile: FC<Props> = ({ userId }) => {
     const maxValue = identitiesByType.max ? getMaxValue(identitiesByType.max) : null;
 
     const socialRows: SocialRow[] = [
-        // telegramValue
-        //     ? { title: 'Telegram', value: telegramValue, type: 'telegram' }
-        //     : { title: 'Telegram', value: 'Привязать', type: 'telegram', isAction: true },
+        telegramValue
+            ? { title: 'Telegram', value: telegramValue, type: 'telegram' }
+            : { title: 'Telegram', value: 'Привязать', type: 'telegram', isAction: true },
         maxValue
             ? { title: 'MAX', value: maxValue, type: 'max' }
             : { title: 'MAX', value: 'Привязать', type: 'max', isAction: true },

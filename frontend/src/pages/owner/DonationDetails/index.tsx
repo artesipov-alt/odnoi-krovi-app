@@ -14,6 +14,7 @@ import Location from 'imgs/svg/location';
 import Lock from 'imgs/svg/lock';
 import Max from 'imgs/svg/max';
 import MiniSinglePaw from 'imgs/svg/miniSinglePaw';
+import Phone from 'imgs/svg/phone';
 import Pin from 'imgs/svg/pin';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Taxi from 'imgs/svg/taxi';
@@ -90,6 +91,10 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
 
     const onCloseChatCurtainClickHandler = () => {
         setChatCurtain({ isOpen: false });
+    };
+
+    const onCallClickHandler = () => {
+        window.location.href = `tel:${donation.recipientData.phoneNumber}`;
     };
 
     const onMessengerClickHandler = (providerName: string) => async () => {
@@ -327,10 +332,10 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                         <div onClick={onChatOpenHandler} className={styles.chatIcon}>
                             <Chat />
                         </div>
-                        {isWithinHours(donation.applicationData.updatedAt, 48) ? (
+                        {isWithinHours(donation.applicationData.updatedAt, 72) ? (
                             <div className={cn(styles.count, { [styles.completed]: true })}>
                                 <Timer
-                                    hoursToAdd={48}
+                                    hoursToAdd={72}
                                     className={styles.countTimer}
                                     onTimeEnd={onCompleteTimerExpired}
                                     digitClassName={styles.countDigits}
@@ -346,7 +351,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                 )}
             </div>
             {donation.applicationData.status === DonorStatus.PENDING &&
-                isWithinHours(donation.applicationData.updatedAt, 1) &&
+                isWithinHours(donation.applicationData.createdAt, 1) &&
                 !isPendingTimerExpired && (
                     <div className={styles.count}>
                         <Timer
@@ -355,7 +360,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             onTimeEnd={onPendingTimerExpired}
                             digitClassName={styles.countDigits}
                             separatorClassName={styles.countSeparator}
-                            updatedAt={donation.applicationData.updatedAt}
+                            updatedAt={donation.applicationData.createdAt}
                         />
                         <p className={styles.timerText}>до того, как сможете отказаться</p>
                     </div>
@@ -516,7 +521,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                 </div>
             </div>
             {donation.applicationData.status === DonorStatus.PENDING &&
-                (!isWithinHours(donation.recipientData.updatedAt, 1) || isPendingTimerExpired) && (
+                (!isWithinHours(donation.applicationData.createdAt, 1) || isPendingTimerExpired) && (
                     <div className={styles.cancel} onClick={onCancelClickHandler}>
                         <div className={styles.cancelIcon}>
                             <Cancel />
@@ -595,13 +600,26 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             </div>
                         ))}
                     </div>
-                    <p className={styles.linkDescr}>Пришлем контакт реципиента в мессенджер</p>
+                    <p className={styles.linkDescr}>Связаться с хозяином реципиента</p>
+                    <div className={styles.callButtonWrapper}>
+                        <Button
+                            onClick={onCallClickHandler}
+                            className={styles.callButton}
+                            startIcon={
+                                <div className={styles.phoneIcon}>
+                                    <Phone />
+                                </div>
+                            }
+                        >
+                            Позвонить
+                        </Button>
+                    </div>
                     <div className={styles.messengers}>
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
                             <div
                                 key={providerId}
+                                className={styles.identity}
                                 onClick={onMessengerClickHandler(providerName)}
-                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
                             >
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>

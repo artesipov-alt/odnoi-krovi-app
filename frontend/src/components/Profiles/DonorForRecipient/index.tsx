@@ -1,3 +1,4 @@
+import { Button } from '@mui/material';
 import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import {
@@ -20,6 +21,7 @@ import Exclamation from 'imgs/svg/exclamation';
 import Health from 'imgs/svg/health';
 import Max from 'imgs/svg/max';
 import Params from 'imgs/svg/params';
+import Phone from 'imgs/svg/phone';
 import Processing from 'imgs/svg/processing';
 import StatusQuestion from 'imgs/svg/statusQuestion';
 import Taxi from 'imgs/svg/taxi';
@@ -64,6 +66,7 @@ type OtherDonors = {
 };
 
 type ChatCurtain = {
+    phone?: string;
     isOpen: boolean;
     identities?: Identities[];
 };
@@ -231,6 +234,12 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
         await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
 
         onBackToSearch();
+    };
+
+    const onCallClickHandler = () => {
+        onMessengerClickHandler();
+
+        window.location.href = `tel:${info?.ownerPhone}`;
     };
 
     useEffect(() => {
@@ -517,14 +526,23 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                             </div>
                         ))}
                     </div>
-                    <p className={styles.linkDescr}>Пришлем контакт донора в мессенджер</p>
+                    <p className={styles.linkDescr}>Связаться с хозяином донора</p>
+                    <div className={styles.callButtonWrapper}>
+                        <Button
+                            onClick={onCallClickHandler}
+                            className={styles.callButton}
+                            startIcon={
+                                <div className={styles.phoneIcon}>
+                                    <Phone />
+                                </div>
+                            }
+                        >
+                            Позвонить
+                        </Button>
+                    </div>
                     <div className={styles.messengers}>
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
-                            <div
-                                key={providerId}
-                                onClick={onMessengerClickHandler}
-                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
-                            >
+                            <div key={providerId} className={styles.identity} onClick={onMessengerClickHandler}>
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>
                         ))}
