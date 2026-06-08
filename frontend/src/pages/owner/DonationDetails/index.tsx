@@ -94,7 +94,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     };
 
     const onCallClickHandler = () => {
-        window.location.href = `tel:${donation.recipientData.phoneNumber}`;
+        window.location.href = `tel:${donation.recipientData.ownerPhone}`;
     };
 
     const onMessengerClickHandler = (providerName: string) => async () => {

@@ -9,6 +9,10 @@ import Layout from 'components/Layout';
 
 import styles from './PromoSlider.module.less';
 
+type Props = {
+    onClose: () => void;
+};
+
 const promoSlides = [
     {
         title: 'Найдите кровь\nдля своего питомца',
@@ -27,11 +31,19 @@ const promoSlides = [
     },
 ];
 
-const PromoSlider: FC = () => {
+const PromoSlider: FC<Props> = ({ onClose }) => {
     const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
     const handleNextSlide = () => {
-        setActiveSlideIndex((prev) => (prev + 1) % promoSlides.length);
+        setActiveSlideIndex((prev) => {
+            if (prev === 2) {
+                onClose();
+
+                return 0;
+            }
+
+            return (prev + 1) % promoSlides.length;
+        });
     };
 
     const currentSlide = promoSlides[activeSlideIndex];

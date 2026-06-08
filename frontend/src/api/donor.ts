@@ -150,7 +150,7 @@ export type PlannedDonationRecipientInfo = {
     deletedAt: string;
     ownerName: string;
     bloodGroup: string;
-    phoneNumber: string;
+    ownerPhone: string;
     photoUrls?: string[];
     status: PoolRequestStatus;
     bloodVolumeNeeded: number;

@@ -44,7 +44,7 @@ const LimitReached: FC<Props> = ({ onBackToSearch, avatar, type, bloodVolumeNeed
                 поиск.
             </p>
             <Button fullWidth onClick={onBackToSearch} className={styles.button} variant='contained'>
-                К выбранному
+                К найденному
             </Button>
         </div>
     </Layout>

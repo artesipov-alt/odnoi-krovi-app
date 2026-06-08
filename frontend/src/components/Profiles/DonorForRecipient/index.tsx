@@ -153,7 +153,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
             return;
         }
 
-        setChatCurtain({ isOpen: true, identities: response.data.identities });
+        setChatCurtain({ isOpen: true, identities: response.data.identities, phone: response.data.phone });
     };
 
     const onConditionsClickToggle = () => {
@@ -239,7 +239,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
     const onCallClickHandler = () => {
         onMessengerClickHandler();
 
-        window.location.href = `tel:${info?.ownerPhone}`;
+        window.location.href = `tel:${chatCurtain.phone}`;
     };
 
     useEffect(() => {
