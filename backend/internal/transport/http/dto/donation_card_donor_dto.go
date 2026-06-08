@@ -34,6 +34,9 @@ type ApplicationShort struct {
 
 type RecipientForDonor struct {
 	ID                       string           `json:"id" doc:"Уникальный идентификатор питомца" example:"PET-aBcDeF1234" readOnly:"true"`
+	OwnerID                  string           `json:"ownerID" doc:"Идентификатор владельца"`
+	OwnerName                string           `json:"ownerName" doc:"Имя владельца"`
+	OwnerPhone               string           `json:"ownerPhone" doc:"Номер телефона владельца"`
 	PetName                  string           `json:"petName" doc:"Имя питомца" example:"Шарик"`
 	PetType                  string           `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	BloodVolumeNeeded        float64          `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"200"`
@@ -44,8 +47,6 @@ type RecipientForDonor struct {
 	SearchingBloodNames      []string         `json:"searchingBloodNames" doc:"Список групп крови"`
 	BloodGroup               string           `json:"bloodGroup" doc:"Группа крови реципиента"`
 	Regions                  []string         `json:"regions,omitempty" doc:"Список ID регионов"`
-	OwnerID                  string           `json:"ownerID" doc:"Идентификатор владельца"`
-	OwnerName                string           `json:"ownerName" doc:"Имя владельца"`
 	Status                   string           `json:"status" doc:"Статус заявки" enum:"active,closed,reserved_full,draft"`
 	IncludeUnknownBloodGroup bool             `json:"includeUnknownBloodGroup,omitempty" doc:"Включить неизвестную группу крови"`
 	CreatedAt                *time.Time       `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
