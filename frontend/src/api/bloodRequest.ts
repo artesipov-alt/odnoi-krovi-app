@@ -133,8 +133,8 @@ export type DonationForRecipientDonorData = {
     updatedAt: string;
     bloodGroup: string;
     chipNumber: string;
+    ownerPhone: string;
     photoUrls: string[];
-    phoneNumber: string;
     analyses?: Analyses;
     treatments: Treatments;
     livingCondition: string;

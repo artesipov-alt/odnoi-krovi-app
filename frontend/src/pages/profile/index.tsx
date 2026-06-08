@@ -30,7 +30,6 @@ import Layout from 'components/Layout';
 import SMSInput from 'components/SmsInput';
 
 import Chat from './Chat';
-// import PromoSlider from 'components/PromoSlider';
 import styles from './Profile.module.less';
 
 type Props = {
@@ -633,8 +632,6 @@ const Profile: FC<Props> = ({ userId }) => {
                         </Button>
                         <img src={profileBonus} alt='Питомцы-доноры' className={styles.bonusCardNewImage} />
                     </div>
-
-                    {/* <PromoSlider /> */}
 
                     <div className={styles.infoButtons}>
                         <button onClick={onChatOpenToggle} type='button' className={styles.infoButton}>

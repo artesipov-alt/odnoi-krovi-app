@@ -14,6 +14,7 @@ import { queryClient } from 'api/queryClient';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
+import PromoSlider from 'components/PromoSlider';
 import SMSInput from 'components/SmsInput';
 
 import styles from './Registration.module.less';
@@ -39,6 +40,7 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
     const [email, setEmail] = useState<Input>({ value: '' });
     const [name, setName] = useState<Input>({ value: fullName });
     const [timeLeft, setTimeLeft] = useState<number>(0);
+    const [isInfoPageShown, setIsInfoPageShown] = useState(false);
     const [isCodeNotValid, setIsCodeNotValid] = useState<boolean>(false);
     const [timeOfOpenCurtain, setTimeOfOpenCurtain] = useState<number>(0);
     const [isConfirmCurtainOpen, setIsConfirmCurtainOpen] = useState<boolean>(false);
@@ -180,6 +182,10 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
         onConfirmClickHandler();
     };
 
+    const onCloseInfoPageHandler = () => {
+        setIsInfoPageShown(true);
+    };
+
     const getNewCodeBlock = () => {
         const timeNotExpired = timeLeft > 0;
 
@@ -211,6 +217,10 @@ const Registration: FC<Props> = ({ userId, fullName, initialize }) => {
 
         return () => clearInterval(timer);
     }, [timeOfOpenCurtain]);
+
+    if (!isInfoPageShown) {
+        return <PromoSlider onClose={onCloseInfoPageHandler} />;
+    }
 
     return (
         <Layout className={styles.wrapper}>

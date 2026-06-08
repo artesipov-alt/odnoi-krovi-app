@@ -211,7 +211,7 @@ const DonationDetails: FC<Props> = ({
     };
 
     const onCallClickHandler = () => {
-        window.location.href = `tel:${donation?.donorData.phoneNumber}`;
+        window.location.href = `tel:${donation?.donorData.ownerPhone}`;
     };
 
     const onChangeDonatedBloodVolumeHandler = ({
