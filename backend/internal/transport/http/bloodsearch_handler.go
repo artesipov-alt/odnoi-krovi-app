@@ -312,7 +312,8 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 	donor := h.petMapper.ToResponse(*donation.DonorPet)
 
 	donorData := dto.PetWithApplication{
-		PetDetail: donor,
+		PetDetail:  donor,
+		OwnerPhone: donation.DonorOwnerData.Phone,
 		Application: dto.CoreApplicationData{
 			ID:               donation.Application.ID,
 			Amount:           donation.Application.Amount,

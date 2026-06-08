@@ -14,14 +14,16 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type GetPlannedDonationsResult struct {
-	ApplicationData  donormodel.DonorResponse
-	DonorPetData     petmodel.Pet
-	BloodSearchData  bloodreqmodel.BloodRequestWithApplications
-	RecipientPetData petmodel.Pet
-	Bonuses          []*bonusmodel.Bonus
+	ApplicationData    *donormodel.DonorResponse
+	DonorPetData       *petmodel.Pet
+	BloodSearchData    *bloodreqmodel.BloodRequestWithApplications
+	RecipientPetData   *petmodel.Pet
+	RecipientOwnerData *usermodel.User
+	Bonuses            []*bonusmodel.Bonus
 }
 
 type PlannedDonationsHandler struct {
@@ -85,6 +87,11 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get pet")
 			}
+			recipientOwner, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{})
+			if err != nil {
+				return nil, apperrors.Internal(err, "failed to get recipient owner")
+			}
+
 			bonuses, err := h.bonusRepo.GetBonusesByDonorResponseID(ctx, application.ID)
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get bonuses")
@@ -95,11 +102,12 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 			}
 
 			result = append(result, &GetPlannedDonationsResult{
-				ApplicationData:  *application,
-				BloodSearchData:  *request,
-				RecipientPetData: *recipientPet,
-				DonorPetData:     *dPet,
-				Bonuses:          bonuses,
+				ApplicationData:    application,
+				BloodSearchData:    request,
+				RecipientPetData:   recipientPet,
+				DonorPetData:       dPet,
+				RecipientOwnerData: recipientOwner,
+				Bonuses:            bonuses,
 			})
 		}
 	}
