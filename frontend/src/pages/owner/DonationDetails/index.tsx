@@ -94,7 +94,13 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     };
 
     const onCallClickHandler = () => {
-        window.location.href = `tel:${donation.recipientData.ownerPhone}`;
+        const storedEnv = localStorage.getItem('environment');
+
+        if (storedEnv === 'tg') {
+            window.open(donation.recipientData.ownerPhone, '_blank');
+        } else {
+            window.location.href = `tel:${donation.recipientData.ownerPhone}`;
+        }
     };
 
     const onMessengerClickHandler = (providerName: string) => async () => {
