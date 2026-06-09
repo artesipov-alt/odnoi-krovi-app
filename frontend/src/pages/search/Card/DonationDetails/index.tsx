@@ -29,7 +29,7 @@ import Telegram from 'imgs/svg/telegram';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
-import { isWithinHours } from 'utils/utils';
+import { isWithinHours, matchIdentities } from 'utils/utils';
 
 import { confirmDonation } from 'api/apiServices/confirmDonation';
 import { getDonationForRecipientById } from 'api/apiServices/getDonationForRecipientById';
@@ -283,7 +283,10 @@ const DonationDetails: FC<Props> = ({
     };
 
     const onChatOpenHandler = () => {
-        setChatCurtain({ isOpen: true, identities: userData?.identities });
+        setChatCurtain({
+            isOpen: true,
+            identities: matchIdentities(userData?.identities!, donation?.donorData.identities),
+        });
     };
 
     const onEndTimerClickHandler = async () => {

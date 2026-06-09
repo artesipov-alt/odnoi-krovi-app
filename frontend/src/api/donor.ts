@@ -3,7 +3,7 @@ import { AxiosPromise } from 'axios';
 import { PoolRequestStatus } from './bloodRequest';
 import { instance } from './instance';
 import { PetType } from './types';
-import { CompensationType } from './user';
+import { CompensationType, Identities } from './user';
 
 export enum RecipientStatus {
     DRAFT = 'draft',
@@ -152,6 +152,7 @@ export type PlannedDonationRecipientInfo = {
     bloodGroup: string;
     ownerPhone: string;
     photoUrls?: string[];
+    identities: Identities[];
     status: PoolRequestStatus;
     bloodVolumeNeeded: number;
     bloodVolumeDonated: number;
