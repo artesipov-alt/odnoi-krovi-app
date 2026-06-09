@@ -9,6 +9,7 @@ import {
     usePetTypesAndBloodGroupsQuery,
     useReproductiveStatusesQuery,
 } from 'hooks/useDicts';
+import { useGetUserById } from 'hooks/useGetUserById';
 import catRoundStub from 'imgs/catRoundStub.png';
 import dogRoundStub from 'imgs/dogRoundStub.png';
 import AccordionArrow from 'imgs/svg/accordionArrow';
@@ -29,6 +30,7 @@ import Telegram from 'imgs/svg/telegram';
 import DonationQuestions from 'pages/owner/Statuses/DonationQuestions';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { matchIdentities } from 'utils/utils';
 
 import { applyDonorRespond } from 'api/apiServices/applyDonorRespond';
 import { getDonorInfo } from 'api/apiServices/getDonorInfo';
@@ -107,6 +109,8 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
     const [activeTile, setaActiveTile] = useState<TileName | null>(null);
     const [checkOtherDonors, setCheckOtherDonors] = useState<OtherDonors>({ isOpen: false });
 
+    const { data: userData } = useGetUserById(userId);
+
     // dicts
     const { data: petGendersDict = [], isError: isErrorGenders } = useGendersQuery();
     const { data: healthStatusesDict = [], isError: isErrorHealthStatuses } = useHealthStatusesQuery();
@@ -153,7 +157,11 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
             return;
         }
 
-        setChatCurtain({ isOpen: true, identities: response.data.identities, phone: response.data.phone });
+        setChatCurtain({
+            isOpen: true,
+            identities: matchIdentities(response.data.identities, userData?.identities),
+            phone: response.data.phone,
+        });
     };
 
     const onConditionsClickToggle = () => {

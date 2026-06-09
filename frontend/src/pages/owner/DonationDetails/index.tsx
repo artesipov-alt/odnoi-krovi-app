@@ -23,7 +23,7 @@ import Accordion from 'pages/adding/common/Accordion';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
-import { isWithinHours } from 'utils/utils';
+import { isWithinHours, matchIdentities } from 'utils/utils';
 
 import { cancelDonation } from 'api/apiServices/cancelDonation';
 import { completeDonation } from 'api/apiServices/completeDonation';
@@ -142,7 +142,10 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     };
 
     const onChatOpenHandler = () => {
-        setChatCurtain({ isOpen: true, identities });
+        setChatCurtain({
+            isOpen: true,
+            identities: matchIdentities(identities!, donation.recipientData.identities),
+        });
     };
 
     const onConfirmDonationClickHandler = async () => {

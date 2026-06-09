@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
+import { Identities } from '../api/user';
+
 export enum Variants {
     DAYS = 'days',
     YEARS = 'years',
@@ -48,4 +50,20 @@ export const isWithinHours = (startTime: string, hours: number): boolean => {
     const thresholdInMs = hours * 60 * 60 * 1000;
 
     return diffInMs < thresholdInMs;
+};
+
+export const matchIdentities = (first: Identities[], second?: Identities[]) => {
+    if (!second) {
+        return first;
+    }
+
+    const result: Identities[] = [];
+
+    first.forEach((item) => {
+        if (second.some(({ providerName }) => providerName === item.providerName)) {
+            result.push(item);
+        }
+    });
+
+    return result;
 };

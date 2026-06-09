@@ -3,7 +3,7 @@ import { AxiosPromise } from 'axios';
 import { instance } from './instance';
 import { Analyses, DonorRestrictions, Health, Pet, Treatments, WarnFactors } from './pets';
 import { PetGender, PetType } from './types';
-import { CompensationType, Role } from './user';
+import { CompensationType, Identities, Role } from './user';
 
 export enum PoolRequestStatus {
     DRAFT = 'draft',
@@ -138,6 +138,7 @@ export type DonationForRecipientDonorData = {
     analyses?: Analyses;
     treatments: Treatments;
     livingCondition: string;
+    identities: Identities[];
     application: Application;
     reproductiveStatus?: string;
     availableBloodAmount: number;
