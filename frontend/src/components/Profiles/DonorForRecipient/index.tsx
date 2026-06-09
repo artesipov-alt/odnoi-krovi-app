@@ -236,13 +236,25 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
         onBackToSearch();
     };
 
-    const onCallClickHandler = () => {
+    const onCallClickHandler = (e) => {
         onMessengerClickHandler();
+
+        if (!chatCurtain.phone) {
+            return;
+        }
 
         const storedEnv = localStorage.getItem('environment');
 
         if (storedEnv === 'tg') {
-            window.open(chatCurtain.phone, '_blank');
+            e.preventDefault();
+            const phone = `tel:+${chatCurtain.phone.replace(/[^\d]/g, '')}`;
+            const a = document.createElement('a');
+            a.href = phone;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         } else {
             window.location.href = `tel:${chatCurtain.phone}`;
         }
