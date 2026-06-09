@@ -159,7 +159,7 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
 
         setChatCurtain({
             isOpen: true,
-            identities: matchIdentities(response.data.identities, userData?.identities),
+            identities: matchIdentities(userData?.identities!, response.data.identities),
             phone: response.data.phone,
         });
     };
