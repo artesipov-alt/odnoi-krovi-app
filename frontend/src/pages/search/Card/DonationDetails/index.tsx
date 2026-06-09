@@ -211,7 +211,13 @@ const DonationDetails: FC<Props> = ({
     };
 
     const onCallClickHandler = () => {
-        window.location.href = `tel:${donation?.donorData.ownerPhone}`;
+        const storedEnv = localStorage.getItem('environment');
+
+        if (storedEnv === 'tg') {
+            window.open(donation?.donorData.ownerPhone, '_blank');
+        } else {
+            window.location.href = `tel:${donation?.donorData.ownerPhone}`;
+        }
     };
 
     const onChangeDonatedBloodVolumeHandler = ({

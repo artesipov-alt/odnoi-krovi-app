@@ -239,7 +239,13 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
     const onCallClickHandler = () => {
         onMessengerClickHandler();
 
-        window.location.href = `tel:${chatCurtain.phone}`;
+        const storedEnv = localStorage.getItem('environment');
+
+        if (storedEnv === 'tg') {
+            window.open(chatCurtain.phone, '_blank');
+        } else {
+            window.location.href = `tel:${chatCurtain.phone}`;
+        }
     };
 
     useEffect(() => {
