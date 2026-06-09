@@ -93,11 +93,19 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         setChatCurtain({ isOpen: false });
     };
 
-    const onCallClickHandler = () => {
+    const onCallClickHandler = (e) => {
         const storedEnv = localStorage.getItem('environment');
 
         if (storedEnv === 'tg') {
-            window.open(donation.recipientData.ownerPhone, '_blank');
+            e.preventDefault();
+            const phone = `tel:+${donation.recipientData.ownerPhone.replace(/[^\d]/g, '')}`;
+            const a = document.createElement('a');
+            a.href = phone;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         } else {
             window.location.href = `tel:${donation.recipientData.ownerPhone}`;
         }

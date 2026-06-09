@@ -210,11 +210,23 @@ const DonationDetails: FC<Props> = ({
         onReject();
     };
 
-    const onCallClickHandler = () => {
+    const onCallClickHandler = (e) => {
         const storedEnv = localStorage.getItem('environment');
 
+        if (!donation) {
+            return;
+        }
+
         if (storedEnv === 'tg') {
-            window.open(donation?.donorData.ownerPhone, '_blank');
+            e.preventDefault();
+            const phone = `tel:+${donation.donorData.ownerPhone.replace(/[^\d]/g, '')}`;
+            const a = document.createElement('a');
+            a.href = phone;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         } else {
             window.location.href = `tel:${donation?.donorData.ownerPhone}`;
         }
