@@ -56,7 +56,9 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	if err != nil {
 		return nil, err
 	}
-	donorOwnerData, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{})
+	donorOwnerData, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+		WithIdentities: true,
+	})
 	if err != nil {
 		return nil, err
 	}

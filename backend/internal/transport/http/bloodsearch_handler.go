@@ -311,9 +311,17 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 
 	donor := h.petMapper.ToResponse(*donation.DonorPet)
 
+	identities := make([]dto.Identity, 0, len(donation.DonorOwnerData.Identities))
+	for _, identity := range donation.DonorOwnerData.Identities {
+		identities = append(identities, dto.Identity{
+			ProviderName: string(identity.ProviderName),
+			ProviderID:   identity.ProviderUserID,
+		})
+	}
 	donorData := dto.PetWithApplication{
 		PetDetail:  donor,
 		OwnerPhone: donation.DonorOwnerData.Phone,
+		Identities: identities,
 		Application: dto.CoreApplicationData{
 			ID:               donation.Application.ID,
 			Amount:           donation.Application.Amount,

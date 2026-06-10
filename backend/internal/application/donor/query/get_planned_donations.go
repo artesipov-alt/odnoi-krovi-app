@@ -87,7 +87,9 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get pet")
 			}
-			recipientOwner, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{})
+			recipientOwner, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{
+				WithIdentities: true,
+			})
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get recipient owner")
 			}

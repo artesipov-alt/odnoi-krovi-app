@@ -306,12 +306,19 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				CreatedAt:        res.ApplicationData.CreatedAt,
 				UpdatedAt:        res.ApplicationData.UpdatedAt,
 			}
-
+			identities := make([]dto.Identity, len(res.RecipientOwnerData.Identities))
+			for i, identity := range res.RecipientOwnerData.Identities {
+				identities[i] = dto.Identity{
+					ProviderName: string(identity.ProviderName),
+					ProviderID:   identity.ProviderUserID,
+				}
+			}
 			recipient := dto.RecipientForDonor{
 				ID:                       res.BloodSearchData.ID,
 				OwnerName:                res.RecipientOwnerData.FullName,
 				OwnerID:                  res.RecipientOwnerData.ID,
 				OwnerPhone:               res.RecipientOwnerData.Phone,
+				Identities:               identities,
 				PetName:                  res.RecipientPetData.Name,
 				PetType:                  string(res.RecipientPetData.Type),
 				BloodGroup:               res.RecipientPetData.BloodGroupName,
