@@ -5,6 +5,19 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/)..
 
+## [3.18.0] - 2026-06-10
+
+### Добавлено
+- **Добавлены identity владельцев в карточки донаций:**
+  - В запросы `GetDonationHandler` и `PlannedDonationsHandler` добавлена загрузка данных владельца с включением identities (`WithIdentities: true`).
+  - В транспортные DTO (`PetWithApplication`, `RecipientForDonor`) добавлено поле `identities []Identity`.
+  - В хендлерах `GetDonation` и `GetPlannedDonations` реализован маппинг identity провайдеров в ответ.
+  - На фронтенде типы `DonationForRecipientDonorData` и `PlannedDonationRecipientInfo` дополнены полем `identities`.
+  - Реализована функция `matchIdentities` для пересечения identities текущего пользователя и владельца карточки по `providerName`.
+  - В компонентах `DonorForRecipient`, `DonationDetails` (для владельца и для поиска) открытие чата теперь передаёт только пересечённые identities.
+  - Исправлено открытие номера телефона в Telegram-окружении: вместо `window.open(phone)` теперь создаётся и кликается `tel:`-ссылка через DOM-элемент `<a>`.
+  - В `DonorForRecipient` подтягиваются данные текущего пользователя через `useGetUserById(userId)` для корректного сравнения identities.
+
 ## [3.17.6] - 2026-06-08
 
 ### Изменено

@@ -37,6 +37,7 @@ type RecipientForDonor struct {
 	OwnerID                  string           `json:"ownerID" doc:"Идентификатор владельца"`
 	OwnerName                string           `json:"ownerName" doc:"Имя владельца"`
 	OwnerPhone               string           `json:"ownerPhone" doc:"Номер телефона владельца"`
+	Identities               []Identity       `json:"identities,omitempty" doc:"Данные идентификации владельцев"`
 	PetName                  string           `json:"petName" doc:"Имя питомца" example:"Шарик"`
 	PetType                  string           `json:"petType" doc:"Тип питомца" enum:"dog,cat"`
 	BloodVolumeNeeded        float64          `json:"bloodVolumeNeeded" doc:"Необходимый объем крови в мл" example:"200"`
