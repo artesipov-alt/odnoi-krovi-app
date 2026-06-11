@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -106,5 +107,18 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		}
 	}
 
+	slices.SortFunc(requestsWithDonors, sortByPriorityAndDate)
+
 	return requestsWithDonors, nil
+}
+
+// Сортируем массив реципиентов по дате создания от старых к новым и по приоритету
+func sortByPriorityAndDate(a, b *bloodreqmodel.BloodRequestWithMatchingDonors) int {
+	if a.PrioritySearch == b.PrioritySearch {
+		return b.CreatedAt.Compare(*a.CreatedAt)
+	}
+	if a.PrioritySearch {
+		return -1
+	}
+	return 1
 }
