@@ -16,24 +16,6 @@ tasks:
     cmds:
       - go run ./cmd/api/main.go openapi
 
-  # generate-proto:
-  #   desc: "Сгенерировать прото-типы от микросервиса"
-  #   cmds:
-  #     - mkdir -p shared/go/blood-microservice
-  #     - cp -a microservices/blood-microservice/buf.yaml shared/go/blood-microservice/buf.yaml
-  #     - cp -a microservices/blood-microservice/buf.gen.yaml shared/go/blood-microservice/buf.gen.yaml
-  #     - rm -rf shared/go/blood-microservice/api
-  #     - cp -a microservices/blood-microservice/api shared/go/blood-microservice/api
-  #     - task: gproto
-
-  # gproto:
-  #   internal: true
-  #   dir: shared/go/blood-microservice
-  #   cmds:
-  #     - go mod init github.com/artesipov-alt/odnoi-krovi-app/shared/go/blood-microservice
-  #     - buf generate
-  #     - go mod tidy
-
   install:
     desc: "Установить все зависимости проекта"
     cmds:

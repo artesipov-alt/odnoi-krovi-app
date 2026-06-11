@@ -51,8 +51,8 @@ type UserIdentity = {
     refUrl?: string;
 };
 
-const MAX_BIND_BOT_URL = 'https://max.ru/c/-72684925241873/AZ0vv6wDGc8';
-const TELEGRAM_BIND_BOT_URL = 'https://t.me/Odnakrovbot';
+const MAX_BIND_BOT_URL = 'https://max.ru/id3200014662_bot';
+const TELEGRAM_BIND_BOT_URL = 'https://t.me/app1krovi_bot';
 const REFERRAL_UTM_CAMPAIGN = 'help_together';
 const REFERRAL_UTM_MEDIUM = 'referral';
 
@@ -698,9 +698,7 @@ const Profile: FC<Props> = ({ userId }) => {
                                     : 'Пригласите друга в приложение - когда он проведет донацию, вы оба получите приоритетный поиск'}
                             </p>
                             <div className={styles.popupDivider} />
-                            <p className={styles.popupShareButton}>
-                                Поделиться
-                            </p>
+                            <p className={styles.popupShareButton}>Поделиться</p>
                             <div className={styles.popupSocials}>
                                 {userData?.identities.map(({ providerName }) =>
                                     providerName === 'telegram_bot' ? (
