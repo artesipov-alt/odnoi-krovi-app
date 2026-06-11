@@ -23,8 +23,12 @@ export const useAuth = (): UserAuth => {
             signinData = await signinExtServ({ providerId: arturID, providerName: 'service' }); // Или другой тестовый ID
         } else if (window.WebApp?.initData) {
             signinData = await signinMax({ appInitData: window.WebApp.initData });
+
+            localStorage.setItem('environment', 'max');
         } else if (window.Telegram?.WebApp?.initData) {
             signinData = await signinTg({ appInitData: window.Telegram.WebApp.initData });
+
+            localStorage.setItem('environment', 'tg');
         }
 
         if (!signinData) {

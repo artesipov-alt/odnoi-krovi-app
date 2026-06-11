@@ -11,6 +11,9 @@ type DonationCard struct {
 
 type PetWithApplication struct {
 	PetDetail
+	// TODO: Это поле сюда воткнуто, потому что задача появилась позже проектирования АПИ.
+	OwnerPhone  string              `json:"ownerPhone" doc:"Номер телефона владельца" example:"+79123456789"`
+	Identities  []Identity          `json:"identities,omitempty" doc:"Данные идентификации владельцев"`
 	Application CoreApplicationData `json:"application" doc:"Данные отклика"`
 }
 

@@ -35,8 +35,10 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/otp/twin24"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
+	redisRepository "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 
 	events "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/events/redis"
@@ -45,7 +47,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/auth"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/config"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/logger"
-	"github.com/artesipov-alt/odnoi-krovi-app/pkg/seeds"
 
 	sloghttp "github.com/samber/slog-http"
 )
@@ -95,30 +96,36 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, _, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
 		}
+
+		var otpRepo redisRepository.OTPRepository
 		var publisher ports.EventPublisher
+		var otpSender *twin24.OTPSender
 		redisClient, err := config.NewRedisClientFromEnv()
 		if err != nil {
 			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
 			publisher = &events.NoOpEventPublisher{}
+			otpRepo = redisRepository.NewNoOpOTPRepo()
 		} else {
 			publisher = events.NewEventPublisher(redisClient, env)
+			otpRepo = redisRepository.NewOTPRepo(redisClient)
+			otpSender = twin24.NewOTPSenderFromEnv(redisClient)
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
-		// if err := config.RunMigrations(db, rawDB); err != nil {
-		// 	slog.Error("Ошибка выполнения миграций", "error", err)
-		// 	os.Exit(1)
-		// }
+		if err := config.RunMigrations(db, rawDB); err != nil {
+			slog.Error("Ошибка выполнения миграций", "error", err)
+			os.Exit(1)
+		}
 
 		//Миграции
-		ctx := context.Background()
-		seeds.SeedLocations(ctx, db)
-		seeds.SeedBreeds(ctx, db)
+		// ctx := context.Background()
+		// seeds.SeedLocations(ctx, db)
+		// seeds.SeedBreeds(ctx, db)
 
 		// Инициализация репозиториев
 		userRepo := pg.NewEntUserRepository(db)
@@ -150,6 +157,8 @@ func main() {
 
 		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, txManager)
+		userChangePhoneHandler := usercmd.NewChangePhoneHandler(userRepo, otpRepo, otpSender)
+		userVerifyPhoneHandler := usercmd.NewVerifyPhoneHandler(userRepo, otpRepo, txManager)
 		userResetHandler := usercmd.NewResetHandler(userRepo)
 		userRestoreHandler := usercmd.NewRestoreHandler(userRepo)
 		userGetByIDHandler := userquery.NewGetByIDHandler(userRepo)
@@ -184,7 +193,7 @@ func main() {
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, petRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
 		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo, bloodRequestRepo, petService)
-		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, bloodRequestRepo, petService)
+		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, userRepo, bloodRequestRepo, petService)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher, petRepo, bonusSvc)
@@ -210,6 +219,8 @@ func main() {
 		userHandler := transport.NewUserHandler(
 			userDeleteHandler,
 			userUpdateHandler,
+			userChangePhoneHandler,
+			userVerifyPhoneHandler,
 			userResetHandler,
 			userRestoreHandler,
 			userGetByIDHandler,

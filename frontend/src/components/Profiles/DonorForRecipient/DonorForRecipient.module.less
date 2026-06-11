@@ -255,10 +255,6 @@
     background: @white;
     box-sizing: border-box;
 
-    &.hide {
-        visibility: hidden;
-    }
-
     &.conditionTile {
         display: flex;
         justify-content: space-between;
@@ -273,6 +269,10 @@
     & .conditions {
         display: flex;
         align-items: center;
+    }
+
+    &.hide {
+        visibility: hidden;
     }
 }
 
@@ -539,6 +539,46 @@
     font-size: 12px;
     font-weight: 400;
     line-height: 15px;
+}
+
+.callButtonWrapper {
+    width: 100%;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.phoneIcon {
+    display: flex;
+    width: 35px;
+    height: 35px;
+    background: @red26;
+    border-radius: 25px;
+    color: @grayBg38;
+
+    svg {
+        width: 15px;
+        height: 15px;
+        margin: auto;
+    }
+}
+
+.callButton {
+    flex-grow: 1 !important;
+    height: 63px;
+    width: 190px;
+    border-radius: 10px !important;
+    background: @common-red !important;
+    font-family: Marmelad, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 18px !important;
+    color: @white !important;
+    text-transform: none !important;
+
+    &.reject {
+        background: @textColor4 !important;
+        color: @white !important;
+    }
 }
 
 .messengers {

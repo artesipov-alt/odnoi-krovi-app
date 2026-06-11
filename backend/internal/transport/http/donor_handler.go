@@ -178,6 +178,8 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			Privilege:                string(r.RecipientData.Privilege),
 			Status:                   string(r.Status),
 			MatchingDonors:           matching,
+			CreatedAt:                r.CreatedAt,
+			UpdatedAt:                r.UpdatedAt,
 		}
 	}
 
@@ -306,13 +308,21 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				CreatedAt:        res.ApplicationData.CreatedAt,
 				UpdatedAt:        res.ApplicationData.UpdatedAt,
 			}
-
+			identities := make([]dto.Identity, len(res.RecipientOwnerData.Identities))
+			for i, identity := range res.RecipientOwnerData.Identities {
+				identities[i] = dto.Identity{
+					ProviderName: string(identity.ProviderName),
+					ProviderID:   identity.ProviderUserID,
+				}
+			}
 			recipient := dto.RecipientForDonor{
 				ID:                       res.BloodSearchData.ID,
+				OwnerName:                res.RecipientOwnerData.FullName,
+				OwnerID:                  res.RecipientOwnerData.ID,
+				OwnerPhone:               res.RecipientOwnerData.Phone,
+				Identities:               identities,
 				PetName:                  res.RecipientPetData.Name,
 				PetType:                  string(res.RecipientPetData.Type),
-				OwnerName:                res.RecipientPetData.OwnerName,
-				OwnerID:                  res.RecipientPetData.OwnerID,
 				BloodGroup:               res.RecipientPetData.BloodGroupName,
 				Regions:                  res.BloodSearchData.Regions,
 				BloodVolumeNeeded:        res.BloodSearchData.BloodVolumeNeeded,

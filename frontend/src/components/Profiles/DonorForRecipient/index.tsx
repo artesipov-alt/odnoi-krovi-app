@@ -1,3 +1,4 @@
+import { Button } from '@mui/material';
 import cn from 'classnames';
 import useBodyScrollLock from 'hooks/useBodyScrollLock';
 import {
@@ -8,6 +9,7 @@ import {
     usePetTypesAndBloodGroupsQuery,
     useReproductiveStatusesQuery,
 } from 'hooks/useDicts';
+import { useGetUserById } from 'hooks/useGetUserById';
 import catRoundStub from 'imgs/catRoundStub.png';
 import dogRoundStub from 'imgs/dogRoundStub.png';
 import AccordionArrow from 'imgs/svg/accordionArrow';
@@ -20,6 +22,7 @@ import Exclamation from 'imgs/svg/exclamation';
 import Health from 'imgs/svg/health';
 import Max from 'imgs/svg/max';
 import Params from 'imgs/svg/params';
+import Phone from 'imgs/svg/phone';
 import Processing from 'imgs/svg/processing';
 import StatusQuestion from 'imgs/svg/statusQuestion';
 import Taxi from 'imgs/svg/taxi';
@@ -27,6 +30,7 @@ import Telegram from 'imgs/svg/telegram';
 import DonationQuestions from 'pages/owner/Statuses/DonationQuestions';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { matchIdentities } from 'utils/utils';
 
 import { applyDonorRespond } from 'api/apiServices/applyDonorRespond';
 import { getDonorInfo } from 'api/apiServices/getDonorInfo';
@@ -64,6 +68,7 @@ type OtherDonors = {
 };
 
 type ChatCurtain = {
+    phone?: string;
     isOpen: boolean;
     identities?: Identities[];
 };
@@ -103,6 +108,8 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [activeTile, setaActiveTile] = useState<TileName | null>(null);
     const [checkOtherDonors, setCheckOtherDonors] = useState<OtherDonors>({ isOpen: false });
+
+    const { data: userData } = useGetUserById(userId);
 
     // dicts
     const { data: petGendersDict = [], isError: isErrorGenders } = useGendersQuery();
@@ -150,7 +157,11 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
             return;
         }
 
-        setChatCurtain({ isOpen: true, identities: response.data.identities });
+        setChatCurtain({
+            isOpen: true,
+            identities: matchIdentities(userData?.identities!, response.data.identities),
+            phone: response.data.phone,
+        });
     };
 
     const onConditionsClickToggle = () => {
@@ -231,6 +242,30 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
         await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
 
         onBackToSearch();
+    };
+
+    const onCallClickHandler = (e) => {
+        onMessengerClickHandler();
+
+        if (!chatCurtain.phone) {
+            return;
+        }
+
+        const storedEnv = localStorage.getItem('environment');
+
+        if (storedEnv === 'tg') {
+            e.preventDefault();
+            const phone = `tel:+${chatCurtain.phone.replace(/[^\d]/g, '')}`;
+            const a = document.createElement('a');
+            a.href = phone;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } else {
+            window.location.href = `tel:${chatCurtain.phone}`;
+        }
     };
 
     useEffect(() => {
@@ -517,14 +552,23 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
                             </div>
                         ))}
                     </div>
-                    <p className={styles.linkDescr}>Пришлем контакт донора в мессенджер</p>
+                    <p className={styles.linkDescr}>Связаться с хозяином донора</p>
+                    <div className={styles.callButtonWrapper}>
+                        <Button
+                            onClick={onCallClickHandler}
+                            className={styles.callButton}
+                            startIcon={
+                                <div className={styles.phoneIcon}>
+                                    <Phone />
+                                </div>
+                            }
+                        >
+                            Позвонить
+                        </Button>
+                    </div>
                     <div className={styles.messengers}>
                         {chatCurtain.identities?.map(({ providerId, providerName }) => (
-                            <div
-                                key={providerId}
-                                onClick={onMessengerClickHandler}
-                                className={cn(styles.identity, { [styles.hide]: providerName === 'telegram_bot' })}
-                            >
+                            <div key={providerId} className={styles.identity} onClick={onMessengerClickHandler}>
                                 {providerName === 'telegram_bot' ? <Telegram /> : <Max />}
                             </div>
                         ))}

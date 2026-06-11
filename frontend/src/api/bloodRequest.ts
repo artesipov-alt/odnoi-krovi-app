@@ -3,7 +3,7 @@ import { AxiosPromise } from 'axios';
 import { instance } from './instance';
 import { Analyses, DonorRestrictions, Health, Pet, Treatments, WarnFactors } from './pets';
 import { PetGender, PetType } from './types';
-import { CompensationType, Role } from './user';
+import { CompensationType, Identities, Role } from './user';
 
 export enum PoolRequestStatus {
     DRAFT = 'draft',
@@ -98,6 +98,7 @@ export type GetDonorInfoResponse = Pet & {
     taxi: boolean;
     ownerId: string;
     ownerName: string;
+    ownerPhone: string;
     availableBloodAmount: number;
     compensationType: CompensationType;
 };
@@ -132,10 +133,12 @@ export type DonationForRecipientDonorData = {
     updatedAt: string;
     bloodGroup: string;
     chipNumber: string;
+    ownerPhone: string;
     photoUrls: string[];
     analyses?: Analyses;
     treatments: Treatments;
     livingCondition: string;
+    identities: Identities[];
     application: Application;
     reproductiveStatus?: string;
     availableBloodAmount: number;

@@ -67,12 +67,22 @@ type UpdateUserInput struct {
 // UpdateUserBody представляет тело запроса на обновление пользователя
 type UpdateUserBody struct {
 	FullName        *string                `json:"fullName,omitempty" doc:"Полное имя" minLength:"2" maxLength:"255"`
-	Phone           *string                `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
+	Phone           *string                `json:"phone,omitempty" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567" deprecated:"true"`
 	Email           *string                `json:"email,omitempty" doc:"Email адрес" format:"email" example:"user@example.com"`
 	AllowGeo        *bool                  `json:"allowGeo,omitempty" doc:"Разрешение использовать геоданные"`
 	OnBoarding      *[]string              `json:"onBoarding,omitempty" doc:"Статусы онбординга" enum:"START,FIND_BLOOD,RECIPIENT_LIST"`
 	LocationID      *string                `json:"locationId,omitempty" doc:"ID локации"`
 	DonorPreference *DonorPreferenceParams `json:"donorPreference,omitempty" doc:"Параметры донора"`
+}
+
+// UpdateUserBody представляет тело запроса на обновление пользователя
+type ChangeUserPhoneBody struct {
+	Phone string `json:"phone" doc:"Номер телефона" pattern:"^\\+?[1-9]\\d{1,14}$" example:"+79991234567"`
+}
+
+type ChangeUserPhoneInput struct {
+	commondto.UserIDPath
+	Body ChangeUserPhoneBody
 }
 
 // UpdateUserOutput представляет ответ на обновление пользователя
@@ -201,6 +211,7 @@ type UserDetail struct {
 	TelegramID       int64            `json:"telegramId,omitempty" doc:"ID пользователя в мессенджере" format:"int64" example:"123456789" minimum:"1" deprecated:"true"`
 	FullName         string           `json:"fullName" doc:"Полное имя" example:"Иван Иванов"`
 	Phone            string           `json:"phone,omitempty" doc:"Телефон" example:"+79991234567"`
+	Verified         bool             `json:"verified" doc:"Верифицирован ли пользователь"`
 	Email            string           `json:"email,omitempty" doc:"Email" example:"user@example.com"`
 	PhotoURLs        []string         `json:"photoUrls,omitempty" doc:"URLs фотографий пользователя"`
 	OrganizationName string           `json:"organizationName,omitempty" doc:"Название организации"`
@@ -215,6 +226,17 @@ type UserDetail struct {
 	CreatedAt        *time.Time       `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time       `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt        *time.Time       `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+}
+
+// VerifyUserPhoneInput представляет запрос на верификацию номера телефона
+type VerifyUserPhoneInput struct {
+	commondto.UserIDPath
+	Body VerifyUserPhoneBody
+}
+
+// VerifyUserPhoneBody представляет тело запроса на верификацию номера
+type VerifyUserPhoneBody struct {
+	Code string `json:"code" doc:"Код подтверждения из SMS" minLength:"4" maxLength:"4" example:"2026"`
 }
 
 // SimpleMessage представляет простое текстовое сообщение

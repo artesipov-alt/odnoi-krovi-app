@@ -57,14 +57,15 @@ export type GetUserResponse = {
     role?: Role;
     phone?: string;
     email?: string;
-    photoUrls?: string[];
     message?: string;
     fullName: string;
+    verified: boolean;
     allowGeo?: boolean;
     createdAt?: string;
     consentPd?: boolean;
     locationId?: number;
     telegramId?: number;
+    photoUrls?: string[];
     identities: Identities[];
     onBoarding?: Onboarding[];
     organizationName?: string;
@@ -102,8 +103,18 @@ export type GetUserContactsRequest = {
     provider: string;
 };
 
-export type GetUserContactsResponse = {
+export type DefaultResponse = {
     message: string;
+};
+
+export type UpdatePhoneRequest = {
+    id: string;
+    phone: string;
+};
+
+export type VerifyPhoneRequest = {
+    id: string;
+    code: string;
 };
 
 export interface IUserApi {
@@ -111,7 +122,9 @@ export interface IUserApi {
     getUserByTelegramId(id: number): AxiosPromise<GetUserResponse>;
     updateUser(params: UpdateUserRequest): AxiosPromise<UpdateUserResponse>;
     getUserIdentities(id: string): AxiosPromise<GetUserIdentitiesResponse>;
-    getUserContacts(params: GetUserContactsRequest): AxiosPromise<GetUserContactsResponse>;
+    getUserContacts(params: GetUserContactsRequest): AxiosPromise<DefaultResponse>;
+    updatePhone(params: UpdatePhoneRequest): AxiosPromise<DefaultResponse>;
+    verifyPhone(params: VerifyPhoneRequest): AxiosPromise<DefaultResponse>;
 }
 
 export const USER_URL = '/v1/user';
@@ -131,5 +144,11 @@ export const userApi = (): IUserApi => ({
     },
     getUserContacts({ id, provider }) {
         return instance.get(`${USER_URL}/${id}/contact?provider=${provider}`);
+    },
+    updatePhone({ id, ...params }) {
+        return instance.post(`${USER_URL}/${id}/phone`, params);
+    },
+    verifyPhone({ id, ...params }) {
+        return instance.post(`${USER_URL}/${id}/phone/verify`, params);
     },
 });

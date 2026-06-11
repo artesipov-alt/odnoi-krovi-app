@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -24,61 +23,17 @@ func NewUpdateHandler(userRepo user.Repository, txManager *presistance.TxManager
 }
 
 func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.User) (*usermodel.User, error) {
-	var finalID string
-
 	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		finalID = id // default to original id
-
-		// Если обновляется телефон, проверяем конфликт
-		if input.Phone != "" {
-			existingID, err := h.userRepo.GetByPhone(txCtx, input.Phone)
-			if err != nil && !errors.Is(err, apperrors.ErrUserNotFound) {
-				return apperrors.Internal(err, "failed to check phone uniqueness")
-			}
-
-			// Если телефон занят другим пользователем - объединяем аккаунты
-			if existingID != "" && existingID != id {
-				// 1. Переносим UserIdentity к существующему пользователю
-				if err := h.userRepo.TransferUserIdentity(txCtx, id, existingID); err != nil {
-					return apperrors.Internal(err, "failed to transfer user identity")
-				}
-
-				// 2. Переносим UTM-историю к существующему пользователю (сохраняем аналитику)
-				if err := h.userRepo.TransferUTMHistory(txCtx, id, existingID); err != nil {
-					return apperrors.Internal(err, "failed to transfer UTM history")
-				}
-
-				// 3. Обновляем существующего пользователя данными из input
-				if err := h.userRepo.UpdateUserFields(txCtx, existingID, input); err != nil {
-					return apperrors.Internal(err, "failed to update existing user")
-				}
-
-				// 4. Удаляем настройки донора у текущего пользователя (перед удалением)
-				if err := h.userRepo.DeleteDonorPreferenceByUserID(txCtx, id); err != nil {
-					return apperrors.Internal(err, "failed to delete donor preference")
-				}
-
-				// 5. Удаляем текущего пользователя (полное удаление)
-				if err := h.userRepo.DeleteUserHard(txCtx, id); err != nil {
-					return apperrors.Internal(err, "failed to delete current user")
-				}
-
-				finalID = existingID // set to existing id after merge
-
-				// Аккаунты объединены
-				return nil
-			}
-		}
-
-		// Обычное обновление (без конфликта телефона)
 		if err := h.userRepo.UpdateUserFields(txCtx, id, input); err != nil {
 			if ent.IsNotFound(err) {
 				return apperrors.ErrUserNotFound
 			}
+			if ent.IsConstraintError(err) {
+				return apperrors.Conflict("Пользователь с такой почтой уже существует, при подтверждении номера аккаунты будут связаны")
+			}
 			return apperrors.Internal(err, "failed to update user")
 		}
 
-		// Обновляем/создаем DonorPreference если передан
 		if input.DonorPreference != nil {
 			if err := h.userRepo.UpsertDonorPreference(txCtx, id, input.DonorPreference); err != nil {
 				return apperrors.Internal(err, "failed to upsert donor preference")
@@ -92,7 +47,7 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.
 		return nil, err
 	}
 
-	usr, err := h.userRepo.GetByID(ctx, finalID, user.UserPreloadOptions{})
+	usr, err := h.userRepo.GetByID(ctx, id, user.UserPreloadOptions{})
 	if err != nil {
 		return nil, err
 	}

@@ -90,6 +90,11 @@ func Phone(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPhone, v))
 }
 
+// Verified applies equality check predicate on the "verified" field. It's identical to VerifiedEQ.
+func Verified(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldVerified, v))
+}
+
 // Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
 func Email(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldEmail, v))
@@ -403,6 +408,16 @@ func PhoneEqualFold(v string) predicate.User {
 // PhoneContainsFold applies the ContainsFold predicate on the "phone" field.
 func PhoneContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldPhone, v))
+}
+
+// VerifiedEQ applies the EQ predicate on the "verified" field.
+func VerifiedEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldVerified, v))
+}
+
+// VerifiedNEQ applies the NEQ predicate on the "verified" field.
+func VerifiedNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldVerified, v))
 }
 
 // EmailEQ applies the EQ predicate on the "email" field.

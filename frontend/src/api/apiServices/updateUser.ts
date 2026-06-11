@@ -1,6 +1,8 @@
 import api from '../index';
 import { UpdateUserRequest } from '../user';
 
+const ERROR = 'Что-то пошло не так';
+
 export const updateUser = async (params: UpdateUserRequest) => {
     try {
         const { status, data } = await api.updateUser(params);
@@ -9,8 +11,12 @@ export const updateUser = async (params: UpdateUserRequest) => {
             return { error: data.message };
         }
 
-        return { data }; // TODO errors?
+        return { data };
     } catch (e: any) {
-        return { error: e.response.data.message || 'Что-то пошло не так' };
+        if (e.response.status === 409) {
+            return { error: e.response.data.Message || ERROR };
+        }
+
+        return { error: ERROR };
     }
 };
