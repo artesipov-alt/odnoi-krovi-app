@@ -14,7 +14,7 @@ const (
 )
 
 const (
-	TelegramBotURL = "https://t.me/Odnakrovbot?start="
+	TelegramBotURL = "https://t.me/app1krovi_bot?start="
 	MaxBotURL      = "https://max.ru/id3200014662_bot?start="
 )
 
