@@ -27,6 +27,8 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 			SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
 			Regions:                  req.Regions,
 			Status:                   bloodreqmodel.BloodRequestStatus(req.Status),
+			CreatedAt:                &req.CreatedAt,
+			UpdatedAt:                &req.UpdatedAt,
 		},
 	}
 
