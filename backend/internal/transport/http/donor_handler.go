@@ -178,6 +178,8 @@ func (h *DonorHandler) GetRecipientsList(ctx context.Context, input *dto.GetReci
 			Privilege:                string(r.RecipientData.Privilege),
 			Status:                   string(r.Status),
 			MatchingDonors:           matching,
+			CreatedAt:                r.CreatedAt,
+			UpdatedAt:                r.UpdatedAt,
 		}
 	}
 

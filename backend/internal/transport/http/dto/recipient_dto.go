@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	commondto "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto/common"
 )
@@ -52,6 +54,9 @@ type RecipientDetail struct {
 	AvailableBonuses         []common.Bonus     `json:"availableBonuses,omitempty" doc:"Доступные бонусы"`
 	MatchingDonors           []MatchingDonor    `json:"matchingDonors,omitempty" doc:"Список ID подходящих доноров"`
 	DefaultDonorPrefs        *DefaultDonorPrefs `json:"defaultPrefs,omitempty" doc:"Настройки донора по умолчанию"`
+	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	DeletedAt                *time.Time         `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // DefaultPrefsпредставляет предпочтения реципиента по умолчанию
