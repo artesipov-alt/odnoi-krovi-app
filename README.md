@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go) ![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Go](https://img.shields.io/badge/Go-1.26+-00ADD8?style=for-the-badge&logo=go) ![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Bun](https://img.shields.io/badge/Bun-1.3+-000000?style=for-the-badge&logo=bun&logoColor=white) ![Telegram](https://img.shields.io/badge/Telegram-MiniApp-26A5E4?style=for-the-badge&logo=telegram&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-7+-DC382D?style=for-the-badge&logo=redis&logoColor=white) ![Huma](https://img.shields.io/badge/Huma-v2-85EA2D?style=for-the-badge&logo=openapi-initiative&logoColor=black)
 
@@ -26,15 +26,15 @@
 
 ## 🏗️ Архитектура проекта
 
-Проект построен как монорепозиторий с разделением на backend, bot и frontend - Telegram Mini App:
+Проект построен как монорепозиторий с разделением на backend, bot и frontend — Telegram Mini App:
 
 ```
 odnoi-krovi-app/
-├── .github/         # Настрокий авторазвертывания (CD/CI)
-├── backend/         # Go API сервер (net/http + Ent + Huma)
+├── .github/         # Настройки CI/CD
+├── backend/         # Go API сервер (DDD + CQRS + Huma v2 + Ent)
 ├── frontend/        # Telegram Mini App (React + TypeScript)
 ├── bot/             # Telegram Bot (Bun + Grammy)
-├── shared/          # Автосгенерированные TypeScript типы c бэкенда (OpenAPI 3.1 -> types)
+├── shared/          # Автосгенерированные TypeScript типы с бэкенда (OpenAPI 3.1 → types)
 ├── docs/            # Документация
 └── README.md
 ```
@@ -43,7 +43,7 @@ odnoi-krovi-app/
 
 ### Предварительные требования
 
-- **Go 1.25+** для backend
+- **Go 1.26+** для backend
 - **Node.js 18+** и **npm** для Telegram Mini App
 - **Bun 1.3+** для бота (используется в `bot/`)
 - **PostgreSQL 16+** для баз данных
@@ -141,8 +141,8 @@ docker-compose up backend -d
 
 ## 📁 Структура проекта
 
-### 🚀 Backend (Go + `net/http` + Ent + Huma)
-Мощный API сервер с современным стеком технологий. Подробное описание архитектуры и возможностей доступно в [документации backend-сервера](backend/README.md).
+### 🚀 Backend (Go + Huma v2 + DDD/CQRS)
+Мощный API сервер в стилистике Domain-Driven Design с элементами CQRS на уровне приложения, реализованный как Go-монолит. Подробное описание архитектуры и возможностей доступно в [документации backend-сервера](backend/README.md) и [архитектурном описании](backend/ARCHITECTURE.md).
 
 ### 💻 Telegram Mini App (React + TypeScript + Telegram Web App SDK)
 Интуитивный интерфейс для пользователей с полной интеграцией в Telegram. Узнайте больше о фронтенд-архитектуре в [документации по фронтенду](frontend/README.md).
@@ -156,13 +156,15 @@ docker-compose up backend -d
 ## 🛠️ Технологический стек
 
 ### Backend
-- **Go 1.25+** - Основной язык программирования
-- **Standard `net/http`** - Стандартная библиотека Go для построения веб-серверов
-- **PostgreSQL** - Реляционная база данных
-- **Redis** - Хранилище данных в памяти, используемое для кэширования
-- **Ent Framework** - ORM для Go
-- **Huma (OpenAPI 3.1)** - Фреймворк для создания API и генерации документации OpenAPI
-- **`charmbracelet/log`** - Красивый и функциональный логгер для Go, обертка над `slog`
+- **Go 1.26+** — Основной язык программирования
+- **Huma v2 (OpenAPI 3.1)** — REST API фреймворк с генерацией OpenAPI документации
+- **DDD + CQRS-lite** — Domain-Driven Design с разделением команд и запросов на уровне приложения
+- **PostgreSQL** — Реляционная база данных
+- **Redis** — Кэширование и Pub/Sub событийная шина
+- **Ent Framework** — ORM для Go (code-first, генерация типов и схем)
+- **`charmbracelet/log`** — Логгер для Go, обёртка над `slog`
+- **JWT (HS256)** — Аутентификация
+- **S3 (MinIO / Cloud)** — Хранение файлов через pre-signed URLs
 
 ### Telegram Mini App
 - **React 18+** - UI библиотека
