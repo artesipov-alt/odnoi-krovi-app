@@ -698,30 +698,35 @@ const Profile: FC<Props> = ({ userId }) => {
                                     : 'Пригласите друга в приложение - когда он проведет донацию, вы оба получите приоритетный поиск'}
                             </p>
                             <div className={styles.popupDivider} />
-                            <button type='button' className={styles.popupShareButton}>
+                            <p className={styles.popupShareButton}>
                                 Поделиться
-                            </button>
+                            </p>
                             <div className={styles.popupSocials}>
-                                {/* <button */}
-                                {/*    type='button' */}
-                                {/*    className={styles.popupSocialButton} */}
-                                {/*    aria-label='Telegram' */}
-                                {/*    onClick={() => { */}
-                                {/*        onShareInviteClickHandler('telegram'); */}
-                                {/*    }} */}
-                                {/* > */}
-                                {/*    <Tg /> */}
-                                {/* </button> */}
-                                <button
-                                    type='button'
-                                    className={styles.popupSocialButton}
-                                    aria-label='MAX'
-                                    onClick={() => {
-                                        onShareInviteClickHandler('max');
-                                    }}
-                                >
-                                    <Max />
-                                </button>
+                                {userData?.identities.map(({ providerName }) =>
+                                    providerName === 'telegram_bot' ? (
+                                        <button
+                                            type='button'
+                                            className={styles.popupSocialButton}
+                                            aria-label='Telegram'
+                                            onClick={() => {
+                                                onShareInviteClickHandler('telegram');
+                                            }}
+                                        >
+                                            <Tg />
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type='button'
+                                            className={styles.popupSocialButton}
+                                            aria-label='MAX'
+                                            onClick={() => {
+                                                onShareInviteClickHandler('max');
+                                            }}
+                                        >
+                                            <Max />
+                                        </button>
+                                    ),
+                                )}
                             </div>
                             <button
                                 type='button'
