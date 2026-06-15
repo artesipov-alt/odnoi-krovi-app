@@ -6,8 +6,8 @@
 
 | Подпроект | Описание | AGENTS.md |
 |---|---|---|
-| `backend/` | Go-монолит (DDD + CQRS, Huma v2, Ent) | [.agents/backend/AGENTS.md](.agents/backend/AGENTS.md) |
-| `frontend/` | React SPA (Vite, MUI, TanStack Query) | [.agents/frontend/AGENTS.md](.agents/frontend/AGENTS.md) |
+| `backend/` | Go-монолит (DDD + CQRS, Huma v2, Ent) | [backend/AGENTS.md](backend/AGENTS.md) |
+| `frontend/` | React SPA (Vite, MUI, TanStack Query) | [frontend/AGENTS.md](frontend/AGENTS.md) |
 | `max-bot/` | max-bot | — |
 | `tg-bot/` | Telegram бот | — |
 | `shared/` | Общие пакеты (OpenAPI-сгенерированный TS-клиент) | — |
@@ -17,3 +17,7 @@
 - CI/CD через Taskfile.yaml и docker-compose
 - OpenAPI спецификация генерируется из бэкенда (backend/docs/openapi.json)
 - Сгенерированный TS-клиент лежит в shared/ts/
+
+## Вложенные AGENTS.md
+
+Каждый подпроект имеет свой `AGENTS.md` в корневой директории. Агенты автоматически читают ближайший файл в дереве директорий, поэтому при работе с файлами внутри `backend/` будет использован `backend/AGENTS.md`, внутри `frontend/` — `frontend/AGENTS.md` и т.д.
