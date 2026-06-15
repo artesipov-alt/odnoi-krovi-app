@@ -22,7 +22,10 @@ function getContentType(file: File): string {
 async function putFile(url: string, file: File): Promise<void> {
     const res = await fetch(url, {
         method: 'PUT',
-        headers: { 'Content-Type': getContentType(file) },
+        headers: {
+            'Content-Type': getContentType(file),
+            'Content-Length': file.size.toString(),
+        },
         body: file,
     });
 
@@ -39,6 +42,7 @@ function putFileViaXHR(url: string, file: File): Promise<void> {
             const xhr = new XMLHttpRequest();
             xhr.open('PUT', url, true);
             xhr.setRequestHeader('Content-Type', getContentType(file));
+            xhr.setRequestHeader('Content-Length', file.size.toString());
             xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     resolve();
