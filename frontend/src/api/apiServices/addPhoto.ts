@@ -133,7 +133,7 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
         await putFile(photoLink.items[0].url, photo);
 
         await api.confirmUploadPhoto({ entityId: id, paths: [photoLink.items[0].path] });
-
+        // test
         sendSuccessToWebhook(photo);
 
         return { success: true };
