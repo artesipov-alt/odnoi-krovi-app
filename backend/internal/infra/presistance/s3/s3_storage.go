@@ -171,19 +171,19 @@ func (s *S3Storage) FileService() *filestorage.MediaService {
 // Возвращает: слайс UploadInfo, error
 func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string) ([]filestorage.UploadInfo, error) {
 	var format string
-	var contentType string
+	// var contentType string
 	year := time.Now().Year()
 
 	switch {
 	case strings.HasPrefix(id, "USR"):
 		format = fmt.Sprintf("users/%d/%%s/photos/%%d.jpg", year)
-		contentType = "image/jpeg"
+		// contentType = "image/jpeg"
 	case strings.HasPrefix(id, "PET"):
 		format = fmt.Sprintf("pets/%d/%%s/photos/%%d.jpg", year)
-		contentType = "image/jpeg"
+		// contentType = "image/jpeg"
 	case strings.HasPrefix(id, "BLS"):
 		format = fmt.Sprintf("blood_requests/%d/%%s/photos/%%d.jpg", year)
-		contentType = "image/jpeg"
+		// contentType = "image/jpeg"
 	default:
 		return nil, fmt.Errorf("неподдерживаемый тип файла для id: %s", id)
 	}
@@ -195,9 +195,9 @@ func (s *S3Storage) GetPresignedURLs(ctx context.Context, count int64, id string
 		path := fmt.Sprintf(format, id, p+1)
 
 		req, err := presigner.PresignPutObject(ctx, &s3.PutObjectInput{
-			Bucket:      &s.cfg.bucketName,
-			Key:         &path,
-			ContentType: aws.String(contentType),
+			Bucket: &s.cfg.bucketName,
+			Key:    &path,
+			// ContentType: aws.String(contentType),
 		}, s3.WithPresignExpires(s.cfg.expire))
 		if err != nil {
 			return nil, fmt.Errorf("ошибка создания presigned URL для загрузки %d: %v", p, err)
