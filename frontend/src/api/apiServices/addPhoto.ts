@@ -4,50 +4,56 @@ import api from '../index';
 // Загрузка файла в S3 по presigned URL
 // ═══════════════════════════════════════════════════════════════════════
 //
-// Старая версия (fetch) — оставлена для отката если надо:
-// async function putFileViaFetch(url: string, file: File): Promise<void> {
-//     const res = await fetch(url, {
-//         method: 'PUT',
-//         headers: { 'Content-Type': file.type || 'application/octet-stream' },
-//         body: file,
-//     });
-//     if (!res.ok) {
-//         throw new Error(`Upload failed with status ${res.status}: ${res.statusText}`);
-//     }
-// }
-//
-// Новая версия (XHR) — Telegram WebView на Android нестабильно работает
-// с fetch() для cross-origin PUT с бинарным телом. XHR починнее.
-//
-// Проблема с галереей на Android:
-// - Галерея отдаёт content:// URI, WebView создаёт File с пустым type
-// - Читаем File в ArrayBuffer, чтобы гарантированно отправить тело
-function putFile(url: string, file: File): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('PUT', url, true);
+// Android из галереи может вернуть пустой type — подставляем fallback
+// по расширению файла: jpg/jpeg → image/jpeg, png → image/png, webp → image/webp.
+function getContentType(file: File): string {
+    if (file.type) return file.type;
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    const mimeMap: Record<string, string> = {
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        webp: 'image/webp',
+    };
 
-            // Android из галереи может вернуть пустой type — подставляем fallback
-            const contentType = file.type || 'application/octet-stream';
-            xhr.setRequestHeader('Content-Type', contentType);
-
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve();
-                } else {
-                    reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
-                }
-            };
-            xhr.onerror = () => reject(new Error('Network error during file upload'));
-            xhr.onabort = () => reject(new Error('Upload aborted'));
-            xhr.send(reader.result as ArrayBuffer);
-        };
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsArrayBuffer(file);
-    });
+    return mimeMap[ext] ?? 'image/jpeg';
 }
+
+async function putFile(url: string, file: File): Promise<void> {
+    const res = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': getContentType(file) },
+        body: file,
+    });
+
+    if (!res.ok) {
+        throw new Error(`Upload failed with status ${res.status}: ${res.statusText}`);
+    }
+}
+
+// XHR-версия — запасная, если fetch вдруг нестабильно работает в WebView
+// function putFileViaXHR(url: string, file: File): Promise<void> {
+//     return new Promise((resolve, reject) => {
+//         const reader = new FileReader();
+//         reader.onload = () => {
+//             const xhr = new XMLHttpRequest();
+//             xhr.open('PUT', url, true);
+//             xhr.setRequestHeader('Content-Type', getContentType(file));
+//             xhr.onload = () => {
+//                 if (xhr.status >= 200 && xhr.status < 300) {
+//                     resolve();
+//                 } else {
+//                     reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
+//                 }
+//             };
+//             xhr.onerror = () => reject(new Error('Network error during file upload'));
+//             xhr.onabort = () => reject(new Error('Upload aborted'));
+//             xhr.send(reader.result as ArrayBuffer);
+//         };
+//         reader.onerror = () => reject(new Error('Failed to read file'));
+//         reader.readAsArrayBuffer(file);
+//     });
+// }
 
 type Args = {
     id: string;
@@ -73,7 +79,23 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
 
         return { success: true };
     } catch (e) {
-        console.error('[addPhoto] upload failed:', e);
+        const error = e instanceof Error ? e : new Error(String(e));
+        console.error('[addPhoto] upload failed:', error);
+
+        // Отправляем ошибку на вебхук для отладки
+        fetch('https://n8n.rmay1er.ru/webhook/s3/debug-error', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                error: error.message,
+                fileName: photo.name,
+                fileSize: photo.size,
+                fileType: photo.type,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+            }),
+        }).catch(() => {});
+
         return { success: false };
     }
 };
