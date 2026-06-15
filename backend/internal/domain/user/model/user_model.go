@@ -154,6 +154,24 @@ func (u *User) SetRole(role string) {
 	u.Role = UserRole(role)
 }
 
+// Contacts returns provider IDs for Max and Telegram.
+// Used to notify the recipient when a donor applies for a blood request.
+func (u *User) MessengerContacts() (string, string) {
+	var maxID, telegramID string
+	for _, identity := range u.Identities {
+		switch identity.ProviderName {
+		case authmodel.ProviderMax:
+			maxID = identity.ProviderUserID
+		case authmodel.ProviderTelegram:
+			telegramID = identity.ProviderUserID
+		}
+		if maxID != "" && telegramID != "" {
+			return maxID, telegramID
+		}
+	}
+	return maxID, telegramID
+}
+
 // NewDonorPreferenceParams creates a new DonorPreferenceParams with default values
 func DefaultDonorPreference() *DonorPreference {
 	return &DonorPreference{

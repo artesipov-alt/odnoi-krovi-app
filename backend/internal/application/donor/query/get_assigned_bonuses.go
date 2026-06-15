@@ -2,8 +2,8 @@ package query
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
@@ -34,18 +34,16 @@ func (h *AssignedBonusesHandler) Handle(ctx context.Context, userID string) (*Ge
 		return nil, err
 	}
 	if user == nil {
-		return nil, fmt.Errorf("user not found")
+		return nil, apperrors.ErrUserNotFound
 	}
 
 	bonuses, err := h.bonusRepo.GetAssignedBonuses(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.Internal(err, "ошибка получения бонусов")
 	}
 
-	var food []*bonusmodel.Bonus
-	var preparation []*bonusmodel.Bonus
-	var other []*bonusmodel.Bonus
-	// TODO Истекшие 5 дней после
+	var food, preparation, other []*bonusmodel.Bonus
+	// TODO: Истекшие 5 дней после
 	for _, b := range bonuses {
 		switch b.Category {
 		case bonusmodel.CategoryFood:
@@ -57,12 +55,10 @@ func (h *AssignedBonusesHandler) Handle(ctx context.Context, userID string) (*Ge
 		}
 	}
 
-	result := &GetAssignedBonusesResult{
+	return &GetAssignedBonusesResult{
 		TotalPriority: user.PrioritySearchCount,
 		Food:          food,
 		Preparation:   preparation,
 		Other:         other,
-	}
-
-	return result, nil
+	}, nil
 }

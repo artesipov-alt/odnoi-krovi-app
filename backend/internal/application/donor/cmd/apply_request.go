@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
-	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
@@ -54,7 +53,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	if err != nil {
 		return nil, err
 	}
-	if req.Status != bloodmodel.BloodRequestStatusActive {
+	if !req.IsActive() {
 		return nil, apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
 	}
 
@@ -75,21 +74,12 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get recipient pet")
 	}
+
 	recipientUser, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{
 		WithIdentities: true,
 	})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get recipient user")
-	}
-	var recipientProviderMaxID string
-	var recipientProviderTelegramID string
-	for _, identity := range recipientUser.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
-			recipientProviderMaxID = identity.ProviderUserID
-		}
-		if identity.ProviderName == authmodel.ProviderTelegram {
-			recipientProviderTelegramID = identity.ProviderUserID
-		}
 	}
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
@@ -103,26 +93,28 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 			return err
 		}
 
-		donorBloodGroup := donorPet.BloodGroupName
-
-		if err := h.publisher.PublishRecipientApply(txCtx, donorevent.RecipientApply{
-			DonorName:                       donorPet.Name,
-			DonorBloodGroup:                 donorBloodGroup,
-			RecipientProviderMaxID:          recipientProviderMaxID,
-			RecipientProviderTelegramID:     recipientProviderTelegramID,
-			RecipientPetName:                recipientPet.Name,
-			RecipientPetSearchingBloodGroup: req.BloodGroupNames,
-			RecipientPetNeededVolume:        req.BloodVolumeNeeded,
-			CreatedAt:                       *donorResponse.CreatedAt,
-		}); err != nil {
-			return err
-		}
-
 		return nil
 	})
 
 	if err != nil {
 		return nil, err
+	}
+
+	recipientProviderMaxID, recipientProviderTelegramID := recipientUser.MessengerContacts()
+
+	// Отправляем уведомление реципиенту после успешной транзакции.
+	// Ошибка публикации не фатальна — логируем и продолжаем.
+	if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
+		DonorName:                       donorPet.Name,
+		DonorBloodGroup:                 donorPet.BloodGroupName,
+		RecipientProviderMaxID:          recipientProviderMaxID,
+		RecipientProviderTelegramID:     recipientProviderTelegramID,
+		RecipientPetName:                recipientPet.Name,
+		RecipientPetSearchingBloodGroup: req.BloodGroupNames,
+		RecipientPetNeededVolume:        req.BloodVolumeNeeded,
+		CreatedAt:                       *donorResponse.CreatedAt,
+	}); err != nil {
+		slog.Error("failed to publish recipient apply notification", "err", err, "donorResponseID", donorResponse.ID)
 	}
 
 	return donorResponse, nil

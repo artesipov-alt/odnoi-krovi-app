@@ -129,3 +129,7 @@ func (d *DonorResponse) IsClosedForDonation() bool {
 		d.Status == DonorResponseStatusFailed ||
 		(d.Status == DonorResponseStatusCompleted && d.IsConfirmed)
 }
+
+func (d *DonorResponse) IsCompleted() bool {
+	return d.Status == DonorResponseStatusCompleted && d.IsConfirmed
+}
