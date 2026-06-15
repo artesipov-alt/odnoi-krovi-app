@@ -49,7 +49,6 @@ const Search: FC<Props> = ({ petId, userId }) => {
     const [usePrioritySearch, setUsePrioritySearch] = useState(false);
     const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
-    const [bloodRequestPhotoBuffer, setBloodRequestPhotoBuffer] = useState<ArrayBuffer | null>(null);
     const [includeUnknownBloodGroup, setIncludeUnknownBloodGroup] = useState(false);
 
     const { data: pets, isLoading: isPetsLoading, refetch } = usePetsQuery(userId);
@@ -118,9 +117,8 @@ const Search: FC<Props> = ({ petId, userId }) => {
         setDescription(newDescr);
     };
 
-    const onLoadBloodRequestPhotoHandler = useCallback((newPhoto: File | null, buffer?: ArrayBuffer) => {
+    const onLoadBloodRequestPhotoHandler = useCallback((newPhoto: File | null) => {
         setBloodRequestPhoto(newPhoto);
-        setBloodRequestPhotoBuffer(buffer ?? null);
     }, []);
 
     const onChangeUsingPriorityHandler = (isChecked: boolean) => {
@@ -136,7 +134,6 @@ const Search: FC<Props> = ({ petId, userId }) => {
             photo: null,
             userId,
             bloodRequestPhoto,
-            bloodRequestPhotoBuffer: bloodRequestPhotoBuffer ?? undefined,
             petStatus: Role.NONE,
             type: selectedPet?.type as PetType,
             weightKg: Number(selectedPet?.weightKg),

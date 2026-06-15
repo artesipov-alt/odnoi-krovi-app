@@ -37,7 +37,6 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const [weight, setWeight] = useState<string>('');
     const [petType, setPetType] = useState<string>('');
     const [photo, setPhoto] = useState<File | null>(null);
-    const [photoBuffer, setPhotoBuffer] = useState<ArrayBuffer | null>(null);
     const [bloodGroup, setBloodGroup] = useState<string>('');
     const [locations, setLocations] = useState<string[]>([]);
     const [bloodVolume, setBloodVolume] = useState<string>('');
@@ -47,7 +46,6 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
     const [usePrioritySearch, setUsePrioritySearch] = useState(false);
     const [notifyOfSmallDonors, setNotifyOfSmallDonors] = useState(false);
     const [bloodRequestPhoto, setBloodRequestPhoto] = useState<File | null>(null);
-    const [bloodRequestPhotoBuffer, setBloodRequestPhotoBuffer] = useState<ArrayBuffer | null>(null);
     const [includeUnknownBloodGroup, setIncludeUnknownBloodGroup] = useState(false);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -76,10 +74,8 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         const { success, error } = await createRecipient({
             name,
             photo,
-            photoBuffer: photoBuffer ?? undefined,
             userId,
             bloodRequestPhoto,
-            bloodRequestPhotoBuffer: bloodRequestPhotoBuffer ?? undefined,
             petStatus: Role.NONE,
             type: petType as PetType,
             weightKg: Number(weight.replace(',', '.')),
@@ -123,14 +119,12 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         onBackToStart();
     };
 
-    const onLoadBloodRequestPhotoHandler = useCallback((newPhoto: File | null, buffer?: ArrayBuffer) => {
+    const onLoadBloodRequestPhotoHandler = useCallback((newPhoto: File | null) => {
         setBloodRequestPhoto(newPhoto);
-        setBloodRequestPhotoBuffer(buffer ?? null);
     }, []);
 
-    const onLoadPhotoHandler = useCallback((newPhoto: File | null, buffer?: ArrayBuffer) => {
+    const onLoadPhotoHandler = useCallback((newPhoto: File | null) => {
         setPhoto(newPhoto);
-        setPhotoBuffer(buffer ?? null);
     }, []);
 
     const onChangeNameHandler = (newName: string) => {

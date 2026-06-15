@@ -59,16 +59,12 @@ const ImgEditor: FC<Props> = ({
         //     return;
         // }
 
-        // Сразу читаем файл в буфер, пока Android не отозвал доступ к content:// URI
+        setFile(newFile);
+        setIsLoadImageError(false);
+
+        // Читаем файл в буфер синхронно (за await) — сразу после выбора,
+        // пока Android WebView ещё не отозвал доступ к content:// URI.
         newFile.arrayBuffer().then((buffer) => {
-            // Для preview используем Blob из буфера, а не File — так картинка
-            // не сломается, когда WebView убьёт доступ к content:// URI
-            const blob = new Blob([buffer], { type: newFile.type || 'image/jpeg' });
-            const previewFile = new File([blob], newFile.name, { type: blob.type });
-
-            setFile(previewFile);
-            setIsLoadImageError(false);
-
             onLoad?.(newFile, buffer);
         });
     };
