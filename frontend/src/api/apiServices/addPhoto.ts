@@ -57,10 +57,13 @@ async function putFile(url: string, file: File): Promise<void> {
 
 function sendBeaconToWebhook(data: Record<string, unknown>): void {
     try {
-        navigator.sendBeacon(
-            'https://n8n.rmay1er.ru/webhook/s3/debug-error',
-            new Blob([JSON.stringify(data)], { type: 'application/json' }),
-        );
+        // Image() — единственный способ, гарантированно работающий под любым CSP/CORS
+        // в WebView. sendBeacon и fetch блокируются connect-src, Image обходит.
+        const params = new URLSearchParams();
+        for (const [key, val] of Object.entries(data)) {
+            params.set(key, String(val));
+        }
+        new Image().src = `https://n8n.rmay1er.ru/webhook/s3/debug-error?${params.toString()}`;
     } catch {
         // абсолютно всё молча глотаем — не должны мешать основному флоу
     }
