@@ -92,16 +92,24 @@ function sendSuccessToWebhook(photo: File): void {
 type Args = {
     id: string;
     photo: File;
+    buffer?: ArrayBuffer;
     isAvatar?: boolean;
     isUserAvatar?: boolean;
     isBloodRequest?: boolean;
 };
 
-export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodRequest }: Args) => {
+export const addPhoto = async ({ id, photo, buffer: externalBuffer, isAvatar, isUserAvatar, isBloodRequest }: Args) => {
     try {
-        // Читаем файл в буфер сразу, пока он жив — Android WebView может
-        // "протухнуть" File до того, как fetch дочитает его тело.
-        const buffer = await photo.arrayBuffer();
+        // Если буфер передан из onLoadFileHandler — используем его.
+        // Иначе читаем сами (на случай вызова из других мест).
+        let buffer = externalBuffer;
+        if (!buffer) {
+            try {
+                buffer = await photo.arrayBuffer();
+            } catch {
+                throw new Error('Failed to read file: ' + photo.name);
+            }
+        }
         const contentType = getContentType(photo);
 
         const { data: photoLink } = await api.getPhotoLink({

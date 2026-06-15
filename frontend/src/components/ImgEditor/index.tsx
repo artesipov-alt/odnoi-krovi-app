@@ -18,7 +18,7 @@ type Props = {
     bloodGroup?: string;
     isMiniView?: boolean;
     isEditIcon?: boolean;
-    onLoad?: (photo: File | null) => void;
+    onLoad?: (photo: File | null, buffer?: ArrayBuffer) => void;
 };
 
 // const acceptableFormats = ['png', 'jpg', 'jpeg', 'jpe', 'webp', 'heic', 'raw'];
@@ -62,7 +62,11 @@ const ImgEditor: FC<Props> = ({
         setFile(newFile);
         setIsLoadImageError(false);
 
-        onLoad?.(newFile);
+        // Читаем файл в буфер синхронно (за await) — сразу после выбора,
+        // пока Android WebView ещё не отозвал доступ к content:// URI.
+        newFile.arrayBuffer().then((buffer) => {
+            onLoad?.(newFile, buffer);
+        });
     };
 
     const onDeleteClickHandler = (e: MouseEvent<HTMLDivElement>) => {

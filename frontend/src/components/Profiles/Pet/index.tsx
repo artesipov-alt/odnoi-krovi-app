@@ -163,8 +163,8 @@ const PetProfile: FC<Props> = ({
     };
 
     const updatePhoto = useCallback(
-        async (newPhoto: File) => {
-            const { success } = await addPhoto({ id, photo: newPhoto, isAvatar: true });
+        async (newPhoto: File, buffer: ArrayBuffer | undefined) => {
+            const { success } = await addPhoto({ id, photo: newPhoto, buffer, isAvatar: true });
 
             if (success) {
                 setNeedUpdatePets(true);
@@ -176,13 +176,13 @@ const PetProfile: FC<Props> = ({
     );
 
     const onLoadPhotoHandler = useCallback(
-        async (newPhoto: File | null) => {
+        async (newPhoto: File | null, buffer?: ArrayBuffer) => {
             if (newPhoto === null) {
                 setIsPhotoWasDeleted(true);
             } else {
                 setIsPhotoWasDeleted(false);
 
-                updatePhoto(newPhoto);
+                updatePhoto(newPhoto, buffer);
             }
 
             setPhoto(newPhoto);
