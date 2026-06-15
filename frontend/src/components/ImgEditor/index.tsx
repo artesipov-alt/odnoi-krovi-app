@@ -170,7 +170,6 @@ const ImgEditor: FC<Props> = ({
             <input
                 type='file'
                 id='imageInput'
-                accept='image/jpeg,image/png,image/webp'
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}

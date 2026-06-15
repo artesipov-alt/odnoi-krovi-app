@@ -55,6 +55,17 @@ async function putFile(url: string, file: File): Promise<void> {
 //     });
 // }
 
+function sendBeaconToWebhook(data: Record<string, unknown>): void {
+    try {
+        navigator.sendBeacon(
+            'https://n8n.rmay1er.ru/webhook/s3/debug-error',
+            new Blob([JSON.stringify(data)], { type: 'application/json' }),
+        );
+    } catch {
+        // абсолютно всё молча глотаем — не должны мешать основному флоу
+    }
+}
+
 function sendErrorToWebhook(error: unknown, photo: File): void {
     try {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -65,18 +76,37 @@ function sendErrorToWebhook(error: unknown, photo: File): void {
             // navigator может быть недоступен в некоторых WebView
         }
 
-        fetch('https://n8n.rmay1er.ru/webhook/s3/debug-error', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                error: errorMessage,
-                fileName: photo.name,
-                fileSize: photo.size,
-                fileType: photo.type,
-                timestamp: new Date().toISOString(),
-                userAgent,
-            }),
-        }).catch(() => {});
+        sendBeaconToWebhook({
+            status: 'error',
+            error: errorMessage,
+            fileName: photo.name,
+            fileSize: photo.size,
+            fileType: photo.type,
+            timestamp: new Date().toISOString(),
+            userAgent,
+        });
+    } catch {
+        // абсолютно всё молча глотаем — не должны мешать основному флоу
+    }
+}
+
+function sendSuccessToWebhook(photo: File): void {
+    try {
+        let userAgent = '';
+        try {
+            userAgent = navigator.userAgent;
+        } catch {
+            // navigator может быть недоступен в некоторых WebView
+        }
+
+        sendBeaconToWebhook({
+            status: 'success',
+            fileName: photo.name,
+            fileSize: photo.size,
+            fileType: photo.type,
+            timestamp: new Date().toISOString(),
+            userAgent,
+        });
     } catch {
         // абсолютно всё молча глотаем — не должны мешать основному флоу
     }
@@ -103,6 +133,8 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
         await putFile(photoLink.items[0].url, photo);
 
         await api.confirmUploadPhoto({ entityId: id, paths: [photoLink.items[0].path] });
+
+        sendSuccessToWebhook(photo);
 
         return { success: true };
     } catch (e) {
