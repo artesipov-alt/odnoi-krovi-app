@@ -19,11 +19,11 @@ function getContentType(file: File): string {
     return mimeMap[ext] ?? 'image/jpeg';
 }
 
-async function putFile(url: string, file: File): Promise<void> {
+async function putFileViaFetch(url: string, body: ArrayBuffer, contentType: string): Promise<void> {
     const res = await fetch(url, {
         method: 'PUT',
-        headers: { 'Content-Type': getContentType(file) },
-        body: file,
+        headers: { 'Content-Type': contentType },
+        body,
     });
 
     if (!res.ok) {
@@ -31,34 +31,8 @@ async function putFile(url: string, file: File): Promise<void> {
     }
 }
 
-// XHR-версия — запасная, если fetch вдруг нестабильно работает в WebView
-function putFileViaXHR(url: string, file: File): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('PUT', url, true);
-            xhr.setRequestHeader('Content-Type', getContentType(file));
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve();
-                } else {
-                    reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
-                }
-            };
-            xhr.onerror = () => reject(new Error('Network error during file upload'));
-            xhr.onabort = () => reject(new Error('Upload aborted'));
-            xhr.send(reader.result as ArrayBuffer);
-        };
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsArrayBuffer(file);
-    });
-}
-
 function sendBeaconToWebhook(data: Record<string, unknown>): void {
     try {
-        // Image() — единственный способ, гарантированно работающий под любым CSP/CORS
-        // в WebView. sendBeacon и fetch блокируются connect-src, Image обходит.
         const params = new URLSearchParams();
         Object.keys(data).forEach((key) => {
             params.set(key, String(data[key]));
@@ -125,6 +99,11 @@ type Args = {
 
 export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodRequest }: Args) => {
     try {
+        // Читаем файл в буфер сразу, пока он жив — Android WebView может
+        // "протухнуть" File до того, как fetch дочитает его тело.
+        const buffer = await photo.arrayBuffer();
+        const contentType = getContentType(photo);
+
         const { data: photoLink } = await api.getPhotoLink({
             id,
             photos_count: 1,
@@ -133,10 +112,10 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
             for_blood_req: isBloodRequest,
         });
 
-        await putFile(photoLink.items[0].url, photo);
+        await putFileViaFetch(photoLink.items[0].url, buffer, contentType);
 
         await api.confirmUploadPhoto({ entityId: id, paths: [photoLink.items[0].path] });
-        // test
+
         sendSuccessToWebhook(photo);
 
         return { success: true };
