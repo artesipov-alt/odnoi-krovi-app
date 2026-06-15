@@ -6,11 +6,21 @@ import { addPhoto } from './addPhoto';
 type Args = CreatePetRequest & {
     petId?: string;
     photo: File | null;
+    photoBuffer?: ArrayBuffer;
     bloodRequestPhoto: File | null;
+    bloodRequestPhotoBuffer?: ArrayBuffer;
     poolInfo: Omit<AddToPoolRequest, 'petId'>;
 };
 
-export const createRecipient = async ({ petId, photo, poolInfo, bloodRequestPhoto, ...params }: Args) => {
+export const createRecipient = async ({
+    petId,
+    photo,
+    photoBuffer,
+    poolInfo,
+    bloodRequestPhoto,
+    bloodRequestPhotoBuffer,
+    ...params
+}: Args) => {
     let newPetId;
     let poolRequestId;
 
@@ -35,7 +45,12 @@ export const createRecipient = async ({ petId, photo, poolInfo, bloodRequestPhot
     if (!petId) {
         if (photo) {
             try {
-                const { success } = await addPhoto({ photo, id: petId || newPetId, isAvatar: true });
+                const { success } = await addPhoto({
+                    photo,
+                    buffer: photoBuffer,
+                    id: petId || newPetId,
+                    isAvatar: true,
+                });
 
                 if (!success) {
                     return { success: false, error: 'Не удалось сохранить аватарку питомца' };
@@ -48,7 +63,12 @@ export const createRecipient = async ({ petId, photo, poolInfo, bloodRequestPhot
 
     if (bloodRequestPhoto) {
         try {
-            const { success } = await addPhoto({ photo: bloodRequestPhoto, id: poolRequestId, isBloodRequest: true });
+            const { success } = await addPhoto({
+                photo: bloodRequestPhoto,
+                buffer: bloodRequestPhotoBuffer,
+                id: poolRequestId,
+                isBloodRequest: true,
+            });
 
             if (!success) {
                 return { success: false, error: 'Не удалось прикрепить фотографию к заявке на поиск крови' };

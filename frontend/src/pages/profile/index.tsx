@@ -164,6 +164,7 @@ const Profile: FC<Props> = ({ userId }) => {
     const [isEditLoading, setIsEditLoading] = useState(false);
     const [isAvatarUploading, setIsAvatarUploading] = useState(false);
     const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
+    const [pendingAvatarBuffer, setPendingAvatarBuffer] = useState<ArrayBuffer | null>(null);
     const [pendingAvatarPreviewUrl, setPendingAvatarPreviewUrl] = useState<string | null>(null);
     const [inviteIdentities, setInviteIdentities] = useState<UserIdentity[]>([]);
 
@@ -203,6 +204,7 @@ const Profile: FC<Props> = ({ userId }) => {
         setEditPhone(userData.phone || '');
         setEditEmail(userData.email || '');
         setPendingAvatarFile(null);
+        setPendingAvatarBuffer(null);
         setPendingAvatarPreviewUrl(null);
         setFailedAvatarUrl(null);
     }, [isEditCurtainOpen, userData]);
@@ -339,7 +341,12 @@ const Profile: FC<Props> = ({ userId }) => {
                   })
                 : Promise.resolve(null),
             hasAvatarChanges && pendingAvatarFile
-                ? addPhoto({ id: userId, photo: pendingAvatarFile, isUserAvatar: true })
+                ? addPhoto({
+                      id: userId,
+                      photo: pendingAvatarFile,
+                      buffer: pendingAvatarBuffer ?? undefined,
+                      isUserAvatar: true,
+                  })
                 : Promise.resolve(null),
             isPhoneChanged ? updatePhone({ id: userId, phone: editPhone }) : Promise.resolve(null),
         ]);
@@ -373,6 +380,7 @@ const Profile: FC<Props> = ({ userId }) => {
         }
 
         setPendingAvatarFile(null);
+        setPendingAvatarBuffer(null);
         setPendingAvatarPreviewUrl(null);
         setFailedAvatarUrl(null);
         setIsEditCurtainOpen(false);
@@ -405,7 +413,7 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsEditCurtainOpen(false);
     };
 
-    const onAvatarSelectHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const onAvatarSelectHandler = async (e: ChangeEvent<HTMLInputElement>) => {
         const newPhoto = e.target.files?.[0];
 
         if (!newPhoto || isAvatarUploading || isEditLoading) {
@@ -413,7 +421,21 @@ const Profile: FC<Props> = ({ userId }) => {
         }
 
         setFailedAvatarUrl(null);
-        setPendingAvatarFile(newPhoto);
+
+        // Читаем файл в буфер сразу, пока Android не отозвал доступ
+        try {
+            const buffer = await newPhoto.arrayBuffer();
+            setPendingAvatarBuffer(buffer);
+
+            // Для preview используем Blob из буфера, а не File
+            const blob = new Blob([buffer], { type: newPhoto.type || 'image/jpeg' });
+            const previewFile = new File([blob], newPhoto.name, { type: blob.type });
+            setPendingAvatarFile(previewFile);
+        } catch {
+            setPendingAvatarBuffer(null);
+            setPendingAvatarFile(newPhoto);
+        }
+
         e.target.value = '';
     };
 

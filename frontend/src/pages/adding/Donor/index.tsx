@@ -48,6 +48,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
     const [name, setName] = useState('');
     const [petType, setPetType] = useState<string>('');
     const [photo, setPhoto] = useState<File | null>(null);
+    const [photoBuffer, setPhotoBuffer] = useState<ArrayBuffer | null>(null);
     const [petGender, setPetGender] = useState<string>('');
     const [chipNumber, setChipNumber] = useState<string>(''); // 'none' - значит отсутствует
     const [exactDate, setExactDate] = useState<Date | null>(null);
@@ -221,8 +222,9 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
         }));
     };
 
-    const onLoadPhotoHandler = useCallback((newPhoto: File | null) => {
+    const onLoadPhotoHandler = useCallback((newPhoto: File | null, buffer?: ArrayBuffer) => {
         setPhoto(newPhoto);
+        setPhotoBuffer(buffer ?? null);
     }, []);
 
     const onChangeNameHandler = (newName: string) => {
@@ -530,6 +532,7 @@ const Donor: FC<Props> = ({ userId, onBackToStart }) => {
             name,
             userId,
             photo,
+            photoBuffer: photoBuffer ?? undefined,
             petStatus: Role.NONE,
             breedId: breed?.value,
             type: petType as PetType,

@@ -4,9 +4,10 @@ import { addPhoto } from './addPhoto';
 
 type Args = CreatePetRequest & {
     photo: File | null;
+    photoBuffer?: ArrayBuffer;
 };
 
-export const createDonor = async ({ photo, ...params }: Args) => {
+export const createDonor = async ({ photo, photoBuffer, ...params }: Args) => {
     try {
         const { data } = await api.createPet(params);
 
@@ -14,7 +15,7 @@ export const createDonor = async ({ photo, ...params }: Args) => {
             return { success: true };
         }
 
-        const { success } = await addPhoto({ photo, id: data.id, isAvatar: true });
+        const { success } = await addPhoto({ photo, buffer: photoBuffer, id: data.id, isAvatar: true });
 
         return { success };
     } catch (e) {
