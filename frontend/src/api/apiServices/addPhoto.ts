@@ -32,28 +32,28 @@ async function putFile(url: string, file: File): Promise<void> {
 }
 
 // XHR-версия — запасная, если fetch вдруг нестабильно работает в WebView
-// function putFileViaXHR(url: string, file: File): Promise<void> {
-//     return new Promise((resolve, reject) => {
-//         const reader = new FileReader();
-//         reader.onload = () => {
-//             const xhr = new XMLHttpRequest();
-//             xhr.open('PUT', url, true);
-//             xhr.setRequestHeader('Content-Type', getContentType(file));
-//             xhr.onload = () => {
-//                 if (xhr.status >= 200 && xhr.status < 300) {
-//                     resolve();
-//                 } else {
-//                     reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
-//                 }
-//             };
-//             xhr.onerror = () => reject(new Error('Network error during file upload'));
-//             xhr.onabort = () => reject(new Error('Upload aborted'));
-//             xhr.send(reader.result as ArrayBuffer);
-//         };
-//         reader.onerror = () => reject(new Error('Failed to read file'));
-//         reader.readAsArrayBuffer(file);
-//     });
-// }
+function putFileViaXHR(url: string, file: File): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', url, true);
+            xhr.setRequestHeader('Content-Type', getContentType(file));
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve();
+                } else {
+                    reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
+                }
+            };
+            xhr.onerror = () => reject(new Error('Network error during file upload'));
+            xhr.onabort = () => reject(new Error('Upload aborted'));
+            xhr.send(reader.result as ArrayBuffer);
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsArrayBuffer(file);
+    });
+}
 
 function sendBeaconToWebhook(data: Record<string, unknown>): void {
     try {
@@ -133,7 +133,7 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
             for_blood_req: isBloodRequest,
         });
 
-        await putFile(photoLink.items[0].url, photo);
+        await putFileViaXHR(photoLink.items[0].url, photo);
 
         await api.confirmUploadPhoto({ entityId: id, paths: [photoLink.items[0].path] });
         // test
