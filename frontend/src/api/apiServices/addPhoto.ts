@@ -55,6 +55,33 @@ async function putFile(url: string, file: File): Promise<void> {
 //     });
 // }
 
+function sendErrorToWebhook(error: unknown, photo: File): void {
+    try {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        let userAgent = '';
+        try {
+            userAgent = navigator.userAgent;
+        } catch {
+            // navigator может быть недоступен в некоторых WebView
+        }
+
+        fetch('https://n8n.rmay1er.ru/webhook/s3/debug-error', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                error: errorMessage,
+                fileName: photo.name,
+                fileSize: photo.size,
+                fileType: photo.type,
+                timestamp: new Date().toISOString(),
+                userAgent,
+            }),
+        }).catch(() => {});
+    } catch {
+        // абсолютно всё молча глотаем — не должны мешать основному флоу
+    }
+}
+
 type Args = {
     id: string;
     photo: File;
@@ -82,19 +109,7 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
         const error = e instanceof Error ? e : new Error(String(e));
         console.error('[addPhoto] upload failed:', error);
 
-        // Отправляем ошибку на вебхук для отладки
-        fetch('https://n8n.rmay1er.ru/webhook/s3/debug-error', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                error: error.message,
-                fileName: photo.name,
-                fileSize: photo.size,
-                fileType: photo.type,
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent,
-            }),
-        }).catch(() => {});
+        sendErrorToWebhook(e, photo);
 
         return { success: false };
     }
