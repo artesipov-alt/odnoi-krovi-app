@@ -405,15 +405,23 @@ const Profile: FC<Props> = ({ userId }) => {
         setIsEditCurtainOpen(false);
     };
 
-    const onAvatarSelectHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const onAvatarSelectHandler = async (e: ChangeEvent<HTMLInputElement>) => {
         const newPhoto = e.target.files?.[0];
 
         if (!newPhoto || isAvatarUploading || isEditLoading) {
             return;
         }
 
-        setFailedAvatarUrl(null);
-        setPendingAvatarFile(newPhoto);
+        // Читаем в память сразу — защита от протухающего content:// URI на Android
+        try {
+            const buffer = await newPhoto.arrayBuffer();
+            const safeFile = new File([buffer], newPhoto.name, { type: newPhoto.type || 'image/jpeg' });
+            setFailedAvatarUrl(null);
+            setPendingAvatarFile(safeFile);
+        } catch {
+            console.error('[Profile] failed to read avatar file');
+        }
+
         e.target.value = '';
     };
 

@@ -43,7 +43,7 @@ const AboutTech: FC = () => {
                             Надеемся, что Портал поможет хозяевам спасать своих любимых друзей */}
                         </div>
                         <div className={cn(aboutStyles.sectionText, { [aboutStyles.marginTop]: true })}>
-                            Версия: 1.2.0
+                            Версия: {__APP_VERSION__}
                             <br />
                             <a
                                 target='_blank'

@@ -54,10 +54,9 @@ const ImgEditor: FC<Props> = ({
             return;
         }
 
-        // Не-изображения (PDF и т.д.) отбрасываем — accept расширен для обхода глюка
-        // Telegram WebView на Android: если accept='image/*' — перехватывает пикер,
-        // показывает свою галерею, и отдаёт битый content:// URI.
-        // С accept='image/*,application/pdf' — вынужден отдать системный пикер.
+        // accept='image/*,application/pdf' — заставляет Telegram WebView на Android
+        // показать системный пикер вместо своей галереи.
+        // Принимаем только изображения, PDF только для обхода бага WebView.
         if (!newFile.type.startsWith('image/')) {
             currentTarget.value = '';
 

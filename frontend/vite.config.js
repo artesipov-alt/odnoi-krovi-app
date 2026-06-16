@@ -9,6 +9,8 @@ import svgr from 'vite-plugin-svgr';
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath);
 
+const pkg = JSON.parse(fs.readFileSync(resolveApp('package.json'), 'utf-8'));
+
 export const alias = {
     api: resolveApp('src/api'),
     imgs: resolveApp('src/imgs'),
@@ -30,7 +32,10 @@ export default defineConfig({
         alias,
     },
     publicDir: 'public',
-    define: { global: 'window' },
+    define: {
+        global: 'window',
+        __APP_VERSION__: JSON.stringify(pkg.version),
+    },
     plugins: [
         checker({
             typescript: {

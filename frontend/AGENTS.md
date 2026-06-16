@@ -133,6 +133,35 @@ frontend/
 - Аутентификация через Telegram Init Data, которая передаётся на бэкенд.
 - Адаптация интерфейса под Telegram WebView.
 
+## Загрузка фото (известные проблемы и решения)
+
+### Механизм загрузки (3 шага)
+1. `POST /v1/uploads/presign/{id}` — получение presigned PUT URL для S3 (VK Cloud)
+2. `PUT {presigned_url}` — загрузка файла напрямую в S3
+3. `POST /v1/uploads/confirm` — подтверждение
+
+### Проблема Telegram WebView на Android
+
+Telegram Android WebView имеет два бага, отсутствующих в Max WebView и iOS:
+
+**1. Перехват файлового инпута:** `accept='image/*'` заставляет Telegram показать свою галерею вместо системного диалога. Камера и файлы недоступны.
+- **Симптом:** системный диалог выбора (камера / галерея / файлы) не отображается, сразу открывается галерея Telegram.
+- **Решение:** `accept='image/*,application/pdf'` — `application/pdf` вынуждает Telegram отдать системный пикер. При этом PDF отфильтровываются в коде (принимаются только изображения).
+- Файлы: `ImgEditor/index.tsx`, `profile/index.tsx`
+
+**2. Протухающий `content://` URI:** Android выдаёт временный URI, разрешение отзывается после закрытия пикера.
+- **Симптом (вебхук):** `"The requested file could not be read, typically due to permission problems that have occurred after a reference to a file was acquired."`
+- **Решение:** `arrayBuffer()` сразу в `onChange`, создание in-memory `File` до закрытия пикера.
+- Файлы: `ImgEditor/index.tsx:68-69`, `profile/index.tsx:416-418`
+
+**3. CORS preflight к S3:** `PUT` с `Content-Type` требует preflight, который Telegram WebView может блокировать.
+- **Симптом (вебхук):** `"Failed to fetch"` — ошибка из `fetch(url, { method: 'PUT', body: file })` при загрузке на S3. При этом `arrayBuffer()` в `onChange` отрабатывает успешно, `getPhotoLink` возвращает presigned URL успешно, падает именно PUT к S3.
+- **Характер:** интермиттентный (из 5 попыток 4 fail, 1 success — паттерн CORS preflight-кеширования).
+- **Решение:** PUT без `Content-Type` заголовка, тело — `ArrayBuffer`. Presigned URL на бэкенде не проверяет ContentType.
+- Файл: `api/apiServices/addPhoto.ts` (`putFile`)
+- **Резерв:** `putFileViaXHR` — XHR без кастомных заголовков, сохранён в коде, но не вызывается. Если `fetch` PUT снова начнёт падать — раскомментировать fallback в `addPhoto`.
+- **Инфраструктура:** S3 CORS должен быть настроен на бакете (AllowedOrigins, AllowedMethods: GET, PUT, HEAD).
+
 ## Команды
 
 | Команда | Описание |

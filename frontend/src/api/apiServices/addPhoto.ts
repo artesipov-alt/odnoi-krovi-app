@@ -140,24 +140,14 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
             for_blood_req: isBloodRequest,
         });
 
-        try {
-            await putFile(photoLink.items[0].url, photo);
-        } catch {
-            // fetch PUT мог упасть из-за CORS в WebView — пробуем XHR без кастомных заголовков
-            console.warn('[addPhoto] fetch PUT failed, falling back to XHR');
-            await putFileViaXHR(photoLink.items[0].url, photo);
-        }
+        await putFile(photoLink.items[0].url, photo);
 
         await api.confirmUploadPhoto({ entityId: id, paths: [photoLink.items[0].path] });
-        // test
-        sendSuccessToWebhook(photo);
 
         return { success: true };
     } catch (e) {
         const error = e instanceof Error ? e : new Error(String(e));
         console.error('[addPhoto] upload failed:', error);
-
-        sendErrorToWebhook(e, photo);
 
         return { success: false };
     }
