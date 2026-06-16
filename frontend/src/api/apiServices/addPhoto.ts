@@ -24,7 +24,6 @@ async function putFile(url: string, file: File): Promise<void> {
         method: 'PUT',
         headers: {
             'Content-Type': getContentType(file),
-            'Content-Length': file.size.toString(),
         },
         body: file,
     });

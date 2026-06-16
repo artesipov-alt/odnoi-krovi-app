@@ -47,22 +47,21 @@ const ImgEditor: FC<Props> = ({
     const onAddItemClickHandler = () => {
         fileInputRef.current?.click();
     };
-    const onLoadFileHandler = ({ currentTarget }: ChangeEvent<HTMLInputElement>) => {
+    const onLoadFileHandler = async ({ currentTarget }: ChangeEvent<HTMLInputElement>) => {
         const newFile = currentTarget?.files?.[0];
 
         if (!newFile) {
             return;
         }
 
-        // if (!acceptableFormats.includes(newFile.type.split('/')[1])) {
-        //     // не тот формат
-        //     return;
-        // }
+        // Читаем немедленно, пока Android ещё не отозвал permission на content:// URI
+        const buffer = await newFile.arrayBuffer();
+        const safeFile = new File([buffer], newFile.name, { type: newFile.type || 'image/jpeg' });
 
-        setFile(newFile);
+        setFile(safeFile);
         setIsLoadImageError(false);
 
-        onLoad?.(newFile);
+        onLoad?.(safeFile);
     };
 
     const onDeleteClickHandler = (e: MouseEvent<HTMLDivElement>) => {
@@ -170,7 +169,7 @@ const ImgEditor: FC<Props> = ({
             <input
                 type='file'
                 id='imageInput'
-                accept='image/*'
+                accept='image/*,android/allowCamera'
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}
