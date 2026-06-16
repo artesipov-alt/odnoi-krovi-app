@@ -886,7 +886,7 @@ const Profile: FC<Props> = ({ userId }) => {
             <input
                 ref={avatarInputRef}
                 type='file'
-                accept='image/*'
+                accept='image/*,application/pdf'
                 style={{ display: 'none' }}
                 onChange={onAvatarSelectHandler}
             />

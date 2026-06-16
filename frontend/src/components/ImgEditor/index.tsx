@@ -7,57 +7,6 @@ import { ChangeEvent, FC, memo, MouseEvent, useRef, useState } from 'react';
 import styles from './ImgEditor.module.less';
 import PhotoViewer from './PhotoViewer';
 
-// ═══════════════════════════════════════════════════════════════════════
-// Fallback для Telegram WebView на Android:
-// Telegram перехватывает <input type='file'>, открывает свою галерею,
-// и выдаёт content:// URI, который уже невалиден к моменту onChange.
-// arrayBuffer() падает, но браузерный декодер изображений (через <img>)
-// часто имеет более широкие права и может прочитать файл.
-// Поэтому: грузим в <img> → отрисовываем на <canvas> → экспортируем Blob.
-// ═══════════════════════════════════════════════════════════════════════
-async function readFileViaCanvas(file: File): Promise<File> {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            const ctx = canvas.getContext('2d');
-
-            if (!ctx) {
-                reject(new Error('Canvas 2D context not available'));
-
-                return;
-            }
-            ctx.drawImage(img, 0, 0);
-
-            canvas.toBlob(
-                (blob) => {
-                    if (blob) {
-                        resolve(new File([blob], file.name, { type: file.type || 'image/jpeg' }));
-
-                        return;
-                    }
-
-                    reject(new Error('Canvas toBlob returned null'));
-                },
-                file.type || 'image/jpeg',
-                0.95,
-            );
-        };
-
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Failed to load image via blob URL'));
-        };
-
-        img.src = url;
-    });
-}
-
 type Props = {
     name?: string;
     weight?: string;
@@ -105,8 +54,17 @@ const ImgEditor: FC<Props> = ({
             return;
         }
 
+        // Не-изображения (PDF и т.д.) отбрасываем — accept расширен для обхода глюка
+        // Telegram WebView на Android: если accept='image/*' — перехватывает пикер,
+        // показывает свою галерею, и отдаёт битый content:// URI.
+        // С accept='image/*,application/pdf' — вынужден отдать системный пикер.
+        if (!newFile.type.startsWith('image/')) {
+            currentTarget.value = '';
+
+            return;
+        }
+
         try {
-            // Способ 1: arrayBuffer — работает в iOS, Max WebView, и большинстве случаев
             const buffer = await newFile.arrayBuffer();
             const safeFile = new File([buffer], newFile.name, { type: newFile.type || 'image/jpeg' });
 
@@ -114,17 +72,9 @@ const ImgEditor: FC<Props> = ({
             setIsLoadImageError(false);
             onLoad?.(safeFile);
         } catch {
-            // Способ 2: Canvas fallback для Telegram WebView на Android,
-            // где content:// URI уже недоступен на момент onChange
-            try {
-                const safeFile = await readFileViaCanvas(newFile);
-                setFile(safeFile);
-                setIsLoadImageError(false);
-                onLoad?.(safeFile);
-            } catch (canvasError) {
-                console.error('[ImgEditor] all read methods failed:', canvasError);
-                setIsLoadImageError(true);
-            }
+            console.error('[ImgEditor] failed to read file');
+            setIsLoadImageError(true);
+            currentTarget.value = '';
         }
     };
 
@@ -233,7 +183,7 @@ const ImgEditor: FC<Props> = ({
             <input
                 type='file'
                 id='imageInput'
-                accept='image/*'
+                accept='image/*,application/pdf'
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}
