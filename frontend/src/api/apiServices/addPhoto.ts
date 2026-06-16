@@ -20,12 +20,15 @@ function getContentType(file: File): string {
 }
 
 async function putFile(url: string, file: File): Promise<void> {
+    // Читаем файл как ArrayBuffer, чтобы:
+    // 1. Не зависеть от content:// URI (Android)
+    // 2. Не слать Content-Type — presigned URL его не проверяет (ContentType закомментирован в Go),
+    //    а отсутствие кастомных заголовков снижает требования к CORS preflight
+    const buffer = await file.arrayBuffer();
+
     const res = await fetch(url, {
         method: 'PUT',
-        headers: {
-            'Content-Type': getContentType(file),
-        },
-        body: file,
+        body: buffer,
     });
 
     if (!res.ok) {
@@ -33,15 +36,16 @@ async function putFile(url: string, file: File): Promise<void> {
     }
 }
 
-// XHR-версия — запасная, если fetch вдруг нестабильно работает в WebView
+// XHR fallback — без кастомных заголовков, чтобы не провоцировать preflight
+// Используется когда fetch PUT не работает в WebView (например, Telegram Android)
 function putFileViaXHR(url: string, file: File): Promise<void> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
             const xhr = new XMLHttpRequest();
             xhr.open('PUT', url, true);
-            xhr.setRequestHeader('Content-Type', getContentType(file));
-            xhr.setRequestHeader('Content-Length', file.size.toString());
+            // НЕ ставим кастомные заголовки — они вызывают preflight OPTIONS,
+            // который Telegram Android WebView может заблокировать
             xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     resolve();
@@ -136,7 +140,13 @@ export const addPhoto = async ({ id, photo, isAvatar, isUserAvatar, isBloodReque
             for_blood_req: isBloodRequest,
         });
 
-        await putFile(photoLink.items[0].url, photo);
+        try {
+            await putFile(photoLink.items[0].url, photo);
+        } catch {
+            // fetch PUT мог упасть из-за CORS в WebView — пробуем XHR без кастомных заголовков
+            console.warn('[addPhoto] fetch PUT failed, falling back to XHR');
+            await putFileViaXHR(photoLink.items[0].url, photo);
+        }
 
         await api.confirmUploadPhoto({ entityId: id, paths: [photoLink.items[0].path] });
         // test
