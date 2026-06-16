@@ -47,22 +47,34 @@ const ImgEditor: FC<Props> = ({
     const onAddItemClickHandler = () => {
         fileInputRef.current?.click();
     };
-    const onLoadFileHandler = ({ currentTarget }: ChangeEvent<HTMLInputElement>) => {
+    const onLoadFileHandler = async ({ currentTarget }: ChangeEvent<HTMLInputElement>) => {
         const newFile = currentTarget?.files?.[0];
 
         if (!newFile) {
             return;
         }
 
-        // if (!acceptableFormats.includes(newFile.type.split('/')[1])) {
-        //     // не тот формат
-        //     return;
-        // }
+        // accept='image/*,application/pdf' — заставляет Telegram WebView на Android
+        // показать системный пикер вместо своей галереи.
+        // Принимаем только изображения, PDF только для обхода бага WebView.
+        if (!newFile.type.startsWith('image/')) {
+            currentTarget.value = '';
 
-        setFile(newFile);
-        setIsLoadImageError(false);
+            return;
+        }
 
-        onLoad?.(newFile);
+        try {
+            const buffer = await newFile.arrayBuffer();
+            const safeFile = new File([buffer], newFile.name, { type: newFile.type || 'image/jpeg' });
+
+            setFile(safeFile);
+            setIsLoadImageError(false);
+            onLoad?.(safeFile);
+        } catch {
+            console.error('[ImgEditor] failed to read file');
+            setIsLoadImageError(true);
+            currentTarget.value = '';
+        }
     };
 
     const onDeleteClickHandler = (e: MouseEvent<HTMLDivElement>) => {
@@ -170,7 +182,7 @@ const ImgEditor: FC<Props> = ({
             <input
                 type='file'
                 id='imageInput'
-                accept='image/*'
+                accept='image/*,application/pdf'
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}

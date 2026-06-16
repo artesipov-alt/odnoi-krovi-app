@@ -1,10 +1,8 @@
-# Архитектура бэкенда Odnoi Krovi App
+# Backend — Go-монолит
 
 ## Общий обзор
 
 Go-монолит, реализованный в стилистике **DDD (Domain-Driven Design)** с элементами **CQRS** на уровне приложения. Веб-фреймворк — **Huma v2** (REST + OpenAPI 3.1). ORM — **Ent**. База — **PostgreSQL**. Кеш/события — **Redis**. Файлы — **S3**. Аутентификация — **JWT** + Telegram Mini App data validation.
-
----
 
 ## Слои и организация пакетов
 
@@ -53,8 +51,6 @@ backend/
 └── docsui/                 # Scalar docs UI встраивание
 ```
 
----
-
 ## Bounded Contexts (Domain)
 
 | Контекст | Модель | Репозиторий (интерфейс) | Domain Service | Команды | Запросы |
@@ -69,8 +65,6 @@ backend/
 | **Partner** | Partner | PartnerRepository | — | — | — |
 | **Reference** | Breed, Location | BreedRepository + LocationRepository | — | — | get_all_breeds, get_by_type, get_locations, get_blood_components, get_blood_groups |
 
----
-
 ## DDD: как реализовано
 
 - **Domain Model** (`internal/domain/{ctx}/model/`) — чистые Go-структуры без тегов ORM, с методами-конструкторами (`NewPet(...)`), методами поведения (`RecalculateFactors(...)`, `UpdateFrom(...)`).
@@ -78,8 +72,6 @@ backend/
 - **Domain Service** (`*_service.go`) — stateless, содержит логику, требующую координации нескольких aggregate (например, `PetService.CalculateAndSetStatus` оперирует Pet + DonorResponse + BloodRequest).
 - **Domain Events** (`internal/domain/{ctx}/events/`) — структуры данных событий (BloodRequestCreated, DonationConfirmed, DonorCompleted и т.д.).
 - **Ports** (`internal/domain/ports/`) — интерфейсы для внешних систем (EventPublisher).
-
----
 
 ## CQRS: как реализовано
 
@@ -89,8 +81,6 @@ backend/
 - **Query handlers** (`query/`) — только читают данные, возвращают DTO или domain models. Никаких side effects.
 - Каждый handler — это struct с единственным методом `Handle(ctx, ...)`.
 - Repository interface разделены на **write** и **read** (например, `pet.PetWriteRepository` vs `pet.PetReadRepository`), чтобы на уровне типов гарантировать, что query handler не может случайно вызвать метод записи.
-
----
 
 ## Поток данных (пример: создание питомца)
 
@@ -106,8 +96,6 @@ HTTP POST /api/v1/pets
     → 201 JSON response
 ```
 
----
-
 ## Ключевые технологии
 
 | Технология | Применение |
@@ -122,8 +110,6 @@ HTTP POST /api/v1/pets
 | **Telegram Mini App** | Валидация init data |
 | **Scalar** | Swagger UI |
 
----
-
 ## Аутентификация и middleware (порядок)
 
 1. `Recovery` — восстановление после паники
@@ -132,8 +118,6 @@ HTTP POST /api/v1/pets
 4. `Auth` — JWT-валидация (bearer token), пропускает исключённые пути
 5. `Logging` — slog-http (только статусы ≥400)
 6. `TraceID` — X-Trace-Id в ответ
-
----
 
 ## Обработка ошибок
 
@@ -148,13 +132,9 @@ HTTP POST /api/v1/pets
 }
 ```
 
----
-
 ## Транзакции
 
 `presistance.TxManager` оборачивает бизнес-логику в транзакцию Ent. Транзакция передаётся через контекст, что позволяет прозрачно использовать один и тот же репозиторий внутри и вне транзакции.
-
----
 
 ## События (Domain Events → Redis)
 
@@ -162,8 +142,6 @@ HTTP POST /api/v1/pets
 - `EventPublisher` (интерфейс в `ports/`) публикует их в Redis Pub/Sub.
 - Реализация: `internal/infra/events/redis/event_publisher.go`.
 - При недоступности Redis используется `NoOpEventPublisher`.
-
----
 
 ## Важные решения
 
