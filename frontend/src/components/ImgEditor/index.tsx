@@ -169,7 +169,7 @@ const ImgEditor: FC<Props> = ({
             <input
                 type='file'
                 id='imageInput'
-                accept='image/*,android/allowCamera'
+                accept='image/*'
                 ref={fileInputRef}
                 className={styles.input}
                 onChange={onLoadFileHandler}
