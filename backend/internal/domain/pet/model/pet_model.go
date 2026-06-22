@@ -181,6 +181,10 @@ func (p *Pet) SetOwnerID(id string) error {
 	return nil
 }
 
+func (p *Pet) IsDeleted() bool {
+	return p.DeletedAt != nil
+}
+
 // FactorCode — общий тип-код для факторов и предупреждений
 type FactorCode string
 

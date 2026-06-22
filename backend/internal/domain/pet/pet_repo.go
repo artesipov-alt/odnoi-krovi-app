@@ -65,6 +65,10 @@ type PetPreloadOptions struct {
 	IgnoreSoftDelete bool
 }
 
+func (pr *PetPreloadOptions) SetIgnoreSoftDelete() {
+	pr.IgnoreSoftDelete = true
+}
+
 // Repository объединяет все интерфейсы для обратной совместимости
 // Deprecated: используйте специализированные интерфейсы
 type Repository interface {
