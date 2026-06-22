@@ -182,7 +182,6 @@ func main() {
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
 		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
-		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo, petService)
 
@@ -232,7 +231,6 @@ func main() {
 			petCreateHandler,
 			petUpdateHandler,
 			petDeleteHandler,
-			petRevalidateHandler,
 			petGetByIDHandler,
 			petGetByUserHandler,
 			fileStorage,

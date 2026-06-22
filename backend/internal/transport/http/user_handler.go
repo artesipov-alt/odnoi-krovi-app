@@ -132,6 +132,7 @@ func (h *UserHandler) Register(api huma.API) {
 		Summary:     "Сброс пользователя к начальным настройкам",
 		Description: "Сбрасывает пользователя к заводским настройкам на этапе команды старт от бота",
 		Tags:        []string{"dev"},
+		Deprecated:  true,
 	}, h.ResetUser)
 
 	// Восстановление удаленного пользователя
@@ -142,6 +143,7 @@ func (h *UserHandler) Register(api huma.API) {
 		Summary:     "Восстановление удаленного пользователя",
 		Description: "Восстанавливает мягко удаленного пользователя, устанавливая deleted_at в NULL",
 		Tags:        []string{"dev"},
+		Deprecated:  true,
 	}, h.RestoreUser)
 
 	// Получение всех удаленных пользователей
@@ -152,6 +154,7 @@ func (h *UserHandler) Register(api huma.API) {
 		Summary:     "Получение всех удаленных пользователей",
 		Description: "Возвращает список всех мягко удаленных пользователей",
 		Tags:        []string{"dev"},
+		Deprecated:  true,
 	}, h.DeletedUsers)
 }
 
