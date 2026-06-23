@@ -80,5 +80,4 @@ export * from './UploadItem';
 export * from './UploadURLsResult';
 export * from './UserDetail';
 export * from './UserRolesList';
-export * from './ValidateDonorResult';
 export * from './VerifyUserPhoneBody';

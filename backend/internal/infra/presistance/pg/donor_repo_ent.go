@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -313,4 +314,24 @@ func (r *EntDonorResponseRepository) Accept(ctx context.Context, donorResponseID
 	}
 
 	return nil
+}
+
+func (r *EntDonorResponseRepository) FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error) {
+	responses, err := r.client(ctx).DonorResponse.Query().
+		Where(
+			donorresponse.UpdatedAtLTE(cutoffTime),
+			donorresponse.StatusEQ(donorresponse.StatusCompleted),
+			donorresponse.IsConfirmedEQ(false),
+		).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find pending auto confirm responses: %w", err)
+	}
+
+	result := make([]*donormodel.DonorResponse, len(responses))
+	for i, response := range responses {
+		result[i] = domainmapper.ApplicationToDomain(response)
+	}
+
+	return result, nil
 }
