@@ -88,7 +88,6 @@ models/UploadItem.ts
 models/UploadURLsResult.ts
 models/UserDetail.ts
 models/UserRolesList.ts
-models/ValidateDonorResult.ts
 models/VerifyUserPhoneBody.ts
 models/index.ts
 runtime.ts
