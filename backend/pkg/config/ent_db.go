@@ -12,7 +12,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/migrate"
 	_ "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/runtime"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
-	sloghttp "github.com/samber/slog-http"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -38,6 +37,8 @@ func NewEntConfig(env string) *EntConfig {
 		dbname = os.Getenv("DB_NAME")
 	case "DEV", "dev", "development":
 		dbname = os.Getenv("DB_NAME")
+	case "local":
+		return NewLocalConfig()
 	default:
 		dbname = os.Getenv("DB_NAME_DEV")
 	}
@@ -85,14 +86,14 @@ func ConnectEnt(config *EntConfig) (*ent.Client, *sql.DB, error) {
 
 	drv := entsql.OpenDB(dialect.Postgres, db)
 
-	debugDrv := dialect.DebugWithContext(drv, func(ctx context.Context, v ...any) {
-		slog.DebugContext(ctx, "SQL",
-			"query", fmt.Sprint(v...),
-			"rid", sloghttp.GetRequestIDFromContext(ctx),
-		)
-	})
+	// debugDrv := dialect.DebugWithContext(drv, func(ctx context.Context, v ...any) {
+	// 	slog.DebugContext(ctx, "SQL",
+	// 		"query", fmt.Sprint(v...),
+	// 		"rid", sloghttp.GetRequestIDFromContext(ctx),
+	// 	)
+	// })
 
-	client := ent.NewClient(ent.Driver(debugDrv))
+	client := ent.NewClient(ent.Driver(drv))
 	client.Intercept(schema.DbInterceptor())
 	client.Use(schema.SoftDeleteHook())
 

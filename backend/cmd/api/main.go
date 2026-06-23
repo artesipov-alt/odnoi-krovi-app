@@ -96,7 +96,7 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, _, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
@@ -116,11 +116,11 @@ func main() {
 			otpSender = twin24.NewOTPSenderFromEnv(redisClient)
 		}
 
-		// Запуск миграций закомментирован, так как они больше не нужны.
-		if err := config.RunMigrations(db, rawDB); err != nil {
-			slog.Error("Ошибка выполнения миграций", "error", err)
-			os.Exit(1)
-		}
+		// // Запуск миграций закомментирован, так как они больше не нужны.
+		// if err := config.RunMigrations(db, rawDB); err != nil {
+		// 	slog.Error("Ошибка выполнения миграций", "error", err)
+		// 	os.Exit(1)
+		// }
 
 		//Миграции
 		// ctx := context.Background()
@@ -182,7 +182,6 @@ func main() {
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
 		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
-		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo, petService)
 
@@ -232,7 +231,6 @@ func main() {
 			petCreateHandler,
 			petUpdateHandler,
 			petDeleteHandler,
-			petRevalidateHandler,
 			petGetByIDHandler,
 			petGetByUserHandler,
 			fileStorage,
