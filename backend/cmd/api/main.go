@@ -40,6 +40,8 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	redisRepository "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/scheduler"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/scheduler/job"
 
 	events "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/events/redis"
 	transport "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http"
@@ -267,6 +269,12 @@ func main() {
 			bonusImportHandler,
 		)
 
+		//Запуск side-effects (воркеров)
+		confirmJob := job.NewAutoConfirmJob(donorResponseRepo, confirmDonationHandler)
+		scheduler := scheduler.NewScheduler()
+		scheduler.Register(confirmJob, 10*time.Minute)
+		scheduler.Start()
+
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
 
@@ -312,12 +320,33 @@ func main() {
 
 		// Tell the CLI how to stop your server.
 		hooks.OnStop(func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			slog.Info("🛑 Завершение работы сервера...")
+
+			// 1. Останавливаем scheduler (воркеры)
+			scheduler.Stop()
+
+			// 2. Graceful shutdown HTTP-сервера (30s timeout)
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
-			if db != nil {
-				db.Close()
+			if err := server.Shutdown(shutdownCtx); err != nil {
+				slog.Error("Ошибка при завершении HTTP-сервера", "error", err)
 			}
-			server.Shutdown(ctx)
+
+			// 3. Закрываем подключение к БД (Ent)
+			if db != nil {
+				if err := db.Close(); err != nil {
+					slog.Error("Ошибка при закрытии БД", "error", err)
+				}
+			}
+
+			// 4. Закрываем Redis-клиент
+			if redisClient != nil {
+				if err := redisClient.Close(); err != nil {
+					slog.Error("Ошибка при закрытии Redis", "error", err)
+				}
+			}
+
+			slog.Info("✅ Сервер успешно остановлен")
 		})
 	})
 

@@ -2,6 +2,7 @@ package donor
 
 import (
 	"context"
+	"time"
 
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -21,6 +22,7 @@ type Repository interface {
 	Count(ctx context.Context) (int, error)
 	GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error)
 	GetByPetIDs(ctx context.Context, petIDs []string, ignoreSoftDelete bool) (map[string][]*donormodel.DonorResponse, error)
+	FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error)
 	//=============================================
 	Accept(ctx context.Context, id string) error
 	Reject(ctx context.Context, res *donormodel.DonorResponse) error
