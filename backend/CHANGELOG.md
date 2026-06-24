@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/)..
 
+## [3.18.5] - 2026-06-24
+
+### Исправлено
+- **Уведомления отклонённым донорам и обработка ошибок публикации:**
+  - Добавлена отправка событий `DonorReject` в Redis для всех доноров, автоматически отклонённых при закрытии заявки. Это включает сбор `rejectedDonorIDs` в транзакции и последующую загрузку данных каждого донора для публикации `DonorReject` в `confirm_donation.go` и `close_req.go`.
+  - Обновлён вызов `NewCloseRequestHandler` в `cmd/api/main.go` для включения `petRepo` и `userRepo`.
+  - Во всех обработчиках публикация уведомлений теперь не является фатальной: вместо `return err` используется `slog.Error(...)` для событий `PublishDonorApply`, `PublishDonorReject`, `PublishDonorNotConfirmed`, `PublishDonationConfirmed`, `PublishUserContact`.
+
+### Изменено
+- **Выравнивание логики условий в `close_req.go`:**
+  - Развёрнутое условие `Status == Pending || Status == Accepted || (Status == Completed && !IsConfirmed)` заменено на `application.IsActiveForDonation()` для согласованности с `confirm_donation.go`.
+
 ## [3.18.4] - 2026-06-23
 
 ### Добавлено
