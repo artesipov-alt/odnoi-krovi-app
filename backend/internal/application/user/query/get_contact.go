@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
@@ -55,7 +56,7 @@ func (h *GetContactHandler) Handle(ctx context.Context, id string, provider stri
 	event.NotifyProvider = authmodel.ProviderName(provider)
 
 	if err := h.publisher.PublishUserContact(ctx, event); err != nil {
-		return nil, err
+		slog.Error("failed to publish user contact notification", "err", err, "targetUserID", id)
 	}
 
 	return userData, nil
