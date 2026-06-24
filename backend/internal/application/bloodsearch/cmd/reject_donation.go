@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -126,7 +127,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		}
 
 		if err := h.publisher.PublishDonorReject(ctx, event); err != nil {
-			return err
+			slog.Error("failed to publish donor reject notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	case donormodel.DonorResponseStatusAccepted:
 		recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
@@ -153,7 +154,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		}
 
 		if err := h.publisher.PublishDonorNotConfirmed(ctx, notConfirmedEvent); err != nil {
-			return err
+			slog.Error("failed to publish donor not confirmed notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	default:
 		// Unexpected status, do nothing or log

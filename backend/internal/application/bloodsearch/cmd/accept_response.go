@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
@@ -141,7 +142,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 	}
 
 	if err := h.publisher.PublishDonorApply(ctx, event); err != nil {
-		return err
+		slog.Error("failed to publish donor apply notification", "err", err, "donorResponseID", donorResponseID)
 	}
 
 	return nil
