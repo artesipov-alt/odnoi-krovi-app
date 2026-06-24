@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 import { generateVCF } from "../recipient/helpers";
 
@@ -43,6 +44,10 @@ export const handleDonorNotConfirmed = async (
       const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
 
       await sendMessageToUser(DonorProviderMaxID, donorMessage, {
+        attachments: [getAppOpenKeyboard()],
+      });
+
+      await sendMessageToUser(DonorProviderMaxID, "", {
         attachments: [
           {
             type: "contact",
@@ -85,6 +90,14 @@ export const handleDonorNotConfirmed = async (
       await sendMessageToUser(
         RecipientUserData.ProviderMaxID,
         recipientMessage,
+        {
+          attachments: [getAppOpenKeyboard()],
+        },
+      );
+
+      await sendMessageToUser(
+        RecipientUserData.ProviderMaxID,
+        "",
         {
           attachments: [
             {

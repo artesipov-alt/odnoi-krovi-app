@@ -138,6 +138,11 @@ Max Platform → POST /webhook (X-Max-Bot-Api-Secret)
 1. **Max Bot API вместо grammy** — проект перешёл с grammy на `@maxhub/max-bot-api`. Код grammy (включая `pm2.config.cjs`, `ratelimitter.ts`, `throttler.ts`) оставлен как legacy reference и не используется.
 2. **sendMessageToUser** (src/max.ts) — единая точка отправки сообщений с валидацией MaxID (числовой, не пустой). Всегда использовать её вместо прямого вызова `bot.api.sendMessageToUser`.
 3. **Contact attachments** — для передачи контактов используется `generateVCF()` и `type: "contact"` attachment.
-4. **Аутентификация с таймаутом** — в `startHandler` вызов API обёрнут в `Promise.race` с 5-секундным таймаутом, чтобы не блокировать ответ пользователю.
-5. **Graceful shutdown** — при SIGINT/SIGTERM останавливается HTTP-сервер и закрывается Redis-соединение.
-6. **Окружения** — `Bun.env.ENV` определяет префикс Redis-каналов (`dev:` / `prod:`) и номер БД Redis (1 / 0).
+4. **Кнопка «Открыть приложение»** — во всех уведомлениях (кроме `handleUserContact`) добавляется `getAppOpenKeyboard()` из `src/keyboards.ts`. Это Link Button, открывающая Mini App Max по ссылке `https://max.ru/{BOT_ID}_bot?startapp`.
+5. **Разделение контакта и кнопки** — в сценариях, где нужен и контакт, и кнопка (donorApply, donorNotConfirmed, handleUserContact), отправка разбивается на **два последовательных вызова** `sendMessageToUser`:
+   - Сначала текст-уведомление + кнопка (`getAppOpenKeyboard()`)
+   - Затем пустое сообщение + contact attachment (VCF)
+   Это сделано, чтобы избежать проблем с отображением в Max.
+6. **Аутентификация с таймаутом** — в `startHandler` вызов API обёрнут в `Promise.race` с 5-секундным таймаутом, чтобы не блокировать ответ пользователю.
+7. **Graceful shutdown** — при SIGINT/SIGTERM останавливается HTTP-сервер и закрывается Redis-соединение.
+8. **Окружения** — `Bun.env.ENV` определяет префикс Redis-каналов (`dev:` / `prod:`), номер БД Redis (1 / 0) и BOT_ID для ссылки в кнопке.

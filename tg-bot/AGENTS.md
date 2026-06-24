@@ -49,7 +49,7 @@ tg-bot/
 ├── src/
 │   ├── instances.ts              # Синглтоны: Bot (grammy), Pino logger, Redis, API-клиент
 │   ├── telegram.ts               # sendTelegramMessage, sendTelegramContact — безопасная отправка
-│   ├── telegramButtons.ts        # createUserChatButton — вспомогательная утилита (не используется)
+│   ├── telegramButtons.ts        # createOpenAppKeyboard, createUserChatButton — клавиатуры для уведомлений
 │   ├── config/
 │   │   └── templates.ts          # Шаблоны сообщений (start, help, profile)
 │   ├── handlers/
@@ -123,6 +123,7 @@ Backend → Redis PUBLISH "prod:donor_response_apply" { ... }
 | **Фреймворк** | grammy | @maxhub/max-bot-api |
 | **Режим получения обновлений** | Long-polling через `@grammyjs/runner` | Webhook через Bun.serve |
 | **Передача контактов** | `sendContact()` (нативный Telegram) | Contact attachment + VCF |
+| **Кнопка «Открыть приложение»** | `createOpenAppKeyboard()` в `telegramButtons.ts` → `InlineKeyboard().webApp()` | `getAppOpenKeyboard()` в `keyboards.ts` → `Keyboard.button.link()` |
 | **Bridge** | Подключение через `bridge.1krovi.app` с секретом | Нет, прямой вызов Max Bot API |
 | **Provider name** | `telegram_bot` | `max_bot` |
 | **ID-поля в событиях** | `ProviderTelegram`, `ProviderTelegramID` | `ProviderMaxID`, `ProviderMaxID` |
@@ -141,8 +142,12 @@ Backend → Redis PUBLISH "prod:donor_response_apply" { ... }
 1. **Bridge API** — бот подключается к Telegram не напрямую, а через прокси-сервер `bridge.1krovi.app`, добавляя `?secret=BRIDGE_TOKEN` к каждому запросу (см. `instances.ts`, `buildUrl`).
 2. **sendTelegramMessage / sendTelegramContact** (src/telegram.ts) — единые точки отправки с валидацией chat_id. Всегда использовать их вместо прямого вызова `bot.api.*`.
 3. **Контакты через sendContact** — для передачи контактов используется нативный Telegram `sendContact`, а не VCF-вложение (в отличие от max-bot).
-4. **Rate limiter** — активен: не более 2 сообщений за 1.5 секунды на пользователя (in-memory). Redis для масштабирования пока не подключён.
-5. **Runner** — бот работает через `@grammyjs/runner` для конкурентной обработки обновлений (в отличие от webhook-ов max-bot).
-6. **Аутентификация с таймаутом** — в `startHandler` вызов API выполняется без жесткого таймаута (в отличие от max-bot, где стоит `Promise.race` на 5s). При ошибке — логирование, но приветствие показывается в любом случае.
-7. **Graceful shutdown** — при SIGINT/SIGTERM отключается Redis и останавливается runner.
-8. **Окружения** — `Bun.env.ENV` определяет префикс Redis-каналов (`dev:` / `prod:`), номер БД Redis (1 / 0) и URL Web App (`dev.1krovi.app` / `1krovi.app`).
+4. **Кнопка «Открыть приложение»** — единая функция `createOpenAppKeyboard()` в `src/telegramButtons.ts`. Используется во **всех** уведомлениях, кроме `handleUserContact`. URL выбирается по `Bun.env.ENV`:
+   - dev → `https://dev.1krovi.app`
+   - prod → `https://1krovi.app`
+   Кнопка передаётся как `reply_markup` в `sendTelegramMessage`.
+5. **Rate limiter** — активен: не более 2 сообщений за 1.5 секунды на пользователя (in-memory). Redis для масштабирования пока не подключён.
+6. **Runner** — бот работает через `@grammyjs/runner` для конкурентной обработки обновлений (в отличие от webhook-ов max-bot).
+7. **Аутентификация с таймаутом** — в `startHandler` вызов API выполняется без жесткого таймаута (в отличие от max-bot, где стоит `Promise.race` на 5s). При ошибке — логирование, но приветствие показывается в любом случае.
+8. **Graceful shutdown** — при SIGINT/SIGTERM отключается Redis и останавливается runner.
+9. **Окружения** — `Bun.env.ENV` определяет префикс Redis-каналов (`dev:` / `prod:`), номер БД Redis (1 / 0) и URL Web App (`dev.1krovi.app` / `1krovi.app`).

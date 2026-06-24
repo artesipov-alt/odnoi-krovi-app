@@ -1,6 +1,7 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
 import { generateVCF } from "../recipient/helpers";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 interface UserContactEvent {
   NotifyProvider: string;
@@ -39,6 +40,10 @@ export const handleUserContact = async (event: UserContactEvent) => {
     const message = `Контакт пользователя`;
 
     await sendMessageToUser(SendTo, message, {
+      attachments: [getAppOpenKeyboard()],
+    });
+
+    await sendMessageToUser(SendTo, "", {
       attachments: [
         {
           type: "contact",

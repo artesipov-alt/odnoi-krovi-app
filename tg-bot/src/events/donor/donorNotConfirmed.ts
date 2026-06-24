@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface DonorNotConfirmedEvent {
   DonorPetName: string;
@@ -39,7 +40,9 @@ export const handleDonorNotConfirmed = async (
     try {
       const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
 
-      await sendTelegramMessage(DonorUserData.ProviderTelegram, donorMessage);
+      await sendTelegramMessage(DonorUserData.ProviderTelegram, donorMessage, {
+        reply_markup: createOpenAppKeyboard(),
+      });
 
       // Отправляем контакт реципиента
       if (RecipientUserData.ProviderTelegram && RecipientUserData.Phone) {
@@ -78,6 +81,7 @@ export const handleDonorNotConfirmed = async (
       await sendTelegramMessage(
         RecipientUserData.ProviderTelegram,
         recipientMessage,
+        { reply_markup: createOpenAppKeyboard() },
       );
 
       // Отправляем контакт донора

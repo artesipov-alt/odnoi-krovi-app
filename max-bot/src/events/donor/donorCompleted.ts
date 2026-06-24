@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 interface DonorCompletedEvent {
   DonorPetName: string;
@@ -27,7 +28,9 @@ export const handleDonorCompleted = async (event: DonorCompletedEvent) => {
 Через 3 дня донация будет подтверждена автоматически.
 Если донация еще не состоялась, можете отказаться и связаться с донором для уточнения деталей.`;
 
-    await sendMessageToUser(RecipientProviderMaxID, message);
+    await sendMessageToUser(RecipientProviderMaxID, message, {
+      attachments: [getAppOpenKeyboard()],
+    });
 
     pinologger.info(
       {
