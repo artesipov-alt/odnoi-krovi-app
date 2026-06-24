@@ -105,7 +105,8 @@ jobs:
           envs: GITHUB_ACTOR,CR_PAT
           script: |
             cd ./odnoi-krovi-app
-            git pull origin dev
+            git fetch origin
+            git reset --hard origin/dev
             echo "$CR_PAT" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
             docker compose -f docker-compose.dev.yml pull
             docker compose -f docker-compose.dev.yml up -d

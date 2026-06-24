@@ -1,4 +1,3 @@
-odnoi-krovi-app/bot/README.md#L1-240
 # 🤖 Telegram Bot - Одной Крови
 
 <div align="center">
