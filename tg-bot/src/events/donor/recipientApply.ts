@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 // Отклик донора на рецепиента.
 interface RecipientApplyEvent {
@@ -58,7 +59,9 @@ export const handleRecipientApply = async (event: RecipientApplyEvent) => {
       donorBloodGroup: DonorBloodGroup,
     });
 
-    await sendTelegramMessage(RecipientProviderTelegramID, message);
+    await sendTelegramMessage(RecipientProviderTelegramID, message, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     pinologger.info(
       {

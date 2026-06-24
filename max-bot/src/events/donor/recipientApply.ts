@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 import { generateMessage } from "./helpers";
 
@@ -41,7 +42,9 @@ export const handleRecipientApply = async (event: RecipientApplyEvent) => {
       donorBloodGroup: DonorBloodGroup,
     });
 
-    await sendMessageToUser(RecipientProviderMaxID, message);
+    await sendMessageToUser(RecipientProviderMaxID, message, {
+      attachments: [getAppOpenKeyboard()],
+    });
 
     pinologger.info(
       {

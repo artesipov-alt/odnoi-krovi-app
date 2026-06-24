@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface DonorRejectEvent {
   RecipientPetName: string;
@@ -25,7 +26,9 @@ export const handleDonorReject = async (event: DonorRejectEvent) => {
   try {
     const message = `Реципиент (${RecipientPetName}, группа ${RecipientBloodGroup}) сообщил об отмене донации. Можете помочь другим реципиентам на Портале.`;
 
-    await sendTelegramMessage(DonorProviderTelegramID, message);
+    await sendTelegramMessage(DonorProviderTelegramID, message, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     pinologger.info(
       {

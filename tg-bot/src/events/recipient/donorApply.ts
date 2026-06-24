@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 // Отклик реципиента на донора.(Принятие заявки)
 interface ApplyDonorEvent {
@@ -79,7 +80,9 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
       donorBloodGroup: DonorData.BloodGroup,
     });
 
-    await sendTelegramMessage(recipientProviderTelegram, recipientMessage);
+    await sendTelegramMessage(recipientProviderTelegram, recipientMessage, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     // Отправляем контакт донора реципиенту
     if (DonorData.ProviderTelegram && DonorData.Phone) {
@@ -114,7 +117,9 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
       recipientVolume: RecipientData.Volume,
     });
 
-    await sendTelegramMessage(donorProviderTelegram, donorMessage);
+    await sendTelegramMessage(donorProviderTelegram, donorMessage, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     // Отправляем контакт реципиента донору
     if (RecipientData.ProviderTelegram && RecipientData.Phone) {

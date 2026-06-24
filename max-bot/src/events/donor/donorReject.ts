@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 interface DonorRejectEvent {
   RecipientPetName: string;
@@ -24,7 +25,9 @@ export const handleDonorReject = async (event: DonorRejectEvent) => {
   try {
     const message = `Реципиент (${RecipientPetName}, группа ${RecipientBloodGroup}) сообщил об отмене донации. Можете помочь другим реципиентам на Портале.`;
 
-    await sendMessageToUser(DonorProviderMaxID, message);
+    await sendMessageToUser(DonorProviderMaxID, message, {
+      attachments: [getAppOpenKeyboard()],
+    });
 
     pinologger.info(
       {

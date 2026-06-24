@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface DonorCompletedEvent {
   DonorPetName: string;
@@ -30,7 +31,9 @@ export const handleDonorCompleted = async (event: DonorCompletedEvent) => {
 Через 3 дня донация будет подтверждена автоматически.
 Если донация еще не состоялась, можете отказаться и связаться с донором для уточнения деталей.`;
 
-    await sendTelegramMessage(RecipientProviderTelegramID, message);
+    await sendTelegramMessage(RecipientProviderTelegramID, message, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     pinologger.info(
       {

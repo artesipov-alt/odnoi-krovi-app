@@ -1,6 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage } from "../../telegram";
-import { InlineKeyboard } from "grammy";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 // Уведомление о подтвержденной донации (от реципиента донору).
 interface DonationConfirmedEvent {
@@ -53,14 +53,8 @@ export const handleDonationConfirmed = async (
       recipientBloodGroup: RecipientData.BloodGroup,
     });
 
-    // Клавиатура для открытия приложения
-    const keyboard = new InlineKeyboard().webApp(
-      "Открыть приложение",
-      Bun.env.WEB_APP_URL || "https://app.1krovi.app",
-    );
-
     await sendTelegramMessage(targetId, message, {
-      reply_markup: keyboard,
+      reply_markup: createOpenAppKeyboard(),
     });
 
     pinologger.info(

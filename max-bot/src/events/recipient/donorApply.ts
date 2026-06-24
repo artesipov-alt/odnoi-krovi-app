@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 import {
   generateRecipientMessage,
@@ -62,6 +63,10 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
     });
 
     await sendMessageToUser(recipientProviderMaxID, recipientMessage, {
+      attachments: [getAppOpenKeyboard()],
+    });
+
+    await sendMessageToUser(recipientProviderMaxID, "", {
       attachments: [
         {
           type: "contact",
@@ -98,6 +103,10 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
     });
 
     await sendMessageToUser(donorProviderMaxID, donorMessage, {
+      attachments: [getAppOpenKeyboard()],
+    });
+
+    await sendMessageToUser(donorProviderMaxID, "", {
       attachments: [
         {
           type: "contact",
