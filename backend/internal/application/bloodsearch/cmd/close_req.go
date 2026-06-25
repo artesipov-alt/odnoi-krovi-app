@@ -59,12 +59,13 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodreqmodel.BloodRequestStatusClosed); err != nil {
 			return err
 		}
-		for _, application := range bloodReq.DonorApplications {
+		for i := range bloodReq.DonorApplications {
+			application := &bloodReq.DonorApplications[i]
 			if application.IsActiveForDonation() {
 				if err := application.Reject("other"); err != nil {
 					return err
 				}
-				if err := h.donorRepo.Reject(txCtx, &application); err != nil {
+				if err := h.donorRepo.Update(txCtx, application); err != nil {
 					return err
 				}
 				rejectedDonorIDs = append(rejectedDonorIDs, application.DonorID)

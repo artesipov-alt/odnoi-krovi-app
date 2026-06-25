@@ -59,7 +59,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 
 	var donorPet *petmodel.Pet
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.donorRepo.Reject(txCtx, application); err != nil {
+		if err := h.donorRepo.Update(txCtx, application); err != nil {
 			return err
 		}
 		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID, false)

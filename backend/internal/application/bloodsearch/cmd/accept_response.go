@@ -69,7 +69,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		if err := application.Accept(); err != nil {
 			return err
 		}
-		if err := h.donorRepo.Accept(txCtx, donorResponseID); err != nil {
+		if err := h.donorRepo.Update(txCtx, application); err != nil {
 			return err
 		}
 

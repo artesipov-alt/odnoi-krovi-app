@@ -62,7 +62,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		if err := application.Confirm(factAmount); err != nil {
 			return err
 		}
-		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
+		if err := h.donorRepo.Update(txCtx, application); err != nil {
 			return err
 		}
 		var err error
@@ -79,12 +79,13 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		}
 
 		if bloodReq.IsClosed() {
-			for _, app := range bloodReq.DonorApplications {
+			for i := range bloodReq.DonorApplications {
+				app := &bloodReq.DonorApplications[i]
 				if app.ID != donorResponseID && app.IsActiveForDonation() {
 					if err := app.Reject("other"); err != nil {
 						return err
 					}
-					if err := h.donorRepo.Reject(txCtx, &app); err != nil {
+					if err := h.donorRepo.Update(txCtx, app); err != nil {
 						return err
 					}
 					rejectedDonorIDs = append(rejectedDonorIDs, app.DonorID)

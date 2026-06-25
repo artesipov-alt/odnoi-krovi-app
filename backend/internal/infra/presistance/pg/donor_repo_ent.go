@@ -3,7 +3,6 @@ package pg
 import (
 	"context"
 	"fmt"
-	"math"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -241,79 +240,15 @@ func (r *EntDonorResponseRepository) Count(ctx context.Context) (int, error) {
 	return r.client(ctx).DonorResponse.Query().Count(ctx)
 }
 
-// Подтверждение донации реципиентом
-func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseID string, factAmount float64) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusCompleted).
-		SetIsConfirmed(true)
-
-	if factAmount != 0 {
-		update.SetAmount(math.Round(factAmount*10) / 10)
-	}
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to confirm blood request: %w", err)
-	}
-
-	return nil
-}
-
-// Завершение донации донором
-func (r *EntDonorResponseRepository) Complete(ctx context.Context, donorResponseID string, factAmount float64) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusCompleted)
-
-	if factAmount != 0 {
-		update.SetAmount(math.Round(factAmount*10) / 10)
-	}
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to complete donation: %w", err)
-	}
-
-	return nil
-}
-
-// Reject отклоняет отклик донора с причиной
-func (r *EntDonorResponseRepository) Reject(ctx context.Context, req *donormodel.DonorResponse) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(req.ID).
-		SetStatus(donorresponse.Status(req.Status)).
-		SetRejectedReason(req.RejectedReason)
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to reject donor response: %w", err)
-	}
-
-	return nil
-}
-
-// Cancel отменяет отклик донора
-func (r *EntDonorResponseRepository) Cancel(ctx context.Context, donorResponseID string) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusCancelled)
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to cancel donor response: %w", err)
-	}
-
-	return nil
-}
-
-// Accept accepts a donor response
-func (r *EntDonorResponseRepository) Accept(ctx context.Context, donorResponseID string) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusAccepted)
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to accept donor response: %w", err)
-	}
-
-	return nil
+// Update обновляет агрегат DonorResponse целиком
+func (r *EntDonorResponseRepository) Update(ctx context.Context, resp *donormodel.DonorResponse) error {
+	return r.client(ctx).DonorResponse.
+		UpdateOneID(resp.ID).
+		SetStatus(donorresponse.Status(resp.Status)).
+		SetAmount(resp.Amount).
+		SetIsConfirmed(resp.IsConfirmed).
+		SetRejectedReason(resp.RejectedReason).
+		Exec(ctx)
 }
 
 func (r *EntDonorResponseRepository) FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error) {
