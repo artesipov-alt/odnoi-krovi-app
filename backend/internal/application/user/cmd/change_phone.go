@@ -33,11 +33,7 @@ func (h *ChangePhoneHandler) Handle(ctx context.Context, userID string, phone st
 		return fmt.Errorf("change phone: %w", err)
 	}
 
-	otpData := redis.OTPData{
-		NewPhone: phone,
-		Code:     otpCode,
-	}
-	if err := h.otpRepo.Save(ctx, userID, otpData, 5*time.Minute); err != nil {
+	if err := h.otpRepo.Save(ctx, userID, redis.NewOTPData(otpCode, phone), 5*time.Minute); err != nil {
 		return fmt.Errorf("change phone: %w", err)
 	}
 

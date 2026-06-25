@@ -14,6 +14,13 @@ type OTPData struct {
 	NewPhone string `json:"newPhone"`
 }
 
+func NewOTPData(code, newPhone string) OTPData {
+	return OTPData{
+		Code:     code,
+		NewPhone: newPhone,
+	}
+}
+
 type OTPRepository interface {
 	Save(ctx context.Context, userID string, data OTPData, ttl time.Duration) error
 	Get(ctx context.Context, userID string) (OTPData, error)
