@@ -50,9 +50,7 @@ func (s *PetService) hasActiveDonorApplications(bloodReq *bloodreqmodel.BloodReq
 		return false
 	}
 	for _, app := range bloodReq.DonorApplications {
-		if app.Status == donormodel.DonorResponseStatusPending ||
-			app.Status == donormodel.DonorResponseStatusAccepted ||
-			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
+		if app.IsActiveForDonation() {
 			return true
 		}
 	}

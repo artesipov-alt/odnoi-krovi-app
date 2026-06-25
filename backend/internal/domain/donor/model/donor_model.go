@@ -135,9 +135,15 @@ func (d *DonorResponse) IsClosedForDonation() bool {
 	return d.Status == DonorResponseStatusRejected ||
 		d.Status == DonorResponseStatusCancelled ||
 		d.Status == DonorResponseStatusFailed ||
-		(d.Status == DonorResponseStatusCompleted && d.IsConfirmed)
+		(d.Status == DonorResponseStatusCompleted && d.IsConfirmedByRecipient())
 }
 
-func (d *DonorResponse) IsCompleted() bool {
+// IsConfirmedByRecipient checks if donation is confirmed by recipient
+func (d *DonorResponse) IsConfirmedByRecipient() bool {
 	return d.Status == DonorResponseStatusCompleted && d.IsConfirmed
+}
+
+// IsCompleted checks if the donor response has completed status (regardless of confirmation)
+func (d *DonorResponse) IsCompleted() bool {
+	return d.Status == DonorResponseStatusCompleted
 }
