@@ -9,22 +9,52 @@ import (
 )
 
 type Repository interface {
-	// Write Methods
+	// Write methods
+
+	// создает отклик донора
 	CreateDonorResponse(ctx context.Context, resp *donormodel.DonorResponse) (*donormodel.DonorResponse, error)
+
+	// обновляет статус отклика донора
 	UpdateDonorResponseStatus(ctx context.Context, id string, status donormodel.DonorResponseStatus) error
+
+	// удаляет отклик донора
 	DeleteDonorResponse(ctx context.Context, id string) error
+
+	// обновляет отклик донора
 	Update(ctx context.Context, resp *donormodel.DonorResponse) error
 
-	// Read Methods
+	// Read methods
+
+	// возвращает отклик донора по ID
 	GetDonorResponseByID(ctx context.Context, id string) (*donormodel.DonorResponse, error)
+
+	// возвращает заявку реципиента с подходящими донорами
 	GetRecipient(ctx context.Context, id string) (*bloodreqmodel.BloodRequestWithMatchingDonors, error)
+
+	// возвращает все отклики по ID заявки
 	GetDonorResponsesByRequestID(ctx context.Context, reqID string) ([]*donormodel.DonorResponse, error)
+
+	// возвращает все отклики по ID донора
 	GetDonorResponsesByDonorID(ctx context.Context, donorID string) ([]*donormodel.DonorResponse, error)
+
+	// проверяет, существует ли отклик с заданным ID
 	ExistsByID(ctx context.Context, id string) (bool, error)
+
+	// проверяет, существуют ли отклики по ID заявки
 	ExistsByRequestID(ctx context.Context, reqID string) (bool, error)
+
+	// проверяет, существуют ли отклики по ID донора
 	ExistsByDonorID(ctx context.Context, donorID string) (bool, error)
+
+	// возвращает количество откликов
 	Count(ctx context.Context) (int, error)
+
+	// возвращает отклик по ID питомца
 	GetByPetID(ctx context.Context, petID string) (*donormodel.DonorResponse, error)
+
+	// возвращает отклики по списку ID питомцев
 	GetByPetIDs(ctx context.Context, petIDs []string, ignoreSoftDelete bool) (map[string][]*donormodel.DonorResponse, error)
+
+	// возвращает неподтвержденные отклики старше cutoffTime
 	FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error)
 }
