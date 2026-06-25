@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.18.6] - 2026-06-25
+
+### Изменено
+- **Рефакторинг `DonorResponse`:**
+  - Бизнес-операции `Accept`, `Reject`, `Complete`, `Confirm`, `Cancel` перенесены из репозитория в модель `DonorResponse`.
+  - Репозиторий теперь отвечает только за сохранение агрегата через единый метод `Update`.
+  - Добавлен метод `Cancel` в модель `DonorResponse` с валидацией статуса.
+  - 6 обработчиков команд (`confirm_donation`, `reject_donation`, `accept_response`, `close_req`, `complete_donation`, `cancel_donation`) обновлены для использования нового паттерна.
+- **Исправлена ошибка копирования значения в циклах `confirm_donation` и `close_req`:**
+  - Заменён `for _, app := range` с `&app` на `for i := range` с указателем на оригинал элемента слайса, чтобы избежать некорректного копирования значений.
+
 ## [3.18.5] - 2026-06-24
 
 ### Исправлено

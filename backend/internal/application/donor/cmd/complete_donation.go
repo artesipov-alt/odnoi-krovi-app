@@ -57,7 +57,10 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 	}
 
 	// Выполняем complete
-	if err := h.donorRepo.Complete(ctx, donorResponse.ID, amount); err != nil {
+	if err := donorResponse.Complete(amount); err != nil {
+		return err
+	}
+	if err := h.donorRepo.Update(ctx, donorResponse); err != nil {
 		return err
 	}
 

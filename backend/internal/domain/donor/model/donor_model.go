@@ -113,6 +113,14 @@ func (d *DonorResponse) Confirm(amount float64) error {
 	return nil
 }
 
+func (d *DonorResponse) Cancel() error {
+	if d.Status == DonorResponseStatusAccepted {
+		d.Status = DonorResponseStatusCancelled
+		return nil
+	}
+	return errors.New("Невозможно отменить отклик. не верный первичный статус")
+}
+
 // IsActiveForDonation checks if the donor response is active for donation purposes
 func (d *DonorResponse) IsActiveForDonation() bool {
 	if d == nil {

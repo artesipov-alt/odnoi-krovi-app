@@ -74,7 +74,10 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string) error 
 	// Транзакция: отмена отклика с пересчётом заявки (свежие applications) и отмена бонусов
 	var bloodReq *bloodreqmodel.BloodRequestWithApplications
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.donorRepo.Cancel(txCtx, resID); err != nil {
+		if err := donorResponse.Cancel(); err != nil {
+			return apperrors.Internal(err, "failed to cancel donation")
+		}
+		if err := h.donorRepo.Update(txCtx, donorResponse); err != nil {
 			return apperrors.Internal(err, "failed to cancel donation")
 		}
 
