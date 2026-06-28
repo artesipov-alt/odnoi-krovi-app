@@ -19,6 +19,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/analytics/query"
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
@@ -98,7 +99,7 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, _, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, rawdb, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
@@ -138,6 +139,7 @@ func main() {
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
 		partnerRepo := pg.NewEntPartnerRepository(db)
 		bonusRepo := pg.NewEntBonusRepository(db)
+		rawQueryRepo := pg.NewRawQueryRepository(rawdb)
 		bonusSvc := bonus.NewBonusService(bonusRepo)
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
@@ -148,6 +150,8 @@ func main() {
 		getAllLocationsHandler := refquery.NewGetAllLocationsHandler(locationRepo)
 		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler()
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler()
+
+		getPortalStatisticsHandler := query.NewPortalStatsHandler(rawQueryRepo)
 
 		//Дополнительные сервисы для аунтификации
 		// miniAppDataValidator := auth.NewAppValidator(os.Getenv("TG_BOT_TOKEN"), os.Getenv("MAX_BOT_TOKEN"))
@@ -269,6 +273,10 @@ func main() {
 			bonusImportHandler,
 		)
 
+		commonHandler := transport.NewCommonHandler(
+			getPortalStatisticsHandler,
+		)
+
 		//Запуск side-effects (воркеров)
 		confirmJob := job.NewAutoConfirmJob(donorResponseRepo, confirmDonationHandler)
 		scheduler := scheduler.NewScheduler()
@@ -289,6 +297,7 @@ func main() {
 		bloodRequestHandler.Register(humapi)
 		fileHandler.Register(humapi)
 		referenceHandler.Register(humapi)
+		commonHandler.Register(humapi)
 
 		if portStr := os.Getenv("SERVER_PORT"); portStr != "" {
 			if port, err := strconv.Atoi(portStr); err == nil {
