@@ -2,6 +2,9 @@ package query
 
 import (
 	"context"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/middleware"
 )
 
 type PortalStats struct {
@@ -32,6 +35,9 @@ func NewPortalStatsHandler(repo PortalStatsRepository) *PortalStatsHandler {
 }
 
 func (h *PortalStatsHandler) Handle(ctx context.Context) (*PortalStats, error) {
+	if middleware.GetUserRole(ctx) != "admin" {
+		return nil, apperrors.Forbidden("У вас неподходящая роль для выполнения")
+	}
 	stats, err := h.repo.GetPortalStats(ctx)
 	if err != nil {
 		return nil, err

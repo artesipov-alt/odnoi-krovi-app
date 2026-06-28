@@ -1,5 +1,5 @@
 import { Bot } from "grammy";
-import { Configuration, AuthV1Api } from "../../shared/ts/index";
+import { Configuration, AuthV1Api, AdminV1Api } from "../../shared/ts/index";
 
 import type { Context } from "grammy";
 import pino from "pino";
@@ -54,6 +54,7 @@ const apiConfig = new Configuration({
 
 // API Client Instances
 export const usersApi = new AuthV1Api(apiConfig);
+export const adminApi = new AdminV1Api(apiConfig);
 
 const redisHost = Bun.env.REDIS_HOST || "localhost";
 const redisPort = Bun.env.REDIS_PORT || "6379";

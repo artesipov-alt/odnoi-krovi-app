@@ -14,6 +14,7 @@ import { handleDonorCompleted } from "./src/events/donor/donorCompleted";
 import { handleBloodRequestCreated } from "./src/events/recipient/handleBloodRequestCreated";
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 import { handleUserContact } from "./src/events/user/handleUserContact";
+import { analyticHandler } from "./src/handlers/commands";
 
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
@@ -36,10 +37,11 @@ async function main() {
 
   //Команды бота
   bot.command("start", startHandler);
-  bot.command("help", helpHandler);
-  bot.command("profile", profileHandler);
-  bot.command("err", errCommandTest);
-  bot.command("api", apiTestHandler);
+  bot.command("stats", analyticHandler);
+  // bot.command("help", helpHandler);
+  // bot.command("profile", profileHandler);
+  // bot.command("err", errCommandTest);
+  // bot.command("api", apiTestHandler);
 
   //Колбэки (нажатия на кнопки)
   // bot.callbackQuery("profile", profileHandler);
