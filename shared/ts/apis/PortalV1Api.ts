@@ -16,26 +16,19 @@
 import * as runtime from '../runtime';
 import type {
   AppError,
-  ImportBonusesResult,
   PortalStats,
 } from '../models/index';
 import {
     AppErrorFromJSON,
     AppErrorToJSON,
-    ImportBonusesResultFromJSON,
-    ImportBonusesResultToJSON,
     PortalStatsFromJSON,
     PortalStatsToJSON,
 } from '../models/index';
 
-export interface ImportBonusesRequest {
-    file: Blob;
-}
-
 /**
  * 
  */
-export class AdminV1Api extends runtime.BaseAPI {
+export class PortalV1Api extends runtime.BaseAPI {
 
     /**
      * Возвращает статистику портала
@@ -65,65 +58,6 @@ export class AdminV1Api extends runtime.BaseAPI {
      */
     async getPortalStats(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PortalStats> {
         const response = await this.getPortalStatsRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Загружает бонусы из Excel файла. Требуются права администратора.
-     * Импорт бонусов из Excel
-     */
-    async importBonusesRaw(requestParameters: ImportBonusesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImportBonusesResult>> {
-        if (requestParameters['file'] == null) {
-            throw new runtime.RequiredError(
-                'file',
-                'Required parameter "file" was null or undefined when calling importBonuses().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const consumes: runtime.Consume[] = [
-            { contentType: 'multipart/form-data' },
-        ];
-        // @ts-ignore: canConsumeForm may be unused
-        const canConsumeForm = runtime.canConsumeForm(consumes);
-
-        let formParams: { append(param: string, value: any): any };
-        let useForm = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        useForm = canConsumeForm;
-        if (useForm) {
-            formParams = new FormData();
-        } else {
-            formParams = new URLSearchParams();
-        }
-
-        if (requestParameters['file'] != null) {
-            formParams.append('file', requestParameters['file'] as any);
-        }
-
-
-        let urlPath = `/v1/admin/bonuses/import`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: formParams,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ImportBonusesResultFromJSON(jsonValue));
-    }
-
-    /**
-     * Загружает бонусы из Excel файла. Требуются права администратора.
-     * Импорт бонусов из Excel
-     */
-    async importBonuses(requestParameters: ImportBonusesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImportBonusesResult> {
-        const response = await this.importBonusesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

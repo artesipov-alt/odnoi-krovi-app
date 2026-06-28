@@ -65,6 +65,7 @@ models/PetTreatment.ts
 models/PetTypesList.ts
 models/PetWithApplication.ts
 models/PlannedDonationsList.ts
+models/PortalStats.ts
 models/RecipientDetail.ts
 models/RecipientForDonor.ts
 models/RecipientShort.ts

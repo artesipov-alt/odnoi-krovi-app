@@ -32,7 +32,7 @@ func (h *CommonHandler) Register(api huma.API) {
 		Path:        "/v1/portal/stats",
 		Summary:     "Получить статистику портала",
 		Description: "Возвращает статистику портала",
-		Tags:        []string{"portal-v1"},
+		Tags:        []string{"admin-v1"},
 	}, h.GetPortalStats)
 }
 

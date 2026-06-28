@@ -57,6 +57,7 @@ export * from './PetTreatment';
 export * from './PetTypesList';
 export * from './PetWithApplication';
 export * from './PlannedDonationsList';
+export * from './PortalStats';
 export * from './RecipientDetail';
 export * from './RecipientForDonor';
 export * from './RecipientShort';
