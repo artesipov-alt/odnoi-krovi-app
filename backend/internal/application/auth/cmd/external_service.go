@@ -92,7 +92,12 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, idndata *authmodel.Ide
 		return nil, err
 	}
 
-	accessToken, expiresAt := h.tokenGenerator.Generate(idn.UserID, string(userdata.Role), time.Now())
+	usr, err := h.userRepo.GetByID(ctx, idn.UserID, user.UserPreloadOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, expiresAt := h.tokenGenerator.Generate(idn.UserID, string(usr.Role), time.Now())
 	idn.SetJWTData(accessToken, expiresAt)
 
 	return idn, nil
