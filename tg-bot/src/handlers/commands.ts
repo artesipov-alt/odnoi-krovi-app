@@ -1,7 +1,7 @@
 import type { Context } from "grammy";
 import { BotError, InlineKeyboard } from "grammy";
 import { Templates } from "../config/templates";
-import { usersApi, adminApi, pinologger } from "../instances";
+import { authApi, userApi, adminApi, pinologger } from "../instances";
 import { parseApiError } from "../utils/parseApiError";
 
 // ============ Keyboard Builders ============
@@ -60,7 +60,7 @@ const authUser = async (
     utm_term?: string;
   },
 ) => {
-  const authResult = await usersApi.authUserViaService({
+  const authResult = await authApi.authUserViaService({
     xInternalKey: Bun.env.INTERNAL_TG_BOT_SECRET,
     serviceSignInBody: {
       providerName: "telegram_bot",
@@ -223,12 +223,25 @@ export const analyticHandler = async (ctx: Context) => {
       },
     });
 
+    const user = await userApi.getUserById(
+      {
+        userId: authResult.userId,
+      },
+      {
+        headers: {
+          Authorization: `${authResult.tokenType} ${authResult.accessToken}`,
+        },
+      },
+    );
+
     if (!stats) {
       await ctx.reply("Не удалось получить статистику портала");
       return;
     }
 
     const lines = [
+      `Привет, *${user.fullName}*, ваша роль: *${user.role}*`,
+      "",
       "📊 *Статистика портала*",
       "",
       `👥 Всего пользователей: *${stats.totalUsers}*`,
