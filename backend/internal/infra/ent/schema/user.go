@@ -64,6 +64,10 @@ func (User) Fields() []ent.Field {
 		// priority_search_count - количество приоритетных поисков, начисляемых за донации.
 		field.Int("priority_search_count").
 			Default(0),
+		// last_seen_at - время последнего посещения пользователя.
+		field.Time("last_seen_at").
+			Optional().
+			Nillable(),
 	}
 }
 

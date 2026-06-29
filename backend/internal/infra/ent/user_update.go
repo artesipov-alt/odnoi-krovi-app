@@ -294,6 +294,26 @@ func (_u *UserUpdate) AddPrioritySearchCount(v int) *UserUpdate {
 	return _u
 }
 
+// SetLastSeenAt sets the "last_seen_at" field.
+func (_u *UserUpdate) SetLastSeenAt(v time.Time) *UserUpdate {
+	_u.mutation.SetLastSeenAt(v)
+	return _u
+}
+
+// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableLastSeenAt(v *time.Time) *UserUpdate {
+	if v != nil {
+		_u.SetLastSeenAt(*v)
+	}
+	return _u
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (_u *UserUpdate) ClearLastSeenAt() *UserUpdate {
+	_u.mutation.ClearLastSeenAt()
+	return _u
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by IDs.
 func (_u *UserUpdate) AddPetIDs(ids ...string) *UserUpdate {
 	_u.mutation.AddPetIDs(ids...)
@@ -640,6 +660,12 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedPrioritySearchCount(); ok {
 		_spec.AddField(user.FieldPrioritySearchCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.LastSeenAt(); ok {
+		_spec.SetField(user.FieldLastSeenAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastSeenAtCleared() {
+		_spec.ClearField(user.FieldLastSeenAt, field.TypeTime)
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1158,6 +1184,26 @@ func (_u *UserUpdateOne) AddPrioritySearchCount(v int) *UserUpdateOne {
 	return _u
 }
 
+// SetLastSeenAt sets the "last_seen_at" field.
+func (_u *UserUpdateOne) SetLastSeenAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetLastSeenAt(v)
+	return _u
+}
+
+// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableLastSeenAt(v *time.Time) *UserUpdateOne {
+	if v != nil {
+		_u.SetLastSeenAt(*v)
+	}
+	return _u
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (_u *UserUpdateOne) ClearLastSeenAt() *UserUpdateOne {
+	_u.mutation.ClearLastSeenAt()
+	return _u
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by IDs.
 func (_u *UserUpdateOne) AddPetIDs(ids ...string) *UserUpdateOne {
 	_u.mutation.AddPetIDs(ids...)
@@ -1534,6 +1580,12 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.AddedPrioritySearchCount(); ok {
 		_spec.AddField(user.FieldPrioritySearchCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.LastSeenAt(); ok {
+		_spec.SetField(user.FieldLastSeenAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastSeenAtCleared() {
+		_spec.ClearField(user.FieldLastSeenAt, field.TypeTime)
 	}
 	if _u.mutation.PetsCleared() {
 		edge := &sqlgraph.EdgeSpec{

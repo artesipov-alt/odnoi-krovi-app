@@ -31,6 +31,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 		CreatedAt:           &e.CreatedAt,
 		UpdatedAt:           &e.UpdatedAt,
 		DeletedAt:           e.DeletedAt,
+		LastSeenAt:          e.LastSeenAt,
 	}
 
 	if e.LocationID != "" {

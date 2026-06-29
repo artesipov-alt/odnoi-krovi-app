@@ -237,6 +237,20 @@ func (_c *UserCreate) SetNillablePrioritySearchCount(v *int) *UserCreate {
 	return _c
 }
 
+// SetLastSeenAt sets the "last_seen_at" field.
+func (_c *UserCreate) SetLastSeenAt(v time.Time) *UserCreate {
+	_c.mutation.SetLastSeenAt(v)
+	return _c
+}
+
+// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableLastSeenAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetLastSeenAt(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *UserCreate) SetID(v string) *UserCreate {
 	_c.mutation.SetID(v)
@@ -552,6 +566,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.PrioritySearchCount(); ok {
 		_spec.SetField(user.FieldPrioritySearchCount, field.TypeInt, value)
 		_node.PrioritySearchCount = value
+	}
+	if value, ok := _c.mutation.LastSeenAt(); ok {
+		_spec.SetField(user.FieldLastSeenAt, field.TypeTime, value)
+		_node.LastSeenAt = &value
 	}
 	if nodes := _c.mutation.PetsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -942,6 +960,24 @@ func (u *UserUpsert) AddPrioritySearchCount(v int) *UserUpsert {
 	return u
 }
 
+// SetLastSeenAt sets the "last_seen_at" field.
+func (u *UserUpsert) SetLastSeenAt(v time.Time) *UserUpsert {
+	u.Set(user.FieldLastSeenAt, v)
+	return u
+}
+
+// UpdateLastSeenAt sets the "last_seen_at" field to the value that was provided on create.
+func (u *UserUpsert) UpdateLastSeenAt() *UserUpsert {
+	u.SetExcluded(user.FieldLastSeenAt)
+	return u
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (u *UserUpsert) ClearLastSeenAt() *UserUpsert {
+	u.SetNull(user.FieldLastSeenAt)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1270,6 +1306,27 @@ func (u *UserUpsertOne) AddPrioritySearchCount(v int) *UserUpsertOne {
 func (u *UserUpsertOne) UpdatePrioritySearchCount() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdatePrioritySearchCount()
+	})
+}
+
+// SetLastSeenAt sets the "last_seen_at" field.
+func (u *UserUpsertOne) SetLastSeenAt(v time.Time) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetLastSeenAt(v)
+	})
+}
+
+// UpdateLastSeenAt sets the "last_seen_at" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateLastSeenAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateLastSeenAt()
+	})
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (u *UserUpsertOne) ClearLastSeenAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearLastSeenAt()
 	})
 }
 
@@ -1768,6 +1825,27 @@ func (u *UserUpsertBulk) AddPrioritySearchCount(v int) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdatePrioritySearchCount() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdatePrioritySearchCount()
+	})
+}
+
+// SetLastSeenAt sets the "last_seen_at" field.
+func (u *UserUpsertBulk) SetLastSeenAt(v time.Time) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetLastSeenAt(v)
+	})
+}
+
+// UpdateLastSeenAt sets the "last_seen_at" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateLastSeenAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateLastSeenAt()
+	})
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (u *UserUpsertBulk) ClearLastSeenAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearLastSeenAt()
 	})
 }
 
