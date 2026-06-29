@@ -75,6 +75,9 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, idndata *authmodel.Ide
 			if err := h.userRepo.UpsertUserIdentity(txCtx, idn.UserID, idndata, metadata); err != nil {
 				return err
 			}
+			if err := h.userRepo.UpdateLastSeen(txCtx, idn.UserID); err != nil {
+				return err
+			}
 			if metadata != nil {
 				if err := h.userRepo.UpsertUTM(txCtx, idn.UserID, metadata); err != nil {
 					return err
