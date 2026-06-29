@@ -119,11 +119,11 @@ func main() {
 			otpSender = twin24.NewOTPSenderFromEnv(redisClient)
 		}
 
-		// // Запуск миграций закомментирован, так как они больше не нужны.
-		// if err := config.RunMigrations(db, rawDB); err != nil {
-		// 	slog.Error("Ошибка выполнения миграций", "error", err)
-		// 	os.Exit(1)
-		// }
+		// Запуск миграций закомментирован, так как они больше не нужны.
+		if err := config.RunMigrations(db, rawdb); err != nil {
+			slog.Error("Ошибка выполнения миграций", "error", err)
+			os.Exit(1)
+		}
 
 		//Миграции
 		// ctx := context.Background()

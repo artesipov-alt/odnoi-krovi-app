@@ -226,6 +226,7 @@ type UserDetail struct {
 	CreatedAt        *time.Time       `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt        *time.Time       `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt        *time.Time       `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
+	LastSeenAt       *time.Time       `json:"lastSeenAt,omitempty" doc:"Время последнего посещения" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 }
 
 // VerifyUserPhoneInput представляет запрос на верификацию номера телефона

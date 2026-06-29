@@ -59,6 +59,7 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 		CreatedAt:        u.CreatedAt,
 		UpdatedAt:        u.UpdatedAt,
 		DeletedAt:        u.DeletedAt,
+		LastSeenAt:       u.LastSeenAt,
 	}
 
 	if u.LocationID != nil {

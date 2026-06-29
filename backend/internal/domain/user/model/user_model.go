@@ -41,6 +41,7 @@ type User struct {
 	CreatedAt           *time.Time
 	UpdatedAt           *time.Time
 	DeletedAt           *time.Time
+	LastSeenAt          *time.Time
 }
 
 // NewUserParams holds the parameters for creating a new User

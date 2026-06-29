@@ -78,6 +78,9 @@ type Repository interface {
 
 	// возвращает ID пользователя по номеру телефона
 	GetByPhone(ctx context.Context, phone string) (string, error)
+
+	// обновляет время последнего посещения пользователя
+	UpdateLastSeen(ctx context.Context, id string) error
 }
 
 type UserPreloadOptions struct {

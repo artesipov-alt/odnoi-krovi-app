@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -265,6 +266,13 @@ func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, inp
 	}
 
 	return nil
+}
+
+func (r *EntUserRepository) UpdateLastSeen(ctx context.Context, id string) error {
+	c := r.client(ctx)
+	return c.User.UpdateOneID(id).
+		SetLastSeenAt(time.Now()).
+		Exec(ctx)
 }
 
 // UpdatePhone updates the phone number for a user by ID.

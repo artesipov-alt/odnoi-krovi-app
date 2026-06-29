@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 
@@ -113,7 +112,7 @@ func RunMigrations(client *ent.Client, db *sql.DB) error {
 	); err != nil {
 		return fmt.Errorf("failed creating schema resources: %w", err)
 	}
-	log.Println("ENT migrations completed successfully")
+	slog.Info("ENT migrations completed successfully")
 
 	// Создаём partial unique index для поддержки множественных closed/draft заявок на одного питомца
 	// Standard unique constraint был удалён WithDropIndex, создаём partial только для active заявок
@@ -123,6 +122,6 @@ func RunMigrations(client *ent.Client, db *sql.DB) error {
 	`); err != nil {
 		return fmt.Errorf("failed to create partial unique index: %w", err)
 	}
-	log.Println("Custom partial unique index created successfully")
+	slog.Info("Custom partial unique index created successfully")
 	return nil
 }

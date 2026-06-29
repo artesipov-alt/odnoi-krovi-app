@@ -48,6 +48,8 @@ const (
 	FieldOriginSource = "origin_source"
 	// FieldPrioritySearchCount holds the string denoting the priority_search_count field in the database.
 	FieldPrioritySearchCount = "priority_search_count"
+	// FieldLastSeenAt holds the string denoting the last_seen_at field in the database.
+	FieldLastSeenAt = "last_seen_at"
 	// EdgePets holds the string denoting the pets edge name in mutations.
 	EdgePets = "pets"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
@@ -125,6 +127,7 @@ var Columns = []string{
 	FieldRole,
 	FieldOriginSource,
 	FieldPrioritySearchCount,
+	FieldLastSeenAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -275,6 +278,11 @@ func ByOriginSource(opts ...sql.OrderTermOption) OrderOption {
 // ByPrioritySearchCount orders the results by the priority_search_count field.
 func ByPrioritySearchCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPrioritySearchCount, opts...).ToFunc()
+}
+
+// ByLastSeenAt orders the results by the last_seen_at field.
+func ByLastSeenAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastSeenAt, opts...).ToFunc()
 }
 
 // ByPetsCount orders the results by pets count.
