@@ -2,13 +2,38 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	userevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
 )
 
+type NotificationType string
+
+const (
+	NotifRecipientDonorWaiting    NotificationType = "recipient_donor_waiting"
+	NotifRecipientInactiveWarning NotificationType = "recipient_inactive_warning"
+	NotifRecipientSearchClosed    NotificationType = "recipient_search_closed"
+	NotifRecipientEmptyShowcase   NotificationType = "recipient_empty_showcase"
+	NotifDonorNotAccepted         NotificationType = "donor_not_accepted"
+)
+
+type Notification struct {
+	Type      NotificationType `json:"type"`
+	Targets   NotifTargets     `json:"targets"`
+	Payload   map[string]any   `json:"payload"`
+	CreatedAt time.Time        `json:"created_at"`
+}
+
+type NotifTargets struct {
+	TelegramID string `json:"telegram_id,omitempty"`
+	MaxID      string `json:"max_id,omitempty"`
+}
+
 type EventPublisher interface {
+	PublishNotification(ctx context.Context, n Notification) error
+
 	//==========================
 	// 			BloodSearch
 	//==========================

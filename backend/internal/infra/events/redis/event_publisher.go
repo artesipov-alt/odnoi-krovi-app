@@ -7,6 +7,7 @@ import (
 
 	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	userevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
 	"github.com/redis/go-redis/v9"
 )
@@ -20,6 +21,8 @@ const channelDonorReject = "donor_reject"
 const channelDonorNotConfirmed = "donor_not_confirmed"
 const channelDonorCompleted = "donor_completed"
 const channelUserContact = "user_contact"
+
+const channelNotifications = "notifications"
 
 type EventPublisher struct {
 	client    *redis.Client
@@ -152,6 +155,19 @@ func (p *EventPublisher) PublishUserContact(
 	return p.client.Publish(ctx, p.channel(channelUserContact), payload).Err()
 }
 
+func (p *EventPublisher) PublishNotification(ctx context.Context, n ports.Notification) error {
+	payload, err := json.Marshal(n)
+	if err != nil {
+		return fmt.Errorf("PublishNotification: marshal: %w", err)
+	}
+
+	if err := p.client.Publish(ctx, p.channel(channelNotifications), payload).Err(); err != nil {
+		return fmt.Errorf("PublishNotification: publish: %w", err)
+	}
+
+	return nil
+}
+
 // NoOpEventPublisher is a no-operation event publisher that does nothing.
 // Used when Redis is not available, allowing the server to start without event publishing.
 type NoOpEventPublisher struct{}
@@ -189,5 +205,9 @@ func (p *NoOpEventPublisher) PublishDonorCompleted(ctx context.Context, event do
 }
 
 func (p *NoOpEventPublisher) PublishUserContact(ctx context.Context, event userevent.UserContact) error {
+	return nil
+}
+
+func (n *NoOpEventPublisher) PublishNotification(_ context.Context, _ ports.Notification) error {
 	return nil
 }
