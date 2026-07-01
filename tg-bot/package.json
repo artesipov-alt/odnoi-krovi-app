@@ -2,7 +2,7 @@
   "name": "odnoi-krovi-tg-bot",
   "module": "bot.ts",
   "type": "module",
-  "version": "2.2.0"
+  "version": "2.2.0",
   "scripts": {
     "dev": "bun --env-file=../.env bot.ts",
     "build": "bun run build.ts",
