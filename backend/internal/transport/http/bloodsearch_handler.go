@@ -356,9 +356,7 @@ func (h *BloodRequestHandler) ConfirmDonation(ctx context.Context, input *dto.Co
 }
 
 func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *dto.RejectDonorApplicationInput) (*commondto.DefaultMessageOutput, error) {
-	// TODO: Добавить с фронтенда.
-	reason := "other"
-	if err := h.rejectDonationHandler.Handle(ctx, input.ID, reason); err != nil {
+	if err := h.rejectDonationHandler.Handle(ctx, input.ID, input.Body.Reason); err != nil {
 		return nil, err
 	}
 	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Донация отменена"}}, nil

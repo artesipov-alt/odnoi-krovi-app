@@ -171,13 +171,13 @@ type ConfirmData struct {
 	Amount float64 `json:"amount,omitempty" doc:"Фактический объем донации в мл" minimum:"1"`
 }
 
-// type RejectData struct {
-// 	Reason *string `json:"reason,omitempty" doc:"Причина отклонения"`
-// }
+type RejectData struct {
+	Reason string `json:"reason,omitempty" doc:"Причина отклонения"`
+}
 
 type RejectDonorApplicationInput struct {
 	commondto.DonorApplicationIDPath
-	// Body RejectData
+	Body RejectData
 }
 
 // DonorDetail представляет полные данные донора
