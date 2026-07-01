@@ -193,7 +193,58 @@ func (n *NotificationJob) checkRecipientInactive6h(ctx context.Context) {
 }
 
 func (n *NotificationJob) checkRecipientInactive12h(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryRecipientInactive12h)
+	if err != nil {
+		slog.Error("checkRecipientInactive12h: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var (
+			requestID  string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&requestID, &telegramID, &maxID); err != nil {
+			slog.Error("checkRecipientInactive12h: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifRecipientSearchClosed, requestID)
+		if err != nil {
+			slog.Error("checkRecipientInactive12h: cache check failed", "requestID", requestID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		// Сначала закрываем поиск
+		if err := n.closeHandler.Handle(ctx, requestID); err != nil {
+			slog.Error("checkRecipientInactive12h: close request failed", "requestID", requestID, "err", err)
+			continue
+		}
+
+		// Потом уведомляем
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifRecipientSearchClosed,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload:   map[string]any{},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkRecipientInactive12h: publish failed", "requestID", requestID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifRecipientSearchClosed, requestID, 12*time.Hour); err != nil {
+			slog.Error("checkRecipientInactive12h: mark sent failed", "requestID", requestID, "err", err)
+		}
+	}
 }
 
 func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
