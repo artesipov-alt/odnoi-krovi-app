@@ -1,4 +1,4 @@
-package redis
+package otp
 
 import (
 	"context"

@@ -38,8 +38,10 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/otp/twin24"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
-	redisRepository "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/notification"
+	otp "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/otp"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/scheduler"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/scheduler/job"
@@ -105,18 +107,20 @@ func main() {
 			os.Exit(1)
 		}
 
-		var otpRepo redisRepository.OTPRepository
+		var otpRepo otp.OTPRepository
 		var publisher ports.EventPublisher
 		var otpSender *twin24.OTPSender
+		var cache cache.NotificationCache
 		redisClient, err := config.NewRedisClientFromEnv()
 		if err != nil {
 			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
 			publisher = &events.NoOpEventPublisher{}
-			otpRepo = redisRepository.NewNoOpOTPRepo()
+			otpRepo = otp.NewNoOpOTPRepo()
 		} else {
 			publisher = events.NewEventPublisher(redisClient, env)
-			otpRepo = redisRepository.NewOTPRepo(redisClient)
+			otpRepo = otp.NewOTPRepo(redisClient)
 			otpSender = twin24.NewOTPSenderFromEnv(redisClient)
+			cache = notification.NewNotificationCache(redisClient)
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
@@ -279,8 +283,10 @@ func main() {
 
 		//Запуск side-effects (воркеров)
 		confirmJob := job.NewAutoConfirmJob(donorResponseRepo, confirmDonationHandler)
+		notificationJob := job.NewNotificationJob(rawdb, bloodCloseDonationHandler, publisher, cache)
 		scheduler := scheduler.NewScheduler()
 		scheduler.Register(confirmJob, 10*time.Minute)
+		scheduler.Register(notificationJob, 5*time.Minute)
 		scheduler.Start()
 
 		// Настройка Huma

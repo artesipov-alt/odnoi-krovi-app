@@ -5,6 +5,16 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 и проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-07-01
+
+### Added
+
+- **Подписка на канал `notifications`** — новый обработчик `handleNotification` слушает Redis-канал `{env:}notifications`.
+  Поддерживаемые типы уведомлений:
+  - `recipient_donor_waiting` — донор откликнулся на запрос реципиента
+  - `recipient_inactive_warning` — реципиент не заходил 6ч, есть невыбранные доноры
+  - `donor_not_accepted` — донору о том, что реципиент не принял предложение
+
 ## [0.6.0] — 2026-06-24
 
 ### Added

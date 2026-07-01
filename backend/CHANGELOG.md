@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.19.2] - 2026-07-02
+
+### Добавлено
+- **Уведомления: Добавлен флоу автоматического закрытия запроса при неактивности получателя в течение 12 часов:**
+  - **Бэкенд:**
+    - Добавлен `queryRecipientInactive12h` для поиска активных запросов с ожидающими ответами доноров, где получатель не был замечен в течение 12 часов.
+    - Реализован `checkRecipientInactive12h`: закрывает запрос крови через `CloseRequestHandler` и публикует `NotifRecipientSearchClosed`.
+  - **Боты (tg-bot и max-bot):**
+    - Добавлен шаблон сообщения `recipient_search_closed` с текстом из спецификации.
+- **Уведомления: Подписка tg-bot и max-bot на канал уведомлений:**
+  - Добавлен обработчик `handleNotification` в tg-bot и max-bot, который прослушивает канал Redis `{env:}notifications`.
+  - Поддержка 3 типов уведомлений: `recipient_donor_waiting`, `recipient_inactive_warning`, `donor_not_accepted`.
+  - Использование `camelCase` для ключей `Payload` для соответствия соглашению JSON.
+  - Обновлены версии ботов: tg-bot до v2.2.0, max-bot до v0.7.0.
+  - Обновлены `CHANGELOG` для обоих ботов.
+
+
+
 ## [3.19.1] - 2026-07-01
 
 ### Изменено

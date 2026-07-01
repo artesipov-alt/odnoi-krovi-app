@@ -8,16 +8,16 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/otp"
 )
 
 type VerifyPhoneHandler struct {
 	userRepo  user.Repository
-	otpRepo   redis.OTPRepository
+	otpRepo   otp.OTPRepository
 	txManager *presistance.TxManager
 }
 
-func NewVerifyPhoneHandler(userRepo user.Repository, otpRepo redis.OTPRepository, txManager *presistance.TxManager) *VerifyPhoneHandler {
+func NewVerifyPhoneHandler(userRepo user.Repository, otpRepo otp.OTPRepository, txManager *presistance.TxManager) *VerifyPhoneHandler {
 	return &VerifyPhoneHandler{
 		userRepo:  userRepo,
 		otpRepo:   otpRepo,
