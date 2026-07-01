@@ -73,7 +73,7 @@ func (d *DonorResponse) Accept() error {
 
 func (d *DonorResponse) Reject(reason string) error {
 	if reason == "" {
-		return errors.New("reason is required")
+		reason = "Реципиент отклонил донацию. "
 	}
 
 	switch d.Status {
@@ -113,8 +113,12 @@ func (d *DonorResponse) Confirm(amount float64) error {
 	return nil
 }
 
-func (d *DonorResponse) Cancel() error {
+func (d *DonorResponse) Cancel(reason string) error {
+	if reason == "" {
+		reason = "Донор самостоятельно отменил донацию. "
+	}
 	if d.Status == DonorResponseStatusAccepted {
+		d.RejectedReason = reason
 		d.Status = DonorResponseStatusCancelled
 		return nil
 	}

@@ -20,6 +20,7 @@ models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
 models/Bonus.ts
 models/BreedsList.ts
+models/CancelData.ts
 models/ChangeUserPhoneBody.ts
 models/CompleteDonationBody.ts
 models/CompletedDonationsList.ts

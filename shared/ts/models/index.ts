@@ -12,6 +12,7 @@ export * from './BloodGroupsList';
 export * from './BloodRequestDetail';
 export * from './Bonus';
 export * from './BreedsList';
+export * from './CancelData';
 export * from './ChangeUserPhoneBody';
 export * from './CompleteDonationBody';
 export * from './CompletedDonationsList';

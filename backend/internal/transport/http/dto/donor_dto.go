@@ -193,3 +193,12 @@ type CompleteDonationInput struct {
 type CompleteDonationBody struct {
 	Amount float64 `json:"amount" doc:"Объем крови в мл" minimum:"1" maximum:"500" example:"450"`
 }
+
+type CancelData struct {
+	Reason *string `json:"reason,omitempty" doc:"Причина отклонения"`
+}
+
+type CancelDonationInput struct {
+	commondto.DonorApplicationIDPath
+	Body CancelData
+}

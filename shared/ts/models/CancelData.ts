@@ -16,60 +16,57 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ReferenceItem
+ * @interface CancelData
  */
-export interface ReferenceItem {
+export interface CancelData {
     /**
-     * Отображаемое название
+     * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof CancelData
      */
-    label: string;
+    readonly $schema?: string;
     /**
-     * Значение элемента
+     * Причина отклонения
      * @type {string}
-     * @memberof ReferenceItem
+     * @memberof CancelData
      */
-    value: string;
+    reason?: string;
 }
 
 /**
- * Check if a given object implements the ReferenceItem interface.
+ * Check if a given object implements the CancelData interface.
  */
-export function instanceOfReferenceItem(value: object): value is ReferenceItem {
-    if (!('label' in value) || value['label'] === undefined) return false;
-    if (!('value' in value) || value['value'] === undefined) return false;
+export function instanceOfCancelData(value: object): value is CancelData {
     return true;
 }
 
-export function ReferenceItemFromJSON(json: any): ReferenceItem {
-    return ReferenceItemFromJSONTyped(json, false);
+export function CancelDataFromJSON(json: any): CancelData {
+    return CancelDataFromJSONTyped(json, false);
 }
 
-export function ReferenceItemFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReferenceItem {
+export function CancelDataFromJSONTyped(json: any, ignoreDiscriminator: boolean): CancelData {
     if (json == null) {
         return json;
     }
     return {
         
-        'label': json['label'],
-        'value': json['value'],
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
+        'reason': json['reason'] == null ? undefined : json['reason'],
     };
 }
 
-export function ReferenceItemToJSON(json: any): ReferenceItem {
-    return ReferenceItemToJSONTyped(json, false);
+export function CancelDataToJSON(json: any): CancelData {
+    return CancelDataToJSONTyped(json, false);
 }
 
-export function ReferenceItemToJSONTyped(value?: ReferenceItem | null, ignoreDiscriminator: boolean = false): any {
+export function CancelDataToJSONTyped(value?: Omit<CancelData, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'label': value['label'],
-        'value': value['value'],
+        'reason': value['reason'],
     };
 }
 
