@@ -23,12 +23,12 @@ type Notification struct {
 	Type      NotificationType `json:"type"`
 	Targets   NotifTargets     `json:"targets"`
 	Payload   map[string]any   `json:"payload"`
-	CreatedAt time.Time        `json:"created_at"`
+	CreatedAt time.Time        `json:"createdAt"`
 }
 
 type NotifTargets struct {
-	TelegramID string `json:"telegram_id,omitempty"`
-	MaxID      string `json:"max_id,omitempty"`
+	TelegramID string `json:"telegramId,omitempty"`
+	MaxID      string `json:"maxId,omitempty"`
 }
 
 type EventPublisher interface {
