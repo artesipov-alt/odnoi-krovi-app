@@ -74,9 +74,9 @@ func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
 				MaxID:      maxID.String,
 			},
 			Payload: map[string]any{
-				"recipient_pet_name":    recipientPetName,
-				"recipient_blood_group": recipientBG,
-				"volume":                volume,
+				"recipientPetName":    recipientPetName,
+				"recipientBloodGroup": recipientBG,
+				"volume":              volume,
 			},
 			CreatedAt: time.Now(),
 		})
@@ -128,8 +128,8 @@ func (n *NotificationJob) checkDonorWaiting(ctx context.Context) {
 				MaxID:      maxID.String,
 			},
 			Payload: map[string]any{
-				"donor_pet_name":    donorPetName,
-				"donor_blood_group": donorBG,
+				"donorPetName":    donorPetName,
+				"donorBloodGroup": donorBG,
 			},
 			CreatedAt: time.Now(),
 		})

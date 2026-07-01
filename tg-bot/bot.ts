@@ -14,6 +14,7 @@ import { handleDonorCompleted } from "./src/events/donor/donorCompleted";
 import { handleBloodRequestCreated } from "./src/events/recipient/handleBloodRequestCreated";
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 import { handleUserContact } from "./src/events/user/handleUserContact";
+import { handleNotification } from "./src/events/notification/handleNotification";
 import { analyticHandler } from "./src/handlers/commands";
 
 import { bot, pinologger, redis } from "./src/instances";
@@ -70,6 +71,7 @@ async function main() {
     [channel("blood_request_created")]: handleBloodRequestCreated,
     [channel("donation_confirmed")]: handleDonationConfirmed,
     [channel("user_contact")]: handleUserContact,
+    [channel("notifications")]: handleNotification,
   };
 
   // Helper function for subscribing to channels
