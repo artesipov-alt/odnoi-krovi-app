@@ -31,3 +31,16 @@ export const getAppOpenKeyboard = () => {
     ],
   ]);
 };
+
+/**
+ * Клавиатура для уведомления recipient_empty_showcase.
+ * Две кнопки: "Да" и "Нет". requestId передаётся через callbackData.
+ */
+export const getNotificationKeyboard = (requestId: string) => {
+  return Keyboard.inlineKeyboard([
+    [
+      Keyboard.button.callback("✅ Да", `notification_yes_${requestId}`),
+      Keyboard.button.callback("❌ Нет", `notification_no_${requestId}`),
+    ],
+  ]);
+};

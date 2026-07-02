@@ -1,5 +1,9 @@
 import { Bot } from "@maxhub/max-bot-api";
-import { Configuration, AuthV1Api } from "../../shared/ts/index";
+import {
+  Configuration,
+  AuthV1Api,
+  BloodRequestV1Api,
+} from "../../shared/ts/index";
 
 import type { Context } from "@maxhub/max-bot-api";
 import pino from "pino";
@@ -57,3 +61,4 @@ const apiConfig = new Configuration({
 
 // API Client Instances
 export const usersApi = new AuthV1Api(apiConfig);
+export const bloodRequestApi = new BloodRequestV1Api(apiConfig);

@@ -5,6 +5,19 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 и проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] — 2026-07-02
+
+### Added
+
+- **Уведомление `recipient_empty_showcase`** — если у реципиента пустая витрина и он не заходил 24ч, приходит сообщение с кнопками «Да» / «Нет». Ответ обрабатывается через `POST /v1/blood-request/notification/respond`.
+- **Уведомление `recipient_search_closed_inactive`** — если реципиент не заходил 48ч и не нажал «Да», поиск закрывается, приходит уведомление с кнопкой «Открыть приложение».
+- **In-memory кэш токенов (`authStore`)** — `getOrCreateToken` кэширует JWT в Map, избегая повторной аутентификации при каждом нажатии callback-кнопки. Если токен протух (401) — автоповтор с получением нового.
+- **Утилита `invalidateToken`** — принудительное удаление токена из кэша.
+
+### Changed
+
+- **`analyticHandler`** — переписан на `getOrCreateToken` для единообразия с callback-обработчиком.
+
 ## [2.2.0] — 2026-07-01
 
 ### Added

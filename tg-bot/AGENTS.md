@@ -146,8 +146,8 @@ Backend → Redis PUBLISH "prod:donor_response_apply" { ... }
    - dev → `https://dev.1krovi.app`
    - prod → `https://1krovi.app`
    Кнопка передаётся как `reply_markup` в `sendTelegramMessage`.
-5. **Rate limiter** — активен: не более 2 сообщений за 1.5 секунды на пользователя (in-memory). Redis для масштабирования пока не подключён.
-6. **Runner** — бот работает через `@grammyjs/runner` для конкурентной обработки обновлений (в отличие от webhook-ов max-bot).
-7. **Аутентификация с таймаутом** — в `startHandler` вызов API выполняется без жесткого таймаута (в отличие от max-bot, где стоит `Promise.race` на 5s). При ошибке — логирование, но приветствие показывается в любом случае.
-8. **Graceful shutdown** — при SIGINT/SIGTERM отключается Redis и останавливается runner.
-9. **Окружения** — `Bun.env.ENV` определяет префикс Redis-каналов (`dev:` / `prod:`), номер БД Redis (1 / 0) и URL Web App (`dev.1krovi.app` / `1krovi.app`).
+14. **In-memory кэш токенов (`authStore`)** — JWT токены кэшируются в `Map<telegramId, AuthData>` для избежания повторной аутентификации при каждом callback-нажатии. Токен живёт 24ч, проверка — с запасом 5 минут. При 401 ответе от бэкенда — `invalidateToken()` + retry с новым токеном.
+15. **Callback-кнопки в уведомлениях** — `callback_data` передаёт action и requestId через формат `notification_{yes|no}_{requestId}`. Обработка через `bot.callbackQuery()` с regex-матчингом. После обработки — `ctx.answerCallbackQuery()` (подавление прелоадера).
+16. **Разные API для callbackQuery и action** — в `grammy` используется `bot.callbackQuery(regex, handler)`, в `@maxhub/max-bot-api` — `bot.action(regex, handler)`. Сигнатуры хендлеров идентичны.
+17. **answerOnCallback вместо answerCallbackQuery** — в Max API метод называется `ctx.answerOnCallback({ notification: string })` вместо `ctx.answerCallbackQuery({ text, show_alert })`. Параметры: `notification` (строка, всплывающее уведомление), `message` (опционально, новое сообщение). `show_alert` отсутствует.
+18. **ctx.user вместо ctx.from** — в Max API нет `ctx.from`, есть `ctx.user` с полями `user_id`, `first_name`, `last_name`, `username`.

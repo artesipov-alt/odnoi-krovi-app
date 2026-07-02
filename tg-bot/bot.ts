@@ -16,6 +16,7 @@ import { handleDonationConfirmed } from "./src/events/recipient/donationConfirme
 import { handleUserContact } from "./src/events/user/handleUserContact";
 import { handleNotification } from "./src/events/notification/handleNotification";
 import { analyticHandler } from "./src/handlers/commands";
+import { handleNotificationRespond } from "./src/events/notification/handleNotificationRespond";
 
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
@@ -48,6 +49,20 @@ async function main() {
   // bot.callbackQuery("profile", profileHandler);
   // bot.callbackQuery("help", helpHandler);
   // bot.callbackQuery("back", startHandler);
+
+  // Обработка ответов на уведомления (п.5)
+  bot.callbackQuery(/^notification_(yes|no)_(.+)$/, async (ctx) => {
+    if (!ctx.match || ctx.match.length < 3) {
+      pinologger.warn(
+        { match: ctx.match },
+        "Invalid notification callback match",
+      );
+      await ctx.answerCallbackQuery();
+      return;
+    }
+    const [, action, requestId] = ctx.match;
+    await handleNotificationRespond(ctx, action!, requestId!);
+  });
 
   const { first_name, last_name, id } = await bot.api.getMe();
 

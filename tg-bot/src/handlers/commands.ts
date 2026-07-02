@@ -3,6 +3,8 @@ import { BotError, InlineKeyboard } from "grammy";
 import { Templates } from "../config/templates";
 import { authApi, userApi, adminApi, pinologger } from "../instances";
 import { parseApiError } from "../utils/parseApiError";
+import { getOrCreateToken } from "../utils/authStore";
+import { version as BOT_VERSION } from "../../package.json";
 
 // ============ Keyboard Builders ============
 
@@ -211,25 +213,22 @@ export const analyticHandler = async (ctx: Context) => {
       return;
     }
 
-    const authResult = await authUser(ctx.from.id);
-    if (!authResult) {
-      await ctx.reply("Не удалось авторизоваться");
-      return;
-    }
+    const auth = await getOrCreateToken(ctx.from.id);
+    const authorization = `${auth.tokenType} ${auth.accessToken}`;
 
     const stats = await adminApi.getPortalStats({
       headers: {
-        Authorization: `${authResult.tokenType} ${authResult.accessToken}`,
+        Authorization: authorization,
       },
     });
 
     const user = await userApi.getUserById(
       {
-        userId: authResult.userId,
+        userId: auth.userId,
       },
       {
         headers: {
-          Authorization: `${authResult.tokenType} ${authResult.accessToken}`,
+          Authorization: authorization,
         },
       },
     );
@@ -239,10 +238,11 @@ export const analyticHandler = async (ctx: Context) => {
       return;
     }
 
-    const lines = [
-      `Привет, *${user.fullName}*, ваша роль: *${user.role}*`,
-      "",
-      "📊 *Статистика портала*",
+	    const lines = [
+	      `Привет, *${user.fullName}*, ваша роль: *${user.role}*`,
+	      `🤖 Версия бота: *${BOT_VERSION}*`,
+	      "",
+	      "📊 *Статистика портала*",
       "",
       `👥 Всего пользователей: *${stats.totalUsers}*`,
       `✅ Верифицировано: *${stats.verifiedUsers}*`,
