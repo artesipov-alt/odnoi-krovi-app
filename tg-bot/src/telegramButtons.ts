@@ -13,10 +13,7 @@ export const createOpenAppKeyboard = () => {
   const isDev = env === "development" || env === "dev";
   const webAppUrl = isDev ? "https://dev.1krovi.app" : "https://1krovi.app";
 
-  return new InlineKeyboard().webApp(
-    "🩸 Открыть приложение",
-    webAppUrl,
-  );
+  return new InlineKeyboard().webApp("🩸 Открыть приложение", webAppUrl);
 };
 
 export const createUserChatButton = (telegramId: string) => {
@@ -24,4 +21,15 @@ export const createUserChatButton = (telegramId: string) => {
     "Написать пользователю",
     `tg://user?id=${telegramId}`,
   );
+};
+
+/**
+ * Создает клавиатуру для уведомления recipient_empty_showcase.
+ * Две кнопки: "Да" и "Нет".
+ * requestId передаётся в callback_data через нижнее подчёркивание.
+ */
+export const createNotificationKeyboard = (requestId: string) => {
+  return new InlineKeyboard()
+    .text("✅ Да", `notification_yes_${requestId}`)
+    .text("❌ Нет", `notification_no_${requestId}`);
 };

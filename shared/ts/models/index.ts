@@ -49,6 +49,7 @@ export * from './LocationsList';
 export * from './MatchingDonor';
 export * from './MiniAppSignInBody';
 export * from './MiniAppSignInResult';
+export * from './NotificationRespondBody';
 export * from './PetAnalysis';
 export * from './PetAnalysisGroup';
 export * from './PetDetail';

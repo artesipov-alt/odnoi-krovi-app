@@ -1,6 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
-import { getAppOpenKeyboard } from "../../keyboards";
+import { getAppOpenKeyboard, getNotificationKeyboard } from "../../keyboards";
 
 interface Notification {
   type: string;
@@ -24,6 +24,14 @@ const messages: Record<string, (payload: Record<string, any>) => string> = {
 
   donor_not_accepted: (p) =>
     `Вы откликнулись на поиск (*${p.recipientPetName}*, группа ${p.recipientBloodGroup}, ${p.volume} мл), но хозяин реципиента пока не принял Ваше предложение.\nМожете подождать еще немного или отменить донацию и помочь другому питомцу на Портале.`,
+
+  // п.5 — пустая витрина, 24ч не заходил
+  recipient_empty_showcase: (_p) =>
+    `Вас долго не было, Вы еще ищите помощь для питомца?`,
+
+  // п.6 — пустая витрина, 48ч не заходил и не нажал "Да"
+  recipient_search_closed_inactive: (_p) =>
+    `Вас долго не было, поэтому мы закрыли Вашу заявку. При необходимости начните новый поиск для питомца во вкладке «Найти кровь» в приложении.`,
 };
 
 export const handleNotification = async (event: Notification) => {
@@ -49,8 +57,14 @@ export const handleNotification = async (event: Notification) => {
   const text = messageFn(payload);
 
   try {
+    // Для recipient_empty_showcase используем клавиатуру с "Да"/"Нет"
+    const keyboard =
+      type === "recipient_empty_showcase"
+        ? getNotificationKeyboard(payload.requestId)
+        : getAppOpenKeyboard();
+
     await sendMessageToUser(targets.maxId, text, {
-      attachments: [getAppOpenKeyboard()],
+      attachments: [keyboard],
     });
 
     pinologger.info(

@@ -191,3 +191,12 @@ type Compensation struct {
 	CompensationType string `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
 	Taxi             bool   `json:"taxi" doc:"Компенсация такси"`
 }
+
+type NotificationRespondInput struct {
+	commondto.BloodRequestIDPath
+	Body NotificationRespondBody
+}
+
+type NotificationRespondBody struct {
+	Action string `json:"action" enum:"yes,no"`
+}

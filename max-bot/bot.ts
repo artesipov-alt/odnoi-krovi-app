@@ -15,6 +15,7 @@ import { handleBloodRequestCreated } from "./src/events/recipient/handleBloodReq
 import { handleDonationConfirmed } from "./src/events/recipient/donationConfirmed";
 import { handleUserContact } from "./src/events/user/handleUserContact";
 import { handleNotification } from "./src/events/notification/handleNotification";
+import { handleNotificationRespond } from "./src/events/notification/handleNotificationRespond";
 
 import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
@@ -74,6 +75,20 @@ async function main() {
   bot.command("err", errCommandTest);
   bot.command("api", apiTestHandler);
   bot.action("back", startHandler);
+
+  // Обработка ответов на уведомления (п.5)
+  bot.action(/^notification_(yes|no)_(.+)$/, async (ctx) => {
+    if (!ctx.match || ctx.match.length < 3) {
+      pinologger.warn(
+        { match: ctx.match },
+        "Invalid notification callback match",
+      );
+      await ctx.answerOnCallback({});
+      return;
+    }
+    const [, action, requestId] = ctx.match;
+    await handleNotificationRespond(ctx, action!, requestId!);
+  });
 
   const { name, username, user_id } = await bot.api.getMyInfo();
   pinologger.info(`Бот ${name || username} ${user_id} инициализирован`);

@@ -19,7 +19,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/analytics/query"
+	analyticsquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/analytics/query"
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
@@ -155,7 +155,7 @@ func main() {
 		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler()
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler()
 
-		getPortalStatisticsHandler := query.NewPortalStatsHandler(rawQueryRepo)
+		getPortalStatisticsHandler := analyticsquery.NewPortalStatsHandler(rawQueryRepo)
 
 		//Дополнительные сервисы для аунтификации
 		// miniAppDataValidator := auth.NewAppValidator(os.Getenv("TG_BOT_TOKEN"), os.Getenv("MAX_BOT_TOKEN"))
@@ -207,6 +207,8 @@ func main() {
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
+		notificationRespondHandler := bloodcmd.NewNotificationRespondHandler(bloodCloseDonationHandler, cache)
+
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
@@ -257,6 +259,7 @@ func main() {
 			confirmDonationHandler,
 			rejectDonationHandler,
 			bloodCloseDonationHandler,
+			notificationRespondHandler,
 			fileStorage,
 		)
 		donorHandler := transport.NewDonorHandler(

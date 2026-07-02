@@ -248,9 +248,116 @@ func (n *NotificationJob) checkRecipientInactive12h(ctx context.Context) {
 }
 
 func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryRecipientEmptyShowcase24h)
+	if err != nil {
+		slog.Error("checkRecipientEmptyShowcase24h: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var (
+			requestID  string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&requestID, &telegramID, &maxID); err != nil {
+			slog.Error("checkRecipientEmptyShowcase24h: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifRecipientEmptyShowcase, requestID)
+		if err != nil {
+			slog.Error("checkRecipientEmptyShowcase24h: cache check failed", "requestID", requestID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifRecipientEmptyShowcase,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload: map[string]any{
+				"requestId": requestID,
+			},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkRecipientEmptyShowcase24h: publish failed", "requestID", requestID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifRecipientEmptyShowcase, requestID, 24*time.Hour); err != nil {
+			slog.Error("checkRecipientEmptyShowcase24h: mark sent failed", "requestID", requestID, "err", err)
+		}
+	}
 }
 
 func (n *NotificationJob) checkRecipientEmptyShowcase48h(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryRecipientEmptyShowcase48h)
+	if err != nil {
+		slog.Error("checkRecipientEmptyShowcase48h: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var (
+			requestID  string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&requestID, &telegramID, &maxID); err != nil {
+			slog.Error("checkRecipientEmptyShowcase48h: scan failed", "err", err)
+			continue
+		}
+
+		// Если пользователь нажал "Да" — не закрываем
+		yesPressed, err := n.cache.WasYesPressed(ctx, requestID)
+		if err != nil {
+			slog.Error("checkRecipientEmptyShowcase48h: yes pressed check failed", "requestID", requestID, "err", err)
+			continue
+		}
+		if yesPressed {
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifRecipientSearchClosedInactive, requestID)
+		if err != nil {
+			slog.Error("checkRecipientEmptyShowcase48h: cache check failed", "requestID", requestID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		// Сначала закрываем поиск
+		if err := n.closeHandler.Handle(ctx, requestID); err != nil {
+			slog.Error("checkRecipientEmptyShowcase48h: close request failed", "requestID", requestID, "err", err)
+			continue
+		}
+
+		// Потом уведомляем
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifRecipientSearchClosedInactive,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload:   map[string]any{},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkRecipientEmptyShowcase48h: publish failed", "requestID", requestID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifRecipientSearchClosedInactive, requestID, 48*time.Hour); err != nil {
+			slog.Error("checkRecipientEmptyShowcase48h: mark sent failed", "requestID", requestID, "err", err)
+		}
+	}
 }

@@ -4,6 +4,7 @@ import {
   AuthV1Api,
   AdminV1Api,
   UsersV1Api,
+  BloodRequestV1Api,
 } from "../../shared/ts/index";
 
 import type { Context } from "grammy";
@@ -61,6 +62,7 @@ const apiConfig = new Configuration({
 export const authApi = new AuthV1Api(apiConfig);
 export const adminApi = new AdminV1Api(apiConfig);
 export const userApi = new UsersV1Api(apiConfig);
+export const bloodRequestApi = new BloodRequestV1Api(apiConfig);
 
 const redisHost = Bun.env.REDIS_HOST || "localhost";
 const redisPort = Bun.env.REDIS_PORT || "6379";
