@@ -232,7 +232,7 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                     </div>
                     <div className={cn(styles.leftItem, { [styles.owner]: true })}>
                         <div className={styles.icon}>{recipient.ownerName.charAt(0).toUpperCase()}</div>
-                        <div>
+                        <div className={styles.descrWrapper}>
                             <p className={styles.descr}>Хозяин</p>
                             <p className={styles.text}>{recipient.ownerName}</p>
                         </div>

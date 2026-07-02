@@ -1,0 +1,133 @@
+@import 'styles/colors';
+
+.wrapper {
+    display: flex;
+    height: 100vh;
+    min-height: 600px;
+    background-color: @white-bg;
+    background: url('imgs/rejectDonationBg1.png') no-repeat top,
+    url('imgs/rejectDonationBg2.png') no-repeat bottom;
+    background-size: contain, contain;
+    text-align: center;
+    font-family: Marmelad, sans-serif;
+}
+
+.content {
+    margin: auto;
+    padding: 0 32px;
+}
+
+.title {
+    color: @textColor2;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 24px;
+    margin: 0 0 26px;
+
+    &.isFinal {
+        margin: 0 0 10px;
+    }
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 13px;
+    padding: 4px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.radio {
+    flex-shrink: 0;
+    width: 23px;
+    height: 23px;
+    border-radius: 25px;
+    border: 2px solid @grayBg39;
+    background: @white;
+    box-sizing: border-box;
+
+    &.checked {
+        border: 4px solid @common-red;
+    }
+}
+
+.descr {
+    color: @textColor7;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    margin: 0;
+    text-align: left;
+}
+
+.textareaWrapper {
+    position: relative;
+}
+
+.textarea {
+    color: @inputRed !important;
+    max-height: 400px !important;
+    min-height: 55px !important;
+    font-family: Proxima Nova, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 15px !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+
+.counter {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    color: @textColor4;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 10px;
+    line-height: 15px;
+
+    &.bigText {
+        color: @red6;
+    }
+}
+
+.button {
+    width: 100%;
+    height: 60px;
+    margin-top: 26px !important;
+    border-radius: 10px !important;
+    text-transform: none !important;
+    font-family: Marmelad, sans-serif !important;
+    color: @grayBg6 !important;
+    background: var(--87, conic-gradient(from -3deg at 100% -13%, #C34968 0deg, #800020 360deg)) !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+    line-height: 18px !important;
+
+    &.disabled {
+        pointer-events: none;
+        background: #c798a3 !important;
+    }
+}
+
+.backLink {
+    display: block;
+    margin: 24px 0 0;
+    text-align: center;
+    color: @textColor2;
+    font-size: 14px;
+    line-height: 16px;
+    opacity: .6;
+}
+
+.finalDescr {
+    margin: 0;
+    color: @textColor7;
+    font-family: Proxima Nova, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    opacity: .4;
+}
