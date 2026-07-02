@@ -75,3 +75,39 @@ const queryRecipientInactive12h = `
 		  )
 		GROUP BY br.id
 `
+const queryRecipientEmptyShowcase24h = `
+		SELECT
+		    br.id,
+		    MAX(CASE WHEN i.provider = 'telegram_bot' THEN i.provider_user_id END) AS telegram_id,
+		    MAX(CASE WHEN i.provider = 'max_bot'      THEN i.provider_user_id END) AS max_id
+		FROM blood_requests br
+		JOIN pets recipient_pet     ON recipient_pet.id = br.pet_id
+		JOIN users recipient_user   ON recipient_user.id = recipient_pet.user_id
+		LEFT JOIN user_identities i ON i.user_id = recipient_user.id
+		WHERE br.status = 'active'
+		  AND recipient_user.last_seen_at < NOW() - INTERVAL '24 hours'
+		  AND NOT EXISTS (
+		      SELECT 1 FROM donor_responses dr
+		      WHERE dr.request_id = br.id
+		        AND dr.status = 'pending'
+		  )
+		GROUP BY br.id
+`
+const queryRecipientEmptyShowcase48h = `
+		SELECT
+		    br.id,
+		    MAX(CASE WHEN i.provider = 'telegram_bot' THEN i.provider_user_id END) AS telegram_id,
+		    MAX(CASE WHEN i.provider = 'max_bot'      THEN i.provider_user_id END) AS max_id
+		FROM blood_requests br
+		JOIN pets recipient_pet     ON recipient_pet.id = br.pet_id
+		JOIN users recipient_user   ON recipient_user.id = recipient_pet.user_id
+		LEFT JOIN user_identities i ON i.user_id = recipient_user.id
+		WHERE br.status = 'active'
+		  AND recipient_user.last_seen_at < NOW() - INTERVAL '48 hours'
+		  AND NOT EXISTS (
+		      SELECT 1 FROM donor_responses dr
+		      WHERE dr.request_id = br.id
+		        AND dr.status = 'pending'
+		  )
+		GROUP BY br.id
+`

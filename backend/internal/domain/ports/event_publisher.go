@@ -12,11 +12,12 @@ import (
 type NotificationType string
 
 const (
-	NotifRecipientDonorWaiting    NotificationType = "recipient_donor_waiting"
-	NotifRecipientInactiveWarning NotificationType = "recipient_inactive_warning"
-	NotifRecipientSearchClosed    NotificationType = "recipient_search_closed"
-	NotifRecipientEmptyShowcase   NotificationType = "recipient_empty_showcase"
-	NotifDonorNotAccepted         NotificationType = "donor_not_accepted"
+	NotifRecipientDonorWaiting         NotificationType = "recipient_donor_waiting"
+	NotifRecipientInactiveWarning      NotificationType = "recipient_inactive_warning"
+	NotifRecipientSearchClosed         NotificationType = "recipient_search_closed"
+	NotifRecipientEmptyShowcase        NotificationType = "recipient_empty_showcase"
+	NotifDonorNotAccepted              NotificationType = "donor_not_accepted"
+	NotifRecipientSearchClosedInactive NotificationType = "recipient_search_closed_inactive" // п.6
 )
 
 type Notification struct {
