@@ -384,7 +384,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             <Chat />
                         </div>
                         <Button className={styles.confirmDonation} onClick={onConfirmDonationToggle}>
-                            Донация состояласьx
+                            Донация состоялась
                         </Button>
                         <Button
                             onClick={onRejectDonationClickHandler}
