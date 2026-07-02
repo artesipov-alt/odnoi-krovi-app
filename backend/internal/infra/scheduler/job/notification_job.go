@@ -281,7 +281,9 @@ func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
 				TelegramID: telegramID.String,
 				MaxID:      maxID.String,
 			},
-			Payload:   map[string]any{},
+			Payload: map[string]any{
+				"requestId": requestID,
+			},
 			CreatedAt: time.Now(),
 		})
 		if err != nil {

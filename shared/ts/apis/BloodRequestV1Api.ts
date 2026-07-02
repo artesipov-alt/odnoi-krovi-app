@@ -24,6 +24,7 @@ import type {
   CreateBloodRequestResult,
   DonationCard,
   DonorDetail,
+  NotificationRespondBody,
   RejectData,
   ResultMessage,
   UpdateBloodRequestBody,
@@ -49,6 +50,8 @@ import {
     DonationCardToJSON,
     DonorDetailFromJSON,
     DonorDetailToJSON,
+    NotificationRespondBodyFromJSON,
+    NotificationRespondBodyToJSON,
     RejectDataFromJSON,
     RejectDataToJSON,
     ResultMessageFromJSON,
@@ -113,6 +116,11 @@ export interface GetPresignedUrlRequest {
 export interface RejectDonationByIdRequest {
     resId: string;
     rejectData: Omit<RejectData, '$schema'>;
+}
+
+export interface RespondToNotificationRequest {
+    reqId: string;
+    notificationRespondBody: Omit<NotificationRespondBody, '$schema'>;
 }
 
 export interface UpdateBloodRequestRequest {
@@ -630,6 +638,55 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      */
     async rejectDonationById(requestParameters: RejectDonationByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResultMessage> {
         const response = await this.rejectDonationByIdRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Отвечает на уведомление
+     * Ответить на уведомление
+     */
+    async respondToNotificationRaw(requestParameters: RespondToNotificationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResultMessage>> {
+        if (requestParameters['reqId'] == null) {
+            throw new runtime.RequiredError(
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling respondToNotification().'
+            );
+        }
+
+        if (requestParameters['notificationRespondBody'] == null) {
+            throw new runtime.RequiredError(
+                'notificationRespondBody',
+                'Required parameter "notificationRespondBody" was null or undefined when calling respondToNotification().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/v1/blood-request/notification/respond/{req_id}`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: NotificationRespondBodyToJSON(requestParameters['notificationRespondBody']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResultMessageFromJSON(jsonValue));
+    }
+
+    /**
+     * Отвечает на уведомление
+     * Ответить на уведомление
+     */
+    async respondToNotification(requestParameters: RespondToNotificationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResultMessage> {
+        const response = await this.respondToNotificationRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

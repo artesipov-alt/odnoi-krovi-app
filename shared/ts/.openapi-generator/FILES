@@ -57,6 +57,7 @@ models/LocationsList.ts
 models/MatchingDonor.ts
 models/MiniAppSignInBody.ts
 models/MiniAppSignInResult.ts
+models/NotificationRespondBody.ts
 models/PetAnalysis.ts
 models/PetAnalysisGroup.ts
 models/PetDetail.ts

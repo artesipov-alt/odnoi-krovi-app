@@ -4,8 +4,10 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
 )
 
@@ -42,6 +44,12 @@ func (h *NotificationRespondHandler) Handle(ctx context.Context, input Notificat
 		if err := h.cache.MarkYesPressed(ctx, input.BloodRequestID); err != nil {
 			return apperrors.Internal(err, "failed to mark yes pressed")
 		}
+
+		// Сброс таймера: пользователь сказал "Да", обновляем sent-маркер еще на 24ч
+		if err := h.cache.MarkSent(ctx, ports.NotifRecipientEmptyShowcase, input.BloodRequestID, 24*time.Hour); err != nil {
+			return apperrors.Internal(err, "failed to reset sent timer")
+		}
+
 		return nil
 
 	case NotificationActionNo:
