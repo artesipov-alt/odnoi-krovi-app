@@ -173,6 +173,25 @@ func (u *User) MessengerContacts() (string, string) {
 	return maxID, telegramID
 }
 
+// HasProviderConflict проверяет, есть ли у двух пользователей пересечение по провайдерам.
+// Если хоть один провайдер совпадает — слияние аккаунтов запрещено.
+func (u *User) HasProviderConflict(other *User) bool {
+	if other == nil {
+		return false
+	}
+
+	providers := make(map[authmodel.ProviderName]struct{})
+	for _, identity := range u.Identities {
+		providers[identity.ProviderName] = struct{}{}
+	}
+	for _, identity := range other.Identities {
+		if _, ok := providers[identity.ProviderName]; ok {
+			return true
+		}
+	}
+	return false
+}
+
 // NewDonorPreferenceParams creates a new DonorPreferenceParams with default values
 func DefaultDonorPreference() *DonorPreference {
 	return &DonorPreference{

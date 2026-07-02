@@ -44,6 +44,9 @@ type Repository interface {
 	// переносит UTM-историю от одного пользователя к другому
 	TransferUTMHistory(ctx context.Context, fromUserID, toUserID string) error
 
+	// переносит питомцев от одного пользователя к другому
+	TransferPets(ctx context.Context, fromUserID, toUserID string) error
+
 	// удаляет пользователя по его ID
 	Delete(ctx context.Context, id string) error
 

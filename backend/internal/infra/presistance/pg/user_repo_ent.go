@@ -13,6 +13,7 @@ import (
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/schema"
 	entuser "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/useridentity"
@@ -349,6 +350,25 @@ func (r *EntUserRepository) DeleteUTMHistoryByUserID(ctx context.Context, userID
 		Exec(ctxWithSkip)
 	if err != nil {
 		return fmt.Errorf("failed to delete UTM history: %w", err)
+	}
+
+	return nil
+}
+
+// TransferPets transfers all pets from one user to another
+func (r *EntUserRepository) TransferPets(ctx context.Context, fromUserID, toUserID string) error {
+	if fromUserID == "" || toUserID == "" {
+		return errors.New("invalid user IDs")
+	}
+
+	c := r.client(ctx)
+
+	_, err := c.Pet.Update().
+		Where(pet.UserIDEQ(fromUserID)).
+		SetUserID(toUserID).
+		Save(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to transfer pets: %w", err)
 	}
 
 	return nil
