@@ -40,6 +40,7 @@ import Bonuses from 'components/Bonuses';
 import { CircularProgress } from 'components/CircularProgress';
 import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
+import RejectedForm, { RejectView } from 'components/RejectedForm';
 import TextField from 'components/TextField';
 import Timer from 'components/Timer';
 
@@ -48,6 +49,11 @@ import styles from './DonationDetails.module.less';
 type ChatCurtain = {
     isOpen: boolean;
     identities?: Identities[];
+};
+
+type RejectedFormType = {
+    isOpen: boolean;
+    view?: RejectView;
 };
 
 type Props = {
@@ -70,6 +76,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
     const [isPendingTimerExpired, setIsPendingTimerExpired] = useState<boolean>(false);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
+    const [rejectDonationFormParams, setRejectDonationFormParams] = useState<RejectedFormType>({ isOpen: false });
 
     const [bloodGroup, setBloodGroup] = useState<string | null>(null);
 
@@ -174,12 +181,22 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         onClose();
     };
 
-    const onCancelClickHandler = async () => {
-        const response = await cancelDonation(donation.applicationData.id);
+    const applyCancel = async (reason?: string) => {
+        const response = await cancelDonation({ id: donation.applicationData.id, reason: reason || '' });
 
         if (!response) {
             showToast('Не удалось отменить донацию');
 
+            return false;
+        }
+
+        return true;
+    };
+
+    const onCancelClickHandler = async () => {
+        const isOk = await applyCancel();
+
+        if (!isOk) {
             return;
         }
 
@@ -187,6 +204,16 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         await queryClient.invalidateQueries({ queryKey: ['plannedDonations', userId] });
 
         onClose();
+    };
+
+    const onCancelAcceptDonationClickHandler = async (reason: string) => {
+        const isOk = await applyCancel(reason);
+
+        if (!isOk) {
+            return;
+        }
+
+        setRejectDonationFormParams({ isOpen: true, view: RejectView.FINAL });
     };
 
     const onBlurDonatedBloodVolumeHandler = ({
@@ -253,6 +280,14 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         onClose();
     };
 
+    const onCloseRejectFormHandler = () => {
+        setRejectDonationFormParams({ isOpen: false });
+    };
+
+    const onRejectDonationClickHandler = () => {
+        setRejectDonationFormParams({ isOpen: true, view: RejectView.CANCEL });
+    };
+
     useEffect(() => {
         if (isErrorLocations) {
             showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
@@ -264,6 +299,20 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
             showToast('Не удалось загрузить словарь типов животных и групп крови, попробуйте перезагрузить приложение');
         }
     }, [isErrorPetTypesAndBloodGroups, showToast]);
+
+    if (rejectDonationFormParams.isOpen && rejectDonationFormParams.view) {
+        return (
+            <Layout>
+                <RejectedForm
+                    isDonor
+                    userId={userId}
+                    onBack={onCloseRejectFormHandler}
+                    view={rejectDonationFormParams.view}
+                    onSubmit={onCancelAcceptDonationClickHandler}
+                />
+            </Layout>
+        );
+    }
 
     if (isBonusesPageOpen) {
         return <Bonuses fromDonationDetails onClose={onBonusesClickToggle} items={donation.applicationData.bonuses} />;
@@ -320,6 +369,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
             {donation.applicationData.status === DonorStatus.ACCEPTED && !!donation.applicationData.rejectedReason && (
                 <Alert
                     className={styles.alert}
+                    reason={donation.applicationData.rejectedReason}
                     text='Хозяин реципиента не подтвердил донацию. Свяжитесь с ним для обсуждения деталей.'
                 />
             )}
@@ -337,8 +387,8 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             Донация состоялась
                         </Button>
                         <Button
+                            onClick={onRejectDonationClickHandler}
                             className={cn(styles.confirmDonation, { [styles.reject]: true })}
-                            onClick={onCancelClickHandler}
                         >
                             Донация отменилась
                         </Button>
