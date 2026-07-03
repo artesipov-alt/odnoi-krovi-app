@@ -3,7 +3,7 @@
   "module": "bot.ts",
   "type": "module",
   "version": "0.9.0",
-      "scripts": {
+  "scripts": {
     "dev": "bun --env-file=../.env bot.ts",
     "build": "bun run build.ts",
     "prod": "bun run dist/bot.js"

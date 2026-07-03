@@ -21,57 +21,52 @@ import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
 import { startServer } from "./src/server";
+import {
+  dispatchEvent,
+  EVENT_TYPES,
+  type EventEnvelope,
+  type EventHandler,
+  type EventHandlerMap,
+} from "../shared/ts/events";
 
 const env = Bun.env.ENV || "production";
 const channelPrefix = env === "development" || env === "dev" ? "dev:" : "prod:";
 const channel = (name: string) => `${channelPrefix}${name}`;
 
-// Event envelope — парсим тип и диспатчим
-interface EventEnvelope {
-  type: string;
-  payload: any;
-  createdAt: string;
-}
+// Типизированная dispatch-таблица. Record<EventType, ...> гарантирует, что
+// при добавлении нового EventType компилятор потребует handler.
+// Параметр лямбды типизирован как `any` — иначе TS не сводит `unknown` из
+// `EventHandler` к узким event-интерфейсам. Runtime-валидация payload остаётся
+// на стороне каждого handler'а.
+const eventHandlers: EventHandlerMap = {
+  [EVENT_TYPES.BLOOD_REQUEST_CREATED]: ((payload: any) =>
+    handleBloodRequestCreated(payload)) as EventHandler,
+  [EVENT_TYPES.DONOR_APPLY]: ((payload: any) =>
+    handleDonorApply(payload)) as EventHandler,
+  [EVENT_TYPES.DONATION_CONFIRMED]: ((payload: any) =>
+    handleDonationConfirmed(payload)) as EventHandler,
+  [EVENT_TYPES.RECIPIENT_APPLY]: ((payload: any) =>
+    handleRecipientApply(payload)) as EventHandler,
+  [EVENT_TYPES.DONOR_CANCEL]: ((payload: any) =>
+    handleDonorCancel(payload)) as EventHandler,
+  [EVENT_TYPES.DONOR_REJECT]: ((payload: any) =>
+    handleDonorReject(payload)) as EventHandler,
+  [EVENT_TYPES.DONOR_NOT_CONFIRMED]: ((payload: any) =>
+    handleDonorNotConfirmed(payload)) as EventHandler,
+  [EVENT_TYPES.DONOR_COMPLETED]: ((payload: any) =>
+    handleDonorCompleted(payload)) as EventHandler,
+  [EVENT_TYPES.USER_CONTACT]: ((payload: any) =>
+    handleUserContact(payload)) as EventHandler,
+};
 
-// Redis event handlers — маппинг по типу события
-const eventHandlers: Record<string, (message: string) => Promise<void>> = {
+// Redis event handlers — маппинг по каналу
+const channelHandlers: Record<string, (message: string) => Promise<void>> = {
   [channel("events")]: async (message: string) => {
     const envelope: EventEnvelope = JSON.parse(message);
-    const { type, payload } = envelope;
-
-    pinologger.info({ type }, "Received event");
-
-    switch (type) {
-      case "blood_request_created":
-        await handleBloodRequestCreated(payload);
-        break;
-      case "donor_response_apply":
-        await handleDonorApply(payload);
-        break;
-      case "donation_confirmed":
-        await handleDonationConfirmed(payload);
-        break;
-      case "recipient_response_apply":
-        await handleRecipientApply(payload);
-        break;
-      case "donor_cancel":
-        await handleDonorCancel(payload);
-        break;
-      case "donor_reject":
-        await handleDonorReject(payload);
-        break;
-      case "donor_not_confirmed":
-        await handleDonorNotConfirmed(payload);
-        break;
-      case "donor_completed":
-        await handleDonorCompleted(payload);
-        break;
-      case "user_contact":
-        await handleUserContact(payload);
-        break;
-      default:
-        pinologger.warn({ type }, "Unknown event type");
-    }
+    pinologger.info({ type: envelope.type }, "Received event");
+    await dispatchEvent(envelope, eventHandlers, (type) =>
+      pinologger.warn({ type }, "Unknown event type"),
+    );
   },
   [channel("notifications")]: async (message: string) => {
     const event = JSON.parse(message);
@@ -137,7 +132,7 @@ async function main() {
   subscribeToChannel(channel("notifications"));
 
   redis.on("message", async (channel, message) => {
-    const handler = eventHandlers[channel];
+    const handler = channelHandlers[channel];
     if (handler) {
       try {
         await handler(message);
