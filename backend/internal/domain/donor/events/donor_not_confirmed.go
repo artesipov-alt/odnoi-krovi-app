@@ -2,23 +2,20 @@ package events
 
 import "time"
 
-type DonorNotConfirmed struct {
-	DonorPetName        string
-	DonorBloodGroup     string
-	DonorProviderMaxID  string
-	RecipientPetName    string
-	RecipientBloodGroup string
-	RecipientUserData   ContactData
-	DonorUserData       ContactData
-	CreatedAt           time.Time
-}
-
 type ContactData struct {
-	Name             string
-	ProviderMaxID    string
-	ProviderTelegram string
-	Phone            string
+	Name             string `json:"name"`
+	ProviderMaxID    string `json:"providerMaxId"`
+	ProviderTelegram string `json:"providerTelegram"`
+	Phone            string `json:"phone"`
 }
 
-func (e DonorNotConfirmed) EventName() string     { return "DonorNotConfirmed" }
-func (e DonorNotConfirmed) OccurredAt() time.Time { return e.CreatedAt }
+type DonorNotConfirmed struct {
+	DonorPetName        string      `json:"donorPetName"`
+	DonorBloodGroup     string      `json:"donorBloodGroup"`
+	DonorProviderMaxID  string      `json:"donorProviderMaxId"`
+	RecipientPetName    string      `json:"recipientPetName"`
+	RecipientBloodGroup string      `json:"recipientBloodGroup"`
+	RecipientUserData   ContactData `json:"recipientUserData"`
+	DonorUserData       ContactData `json:"donorUserData"`
+	CreatedAt           time.Time   `json:"createdAt"`
+}

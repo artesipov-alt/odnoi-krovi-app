@@ -164,7 +164,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		CreatedAt: time.Now(),
 	}
 
-	if err := h.publisher.PublishDonationConfirmed(ctx, event); err != nil {
+	if err := h.publisher.PublishEvent(ctx, ports.EventDonationConfirmed, event); err != nil {
 		slog.Error("failed to publish donation confirmed notification", "err", err, "donorResponseID", donorResponseID)
 	}
 
@@ -194,7 +194,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				CreatedAt:               time.Now(),
 			}
 
-			if err := h.publisher.PublishDonorReject(ctx, rejectEvent); err != nil {
+			if err := h.publisher.PublishEvent(ctx, ports.EventDonorReject, rejectEvent); err != nil {
 				slog.Error("failed to publish donor reject notification", "err", err, "donorID", rejectedDonorID)
 			}
 		}

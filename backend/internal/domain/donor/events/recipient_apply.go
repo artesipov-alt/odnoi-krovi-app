@@ -3,15 +3,12 @@ package events
 import "time"
 
 type RecipientApply struct {
-	DonorName                       string
-	DonorBloodGroup                 string
-	RecipientProviderMaxID          string
-	RecipientProviderTelegramID     string
-	RecipientPetName                string
-	RecipientPetSearchingBloodGroup []string
-	RecipientPetNeededVolume        float64
-	CreatedAt                       time.Time
+	DonorName                       string    `json:"donorName"`
+	DonorBloodGroup                 string    `json:"donorBloodGroup"`
+	RecipientProviderMaxID          string    `json:"recipientProviderMaxId"`
+	RecipientProviderTelegramID     string    `json:"recipientProviderTelegramId"`
+	RecipientPetName                string    `json:"recipientPetName"`
+	RecipientPetSearchingBloodGroup []string  `json:"recipientPetSearchingBloodGroup"`
+	RecipientPetNeededVolume        float64   `json:"recipientPetNeededVolume"`
+	CreatedAt                       time.Time `json:"createdAt"`
 }
-
-func (e RecipientApply) EventName() string     { return "RecipientApply" }
-func (e RecipientApply) OccurredAt() time.Time { return e.CreatedAt }

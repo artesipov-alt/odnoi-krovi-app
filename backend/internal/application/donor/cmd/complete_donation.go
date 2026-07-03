@@ -66,7 +66,7 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 
 	// Уведомление реципиента после успешного завершения.
 	// Ошибка публикации не фатальна — логируем и продолжаем.
-	if err := h.publisher.PublishDonorCompleted(ctx, donorevent.DonorCompleted{
+	if err := h.publisher.PublishEvent(ctx, ports.EventDonorCompleted, donorevent.DonorCompleted{
 		DonorPetName:                donorResponse.DonorName,
 		DonorBloodGroup:             donorResponse.DonorBloodGroup,
 		RecipientProviderMaxID:      recipientProviderMaxID,

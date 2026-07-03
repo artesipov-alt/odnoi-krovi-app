@@ -55,7 +55,7 @@ func (h *GetContactHandler) Handle(ctx context.Context, id string, provider stri
 	event.SendTo = sendToID
 	event.NotifyProvider = authmodel.ProviderName(provider)
 
-	if err := h.publisher.PublishUserContact(ctx, event); err != nil {
+	if err := h.publisher.PublishEvent(ctx, ports.EventUserContact, event); err != nil {
 		slog.Error("failed to publish user contact notification", "err", err, "targetUserID", id)
 	}
 

@@ -126,7 +126,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			CreatedAt:               time.Now(),
 		}
 
-		if err := h.publisher.PublishDonorReject(ctx, event); err != nil {
+		if err := h.publisher.PublishEvent(ctx, ports.EventDonorReject, event); err != nil {
 			slog.Error("failed to publish donor reject notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	case donormodel.DonorResponseStatusAccepted:
@@ -153,7 +153,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			CreatedAt: time.Now(),
 		}
 
-		if err := h.publisher.PublishDonorNotConfirmed(ctx, notConfirmedEvent); err != nil {
+		if err := h.publisher.PublishEvent(ctx, ports.EventDonorNotConfirmed, notConfirmedEvent); err != nil {
 			slog.Error("failed to publish donor not confirmed notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	default:

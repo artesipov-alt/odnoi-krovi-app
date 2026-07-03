@@ -105,7 +105,7 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string, reason
 
 	// Уведомление реципиента после успешной транзакции.
 	// Ошибка публикации не фатальна — логируем и продолжаем.
-	if err := h.eventPublisher.PublishDonorCancel(ctx, donorevent.DonorCancel{
+	if err := h.eventPublisher.PublishEvent(ctx, ports.EventDonorCancel, donorevent.DonorCancel{
 		DonorName:                   donorResponse.DonorName,
 		DonorBloodGroup:             donorResponse.DonorBloodGroup,
 		RecipientProviderMaxID:      recipientProviderMaxID,

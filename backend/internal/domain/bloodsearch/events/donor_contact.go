@@ -1,33 +1,28 @@
 package events
 
-import (
-	"time"
-)
+import "time"
 
 type DonorData struct {
-	UserName         string
-	PetName          string
-	ProviderMaxID    string
-	ProviderTelegram string
-	Phone            string
-	BloodGroup       string
+	UserName         string `json:"userName"`
+	PetName          string `json:"petName"`
+	ProviderMaxID    string `json:"providerMaxId"`
+	ProviderTelegram string `json:"providerTelegram"`
+	Phone            string `json:"phone"`
+	BloodGroup       string `json:"bloodGroup"`
 }
 
 type RecipientData struct {
-	UserName         string
-	PetName          string
-	ProviderMaxID    string
-	ProviderTelegram string
-	Phone            string
-	BloodGroup       string
-	Volume           float64
+	UserName         string  `json:"userName"`
+	PetName          string  `json:"petName"`
+	ProviderMaxID    string  `json:"providerMaxId"`
+	ProviderTelegram string  `json:"providerTelegram"`
+	Phone            string  `json:"phone"`
+	BloodGroup       string  `json:"bloodGroup"`
+	Volume           float64 `json:"volume"`
 }
 
 type ApplyDonor struct {
-	DonorData     DonorData
-	RecipientData RecipientData
-	CreatedAt     time.Time
+	DonorData     DonorData     `json:"donorData"`
+	RecipientData RecipientData `json:"recipientData"`
+	CreatedAt     time.Time     `json:"createdAt"`
 }
-
-func (e ApplyDonor) EventName() string     { return "ApplyDonor" }
-func (e ApplyDonor) OccurredAt() time.Time { return e.CreatedAt }

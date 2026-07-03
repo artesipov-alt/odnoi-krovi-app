@@ -3,25 +3,22 @@ package events
 import "time"
 
 type DonorInfo struct {
-	UserName         string
-	PetName          string
-	ProviderMaxID    string
-	ProviderTelegram string
-	Phone            string
-	BloodGroup       string
+	UserName         string `json:"userName"`
+	PetName          string `json:"petName"`
+	ProviderMaxID    string `json:"providerMaxId"`
+	ProviderTelegram string `json:"providerTelegram"`
+	Phone            string `json:"phone"`
+	BloodGroup       string `json:"bloodGroup"`
 }
 
 type RecipientInfo struct {
-	PetName    string
-	BloodGroup string
+	PetName    string `json:"petName"`
+	BloodGroup string `json:"bloodGroup"`
 }
 
 type DonationConfirmed struct {
-	DonorData     DonorInfo
-	RecipientData RecipientInfo
-	Volume        float64
-	CreatedAt     time.Time
+	DonorData     DonorInfo     `json:"donorData"`
+	RecipientData RecipientInfo `json:"recipientData"`
+	Volume        float64       `json:"volume"`
+	CreatedAt     time.Time     `json:"createdAt"`
 }
-
-func (e DonationConfirmed) EventName() string     { return "DonationConfirmed" }
-func (e DonationConfirmed) OccurredAt() time.Time { return e.CreatedAt }

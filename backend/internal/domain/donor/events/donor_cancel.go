@@ -3,13 +3,10 @@ package events
 import "time"
 
 type DonorCancel struct {
-	DonorName                   string
-	DonorBloodGroup             string
-	RecipientProviderMaxID      string
-	RecipientProviderTelegramID string
-	RecipientPetName            string
-	CreatedAt                   time.Time
+	DonorName                   string    `json:"donorName"`
+	DonorBloodGroup             string    `json:"donorBloodGroup"`
+	RecipientProviderMaxID      string    `json:"recipientProviderMaxId"`
+	RecipientProviderTelegramID string    `json:"recipientProviderTelegramId"`
+	RecipientPetName            string    `json:"recipientPetName"`
+	CreatedAt                   time.Time `json:"createdAt"`
 }
-
-func (e DonorCancel) EventName() string     { return "DonorCancel" }
-func (e DonorCancel) OccurredAt() time.Time { return e.CreatedAt }
