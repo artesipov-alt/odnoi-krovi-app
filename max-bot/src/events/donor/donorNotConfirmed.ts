@@ -5,59 +5,59 @@ import { getAppOpenKeyboard } from "../../keyboards";
 import { generateVCF } from "../recipient/helpers";
 
 interface DonorNotConfirmedEvent {
-  DonorPetName: string;
-  DonorBloodGroup: string;
-  DonorProviderMaxID: string;
-  RecipientPetName: string;
-  RecipientBloodGroup: string;
-  RecipientUserData: {
-    Name: string;
-    ProviderMaxID: string;
-    ProviderTelegram: string;
-    Phone: string;
+  donorPetName: string;
+  donorBloodGroup: string;
+  donorProviderMaxId: string;
+  recipientPetName: string;
+  recipientBloodGroup: string;
+  recipientUserData: {
+    name: string;
+    providerMaxId: string;
+    providerTelegram: string;
+    phone: string;
   };
-  DonorUserData: {
-    Name: string;
-    ProviderMaxID: string;
-    ProviderTelegram: string;
-    Phone: string;
+  donorUserData: {
+    name: string;
+    providerMaxId: string;
+    providerTelegram: string;
+    phone: string;
   };
-  CreatedAt: string;
+  createdAt: string;
 }
 
 export const handleDonorNotConfirmed = async (
   event: DonorNotConfirmedEvent,
 ) => {
   const {
-    DonorPetName,
-    DonorBloodGroup,
-    DonorProviderMaxID,
-    RecipientPetName,
-    RecipientBloodGroup,
-    RecipientUserData,
-    DonorUserData,
+    donorPetName,
+    donorBloodGroup,
+    donorProviderMaxId,
+    recipientPetName,
+    recipientBloodGroup,
+    recipientUserData,
+    donorUserData,
   } = event;
 
   // Notify donor
-  if (DonorProviderMaxID && DonorProviderMaxID.trim() !== "") {
+  if (donorProviderMaxId && donorProviderMaxId.trim() !== "") {
     try {
-      const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
+      const donorMessage = `Хозяин реципиента (${recipientPetName}, группа ${recipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
 
-      await sendMessageToUser(DonorProviderMaxID, donorMessage, {
+      await sendMessageToUser(donorProviderMaxId, donorMessage, {
         attachments: [getAppOpenKeyboard()],
       });
 
-      await sendMessageToUser(DonorProviderMaxID, "", {
+      await sendMessageToUser(donorProviderMaxId, "", {
         attachments: [
           {
             type: "contact",
             payload: {
-              name: RecipientUserData.Name,
-              contact_id: Number(RecipientUserData.ProviderMaxID),
-              vcf_phone: RecipientUserData.Phone,
+              name: recipientUserData.name,
+              contact_id: Number(recipientUserData.providerMaxId),
+              vcf_phone: recipientUserData.phone,
               vcf_info: generateVCF(
-                RecipientUserData.Name,
-                RecipientUserData.Phone,
+                recipientUserData.name,
+                recipientUserData.phone,
               ),
             },
           },
@@ -66,14 +66,14 @@ export const handleDonorNotConfirmed = async (
 
       pinologger.info(
         {
-          donorId: DonorProviderMaxID,
-          recipientPetName: RecipientPetName,
+          donorId: donorProviderMaxId,
+          recipientPetName,
         },
         "Sent donor not confirmed notification to donor",
       );
     } catch (err) {
       pinologger.error(
-        { error: err, donorId: DonorProviderMaxID },
+        { error: err, donorId: donorProviderMaxId },
         "Failed to send donor not confirmed notification to donor",
       );
     }
@@ -81,48 +81,44 @@ export const handleDonorNotConfirmed = async (
 
   // Notify recipient
   if (
-    RecipientUserData.ProviderMaxID &&
-    RecipientUserData.ProviderMaxID.trim() !== ""
+    recipientUserData.providerMaxId &&
+    recipientUserData.providerMaxId.trim() !== ""
   ) {
     try {
-      const recipientMessage = `Вы не подтвердили донацию (${DonorPetName}, группа ${DonorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
+      const recipientMessage = `Вы не подтвердили донацию (${donorPetName}, группа ${donorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
 
       await sendMessageToUser(
-        RecipientUserData.ProviderMaxID,
+        recipientUserData.providerMaxId,
         recipientMessage,
         {
           attachments: [getAppOpenKeyboard()],
         },
       );
 
-      await sendMessageToUser(
-        RecipientUserData.ProviderMaxID,
-        "",
-        {
-          attachments: [
-            {
-              type: "contact",
-              payload: {
-                name: DonorUserData.Name,
-                contact_id: Number(DonorProviderMaxID),
-                vcf_phone: DonorUserData.Phone,
-                vcf_info: generateVCF(DonorUserData.Name, DonorUserData.Phone),
-              },
+      await sendMessageToUser(recipientUserData.providerMaxId, "", {
+        attachments: [
+          {
+            type: "contact",
+            payload: {
+              name: donorUserData.name,
+              contact_id: Number(donorProviderMaxId),
+              vcf_phone: donorUserData.phone,
+              vcf_info: generateVCF(donorUserData.name, donorUserData.phone),
             },
-          ],
-        },
-      );
+          },
+        ],
+      });
 
       pinologger.info(
         {
-          recipientId: RecipientUserData.ProviderMaxID,
-          donorPetName: DonorPetName,
+          recipientId: recipientUserData.providerMaxId,
+          donorPetName,
         },
         "Sent donor not confirmed notification to recipient",
       );
     } catch (err) {
       pinologger.error(
-        { error: err, recipientId: RecipientUserData.ProviderMaxID },
+        { error: err, recipientId: recipientUserData.providerMaxId },
         "Failed to send donor not confirmed notification to recipient",
       );
     }

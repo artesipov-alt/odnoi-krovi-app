@@ -3,55 +3,47 @@ import { sendTelegramMessage } from "../../telegram";
 import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface BloodRequestCreatedEvent {
-  RequestID: string;
-  BloodTypes: string[];
-  Regions: string[];
-  AvilableDonors: Array<{
-    TelegramID: string;
-    MaxID: string;
-  }>;
-  CreatedAt: string;
+  requestId: string;
+  bloodTypes: string[];
+  regions: string[];
+  telegramId: string;
+  maxId: string;
+  createdAt: string;
 }
 
 export const handleBloodRequestCreated = async (
   event: BloodRequestCreatedEvent,
 ) => {
   pinologger.info({ event }, "Received blood_request_created event");
-  const { BloodTypes, Regions, AvilableDonors } = event;
+  const { bloodTypes, regions, telegramId } = event;
 
-  const keyboard = createOpenAppKeyboard();
+  if (!telegramId || telegramId.trim() === "") {
+    pinologger.warn(
+      { event },
+      "Donor telegramId is empty, skipping notification",
+    );
+    return;
+  }
 
-  for (const donor of AvilableDonors) {
-    const targetId = donor.TelegramID;
+  try {
+    const message = `Питомцам нужна ваша помощь!\n\nНажмите "Стать донором" в приложении, чтобы узнать детали.`;
 
-    if (!targetId || targetId.trim() === "") {
-      pinologger.warn(
-        { donor },
-        "Donor TelegramID is empty, skipping notification",
-      );
-      continue;
-    }
+    await sendTelegramMessage(telegramId, message, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
-    try {
-      const message = `Питомцам нужна ваша помощь!\n\nНажмите "Стать донором" в приложении, чтобы узнать детали.`;
-
-      await sendTelegramMessage(targetId, message, {
-        reply_markup: keyboard,
-      });
-
-      pinologger.info(
-        {
-          targetId,
-          bloodTypes: BloodTypes,
-          regions: Regions,
-        },
-        "Sent new blood request notification to donor",
-      );
-    } catch (err) {
-      pinologger.error(
-        { error: err, targetId },
-        "Failed to send new blood request notification",
-      );
-    }
+    pinologger.info(
+      {
+        targetId: telegramId,
+        bloodTypes,
+        regions,
+      },
+      "Sent new blood request notification to donor",
+    );
+  } catch (err) {
+    pinologger.error(
+      { error: err, targetId: telegramId },
+      "Failed to send new blood request notification",
+    );
   }
 };

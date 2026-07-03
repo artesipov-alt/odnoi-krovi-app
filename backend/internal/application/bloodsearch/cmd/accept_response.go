@@ -141,7 +141,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		CreatedAt:     time.Now(),
 	}
 
-	if err := h.publisher.PublishDonorApply(ctx, event); err != nil {
+	if err := h.publisher.PublishEvent(ctx, ports.EventDonorApply, event); err != nil {
 		slog.Error("failed to publish donor apply notification", "err", err, "donorResponseID", donorResponseID)
 	}
 

@@ -3,36 +3,36 @@ import { sendMessageToUser } from "../../max";
 import { getAppOpenKeyboard } from "../../keyboards";
 
 interface DonorRejectEvent {
-  RecipientPetName: string;
-  RecipientBloodGroup: string;
-  DonorProviderMaxID: string;
-  DonorPetName: string;
-  RejectedReason: string;
-  CreatedAt: string;
+  recipientPetName: string;
+  recipientBloodGroup: string;
+  donorProviderMaxId: string;
+  donorPetName: string;
+  rejectedReason: string;
+  createdAt: string;
 }
 
 export const handleDonorReject = async (event: DonorRejectEvent) => {
-  const { RecipientPetName, RecipientBloodGroup, DonorProviderMaxID } = event;
+  const { recipientPetName, recipientBloodGroup, donorProviderMaxId } = event;
 
-  if (!DonorProviderMaxID || DonorProviderMaxID.trim() === "") {
+  if (!donorProviderMaxId || donorProviderMaxId.trim() === "") {
     pinologger.warn(
-      { recipientPetName: RecipientPetName },
-      "DonorProviderMaxID is empty, skipping notification",
+      { recipientPetName },
+      "donorProviderMaxId is empty, skipping notification",
     );
     return;
   }
 
   try {
-    const message = `Реципиент (${RecipientPetName}, группа ${RecipientBloodGroup}) сообщил об отмене донации. Можете помочь другим реципиентам на Портале.`;
+    const message = `Реципиент (${recipientPetName}, группа ${recipientBloodGroup}) сообщил об отмене донации. Можете помочь другим реципиентам на Портале.`;
 
-    await sendMessageToUser(DonorProviderMaxID, message, {
+    await sendMessageToUser(donorProviderMaxId, message, {
       attachments: [getAppOpenKeyboard()],
     });
 
     pinologger.info(
       {
-        donorId: DonorProviderMaxID,
-        recipientPetName: RecipientPetName,
+        donorId: donorProviderMaxId,
+        recipientPetName,
       },
       "Sent donor reject notification",
     );

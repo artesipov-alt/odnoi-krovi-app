@@ -123,7 +123,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 				CreatedAt:               time.Now(),
 			}
 
-			if err := h.publisher.PublishDonorReject(ctx, rejectEvent); err != nil {
+			if err := h.publisher.PublishEvent(ctx, ports.EventDonorReject, rejectEvent); err != nil {
 				slog.Error("failed to publish donor reject notification", "err", err, "donorID", rejectedDonorID)
 			}
 		}

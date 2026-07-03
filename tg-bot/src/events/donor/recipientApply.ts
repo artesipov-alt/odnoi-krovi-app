@@ -2,15 +2,15 @@ import { pinologger } from "../../instances";
 import { sendTelegramMessage } from "../../telegram";
 import { createOpenAppKeyboard } from "../../telegramButtons";
 
-// Отклик донора на рецепиента.
+// Отклик донора на реципиента
 interface RecipientApplyEvent {
-  DonorName: string;
-  DonorBloodGroup: string;
-  RecipientProviderTelegramID: string;
-  RecipientPetName: string;
-  RecipientPetSearchingBloodGroup: string[];
-  RecipientPetNeededVolume: number;
-  CreatedAt: string;
+  donorName: string;
+  donorBloodGroup: string;
+  recipientProviderTelegramId: string;
+  recipientPetName: string;
+  recipientPetSearchingBloodGroup: string[];
+  recipientPetNeededVolume: number;
+  createdAt: string;
 }
 
 const generateMessage = (params: {
@@ -31,42 +31,42 @@ const generateMessage = (params: {
 
 export const handleRecipientApply = async (event: RecipientApplyEvent) => {
   const {
-    DonorName,
-    DonorBloodGroup,
-    RecipientProviderTelegramID,
-    RecipientPetName,
-    RecipientPetSearchingBloodGroup,
-    RecipientPetNeededVolume,
+    donorName,
+    donorBloodGroup,
+    recipientProviderTelegramId,
+    recipientPetName,
+    recipientPetSearchingBloodGroup,
+    recipientPetNeededVolume,
   } = event;
 
   if (
-    !RecipientProviderTelegramID ||
-    RecipientProviderTelegramID.trim() === ""
+    !recipientProviderTelegramId ||
+    recipientProviderTelegramId.trim() === ""
   ) {
     pinologger.warn(
-      { donorName: DonorName },
-      "RecipientProviderTelegramID is empty, skipping notification",
+      { donorName },
+      "recipientProviderTelegramId is empty, skipping notification",
     );
     return;
   }
 
   try {
     const message = generateMessage({
-      recipientPetName: RecipientPetName,
-      recipientPetNeededVolume: RecipientPetNeededVolume,
-      recipientPetSearchingBloodGroup: RecipientPetSearchingBloodGroup,
-      donorName: DonorName,
-      donorBloodGroup: DonorBloodGroup,
+      recipientPetName,
+      recipientPetNeededVolume,
+      recipientPetSearchingBloodGroup,
+      donorName,
+      donorBloodGroup,
     });
 
-    await sendTelegramMessage(RecipientProviderTelegramID, message, {
+    await sendTelegramMessage(recipientProviderTelegramId, message, {
       reply_markup: createOpenAppKeyboard(),
     });
 
     pinologger.info(
       {
-        recipientId: RecipientProviderTelegramID,
-        donorName: DonorName,
+        recipientId: recipientProviderTelegramId,
+        donorName,
       },
       "Sent recipient apply notification",
     );

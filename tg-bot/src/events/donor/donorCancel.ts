@@ -3,52 +3,52 @@ import { sendTelegramMessage } from "../../telegram";
 import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface DonorCancelEvent {
-  DonorName: string;
-  DonorBloodGroup: string;
-  RecipientProviderTelegramID: string;
-  RecipientPetName: string;
-  CreatedAt: string;
+  donorName: string;
+  donorBloodGroup: string;
+  recipientProviderTelegramId: string;
+  recipientPetName: string;
+  createdAt: string;
 }
 
 export const handleDonorCancel = async (event: DonorCancelEvent) => {
   const {
-    DonorName,
-    DonorBloodGroup,
-    RecipientProviderTelegramID,
-    RecipientPetName,
+    donorName,
+    donorBloodGroup,
+    recipientProviderTelegramId,
+    recipientPetName,
   } = event;
 
-  const donorBloodGroup =
-    DonorBloodGroup === "UNKNOWN" ? "не определена" : DonorBloodGroup;
+  const donorBloodGroupDisplay =
+    donorBloodGroup === "UNKNOWN" ? "не определена" : donorBloodGroup;
 
   if (
-    !RecipientProviderTelegramID ||
-    RecipientProviderTelegramID.trim() === ""
+    !recipientProviderTelegramId ||
+    recipientProviderTelegramId.trim() === ""
   ) {
     pinologger.warn(
-      { donorName: DonorName },
-      "RecipientProviderTelegramID is empty, skipping notification",
+      { donorName },
+      "recipientProviderTelegramId is empty, skipping notification",
     );
     return;
   }
 
   try {
-    const message = `Донор (${DonorName}, группа ${donorBloodGroup}) отказался от донации. Можете найти нового донора на Портале.`;
+    const message = `Донор (${donorName}, группа ${donorBloodGroupDisplay}) отказался от донации. Можете найти нового донора на Портале.`;
 
-    await sendTelegramMessage(RecipientProviderTelegramID, message, {
+    await sendTelegramMessage(recipientProviderTelegramId, message, {
       reply_markup: createOpenAppKeyboard(),
     });
 
     pinologger.info(
       {
-        recipientId: RecipientProviderTelegramID,
-        donorName: DonorName,
+        recipientId: recipientProviderTelegramId,
+        donorName,
       },
       "Sent donor cancel notification",
     );
   } catch (err) {
     pinologger.error(
-      { error: err, recipientId: RecipientProviderTelegramID },
+      { error: err, recipientId: recipientProviderTelegramId },
       "Failed to send donor cancel notification",
     );
   }

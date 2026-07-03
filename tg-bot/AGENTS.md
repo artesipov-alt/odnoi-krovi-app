@@ -93,28 +93,27 @@ tg-bot/
 ### События (Redis Pub/Sub)
 
 ```
-Backend → Redis PUBLISH "prod:donor_response_apply" { ... }
-    → bot.ts: redis.on("message") → диспетчеризация по eventHandlers[channel]
+Backend → Redis PUBLISH "prod:events" { "type": "donor_response_apply", "payload": {...}, "createdAt": "..." }
+    → bot.ts: redis.on("message") → channelHandlers["prod:events"]
+    → JSON.parse → EventEnvelope
+    → dispatchEvent(envelope, eventHandlers)  // shared/ts/events.ts
     → src/events/{domain}/{handler}.ts
         1. Валидация ProviderTelegram / ProviderTelegramID
         2. sendTelegramMessage() или sendTelegramContact() через Grammy API
 ```
 
-Все каналы имеют префикс окружения: `dev:` или `prod:`, определяемый из `Bun.env.ENV`.
+Все каналы имеют префикс окружения: `dev:` или `prod:`, определяемый из `Bun.env.ENV`. Диспатчер типов событий (`EventHandlerMap`) объявлен в `bot.ts` — добавление нового типа требует записи там, иначе компилятор отказывает.
 
 ## Redis Pub/Sub каналы
 
-| Канал | Событие | Обработчик |
+События и уведомления приходят двумя каналами, префикс окружения (`dev:` / `prod:`) берётся из `Bun.env.ENV`:
+
+| Канал | Содержимое | Диспатч |
 |---|---|---|
-| `{prefix}donor_response_apply` | Донор откликнулся на реципиента | `handleDonorApply` |
-| `{prefix}recipient_response_apply` | Реципиент принял заявку донора | `handleRecipientApply` |
-| `{prefix}donor_cancel` | Донор отменил донацию | `handleDonorCancel` |
-| `{prefix}donor_reject` | Реципиент отклонил донацию | `handleDonorReject` |
-| `{prefix}donor_not_confirmed` | Реципиент не подтвердил донацию | `handleDonorNotConfirmed` |
-| `{prefix}donor_completed` | Донор завершил донацию | `handleDonorCompleted` |
-| `{prefix}blood_request_created` | Создан новый запрос крови | `handleBloodRequestCreated` |
-| `{prefix}donation_confirmed` | Реципиент подтвердил донацию | `handleDonationConfirmed` |
-| `{prefix}user_contact` | Запрос контакта пользователя | `handleUserContact` |
+| `{prefix}events` | `EventEnvelope` (см. `shared/ts/events.ts`) с полем `type` ∈ `EventType` | `dispatchEvent` в `bot.ts` по типу |
+| `{prefix}notifications` | Объект уведомления для интерактивных кнопок | `handleNotification` |
+
+Конкретные типы событий (`blood_request_created`, `donor_response_apply`, и т.д.) и их handler'ы зарегистрированы в `EventHandlerMap` в `bot.ts`. Добавление нового типа требует: (1) константу в `EVENT_TYPES`, (2) запись в `EventHandlerMap` — exhaustiveness-проверка типов поймает расхождения на этапе компиляции.
 
 ## Ключевые отличия от max-bot
 

@@ -2,56 +2,56 @@ import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
 
 export interface UserContactEvent {
-  NotifyProvider: string;
-  SendTo: string;
-  UserData: {
-    Name: string;
-    ProviderMaxID: string;
-    ProviderTelegram: string;
-    Phone: string;
+  notifyProvider: string;
+  sendTo: string;
+  userData: {
+    name: string;
+    providerMaxId: string;
+    providerTelegram: string;
+    phone: string;
   };
-  CreatedAt: string;
-  Recipient: any;
+  createdAt: string;
+  recipient: any;
 }
 
 export const handleUserContact = async (event: UserContactEvent) => {
-  const { NotifyProvider, SendTo, UserData } = event;
+  const { notifyProvider, sendTo, userData } = event;
 
   // Обрабатываем только события, предназначенные для Telegram Bot
-  if (NotifyProvider !== "telegram_bot") {
+  if (notifyProvider !== "telegram_bot") {
     pinologger.warn(
-      { notifyProvider: NotifyProvider },
-      "NotifyProvider is not telegram_bot, skipping",
+      { notifyProvider },
+      "notifyProvider is not telegram_bot, skipping",
     );
     return;
   }
 
-  if (!SendTo || SendTo.trim() === "") {
+  if (!sendTo || sendTo.trim() === "") {
     pinologger.warn(
-      { notifyProvider: NotifyProvider },
-      "SendTo is empty, skipping notification",
+      { notifyProvider },
+      "sendTo is empty, skipping notification",
     );
     return;
   }
 
   try {
     // Отправляем контакт (если есть телефон)
-    if (UserData.Phone) {
-      const nameParts = UserData.Name.split(" ");
+    if (userData.phone) {
+      const nameParts = userData.name.split(" ");
       await sendTelegramContact(
-        SendTo,
-        UserData.Phone,
-        nameParts[0] || UserData.Name,
+        sendTo,
+        userData.phone,
+        nameParts[0] || userData.name,
         { last_name: nameParts.slice(1).join(" ") || undefined },
       );
     } else {
       // Если нет телефона, отправляем просто текст
-      const message = `Контакт пользователя: ${UserData.Name}`;
-      await sendTelegramMessage(SendTo, message);
+      const message = `Контакт пользователя: ${userData.name}`;
+      await sendTelegramMessage(sendTo, message);
     }
 
     pinologger.info(
-      { sendTo: SendTo, userName: UserData.Name },
+      { sendTo, userName: userData.name },
       "Sent user contact notification",
     );
   } catch (err) {

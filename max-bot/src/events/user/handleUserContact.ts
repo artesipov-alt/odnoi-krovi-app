@@ -1,37 +1,37 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
-import { generateVCF } from "../recipient/helpers";
 import { getAppOpenKeyboard } from "../../keyboards";
+import { generateVCF } from "../recipient/helpers";
 
 interface UserContactEvent {
-  NotifyProvider: string;
-  SendTo: string;
-  UserData: {
-    Name: string;
-    ProviderMaxID: string;
-    ProviderTelegram: string;
-    Phone: string;
+  notifyProvider: string;
+  sendTo: string;
+  userData: {
+    name: string;
+    providerMaxId: string;
+    providerTelegram: string;
+    phone: string;
   };
-  CreatedAt: string;
-  Recipient: any; // Assuming it's the user object, but not used
+  createdAt: string;
+  recipient: any;
 }
 
 export const handleUserContact = async (event: UserContactEvent) => {
-  const { NotifyProvider, SendTo, UserData } = event;
+  const { notifyProvider, sendTo, userData } = event;
 
   // Обрабатываем только события, предназначенные для Max Bot
-  if (NotifyProvider !== "max_bot") {
+  if (notifyProvider !== "max_bot") {
     pinologger.warn(
-      { notifyProvider: NotifyProvider },
-      "NotifyProvider is not max_bot, skipping",
+      { notifyProvider },
+      "notifyProvider is not max_bot, skipping",
     );
     return;
   }
 
-  if (!SendTo || SendTo.trim() === "") {
+  if (!sendTo || sendTo.trim() === "") {
     pinologger.warn(
-      { notifyProvider: NotifyProvider },
-      "SendTo is empty, skipping notification",
+      { notifyProvider },
+      "sendTo is empty, skipping notification",
     );
     return;
   }
@@ -39,26 +39,26 @@ export const handleUserContact = async (event: UserContactEvent) => {
   try {
     const message = `Контакт пользователя`;
 
-    await sendMessageToUser(SendTo, message, {
+    await sendMessageToUser(sendTo, message, {
       attachments: [getAppOpenKeyboard()],
     });
 
-    await sendMessageToUser(SendTo, "", {
+    await sendMessageToUser(sendTo, "", {
       attachments: [
         {
           type: "contact",
           payload: {
-            name: UserData.Name,
-            contact_id: Number(UserData.ProviderMaxID),
-            vcf_phone: UserData.Phone,
-            vcf_info: generateVCF(UserData.Name, UserData.Phone),
+            name: userData.name,
+            contact_id: Number(userData.providerMaxId),
+            vcf_phone: userData.phone,
+            vcf_info: generateVCF(userData.name, userData.phone),
           },
         },
       ],
     });
 
     pinologger.info(
-      { sendTo: SendTo, userName: UserData.Name },
+      { sendTo, userName: userData.name },
       "Sent user contact notification",
     );
   } catch (err) {

@@ -136,8 +136,8 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 		}
 	}
 
-	// Get peers for available donors
-	peersMap := make(map[string]events.Peers)
+	// Collect unique peers for available donors
+	peersSeen := make(map[string]struct{})
 	for _, donorPet := range avilableDonors {
 		donorUser, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
 			WithIdentities: true,
@@ -147,30 +147,26 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 			continue
 		}
 		maxID, telegramID := extractProviderIDs(donorUser)
-		if maxID != "" || telegramID != "" {
-			key := fmt.Sprintf("%s|%s", maxID, telegramID)
-			if _, exists := peersMap[key]; !exists {
-				peersMap[key] = events.Peers{
-					MaxID:      maxID,
-					TelegramID: telegramID,
-				}
-			}
+		if maxID == "" && telegramID == "" {
+			continue
 		}
-	}
-	peers := make([]events.Peers, 0, len(peersMap))
-	for _, p := range peersMap {
-		peers = append(peers, p)
-	}
 
-	if err := h.publisher.PublishBloodRequestCreated(ctx, events.BloodRequestCreated{
-		RequestID:      newReq.ID,
-		BloodTypes:     req.BloodGroupNames,
-		Regions:        req.Regions,
-		AvilableDonors: peers,
-		CreatedAt:      *newReq.CreatedAt,
-	}); err != nil {
-		slog.Error("failed to publish blood request created event", "err", err)
-		return newReq, nil
+		key := fmt.Sprintf("%s|%s", maxID, telegramID)
+		if _, exists := peersSeen[key]; exists {
+			continue
+		}
+		peersSeen[key] = struct{}{}
+
+		if err := h.publisher.PublishEvent(ctx, ports.EventBloodRequestCreated, events.BloodRequestCreated{
+			RequestID:  newReq.ID,
+			BloodTypes: req.BloodGroupNames,
+			Regions:    req.Regions,
+			TelegramID: telegramID,
+			MaxID:      maxID,
+			CreatedAt:  *newReq.CreatedAt,
+		}); err != nil {
+			slog.Error("failed to publish blood request created", "err", err, "petID", donorPet.ID)
+		}
 	}
 
 	return newReq, nil

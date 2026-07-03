@@ -104,7 +104,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 
 	// Отправляем уведомление реципиенту после успешной транзакции.
 	// Ошибка публикации не фатальна — логируем и продолжаем.
-	if err := h.publisher.PublishRecipientApply(ctx, donorevent.RecipientApply{
+	if err := h.publisher.PublishEvent(ctx, ports.EventRecipientApply, donorevent.RecipientApply{
 		DonorName:                       donorPet.Name,
 		DonorBloodGroup:                 donorPet.BloodGroupName,
 		RecipientProviderMaxID:          recipientProviderMaxID,

@@ -3,10 +3,6 @@ package ports
 import (
 	"context"
 	"time"
-
-	bloodsearchevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
-	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
-	userevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/events"
 )
 
 type NotificationType string
@@ -32,27 +28,27 @@ type NotifTargets struct {
 	MaxID      string `json:"maxId,omitempty"`
 }
 
+type EventType string
+
+const (
+	EventBloodRequestCreated EventType = "blood_request_created"
+	EventDonorApply          EventType = "donor_response_apply"
+	EventDonationConfirmed   EventType = "donation_confirmed"
+	EventRecipientApply      EventType = "recipient_response_apply"
+	EventDonorCancel         EventType = "donor_cancel"
+	EventDonorReject         EventType = "donor_reject"
+	EventDonorNotConfirmed   EventType = "donor_not_confirmed"
+	EventDonorCompleted      EventType = "donor_completed"
+	EventUserContact         EventType = "user_contact"
+)
+
+type EventEnvelope struct {
+	Type      EventType `json:"type"`
+	Payload   any       `json:"payload"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 type EventPublisher interface {
+	PublishEvent(ctx context.Context, eventType EventType, payload any) error
 	PublishNotification(ctx context.Context, n Notification) error
-
-	//==========================
-	// 			BloodSearch
-	//==========================
-	PublishBloodRequestCreated(ctx context.Context, event bloodsearchevent.BloodRequestCreated) error
-	PublishDonorApply(ctx context.Context, event bloodsearchevent.ApplyDonor) error
-	PublishDonationConfirmed(ctx context.Context, event bloodsearchevent.DonationConfirmed) error
-
-	//==========================
-	// 			Donor
-	//==========================
-	PublishRecipientApply(ctx context.Context, event donorevent.RecipientApply) error
-	PublishDonorCancel(ctx context.Context, event donorevent.DonorCancel) error
-	PublishDonorReject(ctx context.Context, event donorevent.DonorReject) error
-	PublishDonorNotConfirmed(ctx context.Context, event donorevent.DonorNotConfirmed) error
-	PublishDonorCompleted(ctx context.Context, event donorevent.DonorCompleted) error
-
-	//==========================
-	// 			User
-	//==========================
-	PublishUserContact(ctx context.Context, event userevent.UserContact) error
 }
