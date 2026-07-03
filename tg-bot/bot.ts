@@ -75,18 +75,57 @@ async function main() {
     env === "development" || env === "dev" ? "dev:" : "prod:";
   const channel = (name: string) => `${channelPrefix}${name}`;
 
-  // Redis event handlers
+  // Event envelope — парсим тип и диспатчим
+  interface EventEnvelope {
+    type: string;
+    payload: any;
+    createdAt: string;
+  }
+
+  // Redis event handlers — маппинг по типу события
   const eventHandlers: Record<string, (event: any) => Promise<void>> = {
-    [channel("donor_response_apply")]: handleDonorApply,
-    [channel("recipient_response_apply")]: handleRecipientApply,
-    [channel("donor_cancel")]: handleDonorCancel,
-    [channel("donor_reject")]: handleDonorReject,
-    [channel("donor_not_confirmed")]: handleDonorNotConfirmed,
-    [channel("donor_completed")]: handleDonorCompleted,
-    [channel("blood_request_created")]: handleBloodRequestCreated,
-    [channel("donation_confirmed")]: handleDonationConfirmed,
-    [channel("user_contact")]: handleUserContact,
-    [channel("notifications")]: handleNotification,
+    [channel("events")]: async (message: string) => {
+      const envelope: EventEnvelope = JSON.parse(message);
+      const { type, payload } = envelope;
+
+      pinologger.info({ type }, "Received event");
+
+      switch (type) {
+        case "blood_request_created":
+          await handleBloodRequestCreated(payload);
+          break;
+        case "donor_response_apply":
+          await handleDonorApply(payload);
+          break;
+        case "donation_confirmed":
+          await handleDonationConfirmed(payload);
+          break;
+        case "recipient_response_apply":
+          await handleRecipientApply(payload);
+          break;
+        case "donor_cancel":
+          await handleDonorCancel(payload);
+          break;
+        case "donor_reject":
+          await handleDonorReject(payload);
+          break;
+        case "donor_not_confirmed":
+          await handleDonorNotConfirmed(payload);
+          break;
+        case "donor_completed":
+          await handleDonorCompleted(payload);
+          break;
+        case "user_contact":
+          await handleUserContact(payload);
+          break;
+        default:
+          pinologger.warn({ type }, "Unknown event type");
+      }
+    },
+    [channel("notifications")]: async (message: string) => {
+      const event = JSON.parse(message);
+      await handleNotification(event);
+    },
   };
 
   // Helper function for subscribing to channels
@@ -109,14 +148,15 @@ async function main() {
     pinologger.info("Connected to Redis");
   });
 
-  // Redis subscriptions for events
-  Object.keys(eventHandlers).forEach(subscribeToChannel);
+  // Redis subscriptions — только events и notifications
+  subscribeToChannel(channel("events"));
+  subscribeToChannel(channel("notifications"));
 
   redis.on("message", async (channel, message) => {
     const handler = eventHandlers[channel];
     if (handler) {
       try {
-        await handler(JSON.parse(message));
+        await handler(message);
       } catch (err) {
         pinologger.error(
           { error: err, channel },

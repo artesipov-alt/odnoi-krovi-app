@@ -5,6 +5,23 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.20.0] - 2026-07-03
+
+### Изменено
+
+- **Рефакторинг EventPublisher: 9 каналов → 1 канал `events`:**
+  - Интерфейс `EventPublisher` сокращён до двух методов: `PublishEvent` и `PublishNotification`.
+  - Добавлены `EventType` и `EventEnvelope` — тип события теперь передаётся внутри envelope, а не через имя канала.
+  - Удалены 9 констант каналов Redis, 9 методов `PublishXxx` и 9 заглушек `NoOpEventPublisher`.
+  - Все command handlers переведены на `PublishEvent(ctx, EventType, payload)`.
+  - Структура `BloodRequestCreated` упрощена: убраны `[]Peers`, добавлены плоские поля `TelegramID`/`MaxID`. В `create_req.go` — цикл с отдельным `PublishEvent` на каждого донора.
+  - Добавлены JSON-теги во все event-структуры для консистентной camelCase-сериализации.
+  - Удалены неиспользуемые методы `EventName()` и `OccurredAt()` из всех event-структур.
+
+### Технические детали
+
+- **Боты:** tg-bot и max-bot переведены на единый канал `events` с диспатчем по `EventEnvelope.type`. Все handler'ы обновлены на camelCase-поля. `handleBloodRequestCreated` переписан под одного донора (без цикла по `AvilableDonors`).
+
 ## [3.19.4] - 2026-07-02
 
 ### Исправлено

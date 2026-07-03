@@ -6,41 +6,41 @@ import { generateDonationMessage } from "./helpers";
 
 // Уведомление о подтвержденной донации (от реципиента донору).
 interface DonationConfirmedEvent {
-  DonorData: {
-    UserName: string;
-    PetName: string;
-    ProviderMaxID: string;
-    ProviderTelegram: string;
-    Phone: string;
-    BloodGroup: string;
+  donorData: {
+    userName: string;
+    petName: string;
+    providerMaxId: string;
+    providerTelegram: string;
+    phone: string;
+    bloodGroup: string;
   };
-  RecipientData: {
-    PetName: string;
-    BloodGroup: string;
+  recipientData: {
+    petName: string;
+    bloodGroup: string;
   };
-  Volume: number; // Объем донации в мл
+  volume: number;
 }
 
 export const handleDonationConfirmed = async (
   event: DonationConfirmedEvent,
 ) => {
-  const { DonorData, RecipientData, Volume } = event;
+  const { donorData, recipientData, volume } = event;
 
-  const targetId = DonorData.ProviderMaxID;
+  const targetId = donorData.providerMaxId;
 
   if (!targetId || targetId.trim() === "") {
     pinologger.warn(
-      { donorUserName: DonorData.UserName },
-      "Donor ProviderMaxID is empty, skipping notification",
+      { donorUserName: donorData.userName },
+      "Donor providerMaxId is empty, skipping notification",
     );
     return;
   }
 
   try {
     const message = generateDonationMessage({
-      volume: Volume,
-      recipientPetName: RecipientData.PetName,
-      recipientBloodGroup: RecipientData.BloodGroup,
+      volume,
+      recipientPetName: recipientData.petName,
+      recipientBloodGroup: recipientData.bloodGroup,
     });
 
     await sendMessageToUser(targetId, message, {
@@ -50,7 +50,7 @@ export const handleDonationConfirmed = async (
     pinologger.info(
       {
         targetId,
-        volume: Volume,
+        volume,
       },
       "Sent donation confirmed notification to donor",
     );

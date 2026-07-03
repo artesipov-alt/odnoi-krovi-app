@@ -3,43 +3,43 @@ import { sendTelegramMessage } from "../../telegram";
 import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface DonorRejectEvent {
-  RecipientPetName: string;
-  RecipientBloodGroup: string;
-  DonorProviderTelegramID: string;
-  DonorPetName: string;
-  RejectedReason: string;
-  CreatedAt: string;
+  recipientPetName: string;
+  recipientBloodGroup: string;
+  donorProviderTelegramId: string;
+  donorPetName: string;
+  rejectedReason: string;
+  createdAt: string;
 }
 
 export const handleDonorReject = async (event: DonorRejectEvent) => {
-  const { RecipientPetName, RecipientBloodGroup, DonorProviderTelegramID } =
+  const { recipientPetName, recipientBloodGroup, donorProviderTelegramId } =
     event;
 
-  if (!DonorProviderTelegramID || DonorProviderTelegramID.trim() === "") {
+  if (!donorProviderTelegramId || donorProviderTelegramId.trim() === "") {
     pinologger.warn(
-      { recipientPetName: RecipientPetName },
-      "DonorProviderTelegramID is empty, skipping notification",
+      { recipientPetName },
+      "donorProviderTelegramId is empty, skipping notification",
     );
     return;
   }
 
   try {
-    const message = `Реципиент (${RecipientPetName}, группа ${RecipientBloodGroup}) сообщил об отмене донации. Можете помочь другим реципиентам на Портале.`;
+    const message = `Реципиент (${recipientPetName}, группа ${recipientBloodGroup}) сообщил об отмене донации. Можете помочь другим реципиентам на Портале.`;
 
-    await sendTelegramMessage(DonorProviderTelegramID, message, {
+    await sendTelegramMessage(donorProviderTelegramId, message, {
       reply_markup: createOpenAppKeyboard(),
     });
 
     pinologger.info(
       {
-        donorId: DonorProviderTelegramID,
-        recipientPetName: RecipientPetName,
+        donorId: donorProviderTelegramId,
+        recipientPetName,
       },
       "Sent donor reject notification",
     );
   } catch (err) {
     pinologger.error(
-      { error: err, donorId: DonorProviderTelegramID },
+      { error: err, donorId: donorProviderTelegramId },
       "Failed to send donor reject notification",
     );
   }

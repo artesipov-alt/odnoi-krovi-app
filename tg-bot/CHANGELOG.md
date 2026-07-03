@@ -5,6 +5,16 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 и проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] — 2026-07-03
+
+### Changed
+
+- **Рефакторинг подписки на Redis-каналы:**
+  - Вместо 10 отдельных каналов (`donor_response_apply`, `blood_request_created`, и т.д.) бот подписывается только на два: `events` и `notifications`.
+  - Для канала `events` добавлен парсинг `EventEnvelope` и диспатч по полю `type`.
+  - Все event handler'ы обновлены: поля переведены на camelCase в соответствии с новыми JSON-тегами от бэкенда.
+  - `handleBloodRequestCreated` переписан: вместо массива `AvilableDonors` — один донор с полем `telegramId`.
+
 ## [2.3.0] — 2026-07-02
 
 ### Added

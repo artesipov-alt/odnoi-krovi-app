@@ -3,52 +3,46 @@ import { sendMessageToUser } from "../../max";
 import { getAppOpenKeyboard } from "../../keyboards";
 
 interface BloodRequestCreatedEvent {
-  RequestID: string;
-  BloodTypes: string[];
-  Regions: string[];
-  AvilableDonors: Array<{
-    TelegramID: string;
-    MaxID: string;
-  }>;
-  CreatedAt: string;
+  requestId: string;
+  bloodTypes: string[];
+  regions: string[];
+  telegramId: string;
+  maxId: string;
+  createdAt: string;
 }
 
 export const handleBloodRequestCreated = async (
   event: BloodRequestCreatedEvent,
 ) => {
   pinologger.info({ event }, "Received blood_request_created event");
-  const { BloodTypes, Regions, AvilableDonors } = event;
+  const { bloodTypes, regions, maxId } = event;
 
-  for (const donor of AvilableDonors) {
-    const targetId = donor.MaxID;
+  if (!maxId || maxId.trim() === "") {
+    pinologger.warn({ event }, "Donor maxId is empty, skipping notification");
+    return;
+  }
 
-    if (!targetId || targetId.trim() === "") {
-      pinologger.warn({ donor }, "Donor MaxID is empty, skipping notification");
-      continue;
-    }
+  try {
+    const message = `Питомцам нужна ваша помощь!\n\nНажмите "Стать донором" в приложении, чтобы узнать детали.`;
 
-    try {
-      const message = `Питомцам нужна ваша помощь!\n\nНажмите "Стать донором" в приложении, чтобы узнать детали.`;
+    const keyboard = getAppOpenKeyboard();
 
-      const keyboard = getAppOpenKeyboard();
+    await sendMessageToUser(maxId, message, {
+      attachments: [keyboard],
+    });
 
-      await sendMessageToUser(targetId, message, {
-        attachments: [keyboard],
-      });
-
-      pinologger.info(
-        {
-          targetId,
-          bloodTypes: BloodTypes,
-          regions: Regions,
-        },
-        "Sent new blood request notification to donor",
-      );
-    } catch (err) {
-      pinologger.error(
-        { error: err, targetId },
-        "Failed to send new blood request notification",
-      );
-    }
+    pinologger.info(
+      {
+        targetId: maxId,
+        bloodTypes,
+        regions,
+      },
+      "Sent new blood request notification to donor",
+    );
+  } catch (err) {
+    pinologger.error(
+      { error: err, targetId: maxId },
+      "Failed to send new blood request notification",
+    );
   }
 };
