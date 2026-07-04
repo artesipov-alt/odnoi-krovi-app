@@ -5,6 +5,12 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 и проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] — 2026-07-04
+
+### Fixed
+
+- **Ошибка при нажатии «Да» в уведомлении `recipient_empty_showcase`.** Max API отклонял `editMessage` с ошибкой `Field 'buttons' size (0) must be at least 1`, потому что `Keyboard.inlineKeyboard([])` создаёт клавиатуру с пустым массивом `buttons`. Исправлено: передаём `attachments: null` при редактировании сообщения, что снимает inline-кнопки.
+
 ## [0.9.2] — 2026-07-04
 
 ### Fixed

@@ -81,9 +81,10 @@ export const handleNotificationRespond = async (
       await ctx.editMessage({
         text: "Хорошо, продолжаем поиск!",
         format: "markdown",
-        // В Max API `attachments: []` не снимает существующие inline-кнопки —
-        // нужно явно передать пустую клавиатуру.
-        attachments: [Keyboard.inlineKeyboard([])],
+        // Чтобы снять inline-кнопки при редактировании, передаём attachments: null.
+        // Keyboard.inlineKeyboard([]) создаёт клавиатуру с пустым buttons,
+        // что Max API отклоняет с ошибкой "Field 'buttons' size (0) must be at least 1".
+        attachments: null,
       });
     } else {
       await ctx.editMessage({

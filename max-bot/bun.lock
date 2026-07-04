@@ -4,7 +4,7 @@
     "": {
       "name": "bot",
       "dependencies": {
-        "@maxhub/max-bot-api": "^0.2.2",
+        "@maxhub/max-bot-api": "^0.2.4",
         "ioredis": "^5.10.1",
         "pino": "^10.1.0",
         "pino-pretty": "^13.1.2",
@@ -20,7 +20,7 @@
   "packages": {
     "@ioredis/commands": ["@ioredis/commands@1.5.1", "", {}, "sha512-JH8ZL/ywcJyR9MmJ5BNqZllXNZQqQbnVZOqpPQqE1vHiFgAw4NHbvE0FOduNU8IX9babitBT46571OnPTT0Zcw=="],
 
-    "@maxhub/max-bot-api": ["@maxhub/max-bot-api@0.2.2", "", { "dependencies": { "debug": "^4.3.7", "vcf": "^2.1.2" } }, "sha512-Su3Ar7L+lsOctu7V5+me+eh+84l909ka3LtlPVuBbSz1fygk5L/F45HQp1vaUGg9sRpQ6/qoyKg6HJgemnX3mg=="],
+    "@maxhub/max-bot-api": ["@maxhub/max-bot-api@0.2.4", "", { "dependencies": { "debug": "^4.3.7", "vcf": "^2.1.2" } }, "sha512-8Py0SEquCA11xJ/OLLhtpY12fEMF7RyA+zZ09QgNjylHjQn1mPjwYcGIlJkxMpbK295BW5CeJ//lM/4n+re8lw=="],
 
     "@pinojs/redact": ["@pinojs/redact@0.4.0", "", {}, "sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg=="],
 
