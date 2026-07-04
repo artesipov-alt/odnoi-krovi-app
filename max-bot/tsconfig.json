@@ -24,10 +24,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
   },
-  "include": [
-    "bot.ts",
-    "src/**/*.ts",
-    "scripts/**/*.ts",
-    "../shared/ts/**/*.ts",
-  ],
+  "include": ["bot.ts", "src/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["../shared/ts"],
 }
