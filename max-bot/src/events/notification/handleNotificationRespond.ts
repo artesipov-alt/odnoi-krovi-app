@@ -78,13 +78,12 @@ export const handleNotificationRespond = async (
 
     // Успешно — редактируем сообщение
     if (action === "yes") {
+      // Max API не снимает inline-кнопки, если передать attachments: []
+      // или attachments: null. Чтобы убрать кнопки, редактируем сообщение
+      // без поля attachments (оно просто не попадёт в JSON-тело запроса).
       await ctx.editMessage({
         text: "Хорошо, продолжаем поиск!",
         format: "markdown",
-        // Чтобы снять inline-кнопки при редактировании, передаём attachments: null.
-        // Keyboard.inlineKeyboard([]) создаёт клавиатуру с пустым buttons,
-        // что Max API отклоняет с ошибкой "Field 'buttons' size (0) must be at least 1".
-        attachments: null,
       });
     } else {
       await ctx.editMessage({
