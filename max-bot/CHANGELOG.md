@@ -7,56 +7,20 @@
 
 ## [0.9.2] — 2026-07-04
 
-### Changed
+### Fixed
 
-- **Переезд с Bun на Node.js 24.** На Bun 1.3.13 бот продолжал получать
-  `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` несмотря на импорт CA Минцифры
-  через `update-ca-certificates` и установленный `NODE_EXTRA_CA_CERTS`.
-  Точная причина не диагностирована: в 1.3.x наблюдались регрессии с
-  проверкой сертификатов ([issue #31949](https://github.com/oven-sh/bun/issues/31949)
-  и связанные), хотя в целом `NODE_EXTRA_CA_CERTS` в Bun поддерживается.
-  Node 24 решает проблему без дополнительной настройки — читает и
-  системный bundle, и `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`, поэтому
-  CA Минцифры подхватываются через стандартный `update-ca-certificates`.
-  - `Dockerfile`: с `oven/bun:1.3.13-alpine` на `node:24-alpine` (multi-stage).
-  - `package.json`: `@types/bun` → `@types/node: ^24`, добавлен `tsx` для dev.
-    Скрипты: `bun run dist/bot.js` → `node dist/bot.js`, `bun --env-file=...`
-    → `node --env-file=... --import tsx`.
-  - `Bun.env.X` → `process.env.X` во всех файлах (`instances.ts`,
-    `authStore.ts`, `commands.ts`, `bot.ts`, `handleNotificationRespond.ts`).
-  - `src/server.ts`: `Bun.serve` заменён на `http.createServer`
-    из `node:http` с тем же контрактом (`startServer(bot)`).
-  - `Bun.build` (build.ts) удалён — билд через `tsc` (`npm run build`).
-- **`maxbot.ts` без изменений** — fetch в Node 24 нативный (`undici`),
-  CA Минцифры подхватываются через `NODE_EXTRA_CA_CERTS`.
+- **TLS-валидация `platform-api2.max.ru` падала с `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`.**
+  В `certs/` лежали только **промежуточные** CA Минцифры (`*.cer`), но не
+  было **корневого**. Без корневого CA цепочка доверия не строится,
+  даже если все промежуточные CA доверены системе. Проблема **не связана**
+  с Bun: TLS-стек Bun и `NODE_EXTRA_CA_CERTS` работают штатно при наличии
+  полной цепочки CA. Добавлен `russian_trusted_root_ca.crt` в
+  `max-bot/certs/`. В `Dockerfile` копирование сертификатов расширено:
+  `*.crt` (root) копируется напрямую, `*.cer` (sub) переименовываются
+  в `.crt` для совместимости с `update-ca-certificates` Alpine.
+
 
 ## [0.9.1] — 2026-07-04
-
-### Fixed
-- Inline-кнопки в Max не реагировали на нажатия. Бот не получал
-  `message_callback` от Max API, потому что вебхук не был подписан на этот
-  тип обновлений. Добавлена автоматическая регистрация вебхука на старте
-  через `registerWebhook()` в `src/maxbot.ts` (с `update_types`, включающим
-  `message_callback` и остальные нужные типы). Управляется переменной
-  окружения `MAX_BOT_WEBHOOK_URL` (для prod и dev прописана в
-  `docker-compose.yml` / `docker-compose.dev.yml`).
-- Кнопки «Да»/«Нет» не убирались после нажатия «Да». В Max API
-  `attachments: []` при `editMessage` не сбрасывает уже отрисованную
-  inline-клавиатуру — нужно явно передать пустую:
-  `attachments: [Keyboard.inlineKeyboard([])]`.
-- `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` при `POST /subscriptions`.
-  Домен `platform-api2.max.ru` подписан промежуточным CA Минцифры,
-  которого нет в стандартном `ca-certificates` Alpine. В runtime-стадию
-  `Dockerfile` добавлены `certs/*.cer` (Russian Trusted Sub CA) +
-  `NODE_EXTRA_CA_CERTS` как страховка от собственного CA-bundle Bun.
-- Миграция Max API на `platform-api2.max.ru` (дедлайн 19.07.2026).
-  SDK по умолчанию ходит на старый домен `platform-api.max.ru`, который
-  отключат. В `src/instances.ts` конструктору `Bot` теперь передаётся
-  `clientOptions.baseUrl = "https://platform-api2.max.ru"`. Это влияет на
-  все API-вызовы: `sendMessage`, `sendMessageToUser`, `editMessage`,
-  `deleteMessage`, `getMyInfo`, `setMyCommands`, `answerOnCallback` и т.д.
-  Константа `MAX_API_BASE_URL` экспортируется и переиспользуется в
-  `src/maxbot.ts` для прямого `fetch` на `/subscriptions`.
 
 ### Fixed
 

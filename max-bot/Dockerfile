@@ -1,27 +1,39 @@
-# ---- builder ----
-FROM node:24-alpine AS builder
+# Use Bun alpine image for building
+FROM oven/bun:1.3.13-alpine AS builder
 
+# Use /app as project root in the container
 WORKDIR /app
 
-# Копируем репозиторий целиком, чтобы сохранить относительные импорты
-# типа `../../shared/...` из max-bot/src.
+# Copy the bot folder as-is into /app/bot so relative imports like "../../shared/..." resolve
+# (important: keep original repository layout)
 COPY max-bot ./max-bot
+
+# Copy shared folder at repository root (so /app/shared exists)
 COPY shared ./shared
 
+# Switch into the bot working directory to install and build
 WORKDIR /app/max-bot
 
-# CI-воспроизводимая установка
-RUN npm ci
+# Install dependencies (use frozen lockfile to ensure reproducible builds)
+RUN bun install --no-cache
 
-# Сборка через tsc → dist/
-RUN npm run build
+# Build the project (assumes `build` script in bot/package.json)
+RUN bun run build
 
-# ---- runtime ----
-FROM node:24-alpine
+# Runtime image
+FROM oven/bun:1.3.13-alpine
 
-# Устанавливаем ca-certificates и копируем сертификаты Минцифры
-# Копируем все файлы сертификатов (и .cer, и .crt)
-# update-ca-certificates ищет файлы с расширением .crt
+# Сертификаты Минцифры для TLS-валидации platform-api2.max.ru.
+# Без них fetch к Max API падает с UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
+# и подписка вебхука (src/maxbot.ts) не проходит.
+#
+# Цепочка доверия: Russian Trusted Root CA (russian_trusted_root_ca.crt)
+# → Russian Trusted Sub CA (*.cer) → сертификат platform-api2.max.ru.
+# Без корневого CA в bundle цепочка не валидируется, поэтому добавляем
+# оба — и .crt (root), и .cer (sub).
+#
+# ca-certificates нужен как базовый пакет, чтобы update-ca-certificates
+# мог собрать итоговый bundle в /etc/ssl/certs/ca-certificates.crt.
 COPY max-bot/certs/ /tmp/certs/
 RUN apk add --no-cache ca-certificates \
     && mkdir -p /usr/local/share/ca-certificates \
@@ -34,17 +46,20 @@ RUN apk add --no-cache ca-certificates \
     && echo "=== Added Russian Trusted certs ===" \
     && ls -la /usr/local/share/ca-certificates/
 
+# Подстраховка: Bun может использовать свой CA-bundle, отличный от
+# системного. Явно указываем путь, чтобы fetch точно доверял нашим CA.
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
+# Keep same workdir layout as during build so runtime imports still resolve
 WORKDIR /app/max-bot
 
-# Копируем только артефакты сборки и манифесты
+# Copy built output and package files from builder
 COPY --from=builder /app/max-bot/dist ./dist
 COPY --from=builder /app/max-bot/package.json ./package.json
-COPY --from=builder /app/max-bot/package-lock.json ./package-lock.json
+COPY --from=builder /app/max-bot/bun.lock ./bun.lock
 
-# Только prod-зависимости (без devDependencies)
-RUN npm ci --omit=dev
+# Install production dependencies only
+RUN bun install --production --no-cache
 
-# Запуск бота (убран --use-system-ca, это флаг Bun)
-CMD ["node", "dist/bot.js"]
+# Start the bot (assumes `prod` script in package.json)
+CMD ["bun", "run", "prod"]

@@ -1,29 +1,24 @@
 {
   "name": "odnoi-krovi-max-bot",
-  "version": "0.9.2",
-  "private": true,
+  "module": "bot.ts",
   "type": "module",
-  "main": "dist/bot.js",
+  "version": "0.9.1",
   "scripts": {
-    "dev": "node --use-system-ca --env-file=../.env --import tsx bot.ts",
-    "build": "node --import tsx scripts/build.ts",
-    "prod": "node --use-system-ca dist/bot.js",
-    "start": "node --use-system-ca dist/bot.js",
-    "typecheck": "tsc --noEmit"
+    "dev": "bun --env-file=../.env bot.ts",
+    "build": "bun run build.ts",
+    "prod": "bun run dist/bot.js"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   },
   "dependencies": {
     "@maxhub/max-bot-api": "^0.2.2",
     "ioredis": "^5.10.1",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2"
-  },
-  "devDependencies": {
-    "@types/node": "^24.0.0",
-    "esbuild": "^0.24.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
-  },
-  "engines": {
-    "node": ">=24"
   }
 }

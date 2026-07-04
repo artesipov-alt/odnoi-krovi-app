@@ -8,22 +8,21 @@ Telegram-бот для платформы «Одной Крови», работ�
 
 | Технология | Применение |
 |---|---|
-| **Node.js 24** | Runtime (native `fetch` + `node:http` сервер) |
+| **Bun** | Runtime и сборщик (Bun.build) |
 | **TypeScript (ESNext)** | Язык |
 | **@maxhub/max-bot-api** | Max Bot API SDK (бот, клавиатуры, контекст) |
 | **Redis (ioredis)** | Pub/Sub шина событий из бэкенда |
 | **Pino + pino-pretty** | Структурированное логирование |
-| **node:http** | HTTP-сервер для вебхуков Max (см. `src/server.ts`) |
+| **Bun.serve** | HTTP-сервер для вебхуков Max |
 | **shared/ts/** | OpenAPI-сгенерированный TS-клиент бэкенда |
 
-> **Важно:** Бот использует `@maxhub/max-bot-api`, а не `grammy`. Пакет `grammy` ранее присутствовал в `package.json`, но удалён вместе с переездом на Node (legacy). Middleware `ratelimitter.ts` и `throttler.ts` — закомментированный legacy-код от grammy.
+> **Важно:** Бот использует `@maxhub/max-bot-api`, а не `grammy`. Пакет `grammy` присутствует в `package.json`, но не используется (legacy). Middleware `ratelimitter.ts` и `throttler.ts` — закомментированный legacy-код от grammy.
 
 ## Сборка и запуск
 
 ```bash
 # dev (из корня монорепозитория)
-node --env-file=../.env --import tsx max-bot/bot.ts
-```
+bun --env-file=../.env bot.ts
 
 # build
 bun run build.ts   # → dist/bot.js
