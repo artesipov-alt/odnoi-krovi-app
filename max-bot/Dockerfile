@@ -19,18 +19,20 @@ RUN npm run build
 # ---- runtime ----
 FROM node:24-alpine
 
-# На Bun 1.3.13 бот получал UNABLE_TO_GET_ISSUER_CERT_LOCALLY при
-# запросах к platform-api2.max.ru несмотря на то, что сертификаты Минцифры
-# были в /usr/local/share/ca-certificates/, update-ca-certificates их
-# корректно подхватывал, а NODE_EXTRA_CERTS указывал на собранный bundle.
-# Точная причина не диагностирована; в Bun 1.3.x наблюдались регрессии
-# с TLS-валидацией (https://github.com/oven-sh/bun/issues/31949).
-# Node.js 24 читает и системный CA-store, и NODE_EXTRA_CA_CERTS штатно,
-# поэтому собранный bundle с CA Минцифры подхватывается автоматически.
-COPY max-bot/certs/*.cer /usr/local/share/ca-certificates/
+# Устанавливаем ca-certificates и копируем сертификаты Минцифры
+# Копируем все файлы сертификатов (и .cer, и .crt)
+# update-ca-certificates ищет файлы с расширением .crt
+COPY max-bot/certs/ /tmp/certs/
 RUN apk add --no-cache ca-certificates \
+    && mkdir -p /usr/local/share/ca-certificates \
+    && cp /tmp/certs/*.crt /usr/local/share/ca-certificates/ \
+    && for f in /tmp/certs/*.cer; do \
+         [ -f "$f" ] && cp "$f" "/usr/local/share/ca-certificates/$(basename $f .cer).crt"; \
+       done \
     && update-ca-certificates \
-    && ls -la /etc/ssl/certs/ca-certificates.crt
+    && echo "=== Certificates in bundle: $(grep -c 'BEGIN CERTIFICATE' /etc/ssl/certs/ca-certificates.crt) ===" \
+    && echo "=== Added Russian Trusted certs ===" \
+    && ls -la /usr/local/share/ca-certificates/
 
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
@@ -44,5 +46,5 @@ COPY --from=builder /app/max-bot/package-lock.json ./package-lock.json
 # Только prod-зависимости (без devDependencies)
 RUN npm ci --omit=dev
 
-# Запуск бота
-CMD ["node", "--use-system-ca", "dist/bot.js"]
+# Запуск бота (убран --use-system-ca, это флаг Bun)
+CMD ["node", "dist/bot.js"]

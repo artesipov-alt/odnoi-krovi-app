@@ -54,6 +54,9 @@ services:
     restart: unless-stopped
 
   max-bot:
+    build:
+      context: .
+      dockerfile: max-bot/Dockerfile
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:latest
     environment:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
