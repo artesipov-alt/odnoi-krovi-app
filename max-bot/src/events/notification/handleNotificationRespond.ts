@@ -1,8 +1,8 @@
 import type { Context } from "@maxhub/max-bot-api";
-import { Keyboard } from "@maxhub/max-bot-api";
 import { NotificationRespondBodyActionEnum } from "../../../../shared/ts/index";
 import { bloodRequestApi, pinologger } from "../../instances";
 import { getOrCreateToken, invalidateToken } from "../../utils/authStore";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 const BOT_ID =
   Bun.env.ENV === "development" ? "id3200014662_2" : "id3200014662";
@@ -77,28 +77,22 @@ export const handleNotificationRespond = async (
     }
 
     // Успешно — редактируем сообщение
+    // В Max API нельзя убрать inline-кнопки через editMessage
+    // (attachments: null или отсутствие поля не сбрасывает клавиатуру).
+    // Поэтому заменяем «Да»/«Нет» на кнопку «Открыть приложение».
+    const resultKeyboard = getAppOpenKeyboard();
+
     if (action === "yes") {
-      // Max API не снимает inline-кнопки, если передать attachments: []
-      // или attachments: null. Чтобы убрать кнопки, редактируем сообщение
-      // без поля attachments (оно просто не попадёт в JSON-тело запроса).
       await ctx.editMessage({
         text: "Хорошо, продолжаем поиск!",
         format: "markdown",
+        attachments: [resultKeyboard],
       });
     } else {
       await ctx.editMessage({
         text: "Поиск завершен. При необходимости начните новый поиск для питомца во вкладке «Найти кровь» в приложении.",
         format: "markdown",
-        attachments: [
-          Keyboard.inlineKeyboard([
-            [
-              Keyboard.button.link(
-                "🩸 Открыть приложение",
-                `https://max.ru/${BOT_ID}_bot?startapp`,
-              ),
-            ],
-          ]),
-        ],
+        attachments: [resultKeyboard],
       });
     }
 
