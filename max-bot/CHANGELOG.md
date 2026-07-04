@@ -20,6 +20,20 @@
   `attachments: []` при `editMessage` не сбрасывает уже отрисованную
   inline-клавиатуру — нужно явно передать пустую:
   `attachments: [Keyboard.inlineKeyboard([])]`.
+- **`UNABLE_TO_GET_ISSUER_CERT_LOCALLY` при `POST /subscriptions`.**
+  Домен `platform-api2.max.ru` подписан промежуточным CA Минцифры,
+  которого нет в стандартном `ca-certificates` Alpine. В runtime-стадию
+  `Dockerfile` добавлены `certs/*.cer` (Russian Trusted Sub CA) +
+  `NODE_EXTRA_CA_CERTS` как страховка от собственного CA-bundle Bun.
+- **Миграция Max API на `platform-api2.max.ru` (дедлайн 19.07.2026).**
+  SDK `@maxhub/max-bot-api` по умолчанию ходит на старый домен
+  `platform-api.max.ru`, который отключат. В `src/instances.ts` конструктору
+  `Bot` теперь передаётся `clientOptions.baseUrl =
+  "https://platform-api2.max.ru"`. Это влияет на все API-вызовы:
+  `sendMessage`, `sendMessageToUser`, `editMessage`, `deleteMessage`,
+  `getMyInfo`, `setMyCommands`, `answerOnCallback` и т.д.
+  Константа `MAX_API_BASE_URL` экспортируется и переиспользуется в
+  `src/maxbot.ts` для прямого `fetch` на `/subscriptions`.
 
 ## [0.9.0] — 2026-07-03
 

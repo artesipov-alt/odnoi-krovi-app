@@ -128,6 +128,24 @@ Max Platform → POST /webhook (X-Max-Bot-Api-Secret)
 
 Оба проксируются Caddy на `max-bot:6000` (см. `frontend/Caddyfile{,*.dev}`).
 
+**TLS-сертификаты Минцифры.** Домен `platform-api2.max.ru` подписан
+промежуточным CA Минцифры (`Russian Trusted Sub CA`). Стандартный
+`ca-certificates` Alpine его не содержит, поэтому Dockerfile копирует
+`.cer`-файлы из `certs/` в `/usr/local/share/ca-certificates/` и собирает
+обновлённый CA-bundle. Дополнительно выставляется `NODE_EXTRA_CA_CERTS`
+на случай если Bun использует собственный CA-bundle.
+
+При обновлении списка CA Минцифры — заменить `.cer` в `certs/` и
+пересобрать образ. Источник: <https://digital.gov.ru/activity/kiberbezopasnost/sertifikaty-bezopasnosti>.
+
+**Базовый URL Max API.** С 19 июля 2026 Max Platform полностью переходит
+на домен `platform-api2.max.ru`. SDK по умолчанию ходит на старый
+`platform-api.max.ru`, поэтому в `src/instances.ts` конструктору `Bot`
+явно передаётся `clientOptions.baseUrl = MAX_API_BASE_URL` (см.
+`src/instances.ts`). Прямые `fetch`-вызовы к API (например, `POST
+/subscriptions` в `src/maxbot.ts`) тоже идут на `MAX_API_BASE_URL` — не
+зашивай домен строковыми литералами в коде.
+
 ## Redis Pub/Sub каналы
 
 События и уведомления приходят двумя каналами, префикс окружения (`dev:` / `prod:`) берётся из `Bun.env.ENV`:

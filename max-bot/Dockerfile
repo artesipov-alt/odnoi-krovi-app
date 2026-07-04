@@ -23,6 +23,21 @@ RUN bun run build
 # Runtime image
 FROM oven/bun:1.3.13-alpine
 
+# Сертификаты Минцифры для TLS-валидации platform-api2.max.ru.
+# Без них fetch к Max API падает с UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
+# и подписка вебхука (src/maxbot.ts) не проходит.
+#
+# ca-certificates нужен как базовый пакет, чтобы update-ca-certificates
+# мог собрать итоговый bundle в /etc/ssl/certs/ca-certificates.crt.
+COPY max-bot/certs/*.cer /usr/local/share/ca-certificates/
+RUN apk add --no-cache ca-certificates \
+    && update-ca-certificates \
+    && ls -la /etc/ssl/certs/ca-certificates.crt
+
+# Подстраховка: Bun может использовать свой CA-bundle, отличный от
+# системного. Явно указываем путь, чтобы fetch точно доверял нашим CA.
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+
 # Keep same workdir layout as during build so runtime imports still resolve
 WORKDIR /app/max-bot
 

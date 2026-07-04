@@ -1,4 +1,4 @@
-import { pinologger } from "./instances";
+import { pinologger, MAX_API_BASE_URL } from "./instances";
 
 /**
  * Полный список типов обновлений, на которые должен быть подписан бот.
@@ -20,7 +20,7 @@ const UPDATE_TYPES = [
   "chat_title_changed",
 ] as const;
 
-const SUBSCRIPTIONS_URL = "https://platform-api2.max.ru/subscriptions";
+const SUBSCRIPTIONS_URL = `${MAX_API_BASE_URL}/subscriptions`;
 
 interface RegisterWebhookResult {
   success: boolean;
@@ -50,9 +50,7 @@ export async function registerWebhook(
   }
 
   if (!token) {
-    pinologger.warn(
-      "MAX_BOT_TOKEN is not set, cannot register webhook",
-    );
+    pinologger.warn("MAX_BOT_TOKEN is not set, cannot register webhook");
     return null;
   }
 

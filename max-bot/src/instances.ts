@@ -9,7 +9,17 @@ import type { Context } from "@maxhub/max-bot-api";
 import pino from "pino";
 import Redis from "ioredis";
 
-export const bot = new Bot<Context>(Bun.env.MAX_BOT_TOKEN!);
+// Max API до 19 июля 2026 переключается с `platform-api.max.ru` на
+// `platform-api2.max.ru`. SDK по умолчанию использует старый домен, поэтому
+// передаём `baseUrl` явно — иначе после дедлайна `sendMessage`, `editMessage`,
+// `getMyInfo` и т.д. перестанут работать.
+export const MAX_API_BASE_URL = "https://platform-api2.max.ru";
+
+export const bot = new Bot<Context>(Bun.env.MAX_BOT_TOKEN!, {
+  clientOptions: {
+    baseUrl: MAX_API_BASE_URL,
+  },
+});
 export const pinologger = pino({
   level: "debug",
   transport: {
