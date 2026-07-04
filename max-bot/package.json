@@ -5,10 +5,10 @@
   "type": "module",
   "main": "dist/bot.js",
   "scripts": {
-    "dev": "node --env-file=../.env --import tsx bot.ts",
+    "dev": "node --use-system-ca --env-file=../.env --import tsx bot.ts",
     "build": "node --import tsx scripts/build.ts",
-    "prod": "node dist/bot.js",
-    "start": "node dist/bot.js",
+    "prod": "node --use-system-ca dist/bot.js",
+    "start": "node --use-system-ca dist/bot.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

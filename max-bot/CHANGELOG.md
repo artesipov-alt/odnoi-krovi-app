@@ -9,14 +9,15 @@
 
 ### Changed
 
-- **Переезд с Bun на Node.js 24.** Bun 1.3.13 использует собственный
-  захардкоженный Mozilla CA-bundle для `fetch` и игнорирует
-  `NODE_EXTRA_CA_CERTS` и системный CA-store — это делало невозможным
-  добавление сертификата Минцифры для `platform-api2.max.ru`
-  (upstream issue [#31949](https://github.com/oven-sh/bun/issues/31949)).
-  Node 24 читает `NODE_EXTRA_CERTS`/`SSL_CERT_FILE` и системный
-  bundle, поэтому CA Минцифры теперь подхватываются через
-  стандартный `update-ca-certificates` в `Dockerfile`.
+- **Переезд с Bun на Node.js 24.** На Bun 1.3.13 бот продолжал получать
+  `UNABLE_TO_GET_ISSUER_CERT_LOCALLY` несмотря на импорт CA Минцифры
+  через `update-ca-certificates` и установленный `NODE_EXTRA_CA_CERTS`.
+  Точная причина не диагностирована: в 1.3.x наблюдались регрессии с
+  проверкой сертификатов ([issue #31949](https://github.com/oven-sh/bun/issues/31949)
+  и связанные), хотя в целом `NODE_EXTRA_CA_CERTS` в Bun поддерживается.
+  Node 24 решает проблему без дополнительной настройки — читает и
+  системный bundle, и `NODE_EXTRA_CA_CERTS`/`SSL_CERT_FILE`, поэтому
+  CA Минцифры подхватываются через стандартный `update-ca-certificates`.
   - `Dockerfile`: с `oven/bun:1.3.13-alpine` на `node:24-alpine` (multi-stage).
   - `package.json`: `@types/bun` → `@types/node: ^24`, добавлен `tsx` для dev.
     Скрипты: `bun run dist/bot.js` → `node dist/bot.js`, `bun --env-file=...`

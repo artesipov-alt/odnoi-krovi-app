@@ -19,12 +19,14 @@ RUN npm run build
 # ---- runtime ----
 FROM node:24-alpine
 
-# Node.js корректно читает системный CA-store и переменную
-# NODE_EXTRA_CA_CERTS, поэтому сертификаты Минцифры для platform-api2.max.ru
-# подхватываются автоматически.
-#
-# ca-certificates нужен как базовый пакет, чтобы update-ca-certificates
-# мог собрать итоговый bundle в /etc/ssl/certs/ca-certificates.crt.
+# На Bun 1.3.13 бот получал UNABLE_TO_GET_ISSUER_CERT_LOCALLY при
+# запросах к platform-api2.max.ru несмотря на то, что сертификаты Минцифры
+# были в /usr/local/share/ca-certificates/, update-ca-certificates их
+# корректно подхватывал, а NODE_EXTRA_CERTS указывал на собранный bundle.
+# Точная причина не диагностирована; в Bun 1.3.x наблюдались регрессии
+# с TLS-валидацией (https://github.com/oven-sh/bun/issues/31949).
+# Node.js 24 читает и системный CA-store, и NODE_EXTRA_CA_CERTS штатно,
+# поэтому собранный bundle с CA Минцифры подхватывается автоматически.
 COPY max-bot/certs/*.cer /usr/local/share/ca-certificates/
 RUN apk add --no-cache ca-certificates \
     && update-ca-certificates \
@@ -43,4 +45,4 @@ COPY --from=builder /app/max-bot/package-lock.json ./package-lock.json
 RUN npm ci --omit=dev
 
 # Запуск бота
-CMD ["node", "dist/bot.js"]
+CMD ["node", "--use-system-ca", "dist/bot.js"]
