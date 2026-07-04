@@ -15,7 +15,7 @@ import Redis from "ioredis";
 // `getMyInfo` и т.д. перестанут работать.
 export const MAX_API_BASE_URL = "https://platform-api2.max.ru";
 
-export const bot = new Bot<Context>(Bun.env.MAX_BOT_TOKEN!, {
+export const bot = new Bot<Context>(process.env.MAX_BOT_TOKEN!, {
   clientOptions: {
     baseUrl: MAX_API_BASE_URL,
   },
@@ -30,19 +30,19 @@ export const pinologger = pino({
   },
 });
 
-const redisHost = Bun.env.REDIS_HOST || "localhost";
-const redisPort = Bun.env.REDIS_PORT || "6379";
+const redisHost = process.env.REDIS_HOST || "localhost";
+const redisPort = process.env.REDIS_PORT || "6379";
 const redisUrl = `redis://${redisHost}:${redisPort}`;
 
 export const redis = new Redis(redisUrl, {
   connectTimeout: 5000,
   lazyConnect: true,
-  db: Bun.env.ENV === "development" ? 1 : 0,
+  db: process.env.ENV === "development" ? 1 : 0,
 });
 
 // API Configuration
 const apiConfig = new Configuration({
-  basePath: Bun.env.API_BASE_URL || "http://localhost:8080/api/v1",
+  basePath: process.env.API_BASE_URL || "http://localhost:8080/api/v1",
   headers: {
     "Content-Type": "application/json",
   },

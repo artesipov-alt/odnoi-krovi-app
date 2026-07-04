@@ -32,6 +32,24 @@ jobs:
             frontend:
               - frontend/**
 
+      - name: Setup Node
+        if: steps.changed-files.outputs.max-bot_any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: max-bot/package-lock.json
+
+      - name: Install max-bot deps
+        if: steps.changed-files.outputs.max-bot_any_changed == 'true'
+        working-directory: ./max-bot
+        run: npm ci
+
+      - name: Typecheck max-bot
+        if: steps.changed-files.outputs.max-bot_any_changed == 'true'
+        working-directory: ./max-bot
+        run: npm run typecheck
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:

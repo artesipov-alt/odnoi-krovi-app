@@ -53,7 +53,7 @@ const authUser = async (
   },
 ): Promise<void> => {
   await usersApi.authUserViaService({
-    xInternalKey: Bun.env.INTERNAL_MAX_BOT_SECRET,
+    xInternalKey: process.env.INTERNAL_MAX_BOT_SECRET,
     serviceSignInBody: {
       providerName: "max_bot",
       providerId: String(maxId),

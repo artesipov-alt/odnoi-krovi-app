@@ -30,7 +30,7 @@ export async function getOrCreateToken(maxId: number): Promise<AuthData> {
   }
 
   const result = await usersApi.authUserViaService({
-    xInternalKey: Bun.env.INTERNAL_MAX_BOT_SECRET!,
+    xInternalKey: process.env.INTERNAL_MAX_BOT_SECRET!,
     serviceSignInBody: {
       providerName: "max_bot",
       providerId: String(maxId),

@@ -30,7 +30,7 @@ import {
   type EventHandlerMap,
 } from "../shared/ts/events";
 
-const env = Bun.env.ENV || "production";
+const env = process.env.ENV || "production";
 const channelPrefix = env === "development" || env === "dev" ? "dev:" : "prod:";
 const channel = (name: string) => `${channelPrefix}${name}`;
 
@@ -131,9 +131,9 @@ async function main() {
   // Регистрация вебхука: без `message_callback` в update_types Max не
   // доставляет события о нажатиях на inline-кнопки (см. src/maxbot.ts).
   await registerWebhook(
-    Bun.env.MAX_BOT_TOKEN,
-    Bun.env.MAX_BOT_WEBHOOK_URL,
-    Bun.env.WEBHOOK_SECRET,
+    process.env.MAX_BOT_TOKEN,
+    process.env.MAX_BOT_WEBHOOK_URL,
+    process.env.WEBHOOK_SECRET,
   );
 
   // Redis subscriptions — только events и notifications

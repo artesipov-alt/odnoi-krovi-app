@@ -1,15 +1,13 @@
 {
   "compilerOptions": {
-    // Environment setup & latest features
+    // TypeScript strict mode — typecheck через `tsc --noEmit`
     "lib": ["ESNext"],
-    "target": "ESNext",
-    "module": "Preserve",
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-
-    // Bundler mode
-    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -24,6 +22,12 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "noPropertyAccessFromIndexSignature": false,
+  },
+  "include": [
+    "bot.ts",
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "../shared/ts/**/*.ts",
+  ],
 }

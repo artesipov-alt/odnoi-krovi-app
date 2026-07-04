@@ -5,7 +5,7 @@ import { bloodRequestApi, pinologger } from "../../instances";
 import { getOrCreateToken, invalidateToken } from "../../utils/authStore";
 
 const BOT_ID =
-  Bun.env.ENV === "development" ? "id3200014662_2" : "id3200014662";
+  process.env.ENV === "development" ? "id3200014662_2" : "id3200014662";
 
 /**
  * Выполняет respondToNotification с переданным токеном.

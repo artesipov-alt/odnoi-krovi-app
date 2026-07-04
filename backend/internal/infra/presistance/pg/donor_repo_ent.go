@@ -258,6 +258,8 @@ func (r *EntDonorResponseRepository) FindNotConfirmed(ctx context.Context, cutof
 			donorresponse.StatusEQ(donorresponse.StatusCompleted),
 			donorresponse.IsConfirmedEQ(false),
 		).
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID, pet.FieldName, pet.FieldBloodGroup, pet.FieldPhotoUrls) }).
 		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find pending auto confirm responses: %w", err)
