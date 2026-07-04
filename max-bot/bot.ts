@@ -21,6 +21,7 @@ import { bot, pinologger, redis } from "./src/instances";
 import { logger } from "./src/middleware/logger";
 import { errorHandler } from "./src/handlers/errors";
 import { startServer } from "./src/server";
+import { registerWebhook } from "./src/maxbot";
 import {
   dispatchEvent,
   EVENT_TYPES,
@@ -126,6 +127,14 @@ async function main() {
 
   const { name, username, user_id } = await bot.api.getMyInfo();
   pinologger.info(`Бот ${name || username} ${user_id} инициализирован`);
+
+  // Регистрация вебхука: без `message_callback` в update_types Max не
+  // доставляет события о нажатиях на inline-кнопки (см. src/maxbot.ts).
+  await registerWebhook(
+    Bun.env.MAX_BOT_TOKEN,
+    Bun.env.MAX_BOT_WEBHOOK_URL,
+    Bun.env.WEBHOOK_SECRET,
+  );
 
   // Redis subscriptions — только events и notifications
   subscribeToChannel(channel("events"));

@@ -5,6 +5,22 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 и проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] — 2026-07-04
+
+### Fixed
+
+- **Inline-кнопки в Max не реагировали на нажатия.** Бот не получал
+  `message_callback` от Max API, потому что вебхук не был подписан на этот
+  тип обновлений. Добавлена автоматическая регистрация вебхука на старте
+  через `registerWebhook()` в `src/maxbot.ts` (с `update_types`, включающим
+  `message_callback` и остальные нужные типы). Управляется переменной
+  окружения `MAX_BOT_WEBHOOK_URL` (для prod и dev прописана в
+  `docker-compose.yml` / `docker-compose.dev.yml`).
+- **Кнопки «Да»/«Нет» не убирались после нажатия «Да».** В Max API
+  `attachments: []` при `editMessage` не сбрасывает уже отрисованную
+  inline-клавиатуру — нужно явно передать пустую:
+  `attachments: [Keyboard.inlineKeyboard([])]`.
+
 ## [0.9.0] — 2026-07-03
 
 ### Changed

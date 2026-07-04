@@ -115,6 +115,19 @@ Max Platform → POST /webhook (X-Max-Bot-Api-Secret)
         2. bot.handleUpdate(update) — передача в Max Bot SDK
 ```
 
+**Подписка на обновления.** В отличие от Telegram, Max API требует явной
+регистрации вебхука через `POST https://platform-api2.max.ru/subscriptions`
+с массивом `update_types`. Без `message_callback` в этом списке события
+о нажатиях на inline-кнопки не доставляются боту.
+
+Регистрация выполняется автоматически на старте через
+`registerWebhook()` в `src/maxbot.ts`, если задан `MAX_BOT_WEBHOOK_URL`:
+
+- prod: `https://prodbot.1krovi.app/webhook`
+- dev: `https://devbot.1krovi.app/webhook`
+
+Оба проксируются Caddy на `max-bot:6000` (см. `frontend/Caddyfile{,*.dev}`).
+
 ## Redis Pub/Sub каналы
 
 События и уведомления приходят двумя каналами, префикс окружения (`dev:` / `prod:`) берётся из `Bun.env.ENV`:
@@ -147,4 +160,4 @@ Max Platform → POST /webhook (X-Max-Bot-Api-Secret)
 11. **action вместо callbackQuery** — в Max API используется `bot.action(triggers, handler)`, а не `bot.callbackQuery()`. Тип контекста — `FilteredContext<Ctx, 'message_callback'>`. `ctx.match` — `RegExpExecArray`.
 12. **answerOnCallback** — метод `ctx.answerOnCallback({ notification: string, message?: ... })`. Нет `show_alert`. notification — текст всплывающего уведомления.
 13. **ctx.user вместо ctx.from** — нет `ctx.from`. Пользователь: `ctx.user` с полями `user_id`, `first_name`, `last_name`, `username`.
-14. **editMessage()** — в Max API `ctx.editMessage({ text, format, attachments })`, а не `ctx.editMessageText(text, extra)`. `attachments` = массив клавиатур. Для удаления кнопок — `attachments: []`.
+14. **editMessage()** — в Max API `ctx.editMessage({ text, format, attachments })`, а не `ctx.editMessageText(text, extra)`. `attachments` = массив клавиатур. Для удаления кнопок — `attachments: [Keyboard.inlineKeyboard([])]` (пустой массив `attachments` не снимает уже отрисованные кнопки).
