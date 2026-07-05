@@ -26,7 +26,6 @@ const (
 type BloodRequest struct {
 	ID                       string
 	PetID                    string
-	OwnerID                  string
 	BloodVolumeNeeded        float64
 	BloodVolumeReserved      float64
 	BloodVolumeDonated       float64
@@ -49,6 +48,18 @@ type BloodRequestWithApplications struct {
 	DonorApplications []donormodel.DonorResponse
 }
 
+func (b *BloodRequestWithApplications) HasActiveDonorApplications() bool {
+	if b == nil {
+		return false
+	}
+	for _, app := range b.DonorApplications {
+		if app.IsActiveForDonation() {
+			return true
+		}
+	}
+	return false
+}
+
 // Recipient представляет модель чтения реципиент
 type BloodRequestWithMatchingDonors struct {
 	BloodRequest
@@ -62,6 +73,7 @@ type RecipientData struct {
 	PetType        common.PetType
 	BloodGroupName string
 	OwnerName      string
+	OwnerID        string
 	Privilege      common.Privilege
 	PhotoURLs      []string
 }
@@ -91,8 +103,11 @@ func (b *BloodRequest) IsActive() bool {
 	return b.Status == BloodRequestStatusActive
 }
 
-// IsActive checks if the request is active
+// IsClosed checks if the request is closed
 func (b *BloodRequest) IsClosed() bool {
+	if b == nil {
+		return false
+	}
 	return b.Status == BloodRequestStatusClosed
 }
 

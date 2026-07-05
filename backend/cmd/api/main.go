@@ -23,6 +23,7 @@ import (
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/service"
 	bonuscmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bonus/cmd"
 	donorcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
@@ -138,15 +139,22 @@ func main() {
 		userRepo := pg.NewEntUserRepository(db)
 		locationRepo := pg.NewEntLocationRepository(db)
 		breedRepo := pg.NewEntBreedRepository(db)
-		petRepo := pg.NewEntPetRepository(db)
+		petRepo := pg.NewEntPetRepository(db, rawdb)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
 		partnerRepo := pg.NewEntPartnerRepository(db)
 		bonusRepo := pg.NewEntBonusRepository(db)
 		rawQueryRepo := pg.NewRawQueryRepository(rawdb)
-		bonusSvc := bonus.NewBonusService(bonusRepo)
+
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
+
+		// Средизация сервисов.
+		matchingSvc := *bloodsearch.NewMatchingService()
+		petService := pet.NewPetServiceV2()
+		bonusSvc := bonus.NewBonusService(bonusRepo)
+
+		notificator := service.NewDonorMatchNotifier(petRepo, userRepo, bloodRequestRepo, donorResponseRepo, petService, publisher)
 
 		// Инициализация reference query handlers
 		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
@@ -175,9 +183,6 @@ func main() {
 		userGetContactHandler := userquery.NewGetContactHandler(userRepo, publisher)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		matchingSvc := *bloodsearch.NewMatchingService()
-		petService := pet.NewPetService()
-
 		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, petService, userRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusSvc, publisher, txManager)
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService, bonusSvc)
@@ -196,7 +201,7 @@ func main() {
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo, petService)
 
 		// Инициализация bloodsearch handlers
-		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusRepo, publisher, petService, txManager)
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, bonusRepo, notificator, txManager)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, petRepo)

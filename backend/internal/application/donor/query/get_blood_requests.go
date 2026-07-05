@@ -20,11 +20,11 @@ type ListRequestsHandler struct {
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.Repository
 	matchingSvc   bloodsearch.MatchingService
-	petService    *pet.PetService
+	petService    pet.PetService
 	userRepo      user.Repository
 }
 
-func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService, userRepo user.Repository) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, petService pet.PetService, userRepo user.Repository) *ListRequestsHandler {
 	return &ListRequestsHandler{
 		petRepo:       petRepo,
 		donorRespRepo: donorRespRepo,
@@ -96,7 +96,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	for _, recipient := range allRequests {
 		recipient.SyncPrivilegeAndPriority()
 		for _, donor := range potentialDonors {
-			h.matchingSvc.MatchDonor(recipient, donor, preferredLocations, userID)
+			h.matchingSvc.MatchDonor(recipient, donor, preferredLocations)
 		}
 	}
 

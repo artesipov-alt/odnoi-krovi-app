@@ -25,6 +25,12 @@ type PetReadRepository interface {
 
 	//Для уведомлений
 	GetPetsByBloodGroupAndRegion(ctx context.Context, petType commonmodel.PetType, bloodGroups, regions []string) ([]*model.Pet, error)
+
+	// GetPetIDsByBloodGroupAndRegion возвращает ID питомцев по группе крови и регионам (raw SQL)
+	GetPetIDsByBloodGroupAndRegion(ctx context.Context, bloodGroups, regions []string) ([]string, error)
+
+	// GetByIDs загружает питомцев по слайсу ID с полными данными
+	GetByIDs(ctx context.Context, ids []string, opts PetPreloadOptions) ([]*model.Pet, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев

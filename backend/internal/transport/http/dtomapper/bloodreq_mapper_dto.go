@@ -120,10 +120,9 @@ func (m *BloodRequestMapper) ToResponseSlice(reqs []*model.BloodRequestWithAppli
 }
 
 // FromCreate converts a CreateBloodRequestBody DTO to a domain BloodRequest model.
-func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody, ownerID string) *model.BloodRequest {
+func (m *BloodRequestMapper) FromCreate(body dto.CreateBloodRequestBody) *model.BloodRequest {
 	req := &model.BloodRequest{
 		PetID:                    body.PetID,
-		OwnerID:                  ownerID,
 		BloodVolumeNeeded:        math.Round(body.BloodVolumeNeeded*10) / 10,
 		BloodVolumeReserved:      0,
 		Regions:                  body.Regions,

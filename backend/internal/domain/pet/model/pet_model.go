@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -181,6 +182,23 @@ func (p *Pet) SetOwnerID(id string) error {
 	return nil
 }
 
+func (p *Pet) HasStopFactors() bool {
+	if p == nil || p.StopFactors == nil {
+		return false
+	}
+	return len(p.StopFactors) > 0
+}
+
+func (p *Pet) IsRecovering() bool {
+	if p == nil {
+		return false
+	}
+	if p.Health != nil && p.Health.Transfused != nil && *p.Health.Transfused {
+		return false
+	}
+	return slices.Contains(p.StopFactors, string(StopFactorDonationTooRecent))
+}
+
 func (p *Pet) IsDeleted() bool {
 	return p.DeletedAt != nil
 }
@@ -344,7 +362,7 @@ func GetAllFactors() map[FactorCode]FactorDescription {
 }
 
 // GetStopFactors возвращает список стоп-факторов для питомца на основе текущего времени
-func (p *Pet) GetStopFactors(now time.Time, isPlaningDonation, isRecipient bool) []FactorCode {
+func (p *Pet) GetStopFactors(now time.Time, isRecipient, isPlaningDonation bool) []FactorCode {
 	var factors []FactorCode
 	if code := p.checkPhoto(); code != "" {
 		factors = append(factors, code)
@@ -654,7 +672,7 @@ func (p *Pet) checkWarnBloodGroup() FactorCode {
 // RecalculateFactors пересчитывает и обновляет стоп-факторы и предупреждения питомца
 // Этот метод инкапсулирует логику обновления факторов внутри агрегата
 // RecalculateFactors пересчитывает стоп-факторы и факторы-предупреждения
-func (p *Pet) RecalculateFactors(now time.Time, isPlaningDonation, isRecipient bool) {
+func (p *Pet) RecalculateFactors(now time.Time, isRecipient, isPlaningDonation bool) {
 	stopFactors := p.GetStopFactors(now, isRecipient, isPlaningDonation)
 	p.StopFactors = make([]string, len(stopFactors))
 	for i, f := range stopFactors {

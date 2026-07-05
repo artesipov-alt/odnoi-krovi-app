@@ -1,0 +1,144 @@
+package service
+
+import (
+	"context"
+	"log/slog"
+	"time"
+
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
+	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
+	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
+)
+
+type DonorMatchNotifier struct {
+	petRepo         pet.Repository
+	userRepo        user.Repository
+	bloodSearchRepo bloodsearch.Repository
+	donorRepo       donor.Repository
+	petService      pet.PetService
+	publisher       ports.EventPublisher
+}
+
+func NewDonorMatchNotifier(
+	petRepo pet.Repository,
+	userRepo user.Repository,
+	bloodSearchRepo bloodsearch.Repository,
+	donorRepo donor.Repository,
+	petService pet.PetService,
+	publisher ports.EventPublisher,
+) *DonorMatchNotifier {
+	return &DonorMatchNotifier{
+		petRepo:         petRepo,
+		userRepo:        userRepo,
+		bloodSearchRepo: bloodSearchRepo,
+		donorRepo:       donorRepo,
+		petService:      petService,
+		publisher:       publisher,
+	}
+}
+
+func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUserID string, bloodGroupNames []string, regions []string) error {
+	petsIDs, err := n.petRepo.GetPetIDsByBloodGroupAndRegion(ctx, bloodGroupNames, regions)
+	if err != nil {
+		return apperrors.Internal(err, "failed to get pet IDs")
+	}
+
+	// Batch fetch applications and blood requests
+	applicationsMap, err := n.donorRepo.GetByPetIDs(ctx, petsIDs, false)
+	if err != nil {
+		return apperrors.Internal(err, "failed to get donor applications")
+	}
+
+	bloodReqsMap, err := n.bloodSearchRepo.GetByPetIDs(ctx, petsIDs)
+	if err != nil {
+		return apperrors.Internal(err, "failed to get blood requests")
+	}
+
+	pets, err := n.petRepo.GetByIDs(ctx, petsIDs, pet.PetPreloadOptions{
+		WithHealth:     true,
+		WithAnalyses:   true,
+		WithTreatments: true,
+	})
+	if err != nil {
+		return apperrors.Internal(err, "failed to get pets")
+	}
+
+	for _, pet := range pets {
+		applications := applicationsMap[pet.ID]
+		var donorApplication *donormodel.DonorResponse
+		for _, app := range applications {
+			if app.IsActiveForDonation() {
+				donorApplication = app
+				break
+			}
+		}
+		donorBloodReq := bloodReqsMap[pet.ID]
+		n.petService.RecalculateFactorsAndStatus(pet, time.Now(), donorApplication, donorBloodReq)
+	}
+
+	var avilableDonors []petmodel.Pet
+	for _, pet := range pets {
+		if pet.PetStatus == petmodel.PetStatusDonor {
+			avilableDonors = append(avilableDonors, *pet)
+		}
+	}
+
+	// Дедуп по OwnerID ДО похода в userRepo — чтобы не запрашивать
+	// одного и того же владельца несколько раз, если у него несколько
+	// подходящих питомцев.
+	ownerSeen := make(map[string]struct{})
+	for _, donorPet := range avilableDonors {
+		if donorPet.OwnerID == initiatorUserID {
+			continue
+		}
+		if _, exists := ownerSeen[donorPet.OwnerID]; exists {
+			continue
+		}
+		ownerSeen[donorPet.OwnerID] = struct{}{}
+
+		donorUser, err := n.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+			WithIdentities: true,
+		})
+		if err != nil {
+			slog.Error("failed to get donor user", "err", err, "petID", donorPet.ID)
+			continue
+		}
+
+		maxID, telegramID := extractProviderIDs(donorUser)
+		if maxID == "" && telegramID == "" {
+			continue
+		}
+
+		if err := n.publisher.PublishEvent(ctx, ports.EventBloodRequestCreated, events.BloodRequestCreated{
+			BloodTypes: bloodGroupNames,
+			Regions:    regions,
+			TelegramID: telegramID,
+			MaxID:      maxID,
+			CreatedAt:  time.Now(),
+		}); err != nil {
+			slog.Error("failed to publish blood request created", "err", err, "petID", donorPet.ID)
+		}
+	}
+
+	return nil
+}
+
+func extractProviderIDs(user *usermodel.User) (maxID, telegramID string) {
+	for _, identity := range user.Identities {
+		if identity.ProviderName == authmodel.ProviderMax {
+			maxID = identity.ProviderUserID
+		}
+		if identity.ProviderName == authmodel.ProviderTelegram {
+			telegramID = identity.ProviderUserID
+		}
+	}
+	return
+}

@@ -191,7 +191,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	if userID == "" {
 		return nil, apperrors.Unauthorized("user ID is missing in context")
 	}
-	bloodReq := h.bloodRequestMapper.FromCreate(input.Body, userID)
+	bloodReq := h.bloodRequestMapper.FromCreate(input.Body)
 	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
 		return nil, err

@@ -30,7 +30,7 @@ type GetByUserHandler struct {
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.Repository
 	bonusRepo     bonus.Repository
-	petService    *pet.PetService
+	petService    pet.PetService
 }
 
 func NewGetByUserHandler(
@@ -39,7 +39,7 @@ func NewGetByUserHandler(
 	donorRespRepo donor.Repository,
 	bloodReqRepo bloodsearch.Repository,
 	bonusRepo bonus.Repository,
-	petService *pet.PetService,
+	petService pet.PetService,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
 		petReadRepo:   petReadRepo,

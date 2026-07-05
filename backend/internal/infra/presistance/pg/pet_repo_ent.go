@@ -2,11 +2,14 @@ package pg
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect/sql"
+	"github.com/lib/pq"
+
+	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -28,12 +31,14 @@ import (
 // EntPetRepository реализует PetRepository с использованием ENT
 type EntPetRepository struct {
 	client *ent.Client
+	rawdb  *sql.DB
 }
 
 // NewEntPetRepository создает новый репозиторий питомцев ENT
-func NewEntPetRepository(client *ent.Client) *EntPetRepository {
+func NewEntPetRepository(client *ent.Client, rawdb *sql.DB) *EntPetRepository {
 	return &EntPetRepository{
 		client: client,
+		rawdb:  rawdb,
 	}
 }
 
@@ -580,13 +585,13 @@ func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, pet
 		predicates := make([]predicate.DonorPreference, 0, len(regions)+1)
 		for _, region := range regions {
 			region := region // capture loop variable
-			predicates = append(predicates, func(s *sql.Selector) {
+			predicates = append(predicates, func(s *entsql.Selector) {
 				s.Where(sqljson.ValueContains(entdonorpreference.FieldPreferredLocationIds, region))
 			})
 		}
 		// Add predicate for empty array or null
-		predicates = append(predicates, func(s *sql.Selector) {
-			s.Where(sql.Or(
+		predicates = append(predicates, func(s *entsql.Selector) {
+			s.Where(entsql.Or(
 				sqljson.LenEQ(entdonorpreference.FieldPreferredLocationIds, 0),
 				sqljson.ValueIsNull(entdonorpreference.FieldPreferredLocationIds),
 			))
@@ -680,4 +685,83 @@ func (r *EntPetRepository) SetTransfused(ctx context.Context, petID string, tran
 	}
 
 	return nil
+}
+
+// GetPetIDsByBloodGroupAndRegion возвращает ID питомцев-доноров,
+// подходящих по группе крови и региону (быстрый фильтр без preload).
+// Если у пользователя не заполнены preferred_location_ids — он не донор,
+// такие пользователи исключаются автоматически (?| на пустом массиве = false).
+func (r *EntPetRepository) GetPetIDsByBloodGroupAndRegion(
+	ctx context.Context,
+	bloodGroups []string,
+	regions []string,
+) ([]string, error) {
+	query := `
+		SELECT DISTINCT p.id
+		FROM pets p
+		JOIN donor_preferences dp ON dp.user_id = p.user_id
+		WHERE p.blood_group = ANY($1)
+		  AND p.deleted_at IS NULL
+		  AND dp.deleted_at IS NULL
+		  AND dp.preferred_location_ids ?| $2::text[]
+	`
+
+	rows, err := r.rawdb.QueryContext(ctx, query,
+		pq.Array(bloodGroups),
+		pq.Array(regions),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("query pet ids: %w", err)
+	}
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("scan pet id: %w", err)
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// GetByIDs загружает питомцев по слайсу ID с полными данными (батч-загрузка).
+func (r *EntPetRepository) GetByIDs(ctx context.Context, ids []string, opts pet.PetPreloadOptions) ([]*model.Pet, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	query := r.client.Pet.Query().
+		Where(entpet.IDIn(ids...)).
+		WithBreedRef().
+		WithOwner(func(uq *ent.UserQuery) {
+			uq.Select(entuser.FieldFullName)
+		})
+
+	if opts.WithAll {
+		query = query.WithHealth().WithTreatments().WithAnalyses()
+	} else {
+		if opts.WithHealth {
+			query = query.WithHealth()
+		}
+		if opts.WithTreatments {
+			query = query.WithTreatments()
+		}
+		if opts.WithAnalyses {
+			query = query.WithAnalyses()
+		}
+	}
+
+	queryCtx := ctx
+	if opts.IgnoreSoftDelete {
+		queryCtx = schema.SkipSoftDelete(ctx)
+	}
+
+	pets, err := query.All(queryCtx)
+	if err != nil {
+		return nil, fmt.Errorf("не удалось загрузить питомцев по ID: %w", err)
+	}
+
+	return domainmapper.PetToDomainSlice(pets), nil
 }

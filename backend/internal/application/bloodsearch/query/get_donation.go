@@ -22,7 +22,7 @@ type GetDonationHandler struct {
 	donorRepo   donor.Repository
 	userRepo    user.Repository
 	bloodRepo   bloodsearch.Repository
-	petService  *pet.PetService
+	petService  pet.PetService
 }
 
 type GetDonationResult struct {
@@ -33,7 +33,7 @@ type GetDonationResult struct {
 	RecipientPet   *petmodel.Pet
 }
 
-func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository, petService *pet.PetService) *GetDonationHandler {
+func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository, petService pet.PetService) *GetDonationHandler {
 	return &GetDonationHandler{
 		donorRepo:   donorRepo,
 		bloodRepo:   bloodRepo,
