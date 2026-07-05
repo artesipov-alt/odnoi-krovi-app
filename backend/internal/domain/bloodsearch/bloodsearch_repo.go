@@ -8,7 +8,7 @@ import (
 )
 
 // BloodRequestRepository определяет интерфейс для работы с данными заявок на поиск крови питомцев
-type BloodRequestRepository interface {
+type Repository interface {
 	// Write methods
 
 	// создает новую заявку на поиск крови

@@ -18,7 +18,7 @@ import (
 )
 
 type RejectDonationHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
@@ -28,7 +28,7 @@ type RejectDonationHandler struct {
 }
 
 func NewRejectDonationHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,

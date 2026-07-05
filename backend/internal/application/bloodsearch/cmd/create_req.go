@@ -21,7 +21,7 @@ import (
 )
 
 type CreateRequestHandler struct {
-	bloodRepo  bloodsearch.BloodRequestRepository
+	bloodRepo  bloodsearch.Repository
 	petRepo    pet.Repository
 	donorRepo  donor.Repository
 	userRepo   user.Repository
@@ -32,7 +32,7 @@ type CreateRequestHandler struct {
 }
 
 func NewCreateRequestHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
 	userRepo user.Repository,

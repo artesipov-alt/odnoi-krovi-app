@@ -29,12 +29,12 @@ type GetPlannedDonationsResult struct {
 type PlannedDonationsHandler struct {
 	donorRepo    donor.Repository
 	petRepo      pet.Repository
-	bloodReqRepo bloodsearch.BloodRequestRepository
+	bloodReqRepo bloodsearch.Repository
 	userRepo     user.Repository
 	bonusRepo    bonus.Repository
 }
 
-func NewPlannedDonationsHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, bonusRepo bonus.Repository) *PlannedDonationsHandler {
+func NewPlannedDonationsHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.Repository, userRepo user.Repository, bonusRepo bonus.Repository) *PlannedDonationsHandler {
 	return &PlannedDonationsHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,

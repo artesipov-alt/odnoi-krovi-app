@@ -21,7 +21,7 @@ import (
 
 type CancelDonationHandler struct {
 	donorRepo      donor.Repository
-	bloodRepo      bloodsearch.BloodRequestRepository
+	bloodRepo      bloodsearch.Repository
 	txManager      *presistance.TxManager
 	eventPublisher ports.EventPublisher
 	petRepo        pet.PetReadRepository
@@ -31,7 +31,7 @@ type CancelDonationHandler struct {
 
 func NewCancelDonationHandler(
 	donorRepo donor.Repository,
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	txManager *presistance.TxManager,
 	eventPublisher ports.EventPublisher,
 	petRepo pet.PetReadRepository,

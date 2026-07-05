@@ -18,13 +18,13 @@ import (
 type ListRequestsHandler struct {
 	petRepo       pet.Repository
 	donorRespRepo donor.Repository
-	bloodReqRepo  bloodsearch.BloodRequestRepository
+	bloodReqRepo  bloodsearch.Repository
 	matchingSvc   bloodsearch.MatchingService
 	petService    *pet.PetService
 	userRepo      user.Repository
 }
 
-func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService, userRepo user.Repository) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService, userRepo user.Repository) *ListRequestsHandler {
 	return &ListRequestsHandler{
 		petRepo:       petRepo,
 		donorRespRepo: donorRespRepo,

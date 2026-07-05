@@ -13,14 +13,14 @@ import (
 type ConfirmUploadHandler struct {
 	petRepo   pet.Repository
 	userRepo  user.Repository
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	storage   filestorage.Repository
 }
 
 func NewConfirmUploadHandler(
 	petRepo pet.Repository,
 	userRepo user.Repository,
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	storage filestorage.Repository,
 ) *ConfirmUploadHandler {
 	return &ConfirmUploadHandler{

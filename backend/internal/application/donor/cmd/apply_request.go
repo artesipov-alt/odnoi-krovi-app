@@ -18,7 +18,7 @@ import (
 )
 
 type ApplyForRequestHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	petRepo   pet.Repository
 	donorRepo donor.Repository
 	userRepo  user.Repository
@@ -28,7 +28,7 @@ type ApplyForRequestHandler struct {
 }
 
 func NewApplyForRequestHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	petRepo pet.Repository,
 	donorRepo donor.Repository,
 	userRepo user.Repository,

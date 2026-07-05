@@ -16,11 +16,11 @@ import (
 type GetDonorByIDHandler struct {
 	petReadRepo pet.PetReadRepository
 	donorRepo   donor.Repository
-	bloodRepo   bloodsearch.BloodRequestRepository
+	bloodRepo   bloodsearch.Repository
 	petService  *pet.PetService
 }
 
-func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.BloodRequestRepository, petService *pet.PetService) *GetDonorByIDHandler {
+func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.Repository, petService *pet.PetService) *GetDonorByIDHandler {
 	return &GetDonorByIDHandler{
 		petReadRepo: petReadRepo,
 		donorRepo:   donorRepo,

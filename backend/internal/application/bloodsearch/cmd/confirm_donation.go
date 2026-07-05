@@ -19,7 +19,7 @@ import (
 )
 
 type ConfirmDonationHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
@@ -29,7 +29,7 @@ type ConfirmDonationHandler struct {
 }
 
 func NewConfirmDonationHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,

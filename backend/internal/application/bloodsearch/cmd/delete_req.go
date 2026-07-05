@@ -10,11 +10,11 @@ import (
 )
 
 type DeleteRequestHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	txManager *presistance.TxManager
 }
 
-func NewDeleteRequestHandler(bloodRepo bloodsearch.BloodRequestRepository, txManager *presistance.TxManager) *DeleteRequestHandler {
+func NewDeleteRequestHandler(bloodRepo bloodsearch.Repository, txManager *presistance.TxManager) *DeleteRequestHandler {
 	return &DeleteRequestHandler{
 		bloodRepo: bloodRepo,
 		txManager: txManager,

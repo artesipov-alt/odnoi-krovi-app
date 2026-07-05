@@ -562,6 +562,7 @@ func (r *EntPetRepository) AddPhotoURLs(ctx context.Context, id string, paths []
 	return nil
 }
 
+// TODO: RAW SQL
 func (r *EntPetRepository) GetPetsByBloodGroupAndRegion(ctx context.Context, petType commonmodel.PetType, bloodGroups, regions []string) ([]*model.Pet, error) {
 	query := r.client.Pet.Query().
 		WithOwner(func(uq *ent.UserQuery) {

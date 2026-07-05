@@ -10,10 +10,10 @@ import (
 
 type GetByIDHandler struct {
 	petReadRepo  pet.PetReadRepository
-	bloodReqRepo bloodsearch.BloodRequestRepository
+	bloodReqRepo bloodsearch.Repository
 }
 
-func NewGetByIDHandler(petReadRepo pet.PetReadRepository, bloodReqRepo bloodsearch.BloodRequestRepository) *GetByIDHandler {
+func NewGetByIDHandler(petReadRepo pet.PetReadRepository, bloodReqRepo bloodsearch.Repository) *GetByIDHandler {
 	return &GetByIDHandler{
 		petReadRepo:  petReadRepo,
 		bloodReqRepo: bloodReqRepo,

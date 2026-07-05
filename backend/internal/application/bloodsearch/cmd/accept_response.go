@@ -18,7 +18,7 @@ import (
 )
 
 type ApplyResponseHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
@@ -27,7 +27,7 @@ type ApplyResponseHandler struct {
 }
 
 func NewApplyResponseHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,

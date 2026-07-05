@@ -28,7 +28,7 @@ type GetByUserHandler struct {
 	petReadRepo   pet.PetReadRepository
 	userRepo      user.Repository
 	donorRespRepo donor.Repository
-	bloodReqRepo  bloodsearch.BloodRequestRepository
+	bloodReqRepo  bloodsearch.Repository
 	bonusRepo     bonus.Repository
 	petService    *pet.PetService
 }
@@ -37,7 +37,7 @@ func NewGetByUserHandler(
 	petReadRepo pet.PetReadRepository,
 	userRepo user.Repository,
 	donorRespRepo donor.Repository,
-	bloodReqRepo bloodsearch.BloodRequestRepository,
+	bloodReqRepo bloodsearch.Repository,
 	bonusRepo bonus.Repository,
 	petService *pet.PetService,
 ) *GetByUserHandler {

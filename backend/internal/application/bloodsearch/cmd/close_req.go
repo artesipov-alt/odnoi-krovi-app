@@ -18,7 +18,7 @@ import (
 )
 
 type CloseRequestHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.PetReadRepository
 	userRepo  user.Repository
@@ -28,7 +28,7 @@ type CloseRequestHandler struct {
 }
 
 func NewCloseRequestHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.PetReadRepository,
 	userRepo user.Repository,

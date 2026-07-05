@@ -18,7 +18,7 @@ import (
 
 type CompleteDonationHandler struct {
 	donorRepo donor.Repository
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
 	publisher ports.EventPublisher
@@ -26,7 +26,7 @@ type CompleteDonationHandler struct {
 
 func NewCompleteDonationHandler(
 	donorRepo donor.Repository,
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,
 	publisher ports.EventPublisher,

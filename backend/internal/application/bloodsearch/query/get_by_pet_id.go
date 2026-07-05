@@ -9,12 +9,12 @@ import (
 )
 
 type GetByPetIDHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	petRepo   pet.Repository
 }
 
 func NewGetByPetIDHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	petRepo pet.Repository,
 ) *GetByPetIDHandler {
 	return &GetByPetIDHandler{
