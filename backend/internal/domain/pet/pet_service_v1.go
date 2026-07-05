@@ -39,30 +39,6 @@ func (s *PetServiceV1) CalculateStatus(pet *model.Pet, application *donormodel.D
 	}
 }
 
-// CalculateAndSetStatus calculates and sets the pet's status based on related aggregates
-func (s *PetServiceV1) CalculateAndSetStatusV2(pet *model.Pet, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) model.PetStatus {
-	var status model.PetStatus
-	if bloodReq != nil && !bloodReq.IsClosed() {
-		if bloodReq.HasActiveDonorApplications() {
-			status = model.PetStatusBloodFound
-		} else {
-			status = model.PetStatusRecipient
-		}
-	} else if !pet.HasStopFactors() {
-		status = model.PetStatusDonor
-	}
-
-	if application != nil && application.IsActiveForDonation() {
-		status = model.PetStatusPlannedDonation
-	}
-
-	if pet.IsRecovering() && pet.PetStatus != model.PetStatusRecipient && pet.PetStatus != model.PetStatusBloodFound {
-		return model.PetStatusRecovering
-	}
-
-	return status
-}
-
 // hasActiveBloodRequest checks if there is an active blood request
 func (s *PetServiceV1) hasActiveBloodRequest(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
 	return bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed

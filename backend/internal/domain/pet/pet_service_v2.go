@@ -44,6 +44,10 @@ func (s *PetServiceV2) CalculateStatus(pet *model.Pet, application *donormodel.D
 		return model.PetStatusRecovering
 	}
 
+	if status == "" {
+		return model.PetStatusNone
+	}
+
 	return status
 }
 
