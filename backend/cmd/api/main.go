@@ -149,7 +149,7 @@ func main() {
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
 
-		// Средизация сервисов.
+		// Инициализация сервисов.
 		matchingSvc := *bloodsearch.NewMatchingService()
 		petService := pet.NewPetServiceV2()
 		bonusSvc := bonus.NewBonusService(bonusRepo)

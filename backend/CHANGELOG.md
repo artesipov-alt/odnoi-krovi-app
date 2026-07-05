@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+
+## [3.20.2] - 2026-07-05
+
+### Добавлено
+
+- **`DonorMatchNotifier`:** Добавлен сервис `DonorMatchNotifier` (`internal/application/bloodsearch/service/`) для генерации уведомлений при поиске доноров крови после создания заявки.
+- **`PetService`:** Введен интерфейс `PetService` для абстрагирования бизнес-логики питомцев. Старая реализация переименована в `PetServiceV1`, создана новая `PetServiceV2` с чистыми функциями.
+- **Новые методы `PetReadRepository`:** Добавлены `GetPetIDsByBloodGroupAndRegion` (raw SQL для быстрого поиска ID) и `GetByIDs` (пакетная загрузка питомцев по ID).
+- **Хелперы в модели питомца:** Добавлены хелперы `HasStopFactors` и `IsRecovering` для более читаемой проверки статуса.
+
+### Изменено
+
+- **Порядок параметров:** В `GetStopFactors`/`RecalculateFactors` порядок параметров изменен: `isRecipient` теперь передаётся до `isPlaningDonation` для единообразия.
+
+### Исправлено
+
+- **Nil pointer dereference:** Исправлена ошибка nil pointer dereference в `RecalculateFactorsAndStatus` при вызове `bloodReq.IsClosed()` через promoted method на nil-`*BloodRequestWithApplications`. Добавлены nil-guards (`bloodReq != nil && !bloodReq.IsClosed()`) на стороне вызывающего кода в `PetServiceV1` и `PetServiceV2`. Аналогично защищены вызовы `application.IsActiveForDonation()`.
+
 ## [3.20.0] - 2026-07-03
 
 ### Изменено
