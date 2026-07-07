@@ -12,10 +12,11 @@ import styles from './DonationQuestions.module.less';
 type Props = {
     onClose?: () => void;
     factors?: WarnFactors[];
+    isRecipientOpen?: boolean;
     onOpenPetProfile?: () => void;
 };
 
-const DonationQuestions: FC<Props> = ({ onClose, onOpenPetProfile, factors = [] }) => {
+const DonationQuestions: FC<Props> = ({ onClose, onOpenPetProfile, isRecipientOpen, factors = [] }) => {
     const [openTooltipId, setOpenTooltipId] = useState<number | null>(null);
 
     const onTooltipIconClick = (i: number) => (e: MouseEvent) => {
@@ -41,7 +42,7 @@ const DonationQuestions: FC<Props> = ({ onClose, onOpenPetProfile, factors = [] 
             <img className={styles.img} src={donationQuestions} alt='donationQuestions' />
             <div className={styles.container}>
                 <h1 className={styles.title}>Вопросы к донорству</h1>
-                <p className={styles.descr}>Перед донацией обсудите с врачом следующее:</p>
+                <p className={styles.descr}>{isRecipientOpen ? '' : 'Перед донацией обсудите с врачом следующее:'}</p>
                 <div>
                     {factors.map(({ description, subDescription }, i) => (
                         <div key={description} className={styles.item}>

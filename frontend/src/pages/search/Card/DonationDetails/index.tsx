@@ -26,6 +26,7 @@ import Phone from 'imgs/svg/phone';
 import Processing from 'imgs/svg/processing';
 import Taxi from 'imgs/svg/taxi';
 import Telegram from 'imgs/svg/telegram';
+import DonationQuestions from 'pages/owner/Statuses/DonationQuestions';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
@@ -118,6 +119,7 @@ const DonationDetails: FC<Props> = ({
     const [activeTile, setaActiveTile] = useState<TileName | null>(null);
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
+    const [isDonorWarnFactorsOpen, setIsDonorWarnFactorsOpen] = useState(false);
     const [donation, setDonation] = useState<GetDonationForRecipientByIdResponse | null>(null);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
     const [rejectDonationFormParams, setRejectDonationFormParams] = useState<RejectedFormType>({ isOpen: false });
@@ -359,6 +361,10 @@ const DonationDetails: FC<Props> = ({
         setRejectDonationFormParams({ isOpen: false });
     };
 
+    const onOpenWarnFactorsToggle = () => {
+        setIsDonorWarnFactorsOpen((prevState) => !prevState);
+    };
+
     const onSubmitRejectFormHandler = async (reason: string) => {
         const response = await rejectDonation({ id: donationId, reason });
 
@@ -415,6 +421,16 @@ const DonationDetails: FC<Props> = ({
             <div className={styles.loading}>
                 <Loading size={90} thickness={4} />
             </div>
+        );
+    }
+
+    if (isDonorWarnFactorsOpen) {
+        return (
+            <DonationQuestions
+                isRecipientOpen
+                onClose={onOpenWarnFactorsToggle}
+                factors={donation.donorData.donorRestrictions?.warnFactors}
+            />
         );
     }
 
@@ -526,6 +542,11 @@ const DonationDetails: FC<Props> = ({
                     />
                     <CircularProgress size={156} strokeWidth={10} total={1} current={1} color='var(--red10, #FF2727)' />
                     <p className={styles.name}>{donation.donorData.name.toUpperCase()}</p>
+                    {!!donation.donorData.donorRestrictions?.warnFactors?.length && (
+                        <span onClick={onOpenWarnFactorsToggle} className={styles.warnFactors}>
+                            ?
+                        </span>
+                    )}
                 </div>
                 <div className={styles.photoDivider} />
                 <div className={styles.avatarWrapper}>
