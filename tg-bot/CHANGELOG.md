@@ -5,6 +5,20 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 и проект следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] — 2026-07-08
+
+### Added
+
+- **Детали питомца в уведомление `recipient_empty_showcase`.**
+  В сообщение «Вас долго не было, вы все еще ищите помощь для питомца?» добавлены имя питомца, группа крови и объём (например, «Барсик, группа А, 80 мл»).
+  Затронутые файлы: `src/events/notification/handleNotification.ts`.
+
+### Changed
+
+- **Порядок отправки контакта и кнопки в уведомлениях.**
+  Во всех сценариях, где отправляется контакт и текст с кнопкой «Открыть приложение», контакт теперь отправляется первым.
+  Затронутые файлы: `src/events/user/handleUserContact.ts`, `src/events/recipient/donorApply.ts`, `src/events/donor/donorNotConfirmed.ts`.
+
 ## [2.4.0] — 2026-07-03
 
 ### Changed

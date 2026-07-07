@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 export interface UserContactEvent {
   notifyProvider: string;
@@ -35,7 +36,7 @@ export const handleUserContact = async (event: UserContactEvent) => {
   }
 
   try {
-    // Отправляем контакт (если есть телефон)
+    // Сначала отправляем контакт (если есть телефон)
     if (userData.phone) {
       const nameParts = userData.name.split(" ");
       await sendTelegramContact(
@@ -49,6 +50,11 @@ export const handleUserContact = async (event: UserContactEvent) => {
       const message = `Контакт пользователя: ${userData.name}`;
       await sendTelegramMessage(sendTo, message);
     }
+
+    // Потом отправляем текст с кнопкой «Открыть приложение»
+    await sendTelegramMessage(sendTo, `Контакт пользователя`, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     pinologger.info(
       { sendTo, userName: userData.name },

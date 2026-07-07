@@ -38,13 +38,7 @@ export const handleDonorNotConfirmed = async (
     donorUserData.providerTelegram.trim() !== ""
   ) {
     try {
-      const donorMessage = `Хозяин реципиента (${recipientPetName}, группа ${recipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
-
-      await sendTelegramMessage(donorUserData.providerTelegram, donorMessage, {
-        reply_markup: createOpenAppKeyboard(),
-      });
-
-      // Отправляем контакт реципиента
+      // Сначала отправляем контакт реципиента
       if (recipientUserData.providerTelegram && recipientUserData.phone) {
         const nameParts = recipientUserData.name.split(" ");
         await sendTelegramContact(
@@ -54,6 +48,12 @@ export const handleDonorNotConfirmed = async (
           { last_name: nameParts.slice(1).join(" ") || undefined },
         );
       }
+
+      const donorMessage = `Хозяин реципиента (${recipientPetName}, группа ${recipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
+
+      await sendTelegramMessage(donorUserData.providerTelegram, donorMessage, {
+        reply_markup: createOpenAppKeyboard(),
+      });
 
       pinologger.info(
         {
@@ -76,15 +76,7 @@ export const handleDonorNotConfirmed = async (
     recipientUserData.providerTelegram.trim() !== ""
   ) {
     try {
-      const recipientMessage = `Вы не подтвердили донацию (${donorPetName}, группа ${donorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
-
-      await sendTelegramMessage(
-        recipientUserData.providerTelegram,
-        recipientMessage,
-        { reply_markup: createOpenAppKeyboard() },
-      );
-
-      // Отправляем контакт донора
+      // Сначала отправляем контакт донора
       if (donorUserData.providerTelegram && donorUserData.phone) {
         const nameParts = donorUserData.name.split(" ");
         await sendTelegramContact(
@@ -94,6 +86,14 @@ export const handleDonorNotConfirmed = async (
           { last_name: nameParts.slice(1).join(" ") || undefined },
         );
       }
+
+      const recipientMessage = `Вы не подтвердили донацию (${donorPetName}, группа ${donorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
+
+      await sendTelegramMessage(
+        recipientUserData.providerTelegram,
+        recipientMessage,
+        { reply_markup: createOpenAppKeyboard() },
+      );
 
       pinologger.info(
         {

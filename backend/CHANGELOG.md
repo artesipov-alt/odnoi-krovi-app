@@ -6,6 +6,14 @@
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
 
+## [3.20.3] - 2026-07-08
+
+### Изменено
+
+- **Детали питомца в уведомление `recipient_empty_showcase`.**
+  SQL-запрос `queryRecipientEmptyShowcase24h` теперь выбирает имя питомца, группу крови и объём. Payload уведомления содержит поля `petName`, `bloodGroup`, `volume`.
+  Затронутые файлы: `internal/infra/scheduler/job/notification_queries.go`, `internal/infra/scheduler/job/notification_job.go`.
+
 ## [3.20.2] - 2026-07-05
 
 ### Добавлено

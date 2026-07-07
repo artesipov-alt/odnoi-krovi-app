@@ -258,10 +258,13 @@ func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
 	for rows.Next() {
 		var (
 			requestID  string
+			petName    string
+			bloodGroup string
+			volume     sql.NullFloat64
 			telegramID sql.NullString
 			maxID      sql.NullString
 		)
-		if err := rows.Scan(&requestID, &telegramID, &maxID); err != nil {
+		if err := rows.Scan(&requestID, &petName, &bloodGroup, &volume, &telegramID, &maxID); err != nil {
 			slog.Error("checkRecipientEmptyShowcase24h: scan failed", "err", err)
 			continue
 		}
@@ -282,7 +285,10 @@ func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
 				MaxID:      maxID.String,
 			},
 			Payload: map[string]any{
-				"requestId": requestID,
+				"requestId":  requestID,
+				"petName":    petName,
+				"bloodGroup": bloodGroup,
+				"volume":     volume.Float64,
 			},
 			CreatedAt: time.Now(),
 		})

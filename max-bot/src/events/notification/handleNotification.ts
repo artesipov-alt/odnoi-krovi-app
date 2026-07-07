@@ -26,8 +26,8 @@ const messages: Record<string, (payload: Record<string, any>) => string> = {
     `Вы откликнулись на поиск (*${p.recipientPetName}*, группа ${p.recipientBloodGroup}, ${p.volume} мл), но хозяин реципиента пока не принял Ваше предложение.\nМожете подождать еще немного или отменить донацию и помочь другому питомцу на Портале.`,
 
   // п.5 — пустая витрина, 24ч не заходил
-  recipient_empty_showcase: (_p) =>
-    `Вас долго не было, Вы еще ищите помощь для питомца?`,
+  recipient_empty_showcase: (p) =>
+    `Вас долго не было, Вы еще ищите помощь для питомца *${p.petName}* (группа ${p.bloodGroup}, ${p.volume} мл)?`,
 
   // п.6 — пустая витрина, 48ч не заходил и не нажал "Да"
   recipient_search_closed_inactive: (_p) =>

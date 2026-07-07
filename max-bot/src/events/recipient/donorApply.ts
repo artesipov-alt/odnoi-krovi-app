@@ -53,15 +53,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   // Отправляем уведомление реципиенту
   try {
-    const recipientMessage = generateRecipientMessage({
-      donorName: donorData.petName,
-      donorBloodGroup: donorData.bloodGroup,
-    });
-
-    await sendMessageToUser(recipientProviderMaxID, recipientMessage, {
-      attachments: [getAppOpenKeyboard()],
-    });
-
+    // Сначала отправляем контакт донора
     await sendMessageToUser(recipientProviderMaxID, "", {
       attachments: [
         {
@@ -74,6 +66,15 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
           },
         },
       ],
+    });
+
+    const recipientMessage = generateRecipientMessage({
+      donorName: donorData.petName,
+      donorBloodGroup: donorData.bloodGroup,
+    });
+
+    await sendMessageToUser(recipientProviderMaxID, recipientMessage, {
+      attachments: [getAppOpenKeyboard()],
     });
 
     pinologger.info(
@@ -92,16 +93,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   // Отправляем уведомление донору (независимо от отправки реципиенту)
   try {
-    const donorMessage = generateDonorMessage({
-      recipientName: recipientData.petName,
-      recipientBloodGroup: recipientData.bloodGroup,
-      recipientVolume: recipientData.volume,
-    });
-
-    await sendMessageToUser(donorProviderMaxID, donorMessage, {
-      attachments: [getAppOpenKeyboard()],
-    });
-
+    // Сначала отправляем контакт реципиента
     await sendMessageToUser(donorProviderMaxID, "", {
       attachments: [
         {
@@ -114,6 +106,16 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
           },
         },
       ],
+    });
+
+    const donorMessage = generateDonorMessage({
+      recipientName: recipientData.petName,
+      recipientBloodGroup: recipientData.bloodGroup,
+      recipientVolume: recipientData.volume,
+    });
+
+    await sendMessageToUser(donorProviderMaxID, donorMessage, {
+      attachments: [getAppOpenKeyboard()],
     });
 
     pinologger.info(

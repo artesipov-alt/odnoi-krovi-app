@@ -75,16 +75,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   // Отправляем уведомление реципиенту
   try {
-    const recipientMessage = generateRecipientMessage({
-      donorName: donorData.petName,
-      donorBloodGroup: donorData.bloodGroup,
-    });
-
-    await sendTelegramMessage(recipientProviderTelegram, recipientMessage, {
-      reply_markup: createOpenAppKeyboard(),
-    });
-
-    // Отправляем контакт донора реципиенту
+    // Сначала отправляем контакт донора
     if (donorData.providerTelegram && donorData.phone) {
       const nameParts = donorData.userName.split(" ");
       await sendTelegramContact(
@@ -94,6 +85,15 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
         { last_name: nameParts.slice(1).join(" ") || undefined },
       );
     }
+
+    const recipientMessage = generateRecipientMessage({
+      donorName: donorData.petName,
+      donorBloodGroup: donorData.bloodGroup,
+    });
+
+    await sendTelegramMessage(recipientProviderTelegram, recipientMessage, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     pinologger.info(
       {
@@ -111,17 +111,7 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   // Отправляем уведомление донору (независимо от отправки реципиенту)
   try {
-    const donorMessage = generateDonorMessage({
-      recipientName: recipientData.petName,
-      recipientBloodGroup: recipientData.bloodGroup,
-      recipientVolume: recipientData.volume,
-    });
-
-    await sendTelegramMessage(donorProviderTelegram, donorMessage, {
-      reply_markup: createOpenAppKeyboard(),
-    });
-
-    // Отправляем контакт реципиента донору
+    // Сначала отправляем контакт реципиента
     if (recipientData.providerTelegram && recipientData.phone) {
       const nameParts = recipientData.userName.split(" ");
       await sendTelegramContact(
@@ -131,6 +121,16 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
         { last_name: nameParts.slice(1).join(" ") || undefined },
       );
     }
+
+    const donorMessage = generateDonorMessage({
+      recipientName: recipientData.petName,
+      recipientBloodGroup: recipientData.bloodGroup,
+      recipientVolume: recipientData.volume,
+    });
+
+    await sendTelegramMessage(donorProviderTelegram, donorMessage, {
+      reply_markup: createOpenAppKeyboard(),
+    });
 
     pinologger.info(
       {

@@ -41,12 +41,7 @@ export const handleDonorNotConfirmed = async (
   // Notify donor
   if (donorProviderMaxId && donorProviderMaxId.trim() !== "") {
     try {
-      const donorMessage = `Хозяин реципиента (${recipientPetName}, группа ${recipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
-
-      await sendMessageToUser(donorProviderMaxId, donorMessage, {
-        attachments: [getAppOpenKeyboard()],
-      });
-
+      // Сначала отправляем контакт реципиента
       await sendMessageToUser(donorProviderMaxId, "", {
         attachments: [
           {
@@ -62,6 +57,12 @@ export const handleDonorNotConfirmed = async (
             },
           },
         ],
+      });
+
+      const donorMessage = `Хозяин реципиента (${recipientPetName}, группа ${recipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
+
+      await sendMessageToUser(donorProviderMaxId, donorMessage, {
+        attachments: [getAppOpenKeyboard()],
       });
 
       pinologger.info(
@@ -85,16 +86,7 @@ export const handleDonorNotConfirmed = async (
     recipientUserData.providerMaxId.trim() !== ""
   ) {
     try {
-      const recipientMessage = `Вы не подтвердили донацию (${donorPetName}, группа ${donorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
-
-      await sendMessageToUser(
-        recipientUserData.providerMaxId,
-        recipientMessage,
-        {
-          attachments: [getAppOpenKeyboard()],
-        },
-      );
-
+      // Сначала отправляем контакт донора
       await sendMessageToUser(recipientUserData.providerMaxId, "", {
         attachments: [
           {
@@ -108,6 +100,16 @@ export const handleDonorNotConfirmed = async (
           },
         ],
       });
+
+      const recipientMessage = `Вы не подтвердили донацию (${donorPetName}, группа ${donorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
+
+      await sendMessageToUser(
+        recipientUserData.providerMaxId,
+        recipientMessage,
+        {
+          attachments: [getAppOpenKeyboard()],
+        },
+      );
 
       pinologger.info(
         {

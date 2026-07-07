@@ -37,12 +37,7 @@ export const handleUserContact = async (event: UserContactEvent) => {
   }
 
   try {
-    const message = `Контакт пользователя`;
-
-    await sendMessageToUser(sendTo, message, {
-      attachments: [getAppOpenKeyboard()],
-    });
-
+    // Сначала отправляем контакт (VCF)
     await sendMessageToUser(sendTo, "", {
       attachments: [
         {
@@ -55,6 +50,13 @@ export const handleUserContact = async (event: UserContactEvent) => {
           },
         },
       ],
+    });
+
+    // Потом отправляем текст с кнопкой «Открыть приложение»
+    const message = `Контакт пользователя`;
+
+    await sendMessageToUser(sendTo, message, {
+      attachments: [getAppOpenKeyboard()],
     });
 
     pinologger.info(

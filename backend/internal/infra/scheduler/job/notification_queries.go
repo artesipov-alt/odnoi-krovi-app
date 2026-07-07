@@ -78,6 +78,9 @@ const queryRecipientInactive12h = `
 const queryRecipientEmptyShowcase24h = `
 		SELECT
 		    br.id,
+		    recipient_pet.name,
+		    recipient_pet.blood_group,
+		    br.blood_volume_needed,
 		    MAX(CASE WHEN i.provider = 'telegram_bot' THEN i.provider_user_id END) AS telegram_id,
 		    MAX(CASE WHEN i.provider = 'max_bot'      THEN i.provider_user_id END) AS max_id
 		FROM blood_requests br
@@ -91,7 +94,7 @@ const queryRecipientEmptyShowcase24h = `
 		      WHERE dr.request_id = br.id
 		        AND dr.status = 'pending'
 		  )
-		GROUP BY br.id
+		GROUP BY br.id, recipient_pet.name, recipient_pet.blood_group, br.blood_volume_needed
 `
 const queryRecipientEmptyShowcase48h = `
 		SELECT
