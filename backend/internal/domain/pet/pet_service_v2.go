@@ -23,32 +23,32 @@ func NewPetServiceV2() *PetServiceV2 {
 	return &PetServiceV2{}
 }
 
-// CalculateAndSetStatus calculates and sets the pet's status based on related aggregates
+// CalculateStatus calculates and returns the pet's status based on related aggregates.
 func (s *PetServiceV2) CalculateStatus(pet *model.Pet, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) model.PetStatus {
-	var status model.PetStatus
+	// Planned donation takes precedence over everything else.
+	if application != nil && application.IsActiveForDonation() {
+		return model.PetStatusPlannedDonation
+	}
+
+	// Active blood request overrides donor/recovering status.
 	if bloodReq != nil && !bloodReq.IsClosed() {
 		if bloodReq.HasActiveDonorApplications() {
-			status = model.PetStatusBloodFound
-		} else {
-			status = model.PetStatusRecipient
+			return model.PetStatusBloodFound
 		}
-	} else if !pet.HasStopFactors() {
-		status = model.PetStatusDonor
+		return model.PetStatusRecipient
 	}
 
-	if application != nil && application.IsActiveForDonation() {
-		status = model.PetStatusPlannedDonation
-	}
-
-	if pet.IsRecovering() && pet.PetStatus != model.PetStatusRecipient && pet.PetStatus != model.PetStatusBloodFound {
+	// Recovering pet that isn't in an active request.
+	if pet.IsRecovering() {
 		return model.PetStatusRecovering
 	}
 
-	if status == "" {
-		return model.PetStatusNone
+	// No stop factors → eligible donor.
+	if !pet.HasStopFactors() {
+		return model.PetStatusDonor
 	}
 
-	return status
+	return model.PetStatusNone
 }
 
 // RecalculateFactorsAndStatus recalculates pet's factors and sets status based on related aggregates
