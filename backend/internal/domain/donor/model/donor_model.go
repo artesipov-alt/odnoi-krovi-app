@@ -117,7 +117,7 @@ func (d *DonorResponse) Cancel(reason string) error {
 	if reason == "" {
 		reason = "Донор самостоятельно отменил донацию. "
 	}
-	if d.Status == DonorResponseStatusAccepted {
+	if d.Status == DonorResponseStatusPending || d.Status == DonorResponseStatusAccepted {
 		d.RejectedReason = reason
 		d.Status = DonorResponseStatusCancelled
 		return nil
