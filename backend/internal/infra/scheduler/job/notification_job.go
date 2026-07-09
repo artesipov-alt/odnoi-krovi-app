@@ -85,9 +85,10 @@ func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
 			continue
 		}
 
-		if err := n.cache.MarkSent(ctx, ports.NotifDonorNotAccepted, responseID, time.Hour); err != nil {
+		if err := n.cache.MarkSent(ctx, ports.NotifDonorNotAccepted, responseID, 72*time.Hour); err != nil {
 			slog.Error("checkDonorNotAccepted: mark sent failed", "responseID", responseID, "err", err)
 		}
+
 	}
 }
 
