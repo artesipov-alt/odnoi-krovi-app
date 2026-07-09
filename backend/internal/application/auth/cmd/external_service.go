@@ -75,6 +75,9 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, idndata *authmodel.Ide
 			if err := h.userRepo.UpsertUserIdentity(txCtx, idn.UserID, idndata, metadata); err != nil {
 				return err
 			}
+			if err := h.userRepo.UpdateLastSeen(txCtx, idn.UserID); err != nil {
+				return err
+			}
 			if metadata != nil {
 				if err := h.userRepo.UpsertUTM(txCtx, idn.UserID, metadata); err != nil {
 					return err
@@ -92,7 +95,12 @@ func (h *ExternalAuthHandler) Handle(ctx context.Context, idndata *authmodel.Ide
 		return nil, err
 	}
 
-	accessToken, expiresAt := h.tokenGenerator.Generate(idn.UserID, string(userdata.Role), time.Now())
+	usr, err := h.userRepo.GetByID(ctx, idn.UserID, user.UserPreloadOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, expiresAt := h.tokenGenerator.Generate(idn.UserID, string(usr.Role), time.Now())
 	idn.SetJWTData(accessToken, expiresAt)
 
 	return idn, nil

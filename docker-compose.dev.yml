@@ -47,6 +47,7 @@ services:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_DEV} # dev токен
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      MAX_BOT_WEBHOOK_URL: https://devbot.1krovi.app/webhook
       MINIAPP_DOMAIN: https://dev.1krovi.app # поменял
       API_BASE_URL: https://dev.1krovi.app/api # поменял
       REDIS_HOST: redis_prod # Redis на этом же сервере

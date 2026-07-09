@@ -7,23 +7,20 @@ import (
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
-type UserContact struct {
-	NotifyProvider authmodel.ProviderName
-	SendTo         string
-	UserData       ContactData
-	CreatedAt      time.Time
-	Recipient      usermodel.User
-}
-
 type ContactData struct {
-	Name             string
-	ProviderMaxID    string
-	ProviderTelegram string
-	Phone            string
+	Name             string `json:"name"`
+	ProviderMaxID    string `json:"providerMaxId"`
+	ProviderTelegram string `json:"providerTelegram"`
+	Phone            string `json:"phone"`
 }
 
-func (e UserContact) EventName() string     { return "ApplyDonor" }
-func (e UserContact) OccurredAt() time.Time { return e.CreatedAt }
+type UserContact struct {
+	NotifyProvider authmodel.ProviderName `json:"notifyProvider"`
+	SendTo         string                 `json:"sendTo"`
+	UserData       ContactData            `json:"userData"`
+	CreatedAt      time.Time              `json:"createdAt"`
+	Recipient      usermodel.User         `json:"recipient"`
+}
 
 func GenerateContact(u *usermodel.User) UserContact {
 	event := UserContact{

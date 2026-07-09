@@ -23,6 +23,33 @@ RUN bun run build
 # Runtime image
 FROM oven/bun:1.3.13-alpine
 
+# Сертификаты Минцифры для TLS-валидации platform-api2.max.ru.
+# Без них fetch к Max API падает с UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
+# и подписка вебхука (src/maxbot.ts) не проходит.
+#
+# Цепочка доверия: Russian Trusted Root CA (russian_trusted_root_ca.crt)
+# → Russian Trusted Sub CA (*.cer) → сертификат platform-api2.max.ru.
+# Без корневого CA в bundle цепочка не валидируется, поэтому добавляем
+# оба — и .crt (root), и .cer (sub).
+#
+# ca-certificates нужен как базовый пакет, чтобы update-ca-certificates
+# мог собрать итоговый bundle в /etc/ssl/certs/ca-certificates.crt.
+COPY max-bot/certs/ /tmp/certs/
+RUN apk add --no-cache ca-certificates \
+    && mkdir -p /usr/local/share/ca-certificates \
+    && cp /tmp/certs/*.crt /usr/local/share/ca-certificates/ \
+    && for f in /tmp/certs/*.cer; do \
+         [ -f "$f" ] && cp "$f" "/usr/local/share/ca-certificates/$(basename $f .cer).crt"; \
+       done \
+    && update-ca-certificates \
+    && echo "=== Certificates in bundle: $(grep -c 'BEGIN CERTIFICATE' /etc/ssl/certs/ca-certificates.crt) ===" \
+    && echo "=== Added Russian Trusted certs ===" \
+    && ls -la /usr/local/share/ca-certificates/
+
+# Подстраховка: Bun может использовать свой CA-bundle, отличный от
+# системного. Явно указываем путь, чтобы fetch точно доверял нашим CA.
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+
 # Keep same workdir layout as during build so runtime imports still resolve
 WORKDIR /app/max-bot
 

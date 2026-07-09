@@ -164,6 +164,11 @@ export type ConfirmDonationRequest = {
     amount: number;
 };
 
+export type RejectDonationRequest = {
+    id: string;
+    reason: string;
+};
+
 export interface IBloodRequestApi {
     addToPool(params: AddToPoolRequest): AxiosPromise<AddToPoolResponse>;
     getPoolRequest(id: string): AxiosPromise<GetPoolRequestResponse>;
@@ -172,7 +177,7 @@ export interface IBloodRequestApi {
     applyDonorRespond(id: string): AxiosPromise<ApplyDonorRespondResponse>;
     getDonationForRecipientById(id: string): AxiosPromise<GetDonationForRecipientByIdResponse>;
     confirmDonation(params: ConfirmDonationRequest): AxiosPromise<void>;
-    rejectDonation(id: string): AxiosPromise<void>;
+    rejectDonation(params: RejectDonationRequest): AxiosPromise<void>;
     closeSearch(id: string): AxiosPromise<void>;
 }
 
@@ -200,8 +205,8 @@ export const bloodRequestApi = (): IBloodRequestApi => ({
     confirmDonation({ id, ...params }) {
         return instance.post(`${BLOOD_REQUEST_URL}/donation/${id}/confirm`, params);
     },
-    rejectDonation(id) {
-        return instance.post(`${BLOOD_REQUEST_URL}/donation/${id}/reject`);
+    rejectDonation({ id, ...params }) {
+        return instance.post(`${BLOOD_REQUEST_URL}/donation/${id}/reject`, params);
     },
     closeSearch(id) {
         return instance.post(`${BLOOD_REQUEST_URL}/close/${id}`);

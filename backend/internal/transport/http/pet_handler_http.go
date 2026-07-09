@@ -16,14 +16,13 @@ import (
 
 // PetHandler обрабатывает HTTP запросы для операций с питомцами
 type PetHandler struct {
-	createHandler     *petcmd.CreateHandler
-	updateHandler     *petcmd.UpdateHandler
-	deleteHandler     *petcmd.DeleteHandler
-	revalidateHandler *petcmd.RevalidateDonorHandler
-	getByIDHandler    *petquery.GetByIDHandler
-	getByUserHandler  *petquery.GetByUserHandler
-	petMapper         *mapper.PetMapper
-	storage           filestorage.Repository
+	createHandler    *petcmd.CreateHandler
+	updateHandler    *petcmd.UpdateHandler
+	deleteHandler    *petcmd.DeleteHandler
+	getByIDHandler   *petquery.GetByIDHandler
+	getByUserHandler *petquery.GetByUserHandler
+	petMapper        *mapper.PetMapper
+	storage          filestorage.Repository
 }
 
 // NewPetHandler создает новый обработчик питомцев
@@ -31,20 +30,18 @@ func NewPetHandler(
 	createHandler *petcmd.CreateHandler,
 	updateHandler *petcmd.UpdateHandler,
 	deleteHandler *petcmd.DeleteHandler,
-	revalidateHandler *petcmd.RevalidateDonorHandler,
 	getByIDHandler *petquery.GetByIDHandler,
 	getByUserHandler *petquery.GetByUserHandler,
 	storage filestorage.Repository,
 ) *PetHandler {
 	return &PetHandler{
-		createHandler:     createHandler,
-		updateHandler:     updateHandler,
-		deleteHandler:     deleteHandler,
-		revalidateHandler: revalidateHandler,
-		getByIDHandler:    getByIDHandler,
-		getByUserHandler:  getByUserHandler,
-		petMapper:         mapper.NewPetMapper(storage),
-		storage:           storage,
+		createHandler:    createHandler,
+		updateHandler:    updateHandler,
+		deleteHandler:    deleteHandler,
+		getByIDHandler:   getByIDHandler,
+		getByUserHandler: getByUserHandler,
+		petMapper:        mapper.NewPetMapper(storage),
+		storage:          storage,
 	}
 }
 
@@ -100,17 +97,6 @@ func (h *PetHandler) Register(api huma.API) {
 		Description: "Удаляет питомца из системы",
 		Tags:        []string{"pets-v1"},
 	}, h.DeletePet)
-
-	// Валидация донора по ID
-	huma.Register(api, huma.Operation{
-		OperationID:   "validate-donor",
-		Method:        http.MethodPost,
-		Path:          "/v1/pet/validate-donor/{pet_id}",
-		Summary:       "Валидация донора по ID",
-		Description:   "Пересчитывает и сохраняет факторы валидации донора для питомца",
-		Tags:          []string{"pets-v1"},
-		DefaultStatus: http.StatusOK,
-	}, h.ValidateDonor)
 }
 
 // CreatePet создает нового питомца
@@ -204,21 +190,6 @@ func (h *PetHandler) DeletePet(ctx context.Context, input *dto.DeletePetInput) (
 	return &dto.DeletePetOutput{
 		Body: dto.DeletePetResult{
 			Message: "Питомец успешно удален",
-		},
-	}, nil
-}
-
-// ValidateDonor пересчитывает факторы валидации донора
-func (h *PetHandler) ValidateDonor(ctx context.Context, input *dto.ValidateDonorInput) (*dto.ValidateDonorOutput, error) {
-	petResult, err := h.revalidateHandler.Handle(ctx, input.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.ValidateDonorOutput{
-		Body: dto.ValidateDonorResult{
-			ID:        petResult.ID,
-			UpdatedAt: petResult.UpdatedAt,
 		},
 	}, nil
 }

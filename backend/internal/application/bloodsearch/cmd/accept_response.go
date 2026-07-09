@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
@@ -17,7 +18,7 @@ import (
 )
 
 type ApplyResponseHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
@@ -26,7 +27,7 @@ type ApplyResponseHandler struct {
 }
 
 func NewApplyResponseHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,
@@ -68,7 +69,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		if err := application.Accept(); err != nil {
 			return err
 		}
-		if err := h.donorRepo.Accept(txCtx, donorResponseID); err != nil {
+		if err := h.donorRepo.Update(txCtx, application); err != nil {
 			return err
 		}
 
@@ -140,8 +141,8 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		CreatedAt:     time.Now(),
 	}
 
-	if err := h.publisher.PublishDonorApply(ctx, event); err != nil {
-		return err
+	if err := h.publisher.PublishEvent(ctx, ports.EventDonorApply, event); err != nil {
+		slog.Error("failed to publish donor apply notification", "err", err, "donorResponseID", donorResponseID)
 	}
 
 	return nil

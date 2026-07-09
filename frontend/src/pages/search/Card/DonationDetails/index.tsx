@@ -26,6 +26,7 @@ import Phone from 'imgs/svg/phone';
 import Processing from 'imgs/svg/processing';
 import Taxi from 'imgs/svg/taxi';
 import Telegram from 'imgs/svg/telegram';
+import DonationQuestions from 'pages/owner/Statuses/DonationQuestions';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
@@ -49,6 +50,7 @@ import AnalysesStep from 'components/Profiles/Steps/Analyses';
 import HealthStep from 'components/Profiles/Steps/Health';
 import ParamsStep from 'components/Profiles/Steps/Params';
 import TreatmentsStep from 'components/Profiles/Steps/Treatments';
+import RejectedForm, { RejectView } from 'components/RejectedForm';
 import TextField from 'components/TextField';
 import Timer from 'components/Timer';
 
@@ -66,6 +68,11 @@ enum TileName {
 type ChatCurtain = {
     isOpen: boolean;
     identities?: Identities[];
+};
+
+type RejectedFormType = {
+    isOpen: boolean;
+    view?: RejectView;
 };
 
 type Props = {
@@ -112,8 +119,10 @@ const DonationDetails: FC<Props> = ({
     const [activeTile, setaActiveTile] = useState<TileName | null>(null);
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
+    const [isDonorWarnFactorsOpen, setIsDonorWarnFactorsOpen] = useState(false);
     const [donation, setDonation] = useState<GetDonationForRecipientByIdResponse | null>(null);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
+    const [rejectDonationFormParams, setRejectDonationFormParams] = useState<RejectedFormType>({ isOpen: false });
     const [isRecipientConfirmationCurtainOpen, setIsRecipientConfirmationCurtainOpen] = useState(false);
 
     const [donorBloodGroup, setDonorBloodGroup] = useState<string | null>(null);
@@ -197,17 +206,8 @@ const DonationDetails: FC<Props> = ({
         setIsDonorConfirmationCurtainOpen((prevState) => !prevState);
     };
 
-    const onRejectDonationClickHandler = async () => {
-        const response = await rejectDonation(donationId);
-
-        if (!response) {
-            showToast('Не удалось отменить донацию');
-        } else {
-            await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
-        }
-
-        onClose();
-        onReject();
+    const onRejectDonationClickHandler = (view: RejectView) => () => {
+        setRejectDonationFormParams({ isOpen: true, view });
     };
 
     const onCallClickHandler = (e) => {
@@ -357,6 +357,31 @@ const DonationDetails: FC<Props> = ({
         setDonorBloodGroup(newBloodGroup);
     };
 
+    const onCloseRejectFormHandler = () => {
+        setRejectDonationFormParams({ isOpen: false });
+    };
+
+    const onOpenWarnFactorsToggle = () => {
+        setIsDonorWarnFactorsOpen((prevState) => !prevState);
+    };
+
+    const onSubmitRejectFormHandler = async (reason: string) => {
+        const response = await rejectDonation({ id: donationId, reason });
+
+        if (!response) {
+            showToast('Не удалось отменить донацию');
+        } else {
+            await queryClient.invalidateQueries({ queryKey: ['pets', userId] });
+        }
+
+        if (rejectDonationFormParams.view === RejectView.CANCEL) {
+            setRejectDonationFormParams({ isOpen: true, view: RejectView.FINAL });
+        } else {
+            onClose();
+            onReject();
+        }
+    };
+
     useEffect(() => {
         fetchDetails();
     }, [fetchDetails]);
@@ -396,6 +421,29 @@ const DonationDetails: FC<Props> = ({
             <div className={styles.loading}>
                 <Loading size={90} thickness={4} />
             </div>
+        );
+    }
+
+    if (isDonorWarnFactorsOpen) {
+        return (
+            <DonationQuestions
+                isRecipientOpen
+                onClose={onOpenWarnFactorsToggle}
+                factors={donation.donorData.donorRestrictions?.warnFactors}
+            />
+        );
+    }
+
+    if (rejectDonationFormParams.isOpen && rejectDonationFormParams.view) {
+        return (
+            <Layout>
+                <RejectedForm
+                    userId={userId}
+                    onBack={onCloseRejectFormHandler}
+                    view={rejectDonationFormParams.view}
+                    onSubmit={onSubmitRejectFormHandler}
+                />
+            </Layout>
         );
     }
 
@@ -494,6 +542,11 @@ const DonationDetails: FC<Props> = ({
                     />
                     <CircularProgress size={156} strokeWidth={10} total={1} current={1} color='var(--red10, #FF2727)' />
                     <p className={styles.name}>{donation.donorData.name.toUpperCase()}</p>
+                    {!!donation.donorData.donorRestrictions?.warnFactors?.length && (
+                        <span onClick={onOpenWarnFactorsToggle} className={styles.warnFactors}>
+                            ?
+                        </span>
+                    )}
                 </div>
                 <div className={styles.photoDivider} />
                 <div className={styles.avatarWrapper}>
@@ -535,7 +588,7 @@ const DonationDetails: FC<Props> = ({
                         </Button>
                         <Button
                             className={cn(styles.confirmDonation, { [styles.reject]: true })}
-                            onClick={onRejectDonationClickHandler}
+                            onClick={onRejectDonationClickHandler(RejectView.CANCEL)}
                         >
                             Донация отменилась
                         </Button>
@@ -696,11 +749,11 @@ const DonationDetails: FC<Props> = ({
                     cancelButtonTitle='Подтверждаю'
                     confirmButtonTitle='Не подтверждаю'
                     onClose={onDonorConfirmDonationToggle}
-                    onConfirm={onRejectDonationClickHandler}
                     subTitleClassName={styles.donorConfirmationSubTitle}
+                    subTitle='Подтвердите, чтобы донор смог получить бонусы'
                     confirmButtonClassName={styles.donorConfirmationConfirm}
                     onCancel={onConfirmDonationClickHandler(false)}
-                    subTitle='Подтвердите, чтобы донор смог получить бонусы'
+                    onConfirm={onRejectDonationClickHandler(RejectView.NOT_CONFIRM)}
                     title={
                         <>
                             Хозяин донора

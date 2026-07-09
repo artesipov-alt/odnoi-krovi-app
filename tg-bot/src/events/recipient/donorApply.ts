@@ -1,27 +1,28 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
-// Отклик реципиента на донора.(Принятие заявки)
+// Отклик реципиента на донора (Принятие заявки)
 interface ApplyDonorEvent {
-  DonorData: DonorData;
-  RecipientData: RecipientData;
+  donorData: DonorData;
+  recipientData: RecipientData;
 }
 
 interface DonorData {
-  ProviderTelegram: string;
-  UserName: string;
-  PetName: string;
-  Phone: string;
-  BloodGroup: string;
+  providerTelegram: string;
+  userName: string;
+  petName: string;
+  phone: string;
+  bloodGroup: string;
 }
 
 interface RecipientData {
-  ProviderTelegram: string;
-  UserName: string;
-  PetName: string;
-  Phone: string;
-  BloodGroup: string;
-  Volume: number;
+  providerTelegram: string;
+  userName: string;
+  petName: string;
+  phone: string;
+  bloodGroup: string;
+  volume: number;
 }
 
 const generateRecipientMessage = (params: {
@@ -51,15 +52,15 @@ const generateDonorMessage = (params: {
 };
 
 export const handleDonorApply = async (event: ApplyDonorEvent) => {
-  const { DonorData, RecipientData } = event;
+  const { donorData, recipientData } = event;
 
-  const donorProviderTelegram = DonorData.ProviderTelegram;
-  const recipientProviderTelegram = RecipientData.ProviderTelegram;
+  const donorProviderTelegram = donorData.providerTelegram;
+  const recipientProviderTelegram = recipientData.providerTelegram;
 
   if (!recipientProviderTelegram || recipientProviderTelegram.trim() === "") {
     pinologger.warn(
       { donorId: donorProviderTelegram },
-      "Recipient ProviderTelegram is empty, skipping notification",
+      "Recipient providerTelegram is empty, skipping notification",
     );
     return;
   }
@@ -67,35 +68,37 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
   if (!donorProviderTelegram || donorProviderTelegram.trim() === "") {
     pinologger.warn(
       { recipientId: recipientProviderTelegram },
-      "Donor ProviderTelegram is empty, skipping notification",
+      "Donor providerTelegram is empty, skipping notification",
     );
     return;
   }
 
   // Отправляем уведомление реципиенту
   try {
-    const recipientMessage = generateRecipientMessage({
-      donorName: DonorData.PetName,
-      donorBloodGroup: DonorData.BloodGroup,
-    });
-
-    await sendTelegramMessage(recipientProviderTelegram, recipientMessage);
-
-    // Отправляем контакт донора реципиенту
-    if (DonorData.ProviderTelegram && DonorData.Phone) {
-      const nameParts = DonorData.UserName.split(" ");
+    // Сначала отправляем контакт донора
+    if (donorData.providerTelegram && donorData.phone) {
+      const nameParts = donorData.userName.split(" ");
       await sendTelegramContact(
         recipientProviderTelegram,
-        DonorData.Phone,
-        nameParts[0] || DonorData.UserName,
+        donorData.phone,
+        nameParts[0] || donorData.userName,
         { last_name: nameParts.slice(1).join(" ") || undefined },
       );
     }
 
+    const recipientMessage = generateRecipientMessage({
+      donorName: donorData.petName,
+      donorBloodGroup: donorData.bloodGroup,
+    });
+
+    await sendTelegramMessage(recipientProviderTelegram, recipientMessage, {
+      reply_markup: createOpenAppKeyboard(),
+    });
+
     pinologger.info(
       {
         recipientId: recipientProviderTelegram,
-        donorName: DonorData.PetName,
+        donorName: donorData.petName,
       },
       "Sent donor apply notification to recipient",
     );
@@ -108,29 +111,31 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   // Отправляем уведомление донору (независимо от отправки реципиенту)
   try {
-    const donorMessage = generateDonorMessage({
-      recipientName: RecipientData.PetName,
-      recipientBloodGroup: RecipientData.BloodGroup,
-      recipientVolume: RecipientData.Volume,
-    });
-
-    await sendTelegramMessage(donorProviderTelegram, donorMessage);
-
-    // Отправляем контакт реципиента донору
-    if (RecipientData.ProviderTelegram && RecipientData.Phone) {
-      const nameParts = RecipientData.UserName.split(" ");
+    // Сначала отправляем контакт реципиента
+    if (recipientData.providerTelegram && recipientData.phone) {
+      const nameParts = recipientData.userName.split(" ");
       await sendTelegramContact(
         donorProviderTelegram,
-        RecipientData.Phone,
-        nameParts[0] || RecipientData.UserName,
+        recipientData.phone,
+        nameParts[0] || recipientData.userName,
         { last_name: nameParts.slice(1).join(" ") || undefined },
       );
     }
 
+    const donorMessage = generateDonorMessage({
+      recipientName: recipientData.petName,
+      recipientBloodGroup: recipientData.bloodGroup,
+      recipientVolume: recipientData.volume,
+    });
+
+    await sendTelegramMessage(donorProviderTelegram, donorMessage, {
+      reply_markup: createOpenAppKeyboard(),
+    });
+
     pinologger.info(
       {
         donorId: donorProviderTelegram,
-        recipientPetName: RecipientData.PetName,
+        recipientPetName: recipientData.petName,
       },
       "Sent donor apply notification to donor",
     );

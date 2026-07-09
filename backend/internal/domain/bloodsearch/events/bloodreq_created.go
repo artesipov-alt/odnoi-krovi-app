@@ -1,20 +1,11 @@
-// internal/domain/events/blood_request.go
 package events
 
 import "time"
 
 type BloodRequestCreated struct {
-	RequestID      string
-	BloodTypes     []string
-	Regions        []string
-	AvilableDonors []Peers
-	CreatedAt      time.Time
+	BloodTypes []string  `json:"bloodTypes"`
+	Regions    []string  `json:"regions"`
+	TelegramID string    `json:"telegramId"`
+	MaxID      string    `json:"maxId"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
-
-type Peers struct {
-	TelegramID string
-	MaxID      string
-}
-
-func (e BloodRequestCreated) EventName() string     { return "BloodRequestCreated" }
-func (e BloodRequestCreated) OccurredAt() time.Time { return e.CreatedAt }

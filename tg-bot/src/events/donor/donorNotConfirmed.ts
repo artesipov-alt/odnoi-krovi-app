@@ -1,67 +1,70 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 interface DonorNotConfirmedEvent {
-  DonorPetName: string;
-  DonorBloodGroup: string;
-  RecipientPetName: string;
-  RecipientBloodGroup: string;
-  RecipientUserData: {
-    Name: string;
-    ProviderTelegram: string;
-    Phone: string;
+  donorPetName: string;
+  donorBloodGroup: string;
+  recipientPetName: string;
+  recipientBloodGroup: string;
+  recipientUserData: {
+    name: string;
+    providerTelegram: string;
+    phone: string;
   };
-  DonorUserData: {
-    Name: string;
-    ProviderTelegram: string;
-    Phone: string;
+  donorUserData: {
+    name: string;
+    providerTelegram: string;
+    phone: string;
   };
-  CreatedAt: string;
+  createdAt: string;
 }
 
 export const handleDonorNotConfirmed = async (
   event: DonorNotConfirmedEvent,
 ) => {
   const {
-    DonorPetName,
-    DonorBloodGroup,
-    RecipientPetName,
-    RecipientBloodGroup,
-    RecipientUserData,
-    DonorUserData,
+    donorPetName,
+    donorBloodGroup,
+    recipientPetName,
+    recipientBloodGroup,
+    recipientUserData,
+    donorUserData,
   } = event;
 
   // Notify donor
   if (
-    DonorUserData.ProviderTelegram &&
-    DonorUserData.ProviderTelegram.trim() !== ""
+    donorUserData.providerTelegram &&
+    donorUserData.providerTelegram.trim() !== ""
   ) {
     try {
-      const donorMessage = `Хозяин реципиента (${RecipientPetName}, группа ${RecipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
-
-      await sendTelegramMessage(DonorUserData.ProviderTelegram, donorMessage);
-
-      // Отправляем контакт реципиента
-      if (RecipientUserData.ProviderTelegram && RecipientUserData.Phone) {
-        const nameParts = RecipientUserData.Name.split(" ");
+      // Сначала отправляем контакт реципиента
+      if (recipientUserData.providerTelegram && recipientUserData.phone) {
+        const nameParts = recipientUserData.name.split(" ");
         await sendTelegramContact(
-          DonorUserData.ProviderTelegram,
-          RecipientUserData.Phone,
-          nameParts[0] || RecipientUserData.Name,
+          donorUserData.providerTelegram,
+          recipientUserData.phone,
+          nameParts[0] || recipientUserData.name,
           { last_name: nameParts.slice(1).join(" ") || undefined },
         );
       }
 
+      const donorMessage = `Хозяин реципиента (${recipientPetName}, группа ${recipientBloodGroup}) не подтвердил донацию. Можете связаться с ним для уточнения ситуации.`;
+
+      await sendTelegramMessage(donorUserData.providerTelegram, donorMessage, {
+        reply_markup: createOpenAppKeyboard(),
+      });
+
       pinologger.info(
         {
-          donorId: DonorUserData.ProviderTelegram,
-          recipientPetName: RecipientPetName,
+          donorId: donorUserData.providerTelegram,
+          recipientPetName,
         },
         "Sent donor not confirmed notification to donor",
       );
     } catch (err) {
       pinologger.error(
-        { error: err, donorId: DonorUserData.ProviderTelegram },
+        { error: err, donorId: donorUserData.providerTelegram },
         "Failed to send donor not confirmed notification to donor",
       );
     }
@@ -69,38 +72,39 @@ export const handleDonorNotConfirmed = async (
 
   // Notify recipient
   if (
-    RecipientUserData.ProviderTelegram &&
-    RecipientUserData.ProviderTelegram.trim() !== ""
+    recipientUserData.providerTelegram &&
+    recipientUserData.providerTelegram.trim() !== ""
   ) {
     try {
-      const recipientMessage = `Вы не подтвердили донацию (${DonorPetName}, группа ${DonorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
-
-      await sendTelegramMessage(
-        RecipientUserData.ProviderTelegram,
-        recipientMessage,
-      );
-
-      // Отправляем контакт донора
-      if (DonorUserData.ProviderTelegram && DonorUserData.Phone) {
-        const nameParts = DonorUserData.Name.split(" ");
+      // Сначала отправляем контакт донора
+      if (donorUserData.providerTelegram && donorUserData.phone) {
+        const nameParts = donorUserData.name.split(" ");
         await sendTelegramContact(
-          RecipientUserData.ProviderTelegram,
-          DonorUserData.Phone,
-          nameParts[0] || DonorUserData.Name,
+          recipientUserData.providerTelegram,
+          donorUserData.phone,
+          nameParts[0] || donorUserData.name,
           { last_name: nameParts.slice(1).join(" ") || undefined },
         );
       }
 
+      const recipientMessage = `Вы не подтвердили донацию (${donorPetName}, группа ${donorBloodGroup}). Можете связаться с хозяином донора для уточнения ситуации.`;
+
+      await sendTelegramMessage(
+        recipientUserData.providerTelegram,
+        recipientMessage,
+        { reply_markup: createOpenAppKeyboard() },
+      );
+
       pinologger.info(
         {
-          recipientId: RecipientUserData.ProviderTelegram,
-          donorPetName: DonorPetName,
+          recipientId: recipientUserData.providerTelegram,
+          donorPetName,
         },
         "Sent donor not confirmed notification to recipient",
       );
     } catch (err) {
       pinologger.error(
-        { error: err, recipientId: RecipientUserData.ProviderTelegram },
+        { error: err, recipientId: recipientUserData.providerTelegram },
         "Failed to send donor not confirmed notification to recipient",
       );
     }

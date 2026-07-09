@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -9,6 +10,7 @@ import (
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
+	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
@@ -17,7 +19,7 @@ import (
 )
 
 type ConfirmDonationHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
@@ -27,7 +29,7 @@ type ConfirmDonationHandler struct {
 }
 
 func NewConfirmDonationHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,
@@ -49,6 +51,7 @@ func NewConfirmDonationHandler(
 func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID string, factAmount float64) error {
 	var bloodReq *bloodmodel.BloodRequestWithApplications
 	var application *donormodel.DonorResponse
+	var rejectedDonorIDs []string
 
 	application, err := h.donorRepo.GetDonorResponseByID(ctx, donorResponseID)
 	if err != nil {
@@ -59,7 +62,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		if err := application.Confirm(factAmount); err != nil {
 			return err
 		}
-		if err := h.donorRepo.Confirm(txCtx, donorResponseID, factAmount); err != nil {
+		if err := h.donorRepo.Update(txCtx, application); err != nil {
 			return err
 		}
 		var err error
@@ -75,15 +78,17 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
-		if bloodReq.Status == bloodmodel.BloodRequestStatusClosed {
-			for _, app := range bloodReq.DonorApplications {
-				if app.ID != donorResponseID && (app.Status == donormodel.DonorResponseStatusPending || app.Status == donormodel.DonorResponseStatusAccepted || (app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed != true)) {
+		if bloodReq.IsClosed() {
+			for i := range bloodReq.DonorApplications {
+				app := &bloodReq.DonorApplications[i]
+				if app.ID != donorResponseID && app.IsActiveForDonation() {
 					if err := app.Reject("other"); err != nil {
 						return err
 					}
-					if err := h.donorRepo.Reject(txCtx, &app); err != nil {
+					if err := h.donorRepo.Update(txCtx, app); err != nil {
 						return err
 					}
+					rejectedDonorIDs = append(rejectedDonorIDs, app.DonorID)
 				}
 			}
 			// Установить флаг переливания для recipient'а
@@ -159,8 +164,40 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		CreatedAt: time.Now(),
 	}
 
-	if err := h.publisher.PublishDonationConfirmed(ctx, event); err != nil {
-		return err
+	if err := h.publisher.PublishEvent(ctx, ports.EventDonationConfirmed, event); err != nil {
+		slog.Error("failed to publish donation confirmed notification", "err", err, "donorResponseID", donorResponseID)
+	}
+
+	// Publish rejection events for donors who were auto-rejected when the request closed
+	if len(rejectedDonorIDs) > 0 {
+		for _, rejectedDonorID := range rejectedDonorIDs {
+			rejectedDonorPet, err := h.petRepo.GetByID(ctx, rejectedDonorID, pet.PetPreloadOptions{})
+			if err != nil {
+				return err
+			}
+			rejectedDonorUser, err := h.userRepo.GetByID(ctx, rejectedDonorPet.OwnerID, user.UserPreloadOptions{
+				WithIdentities: true,
+			})
+			if err != nil {
+				return err
+			}
+
+			donorMaxID, donorTelegramID := extractProviderIDs(rejectedDonorUser)
+
+			rejectEvent := donorevent.DonorReject{
+				RecipientPetName:        recipientPet.Name,
+				RecipientBloodGroup:     recipientPet.BloodGroupName,
+				DonorProviderMaxID:      donorMaxID,
+				DonorProviderTelegramID: donorTelegramID,
+				DonorPetName:            rejectedDonorPet.Name,
+				RejectedReason:          "other",
+				CreatedAt:               time.Now(),
+			}
+
+			if err := h.publisher.PublishEvent(ctx, ports.EventDonorReject, rejectEvent); err != nil {
+				slog.Error("failed to publish donor reject notification", "err", err, "donorID", rejectedDonorID)
+			}
+		}
 	}
 
 	return nil

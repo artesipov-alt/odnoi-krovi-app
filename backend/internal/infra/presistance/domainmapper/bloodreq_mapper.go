@@ -19,7 +19,6 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 		BloodRequest: bloodreqmodel.BloodRequest{
 			ID:                       req.ID,
 			PetID:                    req.PetID,
-			OwnerID:                  req.Edges.Pet.UserID,
 			BloodVolumeNeeded:        req.BloodVolumeNeeded,
 			PrioritySearch:           req.PrioritySearch,
 			IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
@@ -34,6 +33,7 @@ func RecipientToDomain(req *ent.BloodSearchRequest) *bloodreqmodel.BloodRequestW
 
 	if req.Edges.Pet != nil {
 		recipient.RecipientData.PetName = req.Edges.Pet.Name
+		recipient.RecipientData.OwnerID = req.Edges.Pet.UserID
 		recipient.RecipientData.PetType = common.PetType(req.Edges.Pet.Type)
 		recipient.RecipientData.PhotoURLs = req.Edges.Pet.PhotoUrls
 		recipient.RecipientData.BloodGroupName = req.Edges.Pet.BloodGroup

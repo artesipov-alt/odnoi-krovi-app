@@ -13,12 +13,12 @@ import (
 type FileService struct {
 	PetRepo   pet.Repository
 	UserRepo  user.Repository
-	BloodRepo bloodsearch.BloodRequestRepository
+	BloodRepo bloodsearch.Repository
 	storage   Repository
 }
 
 // NewFileService создает новый FileService
-func NewFileService(petRepo pet.Repository, userRepo user.Repository, bloodRepo bloodsearch.BloodRequestRepository, storage Repository) *FileService {
+func NewFileService(petRepo pet.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository, storage Repository) *FileService {
 	return &FileService{
 		PetRepo:   petRepo,
 		UserRepo:  userRepo,

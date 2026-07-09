@@ -28,18 +28,18 @@ type GetByUserHandler struct {
 	petReadRepo   pet.PetReadRepository
 	userRepo      user.Repository
 	donorRespRepo donor.Repository
-	bloodReqRepo  bloodsearch.BloodRequestRepository
+	bloodReqRepo  bloodsearch.Repository
 	bonusRepo     bonus.Repository
-	petService    *pet.PetService
+	petService    pet.PetService
 }
 
 func NewGetByUserHandler(
 	petReadRepo pet.PetReadRepository,
 	userRepo user.Repository,
 	donorRespRepo donor.Repository,
-	bloodReqRepo bloodsearch.BloodRequestRepository,
+	bloodReqRepo bloodsearch.Repository,
 	bonusRepo bonus.Repository,
-	petService *pet.PetService,
+	petService pet.PetService,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
 		petReadRepo:   petReadRepo,
@@ -72,9 +72,8 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		recoveryPeriodMonths = owner.DonorPreference.RecoveryPeriodMonths
 	}
 
-	allPetsOpts := opts
-	allPetsOpts.IgnoreSoftDelete = true
-	allPets, err := h.petReadRepo.GetByUserID(ctx, userID, allPetsOpts)
+	opts.SetIgnoreSoftDelete()
+	allPets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
@@ -96,35 +95,33 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		return nil, apperrors.Internal(err, "failed to get blood requests")
 	}
 
-	// Filter active pets for result
-	activePets := make([]*model.Pet, 0, len(allPets))
-	for _, pet := range allPets {
-		if pet.DeletedAt == nil {
-			activePets = append(activePets, pet)
-		}
-	}
-
-	plannedDonations := make([]*donormodel.DonorResponse, 0, len(activePets))
+	// ---- Stage 1: count completed donations for all pets (including deleted) ----
 	totalCompletedDonations := 0
 	for _, pet := range allPets {
-		applications := applicationsMap[pet.ID]
-		var application *donormodel.DonorResponse
-		for _, app := range applications {
-			if app.IsActiveForDonation() {
-				application = app
-				break
-			}
-			if app.Status == donormodel.DonorResponseStatusCompleted && app.IsConfirmed {
+		for _, app := range applicationsMap[pet.ID] {
+			if app.IsCompleted() {
 				totalCompletedDonations++
 			}
 		}
-		if application != nil && pet.DeletedAt == nil { // Only add planned for active pets
+	}
+
+	// ---- Stage 2: process only active pets ----
+	activePets := make([]*model.Pet, 0, len(allPets))
+	plannedDonations := make([]*donormodel.DonorResponse, 0)
+
+	for _, pet := range allPets {
+		if pet.IsDeleted() {
+			continue
+		}
+		activePets = append(activePets, pet)
+
+		application := findActiveDonation(applicationsMap[pet.ID])
+		if application != nil {
 			plannedDonations = append(plannedDonations, application)
 		}
+
 		bloodReq := bloodReqsMap[pet.ID]
-
 		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
-
 		pet.RecoveryDays = h.petService.CalculateRecoveryDays(pet, recoveryPeriodMonths, time.Now())
 	}
 
@@ -141,4 +138,13 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		TotalPrioritySearch:     owner.PrioritySearchCount,
 		TotalBonuses:            len(assignedBonuses),
 	}, nil
+}
+
+func findActiveDonation(applications []*donormodel.DonorResponse) *donormodel.DonorResponse {
+	for _, app := range applications {
+		if app.IsActiveForDonation() {
+			return app
+		}
+	}
+	return nil
 }

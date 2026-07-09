@@ -1,0 +1,10 @@
+# Этот каталог содержит публичные TLS-сертификаты Минцифры, которыми
+# подписаны домены API платформы MAX. Нужны для TLS-валидации
+# platform-api2.max.ru из Alpine-контейнера.
+#
+# Не игнорируйте содержимое этого каталога — Dockerfile копирует
+# файлы в /usr/local/share/ca-certificates/ и обновляет системный
+# CA-bundle на runtime-стадии.
+#
+# Подробнее: https://dev.max.ru/docs-api
+#            https://digital.gov.ru/activity/kiberbezopasnost/sertifikaty-bezopasnosti

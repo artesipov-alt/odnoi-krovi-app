@@ -3,7 +3,132 @@
 Все значительные изменения в этом проекте будут документированы в этом файле.
 
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
-и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/)..
+и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
+
+
+## [3.20.3] - 2026-07-08
+
+### Изменено
+
+- **Детали питомца в уведомление `recipient_empty_showcase`.**
+  SQL-запрос `queryRecipientEmptyShowcase24h` теперь выбирает имя питомца, группу крови и объём. Payload уведомления содержит поля `petName`, `bloodGroup`, `volume`.
+  Затронутые файлы: `internal/infra/scheduler/job/notification_queries.go`, `internal/infra/scheduler/job/notification_job.go`.
+
+## [3.20.2] - 2026-07-05
+
+### Добавлено
+
+- **`DonorMatchNotifier`:** Добавлен сервис `DonorMatchNotifier` (`internal/application/bloodsearch/service/`) для генерации уведомлений при поиске доноров крови после создания заявки.
+- **`PetService`:** Введен интерфейс `PetService` для абстрагирования бизнес-логики питомцев. Старая реализация переименована в `PetServiceV1`, создана новая `PetServiceV2` с чистыми функциями.
+- **Новые методы `PetReadRepository`:** Добавлены `GetPetIDsByBloodGroupAndRegion` (raw SQL для быстрого поиска ID) и `GetByIDs` (пакетная загрузка питомцев по ID).
+- **Хелперы в модели питомца:** Добавлены хелперы `HasStopFactors` и `IsRecovering` для более читаемой проверки статуса.
+
+### Изменено
+
+- **Порядок параметров:** В `GetStopFactors`/`RecalculateFactors` порядок параметров изменен: `isRecipient` теперь передаётся до `isPlaningDonation` для единообразия.
+
+### Исправлено
+
+- **Nil pointer dereference:** Исправлена ошибка nil pointer dereference в `RecalculateFactorsAndStatus` при вызове `bloodReq.IsClosed()` через promoted method на nil-`*BloodRequestWithApplications`. Добавлены nil-guards (`bloodReq != nil && !bloodReq.IsClosed()`) на стороне вызывающего кода в `PetServiceV1` и `PetServiceV2`. Аналогично защищены вызовы `application.IsActiveForDonation()`.
+
+## [3.20.0] - 2026-07-03
+
+### Изменено
+
+- **Рефакторинг EventPublisher: 9 каналов → 1 канал `events`:**
+  - Интерфейс `EventPublisher` сокращён до двух методов: `PublishEvent` и `PublishNotification`.
+  - Добавлены `EventType` и `EventEnvelope` — тип события теперь передаётся внутри envelope, а не через имя канала.
+  - Удалены 9 констант каналов Redis, 9 методов `PublishXxx` и 9 заглушек `NoOpEventPublisher`.
+  - Все command handlers переведены на `PublishEvent(ctx, EventType, payload)`.
+  - Структура `BloodRequestCreated` упрощена: убраны `[]Peers`, добавлены плоские поля `TelegramID`/`MaxID`. В `create_req.go` — цикл с отдельным `PublishEvent` на каждого донора.
+  - Добавлены JSON-теги во все event-структуры для консистентной camelCase-сериализации.
+  - Удалены неиспользуемые методы `EventName()` и `OccurredAt()` из всех event-структур.
+
+### Технические детали
+
+- **Боты:** tg-bot и max-bot переведены на единый канал `events` с диспатчем по `EventEnvelope.type`. Все handler'ы обновлены на camelCase-поля. `handleBloodRequestCreated` переписан под одного донора (без цикла по `AvilableDonors`).
+
+## [3.19.4] - 2026-07-02
+
+### Исправлено
+- **Перенос питомцев при слиянии аккаунтов:**
+  - При слиянии аккаунтов через верификацию телефона питомцы теперь переносятся к существующему пользователю, а не остаются сиротами (без владельца).
+  - Добавлен метод `TransferPets` в репозиторий.
+- **Защита от слияния аккаунтов с одинаковым провайдером:**
+  - Добавлена проверка `HasProviderConflict` на доменной модели `User` — если у объединяемых пользователей есть пересечение по провайдерам (`telegram_bot`, `max_bot`), слияние блокируется с ошибкой `409 Conflict`.
+  - Это предотвращает чёрное донорство, когда пользователь пытается объединить аккаунт из Telegram с другим Telegram-аккаунтом.
+
+
+## [3.19.2] - 2026-07-02
+
+### Добавлено
+- **Уведомления: Добавлен флоу автоматического закрытия запроса при неактивности получателя в течение 12 часов:**
+  - **Бэкенд:**
+    - Добавлен `queryRecipientInactive12h` для поиска активных запросов с ожидающими ответами доноров, где получатель не был замечен в течение 12 часов.
+    - Реализован `checkRecipientInactive12h`: закрывает запрос крови через `CloseRequestHandler` и публикует `NotifRecipientSearchClosed`.
+  - **Боты (tg-bot и max-bot):**
+    - Добавлен шаблон сообщения `recipient_search_closed` с текстом из спецификации.
+- **Уведомления: Подписка tg-bot и max-bot на канал уведомлений:**
+  - Добавлен обработчик `handleNotification` в tg-bot и max-bot, который прослушивает канал Redis `{env:}notifications`.
+  - Поддержка 3 типов уведомлений: `recipient_donor_waiting`, `recipient_inactive_warning`, `donor_not_accepted`.
+  - Использование `camelCase` для ключей `Payload` для соответствия соглашению JSON.
+  - Обновлены версии ботов: tg-bot до v2.2.0, max-bot до v0.7.0.
+  - Обновлены `CHANGELOG` для обоих ботов.
+
+
+
+## [3.19.1] - 2026-07-01
+
+### Изменено
+- **Рефакторинг (bloodsearch): Использование динамической причины для отклонения донации:**
+  - Обновлена логика отклонения донации для использования динамических причин, что позволяет более гибко управлять отказами и предоставлять более точную информацию. Это изменение улучшает обработку отклонений, позволяя системе предоставлять конкретные причины, а не общие сообщения об ошибках.
+
+## [3.19.0] - 2026-06-29
+
+### Добавлено
+- **Добавлено поле `last_seen_at` и метод `UpdateLastSeen`:**
+  - Добавлено поле `last_seen_at` в схему Ent (опциональное, обнуляемое время).
+  - Добавлено поле `LastSeenAt` в доменную модель `User`.
+  - Добавлен метод `UpdateLastSeen(ctx, id) error` в интерфейс репозитория.
+  - Добавлена реализация `UpdateLastSeen` в репозитории на основе Ent.
+  - Добавлено сопоставление `LastSeenAt` в маппере Ent-to-domain.
+  - Добавлено поле `lastSeenAt` в DTO `UserDetail`.
+  - Добавлено сопоставление `LastSeenAt` в DTO-маппере.
+- **Простановка поля `Last seen` при аутентификации:**
+  - Добавлена логика для автоматической установки поля `Last seen` при аутентификации пользователя.
+
+## [3.18.6] - 2026-06-25
+
+### Изменено
+- **Рефакторинг `DonorResponse`:**
+  - Бизнес-операции `Accept`, `Reject`, `Complete`, `Confirm`, `Cancel` перенесены из репозитория в модель `DonorResponse`.
+  - Репозиторий теперь отвечает только за сохранение агрегата через единый метод `Update`.
+  - Добавлен метод `Cancel` в модель `DonorResponse` с валидацией статуса.
+  - 6 обработчиков команд (`confirm_donation`, `reject_donation`, `accept_response`, `close_req`, `complete_donation`, `cancel_donation`) обновлены для использования нового паттерна.
+- **Исправлена ошибка копирования значения в циклах `confirm_donation` и `close_req`:**
+  - Заменён `for _, app := range` с `&app` на `for i := range` с указателем на оригинал элемента слайса, чтобы избежать некорректного копирования значений.
+
+## [3.18.5] - 2026-06-24
+
+### Исправлено
+- **Уведомления отклонённым донорам и обработка ошибок публикации:**
+  - Добавлена отправка событий `DonorReject` в Redis для всех доноров, автоматически отклонённых при закрытии заявки. Это включает сбор `rejectedDonorIDs` в транзакции и последующую загрузку данных каждого донора для публикации `DonorReject` в `confirm_donation.go` и `close_req.go`.
+  - Обновлён вызов `NewCloseRequestHandler` в `cmd/api/main.go` для включения `petRepo` и `userRepo`.
+  - Во всех обработчиках публикация уведомлений теперь не является фатальной: вместо `return err` используется `slog.Error(...)` для событий `PublishDonorApply`, `PublishDonorReject`, `PublishDonorNotConfirmed`, `PublishDonationConfirmed`, `PublishUserContact`.
+
+### Изменено
+- **Выравнивание логики условий в `close_req.go`:**
+  - Развёрнутое условие `Status == Pending || Status == Accepted || (Status == Completed && !IsConfirmed)` заменено на `application.IsActiveForDonation()` для согласованности с `confirm_donation.go`.
+
+## [3.18.4] - 2026-06-23
+
+### Добавлено
+- **Автоматическое подтверждение донаций через 72 часа:**
+  - Добавлен новый пакет `scheduler` — легковесный планировщик задач, запускающий зарегистрированные job'ы с заданным интервалом в фоновых горутинах. Поддерживает graceful shutdown через контекст.
+  - Реализован job `auto_confirm_job` — воркер, который каждые 10 минут ищет донорские отклики (donor responses) со статусом `completed`, но не подтверждённые (`is_confirmed = false`), у которых `updated_at` старше 72 часов. Для каждого такого отклика вызывается `ConfirmDonationHandler`.
+  - Добавлен метод `FindNotConfirmed` в репозиторий — Ent-запрос с фильтрацией по `updated_at <= cutoff`, статусу `completed` и флагу `is_confirmed = false`.
+  - В `main.go` добавлены инициализация job'а и планировщика, запуск воркера после инициализации всех зависимостей, но до старта HTTP-сервера.
+  - Реализован улучшенный graceful shutdown: сначала останавливается scheduler, затем HTTP-сервер, затем БД и Redis. Добавлено логирование этапов остановки и обработка ошибок при закрытии БД и Redis.
 
 ## [3.18.0] - 2026-06-11
 

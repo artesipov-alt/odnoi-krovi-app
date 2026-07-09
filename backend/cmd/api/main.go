@@ -19,9 +19,11 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/docsui" // Импорт пакета с обработчиками UI
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	analyticsquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/analytics/query"
 	authcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/auth/cmd"
 	bloodcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/cmd"
 	bloodquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/service"
 	bonuscmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/bonus/cmd"
 	donorcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/cmd"
 	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
@@ -37,9 +39,13 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/otp/twin24"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
-	redisRepository "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/notification"
+	otp "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/otp"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/s3"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/scheduler"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/scheduler/job"
 
 	events "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/events/redis"
 	transport "github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http"
@@ -96,28 +102,30 @@ func main() {
 		apiMux.HandleFunc("/docs", docsui.ScalarDocsHandler)
 
 		// Инициализация подключения к базе данных через ENT
-		db, rawDB, err := config.ConnectEnt(config.NewEntConfig(env))
+		db, rawdb, err := config.ConnectEnt(config.NewEntConfig(env))
 		if err != nil {
 			slog.Error("Ошибка подключения к базе данных (ENT)", "error", err)
 			os.Exit(1)
 		}
 
-		var otpRepo redisRepository.OTPRepository
+		var otpRepo otp.OTPRepository
 		var publisher ports.EventPublisher
 		var otpSender *twin24.OTPSender
+		var cache cache.NotificationCache
 		redisClient, err := config.NewRedisClientFromEnv()
 		if err != nil {
 			slog.Warn("Redis недоступен, события не будут публиковаться", "error", err)
 			publisher = &events.NoOpEventPublisher{}
-			otpRepo = redisRepository.NewNoOpOTPRepo()
+			otpRepo = otp.NewNoOpOTPRepo()
 		} else {
 			publisher = events.NewEventPublisher(redisClient, env)
-			otpRepo = redisRepository.NewOTPRepo(redisClient)
+			otpRepo = otp.NewOTPRepo(redisClient)
 			otpSender = twin24.NewOTPSenderFromEnv(redisClient)
+			cache = notification.NewNotificationCache(redisClient)
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
-		if err := config.RunMigrations(db, rawDB); err != nil {
+		if err := config.RunMigrations(db, rawdb); err != nil {
 			slog.Error("Ошибка выполнения миграций", "error", err)
 			os.Exit(1)
 		}
@@ -131,14 +139,22 @@ func main() {
 		userRepo := pg.NewEntUserRepository(db)
 		locationRepo := pg.NewEntLocationRepository(db)
 		breedRepo := pg.NewEntBreedRepository(db)
-		petRepo := pg.NewEntPetRepository(db)
+		petRepo := pg.NewEntPetRepository(db, rawdb)
 		bloodRequestRepo := pg.NewEntBloodRequestRepository(db)
 		donorResponseRepo := pg.NewEntDonorResponseRepository(db)
 		partnerRepo := pg.NewEntPartnerRepository(db)
 		bonusRepo := pg.NewEntBonusRepository(db)
-		bonusSvc := bonus.NewBonusService(bonusRepo)
+		rawQueryRepo := pg.NewRawQueryRepository(rawdb)
+
 		fileStorage := s3.NewS3Storage(nil).WithDefaults()
 		txManager := presistance.NewTxManager(db)
+
+		// Инициализация сервисов.
+		matchingSvc := *bloodsearch.NewMatchingService()
+		petService := pet.NewPetServiceV2()
+		bonusSvc := bonus.NewBonusService(bonusRepo)
+
+		notificator := service.NewDonorMatchNotifier(petRepo, userRepo, bloodRequestRepo, donorResponseRepo, petService, publisher)
 
 		// Инициализация reference query handlers
 		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
@@ -146,6 +162,8 @@ func main() {
 		getAllLocationsHandler := refquery.NewGetAllLocationsHandler(locationRepo)
 		getAllBloodComponentsHandler := refquery.NewGetAllBloodComponentsHandler()
 		getBloodGroupsByTypeHandler := refquery.NewGetBloodGroupsByPetTypeHandler()
+
+		getPortalStatisticsHandler := analyticsquery.NewPortalStatsHandler(rawQueryRepo)
 
 		//Дополнительные сервисы для аунтификации
 		// miniAppDataValidator := auth.NewAppValidator(os.Getenv("TG_BOT_TOKEN"), os.Getenv("MAX_BOT_TOKEN"))
@@ -165,9 +183,6 @@ func main() {
 		userGetContactHandler := userquery.NewGetContactHandler(userRepo, publisher)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		matchingSvc := *bloodsearch.NewMatchingService()
-		petService := pet.NewPetService()
-
 		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, petService, userRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusSvc, publisher, txManager)
 		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService, bonusSvc)
@@ -182,12 +197,11 @@ func main() {
 		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
 		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
-		petRevalidateHandler := petcmd.NewRevalidateDonorHandler(petRepo, petRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
 		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo, petService)
 
 		// Инициализация bloodsearch handlers
-		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusRepo, publisher, petService, txManager)
+		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, bonusRepo, notificator, txManager)
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, petRepo)
@@ -196,8 +210,10 @@ func main() {
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, userRepo, bloodRequestRepo, petService)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
-		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, txManager, publisher, petRepo, bonusSvc)
+		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
+		notificationRespondHandler := bloodcmd.NewNotificationRespondHandler(bloodCloseDonationHandler, cache)
+
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
 		fileConfirmUploadHandler := filecmd.NewConfirmUploadHandler(petRepo, userRepo, bloodRequestRepo, fileStorage)
@@ -232,7 +248,6 @@ func main() {
 			petCreateHandler,
 			petUpdateHandler,
 			petDeleteHandler,
-			petRevalidateHandler,
 			petGetByIDHandler,
 			petGetByUserHandler,
 			fileStorage,
@@ -249,6 +264,7 @@ func main() {
 			confirmDonationHandler,
 			rejectDonationHandler,
 			bloodCloseDonationHandler,
+			notificationRespondHandler,
 			fileStorage,
 		)
 		donorHandler := transport.NewDonorHandler(
@@ -269,6 +285,18 @@ func main() {
 			bonusImportHandler,
 		)
 
+		commonHandler := transport.NewCommonHandler(
+			getPortalStatisticsHandler,
+		)
+
+		//Запуск side-effects (воркеров)
+		confirmJob := job.NewAutoConfirmJob(donorResponseRepo, confirmDonationHandler)
+		notificationJob := job.NewNotificationJob(rawdb, bloodCloseDonationHandler, publisher, cache)
+		scheduler := scheduler.NewScheduler()
+		scheduler.Register(confirmJob, 10*time.Minute)
+		scheduler.Register(notificationJob, 5*time.Minute)
+		scheduler.Start()
+
 		// Настройка Huma
 		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
 
@@ -283,6 +311,7 @@ func main() {
 		bloodRequestHandler.Register(humapi)
 		fileHandler.Register(humapi)
 		referenceHandler.Register(humapi)
+		commonHandler.Register(humapi)
 
 		if portStr := os.Getenv("SERVER_PORT"); portStr != "" {
 			if port, err := strconv.Atoi(portStr); err == nil {
@@ -314,12 +343,33 @@ func main() {
 
 		// Tell the CLI how to stop your server.
 		hooks.OnStop(func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			slog.Info("🛑 Завершение работы сервера...")
+
+			// 1. Останавливаем scheduler (воркеры)
+			scheduler.Stop()
+
+			// 2. Graceful shutdown HTTP-сервера (30s timeout)
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
-			if db != nil {
-				db.Close()
+			if err := server.Shutdown(shutdownCtx); err != nil {
+				slog.Error("Ошибка при завершении HTTP-сервера", "error", err)
 			}
-			server.Shutdown(ctx)
+
+			// 3. Закрываем подключение к БД (Ent)
+			if db != nil {
+				if err := db.Close(); err != nil {
+					slog.Error("Ошибка при закрытии БД", "error", err)
+				}
+			}
+
+			// 4. Закрываем Redis-клиент
+			if redisClient != nil {
+				if err := redisClient.Close(); err != nil {
+					slog.Error("Ошибка при закрытии Redis", "error", err)
+				}
+			}
+
+			slog.Info("✅ Сервер успешно остановлен")
 		})
 	})
 

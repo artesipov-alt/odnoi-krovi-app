@@ -50,6 +50,10 @@ func (h *MiniAppAuthHandler) Handle(ctx context.Context, idndata *authmodel.Iden
 			return err
 		}
 
+		if err := h.userRepo.UpdateLastSeen(txCtx, existData.UserID); err != nil {
+			return err
+		}
+
 		if metadata != nil {
 			if err := h.userRepo.UpsertUTM(txCtx, existData.UserID, metadata); err != nil {
 				return err

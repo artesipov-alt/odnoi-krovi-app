@@ -210,12 +210,17 @@ export type GetAllBonusesResponse = {
     [BonusType.PREPARATION]: BonusCategory[];
 };
 
+export type RejectDonationRequest = {
+    id: string;
+    reason: string;
+};
+
 export interface IDonorApi {
     getRecipientsList(id: string, status?: RecipientStatus): AxiosPromise<GetRecipientsListResponse>;
     getRecipientDetails(id: string): AxiosPromise<GetRecipientDetailsResponse>;
     bloodSearchApply(params: BloodSearchApplyRequest): AxiosPromise<BloodSearchApplyResponse>;
     getPlannedDonations(id: string): AxiosPromise<GetPlannedDonationsResponse>;
-    cancelDonation(id: string): AxiosPromise<void>;
+    cancelDonation(params: RejectDonationRequest): AxiosPromise<void>;
     completeDonation(params: CompleteDonationRequest): AxiosPromise<void>;
     getCompletedDonations(id: string): AxiosPromise<GetCompletedDonationsResponse>;
     getAllBonuses(id: string): AxiosPromise<GetAllBonusesResponse>;
@@ -236,8 +241,8 @@ export const donorApi = (): IDonorApi => ({
     getPlannedDonations(id) {
         return instance.get(`${DONOR_URL}/planned-donations/${id}`);
     },
-    cancelDonation(id) {
-        return instance.post(`${DONOR_URL}/donation/${id}/cancel`);
+    cancelDonation({ id, ...params }) {
+        return instance.post(`${DONOR_URL}/donation/${id}/cancel`, params);
     },
     completeDonation({ id, ...params }) {
         return instance.post(`${DONOR_URL}/donation/${id}/complete`, params);

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
@@ -17,7 +18,7 @@ import (
 )
 
 type RejectDonationHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 	donorRepo donor.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
@@ -27,7 +28,7 @@ type RejectDonationHandler struct {
 }
 
 func NewRejectDonationHandler(
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,
@@ -58,7 +59,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 
 	var donorPet *petmodel.Pet
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.donorRepo.Reject(txCtx, application); err != nil {
+		if err := h.donorRepo.Update(txCtx, application); err != nil {
 			return err
 		}
 		bloodReq, err := h.bloodRepo.GetByApplicationID(txCtx, donorResponseID, false)
@@ -125,8 +126,8 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			CreatedAt:               time.Now(),
 		}
 
-		if err := h.publisher.PublishDonorReject(ctx, event); err != nil {
-			return err
+		if err := h.publisher.PublishEvent(ctx, ports.EventDonorReject, event); err != nil {
+			slog.Error("failed to publish donor reject notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	case donormodel.DonorResponseStatusAccepted:
 		recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
@@ -152,8 +153,8 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			CreatedAt: time.Now(),
 		}
 
-		if err := h.publisher.PublishDonorNotConfirmed(ctx, notConfirmedEvent); err != nil {
-			return err
+		if err := h.publisher.PublishEvent(ctx, ports.EventDonorNotConfirmed, notConfirmedEvent); err != nil {
+			slog.Error("failed to publish donor not confirmed notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	default:
 		// Unexpected status, do nothing or log

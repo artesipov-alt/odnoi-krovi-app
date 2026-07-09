@@ -364,8 +364,13 @@ func (h *DonorHandler) CompleteDonation(ctx context.Context, input *dto.Complete
 }
 
 // CancelDonation отменяет запланированную донацию.
-func (h *DonorHandler) CancelDonation(ctx context.Context, input *commondto.DonorApplicationIDPath) (*commondto.DefaultMessageOutput, error) {
-	err := h.cancelDonationHandler.Handle(ctx, input.ID)
+func (h *DonorHandler) CancelDonation(ctx context.Context, input *dto.CancelDonationInput) (*commondto.DefaultMessageOutput, error) {
+	var reason string
+	if input.Body.Reason != nil {
+		reason = *input.Body.Reason
+	}
+
+	err := h.cancelDonationHandler.Handle(ctx, input.ID, reason)
 	if err != nil {
 		return nil, err
 	}

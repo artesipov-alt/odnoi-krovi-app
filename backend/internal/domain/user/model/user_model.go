@@ -41,6 +41,7 @@ type User struct {
 	CreatedAt           *time.Time
 	UpdatedAt           *time.Time
 	DeletedAt           *time.Time
+	LastSeenAt          *time.Time
 }
 
 // NewUserParams holds the parameters for creating a new User
@@ -152,6 +153,43 @@ func NewDefaultUser(fullName string, originSource string) (*User, error) {
 
 func (u *User) SetRole(role string) {
 	u.Role = UserRole(role)
+}
+
+// Contacts returns provider IDs for Max and Telegram.
+// Used to notify the recipient when a donor applies for a blood request.
+func (u *User) MessengerContacts() (string, string) {
+	var maxID, telegramID string
+	for _, identity := range u.Identities {
+		switch identity.ProviderName {
+		case authmodel.ProviderMax:
+			maxID = identity.ProviderUserID
+		case authmodel.ProviderTelegram:
+			telegramID = identity.ProviderUserID
+		}
+		if maxID != "" && telegramID != "" {
+			return maxID, telegramID
+		}
+	}
+	return maxID, telegramID
+}
+
+// HasProviderConflict проверяет, есть ли у двух пользователей пересечение по провайдерам.
+// Если хоть один провайдер совпадает — слияние аккаунтов запрещено.
+func (u *User) HasProviderConflict(other *User) bool {
+	if other == nil {
+		return false
+	}
+
+	providers := make(map[authmodel.ProviderName]struct{})
+	for _, identity := range u.Identities {
+		providers[identity.ProviderName] = struct{}{}
+	}
+	for _, identity := range other.Identities {
+		if _, ok := providers[identity.ProviderName]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // NewDonorPreferenceParams creates a new DonorPreferenceParams with default values

@@ -1,21 +1,21 @@
 import { pinologger } from "../../instances";
 import { sendTelegramMessage } from "../../telegram";
-import { InlineKeyboard } from "grammy";
+import { createOpenAppKeyboard } from "../../telegramButtons";
 
 // Уведомление о подтвержденной донации (от реципиента донору).
 interface DonationConfirmedEvent {
-  DonorData: {
-    UserName: string;
-    PetName: string;
-    ProviderTelegram: string;
-    Phone: string;
-    BloodGroup: string;
+  donorData: {
+    userName: string;
+    petName: string;
+    providerTelegram: string;
+    phone: string;
+    bloodGroup: string;
   };
-  RecipientData: {
-    PetName: string;
-    BloodGroup: string;
+  recipientData: {
+    petName: string;
+    bloodGroup: string;
   };
-  Volume: number; // Объем донации в мл
+  volume: number;
 }
 
 const generateDonationMessage = (params: {
@@ -34,39 +34,33 @@ const generateDonationMessage = (params: {
 export const handleDonationConfirmed = async (
   event: DonationConfirmedEvent,
 ) => {
-  const { DonorData, RecipientData, Volume } = event;
+  const { donorData, recipientData, volume } = event;
 
-  let targetId = DonorData.ProviderTelegram;
+  const targetId = donorData.providerTelegram;
 
   if (!targetId || targetId.trim() === "") {
     pinologger.warn(
-      { donorUserName: DonorData.UserName },
-      "Donor ProviderTelegram is empty, skipping notification",
+      { donorUserName: donorData.userName },
+      "Donor providerTelegram is empty, skipping notification",
     );
     return;
   }
 
   try {
     const message = generateDonationMessage({
-      volume: Volume,
-      recipientPetName: RecipientData.PetName,
-      recipientBloodGroup: RecipientData.BloodGroup,
+      volume,
+      recipientPetName: recipientData.petName,
+      recipientBloodGroup: recipientData.bloodGroup,
     });
 
-    // Клавиатура для открытия приложения
-    const keyboard = new InlineKeyboard().webApp(
-      "Открыть приложение",
-      Bun.env.WEB_APP_URL || "https://app.1krovi.app",
-    );
-
     await sendTelegramMessage(targetId, message, {
-      reply_markup: keyboard,
+      reply_markup: createOpenAppKeyboard(),
     });
 
     pinologger.info(
       {
         targetId,
-        volume: Volume,
+        volume,
       },
       "Sent donation confirmed notification to donor",
     );

@@ -1,5 +1,6 @@
 import { pinologger } from "../../instances";
 import { sendMessageToUser } from "../../max";
+import { getAppOpenKeyboard } from "../../keyboards";
 
 import {
   generateRecipientMessage,
@@ -9,39 +10,35 @@ import {
 
 // Отклик реципиента на донора.(Принятие заявки)
 interface ApplyDonorEvent {
-  DonorData: DonorData;
-  RecipientData: RecipientData;
-}
-
-interface DonorData {
-  ProviderMaxID: string;
-  ProviderTelegram: string;
-  UserName: string;
-  PetName: string;
-  Phone: string;
-  BloodGroup: string;
-}
-
-interface RecipientData {
-  ProviderMaxID: string;
-  ProviderTelegram: string;
-  UserName: string;
-  PetName: string;
-  Phone: string;
-  BloodGroup: string;
-  Volume: number;
+  donorData: {
+    providerMaxId: string;
+    providerTelegram: string;
+    userName: string;
+    petName: string;
+    phone: string;
+    bloodGroup: string;
+  };
+  recipientData: {
+    providerMaxId: string;
+    providerTelegram: string;
+    userName: string;
+    petName: string;
+    phone: string;
+    bloodGroup: string;
+    volume: number;
+  };
 }
 
 export const handleDonorApply = async (event: ApplyDonorEvent) => {
-  const { DonorData, RecipientData } = event;
+  const { donorData, recipientData } = event;
 
-  const donorProviderMaxID = DonorData.ProviderMaxID;
-  const recipientProviderMaxID = RecipientData.ProviderMaxID;
+  const donorProviderMaxID = donorData.providerMaxId;
+  const recipientProviderMaxID = recipientData.providerMaxId;
 
   if (!recipientProviderMaxID || recipientProviderMaxID.trim() === "") {
     pinologger.warn(
       { donorId: donorProviderMaxID },
-      "RecipientProviderMaxID is empty, skipping notification",
+      "Recipient providerMaxId is empty, skipping notification",
     );
     return;
   }
@@ -49,36 +46,41 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
   if (!donorProviderMaxID || donorProviderMaxID.trim() === "") {
     pinologger.warn(
       { recipientId: recipientProviderMaxID },
-      "DonorProviderMaxID is empty, skipping notification",
+      "Donor providerMaxId is empty, skipping notification",
     );
     return;
   }
 
   // Отправляем уведомление реципиенту
   try {
-    const recipientMessage = generateRecipientMessage({
-      donorName: DonorData.PetName,
-      donorBloodGroup: DonorData.BloodGroup,
-    });
-
-    await sendMessageToUser(recipientProviderMaxID, recipientMessage, {
+    // Сначала отправляем контакт донора
+    await sendMessageToUser(recipientProviderMaxID, "", {
       attachments: [
         {
           type: "contact",
           payload: {
-            name: DonorData.UserName,
+            name: donorData.userName,
             contact_id: Number(donorProviderMaxID),
-            vcf_phone: DonorData.Phone,
-            vcf_info: generateVCF(DonorData.UserName, DonorData.Phone),
+            vcf_phone: donorData.phone,
+            vcf_info: generateVCF(donorData.userName, donorData.phone),
           },
         },
       ],
     });
 
+    const recipientMessage = generateRecipientMessage({
+      donorName: donorData.petName,
+      donorBloodGroup: donorData.bloodGroup,
+    });
+
+    await sendMessageToUser(recipientProviderMaxID, recipientMessage, {
+      attachments: [getAppOpenKeyboard()],
+    });
+
     pinologger.info(
       {
         recipientId: recipientProviderMaxID,
-        donorName: DonorData.PetName,
+        donorName: donorData.petName,
       },
       "Sent donor apply notification to recipient",
     );
@@ -91,30 +93,35 @@ export const handleDonorApply = async (event: ApplyDonorEvent) => {
 
   // Отправляем уведомление донору (независимо от отправки реципиенту)
   try {
-    const donorMessage = generateDonorMessage({
-      recipientName: RecipientData.PetName,
-      recipientBloodGroup: RecipientData.BloodGroup,
-      recipientVolume: RecipientData.Volume,
-    });
-
-    await sendMessageToUser(donorProviderMaxID, donorMessage, {
+    // Сначала отправляем контакт реципиента
+    await sendMessageToUser(donorProviderMaxID, "", {
       attachments: [
         {
           type: "contact",
           payload: {
-            name: RecipientData.UserName,
+            name: recipientData.userName,
             contact_id: Number(recipientProviderMaxID),
-            vcf_phone: RecipientData.Phone,
-            vcf_info: generateVCF(RecipientData.UserName, RecipientData.Phone),
+            vcf_phone: recipientData.phone,
+            vcf_info: generateVCF(recipientData.userName, recipientData.phone),
           },
         },
       ],
     });
 
+    const donorMessage = generateDonorMessage({
+      recipientName: recipientData.petName,
+      recipientBloodGroup: recipientData.bloodGroup,
+      recipientVolume: recipientData.volume,
+    });
+
+    await sendMessageToUser(donorProviderMaxID, donorMessage, {
+      attachments: [getAppOpenKeyboard()],
+    });
+
     pinologger.info(
       {
         donorId: donorProviderMaxID,
-        recipientPetName: RecipientData.PetName,
+        recipientPetName: recipientData.petName,
       },
       "Sent donor apply notification to donor",
     );

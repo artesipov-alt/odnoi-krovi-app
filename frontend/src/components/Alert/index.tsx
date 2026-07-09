@@ -1,6 +1,7 @@
 import cn from 'classnames';
+import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import Caution from 'imgs/svg/caution';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useState } from 'react';
 
 import styles from './Alert.module.less';
 
@@ -10,18 +11,43 @@ export enum View {
 }
 
 type Props = {
-    text: ReactNode;
     view?: View;
+    text: ReactNode;
+    reason?: string;
     className?: string;
 };
 
-const Alert: FC<Props> = ({ text, className, view = View.WARNING }) => (
-    <div className={cn(styles.wrapper, className, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
-        <div className={cn(styles.logo, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
-            <Caution />
+const Alert: FC<Props> = ({ text, className, reason, view = View.WARNING }) => {
+    const [isReasonOpen, setIsReasonOpen] = useState(false);
+
+    const toggleReason = () => {
+        setIsReasonOpen((prevState) => !prevState);
+    };
+
+    return (
+        <div className={cn(styles.alert, className)}>
+            <div className={cn(styles.wrapper, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
+                <div className={cn(styles.logo, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
+                    <Caution />
+                </div>
+                {text}
+            </div>
+            {reason && (
+                <div onClick={toggleReason} className={styles.reason}>
+                    {isReasonOpen ? (
+                        `Причина: ${reason}`
+                    ) : (
+                        <div className={styles.start}>
+                            Узнать причину
+                            <div className={styles.icon}>
+                                <BackAngularArrow />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
-        {text}
-    </div>
-);
+    );
+};
 
 export default Alert;

@@ -24,14 +24,14 @@ type RecipientDetailReadModel struct {
 type RecipientDetailHandler struct {
 	donorRepo    donor.Repository
 	petRepo      pet.Repository
-	bloodReqRepo bloodsearch.BloodRequestRepository
+	bloodReqRepo bloodsearch.Repository
 	userRepo     user.Repository
 	matchingSvc  bloodsearch.MatchingService
-	petService   *pet.PetService
+	petService   pet.PetService
 	bonusSvc     *bonus.BonusService
 }
 
-func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.BloodRequestRepository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, petService *pet.PetService, bonusSvc *bonus.BonusService) *RecipientDetailHandler {
+func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.Repository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, petService pet.PetService, bonusSvc *bonus.BonusService) *RecipientDetailHandler {
 	return &RecipientDetailHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
@@ -101,7 +101,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 	potentialDonors := petmodel.FilterDonors(pets)
 
 	for _, donorPet := range potentialDonors {
-		h.matchingSvc.MatchDonor(recipient, donorPet, preferredLocations, userID)
+		h.matchingSvc.MatchDonor(recipient, donorPet, preferredLocations)
 	}
 
 	recipient.SetDefaultPrefs(user.DonorPreference.CompensationType, user.DonorPreference.TaxiCompensation)

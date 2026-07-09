@@ -11563,6 +11563,7 @@ type UserMutation struct {
 	origin_source            *string
 	priority_search_count    *int
 	addpriority_search_count *int
+	last_seen_at             *time.Time
 	clearedFields            map[string]struct{}
 	pets                     map[string]struct{}
 	removedpets              map[string]struct{}
@@ -12434,6 +12435,55 @@ func (m *UserMutation) ResetPrioritySearchCount() {
 	m.addpriority_search_count = nil
 }
 
+// SetLastSeenAt sets the "last_seen_at" field.
+func (m *UserMutation) SetLastSeenAt(t time.Time) {
+	m.last_seen_at = &t
+}
+
+// LastSeenAt returns the value of the "last_seen_at" field in the mutation.
+func (m *UserMutation) LastSeenAt() (r time.Time, exists bool) {
+	v := m.last_seen_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastSeenAt returns the old "last_seen_at" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldLastSeenAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastSeenAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastSeenAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastSeenAt: %w", err)
+	}
+	return oldValue.LastSeenAt, nil
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (m *UserMutation) ClearLastSeenAt() {
+	m.last_seen_at = nil
+	m.clearedFields[user.FieldLastSeenAt] = struct{}{}
+}
+
+// LastSeenAtCleared returns if the "last_seen_at" field was cleared in this mutation.
+func (m *UserMutation) LastSeenAtCleared() bool {
+	_, ok := m.clearedFields[user.FieldLastSeenAt]
+	return ok
+}
+
+// ResetLastSeenAt resets all changes to the "last_seen_at" field.
+func (m *UserMutation) ResetLastSeenAt() {
+	m.last_seen_at = nil
+	delete(m.clearedFields, user.FieldLastSeenAt)
+}
+
 // AddPetIDs adds the "pets" edge to the Pet entity by ids.
 func (m *UserMutation) AddPetIDs(ids ...string) {
 	if m.pets == nil {
@@ -12750,7 +12800,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 17)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -12799,6 +12849,9 @@ func (m *UserMutation) Fields() []string {
 	if m.priority_search_count != nil {
 		fields = append(fields, user.FieldPrioritySearchCount)
 	}
+	if m.last_seen_at != nil {
+		fields = append(fields, user.FieldLastSeenAt)
+	}
 	return fields
 }
 
@@ -12839,6 +12892,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.OriginSource()
 	case user.FieldPrioritySearchCount:
 		return m.PrioritySearchCount()
+	case user.FieldLastSeenAt:
+		return m.LastSeenAt()
 	}
 	return nil, false
 }
@@ -12880,6 +12935,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldOriginSource(ctx)
 	case user.FieldPrioritySearchCount:
 		return m.OldPrioritySearchCount(ctx)
+	case user.FieldLastSeenAt:
+		return m.OldLastSeenAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -13001,6 +13058,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPrioritySearchCount(v)
 		return nil
+	case user.FieldLastSeenAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastSeenAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -13073,6 +13137,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldOriginSource) {
 		fields = append(fields, user.FieldOriginSource)
 	}
+	if m.FieldCleared(user.FieldLastSeenAt) {
+		fields = append(fields, user.FieldLastSeenAt)
+	}
 	return fields
 }
 
@@ -13113,6 +13180,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldOriginSource:
 		m.ClearOriginSource()
+		return nil
+	case user.FieldLastSeenAt:
+		m.ClearLastSeenAt()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -13169,6 +13239,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldPrioritySearchCount:
 		m.ResetPrioritySearchCount()
+		return nil
+	case user.FieldLastSeenAt:
+		m.ResetLastSeenAt()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

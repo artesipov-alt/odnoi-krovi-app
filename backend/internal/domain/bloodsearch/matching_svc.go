@@ -22,7 +22,7 @@ func hasIntersection(a, b []string) bool {
 	return false
 }
 
-func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, donorPet *petmodel.Pet, preferredLocations []string, ownerID string) {
+func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMatchingDonors, donorPet *petmodel.Pet, preferredLocations []string) {
 	sameBlood := false
 	sameType := false
 	sameRegion := false
@@ -41,7 +41,7 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 	// (Группа-крови) Бизнес-логика, должна быть та же группа крови или неизвестная если реципиент разрешил
 	sameBlood = slices.Contains(bloodreq.BloodGroupNames, donorPet.BloodGroupName) || (bloodreq.IncludeUnknownBloodGroup && donorPet.BloodGroupName == "UNKNOWN")
 
-	sameOwner = bloodreq.OwnerID == ownerID
+	sameOwner = bloodreq.RecipientData.OwnerID == donorPet.OwnerID
 	// (Количество-крови) Бизнес-логика, донор должен покрывать весь объем или хотя бы половину от остатка если реципиент разрешил
 	if bloodreq.BloodVolumeReserved+avilableDonorAmount >= bloodreq.BloodVolumeNeeded {
 		coversNeededAmount = true

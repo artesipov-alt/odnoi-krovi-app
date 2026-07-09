@@ -95,7 +95,23 @@
     flex-direction: column;
     gap: 6px;
     width: 50%;
-    max-width: 280px;
+    max-width: 300px;
+
+    @media (max-width: 403px) {
+        width: 48%;
+    }
+
+    @media (max-width: 398px) {
+        width: 47%;
+    }
+
+    @media (max-width: 393px) {
+        width: 46%;
+    }
+
+    @media (max-width: 374px) {
+        width: 43%;
+    }
 }
 
 .leftItem {
@@ -123,6 +139,10 @@
             font-size: 18px;
         }
 
+        .descrWrapper {
+            overflow: hidden;
+        }
+
         & .descr {
             margin: 0;
             color: @textColor4;
@@ -139,6 +159,8 @@
             font-size: 12px;
             font-weight: 400;
             line-height: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 

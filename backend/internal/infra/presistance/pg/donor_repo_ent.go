@@ -3,7 +3,7 @@ package pg
 import (
 	"context"
 	"fmt"
-	"math"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
@@ -240,77 +240,35 @@ func (r *EntDonorResponseRepository) Count(ctx context.Context) (int, error) {
 	return r.client(ctx).DonorResponse.Query().Count(ctx)
 }
 
-// Подтверждение донации реципиентом
-func (r *EntDonorResponseRepository) Confirm(ctx context.Context, donorResponseID string, factAmount float64) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusCompleted).
-		SetIsConfirmed(true)
-
-	if factAmount != 0 {
-		update.SetAmount(math.Round(factAmount*10) / 10)
-	}
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to confirm blood request: %w", err)
-	}
-
-	return nil
+// Update обновляет агрегат DonorResponse целиком
+func (r *EntDonorResponseRepository) Update(ctx context.Context, resp *donormodel.DonorResponse) error {
+	return r.client(ctx).DonorResponse.
+		UpdateOneID(resp.ID).
+		SetStatus(donorresponse.Status(resp.Status)).
+		SetAmount(resp.Amount).
+		SetIsConfirmed(resp.IsConfirmed).
+		SetRejectedReason(resp.RejectedReason).
+		Exec(ctx)
 }
 
-// Завершение донации донором
-func (r *EntDonorResponseRepository) Complete(ctx context.Context, donorResponseID string, factAmount float64) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusCompleted)
-
-	if factAmount != 0 {
-		update.SetAmount(math.Round(factAmount*10) / 10)
+func (r *EntDonorResponseRepository) FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error) {
+	responses, err := r.client(ctx).DonorResponse.Query().
+		Where(
+			donorresponse.UpdatedAtLTE(cutoffTime),
+			donorresponse.StatusEQ(donorresponse.StatusCompleted),
+			donorresponse.IsConfirmedEQ(false),
+		).
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID, pet.FieldName, pet.FieldBloodGroup, pet.FieldPhotoUrls) }).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find pending auto confirm responses: %w", err)
 	}
 
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to complete donation: %w", err)
+	result := make([]*donormodel.DonorResponse, len(responses))
+	for i, response := range responses {
+		result[i] = domainmapper.ApplicationToDomain(response)
 	}
 
-	return nil
-}
-
-// Reject отклоняет отклик донора с причиной
-func (r *EntDonorResponseRepository) Reject(ctx context.Context, req *donormodel.DonorResponse) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(req.ID).
-		SetStatus(donorresponse.Status(req.Status)).
-		SetRejectedReason(req.RejectedReason)
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to reject donor response: %w", err)
-	}
-
-	return nil
-}
-
-// Cancel отменяет отклик донора
-func (r *EntDonorResponseRepository) Cancel(ctx context.Context, donorResponseID string) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusCancelled)
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to cancel donor response: %w", err)
-	}
-
-	return nil
-}
-
-// Accept accepts a donor response
-func (r *EntDonorResponseRepository) Accept(ctx context.Context, donorResponseID string) error {
-	update := r.client(ctx).DonorResponse.
-		UpdateOneID(donorResponseID).
-		SetStatus(donorresponse.StatusAccepted)
-
-	if err := update.Exec(ctx); err != nil {
-		return fmt.Errorf("failed to accept donor response: %w", err)
-	}
-
-	return nil
+	return result, nil
 }

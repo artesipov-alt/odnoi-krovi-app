@@ -14,14 +14,14 @@ type GetPresignedURLsHandler struct {
 	storage   filestorage.Repository
 	petRepo   pet.Repository
 	userRepo  user.Repository
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 }
 
 func NewGetPresignedURLsHandler(
 	storage filestorage.Repository,
 	petRepo pet.Repository,
 	userRepo user.Repository,
-	bloodRepo bloodsearch.BloodRequestRepository,
+	bloodRepo bloodsearch.Repository,
 ) *GetPresignedURLsHandler {
 	return &GetPresignedURLsHandler{
 		storage:   storage,

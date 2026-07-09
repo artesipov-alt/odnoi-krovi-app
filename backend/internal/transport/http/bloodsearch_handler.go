@@ -20,20 +20,21 @@ import (
 
 // BloodRequestHandler обрабатывает HTTP запросы для операций с заявками на поиск крови
 type BloodRequestHandler struct {
-	createHandler          *bloodcmd.CreateRequestHandler
-	updateHandler          *bloodcmd.UpdateRequestHandler
-	deleteHandler          *bloodcmd.DeleteRequestHandler
-	getByIDHandler         *bloodquery.GetByIDHandler
-	getByPetIDHandler      *bloodquery.GetByPetIDHandler
-	getDonorByIDHandler    *bloodquery.GetDonorByIDHandler
-	getDonationHandler     *bloodquery.GetDonationHandler
-	applyResponseHandler   *bloodcmd.ApplyResponseHandler
-	confirmDonationHandler *bloodcmd.ConfirmDonationHandler
-	rejectDonationHandler  *bloodcmd.RejectDonationHandler
-	closeRequestHandler    *bloodcmd.CloseRequestHandler
-	bloodRequestMapper     *mapper.BloodRequestMapper
-	petMapper              *mapper.PetMapper
-	storage                filestorage.Repository
+	createHandler              *bloodcmd.CreateRequestHandler
+	updateHandler              *bloodcmd.UpdateRequestHandler
+	deleteHandler              *bloodcmd.DeleteRequestHandler
+	getByIDHandler             *bloodquery.GetByIDHandler
+	getByPetIDHandler          *bloodquery.GetByPetIDHandler
+	getDonorByIDHandler        *bloodquery.GetDonorByIDHandler
+	getDonationHandler         *bloodquery.GetDonationHandler
+	applyResponseHandler       *bloodcmd.ApplyResponseHandler
+	confirmDonationHandler     *bloodcmd.ConfirmDonationHandler
+	rejectDonationHandler      *bloodcmd.RejectDonationHandler
+	closeRequestHandler        *bloodcmd.CloseRequestHandler
+	notificationRespondHandler *bloodcmd.NotificationRespondHandler
+	bloodRequestMapper         *mapper.BloodRequestMapper
+	petMapper                  *mapper.PetMapper
+	storage                    filestorage.Repository
 }
 
 func NewBloodRequestHandler(
@@ -48,23 +49,25 @@ func NewBloodRequestHandler(
 	confirmDonationHandler *bloodcmd.ConfirmDonationHandler,
 	rejectDonationHandler *bloodcmd.RejectDonationHandler,
 	closeRequestHandler *bloodcmd.CloseRequestHandler,
+	notificationRespondHandler *bloodcmd.NotificationRespondHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
-		createHandler:          createHandler,
-		updateHandler:          updateHandler,
-		deleteHandler:          deleteHandler,
-		getByIDHandler:         getByIDHandler,
-		getByPetIDHandler:      getByPetIDHandler,
-		getDonorByIDHandler:    getDonorByIDHandler,
-		getDonationHandler:     getDonationHandler,
-		applyResponseHandler:   applyResponseHandler,
-		confirmDonationHandler: confirmDonationHandler,
-		rejectDonationHandler:  rejectDonationHandler,
-		closeRequestHandler:    closeRequestHandler,
-		bloodRequestMapper:     mapper.NewBloodRequestMapper(storage),
-		petMapper:              mapper.NewPetMapper(storage),
-		storage:                storage,
+		createHandler:              createHandler,
+		updateHandler:              updateHandler,
+		deleteHandler:              deleteHandler,
+		getByIDHandler:             getByIDHandler,
+		getByPetIDHandler:          getByPetIDHandler,
+		getDonorByIDHandler:        getDonorByIDHandler,
+		getDonationHandler:         getDonationHandler,
+		applyResponseHandler:       applyResponseHandler,
+		confirmDonationHandler:     confirmDonationHandler,
+		rejectDonationHandler:      rejectDonationHandler,
+		closeRequestHandler:        closeRequestHandler,
+		notificationRespondHandler: notificationRespondHandler,
+		bloodRequestMapper:         mapper.NewBloodRequestMapper(storage),
+		petMapper:                  mapper.NewPetMapper(storage),
+		storage:                    storage,
 	}
 }
 
@@ -170,6 +173,15 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.CloseBloodSearch)
 
+	huma.Register(api, huma.Operation{
+		OperationID: "respond-to-notification",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/notification/respond/{req_id}",
+		Summary:     "Ответить на уведомление",
+		Description: "Отвечает на уведомление",
+		Tags:        []string{"blood-request-v1"},
+	}, h.NotificationRespond)
+
 }
 
 // Handlers
@@ -179,7 +191,7 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	if userID == "" {
 		return nil, apperrors.Unauthorized("user ID is missing in context")
 	}
-	bloodReq := h.bloodRequestMapper.FromCreate(input.Body, userID)
+	bloodReq := h.bloodRequestMapper.FromCreate(input.Body)
 	result, err := h.createHandler.Handle(ctx, bloodReq)
 	if err != nil {
 		return nil, err
@@ -356,8 +368,11 @@ func (h *BloodRequestHandler) ConfirmDonation(ctx context.Context, input *dto.Co
 }
 
 func (h *BloodRequestHandler) RejectDonation(ctx context.Context, input *dto.RejectDonorApplicationInput) (*commondto.DefaultMessageOutput, error) {
-	// TODO: Добавить с фронтенда.
-	reason := "other"
+	var reason string
+	if input.Body.Reason != nil {
+		reason = *input.Body.Reason
+	}
+
 	if err := h.rejectDonationHandler.Handle(ctx, input.ID, reason); err != nil {
 		return nil, err
 	}
@@ -369,4 +384,16 @@ func (h *BloodRequestHandler) CloseBloodSearch(ctx context.Context, input *commo
 		return nil, err
 	}
 	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{Message: "Заявка успешно закрыта, все невыполненные донации отменены"}}, nil
+}
+
+func (h *BloodRequestHandler) NotificationRespond(ctx context.Context, input *dto.NotificationRespondInput) (*commondto.DefaultMessageOutput, error) {
+	if err := h.notificationRespondHandler.Handle(ctx, bloodcmd.NotificationRespondInput{
+		BloodRequestID: input.ID,
+		Action:         bloodcmd.NotificationAction(input.Body.Action),
+	}); err != nil {
+		return nil, err
+	}
+	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{
+		Message: "Ответ принят",
+	}}, nil
 }

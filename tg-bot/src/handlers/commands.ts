@@ -1,7 +1,10 @@
 import type { Context } from "grammy";
 import { BotError, InlineKeyboard } from "grammy";
 import { Templates } from "../config/templates";
-import { usersApi, pinologger } from "../instances";
+import { authApi, userApi, adminApi, pinologger } from "../instances";
+import { parseApiError } from "../utils/parseApiError";
+import { getOrCreateToken } from "../utils/authStore";
+import { version as BOT_VERSION } from "../../package.json";
 
 // ============ Keyboard Builders ============
 
@@ -50,31 +53,32 @@ const parsePayload = (
 
 const authUser = async (
   telegramId: number,
-  fullName: string,
-  utmData: {
+  fullName?: string,
+  utmData?: {
     utm_campaign?: string;
     utm_source?: string;
     utm_medium?: string;
     utm_content?: string;
     utm_term?: string;
   },
-): Promise<void> => {
-  await usersApi.authUserViaService({
+) => {
+  const authResult = await authApi.authUserViaService({
     xInternalKey: Bun.env.INTERNAL_TG_BOT_SECRET,
     serviceSignInBody: {
       providerName: "telegram_bot",
       providerId: String(telegramId),
       fullName,
       metaData: {
-        utm_campaign: utmData.utm_campaign || "organic",
-        utm_source: utmData.utm_source || "telegram_bot",
-        utm_medium: utmData.utm_medium || undefined,
-        utm_content: utmData.utm_content || undefined,
-        utm_term: utmData.utm_term || undefined,
+        utm_campaign: utmData?.utm_campaign || "organic",
+        utm_source: utmData?.utm_source || "telegram_bot",
+        utm_medium: utmData?.utm_medium || undefined,
+        utm_content: utmData?.utm_content || undefined,
+        utm_term: utmData?.utm_term || undefined,
       },
     },
   });
   pinologger.info({ telegramId, fullName, utmData }, "User authenticated");
+  return authResult;
 };
 
 // ============ Helpers ============
@@ -200,4 +204,64 @@ export const apiTestHandler = async (ctx: Context) => {
 export const errCommandTest = async (ctx: Context) => {
   await ctx.reply("Произошла тестовая ошибка, не переживайте так задумано");
   throw new Error("Тестовая ошибка для проверки");
+};
+
+export const analyticHandler = async (ctx: Context) => {
+  try {
+    if (!ctx.from?.id) {
+      await ctx.reply("Не удалось определить пользователя");
+      return;
+    }
+
+    const auth = await getOrCreateToken(ctx.from.id);
+    const authorization = `${auth.tokenType} ${auth.accessToken}`;
+
+    const stats = await adminApi.getPortalStats({
+      headers: {
+        Authorization: authorization,
+      },
+    });
+
+    const user = await userApi.getUserById(
+      {
+        userId: auth.userId,
+      },
+      {
+        headers: {
+          Authorization: authorization,
+        },
+      },
+    );
+
+    if (!stats) {
+      await ctx.reply("Не удалось получить статистику портала");
+      return;
+    }
+
+	    const lines = [
+	      `Привет, *${user.fullName}*, ваша роль: *${user.role}*`,
+	      `🤖 Версия бота: *${BOT_VERSION}*`,
+	      "",
+	      "📊 *Статистика портала*",
+      "",
+      `👥 Всего пользователей: *${stats.totalUsers}*`,
+      `✅ Верифицировано: *${stats.verifiedUsers}*`,
+      `❌ Неверифицировано: *${stats.unverifiedUsers}*`,
+      `📱 С номером телефона: *${stats.usersWithPhone}*`,
+      `📞 Конверсия в телефон: *${stats.phoneConversionPercent}%*`,
+      "",
+      `🩸 Активных запросов крови: *${stats.activeBloodRequests}*`,
+      `💉 Всего донаций: *${stats.totalDonations}*`,
+      `✅ Завершено донаций: *${stats.completedDonations}*`,
+      "",
+      `🐾 Всего питомцев: *${stats.totalPets}*`,
+    ];
+
+    await ctx.reply(lines.join("\n"), { parse_mode: "Markdown" });
+  } catch (error) {
+    pinologger.error({ error }, "Error in analyticHandler");
+
+    const message = await parseApiError(error);
+    await ctx.reply(`⚠️ ${message}`);
+  }
 };

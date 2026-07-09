@@ -1,4 +1,4 @@
-package redis
+package otp
 
 import (
 	"context"
@@ -12,6 +12,13 @@ import (
 type OTPData struct {
 	Code     string `json:"code"`
 	NewPhone string `json:"newPhone"`
+}
+
+func NewOTPData(code, newPhone string) OTPData {
+	return OTPData{
+		Code:     code,
+		NewPhone: newPhone,
+	}
 }
 
 type OTPRepository interface {

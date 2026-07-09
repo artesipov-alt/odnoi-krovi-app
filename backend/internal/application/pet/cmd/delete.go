@@ -11,10 +11,10 @@ import (
 type DeleteHandler struct {
 	petReadRepo  pet.PetReadRepository
 	petWriteRepo pet.PetWriteRepository
-	bloodReqRepo bloodsearch.BloodRequestRepository
+	bloodReqRepo bloodsearch.Repository
 }
 
-func NewDeleteHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository, bloodReqRepo bloodsearch.BloodRequestRepository) *DeleteHandler {
+func NewDeleteHandler(petReadRepo pet.PetReadRepository, petWriteRepo pet.PetWriteRepository, bloodReqRepo bloodsearch.Repository) *DeleteHandler {
 	return &DeleteHandler{
 		petReadRepo:  petReadRepo,
 		petWriteRepo: petWriteRepo,

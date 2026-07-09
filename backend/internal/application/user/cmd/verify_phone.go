@@ -8,16 +8,16 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/otp"
 )
 
 type VerifyPhoneHandler struct {
 	userRepo  user.Repository
-	otpRepo   redis.OTPRepository
+	otpRepo   otp.OTPRepository
 	txManager *presistance.TxManager
 }
 
-func NewVerifyPhoneHandler(userRepo user.Repository, otpRepo redis.OTPRepository, txManager *presistance.TxManager) *VerifyPhoneHandler {
+func NewVerifyPhoneHandler(userRepo user.Repository, otpRepo otp.OTPRepository, txManager *presistance.TxManager) *VerifyPhoneHandler {
 	return &VerifyPhoneHandler{
 		userRepo:  userRepo,
 		otpRepo:   otpRepo,
@@ -45,17 +45,42 @@ func (h *VerifyPhoneHandler) Handle(ctx context.Context, userID string, code str
 
 		// Если телефон занят другим пользователем — объединяем аккаунты
 		if existingID != "" && existingID != userID {
+			// Загружаем identity обоих пользователей для проверки пересечения провайдеров
+			existingUser, err := h.userRepo.GetByID(txCtx, existingID, user.UserPreloadOptions{
+				WithIdentities: true,
+			})
+			if err != nil {
+				return apperrors.Internal(err, "failed to get existing user")
+			}
+
+			currentUser, err := h.userRepo.GetByID(txCtx, userID, user.UserPreloadOptions{
+				WithIdentities: true,
+			})
+			if err != nil {
+				return apperrors.Internal(err, "failed to get current user")
+			}
+
+			// Проверяем, нет ли пересечения по провайдерам (защита от чёрного донорства)
+			if existingUser.HasProviderConflict(currentUser) {
+				return apperrors.Conflict("нельзя объединить аккаунты: у вас уже есть аккаунт в этом сервисе")
+			}
+
 			// 1. Переносим UserIdentity к существующему пользователю
 			if err := h.userRepo.TransferUserIdentity(txCtx, userID, existingID); err != nil {
 				return apperrors.Internal(err, "failed to transfer user identity")
 			}
 
-			// 2. Переносим UTM-историю к существующему пользователю (сохраняем аналитику)
+			// 2. Переносим питомцев к существующему пользователю (со всеми заявками и откликами)
+			if err := h.userRepo.TransferPets(txCtx, userID, existingID); err != nil {
+				return apperrors.Internal(err, "failed to transfer pets")
+			}
+
+			// 3. Переносим UTM-историю к существующему пользователю (сохраняем аналитику)
 			if err := h.userRepo.TransferUTMHistory(txCtx, userID, existingID); err != nil {
 				return apperrors.Internal(err, "failed to transfer UTM history")
 			}
 
-			// 3. Обновляем телефон существующего пользователя
+			// 4. Обновляем телефон существующего пользователя
 			if err := h.userRepo.UpdatePhone(txCtx, existingID, newPhone); err != nil {
 				return apperrors.Internal(err, "failed to update phone on existing user")
 			}

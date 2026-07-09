@@ -73,7 +73,7 @@ func (d *DonorResponse) Accept() error {
 
 func (d *DonorResponse) Reject(reason string) error {
 	if reason == "" {
-		return errors.New("reason is required")
+		reason = "Реципиент отклонил донацию. "
 	}
 
 	switch d.Status {
@@ -113,6 +113,18 @@ func (d *DonorResponse) Confirm(amount float64) error {
 	return nil
 }
 
+func (d *DonorResponse) Cancel(reason string) error {
+	if reason == "" {
+		reason = "Донор самостоятельно отменил донацию. "
+	}
+	if d.Status == DonorResponseStatusAccepted {
+		d.RejectedReason = reason
+		d.Status = DonorResponseStatusCancelled
+		return nil
+	}
+	return errors.New("Невозможно отменить отклик. не верный первичный статус")
+}
+
 // IsActiveForDonation checks if the donor response is active for donation purposes
 func (d *DonorResponse) IsActiveForDonation() bool {
 	if d == nil {
@@ -127,5 +139,15 @@ func (d *DonorResponse) IsClosedForDonation() bool {
 	return d.Status == DonorResponseStatusRejected ||
 		d.Status == DonorResponseStatusCancelled ||
 		d.Status == DonorResponseStatusFailed ||
-		(d.Status == DonorResponseStatusCompleted && d.IsConfirmed)
+		(d.Status == DonorResponseStatusCompleted && d.IsConfirmedByRecipient())
+}
+
+// IsConfirmedByRecipient checks if donation is confirmed by recipient
+func (d *DonorResponse) IsConfirmedByRecipient() bool {
+	return d.Status == DonorResponseStatusCompleted && d.IsConfirmed
+}
+
+// IsCompleted checks if the donor response has completed status (regardless of confirmation)
+func (d *DonorResponse) IsCompleted() bool {
+	return d.Status == DonorResponseStatusCompleted
 }

@@ -20,6 +20,7 @@ models/BloodGroupsList.ts
 models/BloodRequestDetail.ts
 models/Bonus.ts
 models/BreedsList.ts
+models/CancelData.ts
 models/ChangeUserPhoneBody.ts
 models/CompleteDonationBody.ts
 models/CompletedDonationsList.ts
@@ -56,6 +57,7 @@ models/LocationsList.ts
 models/MatchingDonor.ts
 models/MiniAppSignInBody.ts
 models/MiniAppSignInResult.ts
+models/NotificationRespondBody.ts
 models/PetAnalysis.ts
 models/PetAnalysisGroup.ts
 models/PetDetail.ts
@@ -65,11 +67,13 @@ models/PetTreatment.ts
 models/PetTypesList.ts
 models/PetWithApplication.ts
 models/PlannedDonationsList.ts
+models/PortalStats.ts
 models/RecipientDetail.ts
 models/RecipientForDonor.ts
 models/RecipientShort.ts
 models/RecipientsList.ts
 models/ReferenceItem.ts
+models/RejectData.ts
 models/ReproductiveStatusesList.ts
 models/ResetUserResult.ts
 models/RestoreUserResult.ts
@@ -88,7 +92,6 @@ models/UploadItem.ts
 models/UploadURLsResult.ts
 models/UserDetail.ts
 models/UserRolesList.ts
-models/ValidateDonorResult.ts
 models/VerifyUserPhoneBody.ts
 models/index.ts
 runtime.ts

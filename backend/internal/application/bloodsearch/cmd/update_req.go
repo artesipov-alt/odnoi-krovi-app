@@ -9,10 +9,10 @@ import (
 )
 
 type UpdateRequestHandler struct {
-	bloodRepo bloodsearch.BloodRequestRepository
+	bloodRepo bloodsearch.Repository
 }
 
-func NewUpdateRequestHandler(bloodRepo bloodsearch.BloodRequestRepository) *UpdateRequestHandler {
+func NewUpdateRequestHandler(bloodRepo bloodsearch.Repository) *UpdateRequestHandler {
 	return &UpdateRequestHandler{
 		bloodRepo: bloodRepo,
 	}

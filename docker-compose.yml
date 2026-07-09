@@ -54,11 +54,15 @@ services:
     restart: unless-stopped
 
   max-bot:
+    build:
+      context: .
+      dockerfile: max-bot/Dockerfile
     image: ghcr.io/artesipov-alt/odnoi-krovi-app/max-bot:latest
     environment:
       MAX_BOT_TOKEN: ${MAX_BOT_TOKEN_PROD}
       INTERNAL_MAX_BOT_SECRET: ${INTERNAL_MAX_BOT_SECRET}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      MAX_BOT_WEBHOOK_URL: https://prodbot.1krovi.app/webhook
       MINIAPP_DOMAIN: https://1krovi.app
       API_BASE_URL: https://1krovi.app/api
       REDIS_HOST: 10.0.0.73

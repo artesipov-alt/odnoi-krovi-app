@@ -11,15 +11,15 @@ import (
 )
 
 // PetService provides business logic for pets
-type PetService struct{}
+type PetServiceV1 struct{}
 
 // NewPetService creates a new PetService
-func NewPetService() *PetService {
-	return &PetService{}
+func NewPetServiceV1() *PetServiceV1 {
+	return &PetServiceV1{}
 }
 
 // CalculateAndSetStatus calculates and sets the pet's status based on related aggregates
-func (s *PetService) CalculateAndSetStatus(pet *model.Pet, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
+func (s *PetServiceV1) CalculateStatus(pet *model.Pet, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
 	if s.hasActiveBloodRequest(bloodReq) {
 		if s.hasActiveDonorApplications(bloodReq) {
 			pet.PetStatus = model.PetStatusBloodFound
@@ -30,7 +30,7 @@ func (s *PetService) CalculateAndSetStatus(pet *model.Pet, application *donormod
 		pet.PetStatus = model.PetStatusDonor
 	}
 
-	if application.IsActiveForDonation() {
+	if application != nil && application.IsActiveForDonation() {
 		pet.PetStatus = model.PetStatusPlannedDonation
 	}
 
@@ -40,19 +40,17 @@ func (s *PetService) CalculateAndSetStatus(pet *model.Pet, application *donormod
 }
 
 // hasActiveBloodRequest checks if there is an active blood request
-func (s *PetService) hasActiveBloodRequest(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
+func (s *PetServiceV1) hasActiveBloodRequest(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
 	return bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed
 }
 
 // hasActiveDonorApplications checks if there are active donor applications
-func (s *PetService) hasActiveDonorApplications(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
+func (s *PetServiceV1) hasActiveDonorApplications(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
 	if bloodReq == nil {
 		return false
 	}
 	for _, app := range bloodReq.DonorApplications {
-		if app.Status == donormodel.DonorResponseStatusPending ||
-			app.Status == donormodel.DonorResponseStatusAccepted ||
-			(app.Status == donormodel.DonorResponseStatusCompleted && !app.IsConfirmed) {
+		if app.IsActiveForDonation() {
 			return true
 		}
 	}
@@ -60,12 +58,12 @@ func (s *PetService) hasActiveDonorApplications(bloodReq *bloodreqmodel.BloodReq
 }
 
 // canBeDonor checks if the pet can be a donor (no stop factors)
-func (s *PetService) canBeDonor(pet *model.Pet) bool {
+func (s *PetServiceV1) canBeDonor(pet *model.Pet) bool {
 	return len(pet.StopFactors) == 0
 }
 
 // shouldBeRecovering checks if the pet should be in recovering status
-func (s *PetService) shouldBeRecovering(pet *model.Pet) bool {
+func (s *PetServiceV1) shouldBeRecovering(pet *model.Pet) bool {
 	if pet.Health != nil && pet.Health.Transfused != nil && *pet.Health.Transfused {
 		return false
 	}
@@ -73,10 +71,12 @@ func (s *PetService) shouldBeRecovering(pet *model.Pet) bool {
 }
 
 // RecalculateFactorsAndStatus recalculates pet's factors and sets status based on related aggregates
-func (s *PetService) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
-	isRecipient := s.hasActiveBloodRequest(bloodReq)
-	pet.RecalculateFactors(now, isRecipient, application.IsActiveForDonation())
-	s.CalculateAndSetStatus(pet, application, bloodReq)
+func (s *PetServiceV1) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
+	isRecipient := bloodReq != nil && !bloodReq.IsClosed()
+	isPlaningDonation := application != nil && application.IsActiveForDonation()
+
+	pet.RecalculateFactors(now, isRecipient, isPlaningDonation)
+	s.CalculateStatus(pet, application, bloodReq)
 
 	if bloodReq != nil && !bloodReq.IsClosed() && bloodReq.PrioritySearch && pet.Privilege == "" {
 		pet.Privilege = common.PrivilegePrioritySearch
@@ -84,7 +84,7 @@ func (s *PetService) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, 
 }
 
 // CalculateRecoveryDays calculates remaining recovery days after donation (date-only comparison)
-func (s *PetService) CalculateRecoveryDays(pet *model.Pet, recoveryPeriodMonths int, now time.Time) *int {
+func (s *PetServiceV1) CalculateRecoveryDays(pet *model.Pet, recoveryPeriodMonths int, now time.Time) *int {
 	if pet.Health == nil || pet.Health.LastDonation == nil || recoveryPeriodMonths <= 0 {
 		return nil
 	}
