@@ -83,7 +83,7 @@ func (h *PlannedDonationsHandler) Handle(ctx context.Context, userID string) ([]
 				// Skip if blood request not found
 				continue
 			}
-			recipientPet, err := h.petRepo.GetByID(ctx, request.PetID, pet.PetPreloadOptions{})
+			recipientPet, err := h.petRepo.GetByID(ctx, request.BloodRequest.PetID, pet.PetPreloadOptions{})
 			if err != nil {
 				return nil, apperrors.Internal(err, "failed to get pet")
 			}

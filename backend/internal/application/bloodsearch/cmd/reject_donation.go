@@ -67,8 +67,8 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			return err
 		}
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.RecalculateStatus()
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
+		bloodReq.BloodRequest.RecalculateStatus()
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err
 		}
 		donorPet, err = h.petRepo.GetByID(txCtx, application.DonorID, pet.PetPreloadOptions{})
@@ -93,7 +93,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}

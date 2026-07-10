@@ -316,7 +316,7 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				}
 			}
 			recipient := dto.RecipientForDonor{
-				ID:                       res.BloodSearchData.ID,
+				ID:                       res.BloodSearchData.BloodRequest.ID,
 				OwnerName:                res.RecipientOwnerData.FullName,
 				OwnerID:                  res.RecipientOwnerData.ID,
 				OwnerPhone:               res.RecipientOwnerData.Phone,
@@ -324,20 +324,20 @@ func (h *DonorHandler) GetPlannedDonations(ctx context.Context, input *commondto
 				PetName:                  res.RecipientPetData.Name,
 				PetType:                  string(res.RecipientPetData.Type),
 				BloodGroup:               res.RecipientPetData.BloodGroupName,
-				Regions:                  res.BloodSearchData.Regions,
-				BloodVolumeNeeded:        res.BloodSearchData.BloodVolumeNeeded,
-				BloodVolumeReserved:      res.BloodSearchData.BloodVolumeReserved,
-				BloodVolumeDonated:       res.BloodSearchData.BloodVolumeDonated,
-				IncludeUnknownBloodGroup: res.BloodSearchData.IncludeUnknownBloodGroup,
+				Regions:                  res.BloodSearchData.BloodRequest.Regions,
+				BloodVolumeNeeded:        res.BloodSearchData.BloodRequest.BloodVolumeNeeded,
+				BloodVolumeReserved:      res.BloodSearchData.BloodRequest.BloodVolumeReserved,
+				BloodVolumeDonated:       res.BloodSearchData.BloodRequest.BloodVolumeDonated,
+				IncludeUnknownBloodGroup: res.BloodSearchData.BloodRequest.IncludeUnknownBloodGroup,
 				PhotoURLs:                h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
-				SearchingBloodNames:      res.BloodSearchData.BloodGroupNames,
+				SearchingBloodNames:      res.BloodSearchData.BloodRequest.BloodGroupNames,
 				AdvancedInfo: &dto.AdvancedInfoDTO{
-					PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
-					Description: res.BloodSearchData.AdvancedInfo.Description,
+					PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.BloodRequest.AdvancedInfo.PhotoURLs, *res.BloodSearchData.BloodRequest.UpdatedAt),
+					Description: res.BloodSearchData.BloodRequest.AdvancedInfo.Description,
 				},
-				Status:    string(res.BloodSearchData.Status),
-				CreatedAt: res.BloodSearchData.CreatedAt,
-				UpdatedAt: res.BloodSearchData.UpdatedAt,
+				Status:    string(res.BloodSearchData.BloodRequest.Status),
+				CreatedAt: res.BloodSearchData.BloodRequest.CreatedAt,
+				UpdatedAt: res.BloodSearchData.BloodRequest.UpdatedAt,
 			}
 
 			donationCards = append(donationCards, dto.DonationCardForDonor{
@@ -412,25 +412,25 @@ func (h *DonorHandler) GetCompletedDonations(ctx context.Context, input *commond
 		}
 
 		recipient := dto.RecipientForDonor{
-			ID:                  res.BloodSearchData.ID,
+			ID:                  res.BloodSearchData.BloodRequest.ID,
 			PetName:             res.RecipientPetData.Name,
 			PetType:             string(res.RecipientPetData.Type),
 			OwnerName:           res.RecipientPetData.OwnerName,
 			OwnerID:             res.RecipientPetData.OwnerID,
 			BloodGroup:          res.RecipientPetData.BloodGroupName,
-			Regions:             res.BloodSearchData.Regions,
-			BloodVolumeNeeded:   res.BloodSearchData.BloodVolumeNeeded,
-			BloodVolumeReserved: res.BloodSearchData.BloodVolumeReserved,
-			BloodVolumeDonated:  res.BloodSearchData.BloodVolumeDonated,
+			Regions:             res.BloodSearchData.BloodRequest.Regions,
+			BloodVolumeNeeded:   res.BloodSearchData.BloodRequest.BloodVolumeNeeded,
+			BloodVolumeReserved: res.BloodSearchData.BloodRequest.BloodVolumeReserved,
+			BloodVolumeDonated:  res.BloodSearchData.BloodRequest.BloodVolumeDonated,
 			PhotoURLs:           h.storage.BuildPhotoURLs(res.RecipientPetData.PhotoURLs, *res.RecipientPetData.UpdatedAt),
-			SearchingBloodNames: res.BloodSearchData.BloodGroupNames,
+			SearchingBloodNames: res.BloodSearchData.BloodRequest.BloodGroupNames,
 			AdvancedInfo: &dto.AdvancedInfoDTO{
-				PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.AdvancedInfo.PhotoURLs, *res.BloodSearchData.UpdatedAt),
-				Description: res.BloodSearchData.AdvancedInfo.Description,
+				PhotoURLs:   h.storage.BuildPhotoURLs(res.BloodSearchData.BloodRequest.AdvancedInfo.PhotoURLs, *res.BloodSearchData.BloodRequest.UpdatedAt),
+				Description: res.BloodSearchData.BloodRequest.AdvancedInfo.Description,
 			},
-			Status:    string(res.BloodSearchData.Status),
-			CreatedAt: res.BloodSearchData.CreatedAt,
-			UpdatedAt: res.BloodSearchData.UpdatedAt,
+			Status:    string(res.BloodSearchData.BloodRequest.Status),
+			CreatedAt: res.BloodSearchData.BloodRequest.CreatedAt,
+			UpdatedAt: res.BloodSearchData.BloodRequest.UpdatedAt,
 		}
 
 		donationCards = append(donationCards, dto.DonationCardForDonor{

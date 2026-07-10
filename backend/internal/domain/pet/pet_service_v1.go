@@ -41,7 +41,7 @@ func (s *PetServiceV1) CalculateStatus(pet *model.Pet, application *donormodel.D
 
 // hasActiveBloodRequest checks if there is an active blood request
 func (s *PetServiceV1) hasActiveBloodRequest(bloodReq *bloodreqmodel.BloodRequestWithApplications) bool {
-	return bloodReq != nil && bloodReq.Status != bloodreqmodel.BloodRequestStatusClosed
+	return bloodReq != nil && bloodReq.BloodRequest.Status != bloodreqmodel.BloodRequestStatusClosed
 }
 
 // hasActiveDonorApplications checks if there are active donor applications
@@ -72,13 +72,13 @@ func (s *PetServiceV1) shouldBeRecovering(pet *model.Pet) bool {
 
 // RecalculateFactorsAndStatus recalculates pet's factors and sets status based on related aggregates
 func (s *PetServiceV1) RecalculateFactorsAndStatus(pet *model.Pet, now time.Time, application *donormodel.DonorResponse, bloodReq *bloodreqmodel.BloodRequestWithApplications) {
-	isRecipient := bloodReq != nil && !bloodReq.IsClosed()
+	isRecipient := bloodReq != nil && !bloodReq.BloodRequest.IsClosed()
 	isPlaningDonation := application != nil && application.IsActiveForDonation()
 
 	pet.RecalculateFactors(now, isRecipient, isPlaningDonation)
 	s.CalculateStatus(pet, application, bloodReq)
 
-	if bloodReq != nil && !bloodReq.IsClosed() && bloodReq.PrioritySearch && pet.Privilege == "" {
+	if bloodReq != nil && !bloodReq.BloodRequest.IsClosed() && bloodReq.BloodRequest.PrioritySearch && pet.Privilege == "" {
 		pet.Privilege = common.PrivilegePrioritySearch
 	}
 }

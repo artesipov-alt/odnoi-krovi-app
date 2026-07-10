@@ -44,7 +44,7 @@ type BloodRequest struct {
 }
 
 type BloodRequestWithApplications struct {
-	BloodRequest
+	BloodRequest      BloodRequest
 	DonorApplications []donormodel.DonorResponse
 }
 
@@ -142,20 +142,20 @@ func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
 			donated += app.Amount
 		}
 	}
-	b.BloodVolumeDonated = math.Round(donated*10) / 10
+	b.BloodRequest.BloodVolumeDonated = math.Round(donated*10) / 10
 
-	reserved := b.BloodVolumeDonated
+	reserved := b.BloodRequest.BloodVolumeDonated
 	for _, app := range b.DonorApplications {
 		// Ищем только откликнувшихся доноров
 		if (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusAccepted) || (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusCompleted) {
 			reserved += app.Amount
 			// Обрезаем до максимального
-			if reserved >= b.BloodVolumeNeeded {
-				reserved = b.BloodVolumeNeeded
+			if reserved >= b.BloodRequest.BloodVolumeNeeded {
+				reserved = b.BloodRequest.BloodVolumeNeeded
 			}
 		}
 	}
-	b.BloodVolumeReserved = math.Round(reserved*10) / 10
+	b.BloodRequest.BloodVolumeReserved = math.Round(reserved*10) / 10
 }
 
 func (b *BloodRequest) RecalculateStatus() {
@@ -197,8 +197,8 @@ func (r *BloodRequestWithMatchingDonors) SyncPrivilegeAndPriority() {
 
 func (r *BloodRequestWithApplications) SearchingBloodGroupNames() []string {
 	var searchingBloodGroupNames []string
-	searchingBloodGroupNames = append(searchingBloodGroupNames, r.BloodGroupNames...)
-	if r.IncludeUnknownBloodGroup {
+	searchingBloodGroupNames = append(searchingBloodGroupNames, r.BloodRequest.BloodGroupNames...)
+	if r.BloodRequest.IncludeUnknownBloodGroup {
 		searchingBloodGroupNames = append(searchingBloodGroupNames, "UNKNOWN")
 	}
 	return searchingBloodGroupNames

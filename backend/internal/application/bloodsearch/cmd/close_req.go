@@ -56,7 +56,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 	var rejectedDonorIDs []string
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodreqmodel.BloodRequestStatusClosed); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodreqmodel.BloodRequestStatusClosed); err != nil {
 			return err
 		}
 		for i := range bloodReq.DonorApplications {
@@ -91,7 +91,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 
 	// Publish rejection events for donors who were auto-rejected when the request closed
 	if len(rejectedDonorIDs) > 0 {
-		recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+		recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 		if err != nil {
 			slog.Error("failed to get recipient pet for close request notifications", "err", err, "bloodReqID", bloodReqID)
 			return nil

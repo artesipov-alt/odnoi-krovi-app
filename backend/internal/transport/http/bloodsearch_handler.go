@@ -198,10 +198,10 @@ func (h *BloodRequestHandler) AddPetToBloodRequestPool(ctx context.Context, inpu
 	}
 
 	return &dto.CreateBloodRequestOutput{Body: dto.CreateBloodRequestResult{
-		ID:        result.ID,
-		PetID:     result.PetID,
-		Status:    string(result.Status),
-		CreatedAt: result.CreatedAt,
+		ID:        result.BloodRequest.ID,
+		PetID:     result.BloodRequest.PetID,
+		Status:    string(result.BloodRequest.Status),
+		CreatedAt: result.BloodRequest.CreatedAt,
 	}}, nil
 }
 
@@ -214,37 +214,37 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 
 	// Частично обновить поля
 	if input.Body.BloodVolumeNeeded != nil {
-		existing.BloodVolumeNeeded = *input.Body.BloodVolumeNeeded
+		existing.BloodRequest.BloodVolumeNeeded = *input.Body.BloodVolumeNeeded
 	}
 	if input.Body.BloodVolumeReserved != nil {
-		existing.BloodVolumeReserved = *input.Body.BloodVolumeReserved
+		existing.BloodRequest.BloodVolumeReserved = *input.Body.BloodVolumeReserved
 	}
 	if len(input.Body.Regions) > 0 {
-		existing.Regions = input.Body.Regions
+		existing.BloodRequest.Regions = input.Body.Regions
 	}
 	if input.Body.SmallPetsNotifyAllowed != nil {
-		existing.SmallPetsNotifyAllowed = *input.Body.SmallPetsNotifyAllowed
+		existing.BloodRequest.SmallPetsNotifyAllowed = *input.Body.SmallPetsNotifyAllowed
 	}
 	if input.Body.Description != nil {
-		existing.AdvancedInfo.Description = *input.Body.Description
+		existing.BloodRequest.AdvancedInfo.Description = *input.Body.Description
 	}
 	if len(input.Body.BloodGroupNames) > 0 {
-		existing.BloodGroupNames = input.Body.BloodGroupNames
+		existing.BloodRequest.BloodGroupNames = input.Body.BloodGroupNames
 	}
 	if len(input.Body.BloodComponentIDs) > 0 {
-		existing.BloodComponentIDs = input.Body.BloodComponentIDs
+		existing.BloodRequest.BloodComponentIDs = input.Body.BloodComponentIDs
 	}
 	if len(input.Body.OnBoarding) > 0 {
-		existing.OnBoarding = input.Body.OnBoarding
+		existing.BloodRequest.OnBoarding = input.Body.OnBoarding
 	}
 	if input.Body.Status != nil {
-		existing.Status = model.BloodRequestStatus(*input.Body.Status)
+		existing.BloodRequest.Status = model.BloodRequestStatus(*input.Body.Status)
 	}
 	if input.Body.PrioritySearch != nil {
-		existing.PrioritySearch = *input.Body.PrioritySearch
+		existing.BloodRequest.PrioritySearch = *input.Body.PrioritySearch
 	}
 	if input.Body.IncludeUnknownBloodGroup != nil {
-		existing.IncludeUnknownBloodGroup = *input.Body.IncludeUnknownBloodGroup
+		existing.BloodRequest.IncludeUnknownBloodGroup = *input.Body.IncludeUnknownBloodGroup
 	}
 
 	result, err := h.updateHandler.Handle(ctx, input.ID, existing)
@@ -253,8 +253,8 @@ func (h *BloodRequestHandler) UpdateBloodRequest(ctx context.Context, input *dto
 	}
 
 	return &dto.UpdateBloodRequestOutput{Body: dto.UpdateBloodRequestResult{
-		ID:        result.ID,
-		UpdatedAt: result.UpdatedAt,
+		ID:        result.BloodRequest.ID,
+		UpdatedAt: result.BloodRequest.UpdatedAt,
 	}}, nil
 }
 
@@ -346,9 +346,9 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 	recipientData := dto.RecipientShort{
 		PetName:             donation.RecipientPet.Name,
 		PetType:             string(donation.RecipientPet.Type),
-		BloodVolumeDonated:  donation.BloodRequest.BloodVolumeDonated,
-		BloodVolumeNeeded:   donation.BloodRequest.BloodVolumeNeeded,
-		BloodVolumeReserved: donation.BloodRequest.BloodVolumeReserved,
+		BloodVolumeDonated:  donation.BloodRequest.BloodRequest.BloodVolumeDonated,
+		BloodVolumeNeeded:   donation.BloodRequest.BloodRequest.BloodVolumeNeeded,
+		BloodVolumeReserved: donation.BloodRequest.BloodRequest.BloodVolumeReserved,
 		PhotoURLs:           h.storage.BuildPhotoURLs(donation.RecipientPet.PhotoURLs, *donation.Application.UpdatedAt),
 	}
 

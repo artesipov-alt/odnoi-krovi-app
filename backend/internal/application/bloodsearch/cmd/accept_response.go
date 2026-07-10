@@ -79,12 +79,12 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		}
 
 		bloodreq.RecalculateBloodAmount()
-		bloodreq.RecalculateStatus()
+		bloodreq.BloodRequest.RecalculateStatus()
 
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodreq.ID, bloodreq.Status); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodreq.BloodRequest.ID, bloodreq.BloodRequest.Status); err != nil {
 			return err
 		}
-		petID = bloodreq.PetID
+		petID = bloodreq.BloodRequest.PetID
 		return nil
 	})
 	if err != nil {
@@ -130,7 +130,7 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		PetName:          recipientPet.Name,
 		Phone:            recipientUser.Phone,
 		BloodGroup:       recipientPet.BloodGroupName,
-		Volume:           bloodreq.BloodVolumeNeeded,
+		Volume:           bloodreq.BloodRequest.BloodVolumeNeeded,
 		ProviderMaxID:    recipientMaxID,
 		ProviderTelegram: recipientTelegramID,
 	}

@@ -87,7 +87,7 @@ func (h *CompleteDonationHandler) collectRecipientData(ctx context.Context, resI
 		return nil, "", "", apperrors.Internal(err, "failed to get blood request")
 	}
 
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, "", "", apperrors.Internal(err, "failed to get recipient pet")
 	}

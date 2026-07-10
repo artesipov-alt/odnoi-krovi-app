@@ -72,13 +72,13 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		}
 
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.RecalculateStatus()
+		bloodReq.BloodRequest.RecalculateStatus()
 
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err
 		}
 
-		if bloodReq.IsClosed() {
+		if bloodReq.BloodRequest.IsClosed() {
 			for i := range bloodReq.DonorApplications {
 				app := &bloodReq.DonorApplications[i]
 				if app.ID != donorResponseID && app.IsActiveForDonation() {
@@ -92,7 +92,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				}
 			}
 			// Установить флаг переливания для recipient'а
-			if err := h.petRepo.SetTransfused(txCtx, bloodReq.PetID, true); err != nil {
+			if err := h.petRepo.SetTransfused(txCtx, bloodReq.BloodRequest.PetID, true); err != nil {
 				return err
 			}
 		}
@@ -139,7 +139,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 	if err != nil {
 		return err
 	}
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}

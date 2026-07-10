@@ -87,8 +87,8 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string, reason
 			return apperrors.Internal(err, "failed to get blood request after cancel")
 		}
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.RecalculateStatus()
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
+		bloodReq.BloodRequest.RecalculateStatus()
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return apperrors.Internal(err, "failed to update blood request status after cancel")
 		}
 
@@ -125,7 +125,7 @@ func (h *CancelDonationHandler) collectRecipientData(ctx context.Context, respon
 		return nil, "", "", apperrors.Internal(err, "failed to get blood request")
 	}
 
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, "", "", apperrors.Internal(err, "failed to get recipient pet")
 	}
