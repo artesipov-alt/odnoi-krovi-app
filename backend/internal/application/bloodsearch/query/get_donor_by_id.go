@@ -50,7 +50,7 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 
 	if bloodReq != nil {
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.BloodRequest.RecalculateStatus()
+		bloodReq.RecalculateStatus()
 	}
 
 	h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)

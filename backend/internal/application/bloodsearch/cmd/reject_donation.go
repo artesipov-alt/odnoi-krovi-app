@@ -67,7 +67,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			return err
 		}
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.BloodRequest.RecalculateStatus()
+		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err
 		}

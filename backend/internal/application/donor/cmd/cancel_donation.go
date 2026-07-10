@@ -87,7 +87,7 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string, reason
 			return apperrors.Internal(err, "failed to get blood request after cancel")
 		}
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.BloodRequest.RecalculateStatus()
+		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return apperrors.Internal(err, "failed to update blood request status after cancel")
 		}

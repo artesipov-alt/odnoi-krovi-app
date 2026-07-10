@@ -53,7 +53,7 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	if err != nil {
 		return nil, err
 	}
-	if !req.BloodRequest.IsActive() {
+	if !req.IsActive() {
 		return nil, apperrors.ErrInvalidBloodRequestStatus.WithMessage("blood request is not active")
 	}
 

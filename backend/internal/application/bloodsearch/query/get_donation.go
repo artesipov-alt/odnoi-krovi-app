@@ -76,7 +76,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	}
 
 	bloodReq.RecalculateBloodAmount()
-	bloodReq.BloodRequest.RecalculateStatus()
+	bloodReq.RecalculateStatus()
 
 	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{
 		WithHealth:     true,

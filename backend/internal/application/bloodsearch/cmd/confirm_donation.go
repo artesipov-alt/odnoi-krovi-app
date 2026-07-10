@@ -72,13 +72,13 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 		}
 
 		bloodReq.RecalculateBloodAmount()
-		bloodReq.BloodRequest.RecalculateStatus()
+		bloodReq.RecalculateStatus()
 
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err
 		}
 
-		if bloodReq.BloodRequest.IsClosed() {
+		if bloodReq.IsClosed() {
 			for i := range bloodReq.DonorApplications {
 				app := &bloodReq.DonorApplications[i]
 				if app.ID != donorResponseID && app.IsActiveForDonation() {
