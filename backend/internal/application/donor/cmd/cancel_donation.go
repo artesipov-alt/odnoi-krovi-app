@@ -27,6 +27,7 @@ type CancelDonationHandler struct {
 	petRepo        pet.PetReadRepository
 	userRepo       user.Repository
 	bonusSvc       *bonus.BonusService
+	bloodCounter   *bloodsearch.BloodCounterService
 }
 
 func NewCancelDonationHandler(
@@ -46,6 +47,7 @@ func NewCancelDonationHandler(
 		petRepo:        petRepo,
 		userRepo:       userRepo,
 		bonusSvc:       bonusSvc,
+		bloodCounter:   bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -86,7 +88,9 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string, reason
 		if err != nil {
 			return apperrors.Internal(err, "failed to get blood request after cancel")
 		}
-		bloodReq.RecalculateBloodAmount()
+		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return apperrors.Internal(err, "failed to update blood request status after cancel")

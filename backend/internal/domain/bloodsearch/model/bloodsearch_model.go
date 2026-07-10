@@ -92,6 +92,11 @@ func (b *BloodRequest) RecalculateStatus() {
 	}
 }
 
+func (b *BloodRequest) SetBloodVolume(donated float64, reserved float64) {
+	b.BloodVolumeDonated = donated
+	b.BloodVolumeReserved = reserved
+}
+
 // BloodRequestFilter represents filter options for listing requests
 type BloodRequestFilter struct {
 	PetID   string

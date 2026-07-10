@@ -18,13 +18,14 @@ import (
 )
 
 type RejectDonationHandler struct {
-	bloodRepo bloodsearch.Repository
-	donorRepo donor.Repository
-	petRepo   pet.Repository
-	userRepo  user.Repository
-	txManager *presistance.TxManager
-	publisher ports.EventPublisher
-	bonusSvc  *bonus.BonusService
+	bloodRepo    bloodsearch.Repository
+	donorRepo    donor.Repository
+	petRepo      pet.Repository
+	userRepo     user.Repository
+	txManager    *presistance.TxManager
+	publisher    ports.EventPublisher
+	bonusSvc     *bonus.BonusService
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 func NewRejectDonationHandler(
@@ -37,13 +38,14 @@ func NewRejectDonationHandler(
 	bonusSvc *bonus.BonusService,
 ) *RejectDonationHandler {
 	return &RejectDonationHandler{
-		bloodRepo: bloodRepo,
-		donorRepo: donorRepo,
-		petRepo:   petRepo,
-		userRepo:  userRepo,
-		txManager: txManager,
-		publisher: publisher,
-		bonusSvc:  bonusSvc,
+		bloodRepo:    bloodRepo,
+		donorRepo:    donorRepo,
+		petRepo:      petRepo,
+		userRepo:     userRepo,
+		txManager:    txManager,
+		publisher:    publisher,
+		bonusSvc:     bonusSvc,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -66,7 +68,9 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		if err != nil {
 			return err
 		}
-		bloodReq.RecalculateBloodAmount()
+		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 		bloodReq.RecalculateStatus()
 		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err

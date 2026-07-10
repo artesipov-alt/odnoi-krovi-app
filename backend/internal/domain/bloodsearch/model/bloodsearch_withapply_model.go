@@ -1,10 +1,6 @@
 package model
 
-import (
-	"math"
-
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
-)
+import donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 
 type BloodRequestWithApplications struct {
 	BloodRequest      BloodRequest
@@ -45,27 +41,4 @@ func (b *BloodRequestWithApplications) RecalculateStatus() {
 		return
 	}
 	b.BloodRequest.RecalculateStatus()
-}
-
-func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
-	var donated float64
-	for _, app := range b.DonorApplications {
-		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
-			donated += app.Amount
-		}
-	}
-	b.BloodRequest.BloodVolumeDonated = math.Round(donated*10) / 10
-
-	reserved := b.BloodRequest.BloodVolumeDonated
-	for _, app := range b.DonorApplications {
-		// Ищем только откликнувшихся доноров
-		if (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusAccepted) || (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusCompleted) {
-			reserved += app.Amount
-			// Обрезаем до максимального
-			if reserved >= b.BloodRequest.BloodVolumeNeeded {
-				reserved = b.BloodRequest.BloodVolumeNeeded
-			}
-		}
-	}
-	b.BloodRequest.BloodVolumeReserved = math.Round(reserved*10) / 10
 }

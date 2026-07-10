@@ -9,8 +9,9 @@ import (
 )
 
 type GetByPetIDHandler struct {
-	bloodRepo bloodsearch.Repository
-	petRepo   pet.Repository
+	bloodRepo    bloodsearch.Repository
+	petRepo      pet.Repository
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 func NewGetByPetIDHandler(
@@ -18,8 +19,9 @@ func NewGetByPetIDHandler(
 	petRepo pet.Repository,
 ) *GetByPetIDHandler {
 	return &GetByPetIDHandler{
-		bloodRepo: bloodRepo,
-		petRepo:   petRepo,
+		bloodRepo:    bloodRepo,
+		petRepo:      petRepo,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -29,7 +31,9 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*model.Bl
 		return nil, 0, err
 	}
 
-	bloodReq.RecalculateBloodAmount()
+	donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+	bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 
 	suitableDonors, err := h.petRepo.CountSuitableDonors(ctx, bloodReq.BloodRequest.BloodGroupNames)
 	if err != nil {
