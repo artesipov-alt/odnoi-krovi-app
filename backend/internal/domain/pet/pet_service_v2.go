@@ -31,7 +31,7 @@ func (s *PetServiceV2) CalculateStatus(pet *model.Pet, application *donormodel.D
 	}
 
 	// Active blood request overrides donor/recovering status.
-	if !bloodReq.IsClosed() {
+	if bloodReq != nil && !bloodReq.IsClosed() {
 		if bloodReq.HasActiveDonorApplications() {
 			return model.PetStatusBloodFound
 		}
