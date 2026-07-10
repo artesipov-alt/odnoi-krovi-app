@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.21.0] - 2026-07-10
+
+### Изменено
+
+- **Рефакторинг расчёта объёмов крови: выделен отдельный доменный сервис `BloodCounterService`**
+  - Все 8 хендлеров переведены на новый сервис через конструктор.
+  - Удалён дублирующий метод `BloodRequestWithApplications.RecalculateBloodAmount()`.
+  - Переименование методов для ясности: `IsClosedForDonation` → `IsInActive`, `IsConfirmedByRecipient` → `IsFullyCompleted`.
+  - Добавлен метод `IsAwaitingConfirmation` для откликов, ожидающих подтверждения.
+  - Комментарий обновлён под новое имя метода.
+
 ## [3.20.4] - 2026-07-09
 
 ### Исправлено
