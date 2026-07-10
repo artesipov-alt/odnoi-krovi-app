@@ -18,11 +18,12 @@ import (
 )
 
 type GetDonationHandler struct {
-	petReadRepo pet.PetReadRepository
-	donorRepo   donor.Repository
-	userRepo    user.Repository
-	bloodRepo   bloodsearch.Repository
-	petService  pet.PetService
+	petReadRepo  pet.PetReadRepository
+	donorRepo    donor.Repository
+	userRepo     user.Repository
+	bloodRepo    bloodsearch.Repository
+	petService   pet.PetService
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 type GetDonationResult struct {
@@ -35,11 +36,12 @@ type GetDonationResult struct {
 
 func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository, petService pet.PetService) *GetDonationHandler {
 	return &GetDonationHandler{
-		donorRepo:   donorRepo,
-		bloodRepo:   bloodRepo,
-		petReadRepo: petReadRepo,
-		userRepo:    userRepo,
-		petService:  petService,
+		donorRepo:    donorRepo,
+		bloodRepo:    bloodRepo,
+		petReadRepo:  petReadRepo,
+		userRepo:     userRepo,
+		petService:   petService,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -75,10 +77,12 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 		return nil, err
 	}
 
-	bloodReq.RecalculateBloodAmount()
+	donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+	bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 	bloodReq.RecalculateStatus()
 
-	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{
+	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{
 		WithHealth:     true,
 		WithTreatments: true,
 		WithAnalyses:   true,

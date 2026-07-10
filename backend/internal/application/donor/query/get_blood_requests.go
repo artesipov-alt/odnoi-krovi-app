@@ -114,10 +114,10 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 // Сортируем массив реципиентов по дате создания от старых к новым и по приоритету
 func sortByPriorityAndDate(a, b *bloodreqmodel.BloodRequestWithMatchingDonors) int {
-	if a.PrioritySearch == b.PrioritySearch {
-		return b.CreatedAt.Compare(*a.CreatedAt)
+	if a.BloodRequest.PrioritySearch == b.BloodRequest.PrioritySearch {
+		return b.BloodRequest.CreatedAt.Compare(*a.BloodRequest.CreatedAt)
 	}
-	if a.PrioritySearch {
+	if a.BloodRequest.PrioritySearch {
 		return -1
 	}
 	return 1

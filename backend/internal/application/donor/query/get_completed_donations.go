@@ -67,7 +67,7 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 	for _, dPet := range donorPets {
 		applications := applicationsMap[dPet.ID]
 		for _, app := range applications {
-			if app.IsClosedForDonation() {
+			if app.IsInactive() {
 				// TODO: N+1 На каждую заявку тянется по одному запросу. Нужно сделать общий метод.
 				request, err := h.bloodReqRepo.GetByApplicationID(ctx, app.ID, true)
 				if err != nil {
@@ -77,7 +77,7 @@ func (h *CompletedDonationsHandler) Handle(ctx context.Context, userID string) (
 					// Skip if blood request not found
 					continue
 				}
-				recipientPet, err := h.petRepo.GetByID(ctx, request.PetID, pet.PetPreloadOptions{IgnoreSoftDelete: true})
+				recipientPet, err := h.petRepo.GetByID(ctx, request.BloodRequest.PetID, pet.PetPreloadOptions{IgnoreSoftDelete: true})
 				if err != nil {
 					return nil, apperrors.Internal(err, "failed to get pet")
 				}

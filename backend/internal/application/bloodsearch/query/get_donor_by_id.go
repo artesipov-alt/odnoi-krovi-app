@@ -14,18 +14,20 @@ import (
 )
 
 type GetDonorByIDHandler struct {
-	petReadRepo pet.PetReadRepository
-	donorRepo   donor.Repository
-	bloodRepo   bloodsearch.Repository
-	petService  pet.PetService
+	petReadRepo  pet.PetReadRepository
+	donorRepo    donor.Repository
+	bloodRepo    bloodsearch.Repository
+	petService   pet.PetService
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.Repository, petService pet.PetService) *GetDonorByIDHandler {
 	return &GetDonorByIDHandler{
-		petReadRepo: petReadRepo,
-		donorRepo:   donorRepo,
-		bloodRepo:   bloodRepo,
-		petService:  petService,
+		petReadRepo:  petReadRepo,
+		donorRepo:    donorRepo,
+		bloodRepo:    bloodRepo,
+		petService:   petService,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -49,7 +51,9 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 	}
 
 	if bloodReq != nil {
-		bloodReq.RecalculateBloodAmount()
+		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 		bloodReq.RecalculateStatus()
 	}
 

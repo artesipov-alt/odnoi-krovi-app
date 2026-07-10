@@ -2,11 +2,7 @@ package model
 
 import (
 	"errors"
-	"math"
 	"time"
-
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 )
 
 // ErrInsufficientVolume is returned when trying to reserve more blood than needed
@@ -43,59 +39,9 @@ type BloodRequest struct {
 	DeletedAt                *time.Time
 }
 
-type BloodRequestWithApplications struct {
-	BloodRequest
-	DonorApplications []donormodel.DonorResponse
-}
-
-func (b *BloodRequestWithApplications) HasActiveDonorApplications() bool {
-	if b == nil {
-		return false
-	}
-	for _, app := range b.DonorApplications {
-		if app.IsActiveForDonation() {
-			return true
-		}
-	}
-	return false
-}
-
-// Recipient представляет модель чтения реципиент
-type BloodRequestWithMatchingDonors struct {
-	BloodRequest
-	RecipientData     RecipientData
-	MatchingDonors    []MatchingDonorReadModel
-	DefaultDonorPrefs *DefaultDonorPrefs
-}
-
-type RecipientData struct {
-	PetName        string
-	PetType        common.PetType
-	BloodGroupName string
-	OwnerName      string
-	OwnerID        string
-	Privilege      common.Privilege
-	PhotoURLs      []string
-}
-
 type AdvancedInfo struct {
 	Description string
 	PhotoURLs   []string
-}
-
-type DefaultDonorPrefs struct {
-	CompensationType common.CompensationType
-	Bonuses          []string
-	TaxiCompensation bool
-}
-
-// MatchingDonorReadModel представляет модель чтения для подходящего донора
-type MatchingDonorReadModel struct {
-	PetID           string
-	PetName         string
-	Amount          float64
-	DonorBloodGroup string
-	PhotoURLs       []string
 }
 
 // IsActive checks if the request is active
@@ -135,29 +81,6 @@ func (b *BloodRequest) SetBloodGroups(groups []string) {
 	b.BloodGroupNames = groups
 }
 
-func (b *BloodRequestWithApplications) RecalculateBloodAmount() {
-	var donated float64
-	for _, app := range b.DonorApplications {
-		if app.IsConfirmed && app.Status == donormodel.DonorResponseStatusCompleted {
-			donated += app.Amount
-		}
-	}
-	b.BloodVolumeDonated = math.Round(donated*10) / 10
-
-	reserved := b.BloodVolumeDonated
-	for _, app := range b.DonorApplications {
-		// Ищем только откликнувшихся доноров
-		if (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusAccepted) || (app.IsConfirmed == false && app.Status == donormodel.DonorResponseStatusCompleted) {
-			reserved += app.Amount
-			// Обрезаем до максимального
-			if reserved >= b.BloodVolumeNeeded {
-				reserved = b.BloodVolumeNeeded
-			}
-		}
-	}
-	b.BloodVolumeReserved = math.Round(reserved*10) / 10
-}
-
 func (b *BloodRequest) RecalculateStatus() {
 	if b.BloodVolumeReserved >= b.BloodVolumeNeeded {
 		b.MarkReservedFull()
@@ -169,6 +92,11 @@ func (b *BloodRequest) RecalculateStatus() {
 	}
 }
 
+func (b *BloodRequest) SetBloodVolume(donated float64, reserved float64) {
+	b.BloodVolumeDonated = donated
+	b.BloodVolumeReserved = reserved
+}
+
 // BloodRequestFilter represents filter options for listing requests
 type BloodRequestFilter struct {
 	PetID   string
@@ -176,30 +104,4 @@ type BloodRequestFilter struct {
 	Regions []string
 	Limit   int
 	Offset  int
-}
-
-func (r *BloodRequestWithMatchingDonors) SetDefaultPrefs(compensationType common.CompensationType, taxiCompensation bool) {
-	r.DefaultDonorPrefs = &DefaultDonorPrefs{
-		CompensationType: compensationType,
-		TaxiCompensation: taxiCompensation,
-		Bonuses:          []string{},
-	}
-}
-
-// SyncPrivilegeAndPriority synchronizes privilege and priority search based on business rules
-func (r *BloodRequestWithMatchingDonors) SyncPrivilegeAndPriority() {
-	if r.RecipientData.Privilege != "" {
-		r.PrioritySearch = true
-	} else if r.PrioritySearch {
-		r.RecipientData.Privilege = common.PrivilegePrioritySearch
-	}
-}
-
-func (r *BloodRequestWithApplications) SearchingBloodGroupNames() []string {
-	var searchingBloodGroupNames []string
-	searchingBloodGroupNames = append(searchingBloodGroupNames, r.BloodGroupNames...)
-	if r.IncludeUnknownBloodGroup {
-		searchingBloodGroupNames = append(searchingBloodGroupNames, "UNKNOWN")
-	}
-	return searchingBloodGroupNames
 }
