@@ -116,7 +116,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	donorProviderMaxID, donorProviderTelegramID := extractProviderIDs(donorUser)
+	donorProviderMaxID, donorProviderTelegramID := donorUser.MessengerContacts()
 
 	switch application.Status {
 	case donormodel.DonorResponseStatusRejected:
@@ -134,7 +134,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			slog.Error("failed to publish donor reject notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	case donormodel.DonorResponseStatusAccepted:
-		recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
+		recipientProviderMaxID, recipientProviderTelegramID := recipientUser.MessengerContacts()
 
 		notConfirmedEvent := donorevent.DonorNotConfirmed{
 			DonorPetName:        donorPet.Name,

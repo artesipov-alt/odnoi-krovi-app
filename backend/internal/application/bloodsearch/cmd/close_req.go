@@ -111,7 +111,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 				continue
 			}
 
-			donorMaxID, donorTelegramID := extractProviderIDs(rejectedDonorUser)
+			donorMaxID, donorTelegramID := rejectedDonorUser.MessengerContacts()
 
 			rejectEvent := donorevent.DonorReject{
 				RecipientPetName:        recipientPet.Name,

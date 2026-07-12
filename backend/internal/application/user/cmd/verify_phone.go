@@ -61,7 +61,7 @@ func (h *VerifyPhoneHandler) Handle(ctx context.Context, userID string, code str
 			}
 
 			// Проверяем, нет ли пересечения по провайдерам (защита от чёрного донорства)
-			if existingUser.HasProviderConflict(currentUser) {
+			if existingUser.HasProviderConflict(*currentUser) {
 				return apperrors.Conflict("нельзя объединить аккаунты: у вас уже есть аккаунт в этом сервисе")
 			}
 

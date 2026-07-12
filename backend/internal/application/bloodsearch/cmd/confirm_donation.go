@@ -149,7 +149,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 	}
 
 	// Extract Provider IDs
-	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
+	donorMaxID, donorTelegramID := donorUser.MessengerContacts()
 
 	event := bloodsearchevent.DonationConfirmed{
 		DonorData: bloodsearchevent.DonorInfo{
@@ -186,7 +186,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				return err
 			}
 
-			donorMaxID, donorTelegramID := extractProviderIDs(rejectedDonorUser)
+			donorMaxID, donorTelegramID := rejectedDonorUser.MessengerContacts()
 
 			rejectEvent := donorevent.DonorReject{
 				RecipientPetName:        recipientPet.Name,

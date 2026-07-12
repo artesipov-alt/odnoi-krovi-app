@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"time"
 
-	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
 	bloodmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -13,7 +12,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 )
 
@@ -44,18 +42,6 @@ func NewApplyResponseHandler(
 		txManager:    txManager,
 		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
-}
-
-func extractProviderIDs(user *usermodel.User) (maxID, telegramID string) {
-	for _, identity := range user.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
-			maxID = identity.ProviderUserID
-		}
-		if identity.ProviderName == authmodel.ProviderTelegram {
-			telegramID = identity.ProviderUserID
-		}
-	}
-	return
 }
 
 func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID string) error {
@@ -117,8 +103,8 @@ func (h *ApplyResponseHandler) Handle(ctx context.Context, donorResponseID strin
 		return err
 	}
 
-	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
-	recipientMaxID, recipientTelegramID := extractProviderIDs(recipientUser)
+	donorMaxID, donorTelegramID := donorUser.MessengerContacts()
+	recipientMaxID, recipientTelegramID := recipientUser.MessengerContacts()
 
 	donorData := events.DonorData{
 		UserName:         donorUser.FullName,
