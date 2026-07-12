@@ -42,3 +42,12 @@ func (b *BloodRequestWithApplications) RecalculateStatus() {
 	}
 	b.BloodRequest.RecalculateStatus()
 }
+
+func (r *BloodRequestWithApplications) SearchingBloodGroupNames() []string {
+	var searchingBloodGroupNames []string
+	searchingBloodGroupNames = append(searchingBloodGroupNames, r.BloodRequest.BloodGroupNames...)
+	if r.BloodRequest.IncludeUnknownBloodGroup {
+		searchingBloodGroupNames = append(searchingBloodGroupNames, "UNKNOWN")
+	}
+	return searchingBloodGroupNames
+}

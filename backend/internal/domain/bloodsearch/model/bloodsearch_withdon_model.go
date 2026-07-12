@@ -1,6 +1,8 @@
 package model
 
-import "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
+import (
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
+)
 
 // Recipient представляет модель чтения реципиент
 type BloodRequestWithMatchingDonors struct {
@@ -52,11 +54,6 @@ func (r *BloodRequestWithMatchingDonors) SyncPrivilegeAndPriority() {
 	}
 }
 
-func (r *BloodRequestWithApplications) SearchingBloodGroupNames() []string {
-	var searchingBloodGroupNames []string
-	searchingBloodGroupNames = append(searchingBloodGroupNames, r.BloodRequest.BloodGroupNames...)
-	if r.BloodRequest.IncludeUnknownBloodGroup {
-		searchingBloodGroupNames = append(searchingBloodGroupNames, "UNKNOWN")
-	}
-	return searchingBloodGroupNames
+func (r *BloodRequestWithMatchingDonors) AddMatchingDonor(donor MatchingDonorReadModel) {
+	r.MatchingDonors = append(r.MatchingDonors, donor)
 }

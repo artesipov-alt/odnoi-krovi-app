@@ -43,10 +43,11 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	preferredLocations := []string{}
 	if user.DonorPreference != nil {
-		preferredLocations = user.DonorPreference.PreferredLocationIDs
+		return nil, apperrors.BadRequest("Настройки донора не заполнены")
 	}
+
+	preferredLocations := user.DonorPreference.PreferredLocationIDs
 
 	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
 		WithAll: true,
@@ -96,7 +97,9 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	for _, recipient := range allRequests {
 		recipient.SyncPrivilegeAndPriority()
 		for _, donor := range potentialDonors {
-			h.matchingSvc.MatchDonor(recipient, donor, preferredLocations)
+			if d, ok := h.matchingSvc.MatchDonor(recipient, donor, preferredLocations); ok {
+				recipient.AddMatchingDonor(d)
+			}
 		}
 	}
 
