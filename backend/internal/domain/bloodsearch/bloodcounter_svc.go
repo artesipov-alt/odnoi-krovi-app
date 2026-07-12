@@ -13,7 +13,7 @@ func NewBloodCounterService() *BloodCounterService {
 	return &BloodCounterService{}
 }
 
-func (b *BloodCounterService) RecalculateBloodAmount(bloodreq bloodreqmodel.BloodRequest, applications []donormodel.DonorResponse) (reserved float64, donated float64) {
+func (b *BloodCounterService) RecalculateBloodAmount(bloodreq bloodreqmodel.BloodRequest, applications []donormodel.DonorResponse) (donated float64, reserved float64) {
 	for _, app := range applications {
 		if app.IsFullyCompleted() {
 			donated += app.Amount
