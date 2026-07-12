@@ -5,6 +5,15 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.21.1] - 2026-07-11
+
+### Изменено
+
+- **Рефакторинг `extractProviderIDs()` → `User.MessengerContacts()`**: Заменён отдельный хелпер `extractProviderIDs()` на метод `User.MessengerContacts()` во всех command-хендлерах bloodsearch (`accept_response`, `close_req`, `confirm_donation`, `reject_donation`). Метод теперь также безопасно обрабатывает nil `Identities`.
+- **Изменена сигнатура `HasProviderConflict()`**: Метод теперь принимает `User` по значению вместо указателя `*User`. Обновлён вызов в `verify_phone.go`.
+- **Переведены комментарии в `user_model.go`**: Все комментарии переведены с английского на русский для единообразия с языком кодовой базы.
+- **Версия API увеличена до `3.21.1`**.
+
 ## [3.21.0] - 2026-07-10
 
 ### Изменено
