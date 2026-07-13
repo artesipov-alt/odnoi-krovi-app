@@ -49,13 +49,13 @@ const queryRecipientInactive6h = `
 		JOIN users recipient_user   ON recipient_user.id = recipient_pet.user_id
 		LEFT JOIN user_identities i ON i.user_id = recipient_user.id
 		WHERE br.status = 'active'
-		  AND recipient_user.last_seen_at < NOW() - INTERVAL '6 hours'
-		  AND EXISTS (
-		      SELECT 1 FROM donor_responses dr
-		      WHERE dr.request_id = br.id
-		        AND dr.status = 'pending'
-		  )
-		GROUP BY br.id
+					  AND COALESCE(recipient_user.last_seen_at, recipient_user.created_at) < NOW() - INTERVAL '6 hours'
+					  AND EXISTS (
+					      SELECT 1 FROM donor_responses dr
+					      WHERE dr.request_id = br.id
+					        AND dr.status = 'pending'
+					  )
+					GROUP BY br.id
 `
 const queryRecipientInactive12h = `
 		SELECT
@@ -67,13 +67,13 @@ const queryRecipientInactive12h = `
 		JOIN users recipient_user   ON recipient_user.id = recipient_pet.user_id
 		LEFT JOIN user_identities i ON i.user_id = recipient_user.id
 		WHERE br.status = 'active'
-		  AND recipient_user.last_seen_at < NOW() - INTERVAL '12 hours'
-		  AND EXISTS (
-		      SELECT 1 FROM donor_responses dr
-		      WHERE dr.request_id = br.id
-		        AND dr.status = 'pending'
-		  )
-		GROUP BY br.id
+					  AND COALESCE(recipient_user.last_seen_at, recipient_user.created_at) < NOW() - INTERVAL '12 hours'
+					  AND EXISTS (
+					      SELECT 1 FROM donor_responses dr
+					      WHERE dr.request_id = br.id
+					        AND dr.status = 'pending'
+					  )
+					GROUP BY br.id
 `
 const queryRecipientEmptyShowcase24h = `
 		SELECT
@@ -88,13 +88,13 @@ const queryRecipientEmptyShowcase24h = `
 		JOIN users recipient_user   ON recipient_user.id = recipient_pet.user_id
 		LEFT JOIN user_identities i ON i.user_id = recipient_user.id
 		WHERE br.status = 'active'
-		  AND recipient_user.last_seen_at < NOW() - INTERVAL '24 hours'
-		  AND NOT EXISTS (
-		      SELECT 1 FROM donor_responses dr
-		      WHERE dr.request_id = br.id
-		        AND dr.status = 'pending'
-		  )
-		GROUP BY br.id, recipient_pet.name, recipient_pet.blood_group, br.blood_volume_needed
+					  AND COALESCE(recipient_user.last_seen_at, recipient_user.created_at) < NOW() - INTERVAL '24 hours'
+					  AND NOT EXISTS (
+					      SELECT 1 FROM donor_responses dr
+					      WHERE dr.request_id = br.id
+					        AND dr.status = 'pending'
+					  )
+					GROUP BY br.id, recipient_pet.name, recipient_pet.blood_group, br.blood_volume_needed
 `
 const queryRecipientEmptyShowcase48h = `
 		SELECT
@@ -106,11 +106,11 @@ const queryRecipientEmptyShowcase48h = `
 		JOIN users recipient_user   ON recipient_user.id = recipient_pet.user_id
 		LEFT JOIN user_identities i ON i.user_id = recipient_user.id
 		WHERE br.status = 'active'
-		  AND recipient_user.last_seen_at < NOW() - INTERVAL '48 hours'
-		  AND NOT EXISTS (
-		      SELECT 1 FROM donor_responses dr
-		      WHERE dr.request_id = br.id
-		        AND dr.status = 'pending'
-		  )
-		GROUP BY br.id
+					  AND COALESCE(recipient_user.last_seen_at, recipient_user.created_at) < NOW() - INTERVAL '48 hours'
+					  AND NOT EXISTS (
+					      SELECT 1 FROM donor_responses dr
+					      WHERE dr.request_id = br.id
+					        AND dr.status = 'pending'
+					  )
+					GROUP BY br.id
 `
