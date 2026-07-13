@@ -90,6 +90,9 @@ func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
 		}
 
 	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkDonorNotAccepted: rows iteration error", "err", err)
+	}
 }
 
 func (n *NotificationJob) checkDonorWaiting(ctx context.Context) {
@@ -143,6 +146,9 @@ func (n *NotificationJob) checkDonorWaiting(ctx context.Context) {
 			slog.Error("checkDonorWaiting: mark sent failed", "responseID", responseID, "err", err)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkDonorWaiting: rows iteration error", "err", err)
+	}
 }
 
 func (n *NotificationJob) checkRecipientInactive6h(ctx context.Context) {
@@ -190,6 +196,9 @@ func (n *NotificationJob) checkRecipientInactive6h(ctx context.Context) {
 		if err := n.cache.MarkSent(ctx, ports.NotifRecipientInactiveWarning, requestID, 6*time.Hour); err != nil {
 			slog.Error("checkRecipientInactive6h: mark sent failed", "requestID", requestID, "err", err)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkRecipientInactive6h: rows iteration error", "err", err)
 	}
 }
 
@@ -246,6 +255,9 @@ func (n *NotificationJob) checkRecipientInactive12h(ctx context.Context) {
 			slog.Error("checkRecipientInactive12h: mark sent failed", "requestID", requestID, "err", err)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkRecipientInactive12h: rows iteration error", "err", err)
+	}
 }
 
 func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
@@ -301,6 +313,9 @@ func (n *NotificationJob) checkRecipientEmptyShowcase24h(ctx context.Context) {
 		if err := n.cache.MarkSent(ctx, ports.NotifRecipientEmptyShowcase, requestID, 24*time.Hour); err != nil {
 			slog.Error("checkRecipientEmptyShowcase24h: mark sent failed", "requestID", requestID, "err", err)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkRecipientEmptyShowcase24h: rows iteration error", "err", err)
 	}
 }
 
@@ -366,5 +381,8 @@ func (n *NotificationJob) checkRecipientEmptyShowcase48h(ctx context.Context) {
 		if err := n.cache.MarkSent(ctx, ports.NotifRecipientSearchClosedInactive, requestID, 48*time.Hour); err != nil {
 			slog.Error("checkRecipientEmptyShowcase48h: mark sent failed", "requestID", requestID, "err", err)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkRecipientEmptyShowcase48h: rows iteration error", "err", err)
 	}
 }
