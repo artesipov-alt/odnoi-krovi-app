@@ -182,23 +182,23 @@ func main() {
 		userGetContactHandler := userquery.NewGetContactHandler(userRepo, publisher)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, userRepo)
+		// Инициализация pet handlers
+		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
+		petEnricher := enrich.New(donorResponseRepo, bloodRequestRepo)
+		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
+		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
+		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
+		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, userRepo, petEnricher)
+		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bonusRepo, petEnricher)
+
+		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, bloodRequestRepo, matchingSvc, petEnricher, userRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusSvc, publisher, txManager)
-		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, bonusSvc)
-		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, bonusRepo)
+		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, userRepo, matchingSvc, petEnricher, bonusSvc)
+		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(petRepo, bloodRequestRepo, userRepo, bonusRepo, petEnricher)
 		donorGetCompletedDonationsHandler := donorquery.NewCompletedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, bonusRepo)
 		assignedBonusesHandler := donorquery.NewAssignedBonusesHandler(userRepo, bonusRepo)
 		completeDonationHandler := donorcmd.NewCompleteDonationHandler(donorResponseRepo, bloodRequestRepo, petRepo, userRepo, publisher)
 		cancelDonationHandler := donorcmd.NewCancelDonationHandler(donorResponseRepo, bloodRequestRepo, txManager, publisher, petRepo, userRepo, bonusSvc)
-
-		// Инициализация pet handlers
-		// petRepo реализует все интерфейсы: PetReadRepository, PetWriteRepository, PetStatsRepository, PetPhotoRepository
-		petCreateHandler := petcmd.NewCreateHandler(petRepo, userRepo)
-		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
-		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
-		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
-		petEnricher := enrich.New(donorResponseRepo, bloodRequestRepo)
-		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bonusRepo, petEnricher)
 
 		// Инициализация bloodsearch handlers
 		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, bonusRepo, notificator, txManager)

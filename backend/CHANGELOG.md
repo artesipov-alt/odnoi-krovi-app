@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.23.0] - 2026-07-14
+
+### Исправлено
+- **N+1 в `CompletedDonationsHandler`**: замена поштучных вызовов
+  `GetByApplicationID` в цикле на один batch-запрос `GetByApplicationIDs`.
+  Теперь все связанные BloodRequest достаются одним SQL-запросом
+  (`WHERE ... IN (...)`), а не N отдельными.
+
+### Добавлено
+- `GetByApplicationIDs` в интерфейс `bloodsearch.Repository` и его
+  Ent-реализацию (`EntBloodRequestRepository`) с поддержкой
+  `SkipSoftDelete` и ранним возвратом пустой map при пустом входном слайсе.
+
+### Изменено
+- `CompletedDonationsHandler.Handle`: тройная вложенность циклов разбита
+  на два прохода (сбор кандидатов → batch → обогащение), вынесен хелпер
+  `enrichCompletedDonation`. Читаемость улучшена, TODO про N+1 удалён.
+
 ## [3.22.0] - 2026-07-14
 
 ### Изменено
