@@ -49,7 +49,7 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	if user.DonorPreference != nil {
+	if user.DonorPreference == nil {
 		return nil, apperrors.BadRequest("Настройки донора не заполнены")
 	}
 
