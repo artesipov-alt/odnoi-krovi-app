@@ -41,7 +41,7 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	if user.DonorPreference != nil {
+	if user.DonorPreference == nil {
 		return nil, apperrors.BadRequest("Настройки донора не заполнены")
 	}
 
