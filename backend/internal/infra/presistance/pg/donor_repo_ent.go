@@ -171,6 +171,51 @@ func (r *EntDonorResponseRepository) GetByPetIDs(ctx context.Context, petIDs []s
 	return result, nil
 }
 
+// GetLatestByPetIDs — по образцу существующего EntDonorResponseRepository.GetByPetIDs:
+// ORDER BY created_at DESC, берём первую встреченную запись на каждый petID.
+func (r *EntDonorResponseRepository) GetLatestByPetIDs(ctx context.Context, petIDs []string) (map[string]*donormodel.DonorResponse, error) {
+	if len(petIDs) == 0 {
+		return make(map[string]*donormodel.DonorResponse), nil
+	}
+	entResps, err := r.client(ctx).DonorResponse.Query().
+		Where(donorresponse.HasDonorWith(pet.IDIn(petIDs...))).
+		Order(donorresponse.ByCreatedAt(sql.OrderDesc())).
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID) }).
+		All(ctx)
+	if err != nil {
+		return nil, apperrors.Internal(err, "failed to get latest donor responses")
+	}
+	result := make(map[string]*donormodel.DonorResponse, len(petIDs))
+	for _, er := range entResps {
+		if er.Edges.Donor == nil {
+			continue
+		}
+		petID := er.Edges.Donor.ID
+		if _, exists := result[petID]; !exists {
+			result[petID] = domainmapper.ApplicationToDomain(er)
+		}
+	}
+	return result, nil
+}
+
+// CountFullyCompletedByOwnerID — SkipSoftDelete, т.к. история завершённых донаций
+// не должна теряться при удалении питомца.
+func (r *EntDonorResponseRepository) CountFullyCompletedByOwnerID(ctx context.Context, ownerID string) (int, error) {
+	queryCtx := schema.SkipSoftDelete(ctx)
+	count, err := r.client(queryCtx).DonorResponse.Query().
+		Where(
+			donorresponse.HasDonorWith(pet.UserID(ownerID)),
+			donorresponse.StatusEQ(donorresponse.StatusCompleted),
+			donorresponse.IsConfirmedEQ(true),
+		).
+		Count(queryCtx)
+	if err != nil {
+		return 0, apperrors.Internal(err, "failed to count fully completed donations")
+	}
+	return count, nil
+}
+
 func (r *EntDonorResponseRepository) UpdateDonorResponseStatus(ctx context.Context, id string, status donormodel.DonorResponseStatus) error {
 	return r.client(ctx).DonorResponse.
 		UpdateOneID(id).

@@ -96,7 +96,7 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	totalCompletedDonations := 0
 	for _, pet := range allPets {
 		for _, app := range applicationsMap[pet.ID] {
-			if app.IsCompleted() {
+			if app.IsFullyCompleted() {
 				totalCompletedDonations++
 			}
 		}
