@@ -2,13 +2,10 @@ package query
 
 import (
 	"context"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/enrich"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
-	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
@@ -25,26 +22,23 @@ type GetByUserResult struct {
 }
 
 type GetByUserHandler struct {
-	petReadRepo   pet.PetReadRepository
-	userRepo      user.Repository
-	donorRespRepo donor.Repository
-	bloodReqRepo  bloodsearch.Repository
-	bonusRepo     bonus.Repository
+	petReadRepo pet.PetReadRepository
+	userRepo    user.Repository
+	bonusRepo   bonus.Repository
+	enricher    enrich.PetEnricher
 }
 
 func NewGetByUserHandler(
 	petReadRepo pet.PetReadRepository,
 	userRepo user.Repository,
-	donorRespRepo donor.Repository,
-	bloodReqRepo bloodsearch.Repository,
 	bonusRepo bonus.Repository,
+	enricher enrich.PetEnricher,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
-		petReadRepo:   petReadRepo,
-		userRepo:      userRepo,
-		bloodReqRepo:  bloodReqRepo,
-		donorRespRepo: donorRespRepo,
-		bonusRepo:     bonusRepo,
+		petReadRepo: petReadRepo,
+		userRepo:    userRepo,
+		bonusRepo:   bonusRepo,
+		enricher:    enricher,
 	}
 }
 
@@ -69,57 +63,35 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		recoveryPeriodMonths = owner.DonorPreference.RecoveryPeriodMonths
 	}
 
-	opts.SetIgnoreSoftDelete()
-	allPets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
+	// Без opts.SetIgnoreSoftDelete() — репозиторий сам вернёт только активных питомцев.
+	// Soft-deleted больше не нужны здесь: TotalCompletedDonations считается отдельным
+	// SQL-агрегатом (CountFullyCompletedDonations), который сам учитывает удалённых.
+	activePets, err := h.petReadRepo.GetByUserID(ctx, userID, opts)
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	// Collect pet IDs for batch queries (all pets, including deleted)
-	petIDs := make([]string, len(allPets))
-	for i, pet := range allPets {
-		petIDs[i] = pet.ID
+	petIDs := make([]string, len(activePets))
+	for i, p := range activePets {
+		petIDs[i] = p.ID
 	}
 
-	// Batch fetch applications and blood requests
-	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, true)
+	fc, err := h.enricher.Fetch(ctx, petIDs)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get donor applications")
+		return nil, err
 	}
 
-	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs)
+	totalPlannedDonations := 0
+	for _, p := range activePets {
+		app := h.enricher.Recalculate(p, fc, enrich.Options{RecoveryPeriodMonths: recoveryPeriodMonths})
+		if app != nil && app.IsActiveForDonation() {
+			totalPlannedDonations++
+		}
+	}
+
+	totalCompletedDonations, err := h.enricher.CountFullyCompletedDonations(ctx, userID)
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get blood requests")
-	}
-
-	// ---- Stage 1: count completed donations for all pets (including deleted) ----
-	totalCompletedDonations := 0
-	for _, pet := range allPets {
-		for _, app := range applicationsMap[pet.ID] {
-			if app.IsFullyCompleted() {
-				totalCompletedDonations++
-			}
-		}
-	}
-
-	// ---- Stage 2: process only active pets ----
-	activePets := make([]*model.Pet, 0, len(allPets))
-	plannedDonations := make([]*donormodel.DonorResponse, 0)
-
-	for _, usrPet := range allPets {
-		if usrPet.IsDeleted() {
-			continue
-		}
-		activePets = append(activePets, usrPet)
-
-		application := findActiveDonation(applicationsMap[usrPet.ID])
-		if application != nil {
-			plannedDonations = append(plannedDonations, application)
-		}
-
-		bloodReq := bloodReqsMap[usrPet.ID]
-		usrPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(application, bloodReq))
-		usrPet.RecalculateRecoveryDays(recoveryPeriodMonths, time.Now())
+		return nil, err
 	}
 
 	assignedBonuses, err := h.bonusRepo.GetAssignedBonuses(ctx, userID)
@@ -130,18 +102,9 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	return &GetByUserResult{
 		Pets:                    activePets,
 		TotalPets:               len(activePets),
-		TotalPlannedDonations:   len(plannedDonations),
+		TotalPlannedDonations:   totalPlannedDonations,
 		TotalCompletedDonations: totalCompletedDonations,
 		TotalPrioritySearch:     owner.PrioritySearchCount,
 		TotalBonuses:            len(assignedBonuses),
 	}, nil
-}
-
-func findActiveDonation(applications []*donormodel.DonorResponse) *donormodel.DonorResponse {
-	for _, app := range applications {
-		if app.IsActiveForDonation() {
-			return app
-		}
-	}
-	return nil
 }

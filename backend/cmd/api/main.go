@@ -29,6 +29,7 @@ import (
 	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/enrich"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	refquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	usercmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
@@ -196,7 +197,8 @@ func main() {
 		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
-		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo)
+		petEnricher := enrich.New(donorResponseRepo, bloodRequestRepo)
+		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bonusRepo, petEnricher)
 
 		// Инициализация bloodsearch handlers
 		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, bonusRepo, notificator, txManager)
